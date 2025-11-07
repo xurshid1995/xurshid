@@ -2919,8 +2919,7 @@ def update_store_stock_quantity(store_id, product_id):
         db.session.commit()
 
         print(
-            f"✅ API: {
-                stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
+            f"✅ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
 
         return jsonify({
             'success': True,
@@ -2969,8 +2968,7 @@ def update_warehouse_stock_quantity(warehouse_id, product_id):
         db.session.commit()
 
         print(
-            f"✅ API: {
-                stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
+            f"✅ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
 
         return jsonify({
             'success': True,
@@ -3306,8 +3304,7 @@ def process_transfers():
             permissions = current_user.permissions or {}
             if not permissions.get('transfer', False):
                 print(
-                    f"❌ User {
-                        current_user.username} has no transfer permission")
+                    f"❌ User {current_user.username} has no transfer permission")
                 return jsonify(
                     {'error': 'Transfer qilish huquqingiz yo\'q'}), 403
 
@@ -3317,8 +3314,7 @@ def process_transfers():
 
             if not transfer_locations:
                 print(
-                    f"❌ User {
-                        current_user.username} has no transfer locations")
+                    f"❌ User {current_user.username} has no transfer locations")
                 return jsonify(
                     {'error': 'Transfer qilish uchun ruxsat etilgan joylashuvlar yo\'q'}), 403
 
@@ -3348,8 +3344,7 @@ def process_transfers():
                 transfer_locations = current_user.transfer_locations or []
                 if from_location_id not in transfer_locations:
                     print(
-                        f"❌ User {
-                            current_user.username} cannot transfer from location {from_location_id}")
+                        f"❌ User {current_user.username} cannot transfer from location {from_location_id}")
                     return jsonify({
                         'error': f'Bu joylashuvdan ({from_location}) transfer qilish huquqingiz yo\'q. Ruxsat etilgan joylashuvlar: {transfer_locations}'
                     }), 403
@@ -3586,8 +3581,7 @@ def get_customers():
                 customers = Customer.query.filter(
                     Customer.store_id.in_(allowed_locations)).all()
                 print(
-                    f"🔍 Found {
-                        len(customers)} customers in allowed locations")
+                    f"🔍 Found {len(customers)} customers in allowed locations")
             else:
                 # Agar ruxsat berilgan joylashuv bo'lmasa, bo'sh ro'yxat
                 customers = []
@@ -3625,9 +3619,7 @@ def api_add_customer():
         print(
             f"🔍 Customer API - Received store_id: {store_id} (type: {type(store_id)})")
         print(
-            f"🔍 Customer API - Current user: {
-                current_user.username}, role: {
-                current_user.role}")
+            f"🔍 Customer API - Current user: {current_user.username}, role: {current_user.role}")
         print(
             f"🔍 Customer API - User allowed_locations: {current_user.allowed_locations}")
         if store_id:
@@ -4045,8 +4037,7 @@ def update_user(user_id):
                 logger.error(f" Primary store set: {store_id} ({store.name})")
             else:
                 print(
-                    f"🏭 Primary warehouse set: {store_id} ({
-                        warehouse.name})")
+                    f"🏭 Primary warehouse set: {store_id} ({warehouse.name})")
         else:
             user.store_id = None
             print("🚫 No primary location set")
@@ -4385,10 +4376,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"📦 Store stock qaytarildi: {
-                            sale_item.product.name} +{
-                            sale_item.quantity} = {
-                            stock.quantity}")
+                        f"📦 Store stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = StoreStock(
@@ -4398,9 +4386,7 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"📦 Yangi store stock yaratildi: {
-                            sale_item.product.name} = {
-                            sale_item.quantity}")
+                        f"📦 Yangi store stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
             elif sale_item.source_type == 'warehouse':
                 # Warehouse stock'ni qaytarish
@@ -4412,10 +4398,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"📦 Warehouse stock qaytarildi: {
-                            sale_item.product.name} +{
-                            sale_item.quantity} = {
-                            stock.quantity}")
+                        f"📦 Warehouse stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = WarehouseStock(
@@ -4425,9 +4408,7 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"📦 Yangi warehouse stock yaratildi: {
-                            sale_item.product.name} = {
-                            sale_item.quantity}")
+                        f"📦 Yangi warehouse stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
         # Savdoni butunlay o'chirish
         db.session.delete(sale)
@@ -4706,8 +4687,7 @@ def create_sale():
                 # Tahrirlash rejimida asl savdo miqdorini hisobga olish
                 available_quantity = stock.quantity
                 print(
-                    f"🔍 Store stock tekshiruvi: product_id={product_id}, current_stock={
-                        stock.quantity}")
+                    f"🔍 Store stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
                 print(
                     f"🔍 Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
 
@@ -4721,18 +4701,14 @@ def create_sale():
                     logger.debug(f" Asl savdo item topildi: {original_sale_item}")
                     if original_sale_item:
                         print(
-                            f"🔍 Asl savdo miqdori: {
-                                original_sale_item.quantity}")
+                            f"🔍 Asl savdo miqdori: {original_sale_item.quantity}")
                         # Asl savdo miqdorini qo'shish (chunki tahrirlashda
                         # qaytariladi)
                         available_quantity += original_sale_item.quantity
                         print(
-                            f"📝 Tahrirlash rejimi: mahsulot {product_id} uchun asl miqdor {
-                                original_sale_item.quantity} qo'shildi")
+                            f"📝 Tahrirlash rejimi: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
                         print(
-                            f"📊 Mavjud miqdor: {
-                                stock.quantity} + {
-                                original_sale_item.quantity} = {available_quantity}")
+                            f"📊 Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
                         logger.info(f" Kerakli miqdor: {quantity}")
                         logger.info(f" Farq: {available_quantity - quantity}")
                     else:
@@ -4767,8 +4743,7 @@ def create_sale():
                 # Tahrirlash rejimida asl savdo miqdorini hisobga olish
                 available_quantity = stock.quantity
                 print(
-                    f"🔍 Warehouse stock tekshiruvi: product_id={product_id}, current_stock={
-                        stock.quantity}")
+                    f"🔍 Warehouse stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
                 print(
                     f"🔍 Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
 
@@ -4782,17 +4757,13 @@ def create_sale():
                     logger.debug(f" Asl savdo item topildi: {original_sale_item}")
                     if original_sale_item:
                         print(
-                            f"🔍 Asl savdo miqdori: {
-                                original_sale_item.quantity}")
+                            f"🔍 Asl savdo miqdori: {original_sale_item.quantity}")
                         # Asl savdo miqdorini qo'shish
                         available_quantity += original_sale_item.quantity
                         print(
-                            f"📝 Warehouse tahrirlash: mahsulot {product_id} uchun asl miqdor {
-                                original_sale_item.quantity} qo'shildi")
+                            f"📝 Warehouse tahrirlash: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
                         print(
-                            f"📊 Mavjud miqdor: {
-                                stock.quantity} + {
-                                original_sale_item.quantity} = {available_quantity}")
+                            f"📊 Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
                         logger.info(f" Kerakli miqdor: {quantity}")
                         logger.info(f" Farq: {available_quantity - quantity}")
                     else:
@@ -5297,8 +5268,7 @@ def create_pending_sale(data):
             item_location_type = item.get('location_type', 'store')
 
             print(
-                f"📦 Pending savdo item yaratilmoqda: {
-                    product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
+                f"📦 Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
 
             # SaleItem yaratish
             total_price = Decimal(str(quantity * unit_price))
@@ -5412,8 +5382,7 @@ def api_reserve_stock():
             stock.quantity -= quantity
             remaining_stock = stock.quantity
             print(
-                f"✅ Do'kon stock real-time rezerv qilindi: {
-                    product.name} - {quantity} = {remaining_stock}")
+                f"✅ Do'kon stock real-time rezerv qilindi: {product.name} - {quantity} = {remaining_stock}")
 
         elif location_type == 'warehouse':
             stock = WarehouseStock.query.filter_by(
@@ -5441,8 +5410,7 @@ def api_reserve_stock():
             stock.quantity -= quantity
             remaining_stock = stock.quantity
             print(
-                f"✅ Ombor stock real-time rezerv qilindi: {
-                    product.name} - {quantity} = {remaining_stock}")
+                f"✅ Ombor stock real-time rezerv qilindi: {product.name} - {quantity} = {remaining_stock}")
 
         else:
             return jsonify(
@@ -5500,8 +5468,7 @@ def api_return_stock():
                 )
                 db.session.add(stock)
                 print(
-                    f"↩️ Yangi do'kon stock yaratildi: {
-                        product.name} = {quantity}")
+                    f"↩️ Yangi do'kon stock yaratildi: {product.name} = {quantity}")
             else:
                 stock.quantity += quantity
                 print(
@@ -5525,8 +5492,7 @@ def api_return_stock():
                 )
                 db.session.add(stock)
                 print(
-                    f"↩️ Yangi ombor stock yaratildi: {
-                        product.name} = {quantity}")
+                    f"↩️ Yangi ombor stock yaratildi: {product.name} = {quantity}")
             else:
                 stock.quantity += quantity
                 print(
@@ -5619,9 +5585,7 @@ def api_update_pending_sale(sale_id):
                 }), 403
 
         print(
-            f"✅ Mavjud savdo topildi: {
-                existing_sale.id}, Status: {
-                existing_sale.payment_status}")
+            f"✅ Mavjud savdo topildi: {existing_sale.id}, Status: {existing_sale.payment_status}")
 
         # Eski sale items'ni o'chirish
         SaleItem.query.filter_by(sale_id=sale_id).delete()
@@ -6086,8 +6050,7 @@ def api_unchecked_products_count():
         for product in products:
             is_checked = product.get('isChecked', False)
             print(
-                f"🔍 DEBUG: Product {
-                    product.get(
+                f"🔍 DEBUG: Product {product.get(
                         'name',
                         'Unknown')}: isChecked = {is_checked}")
 
