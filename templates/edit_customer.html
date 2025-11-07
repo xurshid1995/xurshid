@@ -281,6 +281,11 @@
     function formatPhoneNumber(input) {
         let value = input.value.replace(/\D/g, '');
         
+        // Maksimal 12 ta raqam (998 + 9 ta raqam)
+        if (value.length > 12) {
+            value = value.substring(0, 12);
+        }
+        
         if (value.length > 0 && !value.startsWith('998')) {
             if (value.startsWith('9')) {
                 value = '998' + value;
