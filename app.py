@@ -64,7 +64,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
 # Session xavfsizligi
-app.config['SESSION_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'  # HTTPS uchun
+app.config['SESSION_COOKIE_SECURE'] = False  # HTTPS yo'q, shuning uchun False
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # JavaScript orqali o'qib bo'lmaydi
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF himoyasi
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 soat
