@@ -1081,10 +1081,8 @@ function savePageState() {
     const statisticsTableBody = document.getElementById('statisticsTableBody');
     const checkedProducts = [];
     if (statisticsTableBody && statisticsTableBody.children.length > 0) {
-        // Teskari tartibda o'qish (yangi qo'shilganlar array oxirida bo'ladi)
-        const rows = Array.from(statisticsTableBody.children);
-        for (let i = rows.length - 1; i >= 0; i--) {
-            const row = rows[i];
+        // Yuqoridan pastga o'qish (jadvalda qaysi tartibda bo'lsa, shunday saqlanadi)
+        for (let row of statisticsTableBody.children) {
             if (row.children.length >= 6) { // 6 ta ustun bor endi
                 checkedProducts.push({
                     id: row.dataset.productId, // Mahsulot ID sini saqlash
@@ -1221,10 +1219,8 @@ function getCheckedProductsData() {
     const statisticsTableBody = document.getElementById('statisticsTableBody');
     const checkedProducts = [];
     if (statisticsTableBody && statisticsTableBody.children.length > 0) {
-        // Teskari tartibda o'qish (yangi qo'shilganlar array oxirida bo'ladi)
-        const rows = Array.from(statisticsTableBody.children);
-        for (let i = rows.length - 1; i >= 0; i--) {
-            const row = rows[i];
+        // Yuqoridan pastga o'qish (jadvalda qaysi tartibda bo'lsa, shunday qaytadi)
+        for (let row of statisticsTableBody.children) {
             if (row.children.length >= 6) {
                 checkedProducts.push({
                     id: row.dataset.productId,
@@ -1702,9 +1698,8 @@ function restoreCheckedProductsTable(checkedProductsData) {
     // Batch insert uchun fragment ishlatish (tezroq)
     const fragment = document.createDocumentFragment();
     
-    // Mahsulotlarni teskari tartibda qo'shish (yangilari tepada bo'lishi uchun)
-    for (let i = checkedProductsData.length - 1; i >= 0; i--) {
-        const product = checkedProductsData[i];
+    // Ma'lumotlarni to'g'ridan-to'g'ri qo'shish (array'da qaysi tartibda bo'lsa, shunday)
+    checkedProductsData.forEach((product, index) => {
         const row = document.createElement('tr');
         row.style.backgroundColor = '#ffffff';
         
@@ -1775,7 +1770,7 @@ function restoreCheckedProductsTable(checkedProductsData) {
             </td>
         `;
         fragment.appendChild(row);
-    }
+    });
     
     tbody.appendChild(fragment);
     
