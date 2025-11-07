@@ -590,6 +590,10 @@
     function populatePermissions(permissions) {
         console.log('🔄 populatePermissions called with:', permissions);
         console.log('🔄 currentUser:', currentUser);
+        console.log('🔑 permissions keys:', Object.keys(permissions));
+        console.log('🔑 can_transfer value:', permissions.can_transfer);
+        console.log('📍 transfer_locations:', currentUser.transfer_locations);
+        console.log('📍 allowed_locations:', currentUser.allowed_locations);
         
         // Savdo qilish huquqi
         if (permissions.can_sell) {
