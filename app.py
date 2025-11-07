@@ -5396,10 +5396,7 @@ def api_reserve_stock():
             if stock.quantity < quantity:
                 warehouse_obj = Warehouse.query.get(location_id)
                 warehouse_name = warehouse_obj.name if warehouse_obj else 'noma\'lum'
-                return jsonify(
-                    {
-                        'success': False, 'error': f'{warehouse_name} omborida yetarli stock yo\'q! Mavjud: {
-                            stock.quantity}, Kerak: {quantity}'}), 400
+                return jsonify({'success': False, 'error': f'{warehouse_name} omborida yetarli stock yo\'q! Mavjud: {stock.quantity}, Kerak: {quantity}'}), 400
 
             # Real-time stock'dan ayirish
             stock.quantity -= quantity
