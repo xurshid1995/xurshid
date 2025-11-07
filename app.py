@@ -6306,9 +6306,7 @@ def api_login():
             session.permanent = True
 
         # Muvaffaqiyatli javob
-        redirect_url = '/dashboard'
-        if user.role == 'admin':
-            redirect_url = '/users'  # Admin foydalanuvchilar sahifasiga
+        redirect_url = '/dashboard'  # Barcha foydalanuvchilar bosh sahifaga
 
         return jsonify({
             'success': True,
