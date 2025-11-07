@@ -1048,23 +1048,9 @@ def api_locations():
             allowed_locations = current_user.allowed_locations or []
             logger.debug(f" Raw allowed_locations: {allowed_locations}")
 
-            # Eski format (ID'lar ro'yxati) va yangi format (dict'lar ro'yxati)
-            # qo'llab-quvvatlash
-            if allowed_locations and isinstance(allowed_locations[0], int):
-                # Eski format: [1, 2, 3] - faqat ID'lar
-                logger.debug(" Using old format (ID list)")
-                allowed_store_ids = allowed_locations  # Barcha ID'larni do'kon deb hisoblash
-                allowed_warehouse_ids = allowed_locations  # Barcha ID'larni ombor deb hisoblash
-            else:
-                # Yangi format: [{'id': 1, 'type': 'store'}, {'id': 2, 'type':
-                # 'warehouse'}]
-                logger.debug(" Using new format (dict list)")
-                allowed_store_ids = [
-                    loc['id'] for loc in allowed_locations if isinstance(
-                        loc, dict) and loc.get('type') == 'store']
-                allowed_warehouse_ids = [
-                    loc['id'] for loc in allowed_locations if isinstance(
-                        loc, dict) and loc.get('type') == 'warehouse']
+            # Helper funksiya bilan ID'larni olish (eski va yangi formatlar uchun)
+            allowed_store_ids = extract_location_ids(allowed_locations, 'store')
+            allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
             logger.debug(f" Allowed store IDs: {allowed_store_ids}")
             logger.debug(f" Allowed warehouse IDs: {allowed_warehouse_ids}")
