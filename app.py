@@ -16,6 +16,7 @@ from flask import (Flask, render_template, request, jsonify, redirect,
                    session, abort)
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from werkzeug.security import check_password_hash
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
 if sys.platform.startswith('win'):
@@ -93,7 +94,6 @@ def check_password(password, hashed):
         
         # Eski pbkdf2 formatini tekshirish (werkzeug)
         elif hashed.startswith('pbkdf2:'):
-            from werkzeug.security import check_password_hash
             return check_password_hash(hashed, password)
         
         # Noma'lum format
