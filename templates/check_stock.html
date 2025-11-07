@@ -1402,44 +1402,61 @@ async function loadFromServer() {
 
 // Sahifa holatini tiklash
 async function restorePageState() {
-    // Sahifa holatini tiklash boshlandi
+    const startTime = performance.now();
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    console.log(`\n🔄 [${timestamp}] ========== HOLAT TIKLASH BOSHLANDI ==========`);
     
     let pageState = null;
     
     // Avval server-dan yuklab ko'rish
-
+    const serverStartTime = performance.now();
     try {
+        console.log(`   🌐 Server'dan yuklanmoqda...`);
         pageState = await loadFromServer();
+        const serverEndTime = performance.now();
+        const serverDuration = (serverEndTime - serverStartTime).toFixed(2);
+        
         if (pageState) {
-
+            console.log(`   ✅ Server'dan yuklandi (${serverDuration}ms)`);
+        } else {
+            console.log(`   ℹ️ Server'da ma'lumot yo'q (${serverDuration}ms)`);
         }
     } catch (error) {
-        console.warn('⚠️ Server-dan yuklashda xatolik:', error);
+        const serverEndTime = performance.now();
+        const serverDuration = (serverEndTime - serverStartTime).toFixed(2);
+        console.warn(`   ⚠️ Server-dan yuklashda xatolik (${serverDuration}ms):`, error);
     }
     
     // Agar server-da yo'q bo'lsa, localStorage-dan olish
     if (!pageState) {
-
+        const localStartTime = performance.now();
+        console.log(`   💾 localStorage'dan yuklanmoqda...`);
+        
         const savedState = localStorage.getItem('stockCheckState');
         if (!savedState) {
-
-
+            const localEndTime = performance.now();
+            const localDuration = (localEndTime - localStartTime).toFixed(2);
+            console.log(`   ℹ️ localStorage'da ma'lumot yo'q (${localDuration}ms)`);
+            console.log(`========== TIKLASH TUGADI (${(performance.now() - startTime).toFixed(2)}ms) ==========\n`);
             return;
         }
         
         try {
             pageState = JSON.parse(savedState);
-
-
+            const localEndTime = performance.now();
+            const localDuration = (localEndTime - localStartTime).toFixed(2);
+            const dataSize = (savedState.length / 1024).toFixed(2);
+            console.log(`   ✅ localStorage'dan yuklandi (${localDuration}ms, ${dataSize} KB)`);
         } catch (error) {
             console.error('❌ localStorage-dan yuklashda xatolik:', error);
-
+            console.log(`========== TIKLASH XATOLIK BILAN TUGADI (${(performance.now() - startTime).toFixed(2)}ms) ==========\n`);
             return;
         }
     }
     
     try {
-        // Tiklanayotgan holat
+        console.log(`   ⚙️ Ma'lumotlarni qayta ishlash boshlandi...`);
+        const processStartTime = performance.now();
         
         // Eski ma'lumotlarni migration qilish
         pageState = migrateOldData(pageState);
@@ -1449,24 +1466,22 @@ async function restorePageState() {
         
         // Joylashuvni tiklash
         if (pageState.selectedLocation) {
-
+            console.log(`   📍 Joylashuv tiklanmoqda: ${pageState.selectedLocation}`);
             locationSelect.value = pageState.selectedLocation;
         }
         
         // Agar tekshiruv faol bo'lsa
         if (pageState.isCheckingActive && pageState.selectedLocation) {
-
+            console.log(`   🔄 Tekshiruv faol - UI tiklanmoqda...`);
             
             // Tugmani o'zgartirish
             button.innerHTML = '<i class="fas fa-stop" style="margin-right: 0.3rem;"></i>Tekshiruvni tugatish';
             button.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
-
             
             // Joylashuv maydonini o'chirish
             locationSelect.disabled = true;
             locationSelect.style.opacity = '0.5';
             locationSelect.style.cursor = 'not-allowed';
-
             
             // Tarix bo'limini yashirish (tekshiruv faol bo'lganda)
             const historySection = document.getElementById('historySection');
@@ -1476,23 +1491,26 @@ async function restorePageState() {
             
             // Natijalarni ko'rsatish
             if (pageState.resultsVisible) {
-
+                console.log(`   📊 Natijalar ko'rsatilmoqda...`);
                 resultsSection.style.display = 'block';
                 
                 // Saqlangan jadval ma'lumotlarini tiklash
                 if (pageState.productsData && pageState.productsData.length > 0) {
-
+                    const tableStartTime = performance.now();
+                    console.log(`   📦 Mahsulotlar jadvali tiklanmoqda (${pageState.productsData.length} ta)...`);
                     restoreProductsTable(pageState.productsData);
+                    const tableEndTime = performance.now();
+                    console.log(`   ✅ Mahsulotlar jadvali tiklandi (${(tableEndTime - tableStartTime).toFixed(2)}ms)`);
                 }
                 
                 if (pageState.checkedProductsData && pageState.checkedProductsData.length > 0) {
-
+                    const checkedTableStartTime = performance.now();
+                    console.log(`   ✅ Tekshirilgan jadval tiklanmoqda (${pageState.checkedProductsData.length} ta)...`);
                     
                     // Ma'lumotlarni 7-ustunli format uchun tekshirish va to'g'irlash
                     const validatedData = pageState.checkedProductsData.map(product => {
                         // Asosiy ma'lumotlarni tekshirish
                         if (!product.systemQuantity || !product.actualQuantity) {
-
                             const originalQty = parseFloat(product.originalQuantity) || parseFloat(product.quantity) || 0;
                             const currentQty = parseFloat(product.quantity) || 0;
                             
@@ -1507,19 +1525,24 @@ async function restorePageState() {
                     });
                     
                     restoreCheckedProductsTable(validatedData);
-
+                    const checkedTableEndTime = performance.now();
+                    console.log(`   ✅ Tekshirilgan jadval tiklandi (${(checkedTableEndTime - checkedTableStartTime).toFixed(2)}ms)`);
                     
                     // Event delegation'ni qayta sozlash (jadval tiklangandan keyin)
                     setTimeout(() => {
                         setupEventDelegation();
                     }, 100);
                 } else {
-
+                    console.log(`   🔄 Tekshirilgan mahsulotlar yo'q - API'dan yuklanmoqda...`);
                     // API'dan yangi ma'lumotlarni yuklash
                     loadLocationData(pageState.selectedLocation);
                 }
             }
         }
+        
+        const processEndTime = performance.now();
+        const processDuration = (processEndTime - processStartTime).toFixed(2);
+        console.log(`   ⚙️ Ma'lumotlar qayta ishlandi (${processDuration}ms)`);
         
         // Qidiruv maydonlarini tiklash
         if (pageState.searchStates) {
@@ -1547,25 +1570,34 @@ async function restorePageState() {
             }
         }, 600); // Biroz ko'proq kutish (barcha ma'lumotlar tiklangunch)
         
+        const totalDuration = (performance.now() - startTime).toFixed(2);
+        console.log(`✅ [${timestamp}] ========== HOLAT TIKLASH TUGADI (${totalDuration}ms) ==========\n`);
 
 
         
     } catch (error) {
-        console.error('❌ Sahifa holatini tiklashda xatolik:', error);
+        const totalDuration = (performance.now() - startTime).toFixed(2);
+        console.error(`❌ Sahifa holatini tiklashda xatolik (${totalDuration}ms):`, error);
         console.error('🔍 Error details:', error.message, error.stack);
         
         // Xatolik bo'lsa, holatni tozalash
         localStorage.removeItem('stockCheckState');
-
+        console.log(`========== TIKLASH XATOLIK BILAN TUGADI (${totalDuration}ms) ==========\n`);
     }
 }
 
 // Mahsulotlar jadvalini tiklash
 function restoreProductsTable(productsData) {
+    const startTime = performance.now();
+    console.log(`      🔧 restoreProductsTable() boshlandi (${productsData.length} mahsulot)...`);
+    
     const tbody = document.getElementById('productsTableBody');
     tbody.innerHTML = '';
     
-    productsData.forEach(product => {
+    // Batch insert uchun fragment ishlatish (tezroq)
+    const fragment = document.createDocumentFragment();
+    
+    productsData.forEach((product, index) => {
         const row = document.createElement('tr');
         row.style.backgroundColor = '#ffffff'; // Oq fon
         row.innerHTML = `
@@ -1574,11 +1606,17 @@ function restoreProductsTable(productsData) {
             <td style="padding: 0.6rem; text-align: right; border-bottom: 1px solid #eee; font-weight: bold;">${product.quantity}</td>
             <td style="padding: 0.6rem; text-align: center; border-bottom: 1px solid #eee;">${product.actions}</td>
         `;
-        tbody.appendChild(row);
+        fragment.appendChild(row);
     });
+    
+    tbody.appendChild(fragment);
     
     // Mahsulotlar sonini yangilash
     updateProductCount();
+    
+    const endTime = performance.now();
+    const duration = (endTime - startTime).toFixed(2);
+    console.log(`      ✅ restoreProductsTable() tugadi (${duration}ms, avg: ${(duration/productsData.length).toFixed(2)}ms/item)`);
     
     // Mahsulotlar tiklangandan keyin fokus berish
     setTimeout(function() {
@@ -1591,10 +1629,16 @@ function restoreProductsTable(productsData) {
 
 // Tekshirilgan mahsulotlar jadvalini tiklash
 function restoreCheckedProductsTable(checkedProductsData) {
+    const startTime = performance.now();
+    console.log(`      🔧 restoreCheckedProductsTable() boshlandi (${checkedProductsData.length} mahsulot)...`);
+    
     const tbody = document.getElementById('statisticsTableBody');
     tbody.innerHTML = '';
     
-    checkedProductsData.forEach(product => {
+    // Batch insert uchun fragment ishlatish (tezroq)
+    const fragment = document.createDocumentFragment();
+    
+    checkedProductsData.forEach((product, index) => {
         const row = document.createElement('tr');
         row.style.backgroundColor = '#ffffff';
         
@@ -1664,13 +1708,17 @@ function restoreCheckedProductsTable(checkedProductsData) {
                 </span>
             </td>
         `;
-        tbody.appendChild(row);
+        fragment.appendChild(row);
     });
+    
+    tbody.appendChild(fragment);
     
     // Tekshirilgan mahsulotlar sonini yangilash
     updateCheckedProductCount();
     
-
+    const endTime = performance.now();
+    const duration = (endTime - startTime).toFixed(2);
+    console.log(`      ✅ restoreCheckedProductsTable() tugadi (${duration}ms, avg: ${(duration/checkedProductsData.length).toFixed(2)}ms/item)`);
 }
 
 // Tekshiruv tugatilganda barcha tekshirilgan mahsulotlarni stokda yangilash
