@@ -1123,32 +1123,49 @@
                         // DOM elementini yangilash
                         const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
                         if (productItem) {
-                            if (availableQuantity > 0) {
-                                // Mavjud mahsulot uchun miqdorni yangilash
-                                const stockElement = productItem.querySelector('.search-item-stock');
-                                if (stockElement) {
+                            const stockElement = productItem.querySelector('.search-item-stock');
+                            if (stockElement) {
+                                if (availableQuantity > 0) {
+                                    // Mavjud mahsulot uchun miqdorni yangilash
                                     stockElement.classList.remove('stock-loading', 'stock-unavailable', 'stock-error');
                                     stockElement.classList.add('stock-available');
                                     stockElement.textContent = `✅ Mavjud: ${availableQuantity} dona`;
+                                    productItem.style.opacity = '1';
+                                    productItem.style.cursor = 'pointer';
+                                } else {
+                                    // Miqdor 0 - ko'rsatish lekin disable qilish
+                                    stockElement.classList.remove('stock-loading', 'stock-available', 'stock-error');
+                                    stockElement.classList.add('stock-unavailable');
+                                    stockElement.textContent = `❌ Bu joyda mavjud emas (0 dona)`;
+                                    productItem.style.opacity = '0.6';
+                                    productItem.style.cursor = 'not-allowed';
+                                    productItem.onclick = null; // Click ishlamasin
                                 }
-                            } else {
-                                // Mavjud bo'lmagan mahsulotni DOM dan olib tashla
-                                productItem.remove();
                             }
                         }
                     } else {
-                        // Xatolik holati - mahsulotni olib tashla
+                        // Xatolik holati - olib tashlamaslik, error ko'rsatish
                         const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
                         if (productItem) {
-                            productItem.remove();
+                            const stockElement = productItem.querySelector('.search-item-stock');
+                            if (stockElement) {
+                                stockElement.classList.remove('stock-loading', 'stock-available', 'stock-unavailable');
+                                stockElement.classList.add('stock-error');
+                                stockElement.textContent = `⚠️ Ma'lumot yuklashda xatolik`;
+                            }
                         }
                     }
                 } catch (error) {
                     console.error(`Mahsulot ${product.id} uchun ma'lumot olishda xatolik:`, error);
-                    // Xatolik holati - mahsulotni olib tashla
+                    // Xatolik holati - error ko'rsatish
                     const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
                     if (productItem) {
-                        productItem.remove();
+                        const stockElement = productItem.querySelector('.search-item-stock');
+                        if (stockElement) {
+                            stockElement.classList.remove('stock-loading', 'stock-available', 'stock-unavailable');
+                            stockElement.classList.add('stock-error');
+                            stockElement.textContent = `⚠️ Xatolik`;
+                        }
                     }
                 }
             }
