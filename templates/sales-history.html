@@ -1886,7 +1886,7 @@ function displaySalesData(data) {
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-customer">
                     <div class="customer-info">
-                        <div class="customer-name">${sale.customer_name || '🚫 O\'chirilgan mijoz'}</div>
+                        <div class="customer-name">${sale.customer_name || '� Noma\'lum'}</div>
                         <div class="customer-phone">${sale.customer_phone || '+998 XX XXX XX XX'}</div>
                     </div>
                 </td>
@@ -2292,7 +2292,7 @@ function showSaleDetailsModal(sale) {
                     <!-- Asosiy ma'lumotlar bir qatorda -->
                     <div class="sale-main-info">
                         <span class="customer-label">Mijoz:</span>
-                        <span class="customer-name">${sale.customer_name || '🚫 O\'chirilgan mijoz'}</span>
+                        <span class="customer-name">${sale.customer_name || '� Noma\'lum'}</span>
                         ${sale.customer_phone ? `<span class="customer-phone">(${sale.customer_phone})</span>` : ''}
                         <span class="date-separator">•</span>
                         <span class="date-label">Savdo sanasi:</span>
@@ -2586,7 +2586,7 @@ function generatePrintableReceipt(sale) {
                     <div>Sotuvchi: ${sale.seller_name || 'Admin'}</div>
                     ${sale.seller_phone ? `<div>Tel: ${sale.seller_phone}</div>` : ''}
                     <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
-                        <div><strong>Mijoz:</strong> ${sale.customer_name || '🚫 O\'chirilgan mijoz'}</div>
+                        <div><strong>Mijoz:</strong> ${sale.customer_name || '� Noma\'lum'}</div>
                         ${sale.customer_phone && sale.customer_phone !== '+998 XX XXX XX XX' ? 
                             `<div><strong>Tel:</strong> ${sale.customer_phone}</div>` : ''}
                     </div>

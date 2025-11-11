@@ -807,10 +807,18 @@ class Sale(db.Model):
         return f'<Sale {self.id}: {self.total_amount}>'
 
     def to_dict(self):
+        # Mijoz nomini aniqlash
+        if self.customer:
+            customer_name = self.customer.name
+        elif self.customer_id is None:
+            customer_name = '👤 Noma\'lum'  # Mijoz tanlanmagan
+        else:
+            customer_name = '🚫 O\'chirilgan mijoz'  # Mijoz o'chirilgan
+        
         return {
             'id': self.id,
             'customer_id': self.customer_id,
-            'customer_name': self.customer.name if self.customer else '🚫 O\'chirilgan mijoz',
+            'customer_name': customer_name,
             'customer_phone': self.customer.phone if self.customer and self.customer.phone else DEFAULT_PHONE_PLACEHOLDER,
             'store_id': self.store_id,
             'store_name': self.store.name if self.store else '🚫 O\'chirilgan do\'kon',
