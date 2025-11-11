@@ -979,14 +979,7 @@ def api_products():
         except (ValueError, IndexError):
             # Invalid location filter format, ignore
             pass
-    else:
-        # Filter products that have stock records (any location)
-        query = query.filter(
-            db.or_(
-                Product.warehouse_stocks.any(),
-                Product.store_stocks.any()
-            )
-        )
+    # Location filter yo'q bo'lsa - barcha mahsulotlarni ko'rsatish (stock bo'lsin yoki bo'lmasin)
 
     # Get paginated results
     paginated = query.paginate(
