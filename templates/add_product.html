@@ -1914,7 +1914,7 @@
                 
                 // Sanani formatlash
                 const date = product.created_date ? new Date(product.created_date) : new Date();
-                const formattedDate = date.toLocaleString('uz-UZ');
+                const formattedDate = date.toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
                 
                 // Joylashuvlarni formatlash
                 const locations = product.locations.map(loc => 

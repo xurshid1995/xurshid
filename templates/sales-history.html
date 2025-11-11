@@ -2297,9 +2297,12 @@ function showSaleDetailsModal(sale) {
                         <span class="date-separator">•</span>
                         <span class="date-label">Savdo sanasi:</span>
                         <span class="date-value">${new Date(sale.sale_date).toLocaleString('uz-UZ', { 
+                            timeZone: 'Asia/Tashkent',
                             year: 'numeric', 
                             month: '2-digit', 
-                            day: '2-digit' 
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
                         })}</span>
                     </div>
                     
@@ -2420,7 +2423,7 @@ function generateExcelHTML(sale) {
             <td>Sotuvchi</td>
         </tr>
         <tr>
-            <td>${new Date(sale.sale_date).toLocaleString('uz-UZ')}</td>
+            <td>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</td>
             <td>${sale.customer_name || 'Noma\'lum'}</td>
             <td>${(sale.customer_phone && sale.customer_phone !== '+998 XX XXX XX XX') ? sale.customer_phone : ''}</td>
             <td>${sale.store_name || 'Noma\'lum'}</td>
@@ -2582,7 +2585,7 @@ function generatePrintableReceipt(sale) {
                 <div class="shop-name">${sale.store_name || '🚫 O\'chirilgan do\'kon'}</div>
                 <div class="receipt-info">
                     <div>Chek #${sale.id}</div>
-                    <div>${new Date(sale.sale_date).toLocaleString('uz-UZ')}</div>
+                    <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
                     <div>Sotuvchi: ${sale.seller_name || 'Admin'}</div>
                     ${sale.seller_phone ? `<div>Tel: ${sale.seller_phone}</div>` : ''}
                     <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">

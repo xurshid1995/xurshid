@@ -373,7 +373,7 @@
         let cardsHtml='';
         
         allUsers.forEach(u => {
-            const created = new Date(u.created_at).toLocaleDateString('uz-UZ');
+            const created = new Date(u.created_at).toLocaleDateString('uz-UZ', { timeZone: 'Asia/Tashkent' });
             const storeName = u.store_name || 'Barcha dokonlar';
             const isActiveTxt = u.is_active ? 'Faol' : 'Faol emas';
             const isActiveIcon = u.is_active ? '✅ Faol' : '❌ Faol emas';

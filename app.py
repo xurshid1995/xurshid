@@ -1724,7 +1724,7 @@ def add_customer():
                 email=email,
                 address=address,
                 store_id=store_id,
-                created_at=datetime.utcnow()
+                created_at=datetime.now()
             )
 
             db.session.add(new_customer)
@@ -6066,7 +6066,7 @@ def update_currency_rate():
             to_currency='UZS',
             rate=new_rate,
             updated_by=updated_by,
-            updated_date=datetime.utcnow()
+            updated_date=datetime.now()
         )
 
         # Eski kurslarni nofaol qilish

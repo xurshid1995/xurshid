@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Qoldiqni tekshirish{% endblock %}
 
@@ -731,7 +731,7 @@ function filterStatistics() {
 // Modal quantity input handler funksiyasi
 function modalQuantityInputHandler(event) {
     const inputValue = event.target.value;
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`⌨️ [${timestamp}] Modal input o'zgardi: "${inputValue}" (AUTO-SAVE O'CHIRILGAN)`);
     
     // Auto-save o'chirildi - faqat "Saqlash" tugmasi orqali saqlash
@@ -821,7 +821,7 @@ function closeProductModal() {
 
 // Mahsulot o'zgarishlarini saqlash
 function saveProductChanges() {
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`\n💾 [${timestamp}] ========== SAQLASH TUGMASI BOSILDI ==========`);
     
     const productId = window.currentProductId;
@@ -1144,7 +1144,7 @@ function updateStatisticsAfterCheck() {
 
 // Sahifa holatini saqlash
 function savePageState() {
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`📦 [${timestamp}] savePageState() boshlandi`);
     
     const locationSelect = document.getElementById('locationSelect');
@@ -1232,7 +1232,7 @@ let saveTimeout = null;
 // Avtomatik saqlash funksiyasi (debounced) - jadvalda o'zgarish bo'lganda darhol saqlash
 function autoSave() {
     // Debug: Auto-save chaqirildi
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`🔄 [${timestamp}] AUTO-SAVE chaqirildi`);
     
     // Oldingi timer ni bekor qilish
@@ -1243,21 +1243,21 @@ function autoSave() {
     
     // Darhol saqlash (0ms - no delay)
     saveTimeout = setTimeout(() => {
-        const saveTimestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+        const saveTimestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
         console.log(`💾 [${saveTimestamp}] ✅ Saqlash BOSHLANDI`);
         
         savePageState();
         // Real-time statistikani yangilash
         updateCheckedProductCount();
         
-        const endTimestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+        const endTimestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
         console.log(`✅ [${endTimestamp}] Saqlash TUGADI`);
     }, 0);
 }
 
 // Darhol saqlash funksiyasi (important actions uchun)
 function immediateSave() {
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`⚡ [${timestamp}] IMMEDIATE SAVE chaqirildi`);
     
     // Barcha timerlarni bekor qilish
@@ -1400,7 +1400,7 @@ let serverSaveTimeout = null;
 
 // Debounced server save
 function debouncedServerSave(pageState, immediate = false) {
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     
     // Oldingi timer ni bekor qilish
     if (serverSaveTimeout) {
@@ -1424,7 +1424,7 @@ function debouncedServerSave(pageState, immediate = false) {
 // Server-da holatni saqlash
 async function saveToServer(pageState) {
     const startTime = new Date();
-    const timestamp = startTime.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = startTime.toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`\n🌐 [${timestamp}] ========== SERVER'GA SAQLASH BOSHLANDI ==========`);
     
     try {
@@ -1543,7 +1543,7 @@ async function loadFromServer() {
 // Sahifa holatini tiklash
 async function restorePageState() {
     const startTime = performance.now();
-    const timestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    const timestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     console.log(`\n🔄 [${timestamp}] ========== HOLAT TIKLASH BOSHLANDI ==========`);
     
     let pageState = null;
@@ -1575,7 +1575,7 @@ async function restorePageState() {
         // Background'da server'dan yuklash (await qilmasdan)
         loadFromServer().then(serverState => {
             if (serverState) {
-                const serverTimestamp = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+                const serverTimestamp = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
                 console.log(`   🌐 [${serverTimestamp}] Background sync tugadi - server ma'lumoti yangilandi`);
                 
                 // Agar server ma'lumoti boshqa bo'lsa, hohlasangiz yangilashingiz mumkin
@@ -2553,7 +2553,7 @@ function addToHistory(location, checkedCount, errorCount, status, products = [])
     const historyItem = {
         id: Date.now(),
         date: now.toLocaleDateString('uz-UZ'),
-        time: now.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
+        time: now.toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit' }),
         user: 'Admin', // Default user - bu keyinroq authentication qo'shilganda o'zgartiriladi
         location: locationText,
         checkedCount: checkedCount,

@@ -1813,7 +1813,7 @@
 
                     let historyHtml = '';
                     transfers.forEach(transfer => {
-                        const date = new Date(transfer.created_at).toLocaleString('uz-UZ');
+                        const date = new Date(transfer.created_at).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
                         historyHtml += `
                             <tr>
                                 <td class="date-cell">${date}</td>
