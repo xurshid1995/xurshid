@@ -4484,27 +4484,53 @@
         // Narxni yangilash (faqat narx o'zgardi)
         if (item.price !== newPrice) {
             item.price = newPrice;
-            console.log(`Narx yangilandi: ${item.name} - $${newPrice}`);
+            console.log(`💲 Narx yangilandi: ${item.name} - $${newPrice}`);
         }
         
         // Miqdorni yangilash (agar o'zgardi bo'lsa)
         if (item.quantity !== newQuantity) {
             const oldQuantity = item.quantity;
-            console.log(`📝 Edit card: Miqdorni yangilash ${oldQuantity} → ${newQuantity}`);
-            console.log(`📊 originalQuantities[${productId}] = ${tabData.originalQuantities[productId]}`);
+            console.log(`📝 Edit card: Miqdorni to'liq almashtirish ${oldQuantity} → ${newQuantity}`);
             
-            // setQuantityAsync orqali yangilash - bu avtomatik stock boshqaruvini amalga oshiradi
-            await setQuantityAsync(productId, newQuantity, currentTabId);
+            // 1️⃣ Avval hozirgi miqdorni TO'LIQ stokga qaytarish
+            console.log(`↩️ Qadam 1: Hozirgi ${oldQuantity} ta stokga qaytarilmoqda...`);
+            const returnSuccess = await returnStock(item.id, oldQuantity, item.location_id, item.location_type);
             
-            // ⚠️ DIQQAT: originalQuantities FAQAT loadSaleForEdit da set qilinadi
-            // Edit card orqali o'zgartirishda bu o'zgarmasligi kerak
-            // Chunki originalQuantities - bu DB dagi asl miqdor, edit card esa faqat UI o'zgarishi
-            console.log(`✅ Miqdor yangilandi, originalQuantities o'zgarmadi: ${tabData.originalQuantities[productId]}`);
+            if (!returnSuccess) {
+                console.log(`❌ Stock qaytarib bo'lmadi`);
+                alert('Stock qaytarishda xatolik yuz berdi!');
+                closeEditCard();
+                return;
+            }
+            console.log(`✅ ${oldQuantity} ta stock qaytarildi`);
+            
+            // 2️⃣ Keyin yangi miqdorni TO'LIQ stokdan rezerv qilish
+            console.log(`🔒 Qadam 2: Yangi ${newQuantity} ta stokdan rezerv qilinmoqda...`);
+            const reserveSuccess = await reserveStock(item.id, newQuantity, item.location_id, item.location_type);
+            
+            if (!reserveSuccess) {
+                console.log(`❌ Stock rezerv qilib bo'lmadi`);
+                // Eski miqdorni qaytadan rezerv qilish (rollback)
+                await reserveStock(item.id, oldQuantity, item.location_id, item.location_type);
+                alert('Stock rezerv qilishda xatolik yuz berdi!');
+                closeEditCard();
+                return;
+            }
+            console.log(`✅ ${newQuantity} ta stock rezerv qilindi`);
+            
+            // 3️⃣ Miqdorni yangilash
+            item.quantity = newQuantity;
+            console.log(`✅ Korzinada yangilandi: ${oldQuantity} → ${newQuantity}`);
         } else {
             // Faqat narx o'zgardi, korzinani yangilash
+            console.log(`📊 Faqat narx o'zgardi, miqdor bir xil: ${item.quantity}`);
             updateCart(currentTabId);
             autoSavePendingSale(currentTabId);
         }
+        
+        // Korzinani yangilash
+        updateCart(currentTabId);
+        autoSavePendingSale(currentTabId);
         
         // Edit card ni yopish
         closeEditCard();
