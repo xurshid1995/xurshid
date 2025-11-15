@@ -4226,14 +4226,25 @@
 
     // Miqdorni o'rnatish
     async function setQuantityAsync(productId, newQuantity, tabId) {
+        const callTime = new Date().toISOString();
+        console.log(`🔔 [${callTime}] setQuantityAsync CHAQIRILDI - Product: ${productId}, New: ${newQuantity}, Tab: ${tabId || activeTabId}`);
+        console.log(`   📍 Call stack:`, new Error().stack.split('\n').slice(2, 5).join('\n   '));
+        
         const currentTabId = tabId || activeTabId;
-        if (!currentTabId) return;
+        if (!currentTabId) {
+            console.log(`❌ [${callTime}] TabId yo'q, return`);
+            return;
+        }
         
         const tabData = tabs[currentTabId];
-        if (!tabData) return;
+        if (!tabData) {
+            console.log(`❌ [${callTime}] TabData yo'q, return`);
+            return;
+        }
         
         const quantity = parseInt(newQuantity);
         if (quantity <= 0) {
+            console.log(`❌ [${callTime}] Quantity <= 0, removeFromCart chaqiriladi`);
             removeFromCart(productId, currentTabId);
             return;
         }
@@ -4241,12 +4252,12 @@
         // 🔒 LOCK: Agar bu mahsulot uchun update jarayoni davom etayotgan bo'lsa, kutamiz
         const lockKey = `${currentTabId}_${productId}`;
         if (quantityUpdateLocks[lockKey]) {
-            console.log(`⏸️ Lock aktiv: ${lockKey} - oldingi update tugashini kutmoqda...`);
+            console.log(`⏸️ [${callTime}] Lock aktiv: ${lockKey} - oldingi update tugashini kutmoqda...`);
             return;
         }
         
         quantityUpdateLocks[lockKey] = true; // Lock yoqish
-        console.log(`🔒 Lock yoqildi: ${lockKey}`);
+        console.log(`🔒 [${callTime}] Lock yoqildi: ${lockKey}`);
 
         const item = tabData.cart.find(item => item.id === productId);
         if (item) {
@@ -4706,6 +4717,11 @@
 
     // Korzinani tozalash
     function clearCart() {
+        const callTime = new Date().toISOString();
+        console.log(`🔔 [${callTime}] ⚠️ OLD clearCart() CHAQIRILDI!`);
+        console.log(`   📍 Call stack:`, new Error().stack.split('\n').slice(2, 5).join('\n   '));
+        console.log(`   ⚠️ DIQQAT: Bu OLD global funksiya - tab sistema bilan mos kelmaydi!`);
+        
         if (confirm('Haqiqatan ham korzinani tozalamoqchimisiz?')) {
             // Savdo holatiga qarab stock qaytarish
             const returnPromises = cart.map(item => {
@@ -6036,6 +6052,10 @@
 
     // Stock rezerv qilish funksiyasi (pending sale uchun)
     async function reserveStock(productId, quantity, locationId, locationType) {
+        const callTime = new Date().toISOString();
+        console.log(`🔔 [${callTime}] reserveStock CHAQIRILDI - Product: ${productId}, Quantity: ${quantity}, Location: ${locationId} (${locationType})`);
+        console.log(`   📍 Call stack:`, new Error().stack.split('\n').slice(2, 5).join('\n   '));
+        
         try {
             console.log(`📦 Stock rezerv qilish: Product ${productId}, Quantity ${quantity}, Location ${locationId} (${locationType})`);
             
@@ -6055,7 +6075,7 @@
             const result = await response.json();
             
             if (result.success) {
-                console.log('✅ Stock muvaffaqiyatli rezerv qilindi:', result.message);
+                console.log(`✅ [${callTime}] Stock muvaffaqiyatli rezerv qilindi:`, result.message);
                 return true;
             } else {
                 console.error('❌ Stock rezerv qilishda xatolik:', result.error);
@@ -6071,6 +6091,10 @@
 
     // Stock qaytarish funksiyasi
     async function addStock(productId, quantity, locationId, locationType) {
+        const callTime = new Date().toISOString();
+        console.log(`🔔 [${callTime}] addStock CHAQIRILDI - Product: ${productId}, Quantity: ${quantity}, Location: ${locationId} (${locationType})`);
+        console.log(`   📍 Call stack:`, new Error().stack.split('\n').slice(2, 5).join('\n   '));
+        
         try {
             console.log(`⬆️ Stock qaytarish: Product ${productId}, Quantity ${quantity}, Location ${locationId} (${locationType})`);
             
@@ -6091,15 +6115,15 @@
             const result = await response.json();
             
             if (result.success) {
-                console.log('⬆️ Stock muvaffaqiyatli qaytarildi (return-stock orqali):', result.message);
+                console.log(`✅ [${callTime}] Stock muvaffaqiyatli qaytarildi:`, result.message);
                 return true;
             } else {
-                console.error('❌ Stock qaytarishda xatolik:', result.error);
+                console.error(`❌ [${callTime}] Stock qaytarishda xatolik:`, result.error);
                 showAlert(`❌ ${result.error}`, 'error');
                 return false;
             }
         } catch (error) {
-            console.error('❌ Stock qaytarishda server xatoligi:', error);
+            console.error(`❌ [${callTime}] Stock qaytarishda server xatoligi:`, error);
             showAlert('❌ Stock qaytarishda server xatoligi!', 'error');
             return false;
         }
