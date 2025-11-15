@@ -4450,6 +4450,68 @@
         document.getElementById('displayTotal').innerHTML = formatPrice(total);
     }
 
+    // Edit card da tahrirlangan mahsulotni saqlash
+    function saveEditedItem(productId) {
+        const currentTabId = activeTabId;
+        if (!currentTabId) return;
+        
+        const tabData = tabs[currentTabId];
+        if (!tabData) return;
+        
+        // Yangi qiymatlarni olish
+        const newQuantity = parseInt(document.getElementById('editQuantity').value) || 0;
+        const newPrice = parseFloat(document.getElementById('editPrice').value) || 0;
+        
+        // Validatsiya
+        if (newQuantity <= 0) {
+            alert('Miqdor 0 dan katta bo\'lishi kerak!');
+            return;
+        }
+        
+        if (newPrice <= 0) {
+            alert('Narx 0 dan katta bo\'lishi kerak!');
+            return;
+        }
+        
+        // Mahsulotni topish
+        const item = tabData.cart.find(item => item.id === productId);
+        if (!item) {
+            alert('Mahsulot topilmadi!');
+            closeEditCard();
+            return;
+        }
+        
+        // Tan narx tekshiruvi
+        const costPrice = parseFloat(item.cost_price) || 0;
+        if (newPrice < costPrice && costPrice > 0) {
+            if (!confirm(`Diqqat! Sotish narxi ($${newPrice}) tan narxidan ($${costPrice}) past. Davom etasizmi?`)) {
+                return;
+            }
+        }
+        
+        // Narxni yangilash (faqat narx o'zgardi)
+        if (item.price !== newPrice) {
+            item.price = newPrice;
+            console.log(`Narx yangilandi: ${item.name} - $${newPrice}`);
+        }
+        
+        // Miqdorni yangilash (agar o'zgardi bo'lsa)
+        if (item.quantity !== newQuantity) {
+            console.log(`Miqdorni yangilash: ${item.quantity} → ${newQuantity}`);
+            // setQuantityAsync orqali yangilash - bu avtomatik stock boshqaruvini amalga oshiradi
+            setQuantityAsync(productId, newQuantity, currentTabId);
+        } else {
+            // Faqat narx o'zgardi, korzinani yangilash
+            updateCart(currentTabId);
+            autoSavePendingSale(currentTabId);
+        }
+        
+        // Edit card ni yopish
+        closeEditCard();
+        
+        showAlert('Mahsulot muvaffaqiyatli yangilandi!', 'success');
+    }
+
 
 
     // Success notification ko'rsatish
