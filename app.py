@@ -5678,8 +5678,15 @@ def api_reserve_stock():
         location_id = data.get('location_id')
         location_type = data.get('location_type')
 
-        print(
-            f"📦 Real-time stock rezerv so'rovi: Product {product_id}, Quantity {quantity}, Location {location_id} ({location_type})")
+        import traceback
+        call_stack = ''.join(traceback.format_stack()[-5:-1])
+        print(f"\n{'='*80}")
+        print(f"📦 RESERVE-STOCK API CHAQIRILDI:")
+        print(f"   Product ID: {product_id}")
+        print(f"   Quantity: {quantity}")
+        print(f"   Location: {location_id} ({location_type})")
+        print(f"   Timestamp: {datetime.now()}")
+        print(f"{'='*80}\n")
 
         # Mahsulotni tekshirish
         product = Product.query.get(product_id)
@@ -5708,10 +5715,12 @@ def api_reserve_stock():
                 return jsonify({'success': False, 'error': f'{store_name} do\'konida yetarli stock yo\'q! Mavjud: {stock.quantity}, Kerak: {quantity}'}), 400
 
             # Real-time stock'dan ayirish
+            old_quantity = stock.quantity
             stock.quantity -= quantity
             remaining_stock = stock.quantity
-            print(
-                f"✅ Do'kon stock real-time rezerv qilindi: {product.name} - {quantity} = {remaining_stock}")
+            print(f"✅ STORE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
+            print(f"   Product: {product.name} (ID: {product_id})")
+            print(f"   Store ID: {location_id}")
 
         elif location_type == 'warehouse':
             stock = WarehouseStock.query.filter_by(
@@ -5733,10 +5742,12 @@ def api_reserve_stock():
                 return jsonify({'success': False, 'error': f'{warehouse_name} omborida yetarli stock yo\'q! Mavjud: {stock.quantity}, Kerak: {quantity}'}), 400
 
             # Real-time stock'dan ayirish
+            old_quantity = stock.quantity
             stock.quantity -= quantity
             remaining_stock = stock.quantity
-            print(
-                f"✅ Ombor stock real-time rezerv qilindi: {product.name} - {quantity} = {remaining_stock}")
+            print(f"✅ WAREHOUSE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
+            print(f"   Product: {product.name} (ID: {product_id})")
+            print(f"   Warehouse ID: {location_id}")
 
         else:
             return jsonify(
@@ -5744,6 +5755,7 @@ def api_reserve_stock():
 
         # O'zgarishlarni saqlash
         db.session.commit()
+        print(f"💾 DB COMMIT: Stock o'zgarish saqlandi\n")
 
         return jsonify({
             'success': True,
@@ -5768,8 +5780,13 @@ def api_return_stock():
         location_id = data.get('location_id')
         location_type = data.get('location_type')
 
-        print(
-            f"↩️ Real-time stock qaytarish so'rovi: Product {product_id}, Quantity {quantity}, Location {location_id} ({location_type})")
+        print(f"\n{'='*80}")
+        print(f"↩️ RETURN-STOCK API CHAQIRILDI:")
+        print(f"   Product ID: {product_id}")
+        print(f"   Quantity: {quantity}")
+        print(f"   Location: {location_id} ({location_type})")
+        print(f"   Timestamp: {datetime.now()}")
+        print(f"{'='*80}\n")
 
         # Mahsulotni tekshirish
         product = Product.query.get(product_id)
@@ -5793,12 +5810,15 @@ def api_return_stock():
                     quantity=quantity
                 )
                 db.session.add(stock)
-                print(
-                    f"↩️ Yangi do'kon stock yaratildi: {product.name} = {quantity}")
+                print(f"✅ YANGI STORE STOCK YARATILDI: {quantity}")
+                print(f"   Product: {product.name} (ID: {product_id})")
+                print(f"   Store ID: {location_id}")
             else:
+                old_quantity = stock.quantity
                 stock.quantity += quantity
-                print(
-                    f"↩️ Do'kon stock real-time qaytarildi: {product.name} + {quantity} = {stock.quantity}")
+                print(f"✅ STORE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
+                print(f"   Product: {product.name} (ID: {product_id})")
+                print(f"   Store ID: {location_id}")
 
             new_stock = stock.quantity
 
@@ -5817,12 +5837,15 @@ def api_return_stock():
                     quantity=quantity
                 )
                 db.session.add(stock)
-                print(
-                    f"↩️ Yangi ombor stock yaratildi: {product.name} = {quantity}")
+                print(f"✅ YANGI WAREHOUSE STOCK YARATILDI: {quantity}")
+                print(f"   Product: {product.name} (ID: {product_id})")
+                print(f"   Warehouse ID: {location_id}")
             else:
+                old_quantity = stock.quantity
                 stock.quantity += quantity
-                print(
-                    f"↩️ Ombor stock real-time qaytarildi: {product.name} + {quantity} = {stock.quantity}")
+                print(f"✅ WAREHOUSE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
+                print(f"   Product: {product.name} (ID: {product_id})")
+                print(f"   Warehouse ID: {location_id}")
 
             new_stock = stock.quantity
 
@@ -5832,6 +5855,7 @@ def api_return_stock():
 
         # O'zgarishlarni saqlash
         db.session.commit()
+        print(f"💾 DB COMMIT: Stock qaytarish saqlandi\n")
 
         return jsonify({
             'success': True,
