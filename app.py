@@ -5491,10 +5491,10 @@ def create_pending_sale(data):
         pending_sale_id = data.get('pending_sale_id')
         skip_stock_return = data.get('skip_stock_return', False)
         
-        print(f"🔍 PENDING SALE PARAMS:")
-        print(f"   original_sale_id: {original_sale_id}")
-        print(f"   pending_sale_id: {pending_sale_id}")
-        print(f"   skip_stock_return: {skip_stock_return} (type: {type(skip_stock_return)})")
+        logger.info(f"🔍 PENDING SALE PARAMS:")
+        logger.info(f"   original_sale_id: {original_sale_id}")
+        logger.info(f"   pending_sale_id: {pending_sale_id}")
+        logger.info(f"   skip_stock_return: {skip_stock_return} (type: {type(skip_stock_return)})")
 
         if not items:
             return jsonify({'success': False, 'error': 'Korzina bo\'sh'}), 400
