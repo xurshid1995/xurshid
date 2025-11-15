@@ -4265,26 +4265,17 @@
                 return;
             }
             
-            // ✅ EDIT REJIMI: DB dagi asl miqdor bilan solishtirish
-            let difference;
+            // ✅ ODDIY MANTIQ: Hozirgi korzina miqdori bilan farq
+            // Edit rejimi ham oddiy rejim ham bir xil ishlaydi!
+            const difference = quantity - oldQuantity; // Farq: musbat = qo'shish, manfiy = kamaytirish
             
-            if (tabData.isEditMode && tabData.originalQuantities && tabData.originalQuantities[productId] !== undefined) {
-                // Edit rejimida: yangi miqdor va DB dagi asl miqdorni solishtirish
-                const originalQuantity = tabData.originalQuantities[productId];
-                difference = quantity - originalQuantity; // DB bilan farq
-                
-                console.log(`📋 EDIT MODE: DB asl miqdor: ${originalQuantity}`);
-                console.log(`📋 Hozirgi korzina: ${oldQuantity}`);
-                console.log(`📊 DB bilan farq: ${difference} (${difference > 0 ? 'qo\'shimcha sotish' : difference < 0 ? 'kamroq sotish (qaytarish)' : 'o\'zgarish yo\'q'})`);
-                
-                // ✅ MUHIM: originalQuantities ni yangilash
-                // Keyingi o'zgarishda yangi miqdor "asl" miqdor bo'ladi
-                tabData.originalQuantities[productId] = quantity;
-                console.log(`✅ originalQuantities yangilandi: ${originalQuantity} → ${quantity}`);
-            } else {
-                // Oddiy rejim: hozirgi korzina miqdori bilan farq
-                difference = quantity - oldQuantity;
-                console.log(`📊 Stock farqi: ${difference} (${difference > 0 ? 'qo\'shimcha' : difference < 0 ? 'qaytarish' : 'o\'zgarish yo\'q'})`);
+            console.log(`🔄 Stock hisoblash:`);
+            console.log(`   Hozirgi korzina: ${oldQuantity} ta`);
+            console.log(`   Yangi miqdor: ${quantity} ta`);
+            console.log(`   Farq: ${difference} (${difference > 0 ? 'qo\'shimcha kerak' : difference < 0 ? 'qaytarish kerak' : 'o\'zgarish yo\'q'})`);
+            
+            if (tabData.isEditMode && tabData.originalQuantities) {
+                console.log(`📋 [Edit Mode] DB asl miqdor: ${tabData.originalQuantities[productId]} (faqat ma'lumot)`);
             }
             
             if (difference > 0) {
