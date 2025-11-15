@@ -4265,34 +4265,42 @@
                 return;
             }
             
-            // ✅ TO'LIQ ALMASHTIRISH MANTIQ:
-            // 1️⃣ Avval hozirgi miqdorni to'liq stokga qaytarish
-            console.log(`↩️ Qadam 1: Hozirgi ${oldQuantity} ta stokga qaytarilmoqda...`);
-            const returnSuccess = await returnStock(item.id, oldQuantity, item.location_id, item.location_type);
+            // ✅ FARQ BILAN ISHLASH (to'liq emas!):
+            const difference = quantity - oldQuantity; // Musbat = qo'shish, manfiy = kamaytirish
             
-            if (!returnSuccess) {
-                console.log(`❌ Stock qaytarib bo'lmadi`);
-                quantityUpdateLocks[lockKey] = false; // Lock o'chirish
-                console.log(`🔓 Lock o'chirildi (xatolik): ${lockKey}`);
-                return;
+            console.log(`📊 Stock farqi: ${difference} (${difference > 0 ? 'qo\'shimcha' : difference < 0 ? 'qaytarish' : 'o\'zgarish yo\'q'})`);
+            
+            if (difference > 0) {
+                // Qo'shimcha stock kerak (faqat farq)
+                console.log(`🔒 ${difference} ta qo'shimcha stokdan rezerv qilinmoqda...`);
+                const reserveSuccess = await reserveStock(item.id, difference, item.location_id, item.location_type);
+                
+                if (!reserveSuccess) {
+                    console.log(`❌ Stock rezerv qilib bo'lmadi`);
+                    quantityUpdateLocks[lockKey] = false;
+                    console.log(`🔓 Lock o'chirildi (xatolik): ${lockKey}`);
+                    return;
+                }
+                console.log(`✅ ${difference} ta stock qo'shildi`);
+                
+            } else if (difference < 0) {
+                // Stock qaytarish kerak (faqat farq)
+                const returnAmount = Math.abs(difference);
+                console.log(`↩️ ${returnAmount} ta stokga qaytarilmoqda...`);
+                const returnSuccess = await returnStock(item.id, returnAmount, item.location_id, item.location_type);
+                
+                if (!returnSuccess) {
+                    console.log(`❌ Stock qaytarib bo'lmadi`);
+                    quantityUpdateLocks[lockKey] = false;
+                    console.log(`🔓 Lock o'chirildi (xatolik): ${lockKey}`);
+                    return;
+                }
+                console.log(`✅ ${returnAmount} ta stock qaytarildi`);
+            } else {
+                console.log(`➡️ Miqdor o'zgarmadi, stock operatsiyasi yo'q`);
             }
-            console.log(`✅ ${oldQuantity} ta stock qaytarildi`);
             
-            // 2️⃣ Keyin yangi miqdorni to'liq stokdan rezerv qilish
-            console.log(`🔒 Qadam 2: Yangi ${quantity} ta stokdan rezerv qilinmoqda...`);
-            const reserveSuccess = await reserveStock(item.id, quantity, item.location_id, item.location_type);
-            
-            if (!reserveSuccess) {
-                console.log(`❌ Stock rezerv qilib bo'lmadi`);
-                // Rollback: eski miqdorni qaytadan rezerv qilish
-                await reserveStock(item.id, oldQuantity, item.location_id, item.location_type);
-                quantityUpdateLocks[lockKey] = false; // Lock o'chirish
-                console.log(`🔓 Lock o'chirildi (rollback): ${lockKey}`);
-                return;
-            }
-            console.log(`✅ ${quantity} ta stock rezerv qilindi`);
-            
-            // 3️⃣ Miqdorni yangilash
+            // Miqdorni yangilash
             item.quantity = quantity;
             console.log(`✅ Korzinada yangilandi: ${oldQuantity} → ${quantity}`);
             
@@ -4532,42 +4540,10 @@
         
         // Miqdorni yangilash (agar o'zgardi bo'lsa)
         if (item.quantity !== newQuantity) {
-            const oldQuantity = item.quantity;
-            console.log(`📝 Edit card: Miqdorni to'liq almashtirish ${oldQuantity} → ${newQuantity}`);
+            console.log(`📝 Edit card: Miqdorni yangilash ${item.quantity} → ${newQuantity}`);
             
-            // 1️⃣ Avval hozirgi miqdorni TO'LIQ stokga qaytarish
-            console.log(`↩️ Qadam 1: Hozirgi ${oldQuantity} ta stokga qaytarilmoqda...`);
-            const returnSuccess = await returnStock(item.id, oldQuantity, item.location_id, item.location_type);
-            
-            if (!returnSuccess) {
-                console.log(`❌ Stock qaytarib bo'lmadi`);
-                alert('Stock qaytarishda xatolik yuz berdi!');
-                quantityUpdateLocks[lockKey] = false;
-                console.log(`🔓 Edit card: Lock o'chirildi (return xatosi)`);
-                closeEditCard();
-                return;
-            }
-            console.log(`✅ ${oldQuantity} ta stock qaytarildi`);
-            
-            // 2️⃣ Keyin yangi miqdorni TO'LIQ stokdan rezerv qilish
-            console.log(`🔒 Qadam 2: Yangi ${newQuantity} ta stokdan rezerv qilinmoqda...`);
-            const reserveSuccess = await reserveStock(item.id, newQuantity, item.location_id, item.location_type);
-            
-            if (!reserveSuccess) {
-                console.log(`❌ Stock rezerv qilib bo'lmadi`);
-                // Eski miqdorni qaytadan rezerv qilish (rollback)
-                await reserveStock(item.id, oldQuantity, item.location_id, item.location_type);
-                alert('Stock rezerv qilishda xatolik yuz berdi!');
-                quantityUpdateLocks[lockKey] = false;
-                console.log(`🔓 Edit card: Lock o'chirildi (reserve xatosi)`);
-                closeEditCard();
-                return;
-            }
-            console.log(`✅ ${newQuantity} ta stock rezerv qilindi`);
-            
-            // 3️⃣ Miqdorni yangilash
-            item.quantity = newQuantity;
-            console.log(`✅ Korzinada yangilandi: ${oldQuantity} → ${newQuantity}`);
+            // setQuantityAsync orqali - bu avtomatik farqni hisoblab stock boshqaradi
+            await setQuantityAsync(productId, newQuantity, currentTabId);
         } else {
             // Faqat narx o'zgardi, korzinani yangilash
             console.log(`📊 Faqat narx o'zgardi, miqdor bir xil: ${item.quantity}`);
@@ -5269,37 +5245,24 @@
             if (result.success) {
                 console.log(`🗑️ Pending savdo o'chirildi: ${saleId}`);
                 
-                // Agar tabId berilgan bo'lsa, korzinani tozalash va stock qaytarish
+                // ⚠️ Stock qaytarish KERAK EMAS!
+                // Real-time system'da stock allaqachon boshqarilgan:
+                // - Mahsulot qo'shilganda: reserve qilingan
+                // - Mahsulot o'chirilganda: return qilingan
+                // - Pending savdo delete - bu faqat DB'dan record o'chirish
+                
+                // Agar tabId berilgan bo'lsa, faqat korzinani tozalash
                 if (tabId) {
                     const tabData = tabs[tabId];
-                    if (tabData && tabData.cart.length > 0) {
-                        console.log(`📦 Pending savdo o'chirildi, korzina stocklarini qaytarish...`);
+                    if (tabData) {
+                        console.log(`🧹 Korzinani tozalash (stock operatsiyasisiz)`);
                         
-                        // Barcha korzina mahsulotlarini stockga qaytarish
-                        const returnPromises = tabData.cart.map(async item => {
-                            try {
-                                const success = await addStock(
-                                    item.id,
-                                    item.quantity,
-                                    item.location_id,
-                                    item.location_type
-                                );
-                                console.log(`${success ? '✅' : '❌'} Stock qaytarish: ${item.name} - ${item.quantity} ta`);
-                                return success;
-                            } catch (error) {
-                                console.error(`❌ Stock qaytarishda xatolik (${item.name}):`, error);
-                                return false;
-                            }
-                        });
-                        
-                        await Promise.all(returnPromises);
-                        
-                        // Korzinani tozalash
+                        // Korzinani tozalash - stock operatsiyasi yo'q
                         tabData.cart = [];
                         tabData.currentPendingSaleId = null;
                         updateCart(tabId);
                         
-                        showAlert('📦 Pending savdo bekor qilindi, barcha stocklar qaytarildi!', 'success');
+                        showAlert('🗑️ Pending savdo bekor qilindi!', 'success');
                     }
                 }
             }
