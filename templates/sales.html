@@ -4241,12 +4241,8 @@
         if (item) {
             const oldQuantity = item.quantity;
             
-            // ✅ ODDIY MANTIQ: Har doim hozirgi miqdor bilan yangi miqdorni solishtirish
-            const stockChange = quantity - oldQuantity; // Farq: musbat = qo'shish, manfiy = qaytarish
-            
             console.log(`🔄 Miqdor o'zgartirish: ${item.name} (Product ID: ${productId})`);
             console.log(`   Hozirgi: ${oldQuantity}, Yangi: ${quantity}`);
-            console.log(`   Stock o'zgarishi: ${stockChange} (${stockChange > 0 ? 'qo\'shimcha kerak' : stockChange < 0 ? 'qaytarish kerak' : 'o\'zgarish yo\'q'})`);
             
             // Tahrirlash yuklanayotganda stock operatsiyalarini skip qilish
             if (tabData.isLoadingEditData) {
@@ -4256,31 +4252,32 @@
                 return;
             }
             
-            if (stockChange > 0) {
-                // Qo'shimcha stock kerak
-                const success = await reserveStock(item.id, stockChange, item.location_id, item.location_type);
-                if (success) {
-                    item.quantity = quantity;
-                    console.log(`✅ Qo'shimcha ${stockChange} ta stock rezerv qilindi`);
-                } else {
-                    console.log(`❌ Qo'shimcha stock rezerv qilib bo'lmadi`);
-                    return; // O'zgarishni bekor qilish
-                }
-            } else if (stockChange < 0) {
-                // Stock qaytarish kerak
-                const returnAmount = Math.abs(stockChange);
-                const success = await returnStock(item.id, returnAmount, item.location_id, item.location_type);
-                if (success) {
-                    item.quantity = quantity;
-                    console.log(`↩️ ${returnAmount} ta stock qaytarildi`);
-                } else {
-                    console.log(`❌ Stock qaytarib bo'lmadi`);
-                    return; // O'zgarishni bekor qilish
-                }
-            } else {
-                // Stock'da o'zgarish yo'q, faqat miqdorni yangilash
-                item.quantity = quantity;
+            // ✅ TO'LIQ ALMASHTIRISH MANTIQ:
+            // 1️⃣ Avval hozirgi miqdorni to'liq stokga qaytarish
+            console.log(`↩️ Qadam 1: Hozirgi ${oldQuantity} ta stokga qaytarilmoqda...`);
+            const returnSuccess = await returnStock(item.id, oldQuantity, item.location_id, item.location_type);
+            
+            if (!returnSuccess) {
+                console.log(`❌ Stock qaytarib bo'lmadi`);
+                return;
             }
+            console.log(`✅ ${oldQuantity} ta stock qaytarildi`);
+            
+            // 2️⃣ Keyin yangi miqdorni to'liq stokdan rezerv qilish
+            console.log(`🔒 Qadam 2: Yangi ${quantity} ta stokdan rezerv qilinmoqda...`);
+            const reserveSuccess = await reserveStock(item.id, quantity, item.location_id, item.location_type);
+            
+            if (!reserveSuccess) {
+                console.log(`❌ Stock rezerv qilib bo'lmadi`);
+                // Rollback: eski miqdorni qaytadan rezerv qilish
+                await reserveStock(item.id, oldQuantity, item.location_id, item.location_type);
+                return;
+            }
+            console.log(`✅ ${quantity} ta stock rezerv qilindi`);
+            
+            // 3️⃣ Miqdorni yangilash
+            item.quantity = quantity;
+            console.log(`✅ Korzinada yangilandi: ${oldQuantity} → ${quantity}`);
             
             updateCart(currentTabId);
             // Auto save qo'shish
