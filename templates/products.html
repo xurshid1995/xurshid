@@ -571,7 +571,7 @@
     // Valyuta kursini yuklash
     async function loadCurrencyRate() {
         try {
-            const response = await fetch('/api/get-currency-rate');
+            const response = await fetch('/api/currency-rate');
             const data = await response.json();
             if (data.success && data.rate) {
                 currencyRate = parseFloat(data.rate.rate);
