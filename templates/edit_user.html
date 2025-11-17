@@ -991,12 +991,10 @@
             console.log('➕ Adding store checkbox:', store.name);
             const salesCheckbox = createLocationCheckbox(store, 'store');
             const transferCheckbox = createLocationCheckbox(store, 'store');
+            const stockCheckCheckbox = createLocationCheckbox(store, 'store');
             
             salesLocationsList.appendChild(salesCheckbox);
-            transferLocationsList.appendChild(transferCheckbox.cloneNode(true));
-            
-            // Stock check uchun ham qo'shamiz
-            const stockCheckCheckbox = createLocationCheckbox(store, 'store');
+            transferLocationsList.appendChild(transferCheckbox);
             stockCheckLocationsList.appendChild(stockCheckCheckbox);
         });
         
@@ -1005,12 +1003,10 @@
             console.log('➕ Adding warehouse checkbox:', warehouse.name);
             const salesCheckbox = createLocationCheckbox(warehouse, 'warehouse');
             const transferCheckbox = createLocationCheckbox(warehouse, 'warehouse');
+            const stockCheckCheckbox = createLocationCheckbox(warehouse, 'warehouse');
             
             salesLocationsList.appendChild(salesCheckbox);
-            transferLocationsList.appendChild(transferCheckbox.cloneNode(true));
-            
-            // Stock check uchun ham qo'shamiz
-            const stockCheckCheckbox = createLocationCheckbox(warehouse, 'warehouse');
+            transferLocationsList.appendChild(transferCheckbox);
             stockCheckLocationsList.appendChild(stockCheckCheckbox);
         });
         
