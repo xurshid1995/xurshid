@@ -875,10 +875,8 @@
                     <tr>
                         <td class="product-name">${highlightedName}</td>
                         <td class="price-cell">
-                            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
-                                <span style="color: #28a745; font-weight: 600;">$${formatPrice(product.sell_price)}</span>
-                                <span style="color: #6c757d; font-size: 0.85rem;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
-                            </div>
+                            <span style="color: #28a745; font-weight: 600;">$${formatPrice(product.sell_price)}</span>
+                            <span style="color: #6c757d; font-size: 0.9rem; margin-left: 0.5rem;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
                         </td>
                         <td class="location-cell">${locations}</td>
                         <td><span class="quantity-cell">${totalStock}</span></td>
