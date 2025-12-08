@@ -4585,7 +4585,10 @@ def api_sales_history():
             sale_ids = [sale.id for sale in sales[:3]]
             print(f"   - Birinchi 3 ta savdo ID: {sale_ids}")
 
-        # STATISTIKA: To'liq hisoblashlar uchun alohida querylar
+        # STATISTIKA: Barcha filtr qo'llanilgan sale ID'larini olish
+        from sqlalchemy.orm import aliased
+        filtered_sale_ids = [sale_id for (sale_id,) in stats_filtered_query.with_entities(Sale.id).all()]
+        
         # Jami mahsulotlar soni - barcha filtrlangan savdolardan
         total_items = 0
         if filtered_sale_ids:
@@ -4620,12 +4623,7 @@ def api_sales_history():
                 'amount': float(total or 0)
             }
 
-        # Top selling products - stats_filtered_query dan foydalanib (bugungi kun filtri bilan)
-        from sqlalchemy.orm import aliased
-        
-        # Stats filtered query'dan sale ID'larini olish (bugungi kun yoki barcha filtrlar)
-        filtered_sale_ids = [sale_id for (sale_id,) in stats_filtered_query.with_entities(Sale.id).all()]
-        
+        # Top selling products - filtered_sale_ids dan foydalanib
         top_products = []
         if filtered_sale_ids:
             Product_alias = aliased(Product)
