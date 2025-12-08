@@ -1662,7 +1662,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Jadvalni tozalash
     clearTable();
     // Real ma'lumotlarni yuklash
-    loadSalesHistory();
+    currentPage = 1;
+    loadSalesHistory(currentPage);
     
     // Qidiruv va filtr funksiyalarini sozlash
     initializeSearchAndFilters();
@@ -1703,8 +1704,8 @@ function forceRefresh() {
         });
     }
     
-    // Real ma'lumotlarni yuklash
-    loadSalesHistory();
+    // Real ma'lumotlarni yuklash - joriy sahifani saqlash
+    loadSalesHistory(currentPage);
 }
 
 async function loadSalesHistory(page = 1) {
@@ -3301,7 +3302,7 @@ function initializeCompactView() {
                     isFiltered: true
                 });
             } else {
-                loadSalesHistory();
+                loadSalesHistory(currentPage);
             }
         }
     });
@@ -3545,8 +3546,8 @@ window.addEventListener('currencyRateUpdated', function(event) {
     USD_TO_UZS_RATE = event.detail.newRate;
     console.log(`🔄 Sales History - Valyuta kursi yangilandi: 1 USD = ${USD_TO_UZS_RATE} UZS`);
     
-    // Sahifani qayta yuklash (narxlar yangilansin)
-    loadSalesHistory();
+    // Sahifani qayta yuklash (narxlar yangilansin) - joriy sahifani saqlash
+    loadSalesHistory(currentPage);
 });
 
 </script>
