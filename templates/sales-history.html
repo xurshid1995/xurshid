@@ -2702,7 +2702,9 @@ function initializeSearchAndFilters() {
         locationFilter.value = '';
         selectedCustomerId = '';
         this.style.display = 'none';
-        applySearchAndFilters();
+        // Filtrlar tozalanganda API'dan yangi ma'lumotlar yuklash (bugungi kun statistikasi)
+        currentPage = 1;
+        loadSalesHistory(currentPage);
     });
     
     // Filtr elementlariga avtomatik hodisalar qo'shish
