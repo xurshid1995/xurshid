@@ -2708,11 +2708,15 @@ function initializeSearchAndFilters() {
     // Filtr elementlariga avtomatik hodisalar qo'shish
     dateFromFilter.addEventListener('change', function() {
         updateClearButtonVisibility();
-        applySearchAndFilters();
+        // Sana filtri o'zgarganda API'dan yangi ma'lumotlar yuklash (statistika yangilansin)
+        currentPage = 1;
+        loadSalesHistory(currentPage);
     });
     dateToFilter.addEventListener('change', function() {
         updateClearButtonVisibility();
-        applySearchAndFilters();
+        // Sana filtri o'zgarganda API'dan yangi ma'lumotlar yuklash (statistika yangilansin)
+        currentPage = 1;
+        loadSalesHistory(currentPage);
     });
     
     // Mijoz qidiruv funksiyasini sozlash
