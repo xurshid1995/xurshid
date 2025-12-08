@@ -4452,9 +4452,13 @@ def api_sales_history():
                 logger.debug(" No allowed locations, returning empty sales history")
 
         # Apply date filters
+        start_date_obj = None
+        end_date_obj = None
+        
         if start_date:
             try:
                 start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                start_date_obj = start_dt
                 query = query.filter(Sale.sale_date >= start_dt)
             except ValueError:
                 pass
@@ -4464,6 +4468,7 @@ def api_sales_history():
                 end_dt = datetime.strptime(end_date, '%Y-%m-%d')
                 # Add one day to include the entire end date
                 end_dt = end_dt.replace(hour=23, minute=59, second=59)
+                end_date_obj = end_dt
                 query = query.filter(Sale.sale_date <= end_dt)
             except ValueError:
                 pass
