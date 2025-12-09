@@ -1363,6 +1363,18 @@ def api_add_product():
                                 quantity=quantity
                             )
                             db.session.add(store_stock)
+                        
+                        # StockChange yozuvini yaratish
+                        stock_change = StockChange(
+                            product_id=product.id,
+                            action='add',
+                            quantity=quantity,
+                            location_type='store',
+                            store_id=store_id,
+                            user_id=session.get('user_id'),
+                            notes=f"Mahsulot qo'shildi: {product.name}"
+                        )
+                        db.session.add(stock_change)
 
                 elif location_value.startswith('warehouse_'):
                     warehouse_id = int(
@@ -1382,6 +1394,18 @@ def api_add_product():
                                 quantity=quantity
                             )
                             db.session.add(warehouse_stock)
+                        
+                        # StockChange yozuvini yaratish
+                        stock_change = StockChange(
+                            product_id=product.id,
+                            action='add',
+                            quantity=quantity,
+                            location_type='warehouse',
+                            warehouse_id=warehouse_id,
+                            user_id=session.get('user_id'),
+                            notes=f"Mahsulot qo'shildi: {product.name}"
+                        )
+                        db.session.add(stock_change)
 
                 created_products.append(product)
 
@@ -1473,6 +1497,18 @@ def api_batch_products():
                         quantity=quantity
                     )
                     db.session.add(stock)
+                
+                # StockChange yozuvini yaratish
+                stock_change = StockChange(
+                    product_id=product.id,
+                    action='add',
+                    quantity=quantity,
+                    location_type='warehouse',
+                    warehouse_id=location_id,
+                    user_id=session.get('user_id'),
+                    notes=f"Batch import: {product.name}"
+                )
+                db.session.add(stock_change)
 
             elif location_type == 'store':
                 stock = StoreStock.query.filter_by(
@@ -1489,6 +1525,18 @@ def api_batch_products():
                         quantity=quantity
                     )
                     db.session.add(stock)
+                
+                # StockChange yozuvini yaratish
+                stock_change = StockChange(
+                    product_id=product.id,
+                    action='add',
+                    quantity=quantity,
+                    location_type='store',
+                    store_id=location_id,
+                    user_id=session.get('user_id'),
+                    notes=f"Batch import: {product.name}"
+                )
+                db.session.add(stock_change)
 
             created_count += 1
 
