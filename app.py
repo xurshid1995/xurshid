@@ -1507,8 +1507,14 @@ def api_batch_products():
                 product.sell_price = sell_price
                 product.min_stock = min_stock
 
-            # Stock qo'shish
+            # Stock qo'shish va joylashuv nomini olish
+            location_name = ''
+            
             if location_type == 'warehouse':
+                warehouse = Warehouse.query.get(location_id)
+                if warehouse:
+                    location_name = warehouse.name
+                    
                 stock = WarehouseStock.query.filter_by(
                     warehouse_id=location_id,
                     product_id=product.id
@@ -1525,6 +1531,10 @@ def api_batch_products():
                     db.session.add(stock)
 
             elif location_type == 'store':
+                store = Store.query.get(location_id)
+                if store:
+                    location_name = store.name
+                    
                 stock = StoreStock.query.filter_by(
                     store_id=location_id,
                     product_id=product.id
@@ -1539,6 +1549,25 @@ def api_batch_products():
                         quantity=quantity
                     )
                     db.session.add(stock)
+            
+            # History yozuvi yaratish (faqat ma'lumot uchun)
+            if quantity > 0 and location_name:
+                current_user_name = None
+                if 'user_id' in session:
+                    user = User.query.get(session['user_id'])
+                    if user:
+                        current_user_name = user.username
+                
+                history = ProductAddHistory(
+                    product_name=product.name,
+                    cost_price=cost_price,
+                    sell_price=sell_price,
+                    quantity=quantity,
+                    location_type=location_type,
+                    location_name=location_name,
+                    added_by=current_user_name
+                )
+                db.session.add(history)
 
             created_count += 1
 
