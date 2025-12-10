@@ -869,6 +869,22 @@ class StockChange(db.Model):
     user = db.relationship('User')
 
 
+class ProductAddHistory(db.Model):
+    """Mahsulot qo'shilgan tarix - faqat ma'lumot uchun"""
+    __tablename__ = 'product_add_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    product_name = db.Column(db.String(200), nullable=False)
+    cost_price = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
+    sell_price = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
+    quantity = db.Column(db.DECIMAL(precision=15, scale=3), nullable=False)
+    location_type = db.Column(db.String(20), nullable=False)  # 'warehouse' or 'store'
+    location_name = db.Column(db.String(200), nullable=False)  # Ombor yoki do'kon nomi
+    added_by = db.Column(db.String(100), nullable=True)  # Qo'shgan foydalanuvchi
+    added_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    notes = db.Column(db.Text, nullable=True)
+
+
 class CurrencyRate(db.Model):
     __tablename__ = 'currency_rates'
 
@@ -1347,10 +1363,16 @@ def api_add_product():
 
                 # Joylashuvni aniqlash va stock qo'shish
                 location_value = product_data.get('locationValue', '')
+                location_name = ''
+                location_type_str = ''
+                
                 if location_value.startswith('store_'):
                     store_id = int(location_value.replace('store_', ''))
                     store = Store.query.get(store_id)
                     if store:
+                        location_type_str = 'store'
+                        location_name = store.name
+                        
                         # Store stock qo'shish yoki yangilash
                         existing_stock = StoreStock.query.filter_by(
                             store_id=store_id, product_id=product.id).first()
@@ -1370,6 +1392,9 @@ def api_add_product():
                             'warehouse_', ''))
                     warehouse = Warehouse.query.get(warehouse_id)
                     if warehouse:
+                        location_type_str = 'warehouse'
+                        location_name = warehouse.name
+                        
                         # Warehouse stock qo'shish yoki yangilash
                         existing_stock = WarehouseStock.query.filter_by(
                             warehouse_id=warehouse_id, product_id=product.id).first()
@@ -1382,6 +1407,25 @@ def api_add_product():
                                 quantity=quantity
                             )
                             db.session.add(warehouse_stock)
+                
+                # History yozuvi yaratish (faqat ma'lumot uchun)
+                if quantity > 0 and location_name:
+                    current_user_name = None
+                    if 'user_id' in session:
+                        user = User.query.get(session['user_id'])
+                        if user:
+                            current_user_name = user.username
+                    
+                    history = ProductAddHistory(
+                        product_name=product.name,
+                        cost_price=cost_price,
+                        sell_price=sell_price,
+                        quantity=quantity,
+                        location_type=location_type_str,
+                        location_name=location_name,
+                        added_by=current_user_name
+                    )
+                    db.session.add(history)
 
                 created_products.append(product)
 
@@ -1507,57 +1551,40 @@ def api_batch_products():
 # Mahsulot qo'shish tarixi API
 @app.route('/api/products/history', methods=['GET'])
 def get_product_history():
-    """Qo'shilgan mahsulotlar tarixini olish - StockChange jadvalidan"""
+    """Qo'shilgan mahsulotlar tarixini olish - ProductAddHistory jadvalidan"""
     try:
         # Oxirgi 50 ta qo'shish operatsiyalari
         limit = int(request.args.get('limit', 50))
 
-        # StockChange jadvalidan faqat 'add' actionlarni olish
-        stock_changes = StockChange.query.filter_by(
-            action='add'
-        ).order_by(
-            StockChange.change_date.desc()
+        # ProductAddHistory jadvalidan ma'lumotlarni olish
+        history_records = ProductAddHistory.query.order_by(
+            ProductAddHistory.added_date.desc()
         ).limit(limit).all()
 
         history_data = []
-        for change in stock_changes:
-            # Mahsulot ma'lumotlarini olish
-            product = Product.query.get(change.product_id)
-            if not product:
-                continue
-
-            # Joylashuv ma'lumotlarini olish
-            location_name = 'Noma\'lum'
-            location_type = 'Noma\'lum'
+        for record in history_records:
+            # Joylashuv turini aniqlash
+            location_type_uz = 'Ombor' if record.location_type == 'warehouse' else 'Do\'kon'
             
-            if change.location_type == 'warehouse' and change.warehouse_id:
-                warehouse = Warehouse.query.get(change.warehouse_id)
-                location_name = warehouse.name if warehouse else 'Noma\'lum Ombor'
-                location_type = 'Ombor'
-            elif change.location_type == 'store' and change.store_id:
-                store = Store.query.get(change.store_id)
-                location_name = store.name if store else 'Noma\'lum Do\'kon'
-                location_type = 'Do\'kon'
-
-            # Qo'shilgan miqdor va qiymat
-            quantity = float(change.quantity)
-            total_value = quantity * float(product.cost_price)
+            # Miqdor va qiymat
+            quantity = float(record.quantity)
+            total_value = quantity * float(record.cost_price)
 
             history_data.append({
-                'id': product.id,
-                'name': product.name,
-                'cost_price': float(product.cost_price),
-                'sell_price': float(product.sell_price),
+                'id': record.id,
+                'name': record.product_name,
+                'cost_price': float(record.cost_price),
+                'sell_price': float(record.sell_price),
                 'total_quantity': quantity,
                 'total_value': total_value,
                 'locations': [{
-                    'type': location_type,
-                    'name': location_name,
+                    'type': location_type_uz,
+                    'name': record.location_name,
                     'quantity': quantity
                 }],
-                'created_date': (change.change_date.isoformat()
-                                if change.change_date else None),
-                'added_by': change.user.username if change.user else 'Admin'
+                'created_date': (record.added_date.isoformat()
+                                if record.added_date else None),
+                'added_by': record.added_by if record.added_by else 'Admin'
             })
 
         return jsonify({
@@ -1567,7 +1594,7 @@ def get_product_history():
         })
 
     except Exception as e:
-        logger.error(f" Mahsulot tarixini olishda xatolik: {e}")
+        logger.error(f"Mahsulot tarixini olishda xatolik: {e}")
         return jsonify({
             'success': False,
             'error': str(e),
