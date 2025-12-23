@@ -1307,13 +1307,11 @@
         let selectedProductData = null;
         let userEnteredCostPrice = null; // Foydalanuvchi kiritgan asl tan narx (backend uchun)
         
-        // Foydalanuvchi tan narx maydoniga kirganida qiymatni saqlash
+        // Foydalanuvchi tan narx maydoniga kirganida global o'zgaruvchini tozalash
         function saveCostPriceOnFocus() {
-            const costPrice = parseFloat(document.getElementById('cost_price').value) || 0;
-            if (costPrice > 0) {
-                userEnteredCostPrice = costPrice;
-                console.log(`💾 Foydalanuvchi kiritgan tan narx saqlandi: $${userEnteredCostPrice}`);
-            }
+            // Focus qilganda eski qiymatni tozalash - yangi kiritish uchun tayyorgarlik
+            userEnteredCostPrice = null;
+            console.log(`🎯 Tan narx maydoniga kirildi - yangi qiymat kutilmoqda`);
         }
         
         // Yangi kiritilgan tan narxni "Asl tan narx" maydoniga ko'rsatish
@@ -1751,6 +1749,12 @@
             if (!productName || isNaN(newCostPrice)) {
                 priceComparisonDiv.style.display = 'none';
                 return;
+            }
+            
+            // Foydalanuvchi kiritgan qiymatni saqlash (blur qilishdan oldin)
+            if (!userEnteredCostPrice || userEnteredCostPrice === 0) {
+                userEnteredCostPrice = newCostPrice;
+                console.log(`💾 Foydalanuvchi kiritgan qiymat saqlandi: $${userEnteredCostPrice}`);
             }
             
             fetch('/api/search-product/' + encodeURIComponent(productName))
