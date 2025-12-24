@@ -14,17 +14,18 @@ window.fetch = function(...args) {
     
     return originalFetch.apply(this, args)
         .then(response => {
-            // Agar 401 xatolik bo'lsa va logout kerak bo'lsa
+            // Agar 401 xatolik bo'lsa - avtomatik login sahifasiga yo'naltirish
             if (response.status === 401) {
-                response.clone().json().then(data => {
-                    if (data.logout) {
-                        alert(data.error || 'Hisobingiz faol emas. Qayta login qiling.');
-                        window.location.href = '/login';
-                    }
-                }).catch(() => {
-                    // JSON parse xatosi bo'lsa, oddiy redirect
+                // Xabar ko'rsatish va login sahifasiga yo'naltirish
+                console.warn('401 Unauthorized - Session tugagan, login sahifasiga yo\'naltirilmoqda...');
+                
+                // Alert ko'rsatish (foydalanuvchini xabardor qilish)
+                setTimeout(() => {
+                    alert('Session muddati tugadi. Iltimos, qayta login qiling.');
                     window.location.href = '/login';
-                });
+                }, 100);
+                
+                // Response'ni qaytarish (catch'da xatolik ushlansa ham)
             }
             return response;
         });
