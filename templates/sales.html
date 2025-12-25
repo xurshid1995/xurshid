@@ -2866,6 +2866,10 @@
             const highlightedPhone = customer.phone ? highlightSearchText(customer.phone, searchTerm) : 'N/A';
             const highlightedEmail = customer.email ? highlightSearchText(customer.email, searchTerm) : 'N/A';
             
+            // Debug log
+            console.log('Customer name:', customer.name);
+            console.log('Highlighted name:', highlightedName);
+            
             dropdownHtml += `
                 <div class="dropdown-item" data-customer-id="${customer.id}" onclick="selectCustomer(${customer.id}, '${currentTabId}')">
                     <strong>${highlightedName}</strong><br>
@@ -2875,6 +2879,7 @@
         });
 
         dropdown.innerHTML = dropdownHtml;
+        console.log('Dropdown HTML:', dropdownHtml);
         dropdown.style.display = 'block';
         
         // Keyboard navigation uchun birinchi elementni highlight qilish
