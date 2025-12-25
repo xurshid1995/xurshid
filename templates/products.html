@@ -589,18 +589,17 @@
         }
         
         // Qidiruv so'zlarini ajratish
-        const searchWords = searchTerm.trim().split(/\s+/);
-        let highlightedText = text;
+        const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
+        if (searchWords.length === 0) return text;
         
-        // Har bir so'zni highlight qilish
-        searchWords.forEach(word => {
-            if (word) {
-                const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="search-highlight">$1</span>');
-            }
-        });
+        // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
+        const pattern = searchWords
+            .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|');
         
-        return highlightedText;
+        // Bir marta replace qilish - shunda HTML taglarga tegmaydi
+        const regex = new RegExp(`(${pattern})`, 'gi');
+        return text.replace(regex, '<span class="search-highlight">$1</span>');
     }
 
     // Sahifa yuklanganda
