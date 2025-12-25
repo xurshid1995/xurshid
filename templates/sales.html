@@ -2636,18 +2636,17 @@
         }
         
         // Qidiruv so'zlarini ajratish
-        const searchWords = searchTerm.trim().split(/\s+/);
-        let highlightedText = text;
+        const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
+        if (searchWords.length === 0) return text;
         
-        // Har bir so'zni highlight qilish
-        searchWords.forEach(word => {
-            if (word) {
-                const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="search-highlight">$1</span>');
-            }
-        });
+        // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
+        const pattern = searchWords
+            .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|');
         
-        return highlightedText;
+        // Bir marta replace qilish - shunda HTML taglarga tegmaydi
+        const regex = new RegExp(`(${pattern})`, 'gi');
+        return text.replace(regex, '<span class="search-highlight">$1</span>');
     }
 
     // Narxni formatlash (USD va som)
@@ -3273,19 +3272,8 @@
             const quantityText = product.location_type === 'warehouse' ? `Omborda: ${availableQty}` : `${availableQty}`;
             const uzsPrice = Math.round((product.price || 0) * USD_TO_UZS_RATE);
             
-            // Debug: Qidiruv matnini tekshirish
-            if (index === 0) {
-                console.log('🔍 Search term:', searchTerm);
-                console.log('📦 Product name:', product.name);
-            }
-            
             // Qidiruv matnini highlight qilish
             const highlightedName = highlightSearchText(product.name, searchTerm);
-            
-            // Debug: Highlight natijasini tekshirish
-            if (index === 0) {
-                console.log('✨ Highlighted name:', highlightedName);
-            }
             
             // Mahsulot ma'lumotlarini JSON formatda saqlash
             const productDataJson = JSON.stringify(product).replace(/"/g, '&quot;');
