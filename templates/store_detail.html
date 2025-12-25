@@ -382,11 +382,12 @@
             return `
             <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
                 <td style="padding: 12px; text-align: left;"><strong>${highlightedName}</strong></td>
-                <td style="padding: 12px; text-align: center; font-weight: bold;">${item.stock.quantity}</td>                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #9b59b6;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>                <td style="padding: 12px; text-align: right; font-weight: bold; color: #3498db;">$${item.stock.product.cost_price.toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; font-weight: bold;">${item.stock.quantity}</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; color: #9b59b6;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; color: #3498db;">$${item.stock.product.cost_price.toFixed(2)}</td>
                 <td style="padding: 12px; text-align: right; font-weight: bold;">$${item.stock.product.sell_price.toFixed(2)}</td>
                 <td style="padding: 12px; text-align: right; color: #27ae60; font-weight: bold;">$${item.unit_profit.toFixed(2)}</td>
-                <td style="padding: 12px; text-align: center; color: #3498db; font-weight: bold;">${item.profit_percentage.toFixed(1)}%</td>`
-        }).join('');
+                <td style="padding: 12px; text-align: center; color: #3498db; font-weight: bold;">${item.profit_percentage.toFixed(1)}%</td>
                 <td style="padding: 12px; text-align: center;">
                     ${item.status === 'critical' ? '<span style="color: #000000; font-weight: bold;">🚫 Tugagan</span>' :
                       item.status === 'low' ? '<span style="color: #e74c3c; font-weight: bold;">⚠️ Kam qolgan</span>' :
@@ -408,7 +409,8 @@
                             onmouseout="this.style.background='#e74c3c'">🗑️ O'chirish</button>
                 </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     }
 
     function updatePaginationButtons(currentPage, totalPages, totalItems) {
