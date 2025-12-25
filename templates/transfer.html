@@ -380,6 +380,14 @@
             flex-shrink: 0;
         }
 
+        /* Search highlight styles */
+        .search-highlight {
+            background-color: #ffeb3b;
+            padding: 1px 2px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
         .form-group {
             position: relative;
         }
@@ -783,7 +791,7 @@
                     <div class="form-group">
                         <label for="product_search">🔍 Mahsulot qidiruv:</label>
                         <input type="text" id="product_search" class="form-control" 
-                               placeholder="Mahsulot nomini kiriting..." 
+                               placeholder="Misol: Mat gra weis (qisman so'zlar)" 
                                oninput="searchProducts()" 
                                onkeydown="handleKeyboardNavigation(event)" 
                                autocomplete="off">
@@ -994,6 +1002,27 @@
         }
 
         // Mahsulot qidiruv - faqat tanlangan joydagi mahsulotlarni ko'rsatish
+        // Qidiruv matnini ajratib ko'rsatish funksiyasi (har bir so'zni alohida)
+        function highlightSearchText(text, searchTerm) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                return text;
+            }
+            
+            // Qidiruv so'zlarini ajratish
+            const searchWords = searchTerm.trim().split(/\s+/);
+            let highlightedText = text;
+            
+            // Har bir so'zni highlight qilish
+            searchWords.forEach(word => {
+                if (word) {
+                    const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    highlightedText = highlightedText.replace(regex, '<span class="search-highlight">$1</span>');
+                }
+            });
+            
+            return highlightedText;
+        }
+
         async function searchProducts() {
             const query = document.getElementById('product_search').value.trim();
             const searchResults = document.getElementById('searchResults');
@@ -1040,11 +1069,14 @@
                         let stockStatus = '📊 Miqdor tekshirilmoqda...';
                         let stockClass = 'stock-loading';
                         
+                        // Mahsulot nomini highlight qilish
+                        const highlightedName = highlightSearchText(product.name, query);
+                        
                         resultsHtml += `
                             <div class="search-item" data-index="${index}" data-product-id="${product.id}" onclick="selectProduct(${product.id}, '${product.name}')">
                                 <div class="search-item-details">
                                     <div class="search-item-info">
-                                        <div class="search-item-name">📦 ${product.name}</div>
+                                        <div class="search-item-name">📦 ${highlightedName}</div>
                                         <div class="search-item-price">💰 $${parseFloat(price).toFixed(2)}</div>
                                         <div class="search-item-stock ${stockClass}">${stockStatus}</div>
                                     </div>
