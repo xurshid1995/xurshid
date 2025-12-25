@@ -102,7 +102,7 @@
                 </h3>
                 <!-- Qidiruv maydoni -->
                 <div style="margin-bottom: 0.7rem;">
-                    <input type="text" id="productSearchInput" placeholder="Mahsulot nomini qidiring..." 
+                    <input type="text" id="productSearchInput" placeholder="Qidirish (masalan: Mat gra weis)..." 
                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;"
                            onkeyup="handleProductSearchWithNav(event)" onkeydown="handleTableNavigation(event)">
                 </div>
@@ -2774,6 +2774,16 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* Qidiruv highlight */
+.search-highlight {
+    background-color: #ffeb3b;
+    color: #333;
+    font-weight: 600;
+    padding: 1px 2px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(255, 235, 59, 0.3);
+}
+
 /* Check stock specific CSS - High specificity */
 #resultsSection table {
     border-spacing: 0 !important;
@@ -2990,6 +3000,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Eski filtr funksiyasi (dropdown bo'lmagan holatlar uchun)
+// Qidiruv matnini ajratib ko'rsatish funksiyasi
+function highlightSearchText(text, searchTerm) {
+    if (!searchTerm || searchTerm.trim() === '') {
+        return text;
+    }
+    
+    // Qidiruv so'zlarini ajratish
+    const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
+    if (searchWords.length === 0) return text;
+    
+    // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
+    const pattern = searchWords
+        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('|');
+    
+    // Bir marta replace qilish - shunda HTML taglarga tegmaydi
+    const regex = new RegExp(`(${pattern})`, 'gi');
+    return text.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
 function filterProductsTable(searchTerm) {
     const tableBody = document.getElementById('productsTableBody');
     const rows = tableBody.getElementsByTagName('tr');
@@ -3003,11 +3033,37 @@ function filterProductsTable(searchTerm) {
         if (cells.length === 1) continue;
         
         if (cells.length > 0) {
-            const productName = cells[0].textContent.toLowerCase();
+            // Asl mahsulot nomini olish (data attribute'dan)
+            const originalName = row.dataset.originalName || cells[0].textContent;
             
-            if (productName.includes(searchTerm.toLowerCase())) {
+            // Agar data attribute bo'lmasa, birinchi marta saqlash
+            if (!row.dataset.originalName) {
+                row.dataset.originalName = cells[0].textContent;
+            }
+            
+            // Qisman so'zlar bilan qidirish
+            const searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
+            let matchesAll = true;
+            
+            if (searchTerm.trim()) {
+                for (const word of searchWords) {
+                    if (word && !originalName.toLowerCase().includes(word)) {
+                        matchesAll = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (matchesAll) {
                 row.style.display = '';
                 visibleCount++;
+                
+                // Qidiruv matnini highlight qilish
+                if (searchTerm.trim()) {
+                    cells[0].innerHTML = highlightSearchText(originalName, searchTerm);
+                } else {
+                    cells[0].textContent = originalName;
+                }
             } else {
                 row.style.display = 'none';
             }
