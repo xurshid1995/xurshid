@@ -4342,7 +4342,22 @@
 
     // Miqdorni o'rnatish (HTML onchange uchun wrapper)
     function setQuantity(productId, newQuantity, tabId) {
-        setQuantityAsync(productId, newQuantity, tabId);
+        // Debounce: agar juda tez chaqirilsa, oldingi chaqiruvni bekor qilish
+        const key = `${tabId || activeTabId}_${productId}`;
+        
+        if (window.setQuantityDebounceTimers && window.setQuantityDebounceTimers[key]) {
+            console.log(`⏸️ setQuantity debounced for ${key}`);
+            clearTimeout(window.setQuantityDebounceTimers[key]);
+        }
+        
+        if (!window.setQuantityDebounceTimers) {
+            window.setQuantityDebounceTimers = {};
+        }
+        
+        window.setQuantityDebounceTimers[key] = setTimeout(() => {
+            setQuantityAsync(productId, newQuantity, tabId);
+            delete window.setQuantityDebounceTimers[key];
+        }, 100); // 100ms debounce
     }
 
     // Miqdorni o'rnatish
@@ -4374,7 +4389,8 @@
         const lockKey = `${currentTabId}_${productId}`;
         if (quantityUpdateLocks[lockKey]) {
             console.log(`⏸️ [${callTime}] Lock aktiv: ${lockKey} - oldingi update tugashini kutmoqda...`);
-            return;
+            console.warn(`🚫 DUPLICATE CALL PREVENTED! Lock is active for ${lockKey}`);
+            return; // MUHIM: duplicate call'ni to'xtatish
         }
         
         quantityUpdateLocks[lockKey] = true; // Lock yoqish
