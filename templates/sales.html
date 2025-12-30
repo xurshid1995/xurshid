@@ -4433,6 +4433,9 @@
                 // Stock qaytarish kerak (faqat farq)
                 const returnAmount = Math.abs(difference);
                 console.log(`↩️ ${returnAmount} ta stokga qaytarilmoqda...`);
+                console.log(`   🔍 Stack trace (returnStock chaqirilishidan oldin):`);
+                console.log(new Error().stack);
+                
                 const returnSuccess = await returnStock(item.id, returnAmount, item.location_id, item.location_type);
                 
                 if (!returnSuccess) {
