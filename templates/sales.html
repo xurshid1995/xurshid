@@ -524,10 +524,11 @@
         
         // USD narx o'zgarganda avtomatik UZS hisoblash
         document.getElementById('modalPriceUSD').addEventListener('input', updateUZSPrice);
-            });
-            
-            // Input focus bo'lganda dropdown'ni ko'rsatish
-            customerSearchInput.addEventListener('focus', function() {
+        
+        // Input focus bo'lganda dropdown'ni ko'rsatish
+        const customerSearchInput2 = document.getElementById('customerSearch');
+        if (customerSearchInput2) {
+            customerSearchInput2.addEventListener('focus', function() {
                 if (this.value.length >= 2) {
                     searchCustomers(this.value);
                 }
