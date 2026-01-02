@@ -2409,25 +2409,25 @@
                     Mahsulot ma'lumotlari
                 </div>
                 <div class="panel-content">
-                    <!-- 1-qator: Joylashuv tanlash -->
-                    <div class="form-row">
-                        <label for="locationSelect-{TAB_ID}">📍 Joylashuv tanlash:</label>
-                        <select id="locationSelect-{TAB_ID}" class="form-input" onchange="loadLocationProducts('{TAB_ID}')">
-                            <option value="">Joylashuvni tanlang</option>
-                        </select>
-                    </div>
-
-                    <!-- 2-qator: Mijoz tanlash -->
-                    <div class="form-row">
-                        <label for="customerSearch-{TAB_ID}">👤 Mijoz tanlash:</label>
-                        <div class="customer-search-container">
-                            <input type="text" id="customerSearch-{TAB_ID}" class="form-input" placeholder="Misol: Ahm Jon (qisman so'zlar)" onkeyup="if(!['ArrowDown','ArrowUp','Enter','Escape'].includes(event.key)) searchCustomers('{TAB_ID}')" onkeydown="handleCustomerKeyNavigation(event, '{TAB_ID}')">
-                            <div id="customerDropdown-{TAB_ID}" class="customer-dropdown" style="display: none;"></div>
-                            <input type="hidden" id="selectedCustomerId-{TAB_ID}" value="">
+                    <!-- 1-qator: Joylashuv va Mijoz bir qatorda -->
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="locationSelect-{TAB_ID}">📍 Joylashuv:</label>
+                            <select id="locationSelect-{TAB_ID}" class="form-input" onchange="loadLocationProducts('{TAB_ID}')">
+                                <option value="">Joylashuvni tanlang</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="customerSearch-{TAB_ID}">👤 Mijoz:</label>
+                            <div class="customer-search-container">
+                                <input type="text" id="customerSearch-{TAB_ID}" class="form-input" placeholder="Misol: Ahm Jon" onkeyup="if(!['ArrowDown','ArrowUp','Enter','Escape'].includes(event.key)) searchCustomers('{TAB_ID}')" onkeydown="handleCustomerKeyNavigation(event, '{TAB_ID}')">
+                                <div id="customerDropdown-{TAB_ID}" class="customer-dropdown" style="display: none;"></div>
+                                <input type="hidden" id="selectedCustomerId-{TAB_ID}" value="">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 3-qator: Mahsulot qidirish -->
+                    <!-- 2-qator: Mahsulot qidirish -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="productSearch-{TAB_ID}">🔍 Mahsulot qidirish:</label>
@@ -2438,7 +2438,7 @@
                         </div>
                     </div>
 
-                    <!-- 4-qator: Mavjud va Miqdor bir qatorda -->
+                    <!-- 3-qator: Mavjud va Miqdor bir qatorda -->
                     <div class="form-row form-row-quantities">
                         <div style="display: grid; grid-template-columns: 0.7fr 0.6fr; gap: 15px;">
                             <div class="form-group" style="margin: 0;">
@@ -2452,7 +2452,7 @@
                         </div>
                     </div>
 
-                    <!-- 5-qator: Sotish narxi USD va UZS -->
+                    <!-- 4-qator: Sotish narxi USD va UZS -->
                     <div class="form-row form-row-double form-row-prices">
                         <div class="form-group">
                             <label for="priceUSD-{TAB_ID}">💵 Sotish narxi ($):</label>
