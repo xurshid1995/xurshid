@@ -82,9 +82,33 @@
 
         <!-- Ikkinchi layout -->
         <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h3 style="margin-top: 0; color: #333;">Layout 2</h3>
-            <div style="min-height: 400px; border: 2px dashed #dee2e6; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
-                <p>Ikkinchi layout</p>
+            <h3 style="margin-top: 0; color: #333;">🛒 Savdo Korzinasi</h3>
+            <div id="cartContainer" style="min-height: 400px;">
+                <div id="cartItems" style="margin-bottom: 15px;"></div>
+                <div id="cartTotal" style="border-top: 2px solid #dee2e6; padding-top: 10px; font-weight: bold; font-size: 16px; text-align: right;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal oyna -->
+    <div id="quantityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 8px; padding: 30px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 20px 0; color: #333;">Miqdorni kiriting</h3>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mahsulot:</label>
+                <div id="modalProductName" style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-weight: 500;"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mavjud:</label>
+                <div id="modalAvailable" style="padding: 10px; background: #f8f9fa; border-radius: 4px; color: #28a745;"></div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Miqdor:</label>
+                <input type="number" id="modalQuantity" min="1" value="1" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Bekor qilish</button>
+                <button onclick="confirmAddToCart()" style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Qo'shish</button>
             </div>
         </div>
     </div>
@@ -118,6 +142,8 @@
     
     // Mijozlarni yuklash va qidirish
     let allCustomers = [];
+    let cart = [];
+    let currentProduct = null;
     
     async function loadCustomers() {
         try {
@@ -251,11 +277,101 @@
         }
     }
     
-    // Mahsulotni savatga qo'shish
+    // Modal ochish
+    function addToCart(productId, productName, quantity, price) {
+        currentProduct = { id: productId, name: productName, available: quantity, price: price };
+        
+        document.getElementById('modalProductName').textContent = productName;
+        document.getElementById('modalAvailable').textContent = `${quantity} dona`;
+        document.getElementById('modalQuantity').value = 1;
+        document.getElementById('modalQuantity').max = quantity;
+        
+        document.getElementById('quantityModal').style.display = 'flex';
+    }
+    
+    // Modal yopish
+    function closeModal() {
+        document.getElementById('quantityModal').style.display = 'none';
+        currentProduct = null;
+    }
+    
+    // Savatga qo'shish
+    function confirmAddToCart() {
+        const quantity = parseInt(document.getElementById('modalQuantity').value);
+        
+        if (quantity <= 0 || quantity > currentProduct.available) {
+            alert('Noto\'g\'ri miqdor!');
+            return;
+        }
+        
+        // Savat ichida mahsulot bormi tekshirish
+        const existingItem = cart.find(item => item.id === currentProduct.id);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                id: currentProduct.id,
+                name: currentProduct.name,
+                price: currentProduct.price,
+                quantity: quantity
+            });
+        }
+        
+        updateCart();
+        closeModal();
+        console.log('✅ Savatga qo\'shildi:', currentProduct.name, quantity, 'dona');
+    }
+    
+    // Savatni yangilash
+    function updateCart() {
+        const cartItemsDiv = document.getElementById('cartItems');
+        const cartTotalDiv = document.getElementById('cartTotal');
+        
+        if (cart.length === 0) {
+            cartItemsDiv.innerHTML = '<div style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</div>';
+            cartTotalDiv.innerHTML = '';
+            return;
+        }
+        
+        let html = '';
+        let total = 0;
+        
+        cart.forEach((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            
+            html += `
+                <div style="padding: 15px; border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 10px; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; color: #333; margin-bottom: 5px;">${item.name}</div>
+                            <div style="font-size: 13px; color: #6c757d;">$${formatPrice(item.price)} × ${item.quantity} = $${formatPrice(itemTotal)}</div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">×</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        cartItemsDiv.innerHTML = html;
+        cartTotalDiv.innerHTML = `Jami: <span style="color: #007bff;">$${formatPrice(total)}</span>`;
+    }
+    
+    // Savatdan o'chirish
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+        console.log('🗑️ Savatdan o\'chirildi');
+    }
+    
+    // Mahsulotni savatga qo'shish (eski)
+    /*
     function addToCart(productId, productName, quantity, price) {
         console.log(`➕ Savatga qo'shildi: ${productName} (ID: ${productId})`);
         // Bu yerda savat logikasini qo'shish kerak
     }
+    */
     
     // Mahsulot qidirish funksiyasi
     function filterProducts() {
