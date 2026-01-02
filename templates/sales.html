@@ -36,7 +36,7 @@
     <!-- Ikkita 665px kenglikda layout -->
     <div style="display: grid; grid-template-columns: 665px 665px; gap: 20px; justify-content: center; padding: 20px;">
         <!-- Birinchi layout -->
-        <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 665px; box-sizing: border-box;">
+        <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 665px; box-sizing: border-box;">
             <!-- Joylashuv va Mijoz tanlash -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
@@ -58,12 +58,12 @@
             
             <!-- Mahsulotlar jadvali -->
             <div style="overflow: hidden;">
-                <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Mahsulot</th>
-                            <th style="padding: 10px 8px; text-align: center; font-size: 13px; color: #495057; width: 80px;">Mavjud</th>
-                            <th style="padding: 10px 8px; text-align: right; font-size: 13px; color: #495057; width: 120px;">Narx</th>
+                            <th style="padding: 10px 5px; text-align: left; font-size: 13px; color: #495057; width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Mahsulot</th>
+                            <th style="padding: 10px 5px; text-align: center; font-size: 13px; color: #495057; width: 15%;">Mavjud</th>
+                            <th style="padding: 10px 5px; text-align: right; font-size: 13px; color: #495057; width: 30%;">Narx</th>
                         </tr>
                     </thead>
                     <tbody id="productsTable">
@@ -171,9 +171,9 @@
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.innerHTML = `
-                    <td style="padding: 12px 8px; font-size: 14px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
-                    <td style="padding: 12px 8px; text-align: center; font-size: 14px; color: #28a745; font-weight: 500;">${quantity}</td>
-                    <td style="padding: 12px 8px; text-align: right; font-size: 14px; color: #333; font-weight: 500;">${formatPrice(sellingPrice)} so'm</td>
+                    <td style="padding: 12px 5px; font-size: 14px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
+                    <td style="padding: 12px 5px; text-align: center; font-size: 14px; color: #28a745; font-weight: 500;">${quantity}</td>
+                    <td style="padding: 12px 5px; text-align: right; font-size: 14px; color: #333; font-weight: 500;">${formatPrice(sellingPrice)} so'm</td>
                 `;
                 tbody.appendChild(row);
             });
