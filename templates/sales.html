@@ -298,11 +298,18 @@
             const response = await fetch('/api/currency-rate');
             const data = await response.json();
             if (data.rate) {
-                exchangeRate = parseFloat(data.rate);
-                console.log('✅ Valyuta kursi yuklandi:', exchangeRate);
+                const newRate = parseFloat(data.rate);
+                if (!isNaN(newRate) && newRate > 0) {
+                    exchangeRate = newRate;
+                    console.log('✅ Valyuta kursi yuklandi:', exchangeRate);
+                } else {
+                    console.warn('⚠️ Noto\'g\'ri kurs qiymati, default ishlatiladi:', exchangeRate);
+                }
+            } else {
+                console.warn('⚠️ Kurs ma\'lumoti topilmadi, default ishlatiladi:', exchangeRate);
             }
         } catch (error) {
-            console.error('Kursni yuklashda xatolik:', error);
+            console.error('❌ Kursni yuklashda xatolik, default ishlatiladi:', exchangeRate, error);
         }
     }
     
