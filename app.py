@@ -1101,12 +1101,12 @@ def api_products():
 def api_locations():
     """Savdo uchun ruxsat etilgan joylashuvlarni qaytarish (allowed_locations ishlatadi)"""
     try:
-        logger.debug(" API Locations called", flush=True)
+        logger.debug(" API Locations called")
         import sys
         sys.stdout.flush()
         # Session tekshirish
         if 'user_id' not in session:
-            logger.error(" No user_id in session", flush=True)
+            logger.error(" No user_id in session")
             return jsonify({'error': 'Login required'}), 401
 
         logger.debug(f" Session user_id: {session.get('user_id')}")
