@@ -115,7 +115,7 @@
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">💰 Sotish narxi (UZS):</label>
-                    <input type="number" id="modalPriceUZS" readonly style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background: #e9ecef;">
+                    <input type="number" id="modalPriceUZS" step="100" value="0" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 </div>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -327,7 +327,24 @@
         const uzsPrice = usdPrice * exchangeRate;
         uzsInput.value = uzsPrice.toFixed(2);
         
-        console.log('💱 Konversiya:', usdPrice, 'USD ×', exchangeRate, '=', uzsPrice.toFixed(2), 'UZS');
+        console.log('💱 Konversiya (USD→UZS):', usdPrice, 'USD ×', exchangeRate, '=', uzsPrice.toFixed(2), 'UZS');
+    }
+    
+    // UZS dan USD ga avtomatik konversiya
+    function updateUSDPrice() {
+        const usdInput = document.getElementById('modalPriceUSD');
+        const uzsInput = document.getElementById('modalPriceUZS');
+        
+        if (!usdInput || !uzsInput) {
+            console.error('❌ Modal input elementlari topilmadi');
+            return;
+        }
+        
+        const uzsPrice = parseFloat(uzsInput.value) || 0;
+        const usdPrice = uzsPrice / exchangeRate;
+        usdInput.value = usdPrice.toFixed(2);
+        
+        console.log('💱 Konversiya (UZS→USD):', uzsPrice, 'UZS ÷', exchangeRate, '=', usdPrice.toFixed(2), 'USD');
     }
     
     // Modal ochish
@@ -541,6 +558,9 @@
         
         // USD narx o'zgarganda avtomatik UZS hisoblash
         document.getElementById('modalPriceUSD').addEventListener('input', updateUZSPrice);
+        
+        // UZS narx o'zgarganda avtomatik USD hisoblash
+        document.getElementById('modalPriceUZS').addEventListener('input', updateUSDPrice);
         
         // Input focus bo'lganda dropdown'ni ko'rsatish
         const customerSearchInput2 = document.getElementById('customerSearch');
