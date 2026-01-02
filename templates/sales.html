@@ -63,9 +63,9 @@
                 <table style="width: 625px; border-collapse: collapse;">
                     <thead>
                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Mahsulot</th>
-                            <th style="padding: 10px 8px; text-align: center; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; width: 50px;">Mavjud</th>
-                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; max-width: 165px;">Narx</th>
+                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6;">Mahsulot</th>
+                            <th style="padding: 10px 8px; text-align: center; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6;">Mavjud</th>
+                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6;">Narx</th>
                             <th style="padding: 2px; text-align: center; font-size: 13px; color: #495057;">Amal</th>
                         </tr>
                     </thead>
@@ -229,11 +229,11 @@
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.innerHTML = `
-                    <td style="padding: 12px 8px; font-size: 14px; color: #333; border-right: 1px solid #eee; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
-                    <td style="padding: 12px 8px; text-align: center; font-size: 14px; border-right: 1px solid #eee; width: 50px;">
-                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block; white-space: nowrap;">${quantity}</span>
+                    <td style="padding: 12px 8px; font-size: 14px; color: #333; border-right: 1px solid #eee;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
+                    <td style="padding: 12px 8px; text-align: center; font-size: 14px; border-right: 1px solid #eee;">
+                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block;">${quantity}</span>
                     </td>
-                    <td style="padding: 12px 8px; text-align: left; font-size: 14px; border-right: 1px solid #eee; white-space: nowrap; max-width: 165px; overflow: hidden;">
+                    <td style="padding: 12px 8px; text-align: left; font-size: 14px; border-right: 1px solid #eee;">
                         <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; margin-right: 6px; display: inline-block;">$${formatPrice(sellingPrice)}</span>
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * 12650)} so'm</span>
                     </td>
