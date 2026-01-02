@@ -35,44 +35,44 @@
             <li>
                 <a href="/" {% if request.endpoint == 'index' %}class="active"{% endif %}>
                     <span class="icon">🏠</span>
-                    Bosh sahifa
+                    <span>Bosh sahifa</span>
                 </a>
             </li>
             <li>
                 <a href="/sales" {% if request.endpoint == 'sales' %}class="active"{% endif %}>
                     <span class="icon">🛒</span>
-                    Savdo
+                    <span>Savdo</span>
                 </a>
             </li>
             <li>
                 <a href="/sales-history" {% if request.endpoint == 'sales_history' %}class="active"{% endif %}>
                     <span class="icon">📊</span>
-                    Savdo tarixi
+                    <span>Savdo tarixi</span>
                 </a>
             </li>
             <li>
                 <a href="/pending-sales" {% if request.endpoint == 'pending_sales' %}class="active"{% endif %}>
                     <span class="icon">⏳</span>
-                    Tasdiqlanmagan savdolar
+                    <span>Tasdiqlanmagan savdolar</span>
                 </a>
             </li>
             <li>
                 <a href="/products" {% if request.endpoint == 'products_list' %}class="active"{% endif %}>
                     <span class="icon">📦</span>
-                    Mahsulotlar
+                    <span>Mahsulotlar</span>
                 </a>
             </li>
             <li>
                 <a href="/transfer" {% if request.endpoint == 'transfer' %}class="active"{% endif %}>
                     <span class="icon">🔄</span>
-                    Transfer
+                    <span>Transfer</span>
                 </a>
             </li>
             {% if session.role != 'sotuvchi' or (session.role == 'sotuvchi' and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
                     <span class="icon">📋</span>
-                    Qoldiqni tekshirish
+                    <span>Qoldiqni tekshirish</span>
                 </a>
             </li>
             {% endif %}
@@ -80,39 +80,39 @@
             <li>
                 <a href="/add_product" {% if request.endpoint == 'add_product' %}class="active"{% endif %}>
                     <span class="icon">➕</span>
-                    Mahsulot qo'shish
+                    <span>Mahsulot qo'shish</span>
                 </a>
             </li>
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>
                     <span class="icon">🏬</span>
-                    Do'konlar
+                    <span>Do'konlar</span>
                 </a>
             </li>
             <li>
                 <a href="/warehouses" {% if request.endpoint == 'warehouses' %}class="active"{% endif %}>
                     <span class="icon">🏭</span>
-                    Omborlar
+                    <span>Omborlar</span>
                 </a>
             </li>
             {% endif %}
             <li>
                 <a href="/customers" {% if request.endpoint == 'customers' %}class="active"{% endif %}>
                     <span class="icon">👥</span>
-                    Mijozlar
+                    <span>Mijozlar</span>
                 </a>
             </li>
             {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/users" {% if request.endpoint == 'users' %}class="active"{% endif %}>
                     <span class="icon">👤</span>
-                    Foydalanuvchilar
+                    <span>Foydalanuvchilar</span>
                 </a>
             </li>
             <li>
                 <a href="/currency-rate" {% if request.endpoint == 'currency_rate' %}class="active"{% endif %}>
                     <span class="icon">💱</span>
-                    Valyuta Kursi
+                    <span>Valyuta Kursi</span>
                 </a>
             </li>
             {% endif %}
@@ -120,7 +120,7 @@
             <li>
                 <a href="/settings" {% if request.endpoint == 'settings_page' %}class="active"{% endif %}>
                     <span class="icon">⚙️</span>
-                    Sozlamalar
+                    <span>Sozlamalar</span>
                 </a>
             </li>
             {% endif %}

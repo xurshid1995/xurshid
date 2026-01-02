@@ -47,7 +47,7 @@ body {
 
 /* Sidebar Navigation */
 .sidebar {
-    width: 250px;
+    width: 70px; /* Oddiy holatda tor */
     background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
     height: calc(100vh - 70px);
     padding: 0;
@@ -61,6 +61,12 @@ body {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    transition: width 0.3s ease; /* Yumshoq transition */
+}
+
+/* Hover qilganda kengayadi */
+.sidebar:hover {
+    width: 250px;
 }
 
 /* Custom Scrollbar for Sidebar */
@@ -103,6 +109,18 @@ body {
     font-size: 14px;
     position: relative;
     overflow: hidden;
+    white-space: nowrap; /* Matnni bir qatorda saqlash */
+}
+
+/* Oddiy holatda matn yashirin */
+.sidebar-menu a span:not(.icon) {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Hover qilganda matn ko'rinadi */
+.sidebar:hover .sidebar-menu a span:not(.icon) {
+    opacity: 1;
 }
 
 /* Yuqoridan chiziq animatsiyasi */
@@ -187,6 +205,7 @@ body {
     width: 20px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0; /* Ikon hajmi o'zgarmaydi */
 }
 
 /* Top Header Bar */
@@ -329,12 +348,12 @@ body {
 
 /* Main Content - Desktop */
 .main-content {
-    margin-left: 250px;
+    margin-left: 70px; /* Oddiy holatda tor sidebar uchun */
     margin-top: 70px;
     flex: 1;
     padding: 20px;
-    width: calc(100vw - 250px);
-    max-width: calc(100vw - 250px);
+    width: calc(100vw - 70px);
+    max-width: calc(100vw - 70px);
     min-height: calc(100vh - 70px);
     box-sizing: border-box;
     overflow-x: auto;
