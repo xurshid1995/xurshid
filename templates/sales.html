@@ -210,6 +210,11 @@
             return;
         }
         
+        // Regex maxsus belgilarini escape qilish
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
         // Qidiruv so'zlarini ajratish (bo'shliq bilan)
         const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
         
@@ -235,7 +240,8 @@
                     // Highlight qilish
                     let highlightedText = originalText;
                     searchWords.forEach(word => {
-                        const regex = new RegExp(`(${word})`, 'gi');
+                        const escapedWord = escapeRegex(word);
+                        const regex = new RegExp(`(${escapedWord})`, 'gi');
                         highlightedText = highlightedText.replace(regex, '<span style="background-color: #ffeb3b; padding: 2px 4px; border-radius: 2px;">$1</span>');
                     });
                     productNameCell.innerHTML = highlightedText;
