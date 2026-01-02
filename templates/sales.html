@@ -192,17 +192,32 @@
     
     // Mahsulot qidirish funksiyasi
     function filterProducts() {
-        const searchText = document.getElementById('productSearch').value.toLowerCase();
+        const searchText = document.getElementById('productSearch').value.toLowerCase().trim();
         const tbody = document.getElementById('productsTable');
         const rows = tbody.getElementsByTagName('tr');
+        
+        // Bo'sh qidiruv - barchasini ko'rsat
+        if (!searchText) {
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+            return;
+        }
+        
+        // Qidiruv so'zlarini ajratish (bo'shliq bilan)
+        const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
         
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             const productName = row.getElementsByTagName('td')[0];
             
             if (productName) {
-                const textValue = productName.textContent || productName.innerText;
-                if (textValue.toLowerCase().indexOf(searchText) > -1) {
+                const textValue = (productName.textContent || productName.innerText).toLowerCase();
+                
+                // Barcha so'zlar topilishi kerak
+                const allWordsFound = searchWords.every(word => textValue.indexOf(word) > -1);
+                
+                if (allWordsFound) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
