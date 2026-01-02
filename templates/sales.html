@@ -60,13 +60,13 @@
             
             <!-- Mahsulotlar jadvali -->
             <div style="overflow: auto; width: 100%;">
-                <table style="width: 100%; border-collapse: collapse; min-width: 520px; table-layout: fixed;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 520px;">
                     <thead>
                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; width: 290px; word-wrap: break-word; white-space: normal; border-right: 1px solid #dee2e6;">Mahsulot</th>
-                            <th style="padding: 10px 8px; text-align: center; font-size: 13px; color: #495057; width: 50px; word-wrap: break-word; white-space: normal; border-right: 1px solid #dee2e6;">Mavjud</th>
+                            <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; word-wrap: break-word; white-space: normal; border-right: 1px solid #dee2e6;">Mahsulot</th>
+                            <th style="padding: 10px 8px; text-align: center; font-size: 13px; color: #495057; width: 60px; word-wrap: break-word; white-space: normal; border-right: 1px solid #dee2e6;">Mavjud</th>
                             <th style="padding: 10px 8px; text-align: left; font-size: 13px; color: #495057; width: 160px; word-wrap: break-word; white-space: normal; border-right: 1px solid #dee2e6;">Narx</th>
-                            <th style="padding: 2px; text-align: center; font-size: 13px; color: #495057; width: 40px; word-wrap: break-word; white-space: normal;">Amal</th>
+                            <th style="padding: 2px; text-align: center; font-size: 13px; color: #495057; width: 10px; word-wrap: break-word; white-space: normal;">Amal</th>
                         </tr>
                     </thead>
                     <tbody id="productsTable">
@@ -237,7 +237,7 @@
                         <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; margin-right: 6px; display: inline-block;">$${formatPrice(sellingPrice)}</span>
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * 12650)} so'm</span>
                     </td>
-                    <td style="padding: 2px; text-align: center; font-size: 14px; width: 40px;">
+                    <td style="padding: 2px; text-align: center; font-size: 14px; width: 10px;">
                         <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}',, ${quantity}, ${sellingPrice})" style="background: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">+</button>
                     </td>
                 `;
