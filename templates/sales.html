@@ -144,12 +144,36 @@
             
             tbody.innerHTML = '';
             products.forEach(product => {
+                // Quantity va selling price ni olish
+                let quantity = 0;
+                let sellingPrice = product.sell_price || product.price || 0;
+                
+                // Agar stocks mavjud bo'lsa, locationga mos keladiganini topish
+                if (product.stocks && product.stocks.length > 0) {
+                    const [type, id] = locationValue.split('_');
+                    const locationId = parseInt(id);
+                    
+                    // Mos stock ni topish
+                    const matchingStock = product.stocks.find(stock => {
+                        if (type === 'warehouse') {
+                            return stock.warehouse_id === locationId;
+                        } else if (type === 'store') {
+                            return stock.store_id === locationId;
+                        }
+                        return false;
+                    });
+                    
+                    if (matchingStock) {
+                        quantity = matchingStock.quantity || 0;
+                    }
+                }
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.innerHTML = `
                     <td style="padding: 12px 10px; font-size: 14px; color: #333;">${product.name || 'N/A'}</td>
-                    <td style="padding: 12px 10px; text-align: center; font-size: 14px; color: #28a745; font-weight: 500;">${product.quantity || 0}</td>
-                    <td style="padding: 12px 10px; text-align: right; font-size: 14px; color: #333; font-weight: 500;">${formatPrice(product.selling_price)} so'm</td>
+                    <td style="padding: 12px 10px; text-align: center; font-size: 14px; color: #28a745; font-weight: 500;">${quantity}</td>
+                    <td style="padding: 12px 10px; text-align: right; font-size: 14px; color: #333; font-weight: 500;">${formatPrice(sellingPrice)} so'm</td>
                 `;
                 tbody.appendChild(row);
             });
