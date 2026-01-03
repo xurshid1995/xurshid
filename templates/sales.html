@@ -1261,6 +1261,17 @@
         
         // Korzinani tozalash
         cart = [];
+        
+        // Mijoz maydonini tozalash
+        const customerSearch = document.getElementById('customerSearch');
+        const selectedCustomerId = document.getElementById('selectedCustomerId');
+        if (customerSearch) {
+            customerSearch.value = '';
+        }
+        if (selectedCustomerId) {
+            selectedCustomerId.value = '';
+        }
+        
         updateCart();
         
         // Mahsulotlar jadvalini yangilash
