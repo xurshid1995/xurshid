@@ -508,7 +508,13 @@
             return;
         }
         
-        // Yangi mahsulot qo'shish
+        // Yangi mahsulot qo'shish - currentProduct tekshiruvi
+        if (!currentProduct) {
+            alert('Mahsulot ma\'lumotlari topilmadi!');
+            console.error('❌ currentProduct null holatda');
+            return;
+        }
+        
         if (quantity <= 0 || quantity > currentProduct.available) {
             alert('Noto\'g\'ri miqdor!');
             return;
