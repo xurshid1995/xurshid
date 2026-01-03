@@ -289,11 +289,11 @@
                 row.innerHTML = `
                     <td style="padding: 12px 8px; font-size: 14px; color: #333; border-right: 1px solid #eee;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
                     <td style="padding: 12px 8px; text-align: center; font-size: 14px; border-right: 1px solid #eee;">
-                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block;">${quantity}</span>
+                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${quantity}</span>
                     </td>
                     <td style="padding: 12px 8px; text-align: left; font-size: 14px; border-right: 1px solid #eee;">
-                        <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; margin-right: 6px; display: inline-block;">$${formatPrice(sellingPrice)}</span>
-                        <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * 12650)} so'm</span>
+                        <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; margin-right: 6px; display: inline-block;">$${formatPrice(sellingPrice)}</span>
+                        <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * 12650)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
                         <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity}, ${sellingPrice})" style="background: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">+</button>
