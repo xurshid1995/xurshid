@@ -25,7 +25,7 @@ def clean_orphan_products():
         print(f"\n⚠️  {len(orphan_products)} ta yetim mahsulot topildi:\n")
         
         for product in orphan_products:
-            print(f"  - ID: {product.id}, Nomi: {product.name}, Barcode: {product.barcode}")
+            print(f"  - ID: {product.id}, Nomi: {product.name}")
         
         # Tasdiqlash
         print(f"\n❓ Bu mahsulotlarni o'chirmoqchimisiz? (ha/yo'q): ", end='')
