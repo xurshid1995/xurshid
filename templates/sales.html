@@ -296,7 +296,7 @@
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * 12650)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
-                        <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity}, ${sellingPrice})" style="background: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 14px;">➡️</button>
+                        <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity}, ${sellingPrice})" style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: pointer; font-size: 18px;">➡️</button>
                     </td>
                 `;
                 tbody.appendChild(row);
