@@ -579,13 +579,13 @@
         <table class="products-table" id="productsTable" style="display: none;">
             <thead>
                 <tr>
-                    <th>Mahsulot nomi</th>
                     <th>Barcode</th>
+                    <th>Mahsulot nomi</th>
                     <th>Narx</th>
                     <th>Joylashuv</th>
                     <th><span id="quantityHeader">Umumiy miqdor</span></th>
                     <th>Holat</th>
-                    <th>Amal</th>
+                    <th>Amallar</th>
                 </tr>
             </thead>
             <tbody id="productsTableBody">
@@ -956,8 +956,8 @@
                 
                 tableHtml += `
                     <tr>
-                        <td class="product-name">${highlightedName}</td>
                         <td style="text-align: center;">${barcodeCell}</td>
+                        <td class="product-name">${highlightedName}</td>
                         <td class="price-cell">
                             <span style="background-color: #28a745; color: white; font-weight: 600; padding: 2px 8px; border-radius: 4px;">$${formatPrice(product.sell_price)}</span>
                             <span style="background-color: #007bff; color: white; font-size: 0.9rem; margin-left: 0.5rem; padding: 2px 8px; border-radius: 4px;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
