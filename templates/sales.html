@@ -741,6 +741,48 @@
         // UZS narx o'zgarganda avtomatik USD hisoblash
         document.getElementById('modalPriceUZS').addEventListener('input', updateUSDPrice);
         
+        // To'lov modal oynasida USD dan UZS ga avtomatik konversiya
+        document.getElementById('paymentCashUSD').addEventListener('input', function() {
+            const usd = parseFloat(this.value) || 0;
+            document.getElementById('paymentCashUZS').value = Math.round(usd * exchangeRate);
+        });
+        
+        document.getElementById('paymentClickUSD').addEventListener('input', function() {
+            const usd = parseFloat(this.value) || 0;
+            document.getElementById('paymentClickUZS').value = Math.round(usd * exchangeRate);
+        });
+        
+        document.getElementById('paymentTerminalUSD').addEventListener('input', function() {
+            const usd = parseFloat(this.value) || 0;
+            document.getElementById('paymentTerminalUZS').value = Math.round(usd * exchangeRate);
+        });
+        
+        document.getElementById('paymentDebtUSD').addEventListener('input', function() {
+            const usd = parseFloat(this.value) || 0;
+            document.getElementById('paymentDebtUZS').value = Math.round(usd * exchangeRate);
+        });
+        
+        // To'lov modal oynasida UZS dan USD ga avtomatik konversiya
+        document.getElementById('paymentCashUZS').addEventListener('input', function() {
+            const uzs = parseFloat(this.value) || 0;
+            document.getElementById('paymentCashUSD').value = (uzs / exchangeRate).toFixed(2);
+        });
+        
+        document.getElementById('paymentClickUZS').addEventListener('input', function() {
+            const uzs = parseFloat(this.value) || 0;
+            document.getElementById('paymentClickUSD').value = (uzs / exchangeRate).toFixed(2);
+        });
+        
+        document.getElementById('paymentTerminalUZS').addEventListener('input', function() {
+            const uzs = parseFloat(this.value) || 0;
+            document.getElementById('paymentTerminalUSD').value = (uzs / exchangeRate).toFixed(2);
+        });
+        
+        document.getElementById('paymentDebtUZS').addEventListener('input', function() {
+            const uzs = parseFloat(this.value) || 0;
+            document.getElementById('paymentDebtUSD').value = (uzs / exchangeRate).toFixed(2);
+        });
+        
         // Input focus bo'lganda dropdown'ni ko'rsatish
         const customerSearchInput2 = document.getElementById('customerSearch');
         if (customerSearchInput2) {
