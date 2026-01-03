@@ -527,7 +527,7 @@
         } else {
             cart.push({
                 id: currentProduct.id,
-                name: currentProduct.name,
+                name: currentProduct?.name || 'Noma\'lum mahsulot',
                 priceUSD: priceUSD,
                 priceUZS: priceUZS,
                 quantity: quantity
@@ -536,7 +536,7 @@
         
         updateCart();
         closeModal();
-        console.log('✅ Savatga qo\'shildi:', currentProduct.name, quantity, 'dona, $' + priceUSD);
+        console.log('✅ Savatga qo\'shildi:', currentProduct?.name || 'Noma\'lum mahsulot', quantity, 'dona, $' + priceUSD);
     }
     
     // Savatni yangilash
