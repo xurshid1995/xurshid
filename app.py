@@ -2237,14 +2237,31 @@ def api_delete_store(store_id):
             product_id = stock.product_id
             
             # Bu mahsulot boshqa do'konlarda bormi?
-            # Faqat StoreStock'ni o'chirish
-            # Product HECH QACHON o'chirilmaydi - tarixiy ma'lumotlar saqlanishi uchun
+            # Boshqa do'konlarda bormi?
+            other_store_stocks = StoreStock.query.filter(
+                StoreStock.product_id == product_id,
+                StoreStock.store_id != store_id
+            ).count()
+            
+            # Omborlarda bormi?
+            warehouse_stocks = WarehouseStock.query.filter_by(
+                product_id=product_id
+            ).count()
+            
+            # StoreStock'ni o'chirish
             db.session.delete(stock)
             deleted_products_count += 1
             
-            product = Product.query.get(product_id)
-            if product:
-                logger.info(f" StoreStock o'chirildi: {product.name} (Product tarixlar uchun saqlandi)")
+            # Agar mahsulot boshqa joylarda yo'q bo'lsa, Product'ni ham o'chirish
+            if other_store_stocks == 0 and warehouse_stocks == 0:
+                product = Product.query.get(product_id)
+                if product:
+                    db.session.delete(product)
+                    logger.info(f" Product ham o'chirildi: {product.name} (boshqa joylarda mavjud emas)")
+            else:
+                product = Product.query.get(product_id)
+                if product:
+                    logger.info(f" Faqat StoreStock o'chirildi: {product.name} (boshqa joylarda mavjud)")
 
         # Store ni o'chirish (Savdo tarixi saqlanadi, chunki Sale jadvalida store_id saqlanadi)
         store_name = store.name
