@@ -756,26 +756,37 @@
         const cartTotalDiv = document.getElementById('cartTotal');
         const cartTotalHeader = document.getElementById('cartTotalHeader');
         const locationSelect = document.getElementById('locationSelect');
+        const customerSearch = document.getElementById('customerSearch');
         
         if (cart.length === 0) {
             cartItemsDiv.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</td></tr>';
             cartTotalDiv.innerHTML = '';
             cartTotalHeader.innerHTML = '';
             
-            // Savat bo'sh bo'lganda joylashuvni yoqish
+            // Savat bo'sh bo'lganda joylashuv va mijozni yoqish
             if (locationSelect) {
                 locationSelect.disabled = false;
                 locationSelect.style.background = 'white';
                 locationSelect.style.cursor = 'pointer';
             }
+            if (customerSearch) {
+                customerSearch.disabled = false;
+                customerSearch.style.background = 'white';
+                customerSearch.style.cursor = 'text';
+            }
             return;
         }
         
-        // Savatda mahsulot bor bo'lsa joylashuvni bloklash
+        // Savatda mahsulot bor bo'lsa joylashuv va mijozni bloklash
         if (locationSelect && cart.length > 0) {
             locationSelect.disabled = true;
             locationSelect.style.background = '#f0f0f0';
             locationSelect.style.cursor = 'not-allowed';
+        }
+        if (customerSearch && cart.length > 0) {
+            customerSearch.disabled = true;
+            customerSearch.style.background = '#f0f0f0';
+            customerSearch.style.cursor = 'not-allowed';
         }
         
         let html = '';
