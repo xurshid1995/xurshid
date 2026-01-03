@@ -242,7 +242,8 @@
     }
     
     function selectCustomer(id, name, phone) {
-        document.getElementById('customerSearch').value = name;
+        const displayText = phone ? `${name} - ${phone}` : name;
+        document.getElementById('customerSearch').value = displayText;
         document.getElementById('selectedCustomerId').value = id;
         document.getElementById('customerDropdown').style.display = 'none';
         console.log(`✅ Mijoz tanlandi: ${name} (ID: ${id})`);
