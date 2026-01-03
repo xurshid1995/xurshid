@@ -1170,7 +1170,7 @@
     }
     
     // To'lovni tasdiqlash
-    function confirmPayment() {
+    async function confirmPayment() {
         const cashUSD = parseFloat(document.getElementById('paymentCashUSD').value) || 0;
         const clickUSD = parseFloat(document.getElementById('paymentClickUSD').value) || 0;
         const terminalUSD = parseFloat(document.getElementById('paymentTerminalUSD').value) || 0;
@@ -1199,32 +1199,70 @@
             return;
         }
         
-        // Bu yerda savdoni backend'ga yuborish kerak
+        // Savdoni backend'ga yuborish uchun ma'lumotlarni tayyorlash
         const saleData = {
-            customer_id: document.getElementById('selectedCustomerId').value,
-            items: cart,
+            customer_id: parseInt(document.getElementById('selectedCustomerId').value),
+            location_id: selectedLocationId,
+            location_type: selectedLocationType,
+            items: cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity,
+                price_usd: item.priceUSD,
+                price_uzs: item.priceUZS
+            })),
             payment: {
-                cash: { usd: cashUSD, uzs: cashUZS },
-                click: { usd: clickUSD, uzs: clickUZS },
-                terminal: { usd: terminalUSD, uzs: terminalUZS },
-                debt: { usd: debtUSD, uzs: debtUZS }
+                cash_usd: cashUSD,
+                cash_uzs: cashUZS,
+                click_usd: clickUSD,
+                click_uzs: clickUZS,
+                terminal_usd: terminalUSD,
+                terminal_uzs: terminalUZS,
+                debt_usd: debtUSD,
+                debt_uzs: debtUZS
             },
             total_usd: totalUSD,
-            exchange_rate: exchangeRate
+            total_uzs: totalUSD * exchangeRate,
+            exchange_rate: exchangeRate,
+            payment_status: debtUSD > 0 ? 'pending' : 'paid'
         };
         
-        console.log('✅ Savdo tasdiqlandi:', saleData);
-        alert('Savdo muvaffaqiyatli yakunlandi!');
+        console.log('📤 Savdoni backend ga yuborish:', saleData);
         
-        // Savatni tozalash va modal yopish
-        cart = [];
-        updateCart();
-        closePaymentModal();
-        
-        // Mijoz ma'lumotlarini tozalash
-        document.getElementById('customerSearch').value = '';
-        document.getElementById('selectedCustomerId').value = '';
-        document.getElementById('cartCustomerInfo').innerHTML = '<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3>';
+        try {
+            const response = await fetch('/api/create-sale', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(saleData)
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                alert('Savdo yaratishda xatolik: ' + (result.error || 'Noma\'lum xatolik'));
+                console.error('❌ Savdo xatosi:', result);
+                return;
+            }
+            
+            console.log('✅ Savdo muvaffaqiyatli saqlandi:', result);
+            alert('✅ Savdo muvaffaqiyatli yakunlandi!');
+            
+            // Savatni tozalash va modal yopish
+            cart = [];
+            updateCart();
+            closePaymentModal();
+            
+            // Mijoz ma'lumotlarini tozalash
+            document.getElementById('customerSearch').value = '';
+            document.getElementById('selectedCustomerId').value = '';
+            document.getElementById('cartCustomerInfo').innerHTML = '<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3>';
+            
+            // Mahsulotlar jadvalini yangilash
+            await loadProducts();
+            
+        } catch (error) {
+            console.error('❌ Savdoni yuborishda xatolik:', error);
+            alert('Savdoni saqlashda xatolik yuz berdi!');
+        }
     }
 </script>
 {% endblock %}
