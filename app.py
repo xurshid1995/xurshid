@@ -1856,9 +1856,12 @@ def search_product(product_name):
             products_data.append({
                 'product': {
                     'name': product.name,
+                    'barcode': product.barcode,  # Barcode qo'shildi
                     'cost_price': float(product.cost_price),
                     'sell_price': float(product.sell_price),
-                    'min_stock': product.min_stock
+                    'min_stock': product.min_stock,
+                    'last_batch_cost': float(product.last_batch_cost) if product.last_batch_cost else None,
+                    'last_batch_date': product.last_batch_date.isoformat() if product.last_batch_date else None
                 },
                 'locations': locations,
                 'total_quantity': total_quantity

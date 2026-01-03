@@ -1250,6 +1250,9 @@
                         
                         // Har bir topilgan mahsulot uchun
                         data.products.forEach(productData => {
+                            console.log('📦 Product data:', productData);
+                            console.log('🏷️ Barcode:', productData.product.barcode);
+                            
                             // Tanlangan joylashuvdagi miqdorni topish
                             let quantityText = 'Miqdor: 0 ta';
                             let quantityClass = 'quantity-badge';
@@ -1355,11 +1358,17 @@
         }
         
         function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode) {
+            console.log('✅ selectProduct chaqirildi:');
+            console.log('   name:', name);
+            console.log('   barcode:', barcode);
+            
             document.getElementById('product_name').value = name;
             document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
             document.getElementById('sell_price').value = sellPrice;
             document.getElementById('min_stock').value = minStock;
             document.getElementById('barcode').value = barcode || ''; // Barcode to'ldirish
+            
+            console.log('📝 Barcode maydoniga yozildi:', document.getElementById('barcode').value);
             
             // Asl tan narxni ko'rsatish (oxirgi partiya narxi)
             const originalCostField = document.getElementById('original_cost');
