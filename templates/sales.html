@@ -125,9 +125,18 @@
             <h3 style="margin: 0 0 20px 0; color: #333;">💳 To'lov turlari</h3>
             
             <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 600;">Jami to'lov:</span>
-                    <span id="paymentTotalAmount" style="font-weight: 700; color: #28a745; font-size: 18px;">$0.00</span>
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 2px;">$ Qiymat</div>
+                            <span id="paymentTotalAmountUSD" style="font-weight: 700; color: #28a745; font-size: 18px;">$0.00</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 2px;">UZS Qiymat</div>
+                            <span id="paymentTotalAmountUZS" style="font-weight: 700; color: #28a745; font-size: 18px;">0 so'm</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -803,8 +812,12 @@
             totalUSD += item.priceUSD * item.quantity;
         });
         
+        const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 12500;
+        const totalUZS = totalUSD * exchangeRate;
+        
         // To'lov modal oynasini ochish
-        document.getElementById('paymentTotalAmount').textContent = `$${totalUSD.toFixed(2)}`;
+        document.getElementById('paymentTotalAmountUSD').textContent = `$${totalUSD.toFixed(2)}`;
+        document.getElementById('paymentTotalAmountUZS').textContent = `${Math.round(totalUZS).toLocaleString('uz-UZ')} so'm`;
         document.getElementById('paymentCashUSD').value = totalUSD.toFixed(2);
         document.getElementById('paymentCashUZS').value = '0';
         document.getElementById('paymentClickUSD').value = '0.00';
