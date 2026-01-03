@@ -1292,7 +1292,7 @@
                             const lastBatchDate = productData.product.last_batch_date || '';
                             
                             html += `
-                                <div class="product-dropdown-item" onclick="selectProduct('${productData.product.name}', ${lastBatchCost}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}')">
+                                <div class="product-dropdown-item" onclick="selectProduct('${productData.product.name}', ${lastBatchCost}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}', '${productData.product.barcode || ''}')">
                                     <div class="product-dropdown-content">
                                         <strong style="color: #2c3e50; font-size: 1.1rem;">${productData.product.name}</strong> | 
                                         <span style="color: #dc3545; font-weight: 600;">Ortacha: $${productData.product.cost_price.toFixed(2)}</span> | 
@@ -1354,11 +1354,12 @@
             }
         }
         
-        function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate) {
+        function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode) {
             document.getElementById('product_name').value = name;
             document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
             document.getElementById('sell_price').value = sellPrice;
             document.getElementById('min_stock').value = minStock;
+            document.getElementById('barcode').value = barcode || ''; // Barcode to'ldirish
             
             // Asl tan narxni ko'rsatish (oxirgi partiya narxi)
             const originalCostField = document.getElementById('original_cost');
