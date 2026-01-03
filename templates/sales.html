@@ -646,6 +646,15 @@
         updateUZSPrice();
         
         document.getElementById('quantityModal').style.display = 'flex';
+        
+        // Fokusni miqdor maydoniga berish
+        setTimeout(() => {
+            const quantityInput = document.getElementById('modalQuantity');
+            if (quantityInput) {
+                quantityInput.focus();
+                quantityInput.select(); // Matnni belgilash
+            }
+        }, 100);
     }
     
     // Modal yopish
