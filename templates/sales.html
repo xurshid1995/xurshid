@@ -84,7 +84,22 @@
         <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <h3 style="margin-top: 0; color: #333;">🛒 Savdo Korzinasi</h3>
             <div id="cartContainer" style="min-height: 400px;">
-                <div id="cartItems" style="margin-bottom: 15px;"></div>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                            <th style="padding: 10px; text-align: left; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6;">Mahsulot</th>
+                            <th style="padding: 10px; text-align: center; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; width: 80px;">Miqdori</th>
+                            <th style="padding: 10px; text-align: right; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; width: 100px;">Narxi</th>
+                            <th style="padding: 10px; text-align: right; font-size: 13px; color: #495057; border-right: 1px solid #dee2e6; width: 120px;">Jami</th>
+                            <th style="padding: 10px; text-align: center; font-size: 13px; color: #495057; width: 60px;">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartItems">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 50px; color: #999;">Savat bo'sh</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div id="cartTotal" style="border-top: 2px solid #dee2e6; padding-top: 10px; font-weight: bold; font-size: 16px; text-align: right;"></div>
             </div>
         </div>
@@ -411,7 +426,7 @@
         const cartTotalDiv = document.getElementById('cartTotal');
         
         if (cart.length === 0) {
-            cartItemsDiv.innerHTML = '<div style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</div>';
+            cartItemsDiv.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</td></tr>';
             cartTotalDiv.innerHTML = '';
             return;
         }
@@ -427,18 +442,27 @@
             totalUZS += subtotalUZS;
             
             html += `
-                <div style="padding: 15px; border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 10px; background: white;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 500; color: #333; margin-bottom: 5px;">${item.name}</div>
-                            <div style="font-size: 13px; color: #6c757d;">
-                                $${item.priceUSD.toFixed(2)} × ${item.quantity} = $${subtotalUSD.toFixed(2)}<br>
-                                ${formatPrice(item.priceUZS)} so'm × ${item.quantity} = ${formatPrice(subtotalUZS)} so'm
-                            </div>
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 12px 10px; font-size: 14px; color: #333; border-right: 1px solid #f0f0f0;">${item.name}</td>
+                    <td style="padding: 12px 10px; text-align: center; font-size: 14px; color: #333; border-right: 1px solid #f0f0f0;">
+                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500;">${item.quantity}</span>
+                    </td>
+                    <td style="padding: 12px 10px; text-align: right; font-size: 13px; color: #333; border-right: 1px solid #f0f0f0;">
+                        <div style="margin-bottom: 3px;">
+                            <span style="background: #ffc107; color: white; padding: 2px 6px; border-radius: 3px; font-weight: 500;">$${item.priceUSD.toFixed(2)}</span>
                         </div>
+                        <div>
+                            <span style="background: #5cb3ff; color: white; padding: 2px 6px; border-radius: 3px; font-weight: 500;">${formatPrice(item.priceUZS)} so'm</span>
+                        </div>
+                    </td>
+                    <td style="padding: 12px 10px; text-align: right; font-size: 13px; color: #333; border-right: 1px solid #f0f0f0;">
+                        <div style="margin-bottom: 3px; font-weight: 600; color: #007bff;">$${subtotalUSD.toFixed(2)}</div>
+                        <div style="font-weight: 600; color: #28a745;">${formatPrice(subtotalUZS)} so'm</div>
+                    </td>
+                    <td style="padding: 12px 10px; text-align: center;">
                         <button onclick="removeFromCart(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">×</button>
-                    </div>
-                </div>
+                    </td>
+                </tr>
             `;
         });
         
