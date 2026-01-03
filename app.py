@@ -307,6 +307,7 @@ class Product(db.Model):
         return {
             'id': self.id,
             'name': self.name,
+            'barcode': self.barcode,  # Barcode qo'shildi
             'cost_price': float(self.cost_price),
             'sell_price': float(self.sell_price),
             'price': float(self.sell_price),  # Compatibility uchun
