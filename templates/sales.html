@@ -219,7 +219,12 @@
             const name = customer.name ? customer.name.toLowerCase() : '';
             const phone = customer.phone ? customer.phone : '';
             const search = searchText.toLowerCase();
-            return name.includes(search) || phone.includes(search);
+            
+            // Telefon raqamdan barcha maxsus belgilarni olib tashlash
+            const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+            const cleanSearch = search.replace(/[\s\-\(\)\+]/g, '');
+            
+            return name.includes(search) || cleanPhone.includes(cleanSearch);
         });
         
         console.log('📋 Filterlangan mijozlar soni:', filtered.length);
