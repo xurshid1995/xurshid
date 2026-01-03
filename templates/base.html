@@ -95,6 +95,12 @@
                     <span>Omborlar</span>
                 </a>
             </li>
+            <li>
+                <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
+                    <span class="icon">💳</span>
+                    <span>Qarzlar</span>
+                </a>
+            </li>
             {% endif %}
             <li>
                 <a href="/customers" {% if request.endpoint == 'customers' %}class="active"{% endif %}>
