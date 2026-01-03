@@ -471,20 +471,20 @@
             
             html += `
                 <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 8px 5px; font-size: 14px; color: #333; border-right: 1px solid #f0f0f0; word-wrap: break-word; width: 322px; max-width: 322px; overflow: hidden;">${item.name}</td>
-                    <td style="padding: 8px 5px; text-align: center; font-size: 14px; color: #333; border-right: 1px solid #f0f0f0; width: 74px;">
-                        <input type="number" value="${item.quantity}" min="1" onchange="updateCartQuantity(${index}, this.value)" style="width: 50px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; font-size: 13px; font-weight: 500;">
+                    <td style="padding: 8px 5px; font-size: 16px; color: #333; border-right: 1px solid #f0f0f0; word-wrap: break-word; width: 322px; max-width: 322px; overflow: hidden;">${item.name}</td>
+                    <td style="padding: 8px 5px; text-align: center; font-size: 16px; color: #333; border-right: 1px solid #f0f0f0; width: 74px;">
+                        <input type="number" value="${item.quantity}" min="1" onchange="updateCartQuantity(${index}, this.value)" style="width: 50px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; font-size: 15px; font-weight: 500;">
                     </td>
-                    <td style="padding: 8px 5px; text-align: right; font-size: 13px; color: #333; border-right: 1px solid #f0f0f0; width: 90px;">
-                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 13px;">$${item.priceUSD.toFixed(2)}</div>
+                    <td style="padding: 8px 5px; text-align: right; font-size: 15px; color: #333; border-right: 1px solid #f0f0f0; width: 90px;">
+                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${item.priceUSD.toFixed(2)}</div>
                         <div>
-                            <span style="background: #0d6efd; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 12px;">${formatPrice(item.priceUZS)}</span>
+                            <span style="background: #0d6efd; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 14px;">${formatPrice(item.priceUZS)}</span>
                         </div>
                     </td>
-                    <td style="padding: 8px 5px; text-align: right; font-size: 13px; color: #333; border-right: 1px solid #f0f0f0; width: 84px;">
-                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 13px;">$${subtotalUSD.toFixed(2)}</div>
+                    <td style="padding: 8px 5px; text-align: right; font-size: 15px; color: #333; border-right: 1px solid #f0f0f0; width: 84px;">
+                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${subtotalUSD.toFixed(2)}</div>
                         <div>
-                            <span style="background: #0d6efd; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 12px;">${formatPrice(subtotalUZS)}</span>
+                            <span style="background: #0d6efd; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 14px;">${formatPrice(subtotalUZS)}</span>
                         </div>
                     </td>
                     <td style="padding: 8px 5px; text-align: center; width: 50px;">
