@@ -13,8 +13,8 @@ def clean_orphan_products():
         # Yetim mahsulotlarni topish
         orphan_products = Product.query.filter(
             and_(
-                not_(exists().where(StoreStock.product_id == Product.product_id)),
-                not_(exists().where(WarehouseStock.product_id == Product.product_id))
+                not_(exists().where(StoreStock.product_id == Product.id)),
+                not_(exists().where(WarehouseStock.product_id == Product.id))
             )
         ).all()
         
@@ -25,7 +25,7 @@ def clean_orphan_products():
         print(f"\n⚠️  {len(orphan_products)} ta yetim mahsulot topildi:\n")
         
         for product in orphan_products:
-            print(f"  - ID: {product.product_id}, Nomi: {product.name}, Barcode: {product.barcode}")
+            print(f"  - ID: {product.id}, Nomi: {product.name}, Barcode: {product.barcode}")
         
         # Tasdiqlash
         print(f"\n❓ Bu mahsulotlarni o'chirmoqchimisiz? (ha/yo'q): ", end='')
