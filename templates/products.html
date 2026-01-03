@@ -585,7 +585,6 @@
                     <th>Joylashuv</th>
                     <th><span id="quantityHeader">Umumiy miqdor</span></th>
                     <th>Holat</th>
-                    <th>Amallar</th>
                 </tr>
             </thead>
             <tbody id="productsTableBody">
@@ -946,14 +945,6 @@
                     ? `<span style="font-family: monospace; font-size: 12px;">${product.barcode}</span>`
                     : '<span style="color: #999;">-</span>';
                 
-                const printButton = product.barcode
-                    ? `<button onclick="printBarcode('${product.name.replace(/'/g, "\\'")}', '${product.barcode}')" 
-                               style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;"
-                               title="Barcode chop etish">
-                            🖨️
-                        </button>`
-                    : '<span style="color: #999;">-</span>';
-                
                 tableHtml += `
                     <tr>
                         <td style="text-align: center;">${barcodeCell}</td>
@@ -965,7 +956,6 @@
                         <td class="location-cell">${locations}</td>
                         <td><span class="quantity-cell">${totalStock}</span></td>
                         <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
-                        <td style="text-align: center;">${printButton}</td>
                     </tr>
                 `;
             });
