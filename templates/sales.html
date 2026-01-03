@@ -366,8 +366,10 @@
                 
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
+                const productName = product.name || 'N/A';
+                const safeProductName = productName.replace(/'/g, "\\'");
                 row.innerHTML = `
-                    <td style="padding: 12px 8px; font-size: 14px; color: #333; border-right: 1px solid #eee;" title="${product.name || 'N/A'}">${product.name || 'N/A'}</td>
+                    <td style="padding: 12px 8px; font-size: 14px; color: #333; border-right: 1px solid #eee;" title="${productName}">${productName}</td>
                     <td style="padding: 12px 8px; text-align: left; font-size: 14px; border-right: 1px solid #eee;">
                         <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${quantity}</span>
                     </td>
@@ -376,7 +378,7 @@
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
-                        <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity}, ${sellingPrice})" style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: pointer; font-size: 18px;">➡️</button>
+                        <button onclick="addToCart(${product.id}, '${safeProductName}', ${quantity}, ${sellingPrice})" style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: pointer; font-size: 18px;">➡️</button>
                     </td>
                 `;
                 tbody.appendChild(row);
