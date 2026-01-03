@@ -88,10 +88,10 @@
                     <table class="cart-table" style="width: 620px !important; max-width: 620px !important; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed !important;">
                         <thead>
                             <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                                <th style="padding: 8px 5px; text-align: left; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 217px;">Mahsulot</th>
+                                <th style="padding: 8px 5px; text-align: left; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 272px;">Mahsulot</th>
                                 <th style="padding: 8px 5px; text-align: center; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 74px;">Miqdori</th>
-                                <th style="padding: 8px 5px; text-align: right; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 155px;">Narxi</th>
-                                <th style="padding: 8px 5px; text-align: right; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 124px;">Jami</th>
+                                <th style="padding: 8px 5px; text-align: right; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 115px;">Narxi</th>
+                                <th style="padding: 8px 5px; text-align: right; font-size: 12px; color: #495057; border-right: 1px solid #dee2e6; width: 109px;">Jami</th>
                                 <th style="padding: 8px 5px; text-align: center; font-size: 12px; color: #495057; width: 50px;">Amal</th>
                             </tr>
                         </thead>
@@ -471,11 +471,11 @@
             
             html += `
                 <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 8px 5px; font-size: 12px; color: #333; border-right: 1px solid #f0f0f0; word-wrap: break-word; width: 217px; max-width: 217px; overflow: hidden;">${item.name}</td>
+                    <td style="padding: 8px 5px; font-size: 12px; color: #333; border-right: 1px solid #f0f0f0; word-wrap: break-word; width: 272px; max-width: 272px; overflow: hidden;">${item.name}</td>
                     <td style="padding: 8px 5px; text-align: center; font-size: 12px; color: #333; border-right: 1px solid #f0f0f0; width: 74px;">
                         <span style="background: #28a745; color: white; padding: 3px 6px; border-radius: 3px; font-weight: 500; font-size: 11px;">${item.quantity}</span>
                     </td>
-                    <td style="padding: 8px 5px; text-align: right; font-size: 11px; color: #333; border-right: 1px solid #f0f0f0; width: 155px;">
+                    <td style="padding: 8px 5px; text-align: right; font-size: 11px; color: #333; border-right: 1px solid #f0f0f0; width: 115px;">
                         <div style="margin-bottom: 2px;">
                             <span style="background: #ffc107; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 10px;">$${item.priceUSD.toFixed(2)}</span>
                         </div>
@@ -483,7 +483,7 @@
                             <span style="background: #5cb3ff; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 10px;">${formatPrice(item.priceUZS)}</span>
                         </div>
                     </td>
-                    <td style="padding: 8px 5px; text-align: right; font-size: 11px; color: #333; border-right: 1px solid #f0f0f0; width: 124px;">
+                    <td style="padding: 8px 5px; text-align: right; font-size: 11px; color: #333; border-right: 1px solid #f0f0f0; width: 109px;">
                         <div style="margin-bottom: 2px; font-weight: 600; color: #007bff; font-size: 11px;">$${subtotalUSD.toFixed(2)}</div>
                         <div style="font-weight: 600; color: #28a745; font-size: 10px;">${formatPrice(subtotalUZS)}</div>
                     </td>
