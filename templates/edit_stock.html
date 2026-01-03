@@ -73,11 +73,22 @@
 
 {% block content %}
 <div class="edit-container">
-    <h1>Mahsulotni tahrirlash</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h1 style="margin: 0;">Mahsulotni tahrirlash</h1>
+        {% if stock.product.barcode %}
+        <button onclick="printBarcode('{{ stock.product.name }}', '{{ stock.product.barcode }}')" 
+                style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            🖨️ Barcode chop etish
+        </button>
+        {% endif %}
+    </div>
     
     <div class="info-text" style="background: #e7f3ff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #3498db;">
         <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
             <span><strong>Mahsulot:</strong> {{ stock.product.name }}</span>
+            {% if stock.product.barcode %}
+            <span><strong>Barcode:</strong> {{ stock.product.barcode }}</span>
+            {% endif %}
             <span><strong>Miqdor:</strong> {{ stock.quantity }} dona</span>
             <span><strong>Tan narxi:</strong> ${{ "%.2f"|format(stock.purchase_price) }}</span>
             <span><strong>Savdo narxi:</strong> ${{ "%.2f"|format(stock.product.sell_price) }}</span>
@@ -277,5 +288,11 @@ document.getElementById('sellPrice').addEventListener('input', calculateProfit);
 
 // Sahifa yuklanganda dastlabki hisobni amalga oshirish
 calculateProfit();
+
+// Barcode chop etish funksiyasi
+function printBarcode(productName, barcode) {
+    const printUrl = `/print-barcode?name=${encodeURIComponent(productName)}&barcode=${encodeURIComponent(barcode)}`;
+    window.open(printUrl, '_blank', 'width=600,height=400');
+}
 </script>
 {% endblock %}

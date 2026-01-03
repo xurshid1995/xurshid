@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Label Print</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        @media print {
+            @page {
+                size: 58mm 40mm;
+                margin: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: white;
+        }
+        
+        .label-container {
+            width: 58mm;
+            height: 40mm;
+            border: 1px dashed #ccc;
+            padding: 5mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .barcode-svg {
+            max-width: 100%;
+        }
+        
+        .barcode-number {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 3px;
+            color: #333;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .print-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .print-btn:hover {
+            background: #0056b3;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .label-container {
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="label-container">
+        <div class="product-name" id="productName"></div>
+        <svg id="barcode"></svg>
+        <div class="barcode-number" id="barcodeText"></div>
+    </div>
+    
+    <div class="no-print">
+        <button class="print-btn" onclick="window.print()">🖨️ Chop etish</button>
+        <button class="print-btn" onclick="window.close()" style="background: #6c757d; margin-left: 10px;">✖ Yopish</button>
+    </div>
+    
+    <script>
+        // URL dan parametrlarni olish
+        const urlParams = new URLSearchParams(window.location.search);
+        const productName = urlParams.get('name') || 'Mahsulot';
+        const barcode = urlParams.get('barcode') || '0000000000000';
+        
+        // Mahsulot nomini ko'rsatish
+        document.getElementById('productName').textContent = productName;
+        document.getElementById('barcodeText').textContent = barcode;
+        
+        // Barcode yaratish
+        try {
+            JsBarcode("#barcode", barcode, {
+                format: "CODE128",
+                width: 2,
+                height: 50,
+                displayValue: false,
+                margin: 0
+            });
+        } catch (e) {
+            console.error('Barcode yaratishda xato:', e);
+            document.getElementById('barcode').innerHTML = '<text>Invalid barcode</text>';
+        }
+    </script>
+</body>
+</html>

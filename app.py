@@ -1996,6 +1996,12 @@ def products_list():
     return render_template('products.html')
 
 
+@app.route('/print-barcode')
+def print_barcode():
+    """Barcode chop etish sahifasi"""
+    return render_template('barcode_print.html')
+
+
 @app.route('/transfer')
 @role_required('admin', 'kassir', 'sotuvchi')
 def transfer():
