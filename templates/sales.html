@@ -82,7 +82,10 @@
 
         <!-- Ikkinchi layout -->
         <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 665px; box-sizing: border-box;">
-            <h3 style="margin-top: 0; color: #333;">🛒 Savdo Korzinasi</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3>
+                <div id="cartTotalHeader" style="text-align: right;"></div>
+            </div>
             <div id="cartContainer" style="min-height: 400px;">
                 <div style="width: 620px; overflow-x: auto;">
                     <table class="cart-table" style="width: 620px !important; max-width: 620px !important; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed !important;">
@@ -452,9 +455,14 @@
     function updateCart() {
         const cartItemsDiv = document.getElementById('cartItems');
         const cartTotalDiv = document.getElementById('cartTotal');
+        const cartTotalHeader = document.getElementById('cartTotalHeader');
         
         if (cart.length === 0) {
             cartItemsDiv.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</td></tr>';
+            cartTotalDiv.innerHTML = '';
+            cartTotalHeader.innerHTML = '';
+            return;
+        }
             cartTotalDiv.innerHTML = '';
             return;
         }
@@ -496,9 +504,12 @@
         });
         
         cartItemsDiv.innerHTML = html;
-        cartTotalDiv.innerHTML = `
-            <div style="font-size: 16px; color: #333; margin-bottom: 5px;">Jami ($): <span style="color: #007bff; font-weight: bold;">$${totalUSD.toFixed(2)}</span></div>
-            <div style="font-size: 18px; color: #28a745; font-weight: bold;">Jami (UZS): ${formatPrice(totalUZS)} so'm</div>
+        cartTotalDiv.innerHTML = '';
+        
+        // Jami qiymatlarni sarlavha yoniga qo'yamiz
+        cartTotalHeader.innerHTML = `
+            <div style="font-size: 14px; color: #007bff; font-weight: bold;">Jami ($): $${totalUSD.toFixed(2)}</div>
+            <div style="font-size: 16px; color: #28a745; font-weight: bold;">Jami (UZS): ${formatPrice(totalUZS)} so'm</div>
         `;
     }
     
