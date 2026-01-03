@@ -14,47 +14,59 @@
                 margin: 0;
                 padding: 0;
             }
+            .no-print {
+                display: none !important;
+            }
         }
         
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 10px;
-            background: white;
+            padding: 20px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .label-container {
             width: 58mm;
             height: 40mm;
-            border: 1px dashed #ccc;
-            padding: 5mm;
+            border: 2px dashed #999;
+            padding: 3mm;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: white;
         }
         
         .product-name {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.2;
         }
         
         .barcode-svg {
-            max-width: 100%;
+            max-width: 52mm;
+            height: auto;
         }
         
         .barcode-number {
-            font-size: 10px;
+            font-size: 8px;
             text-align: center;
-            margin-top: 3px;
+            margin-top: 1px;
             color: #333;
+            font-family: monospace;
         }
         
         .no-print {
@@ -70,18 +82,27 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            margin: 0 5px;
         }
         
         .print-btn:hover {
             background: #0056b3;
         }
         
+        .print-btn.close {
+            background: #6c757d;
+        }
+        
+        .print-btn.close:hover {
+            background: #545b62;
+        }
+        
         @media print {
-            .no-print {
-                display: none;
-            }
             .label-container {
                 border: none;
+                width: 58mm;
+                height: 40mm;
+                page-break-after: always;
             }
         }
     </style>
@@ -89,13 +110,13 @@
 <body>
     <div class="label-container">
         <div class="product-name" id="productName"></div>
-        <svg id="barcode"></svg>
+        <svg id="barcode" class="barcode-svg"></svg>
         <div class="barcode-number" id="barcodeText"></div>
     </div>
     
     <div class="no-print">
         <button class="print-btn" onclick="window.print()">🖨️ Chop etish</button>
-        <button class="print-btn" onclick="window.close()" style="background: #6c757d; margin-left: 10px;">✖ Yopish</button>
+        <button class="print-btn close" onclick="window.close()">✖ Yopish</button>
     </div>
     
     <script>
@@ -112,8 +133,8 @@
         try {
             JsBarcode("#barcode", barcode, {
                 format: "CODE128",
-                width: 2,
-                height: 50,
+                width: 1.5,
+                height: 35,
                 displayValue: false,
                 margin: 0
             });
