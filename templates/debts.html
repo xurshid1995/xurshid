@@ -436,9 +436,7 @@
                     <th>№</th>
                     <th>👤 Mijoz</th>
                     <th>📞 Telefon</th>
-                    <th>💰 Umumiy qarz</th>
-                    <th>✅ To'langan</th>
-                    <th>📊 Qolgan qarz</th>
+                    <th> Qolgan qarz</th>
                     <th>📅 Oxirgi to'lov</th>
                     <th>🏷️ Status</th>
                     <th>⚙️ Amallar</th>
@@ -548,7 +546,7 @@
         const tbody = document.getElementById('debtsTableBody');
         
         if (debts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Qarzlar yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 Qarzlar yo\'q</td></tr>';
             return;
         }
 
@@ -563,8 +561,6 @@
                     <td>${index + 1}</td>
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
-                    <td><strong>$${(debt.total_debt || 0).toFixed(2)}</strong></td>
-                    <td>$${(debt.paid_amount || 0).toFixed(2)}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
                     <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
@@ -604,7 +600,7 @@
         // Jadvalni yangilash
         const tbody = document.getElementById('debtsTableBody');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Natija topilmadi</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 Natija topilmadi</td></tr>';
             return;
         }
 
@@ -619,8 +615,6 @@
                     <td>${index + 1}</td>
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
-                    <td><strong>$${(debt.total_debt || 0).toFixed(2)}</strong></td>
-                    <td>$${(debt.paid_amount || 0).toFixed(2)}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
                     <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
