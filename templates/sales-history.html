@@ -2011,14 +2011,24 @@ function displaySalesData(data) {
 // Mahsulot nomlarini highlight qilish
 function highlightProductNames() {
     const searchTerm = document.getElementById('searchInput')?.value;
-    if (!searchTerm || !searchTerm.trim()) return;
+    console.log('🔍 highlightProductNames ishga tushdi, searchTerm:', searchTerm);
+    
+    if (!searchTerm || !searchTerm.trim()) {
+        console.log('⚠️ searchTerm bo\'sh, highlight qilinmaydi');
+        return;
+    }
     
     const productCells = document.querySelectorAll('.product-cell');
-    productCells.forEach(cell => {
+    console.log('📦 Topilgan .product-cell: ', productCells.length);
+    
+    productCells.forEach((cell, index) => {
         const originalText = cell.textContent;
         const highlightedHTML = highlightSearchTerms(originalText, searchTerm);
+        console.log(`Cell ${index}: "${originalText}" -> "${highlightedHTML}"`);
         cell.innerHTML = highlightedHTML;
     });
+    
+    console.log('✅ Highlight bajarildi');
 }
 
 // SaleItem dan joylashuv nomini olish funksiyasi
