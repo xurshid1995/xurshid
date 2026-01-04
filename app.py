@@ -552,6 +552,8 @@ class Customer(db.Model):
     email = db.Column(db.String(120))
     address = db.Column(db.Text)
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'), nullable=True)
+    last_debt_payment_usd = db.Column(db.Numeric(10, 2), default=0)
+    last_debt_payment_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(
         db.DateTime,
@@ -2963,15 +2965,6 @@ def api_debts():
 
         # Qarzli mijozlar ro'yxati
         query = text("""
-            WITH LastPayment AS (
-                SELECT 
-                    customer_id,
-                    debt_usd as last_payment_amount,
-                    created_at as last_payment_date,
-                    ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) as rn
-                FROM sales
-                WHERE debt_usd > 0
-            )
             SELECT 
                 c.id as customer_id,
                 c.name as customer_name,
@@ -2980,12 +2973,11 @@ def api_debts():
                 COALESCE(SUM(s.debt_usd), 0) as total_debt,
                 0 as paid_amount,
                 COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
-                lp.last_payment_date,
-                COALESCE(lp.last_payment_amount, 0) as last_payment_amount
+                c.last_debt_payment_date,
+                COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-            LEFT JOIN LastPayment lp ON c.id = lp.customer_id AND lp.rn = 1
-            GROUP BY c.id, c.name, c.phone, c.address, lp.last_payment_date, lp.last_payment_amount
+            GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd
             HAVING COALESCE(SUM(s.debt_usd), 0) > 0
             ORDER BY remaining_debt DESC
         """)
@@ -3129,6 +3121,12 @@ def api_debt_payment():
 
             remaining_payment -= payment_for_this_sale
             updated_sales.append(sale.id)
+
+        # Mijozning oxirgi to'lov ma'lumotlarini yangilash
+        customer = Customer.query.get(customer_id)
+        if customer:
+            customer.last_debt_payment_usd = payment_usd - remaining_payment
+            customer.last_debt_payment_date = db.func.current_timestamp()
 
         db.session.commit()
 
