@@ -2942,7 +2942,7 @@ def api_debts():
     """Barcha qarzlar ro'yxati"""
     try:
         # Exchange rate olish
-        rate = ExchangeRate.query.order_by(ExchangeRate.id.desc()).first()
+        rate = CurrencyRate.query.order_by(CurrencyRate.id.desc()).first()
         exchange_rate = float(rate.rate) if rate else 13000
 
         # Qarzli mijozlar ro'yxati
