@@ -626,12 +626,12 @@ function updateStatistics(data) {
     // To'lov turlarini ko'rsatish
     if (data.payment_totals) {
         const payments = [];
-        if (data.payment_totals.cash > 0) payments.push(`💵 Naqd: $${Math.floor(data.payment_totals.cash)}`);
-        if (data.payment_totals.click > 0) payments.push(`📱 Click: $${Math.floor(data.payment_totals.click)}`);
-        if (data.payment_totals.terminal > 0) payments.push(`💳 Terminal: $${Math.floor(data.payment_totals.terminal)}`);
-        if (data.payment_totals.debt > 0) payments.push(`📝 Qarz: $${Math.floor(data.payment_totals.debt)}`);
+        if (data.payment_totals.cash > 0) payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #28a745; font-size: 12px;">💵 Naqd pul: <strong>$${Math.floor(data.payment_totals.cash)}</strong></span>`);
+        if (data.payment_totals.click > 0) payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #007bff; font-size: 12px;">📱 Click: <strong>$${Math.floor(data.payment_totals.click)}</strong></span>`);
+        if (data.payment_totals.terminal > 0) payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #17a2b8; font-size: 12px;">💳 Terminal: <strong>$${Math.floor(data.payment_totals.terminal)}</strong></span>`);
+        if (data.payment_totals.debt > 0) payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #dc3545; font-size: 12px;">📝 Qarz: <strong>$${Math.floor(data.payment_totals.debt)}</strong></span>`);
         
-        document.getElementById('paymentMethods').textContent = payments.length > 0 ? payments.join(' • ') : '-';
+        document.getElementById('paymentMethods').innerHTML = payments.length > 0 ? payments.join('') : '-';
     }
     
     // Foyda faqat sotuvchi bo'lmasa yangilanadi
