@@ -1941,6 +1941,16 @@ def customers():
         user_role=user_role)
 
 
+@app.route('/debts')
+@role_required('admin', 'kassir')
+def debts():
+    """Qarzlar sahifasi"""
+    return render_template(
+        'debts.html',
+        page_title='Qarzlar',
+        icon='💰')
+
+
 @app.route('/customer/<int:customer_id>')
 def customer_detail(customer_id):
     """Mijoz tafsilotlari sahifasi"""
@@ -2923,6 +2933,213 @@ def users():
         'users.html',
         page_title='Foydalanuvchilar',
         icon='👤')
+
+
+# Qarzlar API
+@app.route('/api/debts')
+@role_required('admin', 'kassir')
+def api_debts():
+    """Barcha qarzlar ro'yxati"""
+    try:
+        # Exchange rate olish
+        rate = ExchangeRate.query.order_by(ExchangeRate.id.desc()).first()
+        exchange_rate = float(rate.rate) if rate else 13000
+
+        # Qarzli mijozlar ro'yxati
+        query = text("""
+            SELECT 
+                c.id as customer_id,
+                c.name as customer_name,
+                c.phone as customer_phone,
+                c.address as customer_address,
+                COALESCE(SUM(s.debt_usd), 0) as total_debt,
+                COALESCE(SUM(
+                    COALESCE(s.cash_usd, 0) + 
+                    COALESCE(s.click_usd, 0) + 
+                    COALESCE(s.terminal_usd, 0)
+                ), 0) as paid_amount,
+                COALESCE(SUM(s.debt_usd), 0) - COALESCE(SUM(
+                    COALESCE(s.cash_usd, 0) + 
+                    COALESCE(s.click_usd, 0) + 
+                    COALESCE(s.terminal_usd, 0)
+                ), 0) as remaining_debt,
+                MAX(s.created_at) as last_payment_date
+            FROM customers c
+            LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
+            GROUP BY c.id, c.name, c.phone, c.address
+            HAVING COALESCE(SUM(s.debt_usd), 0) > 0
+            ORDER BY remaining_debt DESC
+        """)
+
+        result = db.session.execute(query)
+        debts = []
+        
+        for row in result:
+            debts.append({
+                'customer_id': row.customer_id,
+                'customer_name': row.customer_name,
+                'customer_phone': row.customer_phone,
+                'customer_address': row.customer_address,
+                'total_debt': float(row.total_debt),
+                'paid_amount': float(row.paid_amount),
+                'remaining_debt': float(row.remaining_debt),
+                'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None
+            })
+
+        return jsonify({
+            'success': True,
+            'debts': debts,
+            'exchange_rate': exchange_rate
+        })
+
+    except Exception as e:
+        app.logger.error(f"Qarzlar API xatosi: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/debts/<int:customer_id>')
+@role_required('admin', 'kassir')
+def api_debt_details(customer_id):
+    """Mijozning batafsil qarz ma'lumotlari"""
+    try:
+        # Mijoz ma'lumotlari
+        customer = Customer.query.get_or_404(customer_id)
+        
+        # Qarzlar tarixi
+        query = text("""
+            SELECT 
+                s.id as sale_id,
+                s.created_at as sale_date,
+                s.debt_usd,
+                COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0) as paid_amount,
+                s.debt_usd - (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) as remaining
+            FROM sales s
+            WHERE s.customer_id = :customer_id AND s.debt_usd > 0
+            ORDER BY s.created_at DESC
+        """)
+
+        result = db.session.execute(query, {'customer_id': customer_id})
+        history = []
+        total_debt = 0
+        total_paid = 0
+        
+        for row in result:
+            history.append({
+                'sale_id': row.sale_id,
+                'sale_date': row.sale_date.strftime('%Y-%m-%d %H:%M'),
+                'debt_amount': float(row.debt_usd),
+                'paid_amount': float(row.paid_amount),
+                'remaining': float(row.remaining)
+            })
+            total_debt += float(row.debt_usd)
+            total_paid += float(row.paid_amount)
+
+        remaining_debt = total_debt - total_paid
+
+        return jsonify({
+            'success': True,
+            'customer': {
+                'id': customer.id,
+                'name': customer.name,
+                'phone': customer.phone,
+                'address': customer.address
+            },
+            'total_debt': total_debt,
+            'total_paid': total_paid,
+            'remaining_debt': remaining_debt,
+            'history': history
+        })
+
+    except Exception as e:
+        app.logger.error(f"Qarz tafsilotlari API xatosi: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/debts/payment', methods=['POST'])
+@role_required('admin', 'kassir')
+def api_debt_payment():
+    """Qarzga to'lov qilish"""
+    try:
+        data = request.get_json()
+        customer_id = data.get('customer_id')
+        cash_usd = Decimal(str(data.get('cash_usd', 0)))
+        click_usd = Decimal(str(data.get('click_usd', 0)))
+        terminal_usd = Decimal(str(data.get('terminal_usd', 0)))
+        total_usd = cash_usd + click_usd + terminal_usd
+
+        if total_usd <= 0:
+            return jsonify({
+                'success': False,
+                'error': 'To\'lov summasi 0 dan katta bo\'lishi kerak'
+            }), 400
+
+        # Mijozning qarzli savdolarini topish
+        sales = Sale.query.filter(
+            Sale.customer_id == customer_id,
+            Sale.debt_usd > 0
+        ).order_by(Sale.created_at.asc()).all()
+
+        if not sales:
+            return jsonify({
+                'success': False,
+                'error': 'Qarzli savdolar topilmadi'
+            }), 404
+
+        remaining_payment = total_usd
+        updated_sales = []
+
+        # Har bir qarzga to'lovni taqsimlash
+        for sale in sales:
+            current_debt = sale.debt_usd - (
+                (sale.cash_usd or Decimal('0')) +
+                (sale.click_usd or Decimal('0')) +
+                (sale.terminal_usd or Decimal('0'))
+            )
+
+            if current_debt <= 0:
+                continue
+
+            if remaining_payment <= 0:
+                break
+
+            # Ushbu savdoga qancha to'lov qilish mumkin
+            payment_for_this_sale = min(remaining_payment, current_debt)
+
+            # To'lovlarni taqsimlash (proportsional)
+            if total_usd > 0:
+                cash_part = (cash_usd / total_usd) * payment_for_this_sale
+                click_part = (click_usd / total_usd) * payment_for_this_sale
+                terminal_part = (terminal_usd / total_usd) * payment_for_this_sale
+
+                sale.cash_usd = (sale.cash_usd or Decimal('0')) + cash_part
+                sale.click_usd = (sale.click_usd or Decimal('0')) + click_part
+                sale.terminal_usd = (sale.terminal_usd or Decimal('0')) + terminal_part
+
+            remaining_payment -= payment_for_this_sale
+            updated_sales.append(sale.id)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'To\'lov muvaffaqiyatli amalga oshirildi',
+            'updated_sales': updated_sales,
+            'paid_amount': float(total_usd - remaining_payment)
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Qarzga to'lov xatosi: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 @app.route('/edit-user/<int:user_id>')
