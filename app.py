@@ -819,6 +819,10 @@ class Sale(db.Model):
         default=0)
     payment_method = db.Column(db.String(20), default='cash')
     payment_status = db.Column(db.String(20), default='paid')
+    cash_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    click_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    terminal_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    debt_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     notes = db.Column(db.Text)
     currency_rate = db.Column(
         db.DECIMAL(
@@ -869,6 +873,12 @@ class Sale(db.Model):
                 self.total_profit) if self.total_profit is not None else 0.0,
             'payment_method': self.payment_method if self.payment_method else 'cash',
             'payment_status': self.payment_status if self.payment_status else 'paid',
+            'payment_details': {
+                'cash': float(self.cash_amount) if self.cash_amount is not None else 0.0,
+                'click': float(self.click_amount) if self.click_amount is not None else 0.0,
+                'terminal': float(self.terminal_amount) if self.terminal_amount is not None else 0.0,
+                'debt': float(self.debt_amount) if self.debt_amount is not None else 0.0
+            },
             'notes': self.notes if self.notes else '',
             'currency_rate': float(
                 self.currency_rate) if self.currency_rate is not None else 12500.0,
@@ -5384,6 +5394,12 @@ def create_sale():
             payment_method = 'terminal'
         elif payment_info.get('debt_usd', 0) > 0:
             payment_method = 'debt'
+        
+        # Har bir to'lov turining summasini olish
+        cash_amount = float(payment_info.get('cash_usd', 0))
+        click_amount = float(payment_info.get('click_usd', 0))
+        terminal_amount = float(payment_info.get('terminal_usd', 0))
+        debt_amount = float(payment_info.get('debt_usd', 0))
 
         # Bitta savdo yaratish
         new_sale = Sale(
@@ -5392,6 +5408,10 @@ def create_sale():
             seller_id=current_user.id,
             payment_method=payment_method,
             payment_status=final_payment_status,
+            cash_amount=Decimal(str(cash_amount)),
+            click_amount=Decimal(str(click_amount)),
+            terminal_amount=Decimal(str(terminal_amount)),
+            debt_amount=Decimal(str(debt_amount)),
             notes=f'Multi-location savdo - {len(items)} ta mahsulot',
             currency_rate=current_rate,
             created_by=f'{current_user.first_name} {current_user.last_name}'

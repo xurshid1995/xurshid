@@ -2347,17 +2347,10 @@ function showSaleDetailsModal(sale) {
                     </div>
                     
                     <div class="total-info">
-                        <div class="total-row">
+                        ${generatePaymentDetailsHTML(sale)}
+                        <div class="total-row" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold;">
                             <span class="total-label">Jami summa:</span>
                             <span class="total-value">$${parseFloat(sale.total_amount || 0).toFixed(2)}</span>
-                        </div>
-                        <div class="total-row">
-                            <span class="total-label">To'lov turi:</span>
-                            <span class="total-value">${getPaymentMethodText(sale.payment_method)}</span>
-                        </div>
-                        <div class="total-row">
-                            <span class="total-label">To'lov holati:</span>
-                            <span class="total-value">${getPaymentStatusText(sale.payment_status)}</span>
                         </div>
                     </div>
                 </div>
@@ -2388,6 +2381,38 @@ function getPaymentMethodText(method) {
         case 'debt': return '📝 Qarz';
         default: return method || 'Naqd pul';
     }
+}
+
+// To'lov tafsilotlarini HTML ga aylantirish
+function generatePaymentDetailsHTML(sale) {
+    const details = sale.payment_details || {};
+    const payments = [
+        { name: '💵 Naqd pul', amount: details.cash || 0 },
+        { name: '📱 Click', amount: details.click || 0 },
+        { name: '💳 Terminal', amount: details.terminal || 0 },
+        { name: '📝 Qarz', amount: details.debt || 0 }
+    ];
+    
+    // Faqat 0 dan katta to'lovlarni ko'rsatish
+    const activePayments = payments.filter(p => p.amount > 0);
+    
+    // Agar hech qanday payment_details bo'lmasa, payment_method orqali ko'rsatish
+    if (activePayments.length === 0) {
+        return `
+            <div class="total-row">
+                <span class="total-label">To'lov turi:</span>
+                <span class="total-value">${getPaymentMethodText(sale.payment_method)}</span>
+            </div>
+        `;
+    }
+    
+    // To'lov turlarini bir qatorda ko'rsatish
+    return activePayments.map(payment => `
+        <div class="total-row">
+            <span class="total-label">${payment.name}:</span>
+            <span class="total-value">$${parseFloat(payment.amount).toFixed(2)}</span>
+        </div>
+    `).join('');
 }
 
 // To'lov holati matnini olish
