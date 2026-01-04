@@ -794,6 +794,9 @@ class Sale(db.Model):
         db.Integer,
         db.ForeignKey('stores.id'),
         nullable=True)
+    # Multi-location support
+    location_id = db.Column(db.Integer, nullable=True)
+    location_type = db.Column(db.String(20), nullable=True)  # 'store' yoki 'warehouse'
     seller_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
@@ -5411,10 +5414,23 @@ def create_sale():
         terminal_amount = float(payment_info.get('terminal_usd', 0))
         debt_amount = float(payment_info.get('debt_usd', 0))
 
+        # Savdo uchun asosiy joylashuvni aniqlash
+        # Multi-location bo'lsa - eng ko'p ishlatiladigan
+        # Bitta location bo'lsa - o'sha location
+        if multi_location:
+            # Eng ko'p ishlatiladigan store location_id va location_type
+            sale_location_id = store.id
+            sale_location_type = 'store'
+        else:
+            sale_location_id = location_id
+            sale_location_type = location_type
+
         # Bitta savdo yaratish
         new_sale = Sale(
             customer_id=final_customer_id,
             store_id=store.id,
+            location_id=sale_location_id,
+            location_type=sale_location_type,
             seller_id=current_user.id,
             payment_method=payment_method,
             payment_status=final_payment_status,
@@ -5422,7 +5438,7 @@ def create_sale():
             click_amount=Decimal(str(click_amount)),
             terminal_amount=Decimal(str(terminal_amount)),
             debt_amount=Decimal(str(debt_amount)),
-            notes=f'Multi-location savdo - {len(items)} ta mahsulot',
+            notes=f'Multi-location savdo - {len(items)} ta mahsulot' if multi_location else None,
             currency_rate=current_rate,
             created_by=f'{current_user.first_name} {current_user.last_name}'
         )
@@ -7294,27 +7310,23 @@ def api_sales_chart():
         conditions = []
         params = {}
 
-        # Joylashuv filtri (faqat store_id - warehouse'dan savdo bo'lmaydi)
+        # Joylashuv filtri - location_id va location_type ishlatish
         location_type = request.args.get('location_type')
         if location_id:
             if location_type == 'store':
-                conditions.append("s.store_id = :location_id")
+                conditions.append("(s.location_id = :location_id AND s.location_type = 'store')")
                 params['location_id'] = int(location_id)
-                print(f"🏪 Store filtri: store_id={location_id}")
+                print(f"🏪 Store filtri: location_id={location_id}, location_type=store")
             elif location_type == 'warehouse':
-                # Warehouse'dan savdo bo'lmaydi, bo'sh natija qaytaramiz
-                print(f"🏭 Warehouse tanlandi - savdo bo'lmaydi: warehouse_id={location_id}")
-                return jsonify({
-                    'labels': [],
-                    'values': [],
-                    'amounts': [],
-                    'profits': []
-                })
-            else:
-                # Type berilmagan, faqat store_id tekshiramiz
-                conditions.append("s.store_id = :location_id")
+                # Warehouse'dan savdo bo'lishi mumkin (yangi tizimda)
+                conditions.append("(s.location_id = :location_id AND s.location_type = 'warehouse')")
                 params['location_id'] = int(location_id)
-                print(f"🏢 Umumiy filtri (store): location_id={location_id}")
+                print(f"🏭 Warehouse filtri: location_id={location_id}, location_type=warehouse")
+            else:
+                # Type berilmagan, location_id bo'yicha
+                conditions.append("s.location_id = :location_id")
+                params['location_id'] = int(location_id)
+                print(f"🏢 Umumiy filtri: location_id={location_id}")
 
         if date_from:
             conditions.append("DATE(s.sale_date) >= :date_from")
