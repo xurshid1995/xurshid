@@ -2351,6 +2351,14 @@ function showSaleDetailsModal(sale) {
                             <span class="total-label">Jami summa:</span>
                             <span class="total-value">$${parseFloat(sale.total_amount || 0).toFixed(2)}</span>
                         </div>
+                        <div class="total-row">
+                            <span class="total-label">To'lov turi:</span>
+                            <span class="total-value">${getPaymentMethodText(sale.payment_method)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">To'lov holati:</span>
+                            <span class="total-value">${getPaymentStatusText(sale.payment_status)}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -2368,6 +2376,17 @@ function closeSaleDetailsModal() {
     const modal = document.getElementById('saleDetailsModal');
     if (modal) {
         modal.remove();
+    }
+}
+
+// To'lov turi matnini olish
+function getPaymentMethodText(method) {
+    switch (method) {
+        case 'cash': return '💵 Naqd pul';
+        case 'click': return '📱 Click';
+        case 'terminal': return '💳 Terminal';
+        case 'debt': return '📝 Qarz';
+        default: return method || 'Naqd pul';
     }
 }
 
