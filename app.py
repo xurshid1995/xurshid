@@ -2958,16 +2958,8 @@ def api_debts():
                 c.phone as customer_phone,
                 c.address as customer_address,
                 COALESCE(SUM(s.debt_usd), 0) as total_debt,
-                COALESCE(SUM(
-                    COALESCE(s.cash_usd, 0) + 
-                    COALESCE(s.click_usd, 0) + 
-                    COALESCE(s.terminal_usd, 0)
-                ), 0) as paid_amount,
-                COALESCE(SUM(s.debt_usd), 0) - COALESCE(SUM(
-                    COALESCE(s.cash_usd, 0) + 
-                    COALESCE(s.click_usd, 0) + 
-                    COALESCE(s.terminal_usd, 0)
-                ), 0) as remaining_debt,
+                0 as paid_amount,
+                COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                 MAX(s.created_at) as last_payment_date
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
@@ -3019,8 +3011,8 @@ def api_debt_details(customer_id):
                 s.id as sale_id,
                 s.created_at as sale_date,
                 s.debt_usd,
-                COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0) as paid_amount,
-                s.debt_usd - (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) as remaining
+                0 as paid_amount,
+                s.debt_usd as remaining
             FROM sales s
             WHERE s.customer_id = :customer_id AND s.debt_usd > 0
             ORDER BY s.created_at DESC
@@ -3029,20 +3021,18 @@ def api_debt_details(customer_id):
         result = db.session.execute(query, {'customer_id': customer_id})
         history = []
         total_debt = 0
-        total_paid = 0
         
         for row in result:
             history.append({
                 'sale_id': row.sale_id,
                 'sale_date': row.sale_date.strftime('%Y-%m-%d %H:%M'),
                 'debt_amount': float(row.debt_usd),
-                'paid_amount': float(row.paid_amount),
-                'remaining': float(row.remaining)
+                'paid_amount': 0,
+                'remaining': float(row.debt_usd)
             })
             total_debt += float(row.debt_usd)
-            total_paid += float(row.paid_amount)
 
-        remaining_debt = total_debt - total_paid
+        remaining_debt = total_debt
 
         return jsonify({
             'success': True,
@@ -3053,7 +3043,7 @@ def api_debt_details(customer_id):
                 'address': customer.address
             },
             'total_debt': total_debt,
-            'total_paid': total_paid,
+            'total_paid': 0,
             'remaining_debt': remaining_debt,
             'history': history
         })
