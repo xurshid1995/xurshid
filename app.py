@@ -4765,32 +4765,36 @@ def api_sales_history():
                 f"🔍 Seller allowed locations for sales history: {allowed_locations}")
 
             if allowed_locations:
-                # Extract store IDs from allowed locations (faqat type='store' bo'lganlar)
-                store_ids = []
+                # Extract location IDs from allowed locations
+                location_conditions = []
                 for loc in allowed_locations:
                     if isinstance(loc, dict):
                         # New format: {'id': 4, 'type': 'store'}
-                        if loc.get('type') == 'store':
-                            store_ids.append(loc.get('id'))
+                        loc_id = loc.get('id')
+                        loc_type = loc.get('type')
+                        if loc_id and loc_type:
+                            location_conditions.append(
+                                db.and_(Sale.location_id == loc_id, Sale.location_type == loc_type)
+                            )
                     elif isinstance(loc, (int, str)):
-                        # Old format: just ID
+                        # Old format: just ID (assume store)
                         try:
-                            store_ids.append(int(loc))
+                            location_conditions.append(
+                                db.and_(Sale.location_id == int(loc), Sale.location_type == 'store')
+                            )
                         except (ValueError, TypeError):
                             pass
                 
-                if store_ids:
-                    # Faqat ruxsat berilgan do'konlardagi savdolar
-                    query = query.filter(Sale.store_id.in_(store_ids))
-                    print(
-                        f"🔍 Filtering sales history by store IDs: {store_ids}")
+                if location_conditions:
+                    # Faqat ruxsat berilgan joylashuvlardagi savdolar
+                    query = query.filter(db.or_(*location_conditions))
+                    print(f"🔍 Filtering sales by {len(location_conditions)} allowed locations")
                 else:
-                    # Hech qaysi do'kon ruxsat berilmagan
+                    # Hech qaysi joylashuv ruxsat berilmagan
                     query = query.filter(Sale.id == -1)
-                    logger.debug("⚠️ No store locations allowed, returning empty sales history")
+                    logger.debug("⚠️ No locations allowed, returning empty sales history")
             else:
                 # Ruxsat berilgan joylashuv bo'lmasa, bo'sh natija
-                # Hech qaysi savdo topilmaydi
                 query = query.filter(Sale.id == -1)
                 logger.debug("⚠️ No allowed locations, returning empty sales history")
 
@@ -4828,22 +4832,24 @@ def api_sales_history():
         if payment_method and payment_method != 'all':
             query = query.filter(Sale.payment_method == payment_method)
 
-        # Joylashuv filtri (SaleItem orqali)
+        # Joylashuv filtri (yangi location_id va location_type ishlatish)
         if location_filter and location_filter != 'all':
             if location_filter.startswith('store_'):
-                store_filter_id = location_filter.replace('store_', '')
-                # Faqat shu do'kondan kelgan mahsulotlari bo'lgan savdolarni filtrlash
-                query = query.join(SaleItem).filter(
-                    SaleItem.source_type == 'store',
-                    SaleItem.source_id == store_filter_id
-                ).distinct()
+                store_filter_id = int(location_filter.replace('store_', ''))
+                # Yangi tizim: location_id va location_type ishlatish
+                query = query.filter(
+                    Sale.location_id == store_filter_id,
+                    Sale.location_type == 'store'
+                )
+                print(f"🏪 Location filtri: store_id={store_filter_id}")
             elif location_filter.startswith('warehouse_'):
-                warehouse_filter_id = location_filter.replace('warehouse_', '')
-                # Faqat shu ombordan kelgan mahsulotlari bo'lgan savdolarni filtrlash
-                query = query.join(SaleItem).filter(
-                    SaleItem.source_type == 'warehouse',
-                    SaleItem.source_id == warehouse_filter_id
-                ).distinct()
+                warehouse_filter_id = int(location_filter.replace('warehouse_', ''))
+                # Yangi tizim: location_id va location_type ishlatish
+                query = query.filter(
+                    Sale.location_id == warehouse_filter_id,
+                    Sale.location_type == 'warehouse'
+                )
+                print(f"🏭 Location filtri: warehouse_id={warehouse_filter_id}")
 
         # Qidiruv filtri (mahsulot nomi bo'yicha)
         if search_term and search_term.strip():
