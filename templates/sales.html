@@ -657,6 +657,34 @@
         }, 100);
     }
     
+    // To'g'ridan-to'g'ri savatga qo'shish (modal ochmasdan) - savdo tahrirlash uchun
+    function addToCartDirectly(productId, productName, quantity, priceUSD) {
+        console.log(`➕ To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
+        
+        // Korzinada allaqachon bor-yo'qligini tekshirish
+        const existingIndex = cart.findIndex(item => item.productId === productId);
+        
+        if (existingIndex !== -1) {
+            // Mavjud bo'lsa, miqdorni oshirish
+            cart[existingIndex].quantity += quantity;
+            console.log(`  ✅ Miqdor oshirildi: ${cart[existingIndex].quantity}`);
+        } else {
+            // Yangi element qo'shish
+            const priceUZS = priceUSD * exchangeRate;
+            cart.push({
+                productId: productId,
+                productName: productName,
+                quantity: quantity,
+                priceUSD: priceUSD,
+                priceUZS: priceUZS
+            });
+            console.log(`  ✅ Yangi element qo'shildi: ${productName}`);
+        }
+        
+        // Korzinani yangilash
+        updateCart();
+    }
+    
     // Modal yopish
     function closeModal() {
         document.getElementById('quantityModal').style.display = 'none';
@@ -1388,7 +1416,8 @@
                         console.log(`  - quantity: ${item.quantity}`);
                         console.log(`  - unit_price: ${item.unit_price}`);
                         
-                        addToCart(
+                        // Modal ochmasdan to'g'ridan-to'g'ri qo'shish
+                        addToCartDirectly(
                             item.product_id,
                             item.product_name,
                             item.quantity,
@@ -1462,7 +1491,9 @@
                 if (sale.items && sale.items.length > 0) {
                     const item = sale.items[0]; // Birinchi element
                     console.log(`🛒 Mahsulot savatga qo'shilmoqda: ${item.product_name}`);
-                    addToCart(
+                    
+                    // Modal ochmasdan to'g'ridan-to'g'ri qo'shish
+                    addToCartDirectly(
                         item.product_id,
                         item.product_name,
                         item.quantity,
