@@ -665,7 +665,7 @@
         console.log(`➕ To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
         
         // Korzinada allaqachon bor-yo'qligini tekshirish
-        const existingIndex = cart.findIndex(item => item.productId === productId);
+        const existingIndex = cart.findIndex(item => item.id === productId);
         
         if (existingIndex !== -1) {
             // Mavjud bo'lsa, miqdorni oshirish
@@ -675,8 +675,8 @@
             // Yangi element qo'shish
             const priceUZS = priceUSD * exchangeRate;
             cart.push({
-                productId: productId,
-                productName: productName,
+                id: productId,              // 'id' maydon nomi (removeFromCart uchun)
+                name: productName,          // 'name' maydon nomi (updateCart uchun)
                 quantity: quantity,
                 priceUSD: priceUSD,
                 priceUZS: priceUZS
@@ -1343,6 +1343,14 @@
     async function loadSaleGroup(saleId) {
         try {
             console.log(`📥 Savdo ${saleId} yuklanmoqda...`);
+            
+            // Avval korzinani tozalash (agar biror narsa bo'lsa)
+            if (cart.length > 0) {
+                console.log('🗑️ Korzinani tozalash...');
+                cart = [];
+                updateCart();
+            }
+            
             const response = await fetch(`/api/sales/${saleId}`);
             console.log('📡 API response status:', response.status);
             
@@ -1365,27 +1373,42 @@
                 console.log('📦 items:', sale.items);
                 console.log('📦 items.length:', sale.items?.length);
                 
-                // Joylashuvni tanlash
+                // 1. JOYLASHUVNI TANLASH
                 const locationSelect = document.getElementById('locationSelect');
                 console.log('📍 locationSelect element:', locationSelect);
                 console.log('📍 locationSelect.options.length:', locationSelect?.options?.length);
                 
                 const locationValue = sale.location_type === 'store' ? `store_${sale.location_id}` : `warehouse_${sale.location_id}`;
-                console.log(`📍 Joylashuv qiymati: ${locationValue}`);
-                locationSelect.value = locationValue;
-                console.log(`📍 locationSelect.value o'rnatildi: ${locationSelect.value}`);
+                console.log(`📍 Joylashuv qiymati o'rnatilmoqda: ${locationValue}`);
+                
+                // Joylashuvni topish va o'rnatish
+                let locationFound = false;
+                for (let i = 0; i < locationSelect.options.length; i++) {
+                    if (locationSelect.options[i].value === locationValue) {
+                        locationSelect.selectedIndex = i;
+                        locationFound = true;
+                        console.log(`✅ Joylashuv topildi va tanlandi: ${locationSelect.options[i].text}`);
+                        break;
+                    }
+                }
+                
+                if (!locationFound) {
+                    console.error(`❌ Joylashuv topilmadi: ${locationValue}`);
+                    alert(`Joylashuv topilmadi: ${locationValue}`);
+                    return;
+                }
                 
                 // Global o'zgaruvchilarni yangilash
                 selectedLocationType = sale.location_type;
                 selectedLocationId = sale.location_id;
-                console.log(`📍 Global o'zgaruvchilar: ${selectedLocationType}, ${selectedLocationId}`);
+                console.log(`📍 Global o'zgaruvchilar o'rnatildi: type=${selectedLocationType}, id=${selectedLocationId}`);
                 
-                // Mahsulotlarni yuklash
+                // 2. MAHSULOTLARNI YUKLASH
                 console.log('📦 Mahsulotlar yuklanmoqda...');
                 await loadProducts();
-                console.log('📦 Mahsulotlar yuklandi');
+                console.log('✅ Mahsulotlar yuklandi');
                 
-                // Mijozni to'ldirish (ID bilan)
+                // 3. MIJOZNI TO'LDIRISH
                 const customerSearchInput = document.getElementById('customerSearch');
                 const selectedCustomerIdInput = document.getElementById('selectedCustomerId');
                 console.log('👤 customerSearch element:', customerSearchInput);
@@ -1402,24 +1425,25 @@
                     const customerDisplay = sale.customer_phone ? `👤 ${sale.customer_name} ${sale.customer_phone}` : `👤 ${sale.customer_name}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     
-                    console.log(`👤 Mijoz ID bilan to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
+                    console.log(`✅ Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
                 } else {
                     console.warn('⚠️ Mijoz ma\'lumotlari topilmadi');
                 }
                 
-                // Kichik kutish - mahsulotlar DOM'ga qo'shilishi uchun
-                console.log('⏳ 500ms kutilmoqda...');
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // 4. MAHSULOTLARNI KORZINAGA QO'SHISH
+                console.log('⏳ 800ms kutilmoqda (DOM yangilanishi uchun)...');
+                await new Promise(resolve => setTimeout(resolve, 800));
                 
-                // Savdo elementlarini savatga qo'shish
                 if (sale.items && sale.items.length > 0) {
-                    console.log(`🛒 ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
+                    console.log(`\n🛒 ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
+                    console.log('==================================================');
+                    
                     for (const item of sale.items) {
-                        console.log(`  📦 Item:`, item);
-                        console.log(`  - product_id: ${item.product_id}`);
-                        console.log(`  - product_name: ${item.product_name}`);
-                        console.log(`  - quantity: ${item.quantity}`);
-                        console.log(`  - unit_price: ${item.unit_price}`);
+                        console.log(`\n📦 Mahsulot #${item.product_id}:`);
+                        console.log(`   Nomi: ${item.product_name}`);
+                        console.log(`   Miqdor: ${item.quantity}`);
+                        console.log(`   Narx: $${item.unit_price}`);
+                        console.log(`   Jami: $${item.total_price}`);
                         
                         // Modal ochmasdan to'g'ridan-to'g'ri qo'shish
                         addToCartDirectly(
@@ -1429,7 +1453,15 @@
                             item.unit_price
                         );
                     }
-                    console.log(`✅ ${sale.items.length} ta mahsulot savatga qo'shildi`);
+                    
+                    console.log('==================================================');
+                    console.log(`✅ ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
+                    console.log(`📊 Korzina holati: ${cart.length} ta element`);
+                    
+                    // Korzinani ko'rsatish uchun
+                    cart.forEach((item, index) => {
+                        console.log(`   ${index + 1}. ${item.name} x${item.quantity} = $${(item.priceUSD * item.quantity).toFixed(2)}`);
+                    });
                 } else {
                     console.warn('⚠️ Savdoda mahsulotlar topilmadi');
                 }
@@ -1448,6 +1480,14 @@
     async function loadSingleSale(saleId) {
         try {
             console.log(`📥 Savdo ${saleId} yuklanmoqda...`);
+            
+            // Avval korzinani tozalash
+            if (cart.length > 0) {
+                console.log('🗑️ Korzinani tozalash...');
+                cart = [];
+                updateCart();
+            }
+            
             const response = await fetch(`/api/sales/${saleId}`);
             if (!response.ok) {
                 throw new Error('Savdoni yuklashda xatolik');
@@ -1472,6 +1512,7 @@
                 // Mahsulotlarni yuklash
                 console.log('📦 Mahsulotlar yuklanmoqda...');
                 await loadProducts();
+                console.log('✅ Mahsulotlar yuklandi');
                 
                 // Mijozni to'ldirish (ID bilan)
                 if (sale.customer_id && sale.customer_name) {
@@ -1484,27 +1525,33 @@
                     const customerDisplay = sale.customer_phone ? `👤 ${sale.customer_name} ${sale.customer_phone}` : `👤 ${sale.customer_name}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     
-                    console.log(`👤 Mijoz ID bilan to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
+                    console.log(`✅ Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
                 } else {
                     console.warn('⚠️ Mijoz ma\'lumotlari topilmadi');
                 }
                 
                 // Kichik kutish - mahsulotlar DOM'ga qo'shilishi uchun
-                await new Promise(resolve => setTimeout(resolve, 500));
+                console.log('⏳ 800ms kutilmoqda...');
+                await new Promise(resolve => setTimeout(resolve, 800));
                 
                 // Savdo elementini savatga qo'shish
                 if (sale.items && sale.items.length > 0) {
-                    const item = sale.items[0]; // Birinchi element
-                    console.log(`🛒 Mahsulot savatga qo'shilmoqda: ${item.product_name}`);
+                    console.log(`🛒 ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
                     
-                    // Modal ochmasdan to'g'ridan-to'g'ri qo'shish
-                    addToCartDirectly(
-                        item.product_id,
-                        item.product_name,
-                        item.quantity,
-                        item.unit_price
-                    );
-                    console.log('✅ Mahsulot savatga qo\'shildi');
+                    for (const item of sale.items) {
+                        console.log(`  📦 ${item.product_name}: ${item.quantity} ta × $${item.unit_price}`);
+                        
+                        // Modal ochmasdan to'g'ridan-to'g'ri qo'shish
+                        addToCartDirectly(
+                            item.product_id,
+                            item.product_name,
+                            item.quantity,
+                            item.unit_price
+                        );
+                    }
+                    
+                    console.log(`✅ ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
+                    console.log(`📊 Korzina holati: ${cart.length} ta element`);
                 } else {
                     console.warn('⚠️ Savdoda mahsulotlar topilmadi');
                 }
