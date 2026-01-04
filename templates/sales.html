@@ -1793,20 +1793,46 @@
         console.log('⏸️ Pending savdo ma\'lumotlari:', saleData);
         
         try {
-            const response = await fetch('/api/pending-sales', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(saleData)
-            });
+            let response, result;
             
-            const result = await response.json();
+            // Agar tahrirlash rejimida bo'lsa, PUT so'rovi yuborish
+            if (editingSaleId) {
+                console.log('📝 Tahrirlash rejimi: savdoni pending holatga o\'zgartirish, ID:', editingSaleId);
+                response = await fetch(`/api/sales/${editingSaleId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...saleData,
+                        payment_status: 'pending'
+                    })
+                });
+            } else {
+                // Yangi savdo yaratish
+                console.log('➕ Yangi savdoni pending holatda yaratish');
+                response = await fetch('/api/pending-sales', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(saleData)
+                });
+            }
+            
+            result = await response.json();
             console.log('API javob:', result);
             
             if (result.success) {
-                alert('✅ Savdo keyinroq tasdiqlash uchun saqlandi!');
-                console.log('⏸️ Savdo pending holatga o\'tkazildi, ID:', result.sale_id);
+                if (editingSaleId) {
+                    alert('✅ Savdo pending holatga o\'tkazildi! Endi Tasdiqlanmagan savdolar ro\'yxatida ko\'rinadi.');
+                } else {
+                    alert('✅ Savdo keyinroq tasdiqlash uchun saqlandi!');
+                }
+                console.log('⏸️ Savdo pending holatga o\'tkazildi, ID:', result.sale_id || editingSaleId);
+                
+                // Tahrirlash rejimidan chiqish
+                editingSaleId = null;
                 
                 // Savatni tozalash
                 cart = [];
