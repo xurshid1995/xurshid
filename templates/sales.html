@@ -1826,10 +1826,11 @@
             location_id: selectedLocationId,
             location_type: selectedLocationType,
             items: cart.map(item => ({
-                product_id: item.id,
+                product_id: item.id || item.productId,  // id yoki productId
+                product_name: item.name || item.productName,  // name yoki productName
                 quantity: item.quantity,
-                unit_price: item.priceUSD,  // Backend unit_price kutadi
-                price: item.priceUSD,       // Zapas variant
+                unit_price: item.priceUSD,
+                price: item.priceUSD,
                 price_usd: item.priceUSD,
                 price_uzs: item.priceUZS
             })),
