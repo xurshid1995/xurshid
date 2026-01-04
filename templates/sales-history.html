@@ -1667,6 +1667,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Compact view toggle
     initializeCompactView();
+    
+    // Qidiruv maydoniga avtomatik fokus
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        setTimeout(() => searchInput.focus(), 100);
+    }
 });
 
 function clearTable() {
