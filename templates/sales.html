@@ -1737,14 +1737,92 @@
     }
     
     // Keyinroq tasdiqlash
-    function savePending() {
+    async function savePending() {
         if (cart.length === 0) {
             alert('Savat bo\'sh!');
             return;
         }
-        // Bu yerda pending sales API'ga saqlash kerak
-        alert('Savdo keyinroq tasdiqlash uchun saqlandi!');
-        console.log('⏸️ Savdo pending holatga o\'tkazildi');
+        
+        const customerId = document.getElementById('selectedCustomerId').value;
+        if (!customerId) {
+            alert('Mijozni tanlang!');
+            return;
+        }
+        
+        if (!selectedLocationId || !selectedLocationType) {
+            alert('Joylashuvni tanlang!');
+            return;
+        }
+        
+        // Jami summani hisoblash
+        let totalUSD = 0;
+        cart.forEach(item => {
+            totalUSD += item.priceUSD * item.quantity;
+        });
+        
+        // Savdoni pending status bilan saqlash
+        const saleData = {
+            customer_id: parseInt(customerId),
+            location_id: selectedLocationId,
+            location_type: selectedLocationType,
+            items: cart.map(item => ({
+                product_id: item.id || item.productId,
+                product_name: item.name || item.productName,
+                quantity: item.quantity,
+                unit_price: item.priceUSD,
+                price: item.priceUSD,
+                price_usd: item.priceUSD,
+                price_uzs: item.priceUZS
+            })),
+            payment: {
+                cash_usd: 0,
+                cash_uzs: 0,
+                click_usd: 0,
+                click_uzs: 0,
+                terminal_usd: 0,
+                terminal_uzs: 0,
+                debt_usd: totalUSD,
+                debt_uzs: Math.round(totalUSD * exchangeRate)
+            },
+            total_usd: totalUSD,
+            total_uzs: totalUSD * exchangeRate,
+            exchange_rate: exchangeRate,
+            payment_status: 'pending'
+        };
+        
+        console.log('⏸️ Pending savdo ma\'lumotlari:', saleData);
+        
+        try {
+            const response = await fetch('/api/sales', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(saleData)
+            });
+            
+            const result = await response.json();
+            console.log('API javob:', result);
+            
+            if (result.success) {
+                alert('✅ Savdo keyinroq tasdiqlash uchun saqlandi!');
+                console.log('⏸️ Savdo pending holatga o\'tkazildi, ID:', result.sale_id);
+                
+                // Savatni tozalash
+                cart = [];
+                updateCart();
+                
+                // Mijozni tozalash
+                document.getElementById('selectedCustomerId').value = '';
+                document.getElementById('customerNameDisplay').textContent = 'Mijoz tanlanmagan';
+                document.getElementById('customerPhoneDisplay').textContent = '';
+            } else {
+                alert('❌ Xatolik: ' + (result.error || 'Noma\'lum xatolik'));
+            }
+        } catch (error) {
+            console.error('Pending savdo xatosi:', error);
+            alert('❌ Tarmoq xatoligi: ' + error.message);
+        }
     }
     
     // Savdoni yakunlash
