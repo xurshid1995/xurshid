@@ -2409,12 +2409,12 @@ function generatePaymentDetailsHTML(sale) {
     // To'lov turlarini bir qatorda ko'rsatish
     const paymentsText = activePayments
         .map(p => `${p.name}: $${parseFloat(p.amount).toFixed(2)}`)
-        .join('   ');
+        .join('   •   ');
     
     return `
         <div class="total-row">
             <span class="total-label" style="display: inline; margin-right: 10px;">To'lovlar:</span>
-            <span class="total-value" style="display: inline;">${paymentsText}</span>
+            <span class="total-value" style="display: inline; font-size: 14px; letter-spacing: 1px;">${paymentsText}</span>
         </div>
     `;
 }
