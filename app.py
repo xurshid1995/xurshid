@@ -7548,10 +7548,10 @@ def api_sales_chart():
                     COUNT(*) as period_sales,
                     COALESCE(SUM(s.total_amount), 0) as period_total,
                     COALESCE(SUM(s.total_profit), 0) as period_profit,
-                    COALESCE(SUM(s.cash_amount), 0) as cash_total,
-                    COALESCE(SUM(s.click_amount), 0) as click_total,
-                    COALESCE(SUM(s.terminal_amount), 0) as terminal_total,
-                    COALESCE(SUM(s.debt_amount), 0) as debt_total
+                    COALESCE(SUM(s.cash_usd), 0) as cash_total,
+                    COALESCE(SUM(s.click_usd), 0) as click_total,
+                    COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
+                    COALESCE(SUM(s.debt_usd), 0) as debt_total
                 FROM sales s
             """
         else:
@@ -7561,10 +7561,10 @@ def api_sales_chart():
                     COUNT(*) as period_sales,
                     COALESCE(SUM(s.total_amount), 0) as period_total,
                     COALESCE(SUM(s.total_profit), 0) as period_profit,
-                    COALESCE(SUM(s.cash_amount), 0) as cash_total,
-                    COALESCE(SUM(s.click_amount), 0) as click_total,
-                    COALESCE(SUM(s.terminal_amount), 0) as terminal_total,
-                    COALESCE(SUM(s.debt_amount), 0) as debt_total
+                    COALESCE(SUM(s.cash_usd), 0) as cash_total,
+                    COALESCE(SUM(s.click_usd), 0) as click_total,
+                    COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
+                    COALESCE(SUM(s.debt_usd), 0) as debt_total
                 FROM sales s
             """
 
