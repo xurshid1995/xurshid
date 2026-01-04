@@ -437,14 +437,15 @@
                     <th>👤 Mijoz</th>
                     <th>📞 Telefon</th>
                     <th> Qolgan qarz</th>
-                    <th>📅 Oxirgi to'lov ✅</th>
+                    <th>💵 Oxirgi to'lov</th>
+                    <th>📅 Oxirgi to'lov sanasi</th>
                     <th>🏷️ Status</th>
                     <th>⚙️ Amallar</th>
                 </tr>
             </thead>
             <tbody id="debtsTableBody">
                 <tr>
-                    <td colspan="9" class="no-data">Ma'lumotlar yuklanmoqda...</td>
+                    <td colspan="8" class="no-data">Ma'lumotlar yuklanmoqda...</td>
                 </tr>
             </tbody>
         </table>
@@ -546,7 +547,7 @@
         const tbody = document.getElementById('debtsTableBody');
         
         if (debts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 Qarzlar yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 Qarzlar yo\'q</td></tr>';
             return;
         }
 
@@ -563,7 +564,8 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
-                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong><br><small style="color: #6c757d">${lastPayment}</small></td>
+                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong></td>
+                    <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
                     <td>
                         <div class="action-buttons">
@@ -601,7 +603,7 @@
         // Jadvalni yangilash
         const tbody = document.getElementById('debtsTableBody');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 Natija topilmadi</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 Natija topilmadi</td></tr>';
             return;
         }
 
@@ -618,7 +620,8 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
-                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong><br><small style="color: #6c757d">${lastPayment}</small></td>
+                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong></td>
+                    <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
                     <td>
                         <div class="action-buttons">
