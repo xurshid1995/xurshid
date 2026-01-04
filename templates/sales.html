@@ -1793,7 +1793,7 @@
         console.log('⏸️ Pending savdo ma\'lumotlari:', saleData);
         
         try {
-            const response = await fetch('/api/sales', {
+            const response = await fetch('/api/pending-sales', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
