@@ -1308,11 +1308,6 @@ footer {
         transform: scale(1.05);
     }
     
-    /* Show overlay on mobile */
-    .sidebar-overlay {
-        display: block;
-    }
-    
     .mobile-header {
         display: flex;
         position: fixed;
@@ -1368,6 +1363,7 @@ footer {
     }
     
     .sidebar-overlay {
+        display: block;
         position: fixed;
         top: 0;
         left: 0;
