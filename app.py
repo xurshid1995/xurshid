@@ -2963,6 +2963,15 @@ def api_debts():
 
         # Qarzli mijozlar ro'yxati
         query = text("""
+            WITH LastPayment AS (
+                SELECT 
+                    customer_id,
+                    debt_usd as last_payment_amount,
+                    created_at as last_payment_date,
+                    ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) as rn
+                FROM sales
+                WHERE debt_usd > 0
+            )
             SELECT 
                 c.id as customer_id,
                 c.name as customer_name,
@@ -2971,10 +2980,12 @@ def api_debts():
                 COALESCE(SUM(s.debt_usd), 0) as total_debt,
                 0 as paid_amount,
                 COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
-                MAX(s.created_at) as last_payment_date
+                lp.last_payment_date,
+                COALESCE(lp.last_payment_amount, 0) as last_payment_amount
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-            GROUP BY c.id, c.name, c.phone, c.address
+            LEFT JOIN LastPayment lp ON c.id = lp.customer_id AND lp.rn = 1
+            GROUP BY c.id, c.name, c.phone, c.address, lp.last_payment_date, lp.last_payment_amount
             HAVING COALESCE(SUM(s.debt_usd), 0) > 0
             ORDER BY remaining_debt DESC
         """)
@@ -2991,7 +3002,8 @@ def api_debts():
                 'total_debt': float(row.total_debt),
                 'paid_amount': float(row.paid_amount),
                 'remaining_debt': float(row.remaining_debt),
-                'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None
+                'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None,
+                'last_payment_amount': float(row.last_payment_amount) if row.last_payment_amount else 0
             })
 
         return jsonify({

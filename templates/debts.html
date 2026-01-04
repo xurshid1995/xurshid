@@ -437,7 +437,7 @@
                     <th>👤 Mijoz</th>
                     <th>📞 Telefon</th>
                     <th> Qolgan qarz</th>
-                    <th>📅 Oxirgi to'lov</th>
+                    <th>📅 Oxirgi to'lov ✅</th>
                     <th>🏷️ Status</th>
                     <th>⚙️ Amallar</th>
                 </tr>
@@ -555,6 +555,7 @@
             const status = remainingDebt > 0 ? 'debt' : 'paid';
             const statusText = remainingDebt > 0 ? '💳 Qarzli' : '✅ To\'langan';
             const lastPayment = debt.last_payment_date || '-';
+            const lastPaymentAmount = debt.last_payment_amount || 0;
 
             return `
                 <tr>
@@ -562,7 +563,7 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
-                    <td>${lastPayment}</td>
+                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong><br><small style="color: #6c757d">${lastPayment}</small></td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
                     <td>
                         <div class="action-buttons">
@@ -609,6 +610,7 @@
             const status = remainingDebt > 0 ? 'debt' : 'paid';
             const statusText = remainingDebt > 0 ? '💳 Qarzli' : '✅ To\'langan';
             const lastPayment = debt.last_payment_date || '-';
+            const lastPaymentAmount = debt.last_payment_amount || 0;
 
             return `
                 <tr>
@@ -616,7 +618,7 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td><strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${remainingDebt.toFixed(2)}</strong></td>
-                    <td>${lastPayment}</td>
+                    <td><strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong><br><small style="color: #6c757d">${lastPayment}</small></td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
                     <td>
                         <div class="action-buttons">
