@@ -858,13 +858,18 @@
         
         const currentValue = parseFloat(field.value) || 0;
         
-        // Hozirgi to'lovlarni hisoblash
-        const cashUSD = parseFloat(document.getElementById('modalPaymentCashUSD').value) || 0;
-        const clickUSD = parseFloat(document.getElementById('modalPaymentClickUSD').value) || 0;
-        const terminalUSD = parseFloat(document.getElementById('modalPaymentTerminalUSD').value) || 0;
+        // Hozirgi to'lovlarni hisoblash (tanlangan maydonni hisobga olmasdan)
+        let cashUSD = parseFloat(document.getElementById('modalPaymentCashUSD').value) || 0;
+        let clickUSD = parseFloat(document.getElementById('modalPaymentClickUSD').value) || 0;
+        let terminalUSD = parseFloat(document.getElementById('modalPaymentTerminalUSD').value) || 0;
+        
+        // Tanlangan maydonning qiymatini 0 qilish (qolganini hisoblash uchun)
+        if (fieldId === 'modalPaymentCashUSD') cashUSD = 0;
+        if (fieldId === 'modalPaymentClickUSD') clickUSD = 0;
+        if (fieldId === 'modalPaymentTerminalUSD') terminalUSD = 0;
         
         const totalPaid = cashUSD + clickUSD + terminalUSD;
-        const remaining = remainingDebt - totalPaid + currentValue;
+        const remaining = remainingDebt - totalPaid;
         
         if (remaining > 0) {
             field.value = remaining.toFixed(2);
