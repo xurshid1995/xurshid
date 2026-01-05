@@ -557,6 +557,7 @@
             const statusText = remainingDebt > 0 ? '💳 Qarzli' : '✅ To\'langan';
             const lastPayment = debt.last_payment_date || '-';
             const lastPaymentAmount = debt.last_payment_amount || 0;
+            const lastPaymentRate = debt.last_payment_rate || exchangeRate;
 
             return `
                 <tr>
@@ -569,7 +570,7 @@
                     </td>
                     <td>
                         <strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong>
-                        <br><small style="color: #666;">${(lastPaymentAmount * exchangeRate).toLocaleString('uz-UZ')} so'm</small>
+                        <br><small style="color: #666;">${(lastPaymentAmount * lastPaymentRate).toLocaleString('uz-UZ')} so'm</small>
                     </td>
                     <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
@@ -619,6 +620,7 @@
             const statusText = remainingDebt > 0 ? '💳 Qarzli' : '✅ To\'langan';
             const lastPayment = debt.last_payment_date || '-';
             const lastPaymentAmount = debt.last_payment_amount || 0;
+            const lastPaymentRate = debt.last_payment_rate || exchangeRate;
 
             return `
                 <tr>
@@ -631,7 +633,7 @@
                     </td>
                     <td>
                         <strong style="color: #28a745">$${lastPaymentAmount.toFixed(2)}</strong>
-                        <br><small style="color: #666;">${(lastPaymentAmount * exchangeRate).toLocaleString('uz-UZ')} so'm</small>
+                        <br><small style="color: #666;">${(lastPaymentAmount * lastPaymentRate).toLocaleString('uz-UZ')} so'm</small>
                     </td>
                     <td>${lastPayment}</td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>

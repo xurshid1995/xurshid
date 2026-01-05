@@ -554,6 +554,7 @@ class Customer(db.Model):
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'), nullable=True)
     last_debt_payment_usd = db.Column(db.Numeric(10, 2), default=0)
     last_debt_payment_date = db.Column(db.DateTime, nullable=True)
+    last_debt_payment_rate = db.Column(db.Numeric(10, 2), default=13000)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(
         db.DateTime,
@@ -2974,10 +2975,11 @@ def api_debts():
                 0 as paid_amount,
                 COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                 c.last_debt_payment_date as last_payment_date,
-                COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount
+                COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
+                COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-            GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd
+            GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
             HAVING COALESCE(SUM(s.debt_usd), 0) > 0
             ORDER BY remaining_debt DESC
         """)
@@ -2995,7 +2997,8 @@ def api_debts():
                 'paid_amount': float(row.paid_amount),
                 'remaining_debt': float(row.remaining_debt),
                 'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None,
-                'last_payment_amount': float(row.last_payment_amount) if row.last_payment_amount else 0
+                'last_payment_amount': float(row.last_payment_amount) if row.last_payment_amount else 0,
+                'last_payment_rate': float(row.last_payment_rate) if row.last_payment_rate else 13000
             })
 
         return jsonify({
@@ -3127,6 +3130,7 @@ def api_debt_payment():
         if customer:
             customer.last_debt_payment_usd = payment_usd - remaining_payment
             customer.last_debt_payment_date = db.func.current_timestamp()
+            customer.last_debt_payment_rate = get_usd_rate()
 
         db.session.commit()
 
