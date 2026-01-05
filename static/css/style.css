@@ -95,14 +95,14 @@ body {
 }
 
 .sidebar-menu li {
-    margin: 0px 0; /* Bo'shliqni olib tashladik */
+    margin: 0;
 }
 
 .sidebar-menu a {
     display: flex;
     align-items: center;
-    padding: 12px 10px; /* Kichik padding */
-    justify-content: flex-start; /* Oddiy holatda chapda */
+    padding: 8px 10px;
+    justify-content: flex-start;
     color: #ffffff;
     text-decoration: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,12 +110,12 @@ body {
     font-size: 14px;
     position: relative;
     overflow: hidden;
-    white-space: nowrap; /* Matnni bir qatorda saqlash */
+    white-space: nowrap;
 }
 
 /* Hover qilganda padding kengayadi */
 .sidebar:hover .sidebar-menu a {
-    padding: 12px 20px;
+    padding: 8px 20px;
 }
 
 /* Oddiy holatda matn yashirin */
