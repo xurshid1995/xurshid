@@ -3969,18 +3969,15 @@ def delete_store_stock(store_id, product_id):
 
         total_other_locations = other_store_stocks + warehouse_stocks
 
-        # Agar mahsulot faqat shu joyda mavjud bo'lsa - butunlay o'chirish
-        if total_other_locations == 0:
-            # Avval stock ni o'chirish
-            db.session.delete(stock)
-            # Keyin productni ham o'chirish
-            db.session.delete(product)
-            db.session.commit()
+        # Faqat stock ni o'chirish, product tarixda saqlanadi
+        db.session.delete(stock)
+        db.session.commit()
 
+        if total_other_locations == 0:
             return jsonify({
                 'success': True,
-                'message': f'{product_name} mahsuloti butunlay o\'chirildi (faqat bu joyda mavjud edi)',
-                'deleted_completely': True
+                'message': f'{product_name} bu do\'kondan o\'chirildi (mahsulot ma\'lumotlari tarixda saqlanadi)',
+                'deleted_completely': False
             })
         else:
             # Faqat shu joydagi stock ni o'chirish
