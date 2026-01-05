@@ -7788,7 +7788,12 @@ def api_sales_chart():
             query += " GROUP BY DATE(s.sale_date) ORDER BY time_period"
 
         # SQLAlchemy ishlatamiz
+        print(f"🔍 SQL Query: {query}")
+        print(f"🔍 Params: {params}")
         results = db.session.execute(text(query), params).fetchall()
+        print(f"📊 Results count: {len(results)}")
+        for row in results:
+            print(f"  Row: {row}")
 
         labels = []
         values = []
