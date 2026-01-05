@@ -6404,10 +6404,17 @@ def delete_sale_with_stock_return(sale_id):
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error deleting sale: {str(e)}")
+        error_msg = str(e)
+        print(f"🔴 Sale o'chirishda xatolik!")
+        print(f"🔴 Sale ID: {sale_id}")
+        print(f"🔴 Xatolik: {error_msg}")
+        import traceback
+        traceback.print_exc()
+        app.logger.error(f"Error deleting sale {sale_id}: {error_msg}")
+        app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({
             'success': False,
-            'error': 'Savdoni o\'chirishda xatolik: {str(e)}'
+            'error': f'Savdoni o\'chirishda xatolik: {error_msg}'
         }), 500
 
 
