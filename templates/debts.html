@@ -844,13 +844,13 @@
 
     // Qolgan qarzni maydoniga qo'shish (modal uchun)
     function addModalRemainingToField(fieldId) {
-        const debtElement = document.querySelector('#debtModal .debt-summary strong');
+        const debtElement = document.getElementById('paymentAmount');
         if (!debtElement) {
             alert('❌ Qarz ma\'lumotlari topilmadi');
             return;
         }
         
-        const debtText = debtElement.textContent.replace('$', '').replace(',', '');
+        const debtText = debtElement.textContent.replace('$', '').replace(',', '').trim();
         const remainingDebt = parseFloat(debtText) || 0;
         
         const field = document.getElementById(fieldId);
