@@ -7732,6 +7732,7 @@ def api_sales_chart():
                     COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
                     COALESCE(SUM(s.debt_usd), 0) as debt_total
                 FROM sales s
+                WHERE (s.cash_usd > 0 OR s.click_usd > 0 OR s.terminal_usd > 0)
             """
         else:
             query = """
@@ -7745,6 +7746,7 @@ def api_sales_chart():
                     COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
                     COALESCE(SUM(s.debt_usd), 0) as debt_total
                 FROM sales s
+                WHERE (s.cash_usd > 0 OR s.click_usd > 0 OR s.terminal_usd > 0)
             """
 
         conditions = []
@@ -7777,7 +7779,7 @@ def api_sales_chart():
             params['date_to'] = date_to
 
         if conditions:
-            query += " WHERE " + " AND ".join(conditions)
+            query += " AND " + " AND ".join(conditions)
 
         # GROUP BY va ORDER BY
         if period == 'today':
