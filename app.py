@@ -1930,6 +1930,14 @@ def sales_history():
         icon='📊')
 
 
+@app.route('/debt-sales')
+def debt_sales():
+    return render_template(
+        'debt-sales.html',
+        page_title='Qarz savdolar',
+        icon='💳')
+
+
 @app.route('/pending-sales')
 def pending_sales():
     return render_template(
