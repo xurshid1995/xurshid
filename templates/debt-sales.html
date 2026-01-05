@@ -2503,17 +2503,19 @@ function generatePaymentDetailsHTML(sale) {
     const totalUSD = activePayments.reduce((sum, p) => sum + p.usd, 0);
     const totalUZS = activePayments.reduce((sum, p) => sum + p.uzs, 0);
     
-    return `
-        <div class="total-row" style="margin-bottom: 12px;">
-            <div style="margin-bottom: 8px; font-weight: 500; color: #495057;">To'lovlar:</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 4px;">${paymentsHTML}</div>
+    // Jami to'lov kartasi
+    const totalHTML = `
+        <div style="display: inline-block; background: #e8f5e9; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid #28a745;">
+            <div style="font-weight: 600; color: #2e7d32; margin-bottom: 2px;">Jami to'lov</div>
+            <div style="font-size: 15px; font-weight: 700; color: #1b5e20;">$${totalUSD.toFixed(2)}</div>
+            <div style="font-size: 12px; color: #388e3c;">${totalUZS.toLocaleString('uz-UZ')} so'm</div>
         </div>
-        <div class="total-row" style="background: #e8f5e9; padding: 12px; border-radius: 6px; border-left: 4px solid #28a745;">
-            <span class="total-label" style="font-weight: 600; color: #2e7d32;">Jami to'lov:</span>
-            <span style="float: right;">
-                <div style="font-size: 18px; font-weight: 700; color: #1b5e20;">$${totalUSD.toFixed(2)}</div>
-                <div style="font-size: 14px; color: #388e3c;">${totalUZS.toLocaleString('uz-UZ')} so'm</div>
-            </span>
+    `;
+    
+    return `
+        <div class="total-row">
+            <div style="margin-bottom: 8px; font-weight: 500; color: #495057;">To'lovlar:</div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center;">${paymentsHTML}${totalHTML}</div>
         </div>
     `;
 }
