@@ -3130,7 +3130,7 @@ def api_debt_payment():
         if customer:
             customer.last_debt_payment_usd = payment_usd - remaining_payment
             customer.last_debt_payment_date = db.func.current_timestamp()
-            customer.last_debt_payment_rate = get_usd_rate()
+            customer.last_debt_payment_rate = get_current_currency_rate()
 
         db.session.commit()
 
