@@ -3969,16 +3969,27 @@ def delete_store_stock(store_id, product_id):
 
         total_other_locations = other_store_stocks + warehouse_stocks
 
-        # Faqat stock ni o'chirish, product tarixda saqlanadi
+        # Stock ni o'chirish
         db.session.delete(stock)
-        db.session.commit()
-
+        
+        # Agar boshqa stoklarda yo'q bo'lsa - product'ni ham o'chirish
         if total_other_locations == 0:
+            db.session.delete(product)
+            db.session.commit()
+            
             return jsonify({
                 'success': True,
-                'message': f'{product_name} bu do\'kondan o\'chirildi (mahsulot ma\'lumotlari tarixda saqlanadi)',
-                'deleted_completely': False
+                'message': f'{product_name} mahsuloti butunlay o\'chirildi',
+                'deleted_completely': True
             })
+        
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'message': f'{product_name} bu do\'kondan o\'chirildi (boshqa joylarda hali mavjud)',
+            'deleted_completely': False,
+            'other_locations': total_other_locations
+        })
         else:
             # Faqat shu joydagi stock ni o'chirish
             db.session.delete(stock)
