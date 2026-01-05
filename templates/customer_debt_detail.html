@@ -44,31 +44,33 @@
 
     .customer-info-card {
         background: white;
-        padding: 12px 20px;
+        padding: 10px 20px;
         border-radius: 6px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         margin-bottom: 20px;
         border-left: 3px solid #007bff;
+        display: inline-block;
+        width: 100%;
     }
 
     .info-grid {
         display: flex;
-        gap: 30px;
-        align-items: center;
+        gap: 35px;
+        align-items: baseline;
+        line-height: 1;
     }
 
     .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        white-space: nowrap;
     }
 
     .info-label {
-        font-size: 11px;
+        font-size: 12px;
         color: #6c757d;
         font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     .info-value {
@@ -253,15 +255,15 @@
     <div class="customer-info-card">
         <div class="info-grid">
             <div class="info-item">
-                <span class="info-label">Mijoz ismi</span>
+                <span class="info-label">Mijoz:</span>
                 <span class="info-value" id="customerName">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Telefon</span>
+                <span class="info-label">Telefon:</span>
                 <span class="info-value" id="customerPhone">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Manzil</span>
+                <span class="info-label">Manzil:</span>
                 <span class="info-value" id="customerAddress">-</span>
             </div>
         </div>
