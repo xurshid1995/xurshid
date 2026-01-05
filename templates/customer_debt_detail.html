@@ -316,11 +316,12 @@
                     <th>✅ To'langan</th>
                     <th>📊 Qarz</th>
                     <th>🏷️ Status</th>
+                    <th>⚙️ Amallar</th>
                 </tr>
             </thead>
             <tbody id="historyBody">
                 <tr>
-                    <td colspan="6" class="no-data">Ma'lumotlar yuklanmoqda...</td>
+                    <td colspan="7" class="no-data">Ma'lumotlar yuklanmoqda...</td>
                 </tr>
             </tbody>
         </table>
@@ -424,7 +425,7 @@
         } catch (error) {
             console.error('Xatolik:', error);
             document.getElementById('historyBody').innerHTML = 
-                '<tr><td colspan="6" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik</td></tr>';
+                '<tr><td colspan="7" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik</td></tr>';
         }
     }
 
@@ -433,7 +434,7 @@
         const tbody = document.getElementById('historyBody');
         
         if (!debtData.history || debtData.history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="no-data">📭 Qarzlar tarixi yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 Qarzlar tarixi yo\'q</td></tr>';
             return;
         }
 
@@ -450,6 +451,9 @@
                     <td>$${h.paid_amount.toFixed(2)}</td>
                     <td><strong style="color: ${remaining > 0 ? '#dc3545' : '#28a745'}">$${remaining.toFixed(2)}</strong></td>
                     <td><span class="status-badge ${status}">${statusText}</span></td>
+                    <td>
+                        <a href="/sales/details/${h.sale_id}" target="_blank" style="text-decoration: none; color: #007bff; font-size: 14px;">👁️ Ko'rish</a>
+                    </td>
                 </tr>
             `;
         }).join('');
