@@ -2448,6 +2448,8 @@ function getPaymentMethodText(method) {
 
 // To'lov tafsilotlarini HTML ga aylantirish
 function generatePaymentDetailsHTML(sale) {
+    console.log('🔍 generatePaymentDetailsHTML - Sale data:', sale);
+    
     const rate = sale.currency_rate || 12000;
     
     // USD qiymatlarini olish
@@ -2456,11 +2458,15 @@ function generatePaymentDetailsHTML(sale) {
     const terminalUSD = parseFloat(sale.terminal_usd || 0);
     const debtUSD = parseFloat(sale.debt_usd || 0);
     
+    console.log('💰 USD qiymatlar:', { cashUSD, clickUSD, terminalUSD, debtUSD });
+    
     // UZS qiymatlarini olish yoki hisoblash
     const cashUZS = sale.cash_amount || (cashUSD * rate);
     const clickUZS = sale.click_amount || (clickUSD * rate);
     const terminalUZS = sale.terminal_amount || (terminalUSD * rate);
     const debtUZS = sale.debt_amount || (debtUSD * rate);
+    
+    console.log('💵 UZS qiymatlar:', { cashUZS, clickUZS, terminalUZS, debtUZS });
     
     const payments = [
         { name: '💵 Naqd pul', usd: cashUSD, uzs: cashUZS },

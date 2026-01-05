@@ -886,6 +886,16 @@ class Sale(db.Model):
                 self.total_profit) if self.total_profit is not None else 0.0,
             'payment_method': self.payment_method if self.payment_method else 'cash',
             'payment_status': self.payment_status if self.payment_status else 'paid',
+            # UZS qiymatlar
+            'cash_amount': float(self.cash_amount) if self.cash_amount is not None else 0.0,
+            'click_amount': float(self.click_amount) if self.click_amount is not None else 0.0,
+            'terminal_amount': float(self.terminal_amount) if self.terminal_amount is not None else 0.0,
+            'debt_amount': float(self.debt_amount) if self.debt_amount is not None else 0.0,
+            # USD qiymatlar
+            'cash_usd': float(self.cash_usd) if self.cash_usd is not None else 0.0,
+            'click_usd': float(self.click_usd) if self.click_usd is not None else 0.0,
+            'terminal_usd': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
+            'debt_usd': float(self.debt_usd) if self.debt_usd is not None else 0.0,
             'payment_details': {
                 'cash': float(self.cash_amount) if self.cash_amount is not None else 0.0,
                 'click': float(self.click_amount) if self.click_amount is not None else 0.0,
