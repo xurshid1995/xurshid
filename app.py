@@ -3127,6 +3127,11 @@ def api_debt_payment():
 
         remaining_payment = payment_usd
         updated_sales = []
+        
+        # To'lov turlarini ketma-ket taqsimlash: 1) naqd, 2) click, 3) terminal
+        remaining_cash = cash_usd
+        remaining_click = click_usd
+        remaining_terminal = terminal_usd
 
         # Har bir qarzga to'lovni taqsimlash
         for sale in sales:
@@ -3141,16 +3146,44 @@ def api_debt_payment():
 
             # Ushbu savdoga qancha to'lov qilish mumkin
             payment_for_this_sale = min(remaining_payment, current_debt)
+            
+            # Har bir to'lov turidan qancha ishlatish mumkin
+            # 1. Naqd puldan
+            cash_for_this = min(remaining_cash, payment_for_this_sale)
+            if cash_for_this > 0:
+                sale.cash_usd = (sale.cash_usd or Decimal('0')) + cash_for_this
+                sale.cash_amount = float(sale.cash_usd) * float(sale.currency_rate)
+                remaining_cash -= cash_for_this
+                payment_for_this_sale -= cash_for_this
+            
+            # 2. Click dan
+            click_for_this = min(remaining_click, payment_for_this_sale)
+            if click_for_this > 0:
+                sale.click_usd = (sale.click_usd or Decimal('0')) + click_for_this
+                sale.click_amount = float(sale.click_usd) * float(sale.currency_rate)
+                remaining_click -= click_for_this
+                payment_for_this_sale -= click_for_this
+            
+            # 3. Terminal dan
+            terminal_for_this = min(remaining_terminal, payment_for_this_sale)
+            if terminal_for_this > 0:
+                sale.terminal_usd = (sale.terminal_usd or Decimal('0')) + terminal_for_this
+                sale.terminal_amount = float(sale.terminal_usd) * float(sale.currency_rate)
+                remaining_terminal -= terminal_for_this
+                payment_for_this_sale -= terminal_for_this
+            
+            # Jami to'langan summa
+            total_paid = cash_for_this + click_for_this + terminal_for_this
 
             # Qarzni kamaytirish
-            sale.debt_usd = sale.debt_usd - payment_for_this_sale
+            sale.debt_usd = sale.debt_usd - total_paid
             sale.debt_amount = float(sale.debt_usd) * float(sale.currency_rate)
             
             # Agar qarz to'liq yopilgan bo'lsa, statusni o'zgartirish
             if sale.debt_usd == 0:
                 sale.payment_status = 'paid'
 
-            remaining_payment -= payment_for_this_sale
+            remaining_payment -= total_paid
             updated_sales.append(sale.id)
 
         # Mijozning oxirgi to'lov ma'lumotlarini yangilash
