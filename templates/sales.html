@@ -830,7 +830,7 @@
         } else {
             cart.push({
                 id: currentProduct.id,
-                name: currentProduct?.name || `Mahsulot #${currentProduct.id}`,
+                name: currentProduct?.name || `Mahsulot #${currentProduct?.id || 'Unknown'}`,
                 priceUSD: priceUSD,
                 priceUZS: priceUZS,
                 quantity: quantity
@@ -852,7 +852,7 @@
             }
         }, 200);
         
-        console.log('✅ Savatga qo\'shildi:', currentProduct?.name || `Mahsulot #${currentProduct.id}`, quantity, 'dona, $' + priceUSD);
+        console.log('✅ Savatga qo\'shildi:', currentProduct?.name || `Mahsulot #${currentProduct?.id || 'Unknown'}`, quantity, 'dona, $' + priceUSD);
     }
     
     // Savatni yangilash
