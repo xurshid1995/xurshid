@@ -46,7 +46,7 @@
                     </select>
                 </div>
                 <div style="position: relative;">
-                    <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #495057;">👤 Mijozni tanlang</label>
+                    <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #495057;">👤 Mijoz (ixtiyoriy)</label>
                     <input type="text" id="customerSearch" placeholder="Mijoz nomini kiriting..." autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     <div id="customerDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                     <input type="hidden" id="selectedCustomerId" value="">
@@ -409,6 +409,10 @@
     
     // Tahrirlash rejimi uchun
     let editingSaleId = null;  // Agar savdo tahrirlanyotgan bo'lsa, ID saqlanadi
+    
+    // Autosave uchun
+    let currentPendingSaleId = null;  // Hozirgi pending savdo ID
+    let autosaveTimeout = null;  // Debounce uchun
     
     // Klaviatura navigatsiyasi uchun o'zgaruvchilar
     let visibleProductRows = [];
@@ -1743,11 +1747,7 @@
             return;
         }
         
-        const customerId = document.getElementById('selectedCustomerId').value;
-        if (!customerId) {
-            alert('Mijozni tanlang!');
-            return;
-        }
+        const customerId = document.getElementById('selectedCustomerId').value || null;
         
         if (!selectedLocationId || !selectedLocationType) {
             alert('Joylashuvni tanlang!');
@@ -1862,11 +1862,7 @@
             return;
         }
         
-        const customerId = document.getElementById('selectedCustomerId').value;
-        if (!customerId) {
-            alert('Mijozni tanlang!');
-            return;
-        }
+        const customerId = document.getElementById('selectedCustomerId').value || null;
         
         // Jami summani hisoblash
         let totalUSD = 0;

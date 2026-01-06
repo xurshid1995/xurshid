@@ -5800,6 +5800,24 @@ def create_sale():
                 final_customer_id = int(customer_id)
             except (ValueError, TypeError):
                 final_customer_id = None
+        
+        # Agar mijoz tanlanmagan bo'lsa, "Noma'lum mijoz" ni ishlatish yoki yaratish
+        if not final_customer_id:
+            unknown_customer = Customer.query.filter_by(name="Noma'lum mijoz").first()
+            if not unknown_customer:
+                # "Noma'lum mijoz" ni yaratish
+                unknown_customer = Customer(
+                    name="Noma'lum mijoz",
+                    phone="-",
+                    address="-"
+                )
+                db.session.add(unknown_customer)
+                db.session.flush()  # ID olish uchun
+                logger.info(f"✨ 'Noma'lum mijoz' yaratildi (ID: {unknown_customer.id})")
+            else:
+                logger.info(f"✅ Mavjud 'Noma'lum mijoz' ishlatiladi (ID: {unknown_customer.id})")
+            
+            final_customer_id = unknown_customer.id
 
         # Hozirgi kursni olish
         current_rate = get_current_currency_rate()
