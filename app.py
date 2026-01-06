@@ -6338,6 +6338,9 @@ def update_sale(sale_id):
 def delete_sale_with_stock_return(sale_id):
     """Savdoni o'chirish va stock ni qaytarish - yangi tuzilma bilan"""
     try:
+        # Query parameter: return_stock (default: true)
+        return_stock = request.args.get('return_stock', 'true').lower() == 'true'
+        
         current_user = get_current_user()
         if not current_user:
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
@@ -6361,73 +6364,77 @@ def delete_sale_with_stock_return(sale_id):
 
         # Debug: Savdo ma'lumotlarini ko'rsatish
         logger.debug(f" DELETE DEBUG: Sale ID: {sale_id}")
+        logger.debug(f" DELETE DEBUG: Return stock: {return_stock}")
         logger.debug(f" DELETE DEBUG: Items count: {len(sale.items)}")
 
-        # Har bir SaleItem uchun stock ni qaytarish
-        for item in sale.items:
-            # Agar product o'chirilgan bo'lsa (product_id NULL), stock qaytarib bo'lmaydi
-            if not item.product_id:
-                logger.warning(f"⚠️ DELETE: Product o'chirilgan (sale_item {item.id}), stock qaytarilmaydi")
-                continue
-            
-            # Agar source_id yo'q bo'lsa (ma'lumot buzilgan), stock qaytarib bo'lmaydi
-            if not item.source_id:
-                logger.warning(f"⚠️ DELETE: Source ID yo'q (sale_item {item.id}), stock qaytarilmaydi")
-                continue
+        # Faqat return_stock=true bo'lsa stokni qaytarish
+        if return_stock:
+            for item in sale.items:
+                # Agar product o'chirilgan bo'lsa (product_id NULL), stock qaytarib bo'lmaydi
+                if not item.product_id:
+                    logger.warning(f"⚠️ DELETE: Product o'chirilgan (sale_item {item.id}), stock qaytarilmaydi")
+                    continue
                 
-            logger.debug(f" DELETE: Product {item.product_id}, Qty: {item.quantity}")
-            logger.debug(f" DELETE: Source {item.source_type}, ID: {item.source_id}")
+                # Agar source_id yo'q bo'lsa (ma'lumot buzilgan), stock qaytarib bo'lmaydi
+                if not item.source_id:
+                    logger.warning(f"⚠️ DELETE: Source ID yo'q (sale_item {item.id}), stock qaytarilmaydi")
+                    continue
+                    
+                logger.debug(f" DELETE: Product {item.product_id}, Qty: {item.quantity}")
+                logger.debug(f" DELETE: Source {item.source_type}, ID: {item.source_id}")
 
-            # SaleItem uchun stock qaytarish
-            if item.source_type == 'warehouse':
-                # Warehouse stock ga qaytarish
-                warehouse_stock = WarehouseStock.query.filter_by(
-                    warehouse_id=item.source_id,
-                    product_id=item.product_id
-                ).first()
-
-                if warehouse_stock:
-                    # Mavjud stock ga qo'shish
-                    old_qty = warehouse_stock.quantity
-                    warehouse_stock.quantity += item.quantity
-                    warehouse_stock.last_updated = db.func.current_timestamp()
-                    print(
-                        f"🔍 DELETE: Warehouse updated: {old_qty} + {item.quantity}")
-                else:
-                    # Yangi stock yaratish
-                    new_stock = WarehouseStock(
+                # SaleItem uchun stock qaytarish
+                if item.source_type == 'warehouse':
+                    # Warehouse stock ga qaytarish
+                    warehouse_stock = WarehouseStock.query.filter_by(
                         warehouse_id=item.source_id,
-                        product_id=item.product_id,
-                        quantity=item.quantity,
-                        last_updated=db.func.current_timestamp()
-                    )
-                    db.session.add(new_stock)
-                    logger.debug(f" DELETE: New warehouse stock: {item.quantity}")
+                        product_id=item.product_id
+                    ).first()
 
-            elif item.source_type == 'store':
-                # Store stock ga qaytarish
-                store_stock = StoreStock.query.filter_by(
-                    store_id=item.source_id,
-                    product_id=item.product_id
-                ).first()
+                    if warehouse_stock:
+                        # Mavjud stock ga qo'shish
+                        old_qty = warehouse_stock.quantity
+                        warehouse_stock.quantity += item.quantity
+                        warehouse_stock.last_updated = db.func.current_timestamp()
+                        print(
+                            f"🔍 DELETE: Warehouse updated: {old_qty} + {item.quantity}")
+                    else:
+                        # Yangi stock yaratish
+                        new_stock = WarehouseStock(
+                            warehouse_id=item.source_id,
+                            product_id=item.product_id,
+                            quantity=item.quantity,
+                            last_updated=db.func.current_timestamp()
+                        )
+                        db.session.add(new_stock)
+                        logger.debug(f" DELETE: New warehouse stock: {item.quantity}")
 
-                if store_stock:
-                    # Mavjud stock ga qo'shish
-                    old_qty = store_stock.quantity
-                    store_stock.quantity += item.quantity
-                    store_stock.last_updated = db.func.current_timestamp()
-                    print(
-                        f"🔍 DELETE: Store updated: {old_qty} + {item.quantity}")
-                else:
-                    # Yangi stock yaratish
-                    new_stock = StoreStock(
+                elif item.source_type == 'store':
+                    # Store stock ga qaytarish
+                    store_stock = StoreStock.query.filter_by(
                         store_id=item.source_id,
-                        product_id=item.product_id,
-                        quantity=item.quantity,
-                        last_updated=db.func.current_timestamp()
-                    )
-                    db.session.add(new_stock)
-                    logger.debug(f" DELETE: New store stock: {item.quantity}")
+                        product_id=item.product_id
+                    ).first()
+
+                    if store_stock:
+                        # Mavjud stock ga qo'shish
+                        old_qty = store_stock.quantity
+                        store_stock.quantity += item.quantity
+                        store_stock.last_updated = db.func.current_timestamp()
+                        print(
+                            f"🔍 DELETE: Store updated: {old_qty} + {item.quantity}")
+                    else:
+                        # Yangi stock yaratish
+                        new_stock = StoreStock(
+                            store_id=item.source_id,
+                            product_id=item.product_id,
+                            quantity=item.quantity,
+                            last_updated=db.func.current_timestamp()
+                        )
+                        db.session.add(new_stock)
+                        logger.debug(f" DELETE: New store stock: {item.quantity}")
+        else:
+            logger.debug(f"⚠️ DELETE: Stock qaytarilmaydi (return_stock=false)")
 
         # Ma'lumotlarni olish (o'chirishdan oldin)
         total_items = len(sale.items)

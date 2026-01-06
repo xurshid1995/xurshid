@@ -1015,50 +1015,60 @@
     async function removeFromCart(index) {
         const item = cart[index];
         
-        console.log('🗑️ Savatdan o\'chirish boshlandi:', {
-            index: index,
-            product_id: item.id,
-            product_name: item.name,
-            quantity: item.quantity,
-            location_id: selectedLocationId,
-            location_type: selectedLocationType
-        });
+        // Debug: funksiya chaqirilgan vaqtni log qilish
+        const timestamp = new Date().toISOString();
+        console.log(`\n${'='.repeat(80)}`);
+        console.log(`🗑️ removeFromCart() CHAQIRILDI - ${timestamp}`);
+        console.log(`   Index: ${index}`);
+        console.log(`   Product: ${item.name} (ID: ${item.id})`);
+        console.log(`   Quantity: ${item.quantity}`);
+        console.log(`   Location: ${selectedLocationId} (${selectedLocationType})`);
+        console.log(`   Stock returned flag: ${item._stockReturned || false}`);
+        console.log(`${'='.repeat(80)}\n`);
         
         // FAQAT BIR MARTA stokka qaytarish
         if (!item._stockReturned) {
+            console.log('🔄 Stokka qaytarish jarayoni boshlanmoqda...');
             try {
+                const requestData = {
+                    product_id: item.id,
+                    quantity: item.quantity,
+                    location_id: selectedLocationId,
+                    location_type: selectedLocationType
+                };
+                console.log('📤 API ga yuborilayotgan ma\'lumot:', JSON.stringify(requestData, null, 2));
+                
                 const response = await fetch('/api/return-stock', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        product_id: item.id,
-                        quantity: item.quantity,
-                        location_id: selectedLocationId,
-                        location_type: selectedLocationType
-                    })
+                    body: JSON.stringify(requestData)
                 });
                 
                 console.log('📡 API response status:', response.status);
                 
                 const result = await response.json();
-                console.log('📦 API response:', result);
+                console.log('📦 API response:', JSON.stringify(result, null, 2));
                 
                 if (!result.success) {
                     console.error('❌ Stokka qaytarishda xatolik:', result.error);
                     alert('Stokka qaytarishda xatolik: ' + result.error);
+                    console.log(`${'='.repeat(80)}\n`);
                     return; // Xatolik bo'lsa savatdan o'chirmaymiz
                 } else {
                     console.log('✅ Stokka qaytarildi:', item.quantity, 'dona');
                     console.log('📊 Yangi stock:', result.new_stock);
                     item._stockReturned = true; // Belgi qo'yamiz
+                    console.log('🔒 _stockReturned flag = true');
                 }
             } catch (error) {
                 console.error('❌ Stok qaytarish xatosi:', error);
                 alert('Stok qaytarish xatosi: ' + error.message);
+                console.log(`${'='.repeat(80)}\n`);
                 return; // Xatolik bo'lsa savatdan o'chirmaymiz
             }
         } else {
             console.log('⚠️ Stock allaqachon qaytarilgan, qayta qaytarmaymiz');
+            console.log('🔒 _stockReturned flag allaqachon = true');
         }
         
         cart.splice(index, 1);
@@ -1886,14 +1896,15 @@
     
     // Avtomatik pending savdo yaratish/yangilash
     async function autoSavePending() {
-        // Agar savat bo'sh bo'lsa, pending savdoni o'chirish
+        // Agar savat bo'sh bo'lsa, pending savdoni o'chirish (STOK QAYTARMASDAN)
         if (cart.length === 0) {
             if (currentPendingSaleId) {
                 try {
-                    await fetch(`/api/sales/${currentPendingSaleId}`, {
+                    // ?return_stock=false - chunki stok allaqachon removeFromCart() da qaytarilgan
+                    await fetch(`/api/sales/${currentPendingSaleId}?return_stock=false`, {
                         method: 'DELETE'
                     });
-                    console.log('🗑️ Bo\'sh pending savdo o\'chirildi:', currentPendingSaleId);
+                    console.log('🗑️ Bo\'sh pending savdo o\'chirildi (stok qaytarilmadi):', currentPendingSaleId);
                     currentPendingSaleId = null;
                 } catch (error) {
                     console.error('❌ Pending savdoni o\'chirishda xatolik:', error);
