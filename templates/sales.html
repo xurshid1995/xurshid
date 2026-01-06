@@ -818,6 +818,9 @@
             updateCart();
             closeModal();
             
+            // Avtomatik pending savdo yangilash
+            await autoSavePending();
+            
             // Chap tomondagi mahsulotlar jadvalini yangilash
             await loadProducts();
             
