@@ -193,6 +193,7 @@
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">🔢 Miqdor:</label>
                     <input type="number" id="modalQuantity" min="1" value="0" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
+                    <div id="stockWarning" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px; font-weight: 500;"></div>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
@@ -207,7 +208,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Bekor qilish</button>
-                <button onclick="confirmAddToCart()" style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Qo'shish</button>
+                <button id="confirmAddButton" onclick="confirmAddToCart()" style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Qo'shish</button>
             </div>
         </div>
     </div>
@@ -702,6 +703,9 @@
         
         document.getElementById('quantityModal').style.display = 'flex';
         
+        // Stok tekshiruvi
+        validateStock();
+        
         // Fokusni miqdor maydoniga berish
         setTimeout(() => {
             const quantityInput = document.getElementById('modalQuantity');
@@ -746,6 +750,18 @@
         currentProduct = null;
         delete window.editingCartIndex; // Tahrirlash rejimini tozalash
         
+        // Stock validation elementlarini tozalash
+        const stockWarning = document.getElementById('stockWarning');
+        const quantityInput = document.getElementById('modalQuantity');
+        const confirmButton = document.getElementById('confirmAddButton');
+        if (stockWarning) stockWarning.style.display = 'none';
+        if (quantityInput) quantityInput.style.borderColor = '#ced4da';
+        if (confirmButton) {
+            confirmButton.disabled = false;
+            confirmButton.style.opacity = '1';
+            confirmButton.style.cursor = 'pointer';
+        }
+        
         // Fokusni universal qidiruv maydoniga qaytarish
         setTimeout(() => {
             const universalSearch = document.getElementById('universalSearch');
@@ -753,6 +769,46 @@
                 universalSearch.focus();
             }
         }, 100);
+    }
+    
+    // Stok tekshiruvi
+    function validateStock() {
+        const quantityInput = document.getElementById('modalQuantity');
+        const availableInput = document.getElementById('modalAvailable');
+        const stockWarning = document.getElementById('stockWarning');
+        const confirmButton = document.getElementById('confirmAddButton');
+        
+        const quantity = parseInt(quantityInput.value) || 0;
+        const available = parseInt(availableInput.value) || 0;
+        
+        if (quantity > available) {
+            // Stok yetarli emas
+            quantityInput.style.borderColor = '#dc3545';
+            quantityInput.style.borderWidth = '2px';
+            stockWarning.textContent = `⚠️ Stokda faqat ${available} dona mavjud!`;
+            stockWarning.style.display = 'block';
+            confirmButton.disabled = true;
+            confirmButton.style.opacity = '0.5';
+            confirmButton.style.cursor = 'not-allowed';
+        } else if (quantity > available * 0.8) {
+            // Stok kam qoldi (80% dan ko'p)
+            quantityInput.style.borderColor = '#ffc107';
+            quantityInput.style.borderWidth = '2px';
+            stockWarning.textContent = `⚠️ Stok tugamoqda: ${available} dona qoldi`;
+            stockWarning.style.display = 'block';
+            stockWarning.style.color = '#ffc107';
+            confirmButton.disabled = false;
+            confirmButton.style.opacity = '1';
+            confirmButton.style.cursor = 'pointer';
+        } else {
+            // Hammasi joyida
+            quantityInput.style.borderColor = '#28a745';
+            quantityInput.style.borderWidth = '2px';
+            stockWarning.style.display = 'none';
+            confirmButton.disabled = false;
+            confirmButton.style.opacity = '1';
+            confirmButton.style.cursor = 'pointer';
+        }
     }
     
     // Savatga qo'shish
@@ -1209,6 +1265,9 @@
             available: parseInt(document.getElementById('modalAvailable').value),
             price: item.priceUSD
         };
+        
+        // Stok tekshiruvi
+        validateStock();
         
         // Eski confirm funksiyasini yangilash uchun indexni saqlash
         window.editingCartIndex = index;
@@ -1756,6 +1815,13 @@
         const modalQuantity = document.getElementById('modalQuantity');
         const modalPriceUSD = document.getElementById('modalPriceUSD');
         const modalPriceUZS = document.getElementById('modalPriceUZS');
+        
+        // Miqdor inputga real-time stock validation
+        if (modalQuantity) {
+            modalQuantity.addEventListener('input', function() {
+                validateStock();
+            });
+        }
         
         [modalQuantity, modalPriceUSD, modalPriceUZS].forEach(input => {
             if (input) {
