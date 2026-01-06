@@ -418,6 +418,10 @@
     let visibleProductRows = [];
     let currentSelectedRowIndex = -1;
     
+    // Mijoz qidiruv klaviatura navigatsiyasi uchun
+    let filteredCustomers = [];
+    let selectedCustomerIndex = -1;
+    
     async function loadCustomers() {
         try {
             console.log('🔄 Mijozlarni yuklash boshlandi...');
@@ -440,14 +444,16 @@
     function searchCustomers(searchText) {
         console.log('🔍 searchCustomers chaqirildi:', searchText, 'Jami mijozlar:', allCustomers.length);
         const dropdown = document.getElementById('customerDropdown');
+        selectedCustomerIndex = -1;
         
         if (!searchText || searchText.length < 2) {
             console.log('⚠️ Qidiruv matni 2 ta belgidan kam');
             dropdown.style.display = 'none';
+            filteredCustomers = [];
             return;
         }
         
-        const filtered = allCustomers.filter(customer => {
+        filteredCustomers = allCustomers.filter(customer => {
             const name = customer.name ? customer.name.toLowerCase() : '';
             const phone = customer.phone ? customer.phone : '';
             const search = searchText.toLowerCase();
@@ -459,25 +465,59 @@
             return name.includes(search) || cleanPhone.includes(cleanSearch);
         });
         
-        console.log('📋 Filterlangan mijozlar soni:', filtered.length);
+        console.log('📋 Filterlangan mijozlar soni:', filteredCustomers.length);
         
-        if (filtered.length === 0) {
+        if (filteredCustomers.length === 0) {
             dropdown.innerHTML = '<div style="padding: 10px; color: #999; text-align: center;">Mijoz topilmadi</div>';
             dropdown.style.display = 'block';
             return;
         }
         
-        dropdown.innerHTML = filtered.map(customer => {
+        renderCustomerDropdown();
+        dropdown.style.display = 'block';
+    }
+    
+    function renderCustomerDropdown() {
+        const dropdown = document.getElementById('customerDropdown');
+        dropdown.innerHTML = filteredCustomers.map((customer, index) => {
+            const isSelected = index === selectedCustomerIndex;
+            const bgColor = isSelected ? '#e3f2fd' : 'white';
+            const hoverBg = isSelected ? '#e3f2fd' : '#f8f9fa';
             return `<div onclick="selectCustomer(${customer.id}, '${customer.name.replace(/'/g, "\\'")}', '${customer.phone || ''}')" 
-                    style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;"
-                    onmouseover="this.style.background='#f8f9fa'"
-                    onmouseout="this.style.background='white'">
+                    class="customer-item" data-index="${index}"
+                    style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; background: ${bgColor};"
+                    onmouseover="this.style.background='${hoverBg}'"
+                    onmouseout="this.style.background='${bgColor}'">
                     <div style="font-weight: 500; color: #333;">${customer.name}</div>
                     <div style="font-size: 12px; color: #6c757d;">${customer.phone || 'Telefon yo\'q'}</div>
                 </div>`;
         }).join('');
+    }
+    
+    function navigateCustomerDropdown(direction) {
+        if (filteredCustomers.length === 0) return;
         
-        dropdown.style.display = 'block';
+        if (direction === 'down') {
+            selectedCustomerIndex = (selectedCustomerIndex + 1) % filteredCustomers.length;
+        } else if (direction === 'up') {
+            selectedCustomerIndex = selectedCustomerIndex <= 0 ? filteredCustomers.length - 1 : selectedCustomerIndex - 1;
+        }
+        
+        renderCustomerDropdown();
+        
+        // Scroll to selected item
+        const dropdown = document.getElementById('customerDropdown');
+        const selectedItem = dropdown.querySelector(`[data-index="${selectedCustomerIndex}"]`);
+        if (selectedItem) {
+            selectedItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+    
+    function selectCurrentCustomer() {
+        if (selectedCustomerIndex >= 0 && selectedCustomerIndex < filteredCustomers.length) {
+            const customer = filteredCustomers[selectedCustomerIndex];
+            selectCustomer(customer.id, customer.name, customer.phone || '');
+        }
     }
     
     function selectCustomer(id, name, phone) {
@@ -1604,6 +1644,43 @@
             customerSearchInput.addEventListener('input', function() {
                 console.log('⌨️ Input event: ', this.value);
                 searchCustomers(this.value);
+            });
+            
+            // Klaviatura navigatsiyasi
+            customerSearchInput.addEventListener('keydown', function(e) {
+                const dropdown = document.getElementById('customerDropdown');
+                const isDropdownVisible = dropdown.style.display === 'block';
+                
+                if (!isDropdownVisible) return;
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateCustomerDropdown('down');
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateCustomerDropdown('up');
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        selectCurrentCustomer();
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        dropdown.style.display = 'none';
+                        filteredCustomers = [];
+                        selectedCustomerIndex = -1;
+                        break;
+                }
+            });
+            
+            // Dropdown tashqarisiga bosilganda yopish
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('customerDropdown');
+                if (!customerSearchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
             });
         } else {
             console.error('❌ customerSearch elementi topilmadi!');
