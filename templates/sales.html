@@ -1777,6 +1777,12 @@
             }
         });
         
+        // Sahifa yuklanganda mahsulot qidirish maydoniga fokus berish
+        const universalSearch = document.getElementById('universalSearch');
+        if (universalSearch) {
+            setTimeout(() => universalSearch.focus(), 200);
+        }
+        
         console.log('✅ Sales sahifasi tayyor');
     });
     
