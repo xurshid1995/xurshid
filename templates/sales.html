@@ -872,9 +872,11 @@
         const existingItem = cart.find(item => item.id === currentProduct.id);
         
         if (existingItem) {
+            const oldQuantity = existingItem.quantity;
             existingItem.quantity += quantity;
             existingItem.priceUSD = priceUSD;
             existingItem.priceUZS = priceUZS;
+            console.log(`📦 Mavjud mahsulot miqdori oshirildi: ${oldQuantity} + ${quantity} = ${existingItem.quantity}`);
         } else {
             cart.push({
                 id: currentProduct.id,
@@ -883,6 +885,7 @@
                 priceUZS: priceUZS,
                 quantity: quantity
             });
+            console.log(`➕ Yangi mahsulot qo'shildi: ${quantity} dona`);
         }
         
         // currentProduct ma'lumotlarini saqlab qo'yish (closeModal() uni null qiladi)
