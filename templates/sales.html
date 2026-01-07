@@ -184,37 +184,52 @@
     
     <!-- Mijoz qo'shish modal oyna -->
     <div id="addCustomerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; border-radius: 8px; padding: 30px; width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: #333;">👤 Yangi mijoz qo'shish</h3>
-                <button onclick="closeAddCustomerModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+        <div style="background: white; border-radius: 12px; padding: 0; width: 550px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+            <div style="background: white; border-bottom: 1px solid #e9ecef; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #2c3e50; font-size: 1.5rem; font-weight: 600;">👤 Yangi mijoz qo'shish</h3>
+                <button onclick="closeAddCustomerModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">&times;</button>
             </div>
             
-            <div id="addCustomerError" style="display: none; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 15px; color: #721c24; font-size: 14px;"></div>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Ism *</label>
-                <input type="text" id="newCustomerFirstName" placeholder="Mijoz ismi" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Familiya *</label>
-                <input type="text" id="newCustomerLastName" placeholder="Mijoz familiyasi" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Telefon</label>
-                <input type="text" id="newCustomerPhone" placeholder="+998 XX XXX XX XX" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Manzil</label>
-                <textarea id="newCustomerAddress" placeholder="Manzil (ixtiyoriy)" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button onclick="closeAddCustomerModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">Bekor qilish</button>
-                <button onclick="submitNewCustomer()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">✅ Saqlash</button>
+            <div style="padding: 2rem;">
+                <div id="addCustomerError" style="display: none; padding: 0.75rem; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 1rem; color: #721c24; font-size: 14px;"></div>
+                <div id="addCustomerSuccess" style="display: none; padding: 0.75rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 1rem; color: #155724; font-size: 14px;"></div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Mijoz nomi <span style="color: #e74c3c;">*</span></label>
+                    <input type="text" id="newCustomerName" placeholder="To'liq ism va familiyani kiriting" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                    <div style="font-size: 0.9rem; color: #6c757d; margin-top: 0.25rem;">To'liq ism va familiyani kiriting</div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Telefon raqami</label>
+                    <input type="tel" id="newCustomerPhone" placeholder="+998(99) 406-47-49" maxlength="18" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                    <div style="font-size: 0.9rem; color: #6c757d; margin-top: 0.25rem;">Format: +998(99) 406-47-49</div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Email manzili</label>
+                    <input type="email" id="newCustomerEmail" placeholder="mijoz@example.com" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                    <div style="font-size: 0.9rem; color: #6c757d; margin-top: 0.25rem;">Elektron pochta manzilini kiriting</div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Manzil</label>
+                    <textarea id="newCustomerAddress" placeholder="To'liq manzilni kiriting..." rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; resize: vertical; transition: all 0.3s ease; min-height: 100px;"></textarea>
+                    <div style="font-size: 0.9rem; color: #6c757d; margin-top: 0.25rem;">Mijozning to'liq yashash yoki ish manzili</div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Dokon <span style="color: #e74c3c;">*</span></label>
+                    <select id="newCustomerStore" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                        <option value="">Dokonni tanlang...</option>
+                    </select>
+                    <div style="font-size: 0.9rem; color: #6c757d; margin-top: 0.25rem;">Mijoz qaysi dokonga tegishli</div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="closeAddCustomerModal()" style="flex: 1; padding: 0.75rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease;">❌ Bekor qilish</button>
+                    <button onclick="submitNewCustomer()" style="flex: 1; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease;">✅ Mijozni qo'shish</button>
+                </div>
             </div>
         </div>
     </div>
@@ -284,15 +299,20 @@
     // Mijoz qo'shish modal funksiyalari
     function openAddCustomerModal() {
         document.getElementById('addCustomerModal').style.display = 'flex';
-        document.getElementById('newCustomerFirstName').value = '';
-        document.getElementById('newCustomerLastName').value = '';
+        document.getElementById('newCustomerName').value = '';
         document.getElementById('newCustomerPhone').value = '';
+        document.getElementById('newCustomerEmail').value = '';
         document.getElementById('newCustomerAddress').value = '';
+        document.getElementById('newCustomerStore').value = '';
         document.getElementById('addCustomerError').style.display = 'none';
+        document.getElementById('addCustomerSuccess').style.display = 'none';
+        
+        // Do'konlar ro'yxatini yuklash
+        loadStoresForModal();
         
         // Fokusni ism maydoniga berish
         setTimeout(() => {
-            document.getElementById('newCustomerFirstName').focus();
+            document.getElementById('newCustomerName').focus();
         }, 100);
     }
     
@@ -300,17 +320,90 @@
         document.getElementById('addCustomerModal').style.display = 'none';
     }
     
+    // Do'konlar ro'yxatini yuklash
+    async function loadStoresForModal() {
+        try {
+            const response = await fetch('/api/stores');
+            const stores = await response.json();
+            
+            const storeSelect = document.getElementById('newCustomerStore');
+            storeSelect.innerHTML = '<option value="">Dokonni tanlang...</option>';
+            
+            stores.forEach(store => {
+                const option = document.createElement('option');
+                option.value = store.id;
+                option.textContent = store.name;
+                storeSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Do\'konlar yuklashda xatolik:', error);
+        }
+    }
+    
+    // Telefon raqamini formatlash
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        
+        if (value.length > 12) {
+            value = value.substring(0, 12);
+        }
+        
+        if (value.length > 0 && !value.startsWith('998')) {
+            if (value.startsWith('9')) {
+                value = '998' + value;
+            } else if (value.length >= 9) {
+                value = '998' + value.substring(0, 9);
+            }
+        }
+        
+        if (value.length >= 3) {
+            let formatted = '+' + value.substring(0, 3);
+            if (value.length > 3) {
+                formatted += '(' + value.substring(3, 5);
+                if (value.length > 5) {
+                    formatted += ') ' + value.substring(5, 8);
+                    if (value.length > 8) {
+                        formatted += '-' + value.substring(8, 10);
+                        if (value.length > 10) {
+                            formatted += '-' + value.substring(10, 12);
+                        }
+                    }
+                }
+            }
+            input.value = formatted;
+        }
+    }
+    
     async function submitNewCustomer() {
-        const firstName = document.getElementById('newCustomerFirstName').value.trim();
-        const lastName = document.getElementById('newCustomerLastName').value.trim();
+        const name = document.getElementById('newCustomerName').value.trim();
         const phone = document.getElementById('newCustomerPhone').value.trim();
+        const email = document.getElementById('newCustomerEmail').value.trim();
         const address = document.getElementById('newCustomerAddress').value.trim();
+        const storeId = document.getElementById('newCustomerStore').value;
         
         const errorDiv = document.getElementById('addCustomerError');
+        const successDiv = document.getElementById('addCustomerSuccess');
+        
+        // Xatolik va muvaffaqiyat xabarlarini yashirish
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
         
         // Validatsiya
-        if (!firstName || !lastName) {
-            errorDiv.textContent = '⚠️ Ism va familiya to\'ldirilishi shart!';
+        if (!name) {
+            errorDiv.textContent = '⚠️ Mijoz nomini to\'ldirish shart!';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (!storeId) {
+            errorDiv.textContent = '⚠️ Dokonni tanlash shart!';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        // Telefon validatsiyasi
+        if (phone && phone.length !== 18) {
+            errorDiv.textContent = '❌ Telefon raqamini to\'liq formatda kiriting: +998(99) 406-47-49';
             errorDiv.style.display = 'block';
             return;
         }
@@ -320,10 +413,11 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    first_name: firstName,
-                    last_name: lastName,
+                    name: name,
                     phone: phone,
-                    address: address
+                    email: email,
+                    address: address,
+                    store_id: storeId
                 })
             });
             
@@ -337,19 +431,22 @@
             
             console.log('✅ Yangi mijoz qo\'shildi:', result);
             
+            // Muvaffaqiyat xabari
+            successDiv.textContent = '✅ Mijoz muvaffaqiyatli qo\'shildi!';
+            successDiv.style.display = 'block';
+            
             // Mijozni avtomatik tanlash
             document.getElementById('selectedCustomerId').value = result.customer.id;
-            document.getElementById('customerSearch').value = `${result.customer.first_name} ${result.customer.last_name}`;
+            document.getElementById('customerSearch').value = result.customer.name;
             
             // Mijoz ma'lumotini korzina sarlavhasida ko'rsatish
-            const customerInfo = `<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3><div style="font-size: 12px; color: #666; margin-top: 5px;">Mijoz: ${result.customer.first_name} ${result.customer.last_name}</div>`;
+            const customerInfo = `<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3><div style="font-size: 12px; color: #666; margin-top: 5px;">Mijoz: ${result.customer.name}</div>`;
             document.getElementById('cartCustomerInfo').innerHTML = customerInfo;
             
-            // Modal yopish
-            closeAddCustomerModal();
-            
-            // Muvaffaqiyat xabari
-            alert('✅ Mijoz muvaffaqiyatli qo\'shildi!');
+            // 1.5 soniyadan keyin modal yopish
+            setTimeout(() => {
+                closeAddCustomerModal();
+            }, 1500);
             
         } catch (error) {
             console.error('Mijoz qo\'shish xatosi:', error);
@@ -360,7 +457,8 @@
     
     // Enter tugmasi bosilganda submit qilish
     document.addEventListener('DOMContentLoaded', function() {
-        const customerInputs = ['newCustomerFirstName', 'newCustomerLastName', 'newCustomerPhone', 'newCustomerAddress'];
+        // Mijoz qo'shish input'lari uchun Enter handler
+        const customerInputs = ['newCustomerName', 'newCustomerPhone', 'newCustomerEmail', 'newCustomerAddress'];
         customerInputs.forEach(inputId => {
             const input = document.getElementById(inputId);
             if (input) {
@@ -371,6 +469,35 @@
                     }
                 });
             }
+        });
+        
+        // Telefon input formatlash
+        const phoneInput = document.getElementById('newCustomerPhone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function() {
+                formatPhoneNumber(this);
+            });
+            
+            phoneInput.addEventListener('keydown', function(e) {
+                if (![8, 9, 27, 13, 46, 37, 38, 39, 40].includes(e.keyCode) && 
+                    (e.keyCode < 48 || e.keyCode > 57) && 
+                    (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        // Input focus effektlari
+        const modalInputs = document.querySelectorAll('#addCustomerModal input, #addCustomerModal textarea, #addCustomerModal select');
+        modalInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#667eea';
+                this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            });
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#e9ecef';
+                this.style.boxShadow = 'none';
+            });
         });
     });
     
