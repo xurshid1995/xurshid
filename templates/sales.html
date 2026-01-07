@@ -1408,7 +1408,15 @@
                 <tr style="border-bottom: 1px solid #f0f0f0;">
                     <td style="padding: 8px 5px; font-size: 16px; color: #333; word-wrap: break-word; width: 312px; max-width: 312px; overflow: hidden;">${item.name}</td>
                     <td style="padding: 8px 5px; text-align: center; font-size: 16px; color: #333; width: 84px;">
-                        <input type="number" value="${item.quantity}" min="1" onchange="updateCartQuantity(${index}, this.value)" style="width: 60px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; font-size: 15px; font-weight: 500;">
+                        <input type="number" 
+                               value="${item.quantity}" 
+                               min="1" 
+                               data-cart-index="${index}"
+                               data-max-stock="${item.available || 999999}"
+                               data-original-quantity="${item.quantity}"
+                               oninput="validateCartQuantityInput(this, ${index})"
+                               onchange="updateCartQuantity(${index}, this.value)" 
+                               style="width: 60px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; font-size: 15px; font-weight: 500;">
                     </td>
                     <td style="padding: 8px 5px; text-align: right; font-size: 15px; color: #333; width: 90px;">
                         <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${item.priceUSD.toFixed(2)}</div>
@@ -1519,7 +1527,13 @@
     // Savat miqdorini yangilash
     async function updateCartQuantity(index, newQuantity) {
         const quantity = parseInt(newQuantity);
+        const input = document.querySelector(`input[data-cart-index="${index}"]`);
+        
         if (quantity < 1 || isNaN(quantity)) {
+            if (input) {
+                input.style.borderColor = '#dc3545';
+                input.style.backgroundColor = '#ffe6e6';
+            }
             alert('Noto\'g\'ri miqdor!');
             updateCart();
             return;
@@ -1530,6 +1544,11 @@
         const quantityDiff = quantity - oldQuantity;
         
         if (quantityDiff === 0) {
+            // Rang to'g'rilash
+            if (input) {
+                input.style.borderColor = '#ced4da';
+                input.style.backgroundColor = '#ffffff';
+            }
             return; // O'zgarish yo'q
         }
         
@@ -1549,6 +1568,10 @@
                 
                 const result = await response.json();
                 if (!result.success) {
+                    if (input) {
+                        input.style.borderColor = '#dc3545';
+                        input.style.backgroundColor = '#ffe6e6';
+                    }
                     alert(result.error || 'Stokdan ayirib bo\'lmadi!');
                     updateCart(); // Eski qiymatni qaytarish
                     return;
@@ -1556,6 +1579,10 @@
                 console.log('✅ Stokdan qo\'shimcha ayirildi:', quantityDiff, 'dona');
             } catch (error) {
                 console.error('Stok ayirish xatosi:', error);
+                if (input) {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#ffe6e6';
+                }
                 alert('Stokni yangilashda xatolik!');
                 updateCart();
                 return;
@@ -1577,6 +1604,10 @@
                 
                 const result = await response.json();
                 if (!result.success) {
+                    if (input) {
+                        input.style.borderColor = '#dc3545';
+                        input.style.backgroundColor = '#ffe6e6';
+                    }
                     alert(result.error || 'Stokka qaytarib bo\'lmadi!');
                     updateCart();
                     return;
@@ -1584,6 +1615,10 @@
                 console.log('✅ Stokka qaytarildi:', Math.abs(quantityDiff), 'dona');
             } catch (error) {
                 console.error('Stok qaytarish xatosi:', error);
+                if (input) {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#ffe6e6';
+                }
                 alert('Stokni yangilashda xatolik!');
                 updateCart();
                 return;
@@ -1600,6 +1635,43 @@
         await loadProducts();
         
         console.log('📝 Miqdor yangilandi:', quantity);
+    }
+    
+    // Korzinka miqdor inputini real-time validatsiya qilish
+    function validateCartQuantityInput(input, index) {
+        const value = parseInt(input.value);
+        const item = cart[index];
+        const maxStock = parseInt(input.getAttribute('data-max-stock')) || 999999;
+        const originalQuantity = parseInt(input.getAttribute('data-original-quantity')) || item.quantity;
+        
+        // Bo'sh yoki noto'g'ri qiymat
+        if (input.value === '' || isNaN(value)) {
+            input.style.borderColor = '#ced4da';
+            input.style.backgroundColor = '#ffffff';
+            return;
+        }
+        
+        // 0 yoki manfiy
+        if (value <= 0) {
+            input.style.borderColor = '#dc3545';
+            input.style.backgroundColor = '#ffe6e6';
+            input.title = 'Miqdor 0 dan katta bo\'lishi kerak!';
+            return;
+        }
+        
+        // Mavjud stokdan ortiq (faqat oshirilganda tekshirish)
+        const quantityDiff = value - originalQuantity;
+        if (quantityDiff > 0 && value > (maxStock + originalQuantity)) {
+            input.style.borderColor = '#dc3545';
+            input.style.backgroundColor = '#ffe6e6';
+            input.title = `Stokda faqat ${maxStock + originalQuantity} dona mavjud!`;
+            return;
+        }
+        
+        // To'g'ri qiymat
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#e7f9e7';
+        input.title = '';
     }
     
     // Savat elementini tahrirlash
