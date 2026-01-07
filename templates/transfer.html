@@ -320,9 +320,10 @@
                 <table class="products-table">
                     <thead>
                         <tr>
-                            <th>Mahsulot nomi</th>
-                            <th style="text-align: center;">Miqdor</th>
-                            <th style="text-align: center;">Amal</th>
+                            <th style="width: 280px;">Mahsulot</th>
+                            <th style="width: 100px; text-align: center;">Mavjud</th>
+                            <th style="width: 130px; text-align: center;">Narx</th>
+                            <th style="width: 115px; text-align: center;">Amal</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
@@ -505,10 +506,14 @@
             }
             
             const row = document.createElement('tr');
+            const sellingPrice = product.sell_price || product.price || 0;
             row.innerHTML = `
                 <td style="color: #333; font-weight: 500;">${product.name || `Mahsulot #${product.id}`}</td>
                 <td style="text-align: center;">
                     <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500;">${quantity}</span>
+                </td>
+                <td style="text-align: center; color: #333; font-weight: 500;">
+                    $${sellingPrice.toFixed(2)}
                 </td>
                 <td style="text-align: center;">
                     <button onclick="openModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity})" 
