@@ -460,6 +460,38 @@
             fromSelect.appendChild(storeGroup.cloneNode(true));
             toSelect.appendChild(storeGroup);
         }
+        
+        // Qayerdan o'zgarganda qayerga ni filterlash
+        fromSelect.addEventListener('change', function() {
+            filterToLocation();
+        });
+    }
+    
+    // Qayerga selectni filterlash (Qayerdan tanlangan joyni berkitish)
+    function filterToLocation() {
+        const fromValue = document.getElementById('fromLocation').value;
+        const toSelect = document.getElementById('toLocation');
+        
+        // Barcha optionlarni yoqish
+        Array.from(toSelect.options).forEach(option => {
+            option.disabled = false;
+            option.style.display = '';
+        });
+        
+        // Tanlangan qayerdan ni berkitish
+        if (fromValue) {
+            Array.from(toSelect.options).forEach(option => {
+                if (option.value === fromValue) {
+                    option.disabled = true;
+                    option.style.color = '#ccc';
+                }
+            });
+            
+            // Agar qayerga da qayerdan bilan bir xil tanlangan bo'lsa, tozalash
+            if (toSelect.value === fromValue) {
+                toSelect.value = '';
+            }
+        }
     }
 
     // Mahsulotlarni yuklash
