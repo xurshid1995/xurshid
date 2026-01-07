@@ -325,7 +325,7 @@
                             <th style="width: 250px;">Mahsulot</th>
                             <th style="width: 100px; text-align: center;">Mavjud</th>
                             <th style="width: 120px; text-align: center;">Narx</th>
-                            <th style="width: 125px; text-align: center;">➡️</th>
+                            <th style="width: 125px; text-align: center;">Amal</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
@@ -519,9 +519,9 @@
                 </td>
                 <td style="text-align: center;">
                     <button onclick="openModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity})" 
-                            style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500;"
+                            style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 18px;"
                             ${quantity <= 0 ? 'disabled' : ''}>
-                        ➡️ Qo'shish
+                        ➡️
                     </button>
                 </td>
             `;
