@@ -645,16 +645,51 @@
     // Transfer elementini tahrirlash
     function editTransferItem(index) {
         const item = transferList[index];
-        currentProduct = { id: item.id, name: item.name, available: item.quantity + 999 }; // Temporary
+        
+        // Mahsulot ma'lumotlarini olish
+        const product = allProducts.find(p => p.id === item.id);
+        if (!product) {
+            alert('Mahsulot topilmadi!');
+            return;
+        }
+        
+        // Joylashuv stockini hisoblash
+        let quantity = 0;
+        if (product.stocks && product.stocks.length > 0) {
+            const fromLocation = document.getElementById('fromLocation').value;
+            const [type, id] = fromLocation.split('_');
+            const locationId = parseInt(id);
+            
+            const matchingStock = product.stocks.find(stock => {
+                if (type === 'warehouse') {
+                    return stock.warehouse_id === locationId;
+                } else if (type === 'store') {
+                    return stock.store_id === locationId;
+                }
+                return false;
+            });
+            
+            if (matchingStock) {
+                quantity = matchingStock.quantity || 0;
+            }
+        }
+        
+        currentProduct = { 
+            id: item.id, 
+            name: item.name, 
+            available: quantity + item.quantity, // Joriy transfer miqdorini qaytarish
+            price: item.price || 0
+        };
         
         document.getElementById('modalProductName').textContent = item.name;
-        document.getElementById('modalAvailable').value = item.quantity + 999;
+        document.getElementById('modalAvailable').value = quantity + item.quantity;
         document.getElementById('modalQuantity').value = item.quantity;
         
         document.getElementById('quantityModal').style.display = 'flex';
         
         // Remove current item
         transferList.splice(index, 1);
+        updateTransferListDisplay();
     }
 
     // Transfer elementini o'chirish
