@@ -2479,25 +2479,36 @@
         console.log('📊 Hozirgi jami:', currentTotal);
         console.log('📊 Qolgan:', remaining);
         
-        if (remaining > 0) {
-            const currentValue = parseFloat(document.getElementById(fieldId).value) || 0;
-            const newUSDValue = currentValue + remaining;
-            document.getElementById(fieldId).value = newUSDValue.toFixed(2);
-            
-            // UZS maydonini ham yangilash
-            const uzsFieldId = fieldId.replace('USD', 'UZS');
-            console.log('🔄 UZS maydon ID:', uzsFieldId);
-            
-            if (document.getElementById(uzsFieldId)) {
-                const currentUZSValue = parseFloat(document.getElementById(uzsFieldId).value) || 0;
-                const newUZSValue = currentUZSValue + Math.round(remaining * exchangeRate);
-                document.getElementById(uzsFieldId).value = newUZSValue;
-                console.log(`➕ Qolgan $${remaining.toFixed(2)} (${Math.round(remaining * exchangeRate)} so'm) ${fieldId} ga qo'shildi`);
-            } else {
-                console.error('❌ UZS maydoni topilmadi:', uzsFieldId);
-            }
+        // Aqlli mantiq: kam to'langan yoki ortiq to'langan bo'lsa ham to'g'ri ishlaydi
+        const currentFieldValue = parseFloat(document.getElementById(fieldId).value) || 0;
+        let newUSDValue;
+        
+        if (remaining === 0) {
+            console.log('✅ To\'lov to\'liq to\'langan, o\'zgartirish shart emas');
+            return;
+        } else if (remaining > 0) {
+            // Kam to'langan: qolgan summani o'rnatish (replace)
+            newUSDValue = remaining;
+            console.log(`➕ Kam to'langan: ${fieldId} ga qolgan summa o'rnatildi: ${remaining.toFixed(2)}`);
         } else {
-            console.log('✅ To\'lov to\'liq yoki ortiqcha');
+            // Ortiq to'langan: o'sha maydondan ortiqcha summani ayirish
+            newUSDValue = Math.max(0, currentFieldValue + remaining); // remaining manfiy, shuning uchun ayiriladi
+            console.log(`➖ Ortiq to'langan: ${fieldId} dan ortiqcha summa ayirildi: ${currentFieldValue.toFixed(2)} + (${remaining.toFixed(2)}) = ${newUSDValue.toFixed(2)}`);
+        }
+        
+        // USD maydonini yangilash
+        document.getElementById(fieldId).value = newUSDValue.toFixed(2);
+        
+        // UZS maydonini ham yangilash
+        const uzsFieldId = fieldId.replace('USD', 'UZS');
+        console.log('🔄 UZS maydon ID:', uzsFieldId);
+        
+        if (document.getElementById(uzsFieldId)) {
+            const newUZSValue = Math.round(newUSDValue * exchangeRate);
+            document.getElementById(uzsFieldId).value = newUZSValue;
+            console.log(`✅ ${fieldId}: $${newUSDValue.toFixed(2)} (${newUZSValue.toLocaleString()} so'm)`);
+        } else {
+            console.error('❌ UZS maydoni topilmadi:', uzsFieldId);
         }
     }
     
