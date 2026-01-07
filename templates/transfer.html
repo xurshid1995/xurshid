@@ -577,6 +577,12 @@
 
     // Transfer ro'yxatiga qo'shish
     function addToTransferList() {
+        if (!currentProduct) {
+            alert('Mahsulot tanlanmagan!');
+            closeModal();
+            return;
+        }
+        
         const quantity = parseInt(document.getElementById('modalQuantity').value);
         
         if (!quantity || quantity <= 0) {
