@@ -320,15 +320,15 @@
                 <table class="products-table">
                     <thead>
                         <tr>
-                            <th style="width: 280px;">Mahsulot</th>
+                            <th style="width: 250px;">Mahsulot</th>
                             <th style="width: 100px; text-align: center;">Mavjud</th>
-                            <th style="width: 130px; text-align: center;">Narx</th>
-                            <th style="width: 115px; text-align: center;">Amal</th>
+                            <th style="width: 120px; text-align: center;">Narx</th>
+                            <th style="width: 125px; text-align: center;">Amal</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
                         <tr>
-                            <td colspan="3" class="empty-state">
+                            <td colspan="4" class="empty-state">
                                 <div>📦</div>
                                 <div>Joylashuvni tanlang</div>
                             </td>
@@ -452,11 +452,11 @@
         const tbody = document.getElementById('productsTableBody');
         
         if (!fromLocation) {
-            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>📦</div><div>Joylashuvni tanlang</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📦</div><div>Joylashuvni tanlang</div></td></tr>';
             return;
         }
         
-        tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>⏳</div><div>Yuklanmoqda...</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>⏳</div><div>Yuklanmoqda...</div></td></tr>';
         
         try {
             const response = await fetch(`/api/products?location=${fromLocation}`);
@@ -469,7 +469,7 @@
             console.log(`✅ ${products.length} ta mahsulot yuklandi`);
         } catch (error) {
             console.error('Mahsulotlarni yuklashda xatolik:', error);
-            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>⚠️</div><div>Xatolik yuz berdi</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>⚠️</div><div>Xatolik yuz berdi</div></td></tr>';
         }
     }
 
@@ -478,7 +478,7 @@
         const tbody = document.getElementById('productsTableBody');
         
         if (products.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>📦</div><div>Mahsulotlar topilmadi</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📦</div><div>Mahsulotlar topilmadi</div></td></tr>';
             return;
         }
         
