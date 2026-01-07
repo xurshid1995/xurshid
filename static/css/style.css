@@ -766,7 +766,7 @@ input[name="price"] {
         max-width: 100% !important;
     }
     
-    table:not(.cart-table):not(.sales-product-table) {
+    table:not(.cart-table):not(.sales-product-table):not(.transfer-product-table) {
         width: 100%; /* Faqat boshqa jadvallar uchun */
         max-width: 100%;
     }
