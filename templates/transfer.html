@@ -400,13 +400,10 @@
             const response = await fetch('/api/locations');
             const data = await response.json();
             
-            if (data.success) {
-                locations = data.locations || [];
-                populateLocationSelects();
-                console.log(`✅ ${locations.length} ta joylashuv yuklandi`);
-            } else {
-                console.error('Joylashuvlarni yuklashda xatolik:', data.error);
-            }
+            // API locations arrayini to'g'ridan-to'g'ri qaytaradi
+            locations = Array.isArray(data) ? data : [];
+            populateLocationSelects();
+            console.log(`✅ ${locations.length} ta joylashuv yuklandi`);
         } catch (error) {
             console.error('Joylashuvlarni yuklashda xatolik:', error);
         }
