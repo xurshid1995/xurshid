@@ -596,7 +596,7 @@
                     <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 0px; font-weight: 500;">${quantity}</span>
                 </td>
                 <td style="text-align: center;">
-                    <button onclick="openModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity}, ${sellingPrice})" 
+                    <button onclick="openModalById(${product.id})" 
                             style="background: none; border: none; cursor: ${quantity <= 0 ? 'not-allowed' : 'pointer'}; font-size: 20px; padding: 4px 8px; opacity: ${quantity <= 0 ? '0.3' : '1'};"
                             ${quantity <= 0 ? 'disabled' : ''}>
                         ➡️
@@ -616,6 +616,40 @@
         renderProducts(filtered);
     }
 
+    // Modal ochish
+    function openModalById(productId) {
+        // Mahsulotni topish
+        const product = allProducts.find(p => p.id === productId);
+        if (!product) {
+            alert('Mahsulot topilmadi!');
+            return;
+        }
+        
+        // Joylashuv stockini hisoblash
+        let quantity = 0;
+        if (product.stocks && product.stocks.length > 0) {
+            const fromLocation = document.getElementById('fromLocation').value;
+            const [type, id] = fromLocation.split('_');
+            const locationId = parseInt(id);
+            
+            const matchingStock = product.stocks.find(stock => {
+                if (type === 'warehouse') {
+                    return stock.warehouse_id === locationId;
+                } else if (type === 'store') {
+                    return stock.store_id === locationId;
+                }
+                return false;
+            });
+            
+            if (matchingStock) {
+                quantity = matchingStock.quantity || 0;
+            }
+        }
+        
+        const price = product.sell_price || product.price || 0;
+        openModal(productId, product.name, quantity, price);
+    }
+    
     // Modal ochish
     function openModal(productId, productName, available, price) {
         currentProduct = { id: productId, name: productName, available: available, price: price || 0 };
