@@ -1,1930 +1,682 @@
 {% extends "base.html" %}
 
-{% block title %}Transfer - DOKON{% endblock %}
+{% block title %}Transfer - Dokon Boshqaruv Tizimi{% endblock %}
 
 {% block extra_css %}
 <style>
-        /* Main content override for transfer page */
-        .main-content {
-            min-height: auto !important;
-            height: auto !important;
-        }
+    .transfer-container {
+        padding: 20px;
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
 
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        color: #333;
+        font-size: 24px;
+    }
+
+    /* Ikkita layout uchun grid */
+    .transfer-layouts {
+        display: grid;
+        grid-template-columns: 665px 665px;
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+        align-items: start;
+    }
+
+    .transfer-layout {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 665px;
+        box-sizing: border-box;
+    }
+
+    .layout-header {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 10px;
+    }
+
+    /* Form elementlari */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Mahsulotlar jadvali */
+    .products-table-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .products-table thead {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+    }
+
+    .products-table th {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        font-size: 13px;
+        color: #555;
+    }
+
+    .products-table td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+    .products-table tbody tr:hover {
+        background: #f8f9fa;
+        cursor: pointer;
+    }
+
+    /* Transfer list */
+    .transfer-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    .transfer-item {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .transfer-item:last-child {
+        border-bottom: none;
+    }
+
+    .transfer-item-info {
+        flex: 1;
+    }
+
+    .transfer-item-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 3px;
+    }
+
+    .transfer-item-quantity {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .transfer-item-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .btn-icon {
+        background: transparent;
+        border: none;
+        padding: 5px 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: transform 0.2s;
+    }
+
+    .btn-icon:hover {
+        transform: scale(1.2);
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #dee2e6;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+
+    /* Search input */
+    .search-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+        .transfer-layouts {
+            grid-template-columns: 1fr;
+            max-width: 665px;
+            margin: 0 auto;
+        }
+    }
+
+    @media (max-width: 768px) {
         .transfer-container {
-            flex: 1;
-            padding: 0;
-            margin: 0;
-            background: #f4f4f4;
-            min-height: auto; /* 100vh o'rniga auto */
+            padding: 10px;
         }
 
-        .page-header {
-            padding: 0.5rem 0.75rem;
-            margin: 0;
+        .transfer-layouts {
+            padding: 10px;
+            gap: 15px;
         }
 
-        .                               filteredProducts.forEach(async (product) => {
-                    try {
-                        const response = await fetch(`/api/product/${product.id}/locations`);
-                        if (response.ok) {
-                            const locations = await response.json();
-                            const price = product.sell_price || product.price || 0;
-                            
-                            // Tanlangan joydagi miqdorni topish
-                            let availableQuantity = 0;
-                            let isAvailable = false;
-                            
-                            locations.forEach(location => {
-                                const locationKey = location.type === 'store' ? `store_${location.id}` : `warehouse_${location.id}`;
-                                if (locationKey === fromLocation) {
-                                    availableQuantity = location.quantity || 0;
-                                    isAvailable = availableQuantity > 0;
-                                }
-                            });
-                            
-                            if (isAvailable) {
-                                resultsHtml += `
-                                    <div class="search-item" onclick="selectProduct(${product.id}, '${product.name}')">
-                                        <div class="search-item-details">
-                                            <div class="search-item-info">
-                                                <div class="search-item-name">📦 ${product.name}</div>
-                                                <div class="search-item-price">💰 $${parseFloat(price).toFixed(2)}</div>
-                                                <div class="search-item-stock">✅ Mavjud: ${availableQuantity}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            } else {
-                                resultsHtml += `
-                                    <div class="search-item" style="opacity: 0.6; cursor: not-allowed;">
-                                        <div class="search-item-details">
-                                            <div class="search-item-info">
-                                                <div class="search-item-name">📦 ${product.name}</div>
-                                                <div class="search-item-price">💰 $${parseFloat(price).toFixed(2)}</div>
-                                                <div class="search-item-stock">❌ Bu joyda mavjud emas</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Mahsulot joylashuvini yuklashda xatolik:', error);
-                    }
-                });l += `
-                        <div class="search-item" onclick="selectProduct(${product.id}, '${product.name}')">
-                            <div class="search-item-details">
-                                <div class="search-item-info">
-                                    <div class="search-item-name">📦 ${product.name}</div>
-                                    <div class="search-item-price">💰 $${parseFloat(price).toFixed(2)}</div>
-                                                                                                            <div class="search-item-stock">✅ Tanlangan joyda mavjud</div>
-                                </div>
-                            </div>
-                        </div>
-                    `; h1 {
-            margin: 0;
-            color: #495057;
-            font-size: 1.8rem;
-        }
-
-        .dual-panel-container {
-            display: grid;
-            grid-template-columns: 40% 60%; /* Birinchi 40%, ikkinchi 60% */
-            gap: 2rem;
-            margin: 0;
-            padding: 2rem;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            overflow: hidden; /* Content overflow yashirish */
-            width: 100%; /* Teng kenglik */
-            max-width: 100%;
-            box-sizing: border-box; /* Padding hisobga olish */
-        }
-
-        /* Panel ichidagi barcha content karta kengligida */
-        .panel * {
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .panel-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .panel-header h2 {
-            margin: 0;
-            color: #495057;
-            font-size: 1.4rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 0.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .from-emoji {
-            color: #dc3545 !important;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .to-emoji {
-            color: #28a745 !important;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .form-control {
+        .transfer-layout {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            padding: 15px;
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        .page-header h1 {
+            font-size: 20px;
         }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745, #1e7e34);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        }
-
-        .btn-large {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            font-size: 1.1rem;
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #6c757d;
-        }
-
-        .empty-state p {
-            margin-bottom: 0.5rem;
-        }
-
-        .transfer-item {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-
-        .transfer-item .remove-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .transfer-item .remove-btn:hover {
-            background: #c82333;
-        }
-
-        .transfer-item-header {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 0.5rem;
-        }
-
-        .transfer-item-details {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .final-actions {
-            margin-top: 2rem;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        .success-message {
-            color: #28a745;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        .route-indicator {
-            text-align: center;
-            margin: 0.3rem 0;
-            padding: 0.3rem;
-            background: #e9ecef;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .arrow {
-            font-size: 1.2rem;
-            color: #007bff;
-        }
-
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 0 0 8px 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .search-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f8f9fa;
-            transition: background-color 0.2s ease;
-        }
-
-        .search-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .search-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-item-name {
-            font-weight: 600;
-            color: #495057;
-            font-size: 1rem;
-        }
-
-        .search-item-price {
-            font-size: 0.9rem;
-            color: #28a745;
-            font-weight: 500;
-        }
-
-        .search-item-stock {
-            font-size: 1rem;
-            color: #6c757d;
-            font-weight: 700;
-        }
-
-        .search-item-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .search-item-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
-        }
-
-        .search-item-meta {
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        /* Search highlight styles */
-        .search-highlight {
-            background-color: #ffeb3b;
-            padding: 1px 2px;
-            border-radius: 2px;
-            font-weight: bold;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        /* Transfer Tarixi Jadvali Stillari */
-        .transfer-history-section {
-            margin-top: 2rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .section-header h2 {
-            margin: 0;
-            color: #495057;
-            font-size: 1.4rem;
-        }
-
-        .section-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .history-table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-        }
-
-        .history-table {
-            width: 100%;
-            min-width: 800px; /* Transfer tarixi jadvali uchun minimal kenglik */
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .history-table th {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            padding: 1rem 0.75rem;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .history-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #f1f3f4;
-            color: #6c757d;
-        }
-
-        .history-table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-
-
-
-        .search-results .search-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f1f1;
-            transition: background-color 0.2s;
-        }
-
-        .search-results .search-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .search-results .search-item.selected {
-            background-color: #007bff;
-            color: white;
-            border: 2px solid #0056b3;
-        }
-
-        .search-results .search-item.selected .search-item-name,
-        .search-results .search-item.selected .search-item-price,
-        .search-results .search-item.selected .search-item-stock {
-            color: white;
-        }
-
-        .search-results .search-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Stock status colors */
-        .search-item-stock.stock-available {
-            color: #28a745;
-            font-weight: 600;
-        }
-
-        .search-item-stock.stock-unavailable {
-            color: #dc3545;
-            font-weight: 500;
-        }
-
-        .search-item-stock.stock-loading {
-            color: #6c757d;
-            font-style: italic;
-        }
-
-        .search-item-stock.stock-error {
-            color: #fd7e14;
-            font-weight: 500;
-        }
-
-        .search-item-stock.stock-no-location {
-            color: #17a2b8;
-            font-weight: 500;
-        }
-
-        .loading-state {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
-            font-style: italic;
-        }
-
-        .no-data-state {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
-        }
-
-        .date-cell {
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .quantity-cell {
-            font-weight: 600;
-            color: #28a745;
-        }
-
-        /* Transfer Ro'yxati Jadvali */
-        .transfers-table-container {
-            overflow-x: hidden; /* Gorizontal scroll yo'q */
-            margin-top: 1rem;
-            width: 100%; /* Panel ichki kengligi */
-            max-width: 100%;
-            padding: 0; /* Qo'shimcha padding yo'q */
-            margin-left: 0;
-            margin-right: 0;
-            box-sizing: border-box;
-        }
-
-        .transfers-table {
-            width: 100% !important;
-            max-width: 100% !important; /* Container kengligi bilan bir xil */
-            min-width: 100% !important;
-            table-layout: fixed !important; /* Fixed layout - ustunlar foiz bo'yicha */
-            border-collapse: collapse;
-            font-size: 0.9rem; /* Kattaroq font */
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        .transfers-table th {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            color: #495057;
-            font-weight: 600;
-            padding: 0.6rem 0.4rem; /* Biroz kattaroq padding */
-            text-align: center;
-            border-bottom: 2px solid #dee2e6;
-            font-size: 0.85rem; /* Kattaroq font */
-        }
-
-        .transfers-table td {
-            padding: 0.7rem 0.5rem; /* Yanada kattaroq padding */
-            border-bottom: 1px solid #f1f3f4;
-            color: #495057; /* To'qroq rang */
-            text-align: center;
-            vertical-align: middle;
-            font-size: 0.95rem; /* Yanada kattaroq font */
-            font-weight: 500; /* Biroz qalinroq */
-            word-wrap: break-word; /* Uzun matnni o'rash */
-            overflow: hidden;
-        }
-
-        /* Ustunlarni yangi tartibda container kengligi bo'yicha taqsimlash */
-        .transfers-table th:nth-child(1), .transfers-table td:nth-child(1) { 
-            width: 35% !important; 
-            max-width: 35% !important;
-            min-width: 0 !important;
-        } /* Mahsulot */
-        .transfers-table th:nth-child(2), .transfers-table td:nth-child(2) { 
-            width: 20% !important; 
-            max-width: 20% !important;
-            min-width: 0 !important;
-        } /* Qayerdan */
-        .transfers-table th:nth-child(3), .transfers-table td:nth-child(3) { 
-            width: 15% !important; 
-            max-width: 15% !important;
-            min-width: 0 !important;
-        } /* Miqdor */
-        .transfers-table th:nth-child(4), .transfers-table td:nth-child(4) { 
-            width: 20% !important; 
-            max-width: 20% !important;
-            min-width: 0 !important;
-        } /* Qayerga */
-        .transfers-table th:nth-child(5), .transfers-table td:nth-child(5) { 
-            width: 10% !important; 
-            max-width: 10% !important;
-            min-width: 0 !important;
-        } /* Amallar */
-
-        .transfers-table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .transfer-product-name {
-            font-weight: 600;
-            color: #495057;
-            text-align: left;
-        }
-
-        .transfer-location {
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        .transfer-quantity {
-            font-weight: 600;
-            color: #28a745;
-        }
-
-        .transfer-actions {
-            display: flex;
-            gap: 0.3rem;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .transfer-edit-btn, .transfer-remove-btn {
-            background: transparent;
-            border: none;
-            border-radius: 4px;
-            padding: 0.3rem;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .transfer-edit-btn {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .transfer-edit-btn:hover {
-            background: #138496;
-            transform: scale(1.1);
-        }
-
-        .transfer-remove-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .transfer-remove-btn:hover {
-            background: #c82333;
-            transform: scale(1.1);
-        }
-
-        /* Location styling */
-        .transfer-location {
-            text-align: center;
-        }
-
-        .location-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 0.2rem;
-        }
-
-        .location-type {
-            font-size: 0.75rem;
-            color: #6c757d;
-            font-style: italic;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .dual-panel-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-
-            
-            .panel {
-                padding: 1rem;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .page-header {
-                padding: 0.5rem;
-            }
-            
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dual-panel-container {
-                padding: 0.5rem;
-                gap: 0.5rem;
-            }
-            
-            .panel {
-                padding: 0.75rem;
-                border-radius: 8px;
-            }
-            
-            .panel-header h2 {
-                font-size: 1.2rem;
-            }
-            
-            .form-group label {
-                font-size: 0.9rem;
-            }
-            
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-    <div class="transfer-container">
-        <div class="page-header">
-            <h1>🔄 Transfer</h1>
-        </div>
+<div class="transfer-container">
+    <div class="page-header">
+        <h1>🔄 Transfer Sahifasi</h1>
+    </div>
 
-        <div class="dual-panel-container">
-            <!-- Chap Panel - Transfer Ma'lumotlari -->
-            <div class="panel">
-                <div class="panel-header">
-                    <span style="font-size: 1.5rem;">📤</span>
-                    <h2>Transfer Ma'lumotlari</h2>
-                </div>
-
-                <form id="transferForm">
-                    <!-- 1-qator: Qayerdan va Qayerga -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="from_location"><span style="color: #dc3545 !important; font-weight: bold; font-size: 1.2em;">➖</span> Qayerdan:</label>
-                            <select id="from_location" name="from_location" class="form-control" required onchange="updateLocationChange()">
-                                <option value="">Joyni tanlang...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="to_location"><span style="color: #28a745 !important; font-weight: bold; font-size: 1.2em;">➕</span> Qayerga:</label>
-                            <select id="to_location" name="to_location" class="form-control" required onchange="updateRouteIndicator()">
-                                <option value="">Joyni tanlang...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Transfer yo'nalishi -->
-                    <div class="route-indicator" id="routeIndicator" style="display: none;">
-                        <span id="fromLocationName">-</span> 
-                        <span class="arrow">➡️</span> 
-                        <span id="toLocationName">-</span>
-                    </div>
-
-                    <!-- 2-qator: Mahsulot qidiruv maydoni -->
-                    <div class="form-group">
-                        <label for="product_search">🔍 Mahsulot qidiruv:</label>
-                        <input type="text" id="product_search" class="form-control" 
-                               placeholder="Qidirish..." 
-                               oninput="searchProducts()" 
-                               onkeydown="handleKeyboardNavigation(event)" 
-                               autocomplete="off">
-                        <div id="searchResults" class="search-results"></div>
-                    </div>
-
-                    <!-- 3-qator: Tanlangan mahsulot va Mavjud miqdor -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="selected_product">📦 Tanlangan mahsulot:</label>
-                            <input type="text" id="selected_product" class="form-control" readonly placeholder="Mahsulot tanlanmagan">
-                            <input type="hidden" id="product_id" name="product_id">
-                        </div>
-                        <div class="form-group">
-                            <label for="available_quantity">📊 Mavjud miqdor:</label>
-                            <input type="number" id="available_quantity" class="form-control" readonly placeholder="0">
-                        </div>
-                    </div>
-
-                    <!-- 4-qator: Transfer miqdori -->
-                    <div class="form-group">
-                        <label for="transfer_quantity">🔢 Transfer miqdori:</label>
-                        <input type="number" id="transfer_quantity" name="transfer_quantity" class="form-control" 
-                               placeholder="0" min="1" required oninput="validateQuantity()" onkeydown="handleTransferQuantityEnter(event)">
-                        <div class="error-message" id="quantityError">Transfer miqdori mavjud miqdordan ko'p bo'lishi mumkin emas!</div>
-                    </div>
-
-                    <!-- Tugma -->
-                    <div style="margin-top: 2rem;">
-                        <button type="button" onclick="addToTransferList()" class="btn btn-primary btn-large">
-                            ➕ Transferga qo'shish
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- O'ng Panel - Transfer Ro'yxati -->
-            <div class="panel">
-                <div class="panel-header">
-                    <span style="font-size: 1.5rem;">📋</span>
-                    <h2>Transfer Ro'yxati</h2>
-                </div>
-
-                <div class="panel-content">
-                    <div class="list-header">
-                        <span>📦 Jami: <strong id="totalTransfers">0</strong> ta transfer</span>
-                        <span>📊 Jami miqdor: <strong id="totalQuantity">0</strong></span>
-                    </div>
-
-                    <div class="transfers-table-container">
-                        <table class="transfers-table" id="transfersTable" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th>📦 Mahsulot</th>
-                                    <th>📍 Qayerdan</th>
-                                    <th>📍Miqdor</th>
-                                    <th>🔢Qayerga</th>
-                                    <th>⚙️ Amallar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transfersList">
-                            </tbody>
-                        </table>
-                        
-                        <div id="emptyState" class="empty-state">
-                            <p>🎯 Hozircha hech qanday transfer qo'shilmagan</p>
-                            <p>Chap paneldagi formani to'ldiring va "Transferga qo'shish" tugmasini bosing</p>
-                        </div>
-                    </div>
-
-                    <div class="final-actions" id="finalActions" style="display: none;">
-                        <button onclick="submitAllTransfers()" class="btn btn-success btn-large">
-                            ✅ Barcha transferlarni amalga oshirish
-                        </button>
-                        <button onclick="clearTransferList()" class="btn btn-danger" style="margin-top: 1rem; width: 100%;">
-                            🗑️ Barchasini o'chirish
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Transfer Tarixi Jadvali -->
-        <div class="transfer-history-section">
-            <div class="section-header">
-                <h2>📋 Transfer Tarixi (So'nggi 40 kun)</h2>
-                <div class="section-buttons">
-                    <button onclick="loadTransferHistory()" class="btn btn-primary">
-                        🔄 Yangilash
-                    </button>
-                    <button onclick="cleanupOldTransfers()" class="btn btn-danger">
-                        🗑️ Eski ma'lumotlarni o'chirish
-                    </button>
-                    <button onclick="clearTransferHistory()" class="btn btn-warning">
-                        🧹 Barcha tarixni tozalash
-                    </button>
-                </div>
-            </div>
+    <div class="transfer-layouts">
+        <!-- Chap layout - Mahsulot tanlash -->
+        <div class="transfer-layout">
+            <div class="layout-header">📦 Mahsulot tanlash</div>
             
-            <div class="history-info">
-                <p style="margin: 0; padding: 1rem; background: #e3f2fd; border-left: 4px solid #2196f3; color: #1565c0; font-size: 0.9rem;">
-                    ℹ️ <strong>Ma'lumot:</strong> Bu jadvalda faqat so'nggi 40 kun ichida amalga oshirilgan transferlar ko'rsatiladi. 
-                    Eski ma'lumotlar avtomatik ravishda tozalanadi.
-                </p>
+            <div class="form-group">
+                <label for="fromLocation">Qayerdan:</label>
+                <select id="fromLocation" onchange="loadProducts()">
+                    <option value="">Tanlang...</option>
+                    <optgroup label="Omborlar">
+                        {% for warehouse in warehouses %}
+                        <option value="warehouse_{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Do'konlar">
+                        {% for store in stores %}
+                        <option value="store_{{ store.id }}">{{ store.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
             </div>
-            
-            <div class="table-responsive">
-                <div class="history-table-container">
-                <table class="history-table" id="transferHistoryTable">
+
+            <div class="form-group">
+                <input type="text" id="productSearch" class="search-input" placeholder="🔍 Mahsulot qidirish..." onkeyup="filterProducts()">
+            </div>
+
+            <div class="products-table-container">
+                <table class="products-table">
                     <thead>
                         <tr>
-                            <th>📅 Sana</th>
-                            <th>📦 Mahsulot</th>
-                            <th>📍 Qayerdan</th>
-                            <th>📍 Qayerga</th>
-                            <th>🔢 Miqdor</th>
-                            <th>👤 Foydalanuvchi</th>
+                            <th style="width: 50%;">Mahsulot nomi</th>
+                            <th style="width: 25%; text-align: center;">Miqdor</th>
+                            <th style="width: 25%; text-align: center;">Amal</th>
                         </tr>
                     </thead>
-                    <tbody id="transferHistoryBody">
+                    <tbody id="productsTableBody">
                         <tr>
-                            <td colspan="6" class="loading-state">
-                                ⏳ Transfer tarixi yuklanmoqda...
+                            <td colspan="3" class="empty-state">
+                                <div>📦</div>
+                                <div>Joylashuvni tanlang</div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- O'ng layout - Transfer ro'yxati -->
+        <div class="transfer-layout">
+            <div class="layout-header">🔄 Transfer ro'yxati</div>
+            
+            <div class="form-group">
+                <label for="toLocation">Qayerga:</label>
+                <select id="toLocation">
+                    <option value="">Tanlang...</option>
+                    <optgroup label="Omborlar">
+                        {% for warehouse in warehouses %}
+                        <option value="warehouse_{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Do'konlar">
+                        {% for store in stores %}
+                        <option value="store_{{ store.id }}">{{ store.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="transfer-list" id="transferList">
+                <div class="empty-state">
+                    <div>📋</div>
+                    <div>Transfer qilish uchun mahsulot qo'shing</div>
                 </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="clearTransferList()">🗑️ Tozalash</button>
+                <button class="btn btn-success" onclick="completeTransfer()">✅ Transferni yakunlash</button>
             </div>
         </div>
     </div>
-
-    <script>
-        let transferList = [];
-        let productsData = [];
-        let storesData = [];
-        let warehousesData = [];
-
-        // Sahifa yuklanganda ma'lumotlarni yuklash
-        document.addEventListener('DOMContentLoaded', function() {
-            loadInitialData();
-            
-            // "Qayerdan" maydoniga fokus berish
-            setTimeout(() => {
-                const fromLocationSelect = document.getElementById('from_location');
-                if (fromLocationSelect) {
-                    fromLocationSelect.focus();
-                }
-            }, 100); // Ma'lumotlar yuklanishini kutish uchun biroz kechikish
-            
-            // Qidiruv maydonidan tashqariga bosganda natijalarni yashirish
-            document.addEventListener('click', function(event) {
-                const searchResults = document.getElementById('searchResults');
-                const productSearch = document.getElementById('product_search');
-                
-                if (!productSearch.contains(event.target) && !searchResults.contains(event.target)) {
-                    searchResults.style.display = 'none';
-                }
-            });
-        });
-
-        // Dastlabki ma'lumotlarni yuklash
-        async function loadInitialData() {
-            try {
-                // Mahsulotlarni yuklash
-                const productsResponse = await fetch('/api/products');
-                if (productsResponse.ok) {
-                    const productsJson = await productsResponse.json();
-                    // Agar javob array bo'lsa, to'g'ridan-to'g'ri ishlatamiz
-                    // Agar javob object bo'lsa va products property mavjud bo'lsa, uni ishlatamiz
-                    if (Array.isArray(productsJson)) {
-                        productsData = productsJson;
-                    } else if (productsJson.products && Array.isArray(productsJson.products)) {
-                        productsData = productsJson.products;
-                    } else {
-                        console.error('Products API dan noto\'g\'ri format qaytdi:', productsJson);
-                        productsData = [];
-                    }
-                }
-
-                // Transfer uchun ruxsat etilgan joylashuvlarni yuklash
-                const transferLocationsResponse = await fetch('/api/transfer-locations');
-                if (transferLocationsResponse.ok) {
-                    const transferData = await transferLocationsResponse.json();
-                    if (transferData.success) {
-                        // Joylashuvlarni turlarga bo'lish
-                        storesData = transferData.locations.filter(loc => loc.type === 'store');
-                        warehousesData = transferData.locations.filter(loc => loc.type === 'warehouse');
-                    }
-                }
-
-                populateLocationSelects();
-                
-                // Transfer tarixini yuklash
-                loadTransferHistory();
-                
-                // Ma'lumotlar yuklangandan keyin "Qayerdan" maydoniga fokus berish
-                setTimeout(() => {
-                    const fromLocationSelect = document.getElementById('from_location');
-                    if (fromLocationSelect) {
-                        fromLocationSelect.focus();
-                    }
-                }, 200);
-                
-            } catch (error) {
-                console.error('Ma\'lumotlarni yuklashda xatolik:', error);
-            }
-        }
-
-        // Mahsulot qidiruv - faqat tanlangan joydagi mahsulotlarni ko'rsatish
-        // Qidiruv matnini ajratib ko'rsatish funksiyasi (har bir so'zni alohida)
-        function highlightSearchText(text, searchTerm) {
-            if (!searchTerm || searchTerm.trim() === '') {
-                return text;
-            }
-            
-            // Qidiruv so'zlarini ajratish
-            const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
-            if (searchWords.length === 0) return text;
-            
-            // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
-            const pattern = searchWords
-                .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-                .join('|');
-            
-            // Bir marta replace qilish - shunda HTML taglarga tegmaydi
-            const regex = new RegExp(`(${pattern})`, 'gi');
-            return text.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-
-        async function searchProducts() {
-            const query = document.getElementById('product_search').value.trim();
-            const searchResults = document.getElementById('searchResults');
-            const fromLocation = document.getElementById('from_location').value;
-            
-            // Tanlovni qayta sozlash
-            resetSelection();
-            
-            if (query.length < 2) {
-                searchResults.style.display = 'none';
-                return;
-            }
-
-            // Agar "Qayerdan" tanlanmagan bo'lsa, ogohlantrish
-            if (!fromLocation) {
-                searchResults.innerHTML = '<div class="search-item">⚠️ Avval "Qayerdan" joyni tanlang</div>';
-                searchResults.style.display = 'block';
-                return;
-            }
-
-            // Loading ko'rsatish
-            searchResults.innerHTML = '<div class="search-item">⏳ Qidirilmoqda...</div>';
-            searchResults.style.display = 'block';
-
-            try {
-                // API'dan to'g'ridan qidirish - location va search parametrlari bilan
-                const apiUrl = `/api/products?search=${encodeURIComponent(query)}&location=${encodeURIComponent(fromLocation)}&per_page=50`;
-                console.log('API so\'rov yuborilmoqda:', apiUrl);
-                
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`API xatolik: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const filteredProducts = data.products || data || [];
-                console.log(`API javob: ${filteredProducts.length} ta mahsulot topildi`);
-
-                if (filteredProducts.length > 0) {
-                    // Mahsulotlarni ko'rsatish
-                    let resultsHtml = '';
-                    filteredProducts.forEach((product, index) => {
-                        const price = product.sell_price || product.price || 0;
-                        let stockStatus = '📊 Miqdor tekshirilmoqda...';
-                        let stockClass = 'stock-loading';
-                        
-                        // Mahsulot nomini highlight qilish
-                        const highlightedName = highlightSearchText(product.name, query);
-                        
-                        resultsHtml += `
-                            <div class="search-item" data-index="${index}" data-product-id="${product.id}" onclick="selectProduct(${product.id}, '${product.name}')">
-                                <div class="search-item-details">
-                                    <div class="search-item-info">
-                                        <div class="search-item-name">📦 ${highlightedName}</div>
-                                        <div class="search-item-price">💰 $${parseFloat(price).toFixed(2)}</div>
-                                        <div class="search-item-stock ${stockClass}">${stockStatus}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    searchResults.innerHTML = resultsHtml;
-                    searchResults.style.display = 'block';
-                    
-                    // Har bir mahsulot uchun miqdorni yangilash
-                    updateProductQuantities(filteredProducts, fromLocation);
-                } else {
-                    searchResults.innerHTML = '<div class="search-item">🔍 Hech qanday mahsulot topilmadi</div>';
-                    searchResults.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Qidiruv xatoligi:', error);
-                searchResults.innerHTML = '<div class="search-item">❌ Xatolik yuz berdi. Qaytadan urinib ko\'ring.</div>';
-                searchResults.style.display = 'block';
-            }
-        }
-
-        // Mahsulotni tanlash
-        async function selectProduct(productId, productName) {
-            document.getElementById('product_id').value = productId;
-            document.getElementById('selected_product').value = productName;
-            document.getElementById('product_search').value = productName;
-            document.getElementById('searchResults').style.display = 'none';
-            
-            // Tanlangan "Qayerdan" joyda mavjud miqdorni yangilash
-            await updateAvailableQuantity();
-            
-            // Mahsulot tanlanganidan keyin transfer miqdori maydoniga fokus berish
-            setTimeout(() => {
-                const transferQuantityInput = document.getElementById('transfer_quantity');
-                if (transferQuantityInput) {
-                    transferQuantityInput.focus();
-                    transferQuantityInput.select(); // Mavjud qiymatni tanlash (agar bor bo'lsa)
-                }
-            }, 150); // Ma'lumotlar yangilanishini kutish
-        }
-
-        // Transfer miqdori maydonida Enter tugmasi bosilganda
-        function handleTransferQuantityEnter(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Formning default submit holatini oldini olish
-                
-                // Avval miqdorni tekshirish
-                const isValid = validateQuantity();
-                if (isValid) {
-                    // Agar miqdor to'g'ri bo'lsa, transferga qo'shish tugmasini bosish
-                    const addButton = document.querySelector('button[onclick="addToTransferList()"]');
-                    if (addButton) {
-                        addButton.click();
-                    }
-                }
-            }
-        }
-
-        // Mahsulotlarning mavjud miqdorlarini yangilash
-        async function updateProductQuantities(products, fromLocation) {
-            for (const product of products) {
-                try {
-                    const response = await fetch(`/api/product/${product.id}/locations`);
-                    if (response.ok) {
-                        const locations = await response.json();
-                        let availableQuantity = 0;
-                        
-                        // Yangi format - locations to'g'ridan array
-                        // Tanlangan joydagi miqdorni topish
-                        locations.forEach(location => {
-                            const locationKey = location.type === 'store' ? `store_${location.id}` : `warehouse_${location.id}`;
-                            if (locationKey === fromLocation) {
-                                availableQuantity = location.quantity || 0;
-                            }
-                        });
-
-                        // DOM elementini yangilash
-                        const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
-                        if (productItem) {
-                            const stockElement = productItem.querySelector('.search-item-stock');
-                            if (stockElement) {
-                                if (availableQuantity > 0) {
-                                    // Mavjud mahsulot uchun miqdorni yangilash
-                                    stockElement.classList.remove('stock-loading', 'stock-unavailable', 'stock-error');
-                                    stockElement.classList.add('stock-available');
-                                    stockElement.textContent = `✅ Mavjud: ${availableQuantity} dona`;
-                                    productItem.style.opacity = '1';
-                                    productItem.style.cursor = 'pointer';
-                                } else {
-                                    // Miqdor 0 - ko'rsatish lekin disable qilish
-                                    stockElement.classList.remove('stock-loading', 'stock-available', 'stock-error');
-                                    stockElement.classList.add('stock-unavailable');
-                                    stockElement.textContent = `❌ Bu joyda mavjud emas (0 dona)`;
-                                    productItem.style.opacity = '0.6';
-                                    productItem.style.cursor = 'not-allowed';
-                                    productItem.onclick = null; // Click ishlamasin
-                                }
-                            }
-                        }
-                    } else {
-                        // Xatolik holati - olib tashlamaslik, error ko'rsatish
-                        const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
-                        if (productItem) {
-                            const stockElement = productItem.querySelector('.search-item-stock');
-                            if (stockElement) {
-                                stockElement.classList.remove('stock-loading', 'stock-available', 'stock-unavailable');
-                                stockElement.classList.add('stock-error');
-                                stockElement.textContent = `⚠️ Ma'lumot yuklashda xatolik`;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error(`Mahsulot ${product.id} uchun ma'lumot olishda xatolik:`, error);
-                    // Xatolik holati - error ko'rsatish
-                    const productItem = document.querySelector(`[data-product-id="${product.id}"]`);
-                    if (productItem) {
-                        const stockElement = productItem.querySelector('.search-item-stock');
-                        if (stockElement) {
-                            stockElement.classList.remove('stock-loading', 'stock-available', 'stock-unavailable');
-                            stockElement.classList.add('stock-error');
-                            stockElement.textContent = `⚠️ Xatolik`;
-                        }
-                    }
-                }
-            }
-            
-            // Barcha mahsulotlar tekshirilgandan keyin, agar hech qanday mahsulot qolmagan bo'lsa
-            setTimeout(() => {
-                const searchResults = document.getElementById('searchResults');
-                const remainingItems = searchResults.querySelectorAll('.search-item');
-                
-                if (remainingItems.length === 0) {
-                    searchResults.innerHTML = '<div class="search-item">🔍 Tanlangan joyda bunday mahsulot mavjud emas</div>';
-                }
-            }, 500); // Barcha async operatsiyalar tugashini kutish
-        }
-
-        // Klaviatura navigatsiyasi uchun o'zgaruvchilar
-        let selectedIndex = -1;
-        let searchItems = [];
-
-        // Klaviatura hodisalarini boshqarish
-        function handleKeyboardNavigation(event) {
-            const searchResults = document.getElementById('searchResults');
-            searchItems = searchResults.querySelectorAll('.search-item');
-            
-            if (searchItems.length === 0) return;
-
-            switch (event.key) {
-                case 'ArrowDown':
-                    event.preventDefault();
-                    selectedIndex = (selectedIndex + 1) % searchItems.length;
-                    updateSelection();
-                    break;
-                    
-                case 'ArrowUp':
-                    event.preventDefault();
-                    selectedIndex = selectedIndex <= 0 ? searchItems.length - 1 : selectedIndex - 1;
-                    updateSelection();
-                    break;
-                    
-                case 'Enter':
-                    event.preventDefault();
-                    if (selectedIndex >= 0 && searchItems[selectedIndex]) {
-                        searchItems[selectedIndex].click();
-                    }
-                    break;
-                    
-                case 'Escape':
-                    searchResults.style.display = 'none';
-                    selectedIndex = -1;
-                    break;
-            }
-        }
-
-        // Tanlovni yangilash
-        function updateSelection() {
-            searchItems.forEach((item, index) => {
-                if (index === selectedIndex) {
-                    item.classList.add('selected');
-                    item.scrollIntoView({ block: 'nearest' });
-                } else {
-                    item.classList.remove('selected');
-                }
-            });
-        }
-
-        // Qidiruv natijalarini yangilashda selectedIndex ni qayta sozlash
-        function resetSelection() {
-            selectedIndex = -1;
-            searchItems = [];
-        }
-
-
-
-
-            
-
-
-        // Mavjud joylashuvlarni yuklash
-        async function loadAvailableLocations(productId) {
-            try {
-                const response = await fetch(`/api/product/${productId}/locations`);
-                if (response.ok) {
-                    const locations = await response.json();
-                    updateFromLocationSelect(locations);
-                    
-                    // ENG KO'P MIQDOR BO'LGAN JOYLASHUVNI TANLASH
-                    const fromSelect = document.getElementById('from_location');
-                    if (fromSelect.options.length > 1) {
-                        let maxQuantity = 0;
-                        let bestOptionIndex = 1;
-                        
-                        // Barcha optionlarni tekshirish
-                        for (let i = 1; i < fromSelect.options.length; i++) {
-                            const option = fromSelect.options[i];
-                            const quantity = parseInt(option.dataset.quantity) || 0;
-                            if (quantity > maxQuantity) {
-                                maxQuantity = quantity;
-                                bestOptionIndex = i;
-                            }
-                        }
-                        
-                        fromSelect.selectedIndex = bestOptionIndex;
-                        updateAvailableQuantity();
-                    }
-                }
-            } catch (error) {
-                console.error('Joylashuvlarni yuklashda xatolik:', error);
-            }
-        }
-
-        // Joylashuv selectlarini to'ldirish (har ikkalasi uchun)
-        function populateLocationSelects() {
-            const fromSelect = document.getElementById('from_location');
-            const toSelect = document.getElementById('to_location');
-            
-            // Eski optionlarni tozalash
-            fromSelect.innerHTML = '<option value="">Joyni tanlang...</option>';
-            toSelect.innerHTML = '<option value="">Joyni tanlang...</option>';
-
-            // "Qayerdan" uchun do'konlar guruhi
-            const fromStoreGroup = document.createElement('optgroup');
-            fromStoreGroup.label = '🏪 Do\'konlar';
-
-            // "Qayerga" uchun do'konlar guruhi
-            const toStoreGroup = document.createElement('optgroup');
-            toStoreGroup.label = '🏪 Do\'konlar';
-
-            storesData.forEach(store => {
-                // "Qayerdan" uchun option
-                const fromOption = document.createElement('option');
-                fromOption.value = `store_${store.id}`;
-                fromOption.textContent = `${store.name} (Do'kon)`;
-                fromStoreGroup.appendChild(fromOption);
-
-                // "Qayerga" uchun option
-                const toOption = document.createElement('option');
-                toOption.value = `store_${store.id}`;
-                toOption.textContent = `${store.name} (Do'kon)`;
-                toStoreGroup.appendChild(toOption);
-            });
-
-            // "Qayerdan" uchun omborlar guruhi
-            const fromWarehouseGroup = document.createElement('optgroup');
-            fromWarehouseGroup.label = '🏭 Omborlar';
-
-            // "Qayerga" uchun omborlar guruhi
-            const toWarehouseGroup = document.createElement('optgroup');
-            toWarehouseGroup.label = '🏭 Omborlar';
-
-            warehousesData.forEach(warehouse => {
-                // "Qayerdan" uchun option
-                const fromOption = document.createElement('option');
-                fromOption.value = `warehouse_${warehouse.id}`;
-                fromOption.textContent = `${warehouse.name} (Omborxona)`;
-                fromWarehouseGroup.appendChild(fromOption);
-
-                // "Qayerga" uchun option
-                const toOption = document.createElement('option');
-                toOption.value = `warehouse_${warehouse.id}`;
-                toOption.textContent = `${warehouse.name} (Omborxona)`;
-                toWarehouseGroup.appendChild(toOption);
-            });
-
-            // Selectlarga guruhlarni qo'shish
-            fromSelect.appendChild(fromStoreGroup);
-            fromSelect.appendChild(fromWarehouseGroup);
-            toSelect.appendChild(toStoreGroup);
-            toSelect.appendChild(toWarehouseGroup);
-        }
-
-        // "Qayerga" selectini yangilash - tanlangan "Qayerdan" joyni yashirish
-        function updateToLocationSelect() {
-            const fromLocation = document.getElementById('from_location').value;
-            const toSelect = document.getElementById('to_location');
-            
-            // Eski qiymatni saqlash
-            const previousValue = toSelect.value;
-            
-            // Selectni tozalash
-            toSelect.innerHTML = '<option value="">Joyni tanlang...</option>';
-
-            // "Qayerga" uchun do'konlar guruhi
-            const toStoreGroup = document.createElement('optgroup');
-            toStoreGroup.label = '🏪 Do\'konlar';
-
-            storesData.forEach(store => {
-                // "Qayerdan" da tanlangan joy bo'lmasa qo'shish
-                if (`store_${store.id}` !== fromLocation) {
-                    const toOption = document.createElement('option');
-                    toOption.value = `store_${store.id}`;
-                    toOption.textContent = `${store.name} (Do'kon)`;
-                    toStoreGroup.appendChild(toOption);
-                }
-            });
-
-            // "Qayerga" uchun omborlar guruhi
-            const toWarehouseGroup = document.createElement('optgroup');
-            toWarehouseGroup.label = '🏭 Omborlar';
-
-            warehousesData.forEach(warehouse => {
-                // "Qayerdan" da tanlangan joy bo'lmasa qo'shish
-                if (`warehouse_${warehouse.id}` !== fromLocation) {
-                    const toOption = document.createElement('option');
-                    toOption.value = `warehouse_${warehouse.id}`;
-                    toOption.textContent = `${warehouse.name} (Omborxona)`;
-                    toWarehouseGroup.appendChild(toOption);
-                }
-            });
-
-            // Guruhlarni qo'shish
-            if (toStoreGroup.children.length > 0) {
-                toSelect.appendChild(toStoreGroup);
-            }
-            if (toWarehouseGroup.children.length > 0) {
-                toSelect.appendChild(toWarehouseGroup);
-            }
-            
-            // Agar oldingi qiymat hali ham mavjud bo'lsa, uni qayta tanlash
-            if (previousValue && previousValue !== fromLocation) {
-                toSelect.value = previousValue;
-            }
-        }
-
-        // "Qayerdan" selectini mahsulot mavjud joylar bilan to'ldirish
-        function updateFromLocationSelect(locations) {
-            const fromSelect = document.getElementById('from_location');
-            fromSelect.innerHTML = '<option value="">Joyni tanlang...</option>';
-
-            if (locations.stores && locations.stores.length > 0) {
-                const storeGroup = document.createElement('optgroup');
-                storeGroup.label = '🏪 Do\'konlar';
-                
-                locations.stores.forEach(store => {
-                    const option = document.createElement('option');
-                    option.value = `store_${store.id}`;
-                    option.textContent = `${store.name} (Do'kon) - ${store.quantity} ta`;
-                    option.dataset.quantity = store.quantity;
-                    storeGroup.appendChild(option);
-                });
-                
-                fromSelect.appendChild(storeGroup);
-            }
-
-            if (locations.warehouses && locations.warehouses.length > 0) {
-                const warehouseGroup = document.createElement('optgroup');
-                warehouseGroup.label = '� Omborlar';
-                
-                locations.warehouses.forEach(warehouse => {
-                    const option = document.createElement('option');
-                    option.value = `warehouse_${warehouse.id}`;
-                    option.textContent = `${warehouse.name} (Omborxona) - ${warehouse.quantity} ta`;
-                    option.dataset.quantity = warehouse.quantity;
-                    warehouseGroup.appendChild(option);
-                });
-                
-                fromSelect.appendChild(warehouseGroup);
-            }
-        }
-
-        // Location o'zgarishini boshqarish
-        async function updateLocationChange() {
-            // "Qayerga" selectini yangilash - tanlangan joyni yashirish
-            updateToLocationSelect();
-            
-            // Agar qidiruv maydoni to'ldirilgan bo'lsa, natijalarni yangilash
-            const searchValue = document.getElementById('product_search').value;
-            if (searchValue && searchValue.length >= 2) {
-                searchProducts();
-            }
-            
-            // Mavjud miqdorni yangilash
-            await updateAvailableQuantity();
-            
-            updateRouteIndicator();
-            
-            // "Qayerdan" tanlangandan keyin "Qayerga"ga fokus berish
-            const fromLocation = document.getElementById('from_location').value;
-            const toLocation = document.getElementById('to_location').value;
-            const toLocationSelect = document.getElementById('to_location');
-            const productSearchInput = document.getElementById('product_search');
-            
-            if (fromLocation && !toLocation && toLocationSelect) {
-                // Agar "Qayerdan" tanlangan, lekin "Qayerga" tanlanmagan bo'lsa, "Qayerga"ga fokus berish
-                setTimeout(() => {
-                    toLocationSelect.focus();
-                }, 100);
-            } else if (fromLocation && toLocation && productSearchInput) {
-                // Agar ikkala joylashuv ham tanlangan bo'lsa, mahsulot qidiruv maydoniga fokus berish
-                setTimeout(() => {
-                    productSearchInput.focus();
-                }, 100);
-            }
-        }
-
-        // Mavjud miqdorni yangilash
-        async function updateAvailableQuantity() {
-            const productId = document.getElementById('product_id').value;
-            const fromLocation = document.getElementById('from_location').value;
-            
-            if (!productId || !fromLocation) {
-                document.getElementById('available_quantity').value = 0;
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/product/${productId}/locations`);
-                if (response.ok) {
-                    const locations = await response.json();
-                    
-                    // Yangi format - locations to'g'ridan array
-                    // Tanlangan joyda miqdorni topish
-                    let quantity = 0;
-                    
-                    locations.forEach(location => {
-                        const locationKey = location.type === 'store' ? `store_${location.id}` : `warehouse_${location.id}`;
-                        if (locationKey === fromLocation) {
-                            quantity = location.quantity || 0;
-                        }
-                    });
-                    
-                    document.getElementById('available_quantity').value = quantity;
-                } else {
-                    document.getElementById('available_quantity').value = 0;
-                }
-            } catch (error) {
-                console.error('Miqdorni olishda xatolik:', error);
-                document.getElementById('available_quantity').value = 0;
-            }
-        }
-
-        // Transfer yo'nalishini ko'rsatish
-        function updateRouteIndicator() {
-            const fromSelect = document.getElementById('from_location');
-            const toSelect = document.getElementById('to_location');
-            const routeIndicator = document.getElementById('routeIndicator');
-            
-            if (fromSelect.value && toSelect.value) {
-                const fromText = fromSelect.options[fromSelect.selectedIndex].textContent.split(' (')[0];
-                const toText = toSelect.options[toSelect.selectedIndex].textContent;
-                
-                document.getElementById('fromLocationName').textContent = fromText;
-                document.getElementById('toLocationName').textContent = toText;
-                routeIndicator.style.display = 'block';
-            } else {
-                routeIndicator.style.display = 'none';
-            }
-        }
-
-        // To location o'zgarganda route indicator yangilash va fokus berish
-        document.getElementById('to_location').addEventListener('change', function() {
-            updateRouteIndicator();
-            
-            // Agar ikkala joylashuv ham tanlangan bo'lsa, fokusni mahsulot qidiruv maydoniga berish
-            const fromLocation = document.getElementById('from_location').value;
-            const toLocation = document.getElementById('to_location').value;
-            
-            if (fromLocation && toLocation) {
-                const productSearchInput = document.getElementById('product_search');
-                if (productSearchInput) {
-                    setTimeout(() => {
-                        productSearchInput.focus();
-                    }, 100);
-                }
-            }
-        });
-
-        // Miqdorni tekshirish
-        function validateQuantity() {
-            const transferQuantity = parseInt(document.getElementById('transfer_quantity').value) || 0;
-            const availableQuantity = parseInt(document.getElementById('available_quantity').value) || 0;
-            const errorDiv = document.getElementById('quantityError');
-            
-            if (transferQuantity > availableQuantity) {
-                errorDiv.style.display = 'block';
-                return false;
-            } else {
-                errorDiv.style.display = 'none';
-                return true;
-            }
-        }
-
-        // Transfer ro'yxatiga qo'shish
-        function addToTransferList() {
-            // Validatsiya
-            if (!validateForm()) {
-                return;
-            }
-
-            // Ma'lumotlarni olish
-            const productId = document.getElementById('product_id').value;
-            const productName = document.getElementById('selected_product').value;
-            const fromLocation = document.getElementById('from_location').value;
-            const toLocation = document.getElementById('to_location').value;
-            const quantity = parseInt(document.getElementById('transfer_quantity').value);
-
-            // Joy nomlarini olish
-            const fromSelect = document.getElementById('from_location');
-            const toSelect = document.getElementById('to_location');
-            const fromName = fromSelect.options[fromSelect.selectedIndex].textContent.split(' (')[0];
-            const toName = toSelect.options[toSelect.selectedIndex].textContent.split(' (')[0];
-            
-            // Joy turlarini aniqlash
-            const fromType = fromSelect.options[fromSelect.selectedIndex].textContent.includes('(Do\'kon)') ? 'Do\'kon' : 'Omborxona';
-            const toType = toSelect.options[toSelect.selectedIndex].textContent.includes('(Do\'kon)') ? 'Do\'kon' : 'Omborxona';
-
-            // Transfer obyekti yaratish
-            const transfer = {
-                id: Date.now(),
-                product_id: productId,
-                product_name: productName,
-                from_location: fromLocation,
-                to_location: toLocation,
-                from_name: fromName,
-                to_name: toName,
-                from_type: fromType,
-                to_type: toType,
-                quantity: quantity
-            };
-
-            // Ro'yxatga qo'shish
-            transferList.push(transfer);
-            
-            // Ko'rsatishni yangilash
-            updateTransferDisplay();
-            
-            // Formani tozalash
-            clearForm();
-        }
-
-        // Formani validatsiya qilish
-        function validateForm() {
-            const productId = document.getElementById('product_id').value;
-            const fromLocation = document.getElementById('from_location').value;
-            const toLocation = document.getElementById('to_location').value;
-            const quantity = document.getElementById('transfer_quantity').value;
-
-            if (!productId || !fromLocation || !toLocation || !quantity) {
-                alert('Iltimos, barcha majburiy maydonlarni to\'ldiring!');
-                return false;
-            }
-
-            if (fromLocation === toLocation) {
-                alert('Jo\'natuvchi va qabul qiluvchi joylar bir xil bo\'lishi mumkin emas!');
-                return false;
-            }
-
-            if (!validateQuantity()) {
-                return false;
-            }
-
-            return true;
-        }
-
-        // Transfer ko'rsatishini yangilash
-        function updateTransferDisplay() {
-            const transfersList = document.getElementById('transfersList');
-            const transfersTable = document.getElementById('transfersTable');
-            const emptyState = document.getElementById('emptyState');
-            const totalTransfers = document.getElementById('totalTransfers');
-            const totalQuantity = document.getElementById('totalQuantity');
-            const finalActions = document.getElementById('finalActions');
-
-            if (transferList.length === 0) {
-                // Bo'sh holat
-                transfersTable.style.display = 'none';
-                emptyState.style.display = 'block';
-                finalActions.style.display = 'none';
-                totalTransfers.textContent = 0;
-                totalQuantity.textContent = 0;
-            } else {
-                // Jadval ko'rsatish
-                emptyState.style.display = 'none';
-                transfersTable.style.display = 'table';
-                
-                let transfersHtml = '';
-                let totalQty = 0;
-
-                transferList.forEach(transfer => {
-                    totalQty += parseInt(transfer.quantity) || 0;
-                    transfersHtml += `
-                        <tr>
-                            <td style="width: 35%; max-width: 35%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem; font-weight: 500;">📦 ${transfer.product_name}</td>
-                            <td style="width: 20%; max-width: 20%; overflow: hidden; text-overflow: ellipsis;">
-                                <div style="font-size: 0.9rem; line-height: 1.3; font-weight: 600; color: #495057;">${transfer.from_name}</div>
-                                <div style="font-size: 0.75rem; color: #6c757d;">${transfer.from_type}</div>
-                            </td>
-                            <td style="width: 15%; max-width: 15%; text-align: center; font-size: 0.95rem; font-weight: 700; color: #007bff;">${transfer.quantity} ta</td>
-                            <td style="width: 20%; max-width: 20%; overflow: hidden; text-overflow: ellipsis;">
-                                <div style="font-size: 0.9rem; line-height: 1.3; font-weight: 600; color: #495057;">${transfer.to_name}</div>
-                                <div style="font-size: 0.75rem; color: #6c757d;">${transfer.to_type}</div>
-                            </td>
-                            <td style="width: 10%; max-width: 10%; text-align: center;">
-                                <button class="transfer-edit-btn" onclick="editTransfer(${transfer.id})" title="Tahrirlash" style="font-size: 0.85rem; padding: 4px 6px; margin: 1px;">
-                                    ✏️
-                                </button>
-                                <button class="transfer-remove-btn" onclick="removeTransfer(${transfer.id})" title="O'chirish" style="font-size: 0.85rem; padding: 4px 6px; margin: 1px;">
-                                    🗑️
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                transfersList.innerHTML = transfersHtml;
-                finalActions.style.display = 'block';
-                totalTransfers.textContent = transferList.length;
-                totalQuantity.textContent = totalQty;
-            }
-        }
-
-        // Transferni tahrirlash
-        function editTransfer(transferId) {
-            const transfer = transferList.find(t => t.id === transferId);
-            if (!transfer) return;
-
-            // Formani transfer ma'lumotlari bilan to'ldirish
-            document.getElementById('product_id').value = transfer.product_id;
-            document.getElementById('selected_product').value = transfer.product_name;
-            document.getElementById('product_search').value = transfer.product_name;
-            document.getElementById('from_location').value = transfer.from_location;
-            document.getElementById('to_location').value = transfer.to_location;
-            document.getElementById('transfer_quantity').value = transfer.quantity;
-
-            // Transfer ro'yxatidan o'chirish (tahrirlash uchun)
-            removeTransfer(transferId);
-
-            // Route indicator ni yangilash
-            updateRouteIndicator();
-            updateAvailableQuantity();
-        }
-
-        // Transferni o'chirish
-        function removeTransfer(transferId) {
-            transferList = transferList.filter(transfer => transfer.id !== transferId);
-            updateTransferDisplay();
-        }
-
-        // Formani tozalash
-        function clearForm() {
-            // Faqat mahsulot bilan bog'liq maydonlarni tozalash
-            document.getElementById('product_search').value = '';
-            document.getElementById('selected_product').value = '';
-            document.getElementById('product_id').value = '';
-            document.getElementById('transfer_quantity').value = '';
-            document.getElementById('available_quantity').value = '';
-            document.getElementById('quantityError').style.display = 'none';
-            document.getElementById('searchResults').style.display = 'none';
-            
-            // "Qayerdan" va "Qayerga" maydonlarini saqlab qolish
-            // Route indicator ham ko'rsatilgan holda qoladi
-            
-            // Mahsulot qidiruv maydoniga fokus berish
-            setTimeout(() => {
-                const productSearchInput = document.getElementById('product_search');
-                if (productSearchInput) {
-                    productSearchInput.focus();
-                }
-            }, 100);
-        }
-
-        // Barcha transferlarni o'chirish
-        function clearTransferList() {
-            if (confirm('Barcha transferlarni o\'chirmoqchimisiz?')) {
-                transferList = [];
-                updateTransferDisplay();
-            }
-        }
-
-        // Barcha transferlarni amalga oshirish
-        async function submitAllTransfers() {
-            if (transferList.length === 0) {
-                alert('Transfer ro\'yxati bo\'sh!');
-                return;
-            }
-
-            if (!confirm('Barcha transferlarni amalga oshirmoqchimisiz?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/transfer', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        transfers: transferList
-                    })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    alert('Barcha transferlar muvaffaqiyatli amalga oshirildi!');
-                    
-                    // Ro'yxatni tozalash
-                    transferList = [];
-                    updateTransferDisplay();
-                    clearForm();
-                    
-                    // Transfer tarixini yangilash
-                    loadTransferHistory();
-                } else {
-                    const error = await response.json();
-                    console.error('Server xatoligi:', error);
-                    alert('Xatolik: ' + (error.error || error.message || 'Noma\'lum xatolik'));
-                }
-            } catch (error) {
-                console.error('Transfer xatoligi:', error);
-                alert('Transfer amalga oshirishda xatolik yuz berdi: ' + error.message);
-            }
-        }
-
-        // Transfer tarixini yuklash
-        async function loadTransferHistory() {
-            const historyBody = document.getElementById('transferHistoryBody');
-            
-            try {
-                // Loading holatini ko'rsatish
-                historyBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="loading-state">
-                            ⏳ Transfer tarixi yuklanmoqda...
-                        </td>
-                    </tr>
-                `;
-
-                const response = await fetch('/api/transfer/history');
-                if (response.ok) {
-                    const transfers = await response.json();
-                    
-                    if (transfers.length === 0) {
-                        historyBody.innerHTML = `
-                            <tr>
-                                <td colspan="6" class="no-data-state">
-                                    📝 Hozircha hech qanday transfer amalga oshirilmagan
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    let historyHtml = '';
-                    transfers.forEach(transfer => {
-                        const date = new Date(transfer.created_at).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
-                        historyHtml += `
-                            <tr>
-                                <td class="date-cell">${date}</td>
-                                <td>📦 ${transfer.product_name}</td>
-                                <td>📍 ${transfer.from_location_name}</td>
-                                <td>📍 ${transfer.to_location_name}</td>
-                                <td class="quantity-cell">${transfer.quantity} ta</td>
-                                <td>👤 ${transfer.user_name || 'Admin'}</td>
-                            </tr>
-                        `;
-                    });
-
-                    historyBody.innerHTML = historyHtml;
-                } else {
-                    historyBody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="no-data-state">
-                                ❌ Transfer tarixini yuklashda xatolik
-                            </td>
-                        </tr>
-                    `;
-                }
-            } catch (error) {
-                console.error('Transfer tarixini yuklashda xatolik:', error);
-                historyBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="no-data-state">
-                            ❌ Transfer tarixini yuklashda xatolik: ${error.message}
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Transfer tarixini tozalash
-        function clearTransferHistory() {
-            if (confirm('🗑️ Transfer tarixini tozalashni xohlaysizmi?\n\nBu amal faqat jadval ko\'rinishini tozalaydi, ma\'lumotlar bazasidagi ma\'lumotlar saqlanib qoladi.')) {
-                const historyBody = document.getElementById('transferHistoryBody');
-                historyBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="no-data-state">
-                            🗑️ Transfer tarixi tozalandi. Qayta yuklash uchun "Yangilash" tugmasini bosing.
-                        </td>
-                    </tr>
-                `;
-                console.log('Transfer tarixi jadvali tozalandi');
-            }
-        }
-
-        // 40 kundan eski transferlarni o'chirish
-        function cleanupOldTransfers() {
-            if (confirm('⚠️ 40 kundan eski barcha transferlar ma\'lumotlar bazasidan butunlay o\'chiriladi!\n\nBu amalni bekor qilib bo\'lmaydi. Davom etasizmi?')) {
-                fetch('/api/transfer/cleanup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ Muvaffaqiyat!\n\n${data.deleted_count} ta eski transfer o'chirildi.`);
-                        // Transfer tarixini qayta yuklash
-                        loadTransferHistory();
-                    } else {
-                        alert(`❌ Xatolik: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Xatolik:', error);
-                    alert('❌ Eski transferlarni o\'chirishda xatolik yuz berdi');
-                });
-            }
-        }
-
-        // Event listenerlar
-        document.getElementById('from_location').addEventListener('change', function() {
-            updateLocationChange();
-        });
+</div>
+
+<!-- Modal oyna - Miqdor kiritish -->
+<div id="quantityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 8px; padding: 30px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <h3 style="margin: 0 0 20px 0; color: #333;">📦 Transfer miqdorini kiriting</h3>
         
-        document.getElementById('to_location').addEventListener('change', updateRouteIndicator);
-    </script>
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Mahsulot:</label>
+            <div id="modalProductName" style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-weight: 600;"></div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Mavjud:</label>
+            <input type="text" id="modalAvailable" readonly style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; background: #e9ecef;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Miqdor:</label>
+            <input type="number" id="modalQuantity" min="1" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px;">
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">Bekor qilish</button>
+            <button onclick="addToTransferList()" style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">➕ Qo'shish</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let transferList = [];
+    let currentProduct = null;
+    let allProducts = [];
+
+    // Mahsulotlarni yuklash
+    async function loadProducts() {
+        const fromLocation = document.getElementById('fromLocation').value;
+        const tbody = document.getElementById('productsTableBody');
+        
+        if (!fromLocation) {
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>📦</div><div>Joylashuvni tanlang</div></td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>⏳</div><div>Yuklanmoqda...</div></td></tr>';
+        
+        try {
+            const response = await fetch(`/api/products?location=${fromLocation}`);
+            const data = await response.json();
+            const products = Array.isArray(data) ? data : (data.products || []);
+            
+            allProducts = products;
+            renderProducts(products);
+            
+            console.log(`✅ ${products.length} ta mahsulot yuklandi`);
+        } catch (error) {
+            console.error('Mahsulotlarni yuklashda xatolik:', error);
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>⚠️</div><div>Xatolik yuz berdi</div></td></tr>';
+        }
+    }
+
+    // Mahsulotlarni ko'rsatish
+    function renderProducts(products) {
+        const tbody = document.getElementById('productsTableBody');
+        
+        if (products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><div>📦</div><div>Mahsulotlar topilmadi</div></td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        products.forEach(product => {
+            let quantity = 0;
+            
+            if (product.stocks && product.stocks.length > 0) {
+                const fromLocation = document.getElementById('fromLocation').value;
+                const [type, id] = fromLocation.split('_');
+                const locationId = parseInt(id);
+                
+                const matchingStock = product.stocks.find(stock => {
+                    if (type === 'warehouse') {
+                        return stock.warehouse_id === locationId;
+                    } else if (type === 'store') {
+                        return stock.store_id === locationId;
+                    }
+                    return false;
+                });
+                
+                if (matchingStock) {
+                    quantity = matchingStock.quantity || 0;
+                }
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color: #333; font-weight: 500;">${product.name || `Mahsulot #${product.id}`}</td>
+                <td style="text-align: center;">
+                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500;">${quantity}</span>
+                </td>
+                <td style="text-align: center;">
+                    <button onclick="openModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${quantity})" 
+                            style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500;"
+                            ${quantity <= 0 ? 'disabled' : ''}>
+                        ➡️ Qo'shish
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Mahsulotlarni filterlash
+    function filterProducts() {
+        const searchText = document.getElementById('productSearch').value.toLowerCase();
+        const filtered = allProducts.filter(p => 
+            (p.name || '').toLowerCase().includes(searchText)
+        );
+        renderProducts(filtered);
+    }
+
+    // Modal ochish
+    function openModal(productId, productName, available) {
+        currentProduct = { id: productId, name: productName, available: available };
+        
+        document.getElementById('modalProductName').textContent = productName;
+        document.getElementById('modalAvailable').value = available;
+        document.getElementById('modalQuantity').value = 1;
+        document.getElementById('modalQuantity').max = available;
+        
+        document.getElementById('quantityModal').style.display = 'flex';
+        
+        setTimeout(() => {
+            document.getElementById('modalQuantity').focus();
+            document.getElementById('modalQuantity').select();
+        }, 100);
+    }
+
+    // Modal yopish
+    function closeModal() {
+        document.getElementById('quantityModal').style.display = 'none';
+        currentProduct = null;
+    }
+
+    // Transfer ro'yxatiga qo'shish
+    function addToTransferList() {
+        const quantity = parseInt(document.getElementById('modalQuantity').value);
+        
+        if (!quantity || quantity <= 0) {
+            alert('Miqdor 0 dan katta bo\'lishi kerak!');
+            return;
+        }
+        
+        if (quantity > currentProduct.available) {
+            alert(`Stokda faqat ${currentProduct.available} dona mavjud!`);
+            return;
+        }
+        
+        // Ro'yxatda borligini tekshirish
+        const existingIndex = transferList.findIndex(item => item.id === currentProduct.id);
+        
+        if (existingIndex >= 0) {
+            transferList[existingIndex].quantity = quantity;
+        } else {
+            transferList.push({
+                id: currentProduct.id,
+                name: currentProduct.name,
+                quantity: quantity
+            });
+        }
+        
+        updateTransferListDisplay();
+        closeModal();
+        
+        console.log('✅ Transfer ro\'yxatiga qo\'shildi:', currentProduct.name, 'x', quantity);
+    }
+
+    // Transfer ro'yxatini ko'rsatish
+    function updateTransferListDisplay() {
+        const container = document.getElementById('transferList');
+        
+        if (transferList.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div>📋</div><div>Transfer qilish uchun mahsulot qo\'shing</div></div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        transferList.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'transfer-item';
+            div.innerHTML = `
+                <div class="transfer-item-info">
+                    <div class="transfer-item-name">${item.name}</div>
+                    <div class="transfer-item-quantity">Miqdor: ${item.quantity} dona</div>
+                </div>
+                <div class="transfer-item-actions">
+                    <button class="btn-icon" onclick="editTransferItem(${index})" title="Tahrirlash">✏️</button>
+                    <button class="btn-icon" onclick="removeTransferItem(${index})" title="O'chirish">🗑️</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // Transfer elementini tahrirlash
+    function editTransferItem(index) {
+        const item = transferList[index];
+        currentProduct = { id: item.id, name: item.name, available: item.quantity + 999 }; // Temporary
+        
+        document.getElementById('modalProductName').textContent = item.name;
+        document.getElementById('modalAvailable').value = item.quantity + 999;
+        document.getElementById('modalQuantity').value = item.quantity;
+        
+        document.getElementById('quantityModal').style.display = 'flex';
+        
+        // Remove current item
+        transferList.splice(index, 1);
+    }
+
+    // Transfer elementini o'chirish
+    function removeTransferItem(index) {
+        if (confirm('Ushbu mahsulotni o\'chirmoqchimisiz?')) {
+            transferList.splice(index, 1);
+            updateTransferListDisplay();
+        }
+    }
+
+    // Transfer ro'yxatini tozalash
+    function clearTransferList() {
+        if (transferList.length === 0) {
+            alert('Ro\'yxat bo\'sh!');
+            return;
+        }
+        
+        if (confirm('Barcha mahsulotlarni o\'chirmoqchimisiz?')) {
+            transferList = [];
+            updateTransferListDisplay();
+        }
+    }
+
+    // Transferni yakunlash
+    async function completeTransfer() {
+        const fromLocation = document.getElementById('fromLocation').value;
+        const toLocation = document.getElementById('toLocation').value;
+        
+        if (!fromLocation) {
+            alert('Qayerdan joylashuvni tanlang!');
+            return;
+        }
+        
+        if (!toLocation) {
+            alert('Qayerga joylashuvni tanlang!');
+            return;
+        }
+        
+        if (fromLocation === toLocation) {
+            alert('Bir xil joylashuv orasida transfer qilib bo\'lmaydi!');
+            return;
+        }
+        
+        if (transferList.length === 0) {
+            alert('Transfer ro\'yxatiga mahsulot qo\'shing!');
+            return;
+        }
+        
+        if (!confirm(`${transferList.length} ta mahsulotni transfer qilmoqchimisiz?`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/transfer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    from_location: fromLocation,
+                    to_location: toLocation,
+                    products: transferList
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Transfer muvaffaqiyatli yakunlandi!');
+                
+                // Reset
+                transferList = [];
+                updateTransferListDisplay();
+                loadProducts();
+            } else {
+                alert('❌ Xatolik: ' + (result.error || 'Transfer amalga oshmadi'));
+            }
+        } catch (error) {
+            console.error('Transfer xatosi:', error);
+            alert('❌ Server bilan aloqa qilishda xatolik yuz berdi');
+        }
+    }
+
+    // Sahifa yuklanganda
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Transfer sahifasi tayyor');
+    });
+</script>
 {% endblock %}
