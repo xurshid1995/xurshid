@@ -435,13 +435,24 @@
             successDiv.textContent = '✅ Mijoz muvaffaqiyatli qo\'shildi!';
             successDiv.style.display = 'block';
             
-            // Mijozni avtomatik tanlash
-            document.getElementById('selectedCustomerId').value = result.customer.id;
-            document.getElementById('customerSearch').value = result.customer.name;
+            // Mijozlar ro'yxatini yangilash
+            await loadCustomers();
             
-            // Mijoz ma'lumotini korzina sarlavhasida ko'rsatish
-            const customerInfo = `<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3><div style="font-size: 12px; color: #666; margin-top: 5px;">Mijoz: ${result.customer.name}</div>`;
-            document.getElementById('cartCustomerInfo').innerHTML = customerInfo;
+            // Mijozni avtomatik tanlash (selectCustomer funksiyasidan foydalanish)
+            const customerName = result.customer.name;
+            const customerPhone = result.customer.phone || '';
+            const customerDisplayText = customerPhone ? `${customerName} - ${customerPhone}` : customerName;
+            
+            // Input'ga mijoz nomini yozish
+            document.getElementById('customerSearch').value = customerDisplayText;
+            document.getElementById('selectedCustomerId').value = result.customer.id;
+            
+            // Korzina sarlavhasida mijoz ma'lumotini ko'rsatish
+            const cartCustomerInfo = document.getElementById('cartCustomerInfo');
+            const customerDisplay = customerPhone ? `👤 ${customerName} ${customerPhone}` : `👤 ${customerName}`;
+            cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
+            
+            console.log(`✅ Mijoz avtomatik tanlandi: ${customerName} (ID: ${result.customer.id})`);
             
             // 1.5 soniyadan keyin modal yopish
             setTimeout(() => {
