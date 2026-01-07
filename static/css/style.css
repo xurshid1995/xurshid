@@ -355,12 +355,12 @@ body {
 /* Main Content - Desktop */
 .main-content {
     margin-left: 70px; /* Oddiy holatda tor sidebar uchun */
-    margin-top: 70px;
+    margin-top: 50px;
     flex: 1;
     padding: 20px;
     width: calc(100vw - 70px);
     max-width: calc(100vw - 70px);
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 50px);
     box-sizing: border-box;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -1338,7 +1338,7 @@ footer {
     /* Adjust body layout for mobile */
     body {
         flex-direction: column;
-        padding-top: 70px;
+        padding-top: 50px;
         overflow-x: auto;
     }
     
