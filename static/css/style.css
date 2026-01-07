@@ -221,7 +221,7 @@ body {
     left: 0;
     right: 0;
     height: 70px;
-    background: linear-gradient(135deg, #87CEFA, #6495ED);
+    background: linear-gradient(135deg, #4682B4, #2B5FA6);
     display: flex;
     justify-content: space-between;
     align-items: center;
