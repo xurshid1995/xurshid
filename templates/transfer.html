@@ -411,8 +411,11 @@
             <input type="number" 
                    id="modalQuantity" 
                    min="1" 
+                   oninput="validateTransferQuantity()"
                    onkeydown="handleModalQuantityKeydown(event)"
                    style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px;">
+            <!-- Validatsiya xabari -->
+            <div id="quantityWarning" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 4px; font-size: 13px;"></div>
         </div>
         
         <div style="display: flex; gap: 10px;">
@@ -930,11 +933,20 @@
         document.getElementById('modalQuantity').value = 1;
         document.getElementById('modalQuantity').max = available;
         
+        // Validatsiya xabarni yashirish
+        const warningDiv = document.getElementById('quantityWarning');
+        if (warningDiv) {
+            warningDiv.style.display = 'none';
+        }
+        
         document.getElementById('quantityModal').style.display = 'flex';
         
         setTimeout(() => {
-            document.getElementById('modalQuantity').focus();
-            document.getElementById('modalQuantity').select();
+            const quantityInput = document.getElementById('modalQuantity');
+            quantityInput.focus();
+            quantityInput.select();
+            // Dastlabki validatsiya
+            validateTransferQuantity();
         }, 100);
     }
 
@@ -942,6 +954,42 @@
     function closeModal() {
         document.getElementById('quantityModal').style.display = 'none';
         currentProduct = null;
+    }
+    
+    // Transfer miqdorini real-time validatsiya qilish
+    function validateTransferQuantity() {
+        if (!currentProduct) return;
+        
+        const quantityInput = document.getElementById('modalQuantity');
+        const warningDiv = document.getElementById('quantityWarning');
+        const quantity = parseInt(quantityInput.value) || 0;
+        const available = currentProduct.available || 0;
+        
+        // Miqdor validatsiyasi
+        if (quantity <= 0) {
+            warningDiv.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak!';
+            warningDiv.style.display = 'block';
+            warningDiv.style.background = '#fff3cd';
+            warningDiv.style.border = '1px solid #ffc107';
+            warningDiv.style.color = '#856404';
+            quantityInput.style.borderColor = '#ffc107';
+            quantityInput.style.backgroundColor = '#fffaed';
+            return false;
+        } else if (quantity > available) {
+            warningDiv.textContent = `❌ Stokda faqat ${available} dona mavjud!`;
+            warningDiv.style.display = 'block';
+            warningDiv.style.background = '#f8d7da';
+            warningDiv.style.border = '1px solid #f5c6cb';
+            warningDiv.style.color = '#721c24';
+            quantityInput.style.borderColor = '#dc3545';
+            quantityInput.style.backgroundColor = '#ffe6e6';
+            return false;
+        } else {
+            warningDiv.style.display = 'none';
+            quantityInput.style.borderColor = '#28a745';
+            quantityInput.style.backgroundColor = '#d4edda';
+            return true;
+        }
     }
 
     // Transfer ro'yxatiga qo'shish
@@ -961,6 +1009,11 @@
         if (!currentProduct) {
             alert('Mahsulot tanlanmagan!');
             closeModal();
+            return;
+        }
+        
+        // Real-time validatsiya tekshiruvi
+        if (!validateTransferQuantity()) {
             return;
         }
         
