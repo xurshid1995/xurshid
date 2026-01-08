@@ -606,6 +606,20 @@
                 </div>
 
                 <div class="panel-content">
+                    <!-- Excel import maydoni -->
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 8px; border: 2px dashed #4caf50;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.2rem;">📊</span>
+                            <strong style="color: #2e7d32;">Excel dan mahsulot import qilish</strong>
+                        </div>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls" 
+                               style="width: 100%; padding: 0.5rem; border: 1px solid #4caf50; border-radius: 4px; background: white; cursor: pointer;"
+                               onchange="handleExcelFile(event)">
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #558b2f;">
+                            💡 Excel faylini tanlang va avtomatik import qilinadi
+                        </div>
+                    </div>
+                    
                     <div class="list-header">
                         <span>📦 Jami: <strong id="totalProducts">0</strong> ta mahsulot</span>
                         <span>💰 Umumiy qiymat: <strong id="totalValue">$0.00</strong></span>
