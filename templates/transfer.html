@@ -345,6 +345,21 @@
         <div class="transfer-layout">
             <div class="layout-header">🔄 Transfer ro'yxati</div>
 
+            <!-- Transfer ma'lumotlari -->
+            <div id="transferInfo" style="display: none; background: #f8f9fa; padding: 12px 15px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #667eea;">
+                <div style="font-size: 13px; color: #495057; line-height: 1.6;">
+                    <div style="margin-bottom: 4px;">
+                        <strong>Qayerdan:</strong> <span id="infoFromLocation" style="color: #667eea;">-</span>
+                    </div>
+                    <div style="margin-bottom: 4px;">
+                        <strong>Qayerga:</strong> <span id="infoToLocation" style="color: #667eea;">-</span>
+                    </div>
+                    <div>
+                        <strong>Mahsulotlar:</strong> <span id="infoProductCount" style="color: #28a745; font-weight: 600;">0</span> ta
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-bottom: 0;">
                 <input type="text" id="transferListSearch" class="search-input" placeholder="🔍 Transfer ro'yxatidan qidirish..." onkeyup="filterTransferList()">
             </div>
@@ -728,8 +743,12 @@
         
         if (transferList.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📋</div><div>Transfer qilish uchun mahsulot qo\'shing</div></td></tr>';
+            document.getElementById('transferInfo').style.display = 'none';
             return;
         }
+        
+        // Info yangilash
+        updateTransferInfo();
         
         tbody.innerHTML = '';
         transferList.forEach((item, index) => {
@@ -753,6 +772,25 @@
             `;
             tbody.appendChild(row);
         });
+    }
+
+    // Transfer ma'lumotlarini yangilash
+    function updateTransferInfo() {
+        const infoDiv = document.getElementById('transferInfo');
+        const fromSelect = document.getElementById('fromLocation');
+        const toSelect = document.getElementById('toLocation');
+        
+        // Joylashuv nomlarini olish
+        const fromText = fromSelect.options[fromSelect.selectedIndex]?.text || '-';
+        const toText = toSelect.options[toSelect.selectedIndex]?.text || '-';
+        
+        // Ma'lumotlarni yangilash
+        document.getElementById('infoFromLocation').textContent = fromText;
+        document.getElementById('infoToLocation').textContent = toText;
+        document.getElementById('infoProductCount').textContent = transferList.length;
+        
+        // Info ko'rsatish
+        infoDiv.style.display = transferList.length > 0 ? 'block' : 'none';
     }
 
     // Transfer elementini tahrirlash
