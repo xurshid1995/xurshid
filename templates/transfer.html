@@ -588,6 +588,7 @@
             const row = document.createElement('tr');
             const sellingPrice = product.sell_price || product.price || 0;
             const badgeColor = quantity <= 0 ? '#dc3545' : '#007bff';
+            const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
             row.innerHTML = `
                 <td style="color: #333; font-weight: 500;">${product.name || `Mahsulot #${product.id}`}</td>
                 <td style="text-align: center; color: #333; font-weight: 500;">
@@ -598,9 +599,9 @@
                 </td>
                 <td style="text-align: center;">
                     <button onclick="openModalById(${product.id})" 
-                            style="background: none; border: none; cursor: ${quantity <= 0 ? 'not-allowed' : 'pointer'}; font-size: 24px; padding: 4px 8px; opacity: ${quantity <= 0 ? '0.3' : '1'};"
+                            style="background: none; border: none; cursor: ${quantity <= 0 ? 'not-allowed' : 'pointer'}; font-size: 24px; padding: 4px 8px; opacity: ${quantity <= 0 ? '0.8' : '1'};"
                             ${quantity <= 0 ? 'disabled' : ''}>
-                        ➡️
+                        ${buttonEmoji}
                     </button>
                 </td>
             `;
