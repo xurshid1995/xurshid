@@ -796,6 +796,16 @@
                     { wch: 15 }  // Asl tan narx
                 ];
                 
+                // Barcode ustunini text formatiga o'zgartirish (000001 kabi nollar saqlanadi)
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let row = range.s.r + 1; row <= range.e.r; row++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: row, c: 1 }); // Barcode 2-ustun (index 1)
+                    if (ws[cellAddress]) {
+                        ws[cellAddress].t = 's'; // String tipiga o'zgartirish
+                        ws[cellAddress].z = '@'; // Text format
+                    }
+                }
+                
                 XLSX.utils.book_append_sheet(wb, ws, 'Mahsulotlar');
                 
                 // Faylni yuklash
