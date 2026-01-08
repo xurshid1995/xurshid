@@ -1047,6 +1047,14 @@
         
         updateTransferListDisplay();
         closeModal();
+        
+        // Fokusni qidiruv maydoniga qaytarish
+        setTimeout(() => {
+            const productSearch = document.getElementById('productSearch');
+            if (productSearch) {
+                productSearch.focus();
+            }
+        }, 100);
     }
 
     // Transfer ro'yxatini ko'rsatish
