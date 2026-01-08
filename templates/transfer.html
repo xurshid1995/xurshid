@@ -345,6 +345,10 @@
         <div class="transfer-layout">
             <div class="layout-header">🔄 Transfer ro'yxati</div>
 
+            <div style="margin-bottom: 0;">
+                <input type="text" id="transferListSearch" class="search-input" placeholder="🔍 Transfer ro'yxatidan qidirish..." onkeyup="filterTransferList()">
+            </div>
+
             <div class="products-table-container">
                 <table class="products-table transfer-product-table" id="transferListTable">
                     <thead>
@@ -819,6 +823,34 @@
         if (confirm('Barcha mahsulotlarni o\'chirmoqchimisiz?')) {
             transferList = [];
             updateTransferListDisplay();
+        }
+    }
+
+    // Transfer ro'yxatini filterlash
+    function filterTransferList() {
+        const searchText = document.getElementById('transferListSearch').value.toLowerCase();
+        const tbody = document.getElementById('transferList');
+        const rows = tbody.getElementsByTagName('tr');
+        
+        if (transferList.length === 0) {
+            return; // Bo'sh ro'yxatda qidiruv yo'q
+        }
+        
+        let visibleCount = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            
+            if (cells.length < 4) continue; // Empty state qatorini o'tkazib yuborish
+            
+            const productName = cells[0].textContent.toLowerCase();
+            
+            if (!searchText || productName.includes(searchText)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         }
     }
 
