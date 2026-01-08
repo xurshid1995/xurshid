@@ -489,10 +489,16 @@
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: #495057;">📊 Excel Import:</label>
-                            <button type="button" class="btn btn-success" onclick="openExcelImport()" 
-                                    style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #28a745, #20c997); border: none; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);">
-                                📊 Excel dan Import
-                            </button>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="btn btn-success" onclick="openExcelImport()" 
+                                        style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, #28a745, #20c997); border: none; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);">
+                                    📤 Import qilish
+                                </button>
+                                <button type="button" class="btn btn-info" onclick="downloadExcelTemplate()" 
+                                        style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, #007bff, #0056b3); border: none; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);">
+                                    📥 Namuna
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -737,6 +743,69 @@
             }
             
             document.getElementById('excelFileInput').click();
+        }
+        
+        // Excel namuna faylini yuklash
+        function downloadExcelTemplate() {
+            // XLSX kutubxonasi yuklanganini tekshirish
+            if (typeof XLSX === 'undefined' || !xlsxLoaded) {
+                alert('❌ Excel kutubxonasi hali yuklanmagan!\n\nIltimos bir necha soniya kuting va qayta urinib ko\'ring.');
+                return;
+            }
+            
+            try {
+                // Namuna ma'lumotlar bilan Excel yaratish
+                const templateData = [
+                    {
+                        'Mahsulot nomi': 'Misol: Samsung Galaxy A54',
+                        'Barcode': '8600000000001',
+                        'Miqdor': 10,
+                        'Tan narxi ($)': 250.00,
+                        'Sotish narxi ($)': 300.00,
+                        'Asl tan narx ($)': 250.00
+                    },
+                    {
+                        'Mahsulot nomi': 'Misol: iPhone 13 Pro',
+                        'Barcode': '8600000000002',
+                        'Miqdor': 5,
+                        'Tan narxi ($)': 800.00,
+                        'Sotish narxi ($)': 950.00,
+                        'Asl tan narx ($)': 800.00
+                    },
+                    {
+                        'Mahsulot nomi': 'Misol: Xiaomi Redmi Note 12',
+                        'Barcode': '8600000000003',
+                        'Miqdor': 20,
+                        'Tan narxi ($)': 150.00,
+                        'Sotish narxi ($)': 180.00,
+                        'Asl tan narx ($)': 150.00
+                    }
+                ];
+                
+                // Yangi workbook yaratish
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(templateData);
+                
+                // Ustunlar kengligini sozlash
+                ws['!cols'] = [
+                    { wch: 30 }, // Mahsulot nomi
+                    { wch: 15 }, // Barcode
+                    { wch: 10 }, // Miqdor
+                    { wch: 15 }, // Tan narxi
+                    { wch: 15 }, // Sotish narxi
+                    { wch: 15 }  // Asl tan narx
+                ];
+                
+                XLSX.utils.book_append_sheet(wb, ws, 'Mahsulotlar');
+                
+                // Faylni yuklash
+                XLSX.writeFile(wb, 'mahsulot_import_namuna.xlsx');
+                
+                console.log('✅ Excel namuna fayl yuklandi');
+            } catch (error) {
+                console.error('Excel namuna yaratishda xatolik:', error);
+                alert('❌ Excel namuna yaratishda xatolik yuz berdi!\n\nXatolik: ' + error.message);
+            }
         }
 
         function handleExcelFile(event) {
