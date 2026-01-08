@@ -1720,6 +1720,8 @@ def api_batch_products():
         data = request.get_json()
         products = data.get('products', [])
 
+        logger.info(f"📦 Batch products request keldi: {len(products)} ta mahsulot")
+        
         if not products:
             return jsonify({'error': 'Mahsulotlar ro\'yxati bo\'sh'}), 400
 
@@ -1729,6 +1731,8 @@ def api_batch_products():
             # Ma'lumotlarni olish
             location_type = product_data['location_type']
             location_id = int(product_data['location_id'])
+            
+            logger.info(f"🔍 Location: type={location_type}, id={location_id}")
             name = product_data['name']
             barcode = product_data.get('barcode', None)  # Barcode olish
             quantity = float(product_data['quantity'])

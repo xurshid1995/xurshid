@@ -1932,51 +1932,48 @@
             
             const requestBody = {
                 products: tempProducts.map(product => {
-                    // Location formatini parsing qilish
+                    // Location formatini parsing qilish - warehouse_1 yoki store_2 format
                     let locationType, locationId;
                     
-                    if (product.location && product.location.includes('_')) {
-                        // Eski format: warehouse_1, store_2
-                        const locationParts = product.location.split('_');
-                        locationType = locationParts[0]; // warehouse yoki store
-                        locationId = parseInt(locationParts[1]); // ID raqami
-                    } else {
-                        // Yangi format: location_id va location_type alohida
-                        locationId = parseInt(product.location_id || product.location);
-                        
-                        // location_type dan locationType ni aniqlash
-                        if (product.location_type === 'Ombor' || product.location_type === 'ombor') {
-                            locationType = 'warehouse';
-                        } else if (product.location_type === 'Do\'kon' || product.location_type === 'dokon') {
-                            locationType = 'store';
-                        } else {
-                            // Default qiymat
-                            locationType = 'store';
-                        }
-                    }
-                    
-                    console.log(`📍 Mahsulot joylashuv ma'lumotlari:`, {
-                        name: product.name,
+                    console.log('🔍 Product location ma\'lumotlari:', {
                         location: product.location,
                         location_id: product.location_id,
-                        location_type: product.location_type,
-                        parsed_type: locationType,
-                        parsed_id: locationId
+                        location_type: product.location_type
                     });
                     
-                    return {
+                    // product.location "warehouse_1" yoki "store_2" formatida
+                    if (product.location && product.location.includes('_')) {
+                        const locationParts = product.location.split('_');
+                        locationType = locationParts[0]; // "warehouse" yoki "store"
+                        locationId = parseInt(locationParts[1]); // ID raqami
+                        
+                        console.log('✅ Location parsed:', {locationType, locationId});
+                    } else {
+                        console.error('❌ Location format noto\'g\'ri:', product.location);
+                        // Fallback
+                        locationType = 'store';
+                        locationId = parseInt(product.location) || 0;
+                    }
+                    
+                    const productData = {
                         name: product.name,
-                        barcode: product.barcode || null, // Barcode qo'shish
-                        cost_price: product.cost_price, // Ortacha tan narx
-                        lastBatchCost: product.last_batch_cost, // Foydalanuvchi kiritgan asl qiymat
+                        barcode: product.barcode || null,
+                        cost_price: product.cost_price,
+                        lastBatchCost: product.last_batch_cost,
                         sell_price: product.sell_price,
                         quantity: product.quantity,
                         min_stock: product.min_stock,
                         location_type: locationType,
                         location_id: locationId
                     };
+                    
+                    console.log('📦 API ga yuborilayotgan mahsulot:', productData);
+                    
+                    return productData;
                 })
             };
+            
+            console.log('📡 API ga yuborilayotgan request:', requestBody);
             
             fetch('/api/batch-products', {
                 method: 'POST',
