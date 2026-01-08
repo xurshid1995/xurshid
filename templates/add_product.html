@@ -1353,10 +1353,17 @@
             fetch('/api/search-product/' + encodeURIComponent(productName))
                 .then(response => {
                     console.log('📡 API response status:', response.status);
+                    console.log('📡 API response ok:', response.ok);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     return response.json();
                 })
                 .then(data => {
                     console.log('📦 API javob:', data);
+                    console.log('📦 data.exists:', data.exists);
+                    console.log('📦 data.products:', data.products);
+                    
                     if (data.exists && data.products) {
                         console.log(`📦 ${data.products.length} ta mahsulot topildi`);
                         
@@ -1424,7 +1431,9 @@
                         
                         resultDiv.innerHTML = html;
                         resultDiv.style.display = 'block';
+                        console.log('✅ HTML yaratildi va ko\'rsatildi');
                     } else {
+                        console.log('⚠️ Mahsulot topilmadi yoki data.exists false');
                         resultDiv.innerHTML = `
                             <div style="padding: 15px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 1rem;">
                                 <strong style="font-size: 1.1rem;">Yangi mahsulot</strong> - Bu mahsulot hali mavjud emas
@@ -1434,10 +1443,11 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Qidiruv xatoligi:', error);
+                    console.error('❌ Qidiruv xatoligi:', error);
+                    console.error('❌ Error stack:', error.stack);
                     resultDiv.innerHTML = `
                         <div style="padding: 15px; background: #f8d7da; color: #721c24; border-radius: 4px; font-size: 1rem;">
-                            <strong style="font-size: 1.1rem;">Xatolik</strong> - Qidiruv amalga oshmadi
+                            <strong style="font-size: 1.1rem;">Xatolik</strong> - ${error.message || 'Qidiruv amalga oshmadi'}
                         </div>
                     `;
                     resultDiv.style.display = 'block';
