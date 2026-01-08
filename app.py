@@ -1109,7 +1109,7 @@ def api_products():
             location_id = int(location_id)
             
             # Sale_items dan sotilgan miqdorni hisoblash va saralash
-            from sqlalchemy import func, case, desc
+            from sqlalchemy import func, case, desc, cast, Integer, text
             
             subquery = db.session.query(
                 SaleItem.product_id,
@@ -1123,14 +1123,24 @@ def api_products():
                 subquery, Product.id == subquery.c.product_id
             ).order_by(
                 desc(case((subquery.c.total_sold == None, 0), else_=subquery.c.total_sold)),
+                # Natural sort - raqamli qismni ajratib saralash
+                text("REGEXP_REPLACE(products.name, '[^0-9]', '', 'g')::int"),
                 Product.name
             )
         except (ValueError, IndexError, AttributeError):
-            # Xatolik bo'lsa, oddiy nom bo'yicha saralash
-            query = query.order_by(Product.name)
+            # Xatolik bo'lsa, natural sort bilan saralash
+            from sqlalchemy import text
+            query = query.order_by(
+                text("REGEXP_REPLACE(products.name, '[^0-9]', '', 'g')::int"),
+                Product.name
+            )
     else:
-        # Joylashuv tanlanmagan bo'lsa, nom bo'yicha saralash
-        query = query.order_by(Product.name)
+        # Joylashuv tanlanmagan bo'lsa, natural sort bilan saralash
+        from sqlalchemy import text
+        query = query.order_by(
+            text("REGEXP_REPLACE(products.name, '[^0-9]', '', 'g')::int"),
+            Product.name
+        )
 
     # Get paginated results
     paginated = query.paginate(
