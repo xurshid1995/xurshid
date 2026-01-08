@@ -2167,6 +2167,13 @@ def transfer():
     return render_template('transfer.html')
 
 
+@app.route('/operations-history')
+@role_required('admin', 'kassir')
+def operations_history():
+    """Amaliyotlar tarixi sahifasi"""
+    return render_template('operations_history.html')
+
+
 @app.route('/check_stock')
 @role_required('admin', 'kassir', 'sotuvchi')
 def check_stock():

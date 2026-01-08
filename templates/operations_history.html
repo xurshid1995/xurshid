@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Amaliyotlar tarixi{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <h1 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 10px;">
+            <span>📜</span>
+            <span>Amaliyotlar tarixi</span>
+        </h1>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Barcha tizim amaliyotlari tarixi</p>
+    </div>
+
+    <!-- Filterlar -->
+    <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">📅 Boshlanish sanasi:</label>
+                <input type="date" id="startDate" class="form-control" style="width: 100%;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">📅 Tugash sanasi:</label>
+                <input type="date" id="endDate" class="form-control" style="width: 100%;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">🏷️ Amaliyot turi:</label>
+                <select id="operationType" class="form-control" style="width: 100%;">
+                    <option value="">Barchasi</option>
+                    <option value="sale">Sotish</option>
+                    <option value="add_product">Mahsulot qo'shish</option>
+                    <option value="transfer">Transfer</option>
+                    <option value="return">Qaytarish</option>
+                    <option value="edit">Tahrirlash</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">👤 Foydalanuvchi:</label>
+                <select id="userFilter" class="form-control" style="width: 100%;">
+                    <option value="">Barchasi</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+            <button onclick="loadHistory()" class="btn btn-primary" style="flex: 1;">
+                🔍 Qidirish
+            </button>
+            <button onclick="resetFilters()" class="btn btn-secondary" style="flex: 1;">
+                🔄 Tozalash
+            </button>
+            <button onclick="exportHistory()" class="btn btn-success" style="flex: 1;">
+                📊 Excel ga eksport
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistika -->
+    <div id="statistics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <!-- Statistika kartochkalari JavaScript orqali to'ldiriladi -->
+    </div>
+
+    <!-- Amaliyotlar jadvali -->
+    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-bottom: 2px solid #dee2e6;">
+            <h2 style="margin: 0; color: #495057; font-size: 1.4rem;">📋 Amaliyotlar ro'yxati</h2>
+        </div>
+        <div style="overflow-x: auto;">
+            <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #667eea; color: white;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">№</th>
+                        <th style="padding: 12px; text-align: left;">Sana/Vaqt</th>
+                        <th style="padding: 12px; text-align: left;">Amaliyot</th>
+                        <th style="padding: 12px; text-align: left;">Mahsulot</th>
+                        <th style="padding: 12px; text-align: center;">Miqdor</th>
+                        <th style="padding: 12px; text-align: left;">Joylashuv</th>
+                        <th style="padding: 12px; text-align: left;">Foydalanuvchi</th>
+                        <th style="padding: 12px; text-align: right;">Summa</th>
+                        <th style="padding: 12px; text-align: center;">Tafsilotlar</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td colspan="9" style="padding: 3rem; text-align: center; color: #718096;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+                            <div style="font-size: 1.1rem;">Filterlarni tanlang va "Qidirish" tugmasini bosing</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="pagination" style="padding: 1rem; background: #f8f9fa; border-top: 1px solid #dee2e6; display: flex; justify-content: center; gap: 0.5rem;">
+            <!-- Pagination JavaScript orqali to'ldiriladi -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        padding: 0.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+
+    #historyTable tbody tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: background 0.2s;
+    }
+
+    #historyTable tbody tr:hover {
+        background: #f7fafc;
+    }
+
+    #historyTable tbody td {
+        padding: 12px;
+    }
+
+    .operation-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .page-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #dee2e6;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .page-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .page-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+</style>
+
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // Sahifa yuklanganida
+    document.addEventListener('DOMContentLoaded', function() {
+        // Bugungi sanani o'rnatish
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('endDate').value = today;
+        
+        // 30 kun oldingi sanani o'rnatish
+        const monthAgo = new Date();
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        document.getElementById('startDate').value = monthAgo.toISOString().split('T')[0];
+
+        // Foydalanuvchilar ro'yxatini yuklash
+        loadUsers();
+    });
+
+    function loadUsers() {
+        fetch('/api/users')
+            .then(response => response.json())
+            .then(users => {
+                const select = document.getElementById('userFilter');
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.username;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Foydalanuvchilarni yuklashda xato:', error));
+    }
+
+    function loadHistory() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const operationType = document.getElementById('operationType').value;
+        const userId = document.getElementById('userFilter').value;
+
+        // Loading ko'rsatish
+        document.getElementById('historyTableBody').innerHTML = `
+            <tr>
+                <td colspan="9" style="padding: 3rem; text-align: center; color: #667eea;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+                    <div style="font-size: 1.1rem;">Yuklanmoqda...</div>
+                </td>
+            </tr>
+        `;
+
+        // API so'rovi (keyinchalik to'ldiriladi)
+        setTimeout(() => {
+            displayNoData();
+        }, 500);
+    }
+
+    function displayNoData() {
+        document.getElementById('historyTableBody').innerHTML = `
+            <tr>
+                <td colspan="9" style="padding: 3rem; text-align: center; color: #718096;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                    <div style="font-size: 1.1rem;">Ma'lumot topilmadi</div>
+                    <div style="margin-top: 0.5rem; color: #a0aec0;">Boshqa filter parametrlarini sinab ko'ring</div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function resetFilters() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('endDate').value = today;
+        
+        const monthAgo = new Date();
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        document.getElementById('startDate').value = monthAgo.toISOString().split('T')[0];
+
+        document.getElementById('operationType').value = '';
+        document.getElementById('userFilter').value = '';
+
+        document.getElementById('historyTableBody').innerHTML = `
+            <tr>
+                <td colspan="9" style="padding: 3rem; text-align: center; color: #718096;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+                    <div style="font-size: 1.1rem;">Filterlarni tanlang va "Qidirish" tugmasini bosing</div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function exportHistory() {
+        alert('Excel eksport funksiyasi tez orada qo\'shiladi!');
+    }
+</script>
+{% endblock %}

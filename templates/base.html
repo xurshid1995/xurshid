@@ -74,6 +74,12 @@
                     <span>Transfer</span>
                 </a>
             </li>
+            <li>
+                <a href="/operations-history" {% if request.endpoint == 'operations_history' %}class="active"{% endif %}>
+                    <span class="icon">📜</span>
+                    <span>Amaliyotlar tarixi</span>
+                </a>
+            </li>
             {% if session.role != 'sotuvchi' or (session.role == 'sotuvchi' and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
