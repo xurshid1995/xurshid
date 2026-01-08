@@ -894,11 +894,12 @@
                     
                     // Excel ustun nomlarini tekshirish - sizning fayl formatiga mos
                     const name = row['Mahsulot nomi'] || row['mahsulot nomi'] || row['Nomi'] || row['nomi'];
+                    const barcode = row['Barcode'] || row['barcode'] || row['Barkod'] || row['barkod'] || '';
                     const quantity = parseInt(row['Miqdori'] || row['miqdori'] || row['Miqdor'] || row['miqdor'] || 0);
                     const minStock = parseInt(row['Minimal qoldiq'] || row['minimal qoldiq'] || row['Min qoldiq'] || row['min qoldiq'] || 0);
                     // Narxlarni to'g'ri formatga keltirish (vergul o'rniga nuqta)
-                    let costPriceRaw = row['Tan narx'] || row['tan narx'] || row['Tan narxi'] || row['tan narxi'] || 0;
-                    let sellPriceRaw = row['Sotish narxi'] || row['sotish narxi'] || row['Sotish narx'] || row['sotish narx'] || row['Sotuv narxi'] || row['sotuv narxi'] || 0;
+                    let costPriceRaw = row['Tan narxi ($)'] || row['Tan narx ($)'] || row['Tan narx'] || row['tan narx'] || row['Tan narxi'] || row['tan narxi'] || 0;
+                    let sellPriceRaw = row['Sotish narxi ($)'] || row['Sotish narx ($)'] || row['Sotish narxi'] || row['sotish narxi'] || row['Sotish narx'] || row['sotish narx'] || row['Sotuv narxi'] || row['sotuv narxi'] || 0;
                     
                     // Agar string bo'lsa, vergulni nuqtaga almashtirish
                     if (typeof costPriceRaw === 'string') {
@@ -911,7 +912,8 @@
                     const costPrice = parseFloat(costPriceRaw) || 0;
                     const sellPrice = parseFloat(sellPriceRaw) || 0;
                     
-                    console.log(`📝 Olingan ma'lumotlar: Nomi="${name}", Miqdor=${quantity}, MinStock=${minStock}, TanNarx=${costPrice}, SotishNarx=${sellPrice}`);
+                    console.log(`� Qator ${index + 2} ustunlari:`, Object.keys(row));
+                    console.log(`📝 Olingan ma'lumotlar: Nomi="${name}", Barcode="${barcode}", Miqdor=${quantity}, MinStock=${minStock}, TanNarx=${costPrice}, SotishNarx=${sellPrice}`);
                     console.log(`💰 Hisoblangan qiymatlar: Foyda=${sellPrice - costPrice}, UmumiyQiymat=${costPrice * quantity}`);
 
                     // Majburiy maydonlarni tekshirish
@@ -974,7 +976,7 @@
                     const tempProduct = {
                         id: Date.now() + Math.random(),
                         name: name.trim(),
-                        barcode: '', // Barkod Excel'da yo'q, bo'sh qoldirish
+                        barcode: barcode ? String(barcode).trim() : '', // Barcode ni string sifatida saqlash
                         sell_price: sellPrice,
                         cost_price: costPrice,
                         quantity: quantity,
