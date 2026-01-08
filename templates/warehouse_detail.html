@@ -4,137 +4,147 @@
 
 {% block extra_css %}
 <style>
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        border-left: 4px solid;
+    }
+
+    .info-card h3 {
+        margin: 0 0 1rem 0;
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .info-card .value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .card-1 { border-left-color: #3498db; }
+    .card-2 { border-left-color: #e74c3c; }
+    .card-3 { border-left-color: #f39c12; }
+    .card-4 { border-left-color: #27ae60; }
+    .card-5 { border-left-color: #9b59b6; }
+    .card-6 { border-left-color: #1abc9c; }
+
+    /* Responsive grid */
+    @media (max-width: 1200px) {
         .info-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(3, 1fr);
         }
+    }
 
-        .info-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            border-left: 4px solid;
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+    }
 
-        .info-card h3 {
-            margin: 0 0 1rem 0;
-            font-size: 0.9rem;
-            color: #666;
-            font-weight: 500;
+    @media (max-width: 480px) {
+        .info-grid {
+            grid-template-columns: 1fr;
         }
+    }
 
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem 1rem;
+        background: white;
+        border-top: 1px solid #e9ecef;
+        margin-top: 0;
+    }
+
+    #paginationButtons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .pagination-btn {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .pagination-btn:hover:not(.active) {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+    }
+
+    .pagination-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        font-weight: 600;
+    }
+
+    .pagination-dots {
+        padding: 0.5rem 0.25rem;
+        color: #6c757d;
+        font-weight: bold;
+    }
+
+    /* Table responsive */
+    @media (max-width: 768px) {
         .info-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 0;
-            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .info-card h3 {
+            font-size: 0.8rem;
         }
 
-        .card-1 { border-left-color: #3498db; }
-        .card-2 { border-left-color: #e74c3c; }
-        .card-3 { border-left-color: #f39c12; }
-        .card-4 { border-left-color: #27ae60; }
-        .card-5 { border-left-color: #9b59b6; }
-        .card-6 { border-left-color: #1abc9c; }
-
-        /* Responsive grid */
-        @media (max-width: 1200px) {
-            .info-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+        /* Mobile pagination */
+        .pagination {
+            padding: 1rem 0.5rem;
         }
 
-        @media (max-width: 768px) {
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        #paginationButtons {
+            gap: 0.25rem;
         }
 
-        @media (max-width: 480px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Pagination CSS */
         .pagination-btn {
-            background: #ffffff;
-            color: #3498db;
-            border: 1px solid #3498db;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-            min-width: 36px;
-            text-align: center;
-        }
-
-        .pagination-btn:hover {
-            background: #3498db;
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .pagination-btn.active {
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-        }
-
-        .pagination-btn:disabled {
-            background: #f5f5f5;
-            color: #999;
-            cursor: not-allowed;
-            border-color: #ddd;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            min-width: 35px;
         }
 
         .pagination-dots {
-            padding: 8px 4px;
-            color: #666;
-            font-weight: bold;
+            padding: 0.4rem 0.15rem;
         }
+    }
 
-        /* Spinner animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Table responsive */
-        @media (max-width: 768px) {
-            .info-card .value {
-                font-size: 1.5rem;
-            }
-            
-            .info-card h3 {
-                font-size: 0.8rem;
-            }
-            
-            #pagination-container {
-                flex-direction: column;
-                gap: 0.5rem;
-                text-align: center;
-            }
-            
-            .pagination-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-                min-width: 32px;
-            }
-            
-            #pagination-info {
-                font-size: 14px;
-            }
-        }
+    /* Spinner animation */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 
     /* Search highlight styles */
     .search-highlight {
@@ -143,23 +153,23 @@
         border-radius: 2px;
         font-weight: bold;
     }
-    </style>
+</style>
 {% endblock %}
 
 {% block content %}
 <!-- Content Header -->
 <div class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
-    <div style="flex: 1;">
-        <h1 style="margin: 0 0 8px 0;">🏭 {{ warehouse.name }}</h1>
-        <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #666;">
+    <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap; flex: 1;">
+        <h1 style="margin: 0;">� {{ warehouse.name }}</h1>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 16px; color: #666;">
             <span style="display: flex; align-items: center; gap: 5px;">
-                <span style="color: #3498db;">📍</span>{{ warehouse.address or 'Manzil belgilanmagan' }}
+                <span style="color: #3498db; font-size: 20px;">📍</span>{{ warehouse.address or 'Manzil belgilanmagan' }}
             </span>
             <span style="display: flex; align-items: center; gap: 5px;">
-                <span style="color: #3498db;">👤</span>{{ warehouse.manager_name or 'Mas\'ul belgilanmagan' }}
+                <span style="color: #3498db; font-size: 20px;">👤</span>{{ warehouse.manager_name or 'Mas\'ul belgilanmagan' }}
             </span>
             <span style="display: flex; align-items: center; gap: 5px;">
-                <span style="color: #3498db;">📞</span>{{ warehouse.phone or 'Telefon belgilanmagan' }}
+                <span style="color: #3498db; font-size: 20px;">📞</span>{{ warehouse.phone or 'Telefon belgilanmagan' }}
             </span>
         </div>
     </div>
@@ -200,311 +210,316 @@
 </div>
 
 <!-- Mahsulotlar jadvali -->
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
-            <div style="overflow-x: auto;">
-                <div class="search-container" style="padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
-                    <input type="text" id="search-input" class="search-box" placeholder="Qidirish..." onkeyup="filterTable()" style="width: 500px !important; max-width: 500px; border-radius: 25px; padding: 12px 20px; border: 2px solid #ddd;">
-                    <select id="status-filter" class="filter-select" onchange="handleFilterChange()" style="border-radius: 20px; padding: 10px 15px;">
-                        <option value="">Barcha holatlar</option>
-                        <option value="normal">Yetarli</option>
-                        <option value="low">Kam qolgan</option>
-                        <option value="critical">Tugagan</option>
-                    </select>
-                    <button onclick="exportToExcel()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; transition: background 0.3s;" onmouseover="this.style.background='#229954'" onmouseout="this.style.background='#27ae60'">
-                        📗 Excel
-                    </button>
-                </div>
-                
-                <table id="stock-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Mahsulot nomi</th>
-                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Miqdor</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Asl tan narx</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Tan narx</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Sotish narx</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Birlik foyda</th>
-                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Foyda foiz</th>
-                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Holat</th>
-                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Amallar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                    <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                                    Ma'lumotlar yuklanmoqda...
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Pagination -->
-                <div id="pagination-container" style="padding: 1rem; background: #f8f9fa; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div id="pagination-info" style="font-weight: 500; color: #666;">
-                        <!-- Pagination ma'lumotlari bu yerga yuklanadi -->
-                    </div>
-                    <div id="pagination-buttons" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <!-- Pagination tugmalari bu yerda bo'ladi -->
-                    </div>
-                </div>
-            </div>
+<div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="overflow-x: auto;">
+        <div class="search-container" style="padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
+            <input type="text" id="search-input" class="search-box" placeholder="Qidirish..." onkeyup="filterTable()" style="width: 500px !important; max-width: 500px; border-radius: 25px; padding: 12px 20px; border: 2px solid #ddd;">
+            <select id="status-filter" class="filter-select" onchange="handleFilterChange()" style="border-radius: 20px; padding: 10px 15px;">
+                <option value="">Barcha holatlar</option>
+                <option value="normal">Yetarli</option>
+                <option value="low">Kam qolgan</option>
+                <option value="critical">Tugagan</option>
+            </select>
+            <button onclick="exportToExcel()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; transition: background 0.3s;" onmouseover="this.style.background='#229954'" onmouseout="this.style.background='#27ae60'">
+                📗 Excel
+            </button>
         </div>
-    </div>
-
-    <!-- SheetJS kutubxonasi Excel eksport uchun -->
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <script>
-        let searchTimeout;
-        let currentPage = 1;
-        let totalPages = 1;
-        const itemsPerPage = 50;
-        const warehouseId = {{ warehouse.id }};
-        let currentSearchTerm = ''; // Qidiruv matnini saqlash
-
-        // Qidiruv matnini ajratib ko'rsatish funksiyasi (har bir so'zni alohida)
-        function highlightSearchText(text, searchTerm) {
-            if (!searchTerm || searchTerm.trim() === '') {
-                return text;
-            }
-            
-            // Qidiruv so'zlarini ajratish
-            const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
-            if (searchWords.length === 0) return text;
-            
-            // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
-            const pattern = searchWords
-                .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-                .join('|');
-            
-            // Bir marta replace qilish - shunda HTML taglarga tegmaydi
-            const regex = new RegExp(`(${pattern})`, 'gi');
-            return text.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-
-        // DOM yuklanganida pagination sistemasini ishga tushirish
-        document.addEventListener('DOMContentLoaded', function() {
-            loadStockData(1, '');
-            
-            // Fokusni qidiruv maydoniga berish
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                setTimeout(() => searchInput.focus(), 300);
-            }
-        });
-
-        function loadStockData(page = 1, search = '', status = '') {
-            const tbody = document.querySelector('#stock-table tbody');
-            const paginationInfo = document.querySelector('#pagination-info');
-            const paginationButtons = document.querySelector('#pagination-buttons');
-            
-            // Qidiruv matnini saqlash
-            currentSearchTerm = search;
-            
-            // Yuklash indikatorini ko'rsatish
-            tbody.innerHTML = `
+        
+        <table id="stock-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 90px;">Barcode</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600;">Mahsulot nomi</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 80px;">Miqdor</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 110px;">Asl tan narx</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 100px;">Tan narx</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 100px;">Sotish narx</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 100px;">Birlik foyda</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 90px;">Foyda %</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; border-right: 1px solid #2196F3; font-weight: 600; width: 110px;">Holat</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 230px;">Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
                 <tr>
-                    <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
+                    <td colspan="10" style="text-align: center; color: #666; padding: 2rem;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                             <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
                             Ma'lumotlar yuklanmoqda...
                         </div>
                     </td>
                 </tr>
-            `;
+            </tbody>
+        </table>
 
-            // API so'rovi
-            const params = new URLSearchParams({
-                page: page,
-                per_page: itemsPerPage,
-                search: search,
-                status: status
-            });
+        <!-- Pagination -->
+        <div id="pagination-container" style="padding: 1rem; background: #f8f9fa; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div id="pagination-info" style="font-weight: 500; color: #666;">
+                <!-- Pagination ma'lumotlari bu yerga yuklanadi -->
+            </div>
+            <div id="pagination-buttons" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <!-- Pagination tugmalari bu yerda bo'ladi -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-            fetch(`/api/warehouse/${warehouseId}/stock?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayStockData(data);
-                        updatePaginationButtons(data.pagination.page, data.pagination.total_pages, data.pagination.total);
-                        currentPage = data.pagination.page;
-                        totalPages = data.pagination.total_pages;
-                    } else {
-                        throw new Error(data.error || 'API xatolik');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ma\'lumotlarni yuklashda xatolik:', error);
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="9" style="text-align: center; color: #e74c3c; padding: 2rem;">
-                                Ma'lumotlarni yuklashda xatolik yuz berdi. Sahifani yangilang.
-                            </td>
-                        </tr>
-                    `;
-                });
+{% block extra_js %}
+<!-- SheetJS kutubxonasi Excel eksport uchun -->
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+    let searchTimeout;
+    let currentPage = 1;
+    let totalPages = 1;
+    const itemsPerPage = 50;
+    const warehouseId = {{ warehouse.id }};
+    let currentSearchTerm = ''; // Qidiruv matnini saqlash
+
+    // Qidiruv matnini ajratib ko'rsatish funksiyasi (har bir so'zni alohida)
+    function highlightSearchText(text, searchTerm) {
+        if (!searchTerm || searchTerm.trim() === '') {
+            return text;
         }
+        
+        // Qidiruv so'zlarini ajratish
+        const searchWords = searchTerm.trim().split(/\s+/).filter(word => word.length > 0);
+        if (searchWords.length === 0) return text;
+        
+        // Barcha so'zlarni bitta regex pattern ga birlashtirish (alternation)
+        const pattern = searchWords
+            .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|');
+        
+        // Bir marta replace qilish - shunda HTML taglarga tegmaydi
+        const regex = new RegExp(`(${pattern})`, 'gi');
+        return text.replace(regex, '<span class="search-highlight">$1</span>');
+    }
 
-        function displayStockData(data) {
-            const tbody = document.querySelector('#stock-table tbody');
-            const stockInfo = data.data.stock_info || [];
-            
-            if (stockInfo.length === 0) {
+    // DOM yuklanganida pagination sistemasini ishga tushirish
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStockData(1, '');
+        
+        // Fokusni qidiruv maydoniga berish
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            setTimeout(() => searchInput.focus(), 300);
+        }
+    });
+
+    function loadStockData(page = 1, search = '', status = '') {
+        const tbody = document.querySelector('#stock-table tbody');
+        const paginationInfo = document.querySelector('#pagination-info');
+        const paginationButtons = document.querySelector('#pagination-buttons');
+        
+        // Qidiruv matnini saqlash
+        currentSearchTerm = search;
+        
+        // Yuklash indikatorini ko'rsatish
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        Ma'lumotlar yuklanmoqda...
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        // API so'rovi
+        const params = new URLSearchParams({
+            page: page,
+            per_page: itemsPerPage,
+            search: search,
+            status: status
+        });
+
+        fetch(`/api/warehouse/${warehouseId}/stock?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayStockData(data);
+                    updatePaginationButtons(data.pagination.page, data.pagination.total_pages, data.pagination.total);
+                    currentPage = data.pagination.page;
+                    totalPages = data.pagination.total_pages;
+                } else {
+                    throw new Error(data.error || 'API xatolik');
+                }
+            })
+            .catch(error => {
+                console.error('Ma\'lumotlarni yuklashda xatolik:', error);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
-                            Mahsulotlar topilmadi
+                        <td colspan="10" style="text-align: center; color: #e74c3c; padding: 2rem;">
+                            Ma'lumotlarni yuklashda xatolik yuz berdi. Sahifani yangilang.
                         </td>
                     </tr>
                 `;
-                return;
-            }
+            });
+    }
 
-            tbody.innerHTML = stockInfo.map(item => {
-                // Mahsulot nomini highlight qilish
-                const highlightedName = highlightSearchText(item.stock.product.name, currentSearchTerm);
-                
-                return `
-                <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
-                    <td style="padding: 12px; text-align: left;"><strong>${highlightedName}</strong></td>
-                    <td style="padding: 12px; text-align: center; font-weight: bold;">${item.stock.quantity}</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #9b59b6;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #3498db;">$${item.stock.product.cost_price.toFixed(2)}</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold;">$${item.stock.product.sell_price.toFixed(2)}</td>
-                    <td style="padding: 12px; text-align: right; color: #27ae60; font-weight: bold;">$${item.unit_profit.toFixed(2)}</td>
-                    <td style="padding: 12px; text-align: center; color: #3498db; font-weight: bold;">${item.profit_percentage.toFixed(1)}%</td>
-                    <td style="padding: 12px; text-align: center;">
-                        ${item.status === 'critical' ? '<span style="color: #000000; font-weight: bold;">🚫 Tugagan</span>' :
-                          item.status === 'low' ? '<span style="color: #e74c3c; font-weight: bold;">⚠️ Kam qolgan</span>' :
-                          '<span style="color: #27ae60; font-weight: bold;">✓ Yetarli</span>'}
-                    </td>
-                    <td class="actions" style="padding: 12px; text-align: center;">
-                        <a href="/edit_stock/${warehouseId}/${item.stock.product.id}" 
-                           style="background: #3498db; color: white; padding: 6px 12px; border: none; border-radius: 4px; 
-                                  cursor: pointer; font-size: 12px; font-weight: 500; text-decoration: none; 
-                                  display: inline-block; margin: 2px; transition: all 0.3s ease; min-width: 95px;"
-                           onmouseover="this.style.background='#2980b9'" 
-                           onmouseout="this.style.background='#3498db'">✏️ Tahrirlash</a>
-                        <button onclick="deleteStock(${warehouseId}, ${item.stock.product.id}, this)" 
-                                data-product-name="${item.stock.product.name}"
-                                style="background: #e74c3c; color: white; padding: 6px 12px; border: none; border-radius: 4px; 
-                                       cursor: pointer; font-size: 12px; font-weight: 500; text-decoration: none; 
-                                       display: inline-block; margin: 2px; transition: all 0.3s ease; min-width: 95px;"
-                                onmouseover="this.style.background='#c0392b'" 
-                                onmouseout="this.style.background='#e74c3c'">🗑️ O'chirish</button>
+    function displayStockData(data) {
+        const tbody = document.querySelector('#stock-table tbody');
+        const stockInfo = data.data.stock_info || [];
+        
+        if (stockInfo.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" style="text-align: center; color: #666; padding: 2rem;">
+                        Mahsulotlar topilmadi
                     </td>
                 </tr>
             `;
-            }).join('');
+            return;
         }
 
-        function updatePaginationButtons(currentPage, totalPages, totalItems) {
-            const paginationInfo = document.querySelector('#pagination-info');
-            const paginationButtons = document.querySelector('#pagination-buttons');
+        tbody.innerHTML = stockInfo.map(item => {
+            // Mahsulot nomini highlight qilish
+            const highlightedName = highlightSearchText(item.stock.product.name, currentSearchTerm);
             
-            // Ma'lumot ko'rsatish
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-            paginationInfo.textContent = `${startItem}-${endItem} / ${totalItems} ta mahsulot`;
-            
-            // Pagination tugmalarini yaratish
-            let buttonsHTML = '';
-            
-            // Oldingi sahifa tugmasi
-            if (currentPage > 1) {
-                buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">‹ Oldingi</button>`;
-            }
-            
-            // Sahifa raqamlari
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(totalPages, currentPage + 2);
-            
-            for (let i = startPage; i <= endPage; i++) {
-                const activeClass = i === currentPage ? 'active' : '';
-                buttonsHTML += `<button onclick="loadStockData(${i}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn ${activeClass}">${i}</button>`;
-            }
-            
-            // Keyingi sahifa tugmasi
-            if (currentPage < totalPages) {
-                buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">Keyingi ›</button>`;
-            }
-            
-            paginationButtons.innerHTML = buttonsHTML;
-        }
+            return `
+            <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; color: #666; font-family: monospace; width: 90px;">${item.stock.product.barcode || '-'}</td>
+                <td style="padding: 5px; text-align: left; border-right: 1px solid #2196F3;"><strong>${highlightedName}</strong></td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; font-weight: bold; width: 80px;">${item.stock.quantity}</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; font-weight: bold; color: #9b59b6; width: 110px;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; font-weight: bold; color: #3498db; width: 100px;">$${item.stock.product.cost_price.toFixed(2)}</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; font-weight: bold; width: 100px;">$${item.stock.product.sell_price.toFixed(2)}</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; color: #27ae60; font-weight: bold; width: 100px;">$${item.unit_profit.toFixed(2)}</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; color: #3498db; font-weight: bold; width: 90px;">${item.profit_percentage.toFixed(1)}%</td>
+                <td style="padding: 5px; text-align: center; border-right: 1px solid #2196F3; width: 110px;">
+                    ${item.status === 'critical' ? '<span style="color: #000000; font-weight: bold;">🚫 Tugagan</span>' :
+                      item.status === 'low' ? '<span style="color: #e74c3c; font-weight: bold;">⚠️ Kam qolgan</span>' :
+                      '<span style="color: #27ae60; font-weight: bold;">✓ Yetarli</span>'}
+                </td>
+                <td class="actions" style="padding: 5px; text-align: center; width: 230px;">
+                    <a href="/edit_warehouse_stock/${warehouseId}/${item.stock.product.id}" 
+                       style="background: #3498db; color: white; padding: 6px 12px; border: none; border-radius: 4px; 
+                              cursor: pointer; font-size: 12px; font-weight: 500; text-decoration: none; 
+                              display: inline-block; margin: 2px; transition: all 0.3s ease; min-width: 95px;"
+                       onmouseover="this.style.background='#2980b9'" 
+                       onmouseout="this.style.background='#3498db'">✏️ Tahrirlash</a>
+                    <button onclick="deleteStock(${warehouseId}, ${item.stock.product.id}, this)" 
+                            data-product-name="${item.stock.product.name}"
+                            style="background: #e74c3c; color: white; padding: 6px 12px; border: none; border-radius: 4px; 
+                                   cursor: pointer; font-size: 12px; font-weight: 500; text-decoration: none; 
+                                   display: inline-block; margin: 2px; transition: all 0.3s ease; min-width: 95px;"
+                            onmouseover="this.style.background='#c0392b'" 
+                            onmouseout="this.style.background='#e74c3c'">🗑️ O'chirish</button>
+                </td>
+            </tr>
+        `;
+        }).join('');
+    }
 
-        // Qidiruv funksiyasi (debounce bilan)
-        function filterTable() {
-            const searchValue = document.querySelector('#search-input').value;
-            const statusValue = document.querySelector('#status-filter').value;
-            
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                loadStockData(1, searchValue, statusValue);
-            }, 300);
+    function updatePaginationButtons(currentPage, totalPages, totalItems) {
+        const paginationInfo = document.querySelector('#pagination-info');
+        const paginationButtons = document.querySelector('#pagination-buttons');
+        
+        // Ma'lumot ko'rsatish
+        const startItem = (currentPage - 1) * itemsPerPage + 1;
+        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+        paginationInfo.textContent = `${startItem}-${endItem} / ${totalItems} ta mahsulot`;
+        
+        // Pagination tugmalarini yaratish
+        let buttonsHTML = '';
+        
+        // Oldingi sahifa tugmasi
+        if (currentPage > 1) {
+            buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">‹ Oldingi</button>`;
         }
+        
+        // Sahifa raqamlari
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === currentPage ? 'active' : '';
+            buttonsHTML += `<button onclick="loadStockData(${i}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn ${activeClass}">${i}</button>`;
+        }
+        
+        // Keyingi sahifa tugmasi
+        if (currentPage < totalPages) {
+            buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">Keyingi ›</button>`;
+        }
+        
+        paginationButtons.innerHTML = buttonsHTML;
+    }
 
-        // Filter o'zgarishida darhol qidirish
-        function handleFilterChange() {
-            const searchValue = document.querySelector('#search-input').value;
-            const statusValue = document.querySelector('#status-filter').value;
+    // Qidiruv funksiyasi (debounce bilan)
+    function filterTable() {
+        const searchValue = document.querySelector('#search-input').value;
+        const statusValue = document.querySelector('#status-filter').value;
+        
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
             loadStockData(1, searchValue, statusValue);
+        }, 300);
+    }
+
+    // Filter o'zgarishida darhol qidirish
+    function handleFilterChange() {
+        const searchValue = document.querySelector('#search-input').value;
+        const statusValue = document.querySelector('#status-filter').value;
+        loadStockData(1, searchValue, statusValue);
+    }
+
+    // Excel export funksiyasi
+    function exportToExcel() {
+        // XLSX kutubxonasi yuklanganini tekshirish
+        if (typeof XLSX === 'undefined') {
+            alert('❌ Excel kutubxonasi yuklanmagan!\n\nSahifani qayta yuklang yoki internet ulanishingizni tekshiring.');
+            return;
         }
 
-        // Excel export funksiyasi
-        function exportToExcel() {
-            if (typeof XLSX === 'undefined') {
-                alert('❌ Excel kutubxonasi yuklanmagan!');
+        try {
+            const table = document.getElementById('stock-table');
+            if (!table) {
+                alert('❌ Jadval topilmadi!');
                 return;
             }
 
-            try {
-                const table = document.getElementById('stock-table');
-                if (!table) {
-                    alert('❌ Jadval topilmadi!');
-                    return;
+            const ws = XLSX.utils.table_to_sheet(table);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ombor ma'lumotlari");
+            XLSX.writeFile(wb, "{{ warehouse.name }}_mahsulotlar.xlsx");
+            
+            console.log('✅ Excel fayl muvaffaqiyatli eksport qilindi');
+        } catch (error) {
+            console.error('Excel eksport xatoligi:', error);
+            alert('❌ Excel faylni eksport qilishda xatolik yuz berdi!\n\nXatolik: ' + error.message);
+        }
+    }
+
+    // Mahsulotni o'chirish funksiyasi
+    function deleteStock(warehouseId, productId, button) {
+        const productName = button.getAttribute('data-product-name');
+        if (confirm(`Haqiqatan ham "${productName}" mahsulotini bu ombordan o'chirmoqchimisiz?`)) {
+            fetch(`/api/warehouse_stock/${warehouseId}/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
                 }
-
-                const ws = XLSX.utils.table_to_sheet(table);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Ombor ma'lumotlari");
-                XLSX.writeFile(wb, "{{ warehouse.name }}_mahsulotlar.xlsx");
-                
-                console.log('✅ Excel fayl muvaffaqiyatli eksport qilindi');
-            } catch (error) {
-                console.error('Excel eksport xatoligi:', error);
-                alert('❌ Excel faylni eksport qilishda xatolik yuz berdi!');
-            }
+            })
+            .then(response => response.json().then(data => ({status: response.status, data: data})))
+            .then(result => {
+                if (result.status === 200) {
+                    // Joriy sahifani qayta yuklash
+                    const searchValue = document.querySelector('#search-input').value;
+                    const statusValue = document.querySelector('#status-filter').value;
+                    loadStockData(currentPage, searchValue, statusValue);
+                    alert('✅ ' + result.data.message);
+                } else {
+                    throw new Error(result.data.error || 'O\'chirishda xatolik');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Mahsulotni o\'chirishda xatolik yuz berdi!\n\n' + error.message);
+            });
         }
-
-        // Mahsulotni o'chirish funksiyasi
-        function deleteStock(warehouseId, productId, button) {
-            const productName = button.getAttribute('data-product-name');
-            if (confirm(`Haqiqatan ham "${productName}" mahsulotini bu ombordan o'chirmoqchimisiz?`)) {
-                fetch(`/api/warehouse_stock/${warehouseId}/${productId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Joriy sahifani qayta yuklash
-                        const searchValue = document.querySelector('#search-input').value;
-                        const statusValue = document.querySelector('#status-filter').value;
-                        loadStockData(currentPage, searchValue, statusValue);
-                        alert('Mahsulot muvaffaqiyatli o\'chirildi!');
-                    } else {
-                        throw new Error('O\'chirishda xatolik');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Mahsulotni o\'chirishda xatolik yuz berdi!');
-                });
-            }
-        }
-    </script>
+    }
+</script>
 {% endblock %}
