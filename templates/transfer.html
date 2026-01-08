@@ -312,8 +312,8 @@
                 <input type="text" 
                        id="productSearch" 
                        class="search-input" 
-                       placeholder="🔍 Mahsulot qidirish... (Enter - qidirish, Esc - tozalash, ↑↓ - navigatsiya)" 
-                       onkeyup="filterProducts()"
+                       placeholder="🔍 Mahsulot qidirish... (Ctrl+F - fokus, Enter - tanlash)" 
+                       oninput="filterProducts()"
                        onkeydown="handleProductSearchKeydown(event)"
                        autofocus>
             </div>
@@ -639,11 +639,9 @@
         renderProducts(filtered);
     }
 
-    // Klaviatura navigatsiyasi
+    // Klaviatura navigatsiyasi - soddaroq yondashuv
     function handleProductSearchKeydown(event) {
         const searchInput = document.getElementById('productSearch');
-        const cursorPosition = searchInput.selectionStart;
-        const inputLength = searchInput.value.length;
         const tbody = document.getElementById('productsTableBody');
         const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => 
             row.style.display !== 'none' && !row.querySelector('.empty-state')
@@ -652,33 +650,10 @@
         if (visibleRows.length === 0) return;
 
         switch(event.key) {
-            case 'ArrowDown':
-                // Faqat cursor oxirida yoki input bo'sh bo'lsa
-                if (cursorPosition === inputLength) {
-                    event.preventDefault();
-                    selectedProductIndex = Math.min(selectedProductIndex + 1, visibleRows.length - 1);
-                    highlightRow(visibleRows);
-                }
-                break;
-
-            case 'ArrowUp':
-                // Faqat cursor boshida yoki input bo'sh bo'lsa
-                if (cursorPosition === 0) {
-                    event.preventDefault();
-                    selectedProductIndex = Math.max(selectedProductIndex - 1, 0);
-                    highlightRow(visibleRows);
-                }
-                break;
-
             case 'Enter':
                 event.preventDefault();
-                if (selectedProductIndex >= 0 && selectedProductIndex < visibleRows.length) {
-                    const button = visibleRows[selectedProductIndex].querySelector('button');
-                    if (button && !button.disabled) {
-                        button.click();
-                    }
-                } else if (visibleRows.length === 1) {
-                    // Agar faqat bitta natija bo'lsa, avtomatik tanlash
+                // Faqat 1 ta natija bo'lsa, avtomatik tanlash
+                if (visibleRows.length === 1) {
                     const button = visibleRows[0].querySelector('button');
                     if (button && !button.disabled) {
                         button.click();
@@ -688,32 +663,9 @@
 
             case 'Escape':
                 event.preventDefault();
-                document.getElementById('productSearch').value = '';
+                searchInput.value = '';
                 filterProducts();
-                selectedProductIndex = -1;
                 break;
-        }
-    }
-
-    // Qatorni highlight qilish
-    function highlightRow(rows) {
-        // Barcha highlight'larni olib tashlash
-        rows.forEach(row => {
-            row.style.background = '';
-            row.style.boxShadow = '';
-        });
-
-        // Tanlangan qatorni highlight qilish
-        if (selectedProductIndex >= 0 && selectedProductIndex < rows.length) {
-            const selectedRow = rows[selectedProductIndex];
-            selectedRow.style.background = '#e3f2fd';
-            selectedRow.style.boxShadow = 'inset 3px 0 0 #2196f3';
-            
-            // Scroll into view
-            selectedRow.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
-            });
         }
     }
 
