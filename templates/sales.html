@@ -1950,6 +1950,9 @@
             document.getElementById('universalSearch').value = '';
             filterProducts();
             clearProductSelection();
+        } else if (productId && quantity <= 0) {
+            console.log('⛔ Mahsulot miqdori 0:', { productId, productName });
+            alert('Bu mahsulot miqdori 0, shuning uchun uni sotib bo\'lmaydi');
         } else {
             console.error('❌ Mahsulot ma\'lumotlari noto\'g\'ri:', { productId, quantity, price });
             alert('Mahsulot ma\'lumotlarini olishda xatolik!');
