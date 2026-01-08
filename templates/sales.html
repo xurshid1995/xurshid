@@ -888,10 +888,10 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '🔴' : '➡️';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
-                const opacity = quantity <= 0 ? '0.5' : '1';
+                const opacity = quantity <= 0 ? '0.8' : '1';
                 
                 row.innerHTML = `
                     <td style="padding: 12px 8px; font-size: 14px; color: #333;" data-original-text="${productName}" title="${productName}">${productName}</td>
