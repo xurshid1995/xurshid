@@ -1316,7 +1316,14 @@
         }
 
         // Mahsulot qidirish - dropdown uslubida (maydon ostida)
+        let searchTimeout;  // Debounce uchun
+        
         function searchProduct() {
+            // Avvalgi timeout'ni bekor qilish
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
             const productName = document.getElementById('product_name').value.trim();
             const locationSelect = document.getElementById('location');
             const selectedLocation = locationSelect.value;
@@ -1325,19 +1332,13 @@
             // Qidiruv yangilanganda selectedProductIndex ni qayta o'rnatish
             selectedProductIndex = -1;
             
-            console.log('=== QIDIRUV BOSHLANDI ===');
-            console.log('📝 Mahsulot nomi:', productName);
-            console.log('📍 Joylashuv select value:', selectedLocation);
-            console.log('📍 Joylashuv select options:', locationSelect.options.length);
-            
+            // Minimum uzunlik tekshiruvi
             if (productName.length < 2) {
-                console.log('⚠️ Mahsulot nomi 2 ta belgidan kam');
                 resultDiv.style.display = 'none';
                 return;
             }
             
             if (!selectedLocation) {
-                console.log('⚠️ Joylashuv tanlanmagan!');
                 resultDiv.innerHTML = `
                     <div style="padding: 15px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 1rem;">
                         <strong>⚠️ Diqqat!</strong> Iltimos, avval joylashuvni tanlang
@@ -1346,6 +1347,29 @@
                 resultDiv.style.display = 'block';
                 return;
             }
+            
+            // Loading ko'rsatish
+            resultDiv.innerHTML = `
+                <div style="padding: 15px; background: #e7f3ff; color: #0066cc; border-radius: 4px; font-size: 1rem; text-align: center;">
+                    <strong>🔍 Qidirilmoqda...</strong>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+            
+            // Debounce - 300ms kutish
+            searchTimeout = setTimeout(() => {
+                performSearch(productName, selectedLocation, locationSelect, resultDiv);
+            }, 300);
+        }
+        
+        // Asl qidiruv funksiyasi
+        function performSearch(productName, selectedLocation, locationSelect, resultDiv) {
+            console.log('=== QIDIRUV BOSHLANDI ===');
+            console.log('📝 Mahsulot nomi:', productName);
+            console.log('📍 Joylashuv select value:', selectedLocation);
+            console.log('=== QIDIRUV BOSHLANDI ===');
+            console.log('📝 Mahsulot nomi:', productName);
+            console.log('📍 Joylashuv select value:', selectedLocation);
             
             console.log(`🔍 "${productName}" qidirilmoqda...`);
             console.log(`📍 Tanlangan joylashuv: "${selectedLocation}"`);

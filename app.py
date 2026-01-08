@@ -1934,35 +1934,32 @@ def get_product_history():
 def search_product(product_name):
     """Mahsulot nomiga qarab joylashuvlarini topish (partial search)"""
     try:
-        logger.debug(f" Qidiruv so'rovi: '{product_name}'")
+        logger.debug(f"🔍 Qidiruv so'rovi: '{product_name}'")
 
-        # Qisman qidiruv uchun LIKE dan foydalanish - ko'p mahsulot qaytarish
+        # Optimized query - eager loading va limit
         products = Product.query.filter(
             Product.name.ilike(f'%{product_name}%')
-        ).all()
+        ).options(
+            db.joinedload(Product.warehouse_stocks).joinedload(WarehouseStock.warehouse),
+            db.joinedload(Product.store_stocks).joinedload(StoreStock.store)
+        ).limit(10).all()  # Faqat birinchi 10 ta natija
 
         if not products:
-            logger.error(f" Mahsulot topilmadi: '{product_name}'")
+            logger.debug(f"❌ Mahsulot topilmadi: '{product_name}'")
             return jsonify({'exists': False})
 
-        logger.info(f" Mahsulotlar topildi: {len(products)} ta")
+        logger.info(f"✅ {len(products)} ta mahsulot topildi")
 
         products_data = []
 
         for product in products:
-            logger.debug(f" Mahsulot: '{product.name}'")
 
             locations = []
             total_quantity = 0
 
-            # Omborlardan qidirish
-            warehouse_stocks = WarehouseStock.query.filter_by(
-                product_id=product.id
-            ).all()
-            logger.debug(f" Ombor stock'lari topildi: {len(warehouse_stocks)}")
-            for stock in warehouse_stocks:
-                print(f"   Ombor ID: {stock.warehouse_id}, Miqdor: {stock.quantity}")
-                # Miqdori nol bo'lgan omborlar ham ko'rsatiladi
+            # Eager-loaded relationships orqali foydalanish
+            # Omborlardan ma'lumot olish
+            for stock in product.warehouse_stocks:
                 locations.append({
                     'type': 'warehouse',
                     'name': stock.warehouse.name,
@@ -1971,13 +1968,8 @@ def search_product(product_name):
                 })
                 total_quantity += float(stock.quantity)
 
-            # Dokonlardan qidirish
-            store_stocks = StoreStock.query.filter_by(
-                product_id=product.id).all()
-            logger.debug(f" Dokon stock'lari topildi: {len(store_stocks)}")
-            for stock in store_stocks:
-                print(f"   Dokon ID: {stock.store_id}, Miqdor: {stock.quantity}")
-                # Miqdori nol bo'lgan dokonlar ham ko'rsatiladi
+            # Do'konlardan ma'lumot olish
+            for stock in product.store_stocks:
                 locations.append({
                     'type': 'store',
                     'name': stock.store.name,
