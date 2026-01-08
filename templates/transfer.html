@@ -687,6 +687,16 @@
     function addToTransferList() {
         console.log('🔵 addToTransferList called, currentProduct:', currentProduct);
         
+        // Qayerdan va Qayerga maydonlarini tekshirish
+        const fromLocation = document.getElementById('fromLocation').value;
+        const toLocation = document.getElementById('toLocation').value;
+        
+        if (!fromLocation || !toLocation) {
+            alert('Avval "Qayerdan" va "Qayerga" maydonlarini tanlang!');
+            closeModal();
+            return;
+        }
+        
         if (!currentProduct) {
             alert('Mahsulot tanlanmagan!');
             closeModal();
