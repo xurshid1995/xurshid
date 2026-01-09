@@ -2204,10 +2204,10 @@ def check_stock():
     return render_template('check_stock.html')
 
 
-@app.route('/api/locations')
+@app.route('/api/check_stock_locations')
 @role_required('admin', 'kassir', 'sotuvchi')
-def api_locations():
-    """Barcha do'konlar va omborlarni qaytarish"""
+def api_check_stock_locations():
+    """Qoldiqni tekshirish uchun barcha do'konlar va omborlarni qaytarish"""
     try:
         current_user = get_current_user()
         if not current_user:

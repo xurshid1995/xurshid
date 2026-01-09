@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Joylashuvlarni yuklash
 async function loadLocations() {
     try {
-        const response = await fetch('/api/locations');
+        const response = await fetch('/api/check_stock_locations');
         const data = await response.json();
         
         const select = document.getElementById('locationSelect');
