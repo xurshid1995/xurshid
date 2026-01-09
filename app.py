@@ -2320,20 +2320,19 @@ def api_check_stock_search():
             db.or_(
                 Product.name.ilike(f'%{query}%'),
                 Product.barcode.ilike(f'%{query}%')
-            ),
-            Product.is_deleted == False
+            )
         ).limit(50).all()
 
         products_data = []
         for product in products:
             # Joylashuvdagi qoldiqni olish
             if location_type == 'store':
-                stock = Stock.query.filter_by(
+                stock = StoreStock.query.filter_by(
                     product_id=product.id,
                     store_id=location_id
                 ).first()
             else:
-                stock = Stock.query.filter_by(
+                stock = WarehouseStock.query.filter_by(
                     product_id=product.id,
                     warehouse_id=location_id
                 ).first()
@@ -2373,9 +2372,9 @@ def api_check_stock_products():
 
         # Joylashuvdagi barcha mahsulotlarni olish
         if location_type == 'store':
-            stocks = Stock.query.filter_by(store_id=location_id).all()
+            stocks = StoreStock.query.filter_by(store_id=location_id).all()
         else:
-            stocks = Stock.query.filter_by(warehouse_id=location_id).all()
+            stocks = WarehouseStock.query.filter_by(warehouse_id=location_id).all()
 
         products_data = []
         for stock in stocks:
@@ -2386,7 +2385,7 @@ def api_check_stock_products():
                         'id': product.id,
                         'name': product.name,
                         'barcode': product.barcode,
-                        'price': float(product.price) if product.price else 0,
+                        'price': float(product.sell_price) if product.sell_price else 0,
                         'system_quantity': float(stock.quantity)
                     })
 
