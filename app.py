@@ -731,6 +731,41 @@ class StockCheckSession(db.Model):
         }
 
 
+# Tekshirilgan mahsulotlar modeli
+class StockCheckItem(db.Model):
+    __tablename__ = 'stock_check_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('stock_check_sessions.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    product_name = db.Column(db.String(200))  # Snapshot
+    system_quantity = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
+    actual_quantity = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
+    difference = db.Column(db.DECIMAL(precision=10, scale=2))
+    status = db.Column(db.String(20))  # 'normal', 'kamomad', 'ortiqcha'
+    checked_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    # Relationships
+    session = db.relationship('StockCheckSession', backref='items')
+    product = db.relationship('Product')
+
+    def __repr__(self):
+        return f'<StockCheckItem session={self.session_id} product={self.product_id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'session_id': self.session_id,
+            'product_id': self.product_id,
+            'product_name': self.product_name,
+            'system_quantity': float(self.system_quantity) if self.system_quantity else 0,
+            'actual_quantity': float(self.actual_quantity) if self.actual_quantity else 0,
+            'difference': float(self.difference) if self.difference else 0,
+            'status': self.status,
+            'checked_at': self.checked_at.isoformat() if self.checked_at else None
+        }
+
+
 # Sotish tarixi modeli
 class SaleItem(db.Model):
     __tablename__ = 'sale_items'
@@ -2445,6 +2480,122 @@ def api_check_stock_products():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+@app.route('/api/check_stock/add_item', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_check_stock_add_item():
+    """Tekshirilgan mahsulotni saqlash"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        data = request.get_json()
+        session_id = data.get('session_id')
+        product_id = data.get('product_id')
+        product_name = data.get('product_name')
+        system_quantity = data.get('system_quantity')
+        actual_quantity = data.get('actual_quantity')
+        difference = data.get('difference')
+        status = data.get('status')
+
+        if not session_id or not product_id:
+            return jsonify({'success': False, 'message': 'Ma\'lumotlar to\'liq emas'}), 400
+
+        # Allaqachon tekshirilganmi?
+        existing = StockCheckItem.query.filter_by(session_id=session_id, product_id=product_id).first()
+        if existing:
+            # Yangilash
+            existing.actual_quantity = actual_quantity
+            existing.difference = difference
+            existing.status = status
+            db.session.commit()
+            return jsonify({'success': True, 'item': existing.to_dict()})
+
+        # Yangi mahsulot qo'shish
+        item = StockCheckItem(
+            session_id=session_id,
+            product_id=product_id,
+            product_name=product_name,
+            system_quantity=system_quantity,
+            actual_quantity=actual_quantity,
+            difference=difference,
+            status=status
+        )
+        db.session.add(item)
+        db.session.commit()
+
+        # Session updated_at ni yangilash
+        session = StockCheckSession.query.get(session_id)
+        if session:
+            session.updated_at = db.func.current_timestamp()
+            db.session.commit()
+
+        return jsonify({'success': True, 'item': item.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error adding check item: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/check_stock/items/<int:session_id>')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_check_stock_items(session_id):
+    """Session'dagi barcha tekshirilgan mahsulotlarni olish"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        items = StockCheckItem.query.filter_by(session_id=session_id).all()
+        
+        items_data = []
+        for item in items:
+            product = Product.query.get(item.product_id)
+            items_data.append({
+                'id': item.product_id,
+                'name': item.product_name,
+                'barcode': product.barcode if product else '',
+                'price': float(product.sell_price) if product and product.sell_price else 0,
+                'system_quantity': float(item.system_quantity),
+                'actual_quantity': float(item.actual_quantity),
+                'difference': float(item.difference) if item.difference else 0,
+                'status': item.status
+            })
+
+        return jsonify({'success': True, 'items': items_data})
+    except Exception as e:
+        logger.error(f"Error loading check items: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/check_stock/remove_item', methods=['DELETE'])
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_check_stock_remove_item():
+    """Tekshirilgan mahsulotni o'chirish"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        data = request.get_json()
+        session_id = data.get('session_id')
+        product_id = data.get('product_id')
+
+        if not session_id or not product_id:
+            return jsonify({'success': False, 'message': 'Ma\'lumotlar to\'liq emas'}), 400
+
+        item = StockCheckItem.query.filter_by(session_id=session_id, product_id=product_id).first()
+        if item:
+            db.session.delete(item)
+            db.session.commit()
+
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error removing check item: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/api/check_stock/finish', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_check_stock_finish():
@@ -2456,23 +2607,24 @@ def api_check_stock_finish():
 
         data = request.get_json()
         session_id = data.get('session_id')
-        location_type = data.get('location_type')
-        location_id = data.get('location_id')
-        products = data.get('products', [])
 
-        if not session_id or not location_type or not location_id:
-            return jsonify({'success': False, 'message': 'Session ma\'lumotlari to\'liq emas'}), 400
+        if not session_id:
+            return jsonify({'success': False, 'message': 'Session ID topilmadi'}), 400
 
-        # Tekshiruv natijalarini saqlash (keyinchalik database'ga qo'shish kerak)
-        # Hozircha faqat muvaffaqiyatli yakunlanganini qaytaramiz
+        # Sessiyani yakunlash
+        session = StockCheckSession.query.get(session_id)
+        if session:
+            session.status = 'completed'
+            db.session.commit()
         
-        logger.info(f"Check stock finished: session={session_id}, location={location_type}_{location_id}, products={len(products)}")
+        logger.info(f"Check stock finished: session_id={session_id}, user={current_user.username}")
         
         return jsonify({
             'success': True,
             'message': 'Tekshiruv muvaffaqiyatli yakunlandi'
         })
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Error finishing check stock: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 

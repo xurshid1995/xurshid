@@ -216,7 +216,31 @@ let allProducts = [];
 // Sahifa yuklanganda mahsulotlarni yuklash
 document.addEventListener('DOMContentLoaded', function() {
     loadAllProducts();
+    loadCheckedProducts(); // Database'dan tekshirilgan mahsulotlarni yuklash
 });
+
+// Tekshirilgan mahsulotlarni database'dan yuklash
+async function loadCheckedProducts() {
+    try {
+        const response = await fetch(`/api/check_stock/items/${sessionId}`);
+        const data = await response.json();
+        
+        if (data.success && data.items.length > 0) {
+            checkedProducts = data.items;
+            
+            // Tekshirilgan mahsulotlarni chap jadvaldan o'chirish
+            data.items.forEach(checkedItem => {
+                allProducts = allProducts.filter(p => p.id !== checkedItem.id);
+            });
+            
+            displayProducts(allProducts);
+            updateCheckedTable();
+            updateCheckedCount();
+        }
+    } catch (error) {
+        console.error('Tekshirilgan mahsulotlarni yuklashda xatolik:', error);
+    }
+}
 
 // Barcha mahsulotlarni yuklash
 async function loadAllProducts() {
@@ -391,34 +415,66 @@ function closeModal() {
 }
 
 // Miqdorni saqlash
-function saveQuantity() {
+async function saveQuantity() {
     if (!currentProduct) return;
     
     const actualQuantity = parseFloat(document.getElementById('actualQuantityInput').value) || 0;
     
-    // Tekshirilganlarga qo'shish
+    // Xatolik va holatni hisoblash
     const difference = currentProduct.system_quantity - actualQuantity;
     let status = 'normal';
     if (difference > 0) status = 'kamomad';
     else if (difference < 0) status = 'ortiqcha';
     
-    checkedProducts.push({
+    const checkedItem = {
         id: currentProduct.id,
         name: currentProduct.name,
+        barcode: currentProduct.barcode || '',
         price: currentProduct.price,
         system_quantity: currentProduct.system_quantity,
         actual_quantity: actualQuantity,
         difference: difference,
         status: status
-    });
+    };
     
-    // Chap jadvaldan o'chirish
-    allProducts = allProducts.filter(p => p.id !== currentProduct.id);
-    displayProducts(allProducts);
-    
-    updateCheckedTable();
-    updateCheckedCount();
-    closeModal();
+    try {
+        // Database'ga saqlash
+        const response = await fetch('/api/check_stock/add_item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                product_id: currentProduct.id,
+                product_name: currentProduct.name,
+                system_quantity: currentProduct.system_quantity,
+                actual_quantity: actualQuantity,
+                difference: difference,
+                status: status
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Tekshirilganlarga qo'shish
+            checkedProducts.push(checkedItem);
+            
+            // Chap jadvaldan o'chirish
+            allProducts = allProducts.filter(p => p.id !== currentProduct.id);
+            displayProducts(allProducts);
+            
+            updateCheckedTable();
+            updateCheckedCount();
+            closeModal();
+        } else {
+            alert('Saqlashda xatolik: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Saqlash xatosi:', error);
+        alert('Saqlashda xatolik yuz berdi');
+    }
 }
 
 // Tekshirilganlar jadvalini yangilash
@@ -497,29 +553,52 @@ function updateActualQuantity(productId, actualQty) {
 }
 
 // Tekshirilganlardan o'chirish
-function removeFromChecked(productId) {
-    // O'chirilayotgan mahsulotni topish
-    const removedProduct = checkedProducts.find(p => p.id === productId);
-    
-    // Tekshirilganlardan o'chirish
-    checkedProducts = checkedProducts.filter(p => p.id !== productId);
-    
-    // Agar mahsulot topilsa, uni qayta chap jadvalga qo'shish
-    if (removedProduct) {
-        allProducts.push({
-            id: removedProduct.id,
-            name: removedProduct.name,
-            barcode: removedProduct.barcode || '',
-            price: removedProduct.price,
-            system_quantity: removedProduct.system_quantity
+async function removeFromChecked(productId) {
+    try {
+        // Database'dan o'chirish
+        const response = await fetch('/api/check_stock/remove_item', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                product_id: productId
+            })
         });
         
-        // Chap jadvalni yangilash
-        displayProducts(allProducts);
+        const data = await response.json();
+        
+        if (data.success) {
+            // O'chirilayotgan mahsulotni topish
+            const removedProduct = checkedProducts.find(p => p.id === productId);
+            
+            // Tekshirilganlardan o'chirish
+            checkedProducts = checkedProducts.filter(p => p.id !== productId);
+            
+            // Agar mahsulot topilsa, uni qayta chap jadvalga qo'shish
+            if (removedProduct) {
+                allProducts.push({
+                    id: removedProduct.id,
+                    name: removedProduct.name,
+                    barcode: removedProduct.barcode || '',
+                    price: removedProduct.price,
+                    system_quantity: removedProduct.system_quantity
+                });
+                
+                // Chap jadvalni yangilash
+                displayProducts(allProducts);
+            }
+            
+            updateCheckedTable();
+            updateCheckedCount();
+        } else {
+            alert('O\'chirishda xatolik: ' + data.message);
+        }
+    } catch (error) {
+        console.error('O\'chirish xatosi:', error);
+        alert('O\'chirishda xatolik yuz berdi');
     }
-    
-    updateCheckedTable();
-    updateCheckedCount();
 }
 
 // Tekshirilganlar sonini yangilash
@@ -545,10 +624,7 @@ async function finishCheck() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                session_id: sessionId,
-                location_type: locationType,
-                location_id: locationId,
-                products: checkedProducts
+                session_id: sessionId
             })
         });
         
