@@ -169,22 +169,50 @@ const sessionId = '{{ session_id }}';
 const locationType = '{{ location_type }}';
 const locationId = {{ location_id }};
 let checkedProducts = [];
+let allProducts = [];
 
-// Mahsulotni qidirish
-document.getElementById('searchInput').addEventListener('input', function(e) {
-    const query = e.target.value.trim();
-    if (query.length >= 2) {
-        searchProducts(query);
-    }
+// Sahifa yuklanganda mahsulotlarni yuklash
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllProducts();
 });
 
-// Enter tugmasi bosilganda qidirish
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = e.target.value.trim();
-        if (query) {
-            searchProducts(query);
+// Barcha mahsulotlarni yuklash
+async function loadAllProducts() {
+    try {
+        const response = await fetch(`/api/check_stock/products?location_type=${locationType}&location_id=${locationId}`);
+        const data = await response.json();
+        
+        if (data.success && data.products.length > 0) {
+            allProducts = data.products;
+            displayProducts(allProducts);
+        } else {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px 20px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">📦</div>
+                        <div>Mahsulotlar topilmadi</div>
+                    </td>
+                </tr>
+            `;
         }
+    } catch (error) {
+        console.error('Mahsulotlarni yuklashda xatolik:', error);
+        alert('Mahsulotlarni yuklashda xatolik yuz berdi');
+    }
+}
+
+// Mahsulotni qidirish
+document.getElementById('productSearch').addEventListener('input', function(e) {
+    const query = e.target.value.trim().toLowerCase();
+    if (query.length === 0) {
+        displayProducts(allProducts);
+    } else {
+        const filtered = allProducts.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            (p.barcode && p.barcode.toLowerCase().includes(query))
+        );
+        displayProducts(filtered);
     }
 });
 
@@ -207,9 +235,161 @@ async function searchProducts(query) {
 
 // Mahsulotlarni ko'rsatish
 function displayProducts(products) {
-    const tbody = document.getElementById('productsTable');
+    const tbody = document.getElementById('productsTableBody');
+    
+    if (products.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 40px 20px; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">🔍</div>
+                    <div>Mahsulot topilmadi</div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
     tbody.innerHTML = '';
     
+    products.forEach((product) => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        row.onclick = () => addToChecked(product);
+        
+        row.innerHTML = `
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
+                <strong>${product.name}</strong>
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                ${product.price ? product.price.toLocaleString() : '-'}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
+                    ${product.system_quantity}
+                </span>
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <button onclick="event.stopPropagation(); addToChecked(product)" 
+                        style="background: #28a745; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    ➕ Qo'shish
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Mahsulotni tekshirilganlarga qo'shish
+function addToChecked(product) {
+    // Avval tekshirilganlar ichida bormi deb tekshirish
+    const exists = checkedProducts.find(p => p.id === product.id);
+    if (exists) {
+        alert('Bu mahsulot allaqachon tekshirilgan!');
+        return;
+    }
+    
+    // Tekshirilganlarga qo'shish
+    checkedProducts.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        system_quantity: product.system_quantity,
+        actual_quantity: product.system_quantity,
+        difference: 0,
+        status: 'normal'
+    });
+    
+    updateCheckedTable();
+    updateCheckedCount();
+}
+
+// Tekshirilganlar jadvalini yangilash
+function updateCheckedTable() {
+    const tbody = document.getElementById('checkedTableBody');
+    
+    if (checkedProducts.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px 20px; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">📋</div>
+                    <div>Hali mahsulot tekshirilmagan</div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    checkedProducts.forEach((product) => {
+        const row = document.createElement('tr');
+        
+        // Xatolik rangini aniqlash
+        let errorColor = '#6c757d';
+        if (product.difference > 0) errorColor = '#28a745';
+        if (product.difference < 0) errorColor = '#dc3545';
+        
+        // Holat badge
+        let statusBadge = '<span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Normal</span>';
+        if (product.difference > 0) statusBadge = '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Ortiqcha</span>';
+        if (product.difference < 0) statusBadge = '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Kamomad</span>';
+        
+        row.innerHTML = `
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
+                ${product.name}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                ${product.price ? product.price.toLocaleString() : '-'}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                ${product.system_quantity}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <input type="number" 
+                       value="${product.actual_quantity}" 
+                       onchange="updateActualQuantity(${product.id}, this.value)"
+                       style="width: 60px; text-align: center; padding: 4px; border: 1px solid #ced4da; border-radius: 4px;">
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center; color: ${errorColor}; font-weight: 600;">
+                ${product.difference > 0 ? '+' : ''}${product.difference}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                ${statusBadge}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <button onclick="removeFromChecked(${product.id})" 
+                        style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    🗑️
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Haqiqiy miqdorni yangilash
+function updateActualQuantity(productId, actualQty) {
+    const product = checkedProducts.find(p => p.id === productId);
+    if (product) {
+        product.actual_quantity = parseFloat(actualQty) || 0;
+        product.difference = product.actual_quantity - product.system_quantity;
+        updateCheckedTable();
+    }
+}
+
+// Tekshirilganlardan o'chirish
+function removeFromChecked(productId) {
+    checkedProducts = checkedProducts.filter(p => p.id !== productId);
+    updateCheckedTable();
+    updateCheckedCount();
+}
+
+// Tekshirilganlar sonini yangilash
+function updateCheckedCount() {
+    document.getElementById('checkedCount').textContent = checkedProducts.length;
+}
     products.forEach((product, index) => {
         const row = document.createElement('tr');
         const productKey = `${product.id}`;

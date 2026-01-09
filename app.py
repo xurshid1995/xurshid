@@ -2356,6 +2356,49 @@ def api_check_stock_search():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+@app.route('/api/check_stock/products')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_check_stock_products():
+    """Joylashuvdagi barcha mahsulotlarni olish"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        location_type = request.args.get('location_type')
+        location_id = int(request.args.get('location_id'))
+
+        if not location_type or not location_id:
+            return jsonify({'success': False, 'message': 'Joylashuv parametrlari to\'liq emas'}), 400
+
+        # Joylashuvdagi barcha mahsulotlarni olish
+        if location_type == 'store':
+            stocks = Stock.query.filter_by(store_id=location_id).all()
+        else:
+            stocks = Stock.query.filter_by(warehouse_id=location_id).all()
+
+        products_data = []
+        for stock in stocks:
+            if stock.quantity > 0:  # Faqat mavjud mahsulotlar
+                product = Product.query.get(stock.product_id)
+                if product:
+                    products_data.append({
+                        'id': product.id,
+                        'name': product.name,
+                        'barcode': product.barcode,
+                        'price': float(product.price) if product.price else 0,
+                        'system_quantity': float(stock.quantity)
+                    })
+
+        return jsonify({
+            'success': True,
+            'products': products_data
+        })
+    except Exception as e:
+        logger.error(f"Error loading products: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/api/check_stock/finish', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_check_stock_finish():
