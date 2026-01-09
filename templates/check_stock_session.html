@@ -412,6 +412,10 @@ function saveQuantity() {
         status: status
     });
     
+    // Chap jadvaldan o'chirish
+    allProducts = allProducts.filter(p => p.id !== currentProduct.id);
+    displayProducts(allProducts);
+    
     updateCheckedTable();
     updateCheckedCount();
     closeModal();
@@ -494,7 +498,26 @@ function updateActualQuantity(productId, actualQty) {
 
 // Tekshirilganlardan o'chirish
 function removeFromChecked(productId) {
+    // O'chirilayotgan mahsulotni topish
+    const removedProduct = checkedProducts.find(p => p.id === productId);
+    
+    // Tekshirilganlardan o'chirish
     checkedProducts = checkedProducts.filter(p => p.id !== productId);
+    
+    // Agar mahsulot topilsa, uni qayta chap jadvalga qo'shish
+    if (removedProduct) {
+        allProducts.push({
+            id: removedProduct.id,
+            name: removedProduct.name,
+            barcode: removedProduct.barcode || '',
+            price: removedProduct.price,
+            system_quantity: removedProduct.system_quantity
+        });
+        
+        // Chap jadvalni yangilash
+        displayProducts(allProducts);
+    }
+    
     updateCheckedTable();
     updateCheckedCount();
 }
