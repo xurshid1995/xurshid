@@ -2716,6 +2716,45 @@ def api_check_stock_finish():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+@app.route('/api/check_stock/delete_session', methods=['DELETE'])
+@role_required('admin')
+def api_check_stock_delete_session():
+    """Tekshiruv sessiyasini o'chirish (faqat admin)"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        data = request.get_json()
+        session_id = data.get('session_id')
+
+        if not session_id:
+            return jsonify({'success': False, 'message': 'Session ID topilmadi'}), 400
+
+        # Sessiyani topish
+        session = StockCheckSession.query.get(session_id)
+        if not session:
+            return jsonify({'success': False, 'message': 'Sessiya topilmadi'}), 404
+
+        # Sessiya bilan bog'liq itemlarni o'chirish
+        StockCheckItem.query.filter_by(session_id=session_id).delete()
+        
+        # Sessiyani o'chirish
+        db.session.delete(session)
+        db.session.commit()
+        
+        logger.info(f"Check stock session deleted: session_id={session_id}, deleted_by={current_user.username}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Tekshiruv muvaffaqiyatli o\'chirildi'
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting check stock session: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/history_details')
 def history_details():
     """Tekshiruv tarixi tafsilotlari sahifasi"""
