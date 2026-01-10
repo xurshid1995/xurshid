@@ -151,21 +151,63 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Pagination -->
+                    <div id="completedPagination" style="display: none; margin-top: 15px; text-align: center;">
+                        <div id="completedPaginationButtons" style="display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center;">
+                            <!-- Pagination tugmalari bu yerga yuklanadi -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.pagination-btn:hover:not(.active):not(:disabled) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.pagination-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-dots {
+    padding: 8px 12px;
+    color: #6c757d;
+}
+</style>
+
 <script>
 // Jarayondagi tekshiruvlar ro'yxati
 let checkSessions = [];
+let currentCompletedPage = 1;
+let totalCompletedPages = 1;
 
 // Sahifa yuklanganda joylashuvlarni va faol sessiyalarni yuklash
 document.addEventListener('DOMContentLoaded', function() {
     loadLocations();
     loadActiveSessions();
-    loadCompletedSessions();
+    loadCompletedSessions(1);
     
     // Har 10 sekundda faol sessiyalarni va joylashuvlarni yangilash
     setInterval(() => {
@@ -173,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadLocations(); // Joylashuvlar ro'yxatini ham yangilash
     }, 10000);
     // Har 30 sekundda tugatilgan sessiyalarni yangilash
-    setInterval(loadCompletedSessions, 30000);
+    setInterval(() => loadCompletedSessions(currentCompletedPage), 30000);
 });
 
 // Joylashuvlarni yuklash
@@ -321,9 +363,9 @@ function continueSession(sessionId) {
 }
 
 // Tugatilgan sessiyalarni yuklash
-async function loadCompletedSessions() {
+async function loadCompletedSessions(page = 1) {
     try {
-        const response = await fetch('/api/check_stock/completed_sessions');
+        const response = await fetch(`/api/check_stock/completed_sessions?page=${page}&per_page=50`);
         const data = await response.json();
         
         const tbody = document.getElementById('completedSessionsTable');
@@ -337,17 +379,23 @@ async function loadCompletedSessions() {
                     </td>
                 </tr>
             `;
+            document.getElementById('completedPagination').style.display = 'none';
             return;
         }
+        
+        // Pagination ma'lumotlarini saqlash
+        currentCompletedPage = data.pagination.page;
+        totalCompletedPages = data.pagination.pages;
         
         tbody.innerHTML = '';
         data.sessions.forEach((session, index) => {
             const row = document.createElement('tr');
             
             const locationIcon = session.location_type === 'store' ? '🏪' : '📦';
+            const globalIndex = (currentCompletedPage - 1) * 50 + index + 1;
             
             row.innerHTML = `
-                <td style="text-align: center;">${index + 1}</td>
+                <td style="text-align: center;">${globalIndex}</td>
                 <td style="text-align: center;">${locationIcon} <strong>${session.location_name}</strong></td>
                 <td style="text-align: center;">${session.started_user_name}</td>
                 <td style="text-align: center;">${session.completed_user_name}</td>
@@ -372,9 +420,90 @@ async function loadCompletedSessions() {
             
             tbody.appendChild(row);
         });
+        
+        // Pagination tugmalarini ko'rsatish
+        renderCompletedPagination(data.pagination);
     } catch (error) {
         console.error('Tugatilgan sessiyalarni yuklashda xatolik:', error);
     }
+}
+
+// Pagination tugmalarini render qilish
+function renderCompletedPagination(pagination) {
+    const container = document.getElementById('completedPaginationButtons');
+    const paginationDiv = document.getElementById('completedPagination');
+    
+    if (pagination.pages <= 1) {
+        paginationDiv.style.display = 'none';
+        return;
+    }
+    
+    paginationDiv.style.display = 'block';
+    container.innerHTML = '';
+    
+    // Oldingi sahifa tugmasi
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn';
+    prevBtn.innerHTML = '« Oldingi';
+    prevBtn.disabled = !pagination.has_prev;
+    prevBtn.onclick = () => loadCompletedSessions(pagination.page - 1);
+    container.appendChild(prevBtn);
+    
+    // Sahifa tugmalari
+    const maxButtons = 5;
+    let startPage = Math.max(1, pagination.page - Math.floor(maxButtons / 2));
+    let endPage = Math.min(pagination.pages, startPage + maxButtons - 1);
+    
+    if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+    
+    if (startPage > 1) {
+        const firstBtn = document.createElement('button');
+        firstBtn.className = 'pagination-btn';
+        firstBtn.textContent = '1';
+        firstBtn.onclick = () => loadCompletedSessions(1);
+        container.appendChild(firstBtn);
+        
+        if (startPage > 2) {
+            const dots = document.createElement('span');
+            dots.className = 'pagination-dots';
+            dots.textContent = '...';
+            container.appendChild(dots);
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'pagination-btn';
+        if (i === pagination.page) btn.classList.add('active');
+        btn.textContent = i;
+        btn.onclick = () => loadCompletedSessions(i);
+        container.appendChild(btn);
+    }
+    
+    if (endPage < pagination.pages) {
+        if (endPage < pagination.pages - 1) {
+            const dots = document.createElement('span');
+            dots.className = 'pagination-dots';
+            dots.textContent = '...';
+            container.appendChild(dots);
+        }
+        
+        const lastBtn = document.createElement('button');
+        lastBtn.className = 'pagination-btn';
+        lastBtn.textContent = pagination.pages;
+        lastBtn.onclick = () => loadCompletedSessions(pagination.pages);
+        container.appendChild(lastBtn);
+    }
+    
+    // Keyingi sahifa tugmasi
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn';
+    nextBtn.innerHTML = 'Keyingi »';
+    nextBtn.disabled = !pagination.has_next;
+    nextBtn.onclick = () => loadCompletedSessions(pagination.page + 1);
+    container.appendChild(nextBtn);
 }
 
 // Sessiyani ko'rish

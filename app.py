@@ -2342,11 +2342,17 @@ def api_check_stock_completed_sessions():
         if not current_user:
             return jsonify({'error': 'Unauthorized'}), 401
 
-        # Tugatilgan sessiyalarni olish (oxirgi 50 ta)
-        sessions = StockCheckSession.query.filter_by(status='completed').order_by(StockCheckSession.updated_at.desc()).limit(50).all()
+        # Pagination parametrlari
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 50, type=int)
+        
+        # Tugatilgan sessiyalarni olish (pagination bilan)
+        pagination = StockCheckSession.query.filter_by(status='completed').order_by(
+            StockCheckSession.updated_at.desc()
+        ).paginate(page=page, per_page=per_page, error_out=False)
         
         sessions_data = []
-        for session in sessions:
+        for session in pagination.items:
             # Tekshirilgan mahsulotlar sonini olish
             items_count = StockCheckItem.query.filter_by(session_id=session.id).count()
             
@@ -2363,7 +2369,15 @@ def api_check_stock_completed_sessions():
         
         return jsonify({
             'success': True,
-            'sessions': sessions_data
+            'sessions': sessions_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': pagination.total,
+                'pages': pagination.pages,
+                'has_prev': pagination.has_prev,
+                'has_next': pagination.has_next
+            }
         })
     except Exception as e:
         logger.error(f"Error loading completed sessions: {e}")
