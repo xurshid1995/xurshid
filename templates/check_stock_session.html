@@ -607,12 +607,15 @@ function updateCheckedCount() {
 
 // Tekshiruvni yakunlash
 async function finishCheck() {
+    // Ogohlantirish xabari
+    let confirmMessage;
     if (checkedProducts.length === 0) {
-        alert('Hech qanday mahsulot tekshirilmagan!');
-        return;
+        confirmMessage = 'DIQQAT: Hech qanday mahsulot tekshirilmagan!\n\nTekshiruv yakunlanadi va hisobotda ma\'lumot bo\'lmaydi.\n\nDavom etishni xohlaysizmi?';
+    } else {
+        confirmMessage = `${checkedProducts.length} ta mahsulot tekshirildi.\n\nTekshiruvni yakunlaysizmi?`;
     }
     
-    if (!confirm(`${checkedProducts.length} ta mahsulot tekshirildi. Tekshiruvni yakunlaysizmi?`)) {
+    if (!confirm(confirmMessage)) {
         return;
     }
     
@@ -630,7 +633,11 @@ async function finishCheck() {
         const data = await response.json();
         
         if (data.success) {
-            alert('Tekshiruv muvaffaqiyatli yakunlandi!');
+            if (checkedProducts.length === 0) {
+                alert('Tekshiruv yakunlandi (mahsulot tekshirilmagan)');
+            } else {
+                alert('Tekshiruv muvaffaqiyatli yakunlandi!');
+            }
             window.location.href = '/check_stock';
         } else {
             alert('Xatolik: ' + (data.message || 'Tekshiruvni yakunlab bo\'lmadi'));
