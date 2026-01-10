@@ -328,6 +328,10 @@ function filterChecked(type) {
     // Qidiruv maydonidagi qiymatni o'qish
     const query = document.getElementById('checkedSearch').value.trim().toLowerCase();
     filterAndDisplayChecked(query);
+    
+    // Filtr sonlarini yangilash
+    updateFilterCounts();
+}
 }
 
 // Filtr va qidiruv bilan tekshirilganlarni ko'rsatish
