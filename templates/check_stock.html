@@ -2,85 +2,10 @@
 
 {% block title %}Qoldiqni tekshirish{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <!-- Sahifa sarlavhasi -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="page-header">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="margin: 0;"><i class="fas fa-clipboard-check"></i> Qoldiqni tekshirish</h2>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <select id="locationSelect" class="form-select" style="background-color: white; border: none; font-size: 1rem; padding: 0.75rem 1rem;">
-                            <option value="">Joylashuvni tanlang...</option>
-                        </select>
-                        <button type="button" class="btn btn-light btn-lg start-btn" onclick="startCheck()" style="padding: 0.75rem 2rem; font-weight: 600; white-space: nowrap;">
-                            <i class="fas fa-play me-2"></i>Tekshiruvni boshlash
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Joriy tekshiruvlar jadvali -->
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header" style="background: #6c757d; color: white;">
-                    <h5 style="margin: 0; font-weight: 600;"><i class="fas fa-list"></i> Joriy tekshiruvlar</h5>
-                </div>
-                <div class="card-body" style="padding-top: 25px;">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <tbody id="activeSessionsTable">
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">📋</div>
-                                        <div>Hozirda faol tekshiruvlar yo'q</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Tugatilgan tekshiruvlar jadvali -->
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header" style="background: #6c757d; color: white;">
-                    <h5 style="margin: 0; font-weight: 600;"><i class="fas fa-check-circle"></i> Tugatilgan tekshiruvlar</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <tbody id="completedSessionsTable">
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">✅</div>
-                                        <div>Tugatilgan tekshiruvlar yo'q</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
 .page-header {
-    background: #6c757d;
+    background: #5dade2;
     color: white;
     padding: 1rem 2rem;
     border-radius: 10px;
@@ -126,16 +51,93 @@
 }
 
 .table tbody td {
-    padding: 15px;
-    border-bottom: 1px solid #dee2e6;
-    font-size: 14px;
-    color: #333;
+    padding: 15px !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    font-size: 14px !important;
+    color: #333 !important;
 }
 
 .table tbody tr:hover {
-    background: #f8f9fa;
+    background: #f8f9fa !important;
 }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Sahifa sarlavhasi -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="page-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0;"><i class="fas fa-clipboard-check"></i> Qoldiqni tekshirish</h2>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <select id="locationSelect" class="form-select" style="background-color: white; border: none; font-size: 1rem; padding: 0.75rem 1rem;">
+                            <option value="">Joylashuvni tanlang...</option>
+                        </select>
+                        <button type="button" class="btn btn-light btn-lg start-btn" onclick="startCheck()" style="padding: 0.75rem 2rem; font-weight: 600; white-space: nowrap;">
+                            <i class="fas fa-play me-2"></i>Tekshiruvni boshlash
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Joriy tekshiruvlar jadvali -->
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #5B9BD5, #4A90D9); color: white;">
+                    <h5 style="margin: 0; font-weight: 600;"><i class="fas fa-list"></i> Joriy tekshiruvlar</h5>
+                </div>
+                <div class="card-body" style="padding-top: 25px;">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tbody id="activeSessionsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">📋</div>
+                                        <div>Hozirda faol tekshiruvlar yo'q</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tugatilgan tekshiruvlar jadvali -->
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #28a745, #20c997); color: white;">
+                    <h5 style="margin: 0; font-weight: 600;"><i class="fas fa-check-circle"></i> Tugatilgan tekshiruvlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tbody id="completedSessionsTable">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">✅</div>
+                                        <div>Tugatilgan tekshiruvlar yo'q</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 // Jarayondagi tekshiruvlar ro'yxati
