@@ -25,10 +25,10 @@
         font-size: 24px;
     }
 
-    /* Ikkita layout uchun grid - katta ekranlarda avtomatik moslashuvchi */
+    /* Ikkita layout uchun grid - to'liq dinamik */
     .transfer-layouts {
         display: grid;
-        grid-template-columns: minmax(520px, 1fr) minmax(580px, 1.15fr);
+        grid-template-columns: 1fr 1.15fr;
         gap: 20px;
         padding: 20px;
         align-items: start;
@@ -45,12 +45,10 @@
     
     .transfer-layouts > div:first-child {
         width: 100%;
-        min-width: 520px;
     }
     
     .transfer-layouts > div:nth-child(2) {
         width: 100%;
-        min-width: 580px;
     }
 
     .layout-header {
