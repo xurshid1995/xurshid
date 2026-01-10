@@ -2,11 +2,6 @@
 
 {% block title %}Savdo - Dokon Boshqaruv Tizimi{% endblock %}
 
-{% block extra_head %}
-<!-- Quagga2 Barcode Scanner -->
-<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
-{% endblock %}
-
 {% block extra_css %}
 <style>
     .sales-container {
@@ -395,6 +390,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Quagga2 Barcode Scanner -->
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+
 <script>
     // Joylashuvlarni yuklash
     async function loadLocations() {
