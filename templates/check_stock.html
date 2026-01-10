@@ -101,8 +101,8 @@
                                     <th style="text-align: left;">Foydalanuvchi</th>
                                     <th style="text-align: left;">Boshlangan</th>
                                     <th style="text-align: left;">Yangilangan</th>
-                                    <th style="text-align: left;">Holat</th>
-                                    <th style="text-align: left;">Amallar</th>
+                                    <th style="text-align: center;">Holat</th>
+                                    <th style="text-align: center;">Amallar</th>
                                 </tr>
                             </thead>
                             <tbody id="activeSessionsTable">
@@ -277,12 +277,12 @@ async function loadActiveSessions() {
                 <td><i class="fas fa-user"></i> ${session.user_name}</td>
                 <td>${session.started_at}</td>
                 <td>${session.updated_at}</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                <td style="text-align: center;">
+                    <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
                         <span class="badge bg-warning text-dark" style="min-width: 60px;">
                             <i class="fas fa-spinner fa-pulse"></i> Faol
                         </span>
-                        <div style="flex: 1; min-width: 120px;">
+                        <div style="flex: 1; min-width: 120px; max-width: 180px;">
                             <div style="background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden; position: relative;">
                                 <div style="background: ${progressColor}; height: 100%; width: ${progressPercent}%; transition: width 0.3s;"></div>
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #333;">
@@ -292,7 +292,7 @@ async function loadActiveSessions() {
                         </div>
                     </div>
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <button class="btn btn-sm btn-primary" onclick="continueSession(${session.id})">
                         <i class="fas fa-play"></i> Davom etish
                     </button>
