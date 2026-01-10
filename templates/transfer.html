@@ -97,13 +97,15 @@
         border: 1px solid #dee2e6;
         border-radius: 4px;
         margin-top: 10px;
-        overflow-x: hidden;
+        overflow-x: auto;
+        max-width: 100%;
     }
 
     .transfer-product-table {
         width: 100%; /* Layout kengligiga to'liq moslashadi */
         max-width: 100%;
         border-collapse: collapse;
+        table-layout: auto; /* Dinamik kenglik uchun */
     }
 
     .products-table thead {
