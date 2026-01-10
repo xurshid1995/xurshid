@@ -75,11 +75,25 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                 <input type="text" 
                        id="checkedSearch" 
                        placeholder="🔍 Tekshirilganlardan qidirish..." 
-                       style="width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 25px; font-size: 14px;">
+                       style="flex: 1; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 25px; font-size: 14px;">
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="filterChecked('all')" id="filterAll" 
+                            style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                        📊 Hammasi
+                    </button>
+                    <button onclick="filterChecked('error')" id="filterError" 
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                        ⚠️ Xatolik
+                    </button>
+                    <button onclick="filterChecked('correct')" id="filterCorrect" 
+                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                        ✅ To'g'ri
+                    </button>
+                </div>
             </div>
 
             <div style="border: 1px solid #dee2e6; border-radius: 4px; margin-top: 10px; overflow-x: hidden;">
@@ -212,11 +226,17 @@ const locationType = '{{ location_type }}';
 const locationId = {{ location_id }};
 let checkedProducts = [];
 let allProducts = [];
+let currentFilter = 'all'; // Filtr holati: 'all', 'error', 'correct'
 
 // Sahifa yuklanganda mahsulotlarni yuklash
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAllProducts();
     await loadCheckedProducts(); // Barcha mahsulotlar yuklangandan keyin tekshirilganlarni yuklash
+    
+    // Filtr tugmalarini boshlang'ich holatga keltirish
+    document.getElementById('filterAll').style.opacity = '1';
+    document.getElementById('filterError').style.opacity = '0.6';
+    document.getElementById('filterCorrect').style.opacity = '0.6';
 });
 
 // Tekshirilgan mahsulotlarni database'dan yuklash
@@ -280,6 +300,58 @@ document.getElementById('productSearch').addEventListener('input', function(e) {
         displayProducts(filtered);
     }
 });
+
+// Tekshirilganlardan qidirish
+document.getElementById('checkedSearch').addEventListener('input', function(e) {
+    const query = e.target.value.trim().toLowerCase();
+    filterAndDisplayChecked(query);
+});
+
+// Filtr funksiyasi
+function filterChecked(type) {
+    currentFilter = type;
+    
+    // Barcha filtr tugmalarining holatini reset qilish
+    document.getElementById('filterAll').style.opacity = '0.6';
+    document.getElementById('filterError').style.opacity = '0.6';
+    document.getElementById('filterCorrect').style.opacity = '0.6';
+    
+    // Faol filtrni ko'rsatish
+    if (type === 'all') {
+        document.getElementById('filterAll').style.opacity = '1';
+    } else if (type === 'error') {
+        document.getElementById('filterError').style.opacity = '1';
+    } else if (type === 'correct') {
+        document.getElementById('filterCorrect').style.opacity = '1';
+    }
+    
+    // Qidiruv maydonidagi qiymatni o'qish
+    const query = document.getElementById('checkedSearch').value.trim().toLowerCase();
+    filterAndDisplayChecked(query);
+}
+
+// Filtr va qidiruv bilan tekshirilganlarni ko'rsatish
+function filterAndDisplayChecked(searchQuery = '') {
+    let filtered = [...checkedProducts];
+    
+    // Filtr bo'yicha saralash
+    if (currentFilter === 'error') {
+        filtered = filtered.filter(p => p.difference !== 0);
+    } else if (currentFilter === 'correct') {
+        filtered = filtered.filter(p => p.difference === 0);
+    }
+    
+    // Qidiruv bo'yicha saralash
+    if (searchQuery) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchQuery) ||
+            (p.barcode && p.barcode.toLowerCase().includes(searchQuery))
+        );
+    }
+    
+    // Jadvalni yangilash
+    displayCheckedTable(filtered);
+}
 
 // Mahsulotlarni qidirish
 async function searchProducts(query) {
@@ -419,11 +491,11 @@ async function saveQuantity() {
     
     const actualQuantity = parseFloat(document.getElementById('actualQuantityInput').value) || 0;
     
-    // Xatolik va holatni hisoblash
-    const difference = currentProduct.system_quantity - actualQuantity;
+    // Xatolik va holatni hisoblash (haqiqiy - tizimda)
+    const difference = actualQuantity - currentProduct.system_quantity;
     let status = 'normal';
-    if (difference > 0) status = 'kamomad';
-    else if (difference < 0) status = 'ortiqcha';
+    if (difference > 0) status = 'ortiqcha';
+    else if (difference < 0) status = 'kamomad';
     
     const checkedItem = {
         id: currentProduct.id,
@@ -478,14 +550,29 @@ async function saveQuantity() {
 
 // Tekshirilganlar jadvalini yangilash
 function updateCheckedTable() {
+    const query = document.getElementById('checkedSearch').value.trim().toLowerCase();
+    filterAndDisplayChecked(query);
+}
+
+// Tekshirilganlar jadvalini ko'rsatish (filtr yordamida)
+function displayCheckedTable(products) {
     const tbody = document.getElementById('checkedTableBody');
     
-    if (checkedProducts.length === 0) {
+    if (products.length === 0) {
+        let message = 'Hali mahsulot tekshirilmagan';
+        if (currentFilter === 'error') {
+            message = 'Xatolik bilan tekshirilgan mahsulot yo\'q';
+        } else if (currentFilter === 'correct') {
+            message = 'To\'g\'ri tekshirilgan mahsulot yo\'q';
+        } else if (checkedProducts.length > 0) {
+            message = 'Qidiruv bo\'yicha mahsulot topilmadi';
+        }
+        
         tbody.innerHTML = `
             <tr>
                 <td colspan="7" style="text-align: center; padding: 40px 20px; color: #999;">
                     <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">📋</div>
-                    <div>Hali mahsulot tekshirilmagan</div>
+                    <div>${message}</div>
                 </td>
             </tr>
         `;
@@ -494,7 +581,7 @@ function updateCheckedTable() {
     
     tbody.innerHTML = '';
     
-    checkedProducts.forEach((product) => {
+    products.forEach((product) => {
         const row = document.createElement('tr');
         
         // Xatolik rangini aniqlash
@@ -547,7 +634,14 @@ function updateActualQuantity(productId, actualQty) {
     if (product) {
         product.actual_quantity = parseFloat(actualQty) || 0;
         product.difference = product.actual_quantity - product.system_quantity;
-        updateCheckedTable();
+        
+        // Tekshirish uchun status yangilash
+        if (product.difference > 0) product.status = 'kamomad';
+        else if (product.difference < 0) product.status = 'ortiqcha';
+        else product.status = 'normal';
+        
+        const query = document.getElementById('checkedSearch').value.trim().toLowerCase();
+        filterAndDisplayChecked(query);
     }
 }
 
