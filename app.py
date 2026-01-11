@@ -580,6 +580,47 @@ class Customer(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None}
 
 
+# Qarz to'lovlari tarixi modeli
+class DebtPayment(db.Model):
+    __tablename__ = 'debt_payments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id', ondelete='CASCADE'), nullable=False)
+    sale_id = db.Column(db.Integer, db.ForeignKey('sales.id', ondelete='SET NULL'), nullable=True)
+    payment_date = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+    cash_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    click_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    total_usd = db.Column(db.DECIMAL(precision=12, scale=2), nullable=False)
+    currency_rate = db.Column(db.DECIMAL(precision=15, scale=4), nullable=False, default=12500)
+    received_by = db.Column(db.String(100), nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+    
+    # Relationships
+    customer = db.relationship('Customer', backref='debt_payments')
+    sale = db.relationship('Sale', backref='debt_payments')
+    
+    def __repr__(self):
+        return f'<DebtPayment {self.id}: {self.customer_id} - {self.total_usd} USD>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'customer_id': self.customer_id,
+            'customer_name': self.customer.name if self.customer else 'Unknown',
+            'sale_id': self.sale_id,
+            'payment_date': self.payment_date.strftime('%Y-%m-%d %H:%M') if self.payment_date else None,
+            'cash_usd': float(self.cash_usd or 0),
+            'click_usd': float(self.click_usd or 0),
+            'terminal_usd': float(self.terminal_usd or 0),
+            'total_usd': float(self.total_usd or 0),
+            'currency_rate': float(self.currency_rate or 12500),
+            'received_by': self.received_by,
+            'notes': self.notes
+        }
+
+
 # Foydalanuvchilar modeli
 class User(db.Model):
     __tablename__ = 'users'
@@ -3949,44 +3990,14 @@ def api_debts():
 @app.route('/api/debts/paid')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_paid_debts():
-    """To'langan qarzlar tarixi - faqat qarz to'lash orqali to'langan savdolar"""
+    """To'langan qarzlar tarixi - debt_payments jadvalidan"""
     try:
-        query = text("""
-            SELECT 
-                s.id as sale_id,
-                s.updated_at as payment_date,
-                s.created_at as sale_date,
-                c.name as customer_name,
-                s.total_amount as total_amount,
-                COALESCE(s.cash_usd, 0) as cash_usd,
-                COALESCE(s.click_usd, 0) as click_usd,
-                COALESCE(s.terminal_usd, 0) as terminal_usd
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.id
-            WHERE s.payment_status = 'paid' 
-                AND s.debt_usd = 0
-                AND s.total_amount > 0
-                AND (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) > 0
-                AND s.updated_at > s.created_at + INTERVAL '1 second'  -- Yangilangan (qarz to'lash orqali to'langan)
-            ORDER BY s.updated_at DESC
-            LIMIT 200
-        """)
-
-        result = db.session.execute(query)
-        paid_debts = []
+        # Debt payments jadvalidan ma'lumotlarni olish
+        debt_payments = DebtPayment.query.order_by(DebtPayment.payment_date.desc()).limit(200).all()
         
-        for row in result:
-            paid_debts.append({
-                'sale_id': row.sale_id,
-                'payment_date': row.payment_date.strftime('%Y-%m-%d %H:%M'),
-                'sale_date': row.sale_date.strftime('%Y-%m-%d %H:%M'),
-                'customer_name': row.customer_name,
-                'total_amount': float(row.total_amount),
-                'cash_usd': float(row.cash_usd),
-                'click_usd': float(row.click_usd),
-                'terminal_usd': float(row.terminal_usd),
-                'received_by': 'System'  # Hozircha default qiymat
-            })
+        paid_debts = []
+        for payment in debt_payments:
+            paid_debts.append(payment.to_dict())
 
         return jsonify({
             'success': True,
@@ -4190,6 +4201,21 @@ def api_debt_payment():
                 customer.last_debt_payment_usd = payment_usd - remaining_payment
                 customer.last_debt_payment_date = db.func.current_timestamp()
                 customer.last_debt_payment_rate = get_current_currency_rate()
+
+        # Qarz to'lovi tarixiga yozuv qo'shish
+        debt_payment = DebtPayment(
+            customer_id=customer_id,
+            sale_id=updated_sales[0] if updated_sales else None,  # Birinchi to'langan savdo
+            payment_date=get_tashkent_time(),
+            cash_usd=cash_usd,
+            click_usd=click_usd,
+            terminal_usd=terminal_usd,
+            total_usd=payment_usd - remaining_payment,
+            currency_rate=get_current_currency_rate(),
+            received_by=session.get('user_name', 'Unknown'),
+            notes=f"{len(updated_sales)} ta savdoning qarziga to'lov qilindi"
+        )
+        db.session.add(debt_payment)
 
         db.session.commit()
 

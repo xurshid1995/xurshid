@@ -168,12 +168,11 @@
                     <th>💵 Summa (USD)</th>
                     <th>💳 To'lov turi</th>
                     <th>👨‍💼 Qabul qilgan</th>
-                    <th>🕐 Asl savdo sanasi</th>
                 </tr>
             </thead>
             <tbody id="historyTableBody">
                 <tr>
-                    <td colspan="7" class="no-data">⏳ Yuklanmoqda...</td>
+                    <td colspan="6" class="no-data">⏳ Yuklanmoqda...</td>
                 </tr>
             </tbody>
         </table>
@@ -209,7 +208,7 @@
         } catch (error) {
             console.error('Xatolik:', error);
             document.getElementById('historyTableBody').innerHTML = 
-                '<tr><td colspan="7" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik</td></tr>';
+                '<tr><td colspan="6" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik</td></tr>';
         }
     }
 
@@ -218,7 +217,7 @@
         const tbody = document.getElementById('historyTableBody');
         
         if (paidDebts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 To\'langan qarzlar yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="no-data">📭 To\'langan qarzlar yo\'q</td></tr>';
             return;
         }
 
@@ -247,7 +246,6 @@
                 <td style="text-align: right; font-weight: 600; color: #28a745;">${totalAmount.toFixed(2)} USD</td>
                 <td>${paymentTypes.join(' ')}</td>
                 <td><span style="color: #007bff;">👨‍💼 ${debt.received_by}</span></td>
-                <td style="color: #666;">${debt.sale_date}</td>
             `;
             
             tbody.appendChild(row);
