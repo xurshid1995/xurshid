@@ -881,7 +881,7 @@ class Sale(db.Model):
     created_by = db.Column(db.String(100), default='System')
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
     updated_at = db.Column(db.DateTime, default=lambda: get_tashkent_time(), onupdate=lambda: get_tashkent_time())
-    updated_by = db.Column(db.String(100))  # Qarz to'lovini qabul qilgan foydalanuvchi
+    # updated_by = db.Column(db.String(100))  # Qarz to'lovini qabul qilgan foydalanuvchi - database'da hali yo'q
 
     # Relationships
     customer = db.relationship('Customer', backref='sales')
@@ -4162,9 +4162,9 @@ def api_debt_payment():
             if sale.debt_usd == 0:
                 sale.payment_status = 'paid'
             
-            # updated_at va updated_by ni yangilash (qarz to'lash belgisi)
+            # updated_at ni yangilash (qarz to'lash belgisi)
             sale.updated_at = get_tashkent_time()
-            sale.updated_by = session.get('user_name', 'Unknown')
+            # sale.updated_by = session.get('user_name', 'Unknown')  # Database'da hali yo'q
 
             remaining_payment -= total_paid
             updated_sales.append(sale.id)
