@@ -1358,6 +1358,13 @@ footer {
         max-width: 100vw;
     }
     
+    /* Body scroll lock when sidebar is active */
+    body.sidebar-active {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+    }
+    
     /* Mobile sidebar - Compact va user-friendly */
     .sidebar {
         position: fixed;
@@ -1366,7 +1373,7 @@ footer {
         height: calc(100vh - 70px);
         width: 280px;
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-        z-index: 1150;
+        z-index: 1160;
         background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
         box-shadow: none;
         border-top-right-radius: 10px;
@@ -1388,7 +1395,7 @@ footer {
         width: 100%;
         height: 100%;
         background: rgba(0,0,0,0.6);
-        z-index: 1140;
+        z-index: 1150;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;

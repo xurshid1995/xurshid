@@ -296,6 +296,7 @@
         function toggleMobileNav() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
             
             console.log('🔍 Toggle navigation:', {
                 sidebarExists: !!sidebar,
@@ -304,27 +305,40 @@
                 overlayActive: overlay?.classList.contains('active')
             });
             
-            sidebar.classList.toggle('active');
+            const isActive = sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+            
+            // Body scroll lock/unlock
+            if (isActive) {
+                body.classList.add('sidebar-active');
+            } else {
+                body.classList.remove('sidebar-active');
+            }
             
             console.log('✅ After toggle:', {
                 sidebarActive: sidebar?.classList.contains('active'),
-                overlayActive: overlay?.classList.contains('active')
+                overlayActive: overlay?.classList.contains('active'),
+                bodyLocked: body.classList.contains('sidebar-active')
             });
         }
         
         function closeMobileNav() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
             
             console.log('❌ Closing navigation');
             
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
+            body.classList.remove('sidebar-active');
         }
         
         // Close mobile nav when clicking on menu items
         document.addEventListener('DOMContentLoaded', function() {
+            // Sahifa yuklanganda navigatsiyani yopish
+            closeMobileNav();
+            
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
             menuLinks.forEach(link => {
                 link.addEventListener('click', function() {
@@ -340,6 +354,14 @@
                     closeMobileNav();
                 }
             });
+            
+            // Prevent scroll behind sidebar
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) {
+                overlay.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+            }
         });
     </script>
 
