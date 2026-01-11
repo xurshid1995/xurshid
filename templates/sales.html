@@ -3255,20 +3255,19 @@
             }
             
             alert('✅ Savdo muvaffaqiyatli yakunlandi!');
-                
-                // Savatni tozalash va modal yopish
-                cart = [];
-                updateCart();
-                closePaymentModal();
-                
-                // Mijoz ma'lumotlarini tozalash
-                document.getElementById('customerSearch').value = '';
-                document.getElementById('selectedCustomerId').value = '';
-                document.getElementById('cartCustomerInfo').innerHTML = '<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3>';
-                
-                // Mahsulotlar jadvalini yangilash
-                await loadProducts();
-            }
+            
+            // Savatni tozalash va modal yopish
+            cart = [];
+            updateCart();
+            closePaymentModal();
+            
+            // Mijoz ma'lumotlarini tozalash
+            document.getElementById('customerSearch').value = '';
+            document.getElementById('selectedCustomerId').value = '';
+            document.getElementById('cartCustomerInfo').innerHTML = '<h3 style="margin: 0; color: #333;">🛒 Savdo Korzinasi</h3>';
+            
+            // Mahsulotlar jadvalini yangilash
+            await loadProducts();
             
         } catch (error) {
             console.error('❌ Savdoni yuborishda xatolik:', error);
