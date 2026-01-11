@@ -389,6 +389,9 @@
 <div class="debts-container">
     <div class="page-header">
         <h1>💰 Qarzlar</h1>
+        <button onclick="togglePaidDebtsHistory()" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: 500;">
+            <i class="fas fa-history"></i> Mijozlarni qarz to'lash tarixi
+        </button>
     </div>
 
     <!-- Statistika kartochkalari -->
@@ -456,7 +459,7 @@
     </div>
 
     <!-- To'langan qarzlar jadvali -->
-    <div class="debts-table-container" style="margin-top: 30px;">
+    <div class="debts-table-container" id="paidDebtsSection" style="margin-top: 30px; display: none;">
         <h2 style="margin-bottom: 15px; color: #28a745; display: flex; align-items: center; gap: 10px;">
             <span>✅ To'langan qarzlar tarixi</span>
         </h2>
@@ -586,6 +589,17 @@
     let debts = [];
     let currentCustomerId = null;
     let exchangeRate = 13000;
+
+    // To'langan qarzlar tarixini ko'rsatish/yashirish
+    function togglePaidDebtsHistory() {
+        const section = document.getElementById('paidDebtsSection');
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+            section.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            section.style.display = 'none';
+        }
+    }
 
     // Ma'lumotlarni yuklash
     async function loadDebts() {
