@@ -6883,6 +6883,10 @@ def create_sale():
             current_sale.debt_usd = Decimal(str(debt_usd))
             current_sale.notes = f'Tahrirlandi - {len(items)} ta mahsulot' if multi_location else 'Tahrirlandi'
             current_sale.currency_rate = current_rate
+            # Pending savdo tasdiqlanganda sale_date ni hozirgi vaqtga o'zgartirish
+            if current_sale.payment_status == 'paid' or current_sale.payment_status == 'partial':
+                current_sale.sale_date = get_tashkent_time()
+                print(f"✅ Savdo sanasi yangilandi: {current_sale.sale_date}")
             
         else:
             # Yangi savdo yaratish
