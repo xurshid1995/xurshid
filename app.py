@@ -2311,14 +2311,41 @@ def api_check_stock_locations():
 @app.route('/api/check_stock/active_sessions')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_check_stock_active_sessions():
-    """Joriy (active) tekshiruv sessiyalarini olish"""
+    """Joriy (active) tekshiruv sessiyalarini olish - faqat ruxsat etilgan joylashuvlar"""
     try:
         current_user = get_current_user()
         if not current_user:
             return jsonify({'error': 'Unauthorized'}), 401
 
+        logger.debug(f"🔍 Active Sessions - User: {current_user.username}, Role: {current_user.role}")
+        
         # Faol sessiyalarni olish
         sessions = StockCheckSession.query.filter_by(status='active').order_by(StockCheckSession.started_at.desc()).all()
+        
+        # Foydalanuvchi huquqlarini tekshirish
+        if current_user.role != 'admin':
+            # Oddiy foydalanuvchilar faqat ruxsat etilgan joylashuvlardagi sessiyalarni ko'radi
+            allowed_locations = current_user.allowed_locations or []
+            logger.debug(f"📍 User allowed_locations: {allowed_locations}")
+            
+            allowed_store_ids = extract_location_ids(allowed_locations, 'store')
+            allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
+            
+            logger.debug(f"🏪 Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"🏭 Allowed warehouse IDs: {allowed_warehouse_ids}")
+            
+            # Sessiyalarni filterlash
+            filtered_sessions = []
+            for session in sessions:
+                if session.location_type == 'store' and session.location_id in allowed_store_ids:
+                    filtered_sessions.append(session)
+                elif session.location_type == 'warehouse' and session.location_id in allowed_warehouse_ids:
+                    filtered_sessions.append(session)
+            
+            sessions = filtered_sessions
+            logger.debug(f"✅ Filtered sessions count: {len(sessions)}")
+        else:
+            logger.debug("✅ Admin user - showing all active sessions")
         
         sessions_data = []
         for session in sessions:
@@ -2366,7 +2393,7 @@ def api_check_stock_active_sessions():
 @app.route('/api/check_stock/completed_sessions')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_check_stock_completed_sessions():
-    """Tugatilgan tekshiruv sessiyalarini olish"""
+    """Tugatilgan tekshiruv sessiyalarini olish - faqat ruxsat etilgan joylashuvlar"""
     try:
         current_user = get_current_user()
         if not current_user:
@@ -2376,10 +2403,47 @@ def api_check_stock_completed_sessions():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
         
+        logger.debug(f"🔍 Completed Sessions - User: {current_user.username}, Role: {current_user.role}")
+        
+        # Base query
+        query = StockCheckSession.query.filter_by(status='completed')
+        
+        # Foydalanuvchi huquqlarini tekshirish
+        if current_user.role != 'admin':
+            # Oddiy foydalanuvchilar faqat ruxsat etilgan joylashuvlardagi sessiyalarni ko'radi
+            allowed_locations = current_user.allowed_locations or []
+            logger.debug(f"📍 User allowed_locations: {allowed_locations}")
+            
+            allowed_store_ids = extract_location_ids(allowed_locations, 'store')
+            allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
+            
+            logger.debug(f"🏪 Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"🏭 Allowed warehouse IDs: {allowed_warehouse_ids}")
+            
+            # Filterlash - faqat ruxsat etilgan joylashuvlar
+            from sqlalchemy import or_, and_
+            filters = []
+            if allowed_store_ids:
+                filters.append(and_(StockCheckSession.location_type == 'store', 
+                                   StockCheckSession.location_id.in_(allowed_store_ids)))
+            if allowed_warehouse_ids:
+                filters.append(and_(StockCheckSession.location_type == 'warehouse',
+                                   StockCheckSession.location_id.in_(allowed_warehouse_ids)))
+            
+            if filters:
+                query = query.filter(or_(*filters))
+            else:
+                # Agar hech qanday ruxsat yo'q bo'lsa, bo'sh natija
+                query = query.filter(StockCheckSession.id == -1)
+            
+            logger.debug(f"✅ Query filtered for non-admin user")
+        else:
+            logger.debug("✅ Admin user - showing all completed sessions")
+        
         # Tugatilgan sessiyalarni olish (pagination bilan)
-        pagination = StockCheckSession.query.filter_by(status='completed').order_by(
-            StockCheckSession.updated_at.desc()
-        ).paginate(page=page, per_page=per_page, error_out=False)
+        pagination = query.order_by(StockCheckSession.updated_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
         
         sessions_data = []
         for session in pagination.items:
