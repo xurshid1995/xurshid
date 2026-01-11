@@ -191,11 +191,11 @@
     // To'langan qarzlarni yuklash
     async function loadPaidDebts() {
         try {
-            const response = await fetch('/api/debts/paid');
+            const response = await fetch('/api/debt-payments');
             if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
             
             const data = await response.json();
-            paidDebts = data.paid_debts || [];
+            paidDebts = data.payments || [];
             
             // Jami to'langan summani hisoblash
             const totalPaid = paidDebts.reduce((sum, debt) => {

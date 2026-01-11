@@ -3990,14 +3990,43 @@ def api_debts():
 @app.route('/api/debts/paid')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_paid_debts():
-    """To'langan qarzlar tarixi - debt_payments jadvalidan"""
+    """To'langan qarzlar tarixi - faqat qarz to'lash orqali to'langan savdolar (eski format)"""
     try:
-        # Debt payments jadvalidan ma'lumotlarni olish
-        debt_payments = DebtPayment.query.order_by(DebtPayment.payment_date.desc()).limit(200).all()
-        
+        query = text("""
+            SELECT 
+                s.id as sale_id,
+                s.updated_at as payment_date,
+                s.created_at as sale_date,
+                c.name as customer_name,
+                s.total_amount as total_amount,
+                COALESCE(s.cash_usd, 0) as cash_usd,
+                COALESCE(s.click_usd, 0) as click_usd,
+                COALESCE(s.terminal_usd, 0) as terminal_usd
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            WHERE s.payment_status = 'paid' 
+                AND s.debt_usd = 0
+                AND s.total_amount > 0
+                AND (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) > 0
+                AND s.updated_at > s.created_at + INTERVAL '1 second'
+            ORDER BY s.updated_at DESC
+            LIMIT 200
+        """)
+
+        result = db.session.execute(query)
         paid_debts = []
-        for payment in debt_payments:
-            paid_debts.append(payment.to_dict())
+        
+        for row in result:
+            paid_debts.append({
+                'sale_id': row.sale_id,
+                'payment_date': row.payment_date.strftime('%Y-%m-%d %H:%M') if row.payment_date else None,
+                'sale_date': row.sale_date.strftime('%Y-%m-%d %H:%M'),
+                'customer_name': row.customer_name,
+                'total_amount': float(row.total_amount),
+                'cash_usd': float(row.cash_usd),
+                'click_usd': float(row.click_usd),
+                'terminal_usd': float(row.terminal_usd)
+            })
 
         return jsonify({
             'success': True,
@@ -4006,6 +4035,31 @@ def api_paid_debts():
 
     except Exception as e:
         app.logger.error(f"To'langan qarzlar API xatosi: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/debt-payments')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_debt_payment_history():
+    """Qarz to'lovlar tarixi - debt_payments jadvalidan (yangi format)"""
+    try:
+        # Debt payments jadvalidan ma'lumotlarni olish
+        debt_payments = DebtPayment.query.order_by(DebtPayment.payment_date.desc()).limit(200).all()
+        
+        payments = []
+        for payment in debt_payments:
+            payments.append(payment.to_dict())
+
+        return jsonify({
+            'success': True,
+            'payments': payments
+        })
+
+    except Exception as e:
+        app.logger.error(f"Qarz to'lovlar tarixi API xatosi: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
