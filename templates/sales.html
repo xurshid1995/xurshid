@@ -1005,6 +1005,24 @@
     }
     
     // ============================================
+    // HELPER FUNKSIYALAR
+    // ============================================
+    
+    // Faol tabdagi elementni topish
+    function getActiveTabElement(baseId) {
+        const activeTab = document.querySelector('.sales-tab.active');
+        if (!activeTab) return null;
+        const tabId = activeTab.dataset.tabId;
+        return document.getElementById(`${baseId}_tab${tabId}`);
+    }
+    
+    // Faol tab ID'sini olish
+    function getActiveTabId() {
+        const activeTab = document.querySelector('.sales-tab.active');
+        return activeTab ? activeTab.dataset.tabId : null;
+    }
+    
+    // ============================================
     // ESKI KOD - Bu yerdan davom etadi
     // ============================================
     
@@ -1343,20 +1361,24 @@
             setTimeout(() => {
                 addToCart(product.id, product.name, product.available_quantity, product.sell_price, product.cost_price);
                 // Universal qidiruv inputini tozalash
-                document.getElementById('universalSearch').value = '';
+                const universalSearch = getActiveTabElement('universalSearch');
+                if (universalSearch) universalSearch.value = '';
                 // Statusni yashirish
-                document.getElementById('searchStatus').style.display = 'none';
+                const searchStatus = getActiveTabElement('searchStatus');
+                if (searchStatus) searchStatus.style.display = 'none';
             }, 500);
             
         } catch (error) {
             console.error('❌ Barcode qidiruv xatosi:', error);
             showBarcodeStatus('❌ Server xatosi', 'error');
-            document.getElementById('universalSearch').value = '';
+            const universalSearch = getActiveTabElement('universalSearch');
+            if (universalSearch) universalSearch.value = '';
         }
     }
     
     function showBarcodeStatus(message, type) {
-        const statusDiv = document.getElementById('searchStatus');
+        const statusDiv = getActiveTabElement('searchStatus');
+        if (!statusDiv) return;
         statusDiv.textContent = message;
         statusDiv.style.display = 'block';
         
@@ -1479,15 +1501,19 @@
             }
             
             // Input maydoniga yozish
-            document.getElementById('universalSearch').value = code;
+            const universalSearch = getActiveTabElement('universalSearch');
+            if (universalSearch) universalSearch.value = code;
             
             // Scanner yopish
             stopBarcodeScanner();
             
             // Qidiruvni avtomatik ishga tushirish
             setTimeout(() => {
-                const event = new Event('input', { bubbles: true });
-                document.getElementById('universalSearch').dispatchEvent(event);
+                const universalSearch = getActiveTabElement('universalSearch');
+                if (universalSearch) {
+                    const event = new Event('input', { bubbles: true });
+                    universalSearch.dispatchEvent(event);
+                }
             }, 100);
         });
     }
@@ -2335,10 +2361,14 @@
         
         // Fokusni universal qidiruv maydoniga qaytarish
         setTimeout(() => {
-            const universalSearch = document.getElementById('universalSearch');
-            if (universalSearch) {
-                universalSearch.focus();
-                universalSearch.select(); // Matnni belgilash
+            const activeTab = document.querySelector('.sales-tab.active');
+            if (activeTab) {
+                const tabId = activeTab.dataset.tabId;
+                const universalSearch = document.getElementById(`universalSearch_tab${tabId}`);
+                if (universalSearch) {
+                    universalSearch.focus();
+                    universalSearch.select(); // Matnni belgilash
+                }
             }
         }, 200);
         
