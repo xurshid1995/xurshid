@@ -121,16 +121,208 @@
             font-size: 18px;
         }
     }
+    
+    /* ============================================ */
+    /* TAB SYSTEM STYLES - In-Page Tabs            */
+    /* ============================================ */
+    
+    .sales-tabs-wrapper {
+        background: white;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 0;
+        overflow: hidden;
+    }
+    
+    .sales-tabs-header {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #dee2e6;
+        padding: 8px 15px;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e0 #f1f3f5;
+    }
+    
+    .sales-tabs-header::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .sales-tabs-header::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+    
+    .sales-tabs-header::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 3px;
+    }
+    
+    .tabs-container {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+        align-items: center;
+    }
+    
+    .sales-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 6px 6px 0 0;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+        font-weight: 500;
+        color: #495057;
+        white-space: nowrap;
+        user-select: none;
+        min-width: 120px;
+        justify-content: space-between;
+    }
+    
+    .sales-tab:hover {
+        background: #dee2e6;
+        border-color: #adb5bd;
+    }
+    
+    .sales-tab.active {
+        background: white;
+        border-bottom-color: white;
+        color: #007bff;
+        font-weight: 600;
+        box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .tab-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .tab-close {
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 600;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+        transition: all 0.2s;
+        line-height: 1;
+    }
+    
+    .tab-close:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .sales-tab.active .tab-close:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-new-sale {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+    }
+    
+    .btn-new-sale:hover {
+        background: #218838;
+        box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    .btn-new-sale:active {
+        transform: translateY(0);
+    }
+    
+    .sales-tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    .sales-tab-content.active {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Tab badge (mijoz/mahsulotlar soni) */
+    .tab-badge {
+        background: #007bff;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-left: 4px;
+    }
+    
+    .sales-tab.active .tab-badge {
+        background: #0056b3;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="sales-container">
-    <div class="page-header">
-        <h1>🛒 Savdo Sahifasi</h1>
+    <!-- Tab System Header -->
+    <div class="sales-tabs-wrapper">
+        <div class="sales-tabs-header">
+            <div class="tabs-container" id="salesTabsContainer">
+                <!-- Tabs dinamik qo'shiladi -->
+            </div>
+            <button class="btn-new-sale" onclick="addNewSaleTab()" title="Yangi savdo ochish">
+                + Yangi Savdo
+            </button>
+        </div>
     </div>
+    
+    <!-- Tab Contents Wrapper -->
+    <div id="salesTabContentsWrapper">
+        <!-- Har bir tab content bu yerda bo'ladi -->
+    </div>
+</div>
 
-    <!-- Ikkita 665px kenglikda layout -->
+<!-- Tab Content Template -->
+<template id="saleTabContentTemplate">
+    <div class="sales-tab-content" data-tab-id="">
+        <div class="page-header" style="margin-top: 0; padding-top: 20px;">
+            <h1>🛒 Savdo Sahifasi</h1>
+        </div>
+
+        <!-- Ikkita 665px kenglikda layout -->
     <div class="sales-grid">
         <!-- Birinchi layout -->
         <div class="sales-layout-box" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); box-sizing: border-box;">
@@ -172,22 +364,48 @@
                 </div>
             </div>
             
-            <!-- Barcode Scanner Modal -->
-            <div id="barcodeScannerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
-                <div style="position: relative; background: white; border-radius: 10px; padding: 20px; max-width: 640px; width: 90%;">
-                    <button id="closeScannerBtn" type="button" style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 20px; cursor: pointer; z-index: 10000;" title="Yopish">×</button>
-                    <h3 style="text-align: center; margin-bottom: 15px; color: #333;">📷 Barcode Skaner</h3>
-                    <div id="barcodeScannerContainer" style="position: relative; width: 100%; height: 400px; background: #000; border-radius: 8px; overflow: hidden;">
-                        <div id="barcodeScanner" style="width: 100%; height: 100%;"></div>
-                        <div id="scannerOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 40%; border: 2px solid #28a745; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);"></div>
-                        </div>
+            <!-- Barcode Scanner Modal - TO'LIQ EKRAN -->
+            <div id="barcodeScannerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999;">
+                <!-- Yopish tugmasi -->
+                <button id="closeScannerBtn" type="button" style="position: fixed; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 28px; cursor: pointer; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(5px);" title="Yopish">×</button>
+                
+                <!-- Kamera video - TO'LIQ EKRAN -->
+                <div id="barcodeScannerContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000;">
+                    <div id="barcodeScanner" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                    
+                    <!-- Skaner overlay -->
+                    <div id="scannerOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <!-- Markaz ramka -->
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; height: 200px; border: 3px solid #28a745; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);"></div>
+                        <!-- Markaziy chiziq -->
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; height: 2px; background: linear-gradient(90deg, transparent, #28a745, transparent); animation: scanLine 2s ease-in-out infinite;"></div>
                     </div>
-                    <div id="scannerStatus" style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
-                        Barcode ni skaner qilish uchun markaz chizig'iga joylashtiring...
+                    
+                    <!-- Status pastda -->
+                    <div id="scannerStatus" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; text-align: center; font-size: 16px; font-weight: 600; color: white; padding: 15px 20px; background: rgba(40, 167, 69, 0.9); border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        📷 Barcode ni yashil ramka ichiga joylashtiring
                     </div>
                 </div>
             </div>
+            
+            <!-- Scan animatsiyasi -->
+            <style>
+                @keyframes scanLine {
+                    0%, 100% { top: 40%; opacity: 0.3; }
+                    50% { top: 60%; opacity: 1; }
+                }
+                
+                /* Video element to'liq ekran */
+                #barcodeScanner video {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                }
+                
+                #barcodeScanner canvas {
+                    display: none !important;
+                }
+            </style>
             
             <!-- Mahsulotlar jadvali -->
             <div class="table-wrapper" style="overflow-x: auto;">
@@ -387,7 +605,9 @@
             </div>
         </div>
     </div>
-</div>
+    </div> <!-- End of sales-tab-content -->
+</template> <!-- End of saleTabContentTemplate -->
+
 {% endblock %}
 
 {% block extra_js %}
@@ -395,6 +615,287 @@
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
 
 <script>
+    // ============================================
+    // TAB MANAGEMENT SYSTEM
+    // ============================================
+    
+    let salesTabs = [];
+    let activeTabId = null;
+    let tabCounter = 0;
+    
+    // Tab Storage - har tab uchun alohida ma'lumot
+    const TabStorage = {
+        getKey(tabId, key) {
+            return `sale_tab_${tabId}_${key}`;
+        },
+        
+        set(tabId, key, value) {
+            const fullKey = this.getKey(tabId, key);
+            localStorage.setItem(fullKey, JSON.stringify(value));
+        },
+        
+        get(tabId, key) {
+            const fullKey = this.getKey(tabId, key);
+            const data = localStorage.getItem(fullKey);
+            return data ? JSON.parse(data) : null;
+        },
+        
+        remove(tabId, key) {
+            const fullKey = this.getKey(tabId, key);
+            localStorage.removeItem(fullKey);
+        },
+        
+        clearTab(tabId) {
+            // Tabning barcha ma'lumotlarini o'chirish
+            const keys = Object.keys(localStorage);
+            const prefix = `sale_tab_${tabId}_`;
+            keys.forEach(key => {
+                if (key.startsWith(prefix)) {
+                    localStorage.removeItem(key);
+                }
+            });
+        },
+        
+        saveTabs() {
+            // Tablar strukturasini saqlash
+            localStorage.setItem('sales_tabs_structure', JSON.stringify(salesTabs));
+        },
+        
+        loadTabs() {
+            const data = localStorage.getItem('sales_tabs_structure');
+            return data ? JSON.parse(data) : [];
+        }
+    };
+    
+    // Sahifa yuklanganda tablarni tiklash
+    function initializeTabs() {
+        console.log('🚀 Tab sistemasi ishga tushirilmoqda...');
+        
+        // Saqlangan tablarni yuklash
+        const savedTabs = TabStorage.loadTabs();
+        
+        if (savedTabs.length > 0) {
+            console.log('📂 Saqlangan tablar topildi:', savedTabs.length);
+            savedTabs.forEach(tab => {
+                salesTabs.push(tab);
+                createTabElement(tab.id, tab.title);
+                createTabContent(tab.id);
+            });
+            
+            // Oxirgi aktiv tabni qayta tiklash
+            const lastActiveTab = savedTabs.find(t => t.active) || savedTabs[0];
+            switchToTab(lastActiveTab.id);
+            tabCounter = Math.max(...savedTabs.map(t => t.id)) + 1;
+        } else {
+            // Birinchi tabni yaratish
+            console.log('➕ Birinchi tab yaratilmoqda...');
+            addNewSaleTab();
+        }
+    }
+    
+    // Yangi tab qo'shish
+    function addNewSaleTab() {
+        const tabId = ++tabCounter;
+        const tabTitle = `Savdo ${tabId}`;
+        
+        console.log(`➕ Yangi tab yaratilmoqda: ${tabTitle} (ID: ${tabId})`);
+        
+        // Tab strukturasini saqlash
+        salesTabs.push({
+            id: tabId,
+            title: tabTitle,
+            active: false,
+            createdAt: new Date().toISOString()
+        });
+        
+        // Tab elementini yaratish
+        createTabElement(tabId, tabTitle);
+        
+        // Tab content yaratish
+        createTabContent(tabId);
+        
+        // Yangi tabga o'tish
+        switchToTab(tabId);
+        
+        // Saqlash
+        TabStorage.saveTabs();
+    }
+    
+    // Tab element yaratish
+    function createTabElement(tabId, title) {
+        const tabsContainer = document.getElementById('salesTabsContainer');
+        
+        const tabDiv = document.createElement('div');
+        tabDiv.className = 'sales-tab';
+        tabDiv.setAttribute('data-tab-id', tabId);
+        tabDiv.onclick = () => switchToTab(tabId);
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'tab-title';
+        titleSpan.textContent = title;
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'tab-close';
+        closeBtn.innerHTML = '×';
+        closeBtn.onclick = (e) => {
+            e.stopPropagation();
+            closeSaleTab(tabId);
+        };
+        
+        tabDiv.appendChild(titleSpan);
+        tabDiv.appendChild(closeBtn);
+        tabsContainer.appendChild(tabDiv);
+    }
+    
+    // Tab content yaratish
+    function createTabContent(tabId) {
+        const template = document.getElementById('saleTabContentTemplate');
+        const clone = template.content.cloneNode(true);
+        
+        const contentDiv = clone.querySelector('.sales-tab-content');
+        contentDiv.setAttribute('data-tab-id', tabId);
+        
+        // ID'larni unique qilish
+        updateElementIds(contentDiv, tabId);
+        
+        document.getElementById('salesTabContentsWrapper').appendChild(contentDiv);
+        
+        // Tab uchun ma'lumotlarni yuklash
+        loadTabData(tabId);
+    }
+    
+    // Element ID'larini tab-specific qilish
+    function updateElementIds(element, tabId) {
+        const suffix = `_tab${tabId}`;
+        
+        // Input va select elementlarni yangilash
+        const elementsWithIds = element.querySelectorAll('[id]');
+        elementsWithIds.forEach(el => {
+            const oldId = el.id;
+            const newId = oldId + suffix;
+            el.id = newId;
+            
+            // onclick, onchange kabi atributlarni yangilash
+            ['onclick', 'onchange', 'oninput'].forEach(attr => {
+                if (el.hasAttribute(attr)) {
+                    let attrValue = el.getAttribute(attr);
+                    // ID'larni almashtirish
+                    attrValue = attrValue.replace(/getElementById\('([^']+)'\)/g, 
+                        `getElementById('$1${suffix}')`);
+                    el.setAttribute(attr, attrValue);
+                }
+            });
+        });
+    }
+    
+    // Tabga o'tish
+    function switchToTab(tabId) {
+        console.log(`🔄 Tabga o'tilmoqda: ${tabId}`);
+        
+        // Barcha tablarni deactivate qilish
+        document.querySelectorAll('.sales-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.sales-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Tanlangan tabni activate qilish
+        const tabElement = document.querySelector(`.sales-tab[data-tab-id="${tabId}"]`);
+        const contentElement = document.querySelector(`.sales-tab-content[data-tab-id="${tabId}"]`);
+        
+        if (tabElement && contentElement) {
+            tabElement.classList.add('active');
+            contentElement.classList.add('active');
+            activeTabId = tabId;
+            
+            // Tablar strukturasini yangilash
+            salesTabs.forEach(tab => {
+                tab.active = (tab.id === tabId);
+            });
+            
+            TabStorage.saveTabs();
+            
+            // Tab ma'lumotlarini qayta yuklash
+            loadTabData(tabId);
+        }
+    }
+    
+    // Tabni yopish
+    function closeSaleTab(tabId) {
+        console.log(`❌ Tab yopilmoqda: ${tabId}`);
+        
+        // Agar faqat bitta tab qolgan bo'lsa, yopishga ruxsat bermaslik
+        if (salesTabs.length <= 1) {
+            alert('❌ Oxirgi tabni yopib bo\'lmaydi! Kamida bitta savdo tab ochiq bo\'lishi kerak.');
+            return;
+        }
+        
+        // Tab ma'lumotlarini tekshirish
+        const cart = TabStorage.get(tabId, 'cart') || [];
+        if (cart.length > 0) {
+            const confirmClose = confirm(
+                `⚠️ Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
+                'Tabni yopsangiz, barcha ma\'lumotlar o\'chadi.\n\n' +
+                'Davom etasizmi?'
+            );
+            if (!confirmClose) return;
+        }
+        
+        // Tabni o'chirish
+        const tabElement = document.querySelector(`.sales-tab[data-tab-id="${tabId}"]`);
+        const contentElement = document.querySelector(`.sales-tab-content[data-tab-id="${tabId}"]`);
+        
+        if (tabElement) tabElement.remove();
+        if (contentElement) contentElement.remove();
+        
+        // Strukturadan o'chirish
+        salesTabs = salesTabs.filter(tab => tab.id !== tabId);
+        
+        // Storage'dan o'chirish
+        TabStorage.clearTab(tabId);
+        TabStorage.saveTabs();
+        
+        // Agar yopilgan tab aktiv bo'lsa, boshqa tabga o'tish
+        if (activeTabId === tabId) {
+            const nextTab = salesTabs[salesTabs.length - 1];
+            if (nextTab) {
+                switchToTab(nextTab.id);
+            }
+        }
+    }
+    
+    // Tab ma'lumotlarini yuklash
+    function loadTabData(tabId) {
+        console.log(`📂 Tab ${tabId} uchun ma'lumotlar yuklanmoqda...`);
+        
+        // Saqlangan ma'lumotlarni olish
+        const cart = TabStorage.get(tabId, 'cart') || [];
+        const locationId = TabStorage.get(tabId, 'locationId');
+        const locationType = TabStorage.get(tabId, 'locationType');
+        const customerId = TabStorage.get(tabId, 'customerId');
+        const customerName = TabStorage.get(tabId, 'customerName');
+        
+        console.log('📦 Yuklangan ma\'lumotlar:', {cart, locationId, locationType, customerId, customerName});
+        
+        // TODO: Bu ma'lumotlarni UI'ga yuklash
+        // Bu qismni keyingi qadamda to'ldiraman
+    }
+    
+    // Tab ma'lumotlarini saqlash
+    function saveTabData(tabId) {
+        if (!activeTabId) return;
+        
+        console.log(`💾 Tab ${tabId} ma'lumotlari saqlanmoqda...`);
+        
+        // TODO: Hozirgi UI state'ni olish va saqlash
+        // Bu qismni keyingi qadamda to'ldiraman
+    }
+    
+    // ============================================
+    // ESKI KOD - Bu yerdan davom etadi
+    // ============================================
+    
     // Joylashuvlarni yuklash
     async function loadLocations() {
         try {
@@ -749,24 +1250,19 @@
         
         // HTTPS tekshiruvi
         if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            statusDiv.textContent = '⚠️ Kamera faqat HTTPS orqali ishlaydi. HTTP da ishlamaydi.';
-            statusDiv.style.color = '#dc3545';
-            alert('⚠️ Kamera skaner faqat HTTPS protokolida ishlaydi!\n\nSaytga HTTPS orqali kiring yoki barcodeni qo\'lda kiriting.');
+            alert('⚠️ Kamera skaner faqat HTTPS protokolida ishlaydi!');
             return;
         }
         
         // getUserMedia tekshiruvi
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            statusDiv.textContent = '⚠️ Brauzer kamerani qo\'llab-quvvatlamaydi';
-            statusDiv.style.color = '#dc3545';
-            alert('⚠️ Sizning brauzeringiz kamerani qo\'llab-quvvatlamaydi!\n\nBarcodeni qo\'lda kiriting.');
+            alert('⚠️ Brauzer kamerani qo\'llab-quvvatlamaydi!');
             return;
         }
         
-        modal.style.display = 'flex';
+        modal.style.display = 'block';
         scannerActive = true;
-        statusDiv.textContent = '🔄 Kamera ishga tushirilmoqda...';
-        statusDiv.style.color = '#0c5460';
+        statusDiv.innerHTML = '🔄 Kamera ochilmoqda...';
         
         Quagga.init({
             inputStream: {
@@ -774,49 +1270,58 @@
                 type: "LiveStream",
                 target: document.querySelector('#barcodeScanner'),
                 constraints: {
-                    width: 640,
-                    height: 480,
-                    facingMode: "environment" // Orqa kamera
+                    width: { min: 640, ideal: 1920, max: 1920 },
+                    height: { min: 480, ideal: 1080, max: 1080 },
+                    facingMode: { exact: "environment" }, // Orqa kamera majburiy
+                    aspectRatio: { ideal: 16/9 }
                 },
+                area: { // Faqat markaziy qismni scan qilish - TEZROQ
+                    top: "30%",
+                    right: "10%",
+                    left: "10%",
+                    bottom: "30%"
+                }
             },
+            locate: true,
+            numOfWorkers: 0, // Web Worker o'chirish - TEZROQ
+            frequency: 20, // 20 fps - TEZROQ
             decoder: {
                 readers: [
-                    "code_128_reader",
                     "ean_reader",
                     "ean_8_reader",
-                    "code_39_reader",
-                    "code_39_vin_reader",
-                    "codabar_reader",
+                    "code_128_reader",
                     "upc_reader",
-                    "upc_e_reader",
-                    "i2of5_reader"
-                ]
+                    "upc_e_reader"
+                ],
+                multiple: false
             },
+            locator: {
+                patchSize: "medium",
+                halfSample: true // Yarmi resolution - TEZROQ
+            }
         }, function(err) {
             if (err) {
                 console.error('❌ Scanner xatosi:', err);
-                let errorMsg = '❌ Kamera xatosi: ';
+                let errorMsg = '❌ ';
                 
-                if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
-                    errorMsg += 'Kamera ruxsati berilmadi. Brauzer sozlamalaridan ruxsat bering.';
-                } else if (err.message.includes('getUserMedia')) {
-                    errorMsg += 'Kamera APIsi mavjud emas. HTTPS ishlatilayotganligini tekshiring.';
-                } else if (err.message.includes('NotFoundError')) {
-                    errorMsg += 'Kamera topilmadi. Qurilmangizda kamera mavjudligini tekshiring.';
+                if (err.name === 'NotAllowedError') {
+                    errorMsg += 'Kamera ruxsati berilmadi';
+                } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
+                    // Orqa kamera topilmasa, istalgan kamerani ishlatish
+                    console.log('Orqa kamera topilmadi, standart kamera ishlatilmoqda...');
+                    startBarcodeScannerWithFallback();
+                    return;
                 } else {
-                    errorMsg += err.message || 'Noma\'lum xato';
+                    errorMsg += 'Kamera ochilmadi';
                 }
                 
-                statusDiv.textContent = errorMsg;
-                statusDiv.style.color = '#dc3545';
-                
+                statusDiv.innerHTML = errorMsg;
                 alert(errorMsg);
                 stopBarcodeScanner();
                 return;
             }
             console.log('✅ Scanner ishga tushdi');
-            statusDiv.textContent = "✅ Skaner ishlayapti - barcodeni markaz chizig'iga joylashtiring";
-            statusDiv.style.color = '#28a745';
+            statusDiv.innerHTML = "✅ Barcode ni yashil ramka ichiga joylashtiring";
             Quagga.start();
         });
 
@@ -826,21 +1331,74 @@
             const code = result.codeResult.code;
             console.log('📷 Barcode topildi:', code);
             
+            // Vibration feedback (telefon uchun)
+            if (navigator.vibrate) {
+                navigator.vibrate(200);
+            }
+            
             // Input maydoniga yozish
             document.getElementById('universalSearch').value = code;
             
             // Scanner yopish
             stopBarcodeScanner();
             
-            // Statusni ko'rsatish
-            statusDiv.textContent = "✅ Barcode o'qildi: " + code;
-            statusDiv.style.color = '#28a745';
-            
             // Qidiruvni avtomatik ishga tushirish
             setTimeout(() => {
                 const event = new Event('input', { bubbles: true });
                 document.getElementById('universalSearch').dispatchEvent(event);
-            }, 300);
+            }, 100);
+        });
+    }
+    
+    // Fallback: standart kamera bilan
+    function startBarcodeScannerWithFallback() {
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#barcodeScanner'),
+                constraints: {
+                    width: { min: 640, ideal: 1920 },
+                    height: { min: 480, ideal: 1080 }
+                },
+                area: {
+                    top: "30%",
+                    right: "10%",
+                    left: "10%",
+                    bottom: "30%"
+                }
+            },
+            locate: true,
+            numOfWorkers: 0,
+            frequency: 20,
+            decoder: {
+                readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"],
+                multiple: false
+            },
+            locator: {
+                patchSize: "medium",
+                halfSample: true
+            }
+        }, function(err) {
+            if (err) {
+                document.getElementById('scannerStatus').innerHTML = '❌ Kamera ishga tushmadi';
+                stopBarcodeScanner();
+                return;
+            }
+            document.getElementById('scannerStatus').innerHTML = "✅ Barcode ni yashil ramka ichiga joylashtiring";
+            Quagga.start();
+        });
+        
+        Quagga.onDetected(function(result) {
+            if (!scannerActive) return;
+            const code = result.codeResult.code;
+            if (navigator.vibrate) navigator.vibrate(200);
+            document.getElementById('universalSearch').value = code;
+            stopBarcodeScanner();
+            setTimeout(() => {
+                const event = new Event('input', { bubbles: true });
+                document.getElementById('universalSearch').dispatchEvent(event);
+            }, 100);
         });
     }
 
@@ -3203,6 +3761,7 @@
         console.log('📤 Savdoni backend ga yuborish:');
         console.log('   - Tahrirlash rejimi:', editingSaleId !== null);
         console.log('   - Original Sale ID:', editingSaleId);
+        console.log('   - Current Pending Sale ID:', currentPendingSaleId);
         console.log('   - Jami mahsulotlar:', saleData.items.length);
         console.log('   - Mijoz ID:', saleData.customer_id);
         console.log('   - Location ID:', saleData.location_id);
@@ -3211,11 +3770,31 @@
         console.log('Full sale data:', JSON.stringify(saleData, null, 2));
         
         try {
-            const response = await fetch('/api/create-sale', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(saleData)
-            });
+            let response;
+            
+            // YANGI MANTIQ: Agar pending savdo mavjud bo'lsa, faqat statusni o'zgartirish
+            if (currentPendingSaleId && !editingSaleId) {
+                console.log('🔄 Pending savdo statusini o\'zgartirish:', currentPendingSaleId);
+                // Pending savdoni yakunlash - faqat status o'zgartirish
+                response = await fetch(`/api/finalize-sale/${currentPendingSaleId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        payment: saleData.payment,
+                        payment_status: saleData.payment_status,
+                        customer_id: saleData.customer_id,
+                        exchange_rate: saleData.exchange_rate
+                    })
+                });
+            } else {
+                // Tahrirlash rejimida yoki pending yo'q bo'lsa - yangi savdo yaratish
+                console.log('➕ Yangi savdo yaratish (tahrirlash yoki pending yo\'q)');
+                response = await fetch('/api/create-sale', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(saleData)
+                });
+            }
             
             const result = await response.json();
             
@@ -3229,29 +3808,16 @@
             
             // Tahrirlash rejimida eski sahifaga qaytish
             if (editingSaleId) {
-                // Tahrirlash rejimida pending savdoni o'chirmaslik kerak!
-                // Chunki savdo allaqachon paid/partial statusga o'zgartirilgan
                 alert('✅ Savdo muvaffaqiyatli tahrirlandi!');
                 console.log('🔄 Sales history sahifasiga qaytish...');
                 window.location.href = '/sales-history';
-                return; // Qolgan koddan chiqish
+                return;
             }
             
-            // Faqat YANGI savdo yaratilganda pending savdoni o'chirish
-            // Pending savdoni o'chirish (chunki yakunlandi) - STOK QAYTARMASDAN
-            // Sabab: Frontend'da mahsulotlar korzinaga qo'shilganda stok allaqachon rezerv qilingan
-            // Backend'da create_sale() ishlaganda stok yana ayirilmaydi (allaqachon rezerv qilingan)
-            // Shuning uchun pending savdoni o'chirganda ham stokni qaytarmaslik kerak!
+            // Pending savdo ID ni tozalash (chunki yakunlandi)
             if (currentPendingSaleId) {
-                try {
-                    await fetch(`/api/sales/${currentPendingSaleId}?return_stock=false`, {
-                        method: 'DELETE'
-                    });
-                    console.log('🗑️ Pending savdo o\'chirildi (stok qaytarilmadi - chunki savdo yakunlandi):', currentPendingSaleId);
-                    currentPendingSaleId = null;
-                } catch (error) {
-                    console.error('⚠️ Pending savdoni o\'chirishda xatolik:', error);
-                }
+                console.log('✅ Pending savdo yakunlandi va paid/partial statusga o\'tdi:', currentPendingSaleId);
+                currentPendingSaleId = null;
             }
             
             alert('✅ Savdo muvaffaqiyatli yakunlandi!');
@@ -3274,6 +3840,21 @@
             alert('Savdoni saqlashda xatolik yuz berdi!');
         }
     }
-</script>
-{% endblock %}
-
+    
+    // ============================================
+    // TAB SYSTEM INITIALIZATION
+    // ============================================
+    
+    // Sahifa to'liq yuklanganda tab sistemani ishga tushirish
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎯 DOM yuklandi, tab sistemani ishga tushirish...');
+        initializeTabs();
+    });
+    
+    // Sahifa yopilganda yoki refresh qilinganda ma'lumotlarni saqlash
+    window.addEventListener('beforeunload', function() {
+        if (activeTabId) {
+            saveTabData(activeTabId);
+        }
+    });
+    

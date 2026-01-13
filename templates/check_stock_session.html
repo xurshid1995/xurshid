@@ -128,6 +128,17 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            <div id="productsPagination" style="display: none; margin-top: 15px; text-align: center; padding: 10px;">
+                <button id="prevPageBtn" onclick="prevProductsPage()" style="padding: 8px 16px; margin: 0 5px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    ← Oldingi
+                </button>
+                <span id="pageInfo" style="margin: 0 15px; font-weight: 600; font-size: 14px;"></span>
+                <button id="nextPageBtn" onclick="nextProductsPage()" style="padding: 8px 16px; margin: 0 5px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    Keyingi →
+                </button>
+            </div>
         </div>
 
         <!-- O'ng jadval - Tekshirilgan mahsulotlar -->
@@ -292,6 +303,11 @@ let checkedProducts = [];
 let allProducts = [];
 let currentFilter = 'all'; // Filtr holati: 'all', 'error', 'correct'
 
+// Pagination uchun o'zgaruvchilar
+let currentProductsPage = 1;
+const productsPerPage = 30;
+let currentDisplayProducts = []; // Hozirda ko'rsatiladigan mahsulotlar (qidiruv yoki barchasi)
+
 // Sahifa yuklanganda mahsulotlarni yuklash
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAllProducts();
@@ -323,10 +339,19 @@ async function syncCheckedProducts() {
             // Chap jadvaldan tekshirilganlarni olib tashlash
             allProducts = allProducts.filter(p => !serverCheckedIds.includes(p.id));
             
-            // Mahsulotlar ro'yxatidagi qidiruv maydonini saqlab qolish
-            const currentSearch = document.getElementById('productSearch').value;
-            displayProducts(allProducts);
-            document.getElementById('productSearch').value = currentSearch;
+            // Qidiruv maydonidagi qiymatni saqlab qolish
+            const currentSearch = document.getElementById('productSearch').value.trim().toLowerCase();
+            
+            // Agar qidiruv mavjud bo'lsa, filtrni qayta qo'llash
+            if (currentSearch.length > 0) {
+                const filtered = allProducts.filter(p => 
+                    p.name.toLowerCase().includes(currentSearch) || 
+                    (p.barcode && p.barcode.toLowerCase().includes(currentSearch))
+                );
+                displayProducts(filtered);
+            } else {
+                displayProducts(allProducts);
+            }
             
             // O'ng jadvalni yangilash
             updateCheckedTable();
@@ -395,7 +420,23 @@ document.getElementById('productSearch').addEventListener('input', function(e) {
             p.name.toLowerCase().includes(query) || 
             (p.barcode && p.barcode.toLowerCase().includes(query))
         );
+        console.log(`Qidiruv: "${query}" - Topildi: ${filtered.length} / ${allProducts.length}`);
         displayProducts(filtered);
+        
+        // Agar qidiruv natijasi bo'sh bo'lsa
+        if (filtered.length === 0) {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px 20px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">🔍</div>
+                        <div>"${query}" bo'yicha mahsulot topilmadi</div>
+                        <div style="font-size: 12px; margin-top: 10px;">Jami: ${allProducts.length} ta mahsulot</div>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('productsPagination').style.display = 'none';
+        }
     }
 });
 
@@ -471,9 +512,17 @@ async function searchProducts(query) {
     }
 }
 
-// Mahsulotlarni ko'rsatish (Virtual Scrolling bilan)
+// Mahsulotlarni ko'rsatish (Pagination bilan)
 function displayProducts(products) {
+    currentDisplayProducts = products;
+    currentProductsPage = 1; // Birinchi sahifaga qaytish
+    renderProductsPage();
+}
+
+// Sahifani render qilish
+function renderProductsPage() {
     const tbody = document.getElementById('productsTableBody');
+    const products = currentDisplayProducts;
     
     // Mahsulotlar sonini yangilash
     document.getElementById('productsCount').textContent = products.length;
@@ -487,70 +536,95 @@ function displayProducts(products) {
                 </td>
             </tr>
         `;
+        document.getElementById('productsPagination').style.display = 'none';
         return;
     }
     
+    // Pagination hisoblash
+    const totalPages = Math.ceil(products.length / productsPerPage);
+    const startIndex = (currentProductsPage - 1) * productsPerPage;
+    const endIndex = Math.min(startIndex + productsPerPage, products.length);
+    const pageProducts = products.slice(startIndex, endIndex);
+    
     tbody.innerHTML = '';
     
-    // Batch rendering - 50 tadan qo'shish
-    const batchSize = 50;
-    let currentIndex = 0;
-    
-    function renderBatch() {
-        const fragment = document.createDocumentFragment();
-        const endIndex = Math.min(currentIndex + batchSize, products.length);
+    // Sahifadagi mahsulotlarni ko'rsatish
+    pageProducts.forEach(product => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
         
-        for (let i = currentIndex; i < endIndex; i++) {
-            const product = products[i];
-            const row = document.createElement('tr');
-            row.style.cursor = 'pointer';
-            
-            // Row onclick hodisasi
-            row.addEventListener('click', function(e) {
-                if (e.target.tagName !== 'BUTTON') {
-                    addToChecked(product);
-                }
-            });
-            
-            row.innerHTML = `
-                <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
-                    <strong>${product.name}</strong>
-                </td>
-                <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                    ${product.price ? product.price.toLocaleString() + '$' : '-'}
-                </td>
-                <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                    <span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
-                        ${product.system_quantity}
-                    </span>
-                </td>
-                <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                    <button style="background: transparent; color: #28a745; border: none; padding: 4px 8px; cursor: pointer; font-size: 24px;">
-                        ➡️
-                    </button>
-                </td>
-            `;
-            
-            // Button uchun alohida click handler
-            const btn = row.querySelector('button');
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
+        // Row onclick hodisasi
+        row.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON') {
                 addToChecked(product);
-            });
-            
-            fragment.appendChild(row);
+            }
+        });
+        
+        row.innerHTML = `
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
+                <strong>${product.name}</strong>
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                ${product.price ? product.price.toLocaleString() + '$' : '-'}
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
+                    ${product.system_quantity}
+                </span>
+            </td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
+                <button style="background: transparent; color: #28a745; border: none; padding: 4px 8px; cursor: pointer; font-size: 24px;">
+                    ➡️
+                </button>
+            </td>
+        `;
+        
+        // Button uchun alohida click handler
+        const btn = row.querySelector('button');
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            addToChecked(product);
+        });
+        
+        tbody.appendChild(row);
+    });
+    
+    // Pagination ko'rsatish/yashirish
+    if (totalPages > 1) {
+        document.getElementById('productsPagination').style.display = 'block';
+        
+        // Qidiruv bo'lsa, qo'shimcha ma'lumot
+        const searchQuery = document.getElementById('productSearch').value.trim();
+        let pageText = `Sahifa ${currentProductsPage} / ${totalPages} (${startIndex + 1}-${endIndex} / ${products.length})`;
+        if (searchQuery && products.length < allProducts.length) {
+            pageText += ` | Qidiruv: "${searchQuery}"`;
         }
         
-        tbody.appendChild(fragment);
-        currentIndex = endIndex;
-        
-        // Yana mahsulotlar bo'lsa, keyingi batchni render qilish
-        if (currentIndex < products.length) {
-            requestAnimationFrame(renderBatch);
-        }
+        document.getElementById('pageInfo').textContent = pageText;
+        document.getElementById('prevPageBtn').disabled = currentProductsPage === 1;
+        document.getElementById('nextPageBtn').disabled = currentProductsPage === totalPages;
+    } else {
+        document.getElementById('productsPagination').style.display = 'none';
     }
     
-    renderBatch();
+    console.log(`Render: Page ${currentProductsPage}, Showing ${pageProducts.length} products (${startIndex + 1}-${endIndex} / ${products.length})`);
+}
+
+// Oldingi sahifa
+function prevProductsPage() {
+    if (currentProductsPage > 1) {
+        currentProductsPage--;
+        renderProductsPage();
+    }
+}
+
+// Keyingi sahifa
+function nextProductsPage() {
+    const totalPages = Math.ceil(currentDisplayProducts.length / productsPerPage);
+    if (currentProductsPage < totalPages) {
+        currentProductsPage++;
+        renderProductsPage();
+    }
 }
 
 // Modal oynani ochish

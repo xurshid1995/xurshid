@@ -2886,44 +2886,60 @@ def api_check_stock_finish():
         if not session:
             return jsonify({'success': False, 'message': 'Sessiya topilmadi'}), 404
 
-        # Tekshirilgan mahsulotlarni olish
-        checked_items = StockCheckItem.query.filter_by(
-            session_id=session_id,
-            status='checked'
+        # Tekshirilgan mahsulotlarni olish (barcha statuslar: kamomad, ortiqcha, normal)
+        # actual_quantity NULL bo'lmagan barcha mahsulotlar
+        checked_items = StockCheckItem.query.filter(
+            StockCheckItem.session_id == session_id,
+            StockCheckItem.actual_quantity.isnot(None)
         ).all()
 
+        logger.info(f"🔍 Found {len(checked_items)} items with actual_quantity in session {session_id}")
         updated_count = 0
+        errors = []
         
         # Har bir tekshirilgan mahsulot uchun tizim miqdorini yangilash
         for item in checked_items:
-            if item.actual_quantity is not None:
-                if session.location_type == 'store':
-                    # Do'kon stokini yangilash
-                    stock = StoreStock.query.filter_by(
-                        store_id=session.location_id,
-                        product_id=item.product_id
-                    ).first()
+            try:
+                if item.actual_quantity is not None:
+                    if session.location_type == 'store':
+                        # Do'kon stokini yangilash
+                        stock = StoreStock.query.filter_by(
+                            store_id=session.location_id,
+                            product_id=item.product_id
+                        ).first()
+                        
+                        if stock:
+                            old_qty = stock.quantity
+                            stock.quantity = item.actual_quantity
+                            updated_count += 1
+                            logger.info(f"📦 Store stock updated: Product {item.product_id} ({item.product_name}), "
+                                      f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
+                        else:
+                            error_msg = f"❌ Store stock not found: store_id={session.location_id}, product_id={item.product_id}"
+                            logger.error(error_msg)
+                            errors.append(error_msg)
                     
-                    if stock:
-                        old_qty = stock.quantity
-                        stock.quantity = item.actual_quantity
-                        updated_count += 1
-                        logger.info(f"📦 Store stock updated: Product {item.product_id}, "
-                                  f"Old: {old_qty}, New: {item.actual_quantity}")
-                
-                elif session.location_type == 'warehouse':
-                    # Ombor stokini yangilash
-                    stock = WarehouseStock.query.filter_by(
-                        warehouse_id=session.location_id,
-                        product_id=item.product_id
-                    ).first()
-                    
-                    if stock:
-                        old_qty = stock.quantity
-                        stock.quantity = item.actual_quantity
-                        updated_count += 1
-                        logger.info(f"📦 Warehouse stock updated: Product {item.product_id}, "
-                                  f"Old: {old_qty}, New: {item.actual_quantity}")
+                    elif session.location_type == 'warehouse':
+                        # Ombor stokini yangilash
+                        stock = WarehouseStock.query.filter_by(
+                            warehouse_id=session.location_id,
+                            product_id=item.product_id
+                        ).first()
+                        
+                        if stock:
+                            old_qty = stock.quantity
+                            stock.quantity = item.actual_quantity
+                            updated_count += 1
+                            logger.info(f"📦 Warehouse stock updated: Product {item.product_id} ({item.product_name}), "
+                                      f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
+                        else:
+                            error_msg = f"❌ Warehouse stock not found: warehouse_id={session.location_id}, product_id={item.product_id}"
+                            logger.error(error_msg)
+                            errors.append(error_msg)
+            except Exception as item_error:
+                error_msg = f"❌ Error updating product {item.product_id}: {str(item_error)}"
+                logger.error(error_msg)
+                errors.append(error_msg)
 
         # Sessiyani yakunlash
         session.status = 'completed'
@@ -2931,12 +2947,19 @@ def api_check_stock_finish():
         db.session.commit()
         
         logger.info(f"✅ Check stock finished: session_id={session_id}, user={current_user.username}, "
-                   f"updated={updated_count} products")
+                   f"updated={updated_count} products, errors={len(errors)}")
+        
+        message = f'Tekshiruv yakunlandi. {updated_count} ta mahsulot yangilandi.'
+        if errors:
+            message += f'\n\n⚠️ {len(errors)} ta xatolik:'
+            for err in errors[:3]:  # Faqat birinchi 3 ta xatolikni ko'rsatish
+                message += f'\n- {err}'
         
         return jsonify({
             'success': True,
-            'message': f'Tekshiruv yakunlandi. {updated_count} ta mahsulot yangilandi.',
-            'updated_count': updated_count
+            'message': message,
+            'updated_count': updated_count,
+            'errors': errors
         })
     except Exception as e:
         db.session.rollback()
