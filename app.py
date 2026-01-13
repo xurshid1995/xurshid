@@ -8972,6 +8972,9 @@ def api_sales_chart():
         amounts = []
         profits = []
         debts = []  # Qarzlar ro'yxati
+        cash_list = []  # Naqd pul
+        click_list = []  # Click
+        terminal_list = []  # Terminal
 
         if period == 'today':
             # Bugun filtri uchun 24 soatli ma'lumot yaratish
@@ -8997,11 +9000,17 @@ def api_sales_chart():
                     amounts.append(hourly_data[hour]['amount'])
                     profits.append(hourly_data[hour]['profit'])
                     debts.append(hourly_data[hour]['debt'])
+                    cash_list.append(hourly_data[hour]['cash'])
+                    click_list.append(hourly_data[hour]['click'])
+                    terminal_list.append(hourly_data[hour]['terminal'])
                 else:
                     values.append(0)
                     amounts.append(0.0)
                     profits.append(0.0)
                     debts.append(0.0)
+                    cash_list.append(0.0)
+                    click_list.append(0.0)
+                    terminal_list.append(0.0)
         else:
             # Hafta/oy filtri uchun kunlik ma'lumot
             for row in results:
@@ -9011,6 +9020,12 @@ def api_sales_chart():
                                else 0.0)  # savdo summasi
                 profits.append(float(row[3]) if row[3]
                                else 0.0)  # savdo foydasi
+                cash_list.append(float(row[4]) if len(row) > 4 and row[4]
+                                else 0.0)  # naqd pul
+                click_list.append(float(row[5]) if len(row) > 5 and row[5]
+                                 else 0.0)  # click
+                terminal_list.append(float(row[6]) if len(row) > 6 and row[6]
+                                    else 0.0)  # terminal
                 debts.append(float(row[7]) if len(row) > 7 and row[7]
                             else 0.0)  # qarz summasi
 
@@ -9028,6 +9043,9 @@ def api_sales_chart():
             'amounts': amounts,
             'profits': profits,
             'debts': debts,
+            'cash_list': cash_list,
+            'click_list': click_list,
+            'terminal_list': terminal_list,
             'payment_totals': payment_totals
         })
 

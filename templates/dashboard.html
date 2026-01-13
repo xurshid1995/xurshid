@@ -532,19 +532,31 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 const savdoSummasi = currentSalesData && currentSalesData.amounts ? currentSalesData.amounts[dataIndex] : 0;
                                 const savdoFoydasi = currentSalesData && currentSalesData.profits ? currentSalesData.profits[dataIndex] : 0;
                                 const qarzSummasi = currentSalesData && currentSalesData.debts ? currentSalesData.debts[dataIndex] : 0;
+                                const naqdPul = currentSalesData && currentSalesData.cash_list ? currentSalesData.cash_list[dataIndex] : 0;
+                                const click = currentSalesData && currentSalesData.click_list ? currentSalesData.click_list[dataIndex] : 0;
+                                const terminal = currentSalesData && currentSalesData.terminal_list ? currentSalesData.terminal_list[dataIndex] : 0;
                                 
                                 const formattedAmount = Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedProfit = Math.floor(savdoFoydasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedDebt = Math.floor(qarzSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                                const formattedCash = Math.floor(naqdPul).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                                const formattedClick = Math.floor(click).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                                const formattedTerminal = Math.floor(terminal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 
                                 const tooltipLines = [
                                     `📊 Savdo soni: ${savdoSoni}`,
-                                    `💰 Savdo summasi: ${formattedAmount} $`
+                                    `💰 Savdo summasi: ${formattedAmount} $`,
+                                    '' // Bo'sh qator
                                 ];
                                 
-                                // Qarzni ko'rsatish
-                                if (qarzSummasi > 0) {
-                                    tooltipLines.push(`📝 Qarz: ${formattedDebt} $`);
+                                // To'lov ma'lumotlarini ko'rsatish
+                                if (naqdPul > 0 || click > 0 || terminal > 0 || qarzSummasi > 0) {
+                                    tooltipLines.push('💳 To\'lovlar:');
+                                    if (naqdPul > 0) tooltipLines.push(`   💵 Naqd: ${formattedCash} $`);
+                                    if (click > 0) tooltipLines.push(`   📱 Click: ${formattedClick} $`);
+                                    if (terminal > 0) tooltipLines.push(`   💳 Terminal: ${formattedTerminal} $`);
+                                    if (qarzSummasi > 0) tooltipLines.push(`   📝 Qarz: ${formattedDebt} $`);
+                                    tooltipLines.push(''); // Bo'sh qator
                                 }
                                 
                                 // Faqat sotuvchi emas bo'lsa foydani ko'rsatish
