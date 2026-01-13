@@ -1135,26 +1135,41 @@
     
     // Mijoz qo'shish modal funksiyalari
     function openAddCustomerModal() {
-        document.getElementById('addCustomerModal').style.display = 'flex';
-        document.getElementById('newCustomerName').value = '';
-        document.getElementById('newCustomerPhone').value = '';
-        document.getElementById('newCustomerEmail').value = '';
-        document.getElementById('newCustomerAddress').value = '';
-        document.getElementById('newCustomerStore').value = '';
-        document.getElementById('addCustomerError').style.display = 'none';
-        document.getElementById('addCustomerSuccess').style.display = 'none';
+        const modal = document.getElementById('addCustomerModal');
+        const nameInput = document.getElementById('newCustomerName');
+        const phoneInput = document.getElementById('newCustomerPhone');
+        const emailInput = document.getElementById('newCustomerEmail');
+        const addressInput = document.getElementById('newCustomerAddress');
+        const storeInput = document.getElementById('newCustomerStore');
+        const errorDiv = document.getElementById('addCustomerError');
+        const successDiv = document.getElementById('addCustomerSuccess');
+        
+        if (!modal) {
+            console.error('❌ addCustomerModal element topilmadi!');
+            return;
+        }
+        
+        modal.style.display = 'flex';
+        if (nameInput) nameInput.value = '';
+        if (phoneInput) phoneInput.value = '';
+        if (emailInput) emailInput.value = '';
+        if (addressInput) addressInput.value = '';
+        if (storeInput) storeInput.value = '';
+        if (errorDiv) errorDiv.style.display = 'none';
+        if (successDiv) successDiv.style.display = 'none';
         
         // Do'konlar ro'yxatini yuklash
         loadStoresForModal();
         
         // Fokusni ism maydoniga berish
         setTimeout(() => {
-            document.getElementById('newCustomerName').focus();
+            if (nameInput) nameInput.focus();
         }, 100);
     }
     
     function closeAddCustomerModal() {
-        document.getElementById('addCustomerModal').style.display = 'none';
+        const modal = document.getElementById('addCustomerModal');
+        if (modal) modal.style.display = 'none';
     }
     
     // Do'konlar ro'yxatini yuklash
