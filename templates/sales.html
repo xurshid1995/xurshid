@@ -1869,13 +1869,14 @@
                     }
                 }
                 
+                const productName = product.name || `Mahsulot #${product.id}`;
+                const safeProductName = productName.replace(/'/g, "\\'");
+                const costPrice = product.cost_price || 0;
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.setAttribute('data-product-id', product.id);
                 row.setAttribute('data-cost-price', costPrice || 0);
-                const productName = product.name || `Mahsulot #${product.id}`;
-                const safeProductName = productName.replace(/'/g, "\\'");
-                const costPrice = product.cost_price || 0;
                 
                 // Mahsulot nomlarini console ga chiqarish (faqat birinchi marta)
                 if (!window.productsLogged) {
@@ -2911,13 +2912,14 @@
                     }
                 }
                 
+                const productName = product.name || `Mahsulot #${product.id}`;
+                const safeProductName = productName.replace(/'/g, "\\'");
+                const costPrice = product.cost_price || 0;
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.setAttribute('data-product-id', product.id);
                 row.setAttribute('data-cost-price', costPrice || 0);
-                const productName = product.name || `Mahsulot #${product.id}`;
-                const safeProductName = productName.replace(/'/g, "\\'");
-                const costPrice = product.cost_price || 0;
                 
                 // Highlight qilish - qidiruv so'zlarini
                 let highlightedName = productName;
