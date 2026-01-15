@@ -2730,7 +2730,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                     font-family: 'Courier New', monospace;
                     font-size: 12px;
                     line-height: 1.3;
-                    width: 58mm; /* Mini X90 kengligi */
+                    width: 80mm; /* 8cm thermal paper */
                     margin: 0 auto;
                     padding: 5mm;
                     background: white;
@@ -2798,13 +2798,13 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 }
                 
                 @page {
-                    size: 58mm auto;
+                    size: 80mm auto;
                     margin: 0;
                 }
                 
                 @media print {
                     body {
-                        width: 58mm;
+                        width: 80mm;
                         font-size: 10px;
                     }
                 }
