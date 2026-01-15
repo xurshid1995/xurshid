@@ -7064,7 +7064,7 @@ def finalize_sale(sale_id):
         
         db.session.commit()
         
-        logger.info(f"✅ Savdo yakunlandi: Sale ID {sale_id}, Status: {payment_status}")
+        logger.info(f"✅ Savdo yakunlandi: Sale ID {sale_id}, Status: {payment_status}, Location: {sale.location_id}/{sale.location_type}")
         
         return jsonify({
             'success': True,
@@ -8147,6 +8147,8 @@ def create_pending_sale(data):
         first_item = items[0]
         item_location_id = first_item.get('location_id')
         item_location_type = first_item.get('location_type')
+        
+        logger.info(f"📍 Location ma'lumotlari: location_id={item_location_id}, location_type={item_location_type}")
 
         # Store ID ni aniqlash
         if item_location_type == 'store':
@@ -8163,6 +8165,8 @@ def create_pending_sale(data):
         new_sale = Sale(
             customer_id=final_customer_id,
             store_id=store_id,
+            location_id=item_location_id,  # Multi-location support
+            location_type=item_location_type,  # Multi-location support
             seller_id=current_user.id,
             payment_method='cash',
             payment_status='pending',  # Pending holatda
@@ -8170,6 +8174,8 @@ def create_pending_sale(data):
             currency_rate=current_rate,
             created_by=f'{current_user.first_name} {current_user.last_name} - Pending'
         )
+        
+        logger.info(f"✅ Pending savdo yaratildi: location_id={new_sale.location_id}, location_type={new_sale.location_type}")
         
         # Agar asl savdo vaqti mavjud bo'lsa, uni o'rnatish
         if original_sale_date:
