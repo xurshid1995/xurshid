@@ -4313,7 +4313,14 @@
             const printUSD = document.getElementById('printReceiptUSD');
             const printUZS = document.getElementById('printReceiptUZS');
             
+            console.log('🖨️ Chek chiqarish tekshiruvi:');
+            console.log('   - printUSD element:', printUSD);
+            console.log('   - printUSD.checked:', printUSD ? printUSD.checked : 'element topilmadi');
+            console.log('   - printUZS element:', printUZS);
+            console.log('   - printUZS.checked:', printUZS ? printUZS.checked : 'element topilmadi');
+            
             if ((printUSD && printUSD.checked) || (printUZS && printUZS.checked)) {
+                console.log('✅ Chek chiqarish boshlandi...');
                 // Savdo ma'lumotlarini tayyorlash
                 const saleForPrint = {
                     id: result.sale_id || result.id,
@@ -4333,13 +4340,23 @@
                 
                 // USD chek chiqarish
                 if (printUSD && printUSD.checked) {
-                    setTimeout(() => generatePrintableReceipt(saleForPrint, 'usd'), 800);
+                    console.log('🖨️ USD chek chiqarish: 800ms dan keyin');
+                    setTimeout(() => {
+                        console.log('🖨️ USD chek oynasi ochilmoqda...');
+                        generatePrintableReceipt(saleForPrint, 'usd');
+                    }, 800);
                 }
                 
                 // UZS chek chiqarish
                 if (printUZS && printUZS.checked) {
-                    setTimeout(() => generatePrintableReceipt(saleForPrint, 'uzs'), 1600);
+                    console.log('🖨️ UZS chek chiqarish: 1600ms dan keyin');
+                    setTimeout(() => {
+                        console.log('🖨️ UZS chek oynasi ochilmoqda...');
+                        generatePrintableReceipt(saleForPrint, 'uzs');
+                    }, 1600);
                 }
+            } else {
+                console.log('ℹ️ Chek chiqarish belgilanmagan');
             }
             
             // Tahrirlash rejimida eski sahifaga qaytish
