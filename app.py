@@ -977,10 +977,10 @@ class Sale(db.Model):
             'terminal_usd': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
             'debt_usd': float(self.debt_usd) if self.debt_usd is not None else 0.0,
             'payment_details': {
-                'cash': float(self.cash_amount) if self.cash_amount is not None else 0.0,
-                'click': float(self.click_amount) if self.click_amount is not None else 0.0,
-                'terminal': float(self.terminal_amount) if self.terminal_amount is not None else 0.0,
-                'debt': float(self.debt_amount) if self.debt_amount is not None else 0.0
+                'cash': float(self.cash_usd) if self.cash_usd is not None else 0.0,
+                'click': float(self.click_usd) if self.click_usd is not None else 0.0,
+                'terminal': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
+                'debt': float(self.debt_usd) if self.debt_usd is not None else 0.0
             },
             'notes': self.notes if self.notes else '',
             'currency_rate': float(
