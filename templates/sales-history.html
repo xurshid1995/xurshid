@@ -2366,8 +2366,11 @@ function showSaleDetailsModal(sale) {
                 <div class="modal-header">
                     <h3><i class="fas fa-eye"></i> Savdo Tafsilotlari</h3>
                     <div class="modal-header-actions">
-                        <button class="btn-print" onclick="printSaleReceipt()" title="Chop etish">
-                            <i class="fas fa-print"></i> Chop etish
+                        <button class="btn-print" onclick="printSaleReceipt('uzs')" title="UZS chop etish" style="background: #28a745;">
+                            <i class="fas fa-print"></i> UZS chop etish
+                        </button>
+                        <button class="btn-print" onclick="printSaleReceipt('usd')" title="USD chop etish" style="background: #17a2b8;">
+                            <i class="fas fa-print"></i> USD chop etish
                         </button>
                         <button class="btn-excel" onclick="exportSaleToExcel()" title="Excel ga export">
                             <i class="fas fa-file-excel"></i> Excel
@@ -2651,18 +2654,20 @@ function generateExcelHTML(sale) {
 }
 
 // Chop etish funksiyasi - Mini X90 printer uchun
-function printSaleReceipt() {
+function printSaleReceipt(currency = 'uzs') {
     if (!currentSaleData) {
         alert('❌ Savdo ma\'lumotlari topilmadi!');
         return;
     }
     
-    console.log('Chop etish: Savdo ID', currentSaleData.id);
-    generatePrintableReceipt(currentSaleData);
+    console.log('Chop etish: Savdo ID', currentSaleData.id, 'Valyuta:', currency);
+    generatePrintableReceipt(currentSaleData, currency);
 }
 
 // Mini X90 printer uchun chek yaratish
-function generatePrintableReceipt(sale) {
+function generatePrintableReceipt(sale, currency = 'uzs') {
+    const exchangeRate = 12700;
+    const currencySymbol = currency === 'uzs' ? 'so\'m' : '$';
     const receiptWindow = window.open('', '_blank', 'width=400,height=600');
     
     const receiptHTML = `
@@ -2788,13 +2793,19 @@ function generatePrintableReceipt(sale) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${sale.items.map(item => `
+                        ${sale.items.map(item => {
+                            const priceUSD = parseFloat(item.unit_price);
+                            const priceDisplay = currency === 'uzs' 
+                                ? Math.round(priceUSD * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                                : '$' + priceUSD.toFixed(2);
+                            
+                            return `
                             <tr style="border-bottom: 1.5px solid #000;">
                                 <td style="padding: 2mm 2mm; word-wrap: break-word; max-width: 25mm; border-right: 1.5px solid #000; font-weight: bold;">${item.product_name}</td>
                                 <td style="padding: 2mm 2mm; text-align: center; border-right: 1.5px solid #000; font-weight: bold;">${item.quantity}</td>
-                                <td style="padding: 2mm 2mm; text-align: right; font-weight: bold;">$${parseFloat(item.unit_price).toFixed(2)}</td>
+                                <td style="padding: 2mm 2mm; text-align: right; font-weight: bold;">${priceDisplay}</td>
                             </tr>
-                        `).join('')}
+                        `}).join('')}
                     </tbody>
                 </table>
             </div>
@@ -2802,7 +2813,10 @@ function generatePrintableReceipt(sale) {
             <div class="totals">
                 <div class="total-line main">
                     <span>Jami summa:</span>
-                    <span>$${parseFloat(sale.total_amount).toFixed(2)}</span>
+                    <span>${currency === 'uzs' 
+                        ? Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                        : '$' + parseFloat(sale.total_amount).toFixed(2)
+                    }</span>
                 </div>
             </div>
             
