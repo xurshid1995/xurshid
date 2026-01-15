@@ -4333,7 +4333,7 @@
                 
                 // To'lov turlarini tanlangan valyutada formatlash
                 const paymentDetails = [];
-                const exchangeRate = 12700;
+                // Global exchangeRate o'zgaruvchisidan foydalanish
                 
                 if (selectedCurrency === 'uzs') {
                     if (cashUSD > 0) paymentDetails.push('Naqd: ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
@@ -4485,7 +4485,7 @@
     
     // Chek chiqarish funksiyasi
     function generatePrintableReceipt(sale, currency = 'uzs') {
-        const exchangeRate = 12700;
+        // Global exchangeRate o'zgaruvchisidan foydalanish
         const receiptWindow = window.open('', '_blank', 'width=400,height=600');
         
         // Popup blocker tekshiruvi
