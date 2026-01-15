@@ -3653,6 +3653,15 @@
         
         // Event listener'lar har bir tab uchun setupTabEventListeners'da o'rnatiladi
         
+        // Session ma'lumotlarini tekshirish
+        console.log('🔐 Session ma\'lumotlari:', {
+            username: '{{ session.get("username", "None") }}',
+            user_name: '{{ session.get("user_name", "None") }}',
+            user_phone: '{{ session.get("user_phone", "None") }}',
+            user_id: '{{ session.get("user_id", "None") }}',
+            role: '{{ session.get("role", "None") }}'
+        });
+        
         console.log('✅ Sales sahifasi tayyor');
     });
     
