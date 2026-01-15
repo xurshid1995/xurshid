@@ -877,10 +877,10 @@ function showSaleDetailsModal(sale) {
     
     let itemsHtml = '';
     if (sale.items && sale.items.length > 0) {
+        const exchangeRate = 12700;
         itemsHtml = sale.items.map(item => {
             const unitPriceUSD = parseFloat(item.unit_price || 0);
             const totalPriceUSD = parseFloat(item.total_price || 0);
-            const exchangeRate = parseFloat(document.getElementById('exchangeRate')?.value) || 12700;
             const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
             const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
             
