@@ -430,6 +430,10 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination -->
+            <div id="productsPagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 15px; padding: 10px;">
+                <!-- Pagination tugmalari bu yerda dinamik qo'shiladi -->
+            </div>
         </div>
 
         <!-- Ikkinchi layout -->
@@ -1902,7 +1906,14 @@
     }
     
     // Mahsulotlarni yuklash
-    async function loadProducts() {
+    // Pagination o'zgaruvchilari
+    let currentPage = 1;
+    const itemsPerPage = 30;
+    let allProducts = [];
+
+    async function loadProducts(page = 1) {
+        currentPage = page;
+        
         // Faol tabdagi elementlarni topish
         const activeTab = document.querySelector('.sales-tab.active');
         if (!activeTab) {
@@ -1924,6 +1935,7 @@
             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 30px; color: #999;">Joylashuvni tanlang</td></tr>';
             selectedLocationId = null;
             selectedLocationType = null;
+            document.getElementById(`productsPagination_tab${tabId}`).innerHTML = '';
             return;
         }
         
@@ -1950,14 +1962,22 @@
             
             // API dan kelgan ma'lumotni tekshirish
             const products = Array.isArray(data) ? data : (data.products || []);
+            allProducts = products;
             
             if (products.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">Mahsulotlar topilmadi</td></tr>';
+                document.getElementById(`productsPagination_tab${tabId}`).innerHTML = '';
                 return;
             }
             
+            // Pagination hisoblash
+            const totalPages = Math.ceil(products.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentProducts = products.slice(startIndex, endIndex);
+            
             tbody.innerHTML = '';
-            products.forEach(product => {
+            currentProducts.forEach(product => {
                 // Quantity va selling price ni olish
                 let quantity = 0;
                 let sellingPrice = product.sell_price || product.price || 0;
@@ -2024,7 +2044,52 @@
                 window.productsLogged = true;
             }
             
-            console.log(`✅ ${products.length} ta mahsulot yuklandi`);
+            // Pagination yaratish
+            const paginationDiv = document.getElementById(`productsPagination_tab${tabId}`);
+            if (totalPages > 1) {
+                let paginationHTML = `<span style="color: #666; font-size: 14px;">${products.length} ta mahsulot (${currentPage} / ${totalPages} bet)</span>`;
+                
+                // Oldingi tugma
+                if (currentPage > 1) {
+                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">← Oldingi</button>`;
+                }
+                
+                // Sahifa raqamlari (faqat yaqin sahifalarni ko'rsatish)
+                const pagesToShow = [];
+                if (totalPages <= 7) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        pagesToShow.push(i);
+                    }
+                } else {
+                    pagesToShow.push(1);
+                    if (currentPage > 3) pagesToShow.push('...');
+                    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                        if (!pagesToShow.includes(i)) pagesToShow.push(i);
+                    }
+                    if (currentPage < totalPages - 2) pagesToShow.push('...');
+                    if (!pagesToShow.includes(totalPages)) pagesToShow.push(totalPages);
+                }
+                
+                pagesToShow.forEach(page => {
+                    if (page === '...') {
+                        paginationHTML += `<span style="padding: 8px 12px; color: #999;">...</span>`;
+                    } else {
+                        const isActive = page === currentPage;
+                        paginationHTML += `<button onclick="loadProducts(${page})" style="padding: 8px 12px; border: 1px solid ${isActive ? '#007bff' : '#ddd'}; background: ${isActive ? '#007bff' : 'white'}; color: ${isActive ? 'white' : '#333'}; cursor: pointer; border-radius: 4px; font-weight: ${isActive ? 'bold' : 'normal'};">${page}</button>`;
+                    }
+                });
+                
+                // Keyingi tugma
+                if (currentPage < totalPages) {
+                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi →</button>`;
+                }
+                
+                paginationDiv.innerHTML = paginationHTML;
+            } else {
+                paginationDiv.innerHTML = `<span style="color: #666; font-size: 14px;">${products.length} ta mahsulot</span>`;
+            }
+            
+            console.log(`✅ ${currentProducts.length} / ${products.length} ta mahsulot yuklandi (${currentPage}-bet)`);
         } catch (error) {
             console.error('Mahsulotlarni yuklashda xatolik:', error);
             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;">⚠️ Xatolik yuz berdi</td></tr>';
