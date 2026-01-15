@@ -4321,16 +4321,29 @@
             
             if ((printUSD && printUSD.checked) || (printUZS && printUZS.checked)) {
                 console.log('✅ Chek chiqarish boshlandi...');
+                
+                // Mijoz ma'lumotlarini olish
+                const customerSearchInput = getActiveTabElement('customerSearch');
+                const customerName = customerId && customerSearchInput ? customerSearchInput.value : 'Naqd mijoz';
+                
+                // To'lov turlarini formatlash
+                const paymentDetails = [];
+                if (cashUSD > 0) paymentDetails.push('Naqd: $' + cashUSD.toFixed(2));
+                if (clickUSD > 0) paymentDetails.push('Click: $' + clickUSD.toFixed(2));
+                if (terminalUSD > 0) paymentDetails.push('Terminal: $' + terminalUSD.toFixed(2));
+                if (debtUSD > 0) paymentDetails.push('Qarz: $' + debtUSD.toFixed(2));
+                
                 // Savdo ma'lumotlarini tayyorlash
                 const saleForPrint = {
                     id: result.sale_id || result.id,
                     sale_date: new Date().toISOString(),
-                    customer_name: customerId ? (document.getElementById('customerSearch')?.value || 'Mijoz') : 'Naqd',
+                    customer_name: customerName,
                     customer_phone: '',
                     seller_name: '{% if current_user and current_user.is_authenticated %}{{ current_user.username }}{% else %}Admin{% endif %}',
                     seller_phone: '',
                     store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
                     total_amount: totalUSD,
+                    payment_details: paymentDetails.join(', '),
                     items: cart.map(item => ({
                         product_name: item.name || item.productName,
                         quantity: item.quantity,
@@ -4541,7 +4554,8 @@
                         <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
                         <div>Sotuvchi: ${sale.seller_name || 'Admin'}</div>
                         <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
-                            <div><strong>Mijoz:</strong> ${sale.customer_name || 'Naqd'}</div>
+                            <div><strong>Mijoz:</strong> ${sale.customer_name || 'Naqd mijoz'}</div>
+                            ${sale.payment_details ? '<div style="margin-top: 1mm;"><strong>To\'lov:</strong> ' + sale.payment_details + '</div>' : ''}
                         </div>
                     </div>
                 </div>
