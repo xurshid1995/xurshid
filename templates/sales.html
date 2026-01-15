@@ -1977,7 +1977,7 @@
                 const cached = productsCache.get(cacheKey);
                 products = cached.products;
                 totalProducts = cached.total;
-                console.log('✅ Cache'dan yuklandi:', products.length, 'ta mahsulot');
+                console.log("✅ Cache'dan yuklandi:", products.length, "ta mahsulot");
             } else {
                 // Backend'dan sahifa-sahifa yuklash
                 const response = await fetch(`/api/products?location=${locationValue}&page=${page}&per_page=${itemsPerPage}`);
