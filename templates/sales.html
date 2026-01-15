@@ -482,6 +482,18 @@
                 </div>
             </div>
             
+            <!-- Chek chiqarish opsiyalari -->
+            <div style="display: flex; gap: 20px; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="printReceiptUSD" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 500;">🖨️ USD chek chiqarish</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="printReceiptUZS" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 500;">🖨️ UZS chek chiqarish</span>
+                </label>
+            </div>
+            
             <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">💵 Naxt:</label>
@@ -4297,6 +4309,39 @@
             
             console.log('✅ Savdo muvaffaqiyatli saqlandi:', result);
             
+            // Chek chiqarish opsiyalarini tekshirish
+            const printUSD = document.getElementById('printReceiptUSD');
+            const printUZS = document.getElementById('printReceiptUZS');
+            
+            if ((printUSD && printUSD.checked) || (printUZS && printUZS.checked)) {
+                // Savdo ma'lumotlarini tayyorlash
+                const saleForPrint = {
+                    id: result.sale_id || result.id,
+                    sale_date: new Date().toISOString(),
+                    customer_name: customerId ? (document.getElementById('customerSearch')?.value || 'Mijoz') : 'Naqd',
+                    customer_phone: '',
+                    seller_name: '{{ user.username }}',
+                    seller_phone: '',
+                    store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
+                    total_amount: totalUSD,
+                    items: cart.map(item => ({
+                        product_name: item.name || item.productName,
+                        quantity: item.quantity,
+                        unit_price: item.priceUSD
+                    }))
+                };
+                
+                // USD chek chiqarish
+                if (printUSD && printUSD.checked) {
+                    setTimeout(() => generatePrintableReceipt(saleForPrint, 'usd'), 300);
+                }
+                
+                // UZS chek chiqarish
+                if (printUZS && printUZS.checked) {
+                    setTimeout(() => generatePrintableReceipt(saleForPrint, 'uzs'), 600);
+                }
+            }
+            
             // Tahrirlash rejimida eski sahifaga qaytish
             if (editingSaleId) {
                 alert('✅ Savdo muvaffaqiyatli tahrirlandi!');
@@ -4400,6 +4445,131 @@
             saveTabData(activeTabId);
         }
     });
+    
+    // Chek chiqarish funksiyasi
+    function generatePrintableReceipt(sale, currency = 'uzs') {
+        const exchangeRate = 12700;
+        const receiptWindow = window.open('', '_blank', 'width=400,height=600');
+        
+        const receiptHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Savdo Cheki #${sale.id}</title>
+                <meta charset="utf-8">
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    
+                    body {
+                        font-family: 'Courier New', monospace;
+                        font-size: 12px;
+                        line-height: 1.3;
+                        width: 58mm;
+                        margin: 0 auto;
+                        padding: 5mm;
+                        background: white;
+                    }
+                    
+                    .header {
+                        text-align: center;
+                        border-bottom: 1px dashed #000;
+                        padding-bottom: 5mm;
+                        margin-bottom: 3mm;
+                    }
+                    
+                    .shop-name {
+                        font-size: 16px;
+                        font-weight: bold;
+                        margin-bottom: 2mm;
+                    }
+                    
+                    .receipt-info {
+                        margin-bottom: 3mm;
+                        font-size: 10px;
+                    }
+                    
+                    @page {
+                        size: 58mm auto;
+                        margin: 0;
+                    }
+                    
+                    @media print {
+                        body {
+                            width: 58mm;
+                            font-size: 10px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="shop-name">${sale.store_name || 'Do\'kon'}</div>
+                    <div class="receipt-info">
+                        <div>Chek #${sale.id}</div>
+                        <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
+                        <div>Sotuvchi: ${sale.seller_name || '{{ user.username }}'}</div>
+                        <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
+                            <div><strong>Mijoz:</strong> ${sale.customer_name || 'Naqd'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="items">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1.5px solid #000;">
+                        <thead>
+                            <tr style="border-bottom: 1.5px solid #000;">
+                                <th style="text-align: left; padding: 2mm 2mm; font-weight: bold; border-right: 1.5px solid #000;">Mahsulot</th>
+                                <th style="text-align: center; padding: 2mm 2mm; font-weight: bold; border-right: 1.5px solid #000;">Miqdor</th>
+                                <th style="text-align: right; padding: 2mm 2mm; font-weight: bold;">Narx</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sale.items.map(item => {
+                                const priceUSD = parseFloat(item.unit_price);
+                                const priceDisplay = currency === 'uzs' 
+                                    ? Math.round(priceUSD * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                                    : '$' + priceUSD.toFixed(2);
+                                
+                                return `
+                                <tr style="border-bottom: 1.5px solid #000;">
+                                    <td style="padding: 2mm 2mm; word-wrap: break-word; max-width: 25mm; border-right: 1.5px solid #000; font-weight: bold;">${item.product_name}</td>
+                                    <td style="padding: 2mm 2mm; text-align: center; border-right: 1.5px solid #000; font-weight: bold;">${item.quantity}</td>
+                                    <td style="padding: 2mm 2mm; text-align: right; font-weight: bold;">${priceDisplay}</td>
+                                </tr>
+                            `}).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="totals" style="margin-top: 3mm;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-top: 1px solid #000; padding-top: 2mm;">
+                        <span>Jami summa:</span>
+                        <span>${currency === 'uzs' 
+                            ? Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                            : '$' + parseFloat(sale.total_amount).toFixed(2)
+                        }</span>
+                    </div>
+                </div>
+                
+                <div class="footer" style="text-align: center; padding-top: 3mm; font-size: 10px;">
+                    <div>Rahmat!</div>
+                    <div>Yana tashrif buyuring!</div>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        receiptWindow.document.write(receiptHTML);
+        receiptWindow.document.close();
+        
+        setTimeout(() => {
+            receiptWindow.print();
+        }, 500);
+    }
     
 </script>
 {% endblock %}
