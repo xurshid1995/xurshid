@@ -1955,7 +1955,8 @@
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">⏳ Yuklanmoqda...</td></tr>';
         
         try {
-            const response = await fetch(`/api/products?location=${locationValue}`);
+            // Barcha mahsulotlarni olish uchun katta per_page berish
+            const response = await fetch(`/api/products?location=${locationValue}&per_page=20000`);
             const data = await response.json();
             
             console.log('API response:', data);
