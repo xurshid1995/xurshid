@@ -2046,9 +2046,23 @@
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
-                        <button onclick="addToCart(${product.id}, '${safeProductName}', ${quantity}, ${sellingPrice}, ${costPrice})" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
+                        <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
                     </td>
                 `;
+                
+                // Event listener qo'shish
+                const btn = row.querySelector('.add-to-cart-btn');
+                if (btn && !btn.disabled) {
+                    btn.addEventListener('click', function() {
+                        const productId = parseInt(this.dataset.productId);
+                        const productName = this.dataset.productName;
+                        const quantity = parseInt(this.dataset.quantity);
+                        const price = parseFloat(this.dataset.price);
+                        const costPrice = parseFloat(this.dataset.costPrice);
+                        addToCart(productId, productName, quantity, price, costPrice);
+                    });
+                }
+                
                 fragment.appendChild(row);
             });
             
@@ -3217,9 +3231,23 @@
                         <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
-                        <button onclick="addToCart(${product.id}, '${safeProductName}', ${quantity}, ${sellingPrice}, ${costPrice})" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
+                        <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
                     </td>
                 `;
+                
+                // Event listener qo'shish
+                const btn = row.querySelector('.add-to-cart-btn');
+                if (btn && !btn.disabled) {
+                    btn.addEventListener('click', function() {
+                        const productId = parseInt(this.dataset.productId);
+                        const productName = this.dataset.productName;
+                        const quantity = parseInt(this.dataset.quantity);
+                        const price = parseFloat(this.dataset.price);
+                        const costPrice = parseFloat(this.dataset.costPrice);
+                        addToCart(productId, productName, quantity, price, costPrice);
+                    });
+                }
+                
                 tbody.appendChild(row);
             });
             
