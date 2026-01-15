@@ -2819,6 +2819,8 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 </div>
             </div>
             
+            ${sale.payment_details ? '<div style="margin-top: 3mm; padding: 2mm; background: #f8f9fa; border-radius: 2mm;"><strong style="font-size: 10px;">To\'lov:</strong><br><div style="margin-top: 2mm; font-size: 10px; font-weight: bold;">' + sale.payment_details.replace(/ \/ /g, '<br>') + '</div></div>' : ''}
+            
             <div class="footer">
                 <div>Rahmat!</div>
                 <div>Yana tashrif buyuring!</div>
@@ -2832,8 +2834,8 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
     
     // Chop etish dialogini ochish
     setTimeout(() => {
+        receiptWindow.focus();
         receiptWindow.print();
-        // receiptWindow.close(); // Foydalanuvchi o'zi yopadi
     }, 500);
 }
 
