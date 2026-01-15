@@ -4320,7 +4320,7 @@
                     sale_date: new Date().toISOString(),
                     customer_name: customerId ? (document.getElementById('customerSearch')?.value || 'Mijoz') : 'Naqd',
                     customer_phone: '',
-                    seller_name: '{{ user.username }}',
+                    seller_name: '{% if current_user and current_user.is_authenticated %}{{ current_user.username }}{% else %}Admin{% endif %}',
                     seller_phone: '',
                     store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
                     total_amount: totalUSD,
@@ -4511,7 +4511,7 @@
                     <div class="receipt-info">
                         <div>Chek #${sale.id}</div>
                         <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
-                        <div>Sotuvchi: ${sale.seller_name || '{{ user.username }}'}</div>
+                        <div>Sotuvchi: ${sale.seller_name || 'Admin'}</div>
                         <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
                             <div><strong>Mijoz:</strong> ${sale.customer_name || 'Naqd'}</div>
                         </div>
