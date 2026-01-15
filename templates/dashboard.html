@@ -321,16 +321,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadLocations() {
     try {
+        console.log('🔍 Joylashuvlarni yuklash boshlandi...');
         const response = await fetch('/api/stores-warehouses');
+        console.log('📡 API javobi:', response.status, response.statusText);
+        
         const data = await response.json();
+        console.log('📊 Joylashuvlar ma\'lumoti:', data);
         
         const buttonsContainer = document.getElementById('locationButtons');
+        console.log('📦 Tugmalar kontayneri:', buttonsContainer);
         
         // "Barchasi" tugmasi CSS orqali boshqariladi
         
         const locations = data.locations || [];
+        console.log('📍 Jami joylashuvlar:', locations.length);
         
-        locations.forEach((location) => {
+        locations.forEach((location, index) => {
+            console.log(`✅ Joylashuv #${index + 1}:`, location.name, location.type, location.id);
+            
             const button = document.createElement('button');
             button.className = 'btn btn-sm me-2 mb-2 location-btn';
             button.setAttribute('data-location', location.id);
@@ -343,21 +351,35 @@ async function loadLocations() {
             button.innerHTML = `${icon} ${location.name}`;
             
             buttonsContainer.appendChild(button);
+            console.log(`🔘 Tugma qo'shildi: ${location.name}`);
         });
+        
+        console.log('✅ Barcha joylashuvlar yuklandi!');
     } catch (error) {
-        console.error('Joylashuvlarni yuklashda xatolik:', error);
+        console.error('❌ Joylashuvlarni yuklashda xatolik:', error);
+        console.error('❌ Xatolik detallaridokon:', error.stack);
     }
 }
 
 function selectLocation(clickedButton, locationId, locationType = null) {
+    console.log('🔘 Joylashuv tanlandi:', {
+        locationId: locationId,
+        locationType: locationType,
+        buttonText: clickedButton.textContent.trim()
+    });
+    
     document.querySelectorAll('.location-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
     clickedButton.classList.add('active');
+    console.log('✅ Tugma aktiv qilindi');
     
     // Aktiv vaqt filtrini ham yuboramiz
     const activePeriod = document.querySelector('.time-btn.active')?.getAttribute('data-period') || 'today';
+    console.log('📅 Aktiv vaqt:', activePeriod);
+    
+    console.log('📊 loadSalesChart chaqirilmoqda...');
     loadSalesChart(locationId, activePeriod, locationType);
 }
 
