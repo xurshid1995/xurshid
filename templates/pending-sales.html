@@ -2631,6 +2631,43 @@ function printSaleReceipt(currency = 'uzs') {
     generatePrintableReceipt(currentSaleData, currency);
 }
 
+// To'lov turlarini formatlash funksiyasi
+function formatPaymentDetails(paymentDetails, currency = 'uzs') {
+    const exchangeRate = 12700;
+    
+    // Agar string bo'lsa, / belgisini <br> ga o'zgartirish
+    if (typeof paymentDetails === 'string') {
+        return paymentDetails.replace(/ \/ /g, '<br>');
+    }
+    
+    // Agar object bo'lsa, parse qilib formatlash
+    if (typeof paymentDetails === 'object' && paymentDetails !== null) {
+        const formatted = [];
+        
+        if (currency === 'uzs') {
+            if (paymentDetails.cash > 0) formatted.push('Naqd: ' + Math.round(paymentDetails.cash * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.click > 0) formatted.push('Click: ' + Math.round(paymentDetails.click * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.terminal > 0) formatted.push('Terminal: ' + Math.round(paymentDetails.terminal * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.debt > 0) formatted.push('Qarz: ' + Math.round(paymentDetails.debt * exchangeRate).toLocaleString('uz-UZ') + ' som');
+        } else if (currency === 'both') {
+            if (paymentDetails.cash > 0) formatted.push('Naqd: $' + paymentDetails.cash.toFixed(2) + ' / ' + Math.round(paymentDetails.cash * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.click > 0) formatted.push('Click: $' + paymentDetails.click.toFixed(2) + ' / ' + Math.round(paymentDetails.click * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.terminal > 0) formatted.push('Terminal: $' + paymentDetails.terminal.toFixed(2) + ' / ' + Math.round(paymentDetails.terminal * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (paymentDetails.debt > 0) formatted.push('Qarz: $' + paymentDetails.debt.toFixed(2) + ' / ' + Math.round(paymentDetails.debt * exchangeRate).toLocaleString('uz-UZ') + ' som');
+        } else {
+            if (paymentDetails.cash > 0) formatted.push('Naqd: $' + paymentDetails.cash.toFixed(2));
+            if (paymentDetails.click > 0) formatted.push('Click: $' + paymentDetails.click.toFixed(2));
+            if (paymentDetails.terminal > 0) formatted.push('Terminal: $' + paymentDetails.terminal.toFixed(2));
+            if (paymentDetails.debt > 0) formatted.push('Qarz: $' + paymentDetails.debt.toFixed(2));
+        }
+        
+        return formatted.join('<br>');
+    }
+    
+    // Boshqa holatlarda JSON formatda qaytarish
+    return JSON.stringify(paymentDetails);
+}
+
 // Mini X90 printer uchun chek yaratish
 function generatePrintableReceipt(sale, currency = 'uzs') {
     const exchangeRate = 12700;
@@ -2787,7 +2824,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 </div>
             </div>
             
-            ${sale.payment_details ? '<div style="margin-top: 3mm; padding: 2mm; background: #f8f9fa; border-radius: 2mm;"><strong style="font-size: 10px;">To\'lov:</strong><br><div style="margin-top: 2mm; font-size: 10px; font-weight: bold;">' + (typeof sale.payment_details === 'string' ? sale.payment_details.replace(/ \/ /g, '<br>') : JSON.stringify(sale.payment_details)) + '</div></div>' : ''}
+            ${sale.payment_details ? '<div style="margin-top: 3mm; padding: 2mm; background: #f8f9fa; border-radius: 2mm;"><strong style="font-size: 10px;">To\'lov:</strong><br><div style="margin-top: 2mm; font-size: 10px; font-weight: bold;">' + formatPaymentDetails(sale.payment_details, currency) + '</div></div>' : ''}
             
             <div class="footer">
                 <div>Rahmat!</div>
