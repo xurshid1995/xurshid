@@ -4338,22 +4338,26 @@
                     }))
                 };
                 
-                // USD chek chiqarish
-                if (printUSD && printUSD.checked) {
-                    console.log('🖨️ USD chek chiqarish: 800ms dan keyin');
+                // Ikkala checkbox belgilangan bo'lsa - bitta chekda ikkalasini ham ko'rsatish
+                if (printUSD && printUSD.checked && printUZS && printUZS.checked) {
+                    console.log('🖨️ USD va UZS ikkala qiymat bilan bitta chek chiqarish');
                     setTimeout(() => {
-                        console.log('🖨️ USD chek oynasi ochilmoqda...');
+                        generatePrintableReceipt(saleForPrint, 'both');
+                    }, 800);
+                }
+                // Faqat USD
+                else if (printUSD && printUSD.checked) {
+                    console.log('🖨️ Faqat USD chek chiqarish');
+                    setTimeout(() => {
                         generatePrintableReceipt(saleForPrint, 'usd');
                     }, 800);
                 }
-                
-                // UZS chek chiqarish
-                if (printUZS && printUZS.checked) {
-                    console.log('🖨️ UZS chek chiqarish: 1600ms dan keyin');
+                // Faqat UZS
+                else if (printUZS && printUZS.checked) {
+                    console.log('🖨️ Faqat UZS chek chiqarish');
                     setTimeout(() => {
-                        console.log('🖨️ UZS chek oynasi ochilmoqda...');
                         generatePrintableReceipt(saleForPrint, 'uzs');
-                    }, 1600);
+                    }, 800);
                 }
             } else {
                 console.log('ℹ️ Chek chiqarish belgilanmagan');
@@ -4554,9 +4558,16 @@
                         <tbody>
                             ${sale.items.map(item => {
                                 const priceUSD = parseFloat(item.unit_price);
-                                const priceDisplay = currency === 'uzs' 
-                                    ? Math.round(priceUSD * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
-                                    : '$' + priceUSD.toFixed(2);
+                                const priceUZS = Math.round(priceUSD * exchangeRate);
+                                
+                                let priceDisplay;
+                                if (currency === 'both') {
+                                    priceDisplay = '$' + priceUSD.toFixed(2) + '<br><span style="font-size: 10px; color: #666;">' + priceUZS.toLocaleString('uz-UZ') + ' so\'m</span>';
+                                } else if (currency === 'uzs') {
+                                    priceDisplay = priceUZS.toLocaleString('uz-UZ') + ' so\'m';
+                                } else {
+                                    priceDisplay = '$' + priceUSD.toFixed(2);
+                                }
                                 
                                 return `
                                 <tr style="border-bottom: 1.5px solid #000;">
@@ -4572,8 +4583,13 @@
                 <div class="totals" style="margin-top: 3mm;">
                     <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-top: 1px solid #000; padding-top: 2mm;">
                         <span>Jami summa:</span>
-                        <span>${currency === 'uzs' 
-                            ? Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                        <span>${
+                            currency === 'both'
+                                ? '$' + parseFloat(sale.total_amount).toFixed(2) + '<br><span style="font-size: 12px; color: #666;">' + Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + ' so\'m</span>'
+                                : currency === 'uzs' 
+                                    ? Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + ' so\'m'
+                                    : '$' + parseFloat(sale.total_amount).toFixed(2)
+                        }</span>
                             : '$' + parseFloat(sale.total_amount).toFixed(2)
                         }</span>
                     </div>
