@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+import time
 import urllib.parse
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -17,6 +18,13 @@ from flask import (Flask, render_template, request, jsonify, redirect,
                    session, abort)
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from sqlalchemy.exc import (
+    OperationalError,      # Database connection muammolari
+    TimeoutError,          # Database timeout
+    DatabaseError,         # Umumiy database xatolari
+    IntegrityError         # Constraint violation (unique, foreign key)
+)
+from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
@@ -1488,47 +1496,97 @@ def api_products_by_location(location_type, location_id):
 # API endpoint - barcode bo'yicha mahsulot qidirish
 @app.route('/api/search-product-by-barcode', methods=['POST'])
 def search_product_by_barcode():
-    """Barcode bo'yicha mahsulot qidirish"""
+    """Barcode bo'yicha mahsulot qidirish - timeout handling bilan"""
+    start_time = time.time()
+    
     try:
+        # Request validatsiya
         data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumot yuborilmagan',
+                'error_type': 'validation'
+            }), 400
+            
         barcode = data.get('barcode', '').strip()
+        if not barcode:
+            return jsonify({
+                'success': False,
+                'error': 'Barcode kiritilmagan',
+                'error_type': 'validation'
+            }), 400
+
         location_type = data.get('location_type')
         location_id = data.get('location_id')
-
-        if not barcode:
-            return jsonify({'error': 'Barcode kiritilmagan'}), 400
-
         if not location_type or not location_id:
-            return jsonify({'error': 'Joylashuv tanlanmagan'}), 400
+            return jsonify({
+                'success': False,
+                'error': 'Joylashuv tanlanmagan',
+                'error_type': 'validation'
+            }), 400
 
-        # Mahsulotni barcode bo'yicha qidirish
-        product = Product.query.filter_by(barcode=barcode).first()
+        # Database query - timeout bilan
+        try:
+            product = Product.query.filter_by(barcode=barcode).first()
+        except TimeoutError:
+            duration = time.time() - start_time
+            logger.error(f"⏱️ Database timeout: {duration:.2f}s - Barcode: {barcode}")
+            return jsonify({
+                'success': False,
+                'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
+                'error_type': 'timeout',
+                'duration': round(duration, 2)
+            }), 504
+        except OperationalError as e:
+            logger.error(f"🔌 Database connection xatosi: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+                'error_type': 'database_connection'
+            }), 503
         
         if not product:
-            return jsonify({'error': f'Barcode {barcode} topilmadi'}), 404
+            return jsonify({
+                'success': False,
+                'error': f'Barcode {barcode} topilmadi',
+                'error_type': 'not_found'
+            }), 404
 
-        # Joylashuvdagi miqdorni tekshirish
+        # Stock tekshirish - timeout bilan
         available_quantity = 0
         location_name = ''
         
-        if location_type == 'warehouse':
-            stock = WarehouseStock.query.filter_by(
-                product_id=product.id, 
-                warehouse_id=location_id
-            ).first()
-            if stock:
-                available_quantity = stock.quantity
-                location_name = stock.warehouse.name if stock.warehouse else 'Noma\'lum ombor'
-        elif location_type == 'store':
-            stock = StoreStock.query.filter_by(
-                product_id=product.id,
-                store_id=location_id
-            ).first()
-            if stock:
-                available_quantity = stock.quantity
-                location_name = stock.store.name if stock.store else 'Noma\'lum do\'kon'
+        try:
+            if location_type == 'warehouse':
+                stock = WarehouseStock.query.filter_by(
+                    product_id=product.id, 
+                    warehouse_id=location_id
+                ).first()
+                if stock:
+                    available_quantity = stock.quantity
+                    location_name = stock.warehouse.name if stock.warehouse else 'Noma\'lum ombor'
+            elif location_type == 'store':
+                stock = StoreStock.query.filter_by(
+                    product_id=product.id,
+                    store_id=location_id
+                ).first()
+                if stock:
+                    available_quantity = stock.quantity
+                    location_name = stock.store.name if stock.store else 'Noma\'lum do\'kon'
+        except TimeoutError:
+            logger.error(f"⏱️ Stock query timeout")
+            return jsonify({
+                'success': False,
+                'error': 'Stock ma\'lumotlarini olishda timeout',
+                'error_type': 'timeout'
+            }), 504
 
-        # Mahsulot ma'lumotlarini qaytarish
+        # Muvaffaqiyatli javob
+        duration = time.time() - start_time
+        if duration > 5:
+            logger.warning(f"⚠️ Slow query: {request.path} - {duration:.2f}s")
+
         product_dict = product.to_dict()
         product_dict['available_quantity'] = available_quantity
         product_dict['location_type'] = location_type
@@ -1536,55 +1594,142 @@ def search_product_by_barcode():
         product_dict['location_name'] = location_name
 
         logger.info(f"✅ Barcode {barcode} topildi: {product.name}, Miqdor: {available_quantity}")
-        return jsonify(product_dict)
+        return jsonify({
+            'success': True,
+            'data': product_dict,
+            'query_duration': round(duration, 2)
+        })
 
+    except BadRequest as e:
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
     except Exception as e:
-        logger.error(f"❌ Barcode qidiruv xatosi: {e}")
-        return jsonify({'error': 'Server xatosi'}), 500
+        duration = time.time() - start_time
+        logger.error(f"❌ Kutilmagan xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': 'Kutilmagan server xatosi',
+            'error_type': 'internal_server_error',
+            'duration': round(duration, 2)
+        }), 500
 
 
 # API endpoint - mahsulot nomini tekshirish
 @app.route('/api/check-product-name', methods=['POST'])
 def check_product_name():
+    """Mahsulot nomini tekshirish - yaxshilangan error handling bilan"""
+    start_time = time.time()
+    
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumot yuborilmagan',
+                'error_type': 'validation'
+            }), 400
+            
         name = data.get('name', '').strip()
         exclude_id = data.get('exclude_id')
 
         if not name:
             return jsonify({'exists': False})
 
-        # Bir xil nomli mahsulot borligini tekshirish (exclude_id dan tashqari)
-        query = Product.query.filter(Product.name.ilike(name))
-        if exclude_id:
-            query = query.filter(Product.id != exclude_id)
+        # Database query
+        try:
+            query = Product.query.filter(Product.name.ilike(name))
+            if exclude_id:
+                query = query.filter(Product.id != exclude_id)
+            existing_product = query.first()
+        except TimeoutError:
+            duration = time.time() - start_time
+            logger.error(f"⏱️ Database timeout: {duration:.2f}s")
+            return jsonify({
+                'success': False,
+                'error': 'So\'rov juda uzoq davom etdi',
+                'error_type': 'timeout'
+            }), 504
+        except OperationalError as e:
+            logger.error(f"🔌 Database connection xatosi: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+                'error_type': 'database_connection'
+            }), 503
 
-        existing_product = query.first()
+        duration = time.time() - start_time
+        if duration > 3:
+            logger.warning(f"⚠️ Slow query: {request.path} - {duration:.2f}s")
 
         return jsonify({'exists': existing_product is not None})
 
+    except BadRequest as e:
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        duration = time.time() - start_time
+        logger.error(f"❌ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': 'Server xatosi',
+            'error_type': 'internal_server_error'
+        }), 500
 
 
 # API endpoint - barcode mavjudligini tekshirish
 @app.route('/api/check-barcode', methods=['POST'])
 def check_barcode():
-    """Barcode mavjudligini tekshirish"""
+    """Barcode mavjudligini tekshirish - yaxshilangan error handling bilan"""
+    start_time = time.time()
+    
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumot yuborilmagan',
+                'error_type': 'validation'
+            }), 400
+            
         barcode = data.get('barcode', '').strip()
         exclude_id = data.get('exclude_id')
 
         if not barcode:
             return jsonify({'exists': False, 'product': None})
 
-        # Bir xil barcodeli mahsulot borligini tekshirish (exclude_id dan tashqari)
-        query = Product.query.filter_by(barcode=barcode)
-        if exclude_id:
-            query = query.filter(Product.id != exclude_id)
+        # Database query
+        try:
+            query = Product.query.filter_by(barcode=barcode)
+            if exclude_id:
+                query = query.filter(Product.id != exclude_id)
+            existing_product = query.first()
+        except TimeoutError:
+            duration = time.time() - start_time
+            logger.error(f"⏱️ Database timeout: {duration:.2f}s")
+            return jsonify({
+                'success': False,
+                'error': 'So\'rov juda uzoq davom etdi',
+                'error_type': 'timeout'
+            }), 504
+        except OperationalError as e:
+            logger.error(f"🔌 Database connection xatosi: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+                'error_type': 'database_connection'
+            }), 503
 
-        existing_product = query.first()
+        duration = time.time() - start_time
+        if duration > 3:
+            logger.warning(f"⚠️ Slow query: {request.path} - {duration:.2f}s")
 
         if existing_product:
             return jsonify({
@@ -1598,9 +1743,21 @@ def check_barcode():
         
         return jsonify({'exists': False, 'product': None})
 
+    except BadRequest as e:
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
     except Exception as e:
-        logger.error(f"❌ Barcode tekshirish xatosi: {e}")
-        return jsonify({'error': str(e)}), 400
+        duration = time.time() - start_time
+        logger.error(f"❌ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': 'Server xatosi',
+            'error_type': 'internal_server_error'
+        }), 500
 
 # API endpoint - yangi mahsulot qo'shish
 
@@ -2753,13 +2910,22 @@ def api_check_stock_products():
 @app.route('/api/check_stock/add_item', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_check_stock_add_item():
-    """Tekshirilgan mahsulotni saqlash"""
+    """Tekshirilgan mahsulotni saqlash - yaxshilangan error handling bilan"""
+    start_time = time.time()
+    
     try:
         current_user = get_current_user()
         if not current_user:
             return jsonify({'error': 'Unauthorized'}), 401
 
         data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'Ma\'lumot yuborilmagan',
+                'error_type': 'validation'
+            }), 400
+            
         session_id = data.get('session_id')
         product_id = data.get('product_id')
         product_name = data.get('product_name')
@@ -2769,42 +2935,96 @@ def api_check_stock_add_item():
         status = data.get('status')
 
         if not session_id or not product_id:
-            return jsonify({'success': False, 'message': 'Ma\'lumotlar to\'liq emas'}), 400
+            return jsonify({
+                'success': False,
+                'message': 'Ma\'lumotlar to\'liq emas',
+                'error_type': 'validation'
+            }), 400
 
-        # Allaqachon tekshirilganmi?
-        existing = StockCheckItem.query.filter_by(session_id=session_id, product_id=product_id).first()
-        if existing:
-            # Yangilash
-            existing.actual_quantity = actual_quantity
-            existing.difference = difference
-            existing.status = status
+        # Database operations
+        try:
+            # Allaqachon tekshirilganmi?
+            existing = StockCheckItem.query.filter_by(session_id=session_id, product_id=product_id).first()
+            if existing:
+                # Yangilash
+                existing.actual_quantity = actual_quantity
+                existing.difference = difference
+                existing.status = status
+                db.session.commit()
+                return jsonify({
+                    'success': True,
+                    'item': existing.to_dict(),
+                    'message': 'Mahsulot ma\'lumoti yangilandi',
+                    'updated': True
+                })
+
+            # Yangi mahsulot qo'shish
+            item = StockCheckItem(
+                session_id=session_id,
+                product_id=product_id,
+                product_name=product_name,
+                system_quantity=system_quantity,
+                actual_quantity=actual_quantity,
+                difference=difference,
+                status=status
+            )
+            db.session.add(item)
             db.session.commit()
-            return jsonify({'success': True, 'item': existing.to_dict(), 'message': 'Mahsulot ma\'lumoti yangilandi', 'updated': True})
 
-        # Yangi mahsulot qo'shish
-        item = StockCheckItem(
-            session_id=session_id,
-            product_id=product_id,
-            product_name=product_name,
-            system_quantity=system_quantity,
-            actual_quantity=actual_quantity,
-            difference=difference,
-            status=status
-        )
-        db.session.add(item)
-        db.session.commit()
+            # Session updated_at ni yangilash
+            session = StockCheckSession.query.get(session_id)
+            if session:
+                session.updated_at = db.func.current_timestamp()
+                db.session.commit()
 
-        # Session updated_at ni yangilash
-        session = StockCheckSession.query.get(session_id)
-        if session:
-            session.updated_at = db.func.current_timestamp()
-            db.session.commit()
+            duration = time.time() - start_time
+            if duration > 5:
+                logger.warning(f"⚠️ Slow query: {request.path} - {duration:.2f}s")
 
-        return jsonify({'success': True, 'item': item.to_dict()})
+            return jsonify({'success': True, 'item': item.to_dict()})
+            
+        except TimeoutError:
+            db.session.rollback()
+            duration = time.time() - start_time
+            logger.error(f"⏱️ Database timeout: {duration:.2f}s")
+            return jsonify({
+                'success': False,
+                'message': 'So\'rov juda uzoq davom etdi',
+                'error_type': 'timeout'
+            }), 504
+        except OperationalError as e:
+            db.session.rollback()
+            logger.error(f"🔌 Database connection xatosi: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+                'error_type': 'database_connection'
+            }), 503
+        except IntegrityError as e:
+            db.session.rollback()
+            logger.error(f"❌ Integrity error: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Ma\'lumotlarni saqlashda xatolik (dublikat yoki bog\'liqlik)',
+                'error_type': 'integrity_error'
+            }), 400
+            
+    except BadRequest as e:
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Error adding check item: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        duration = time.time() - start_time
+        logger.error(f"❌ Xato adding check item ({duration:.2f}s): {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': 'Kutilmagan server xatosi',
+            'error_type': 'internal_server_error'
+        }), 500
 
 
 @app.route('/api/check_stock/items/<int:session_id>')
@@ -5484,9 +5704,46 @@ def process_transfers():
         return jsonify(
             {'message': 'Transferlar muvaffaqiyatli amalga oshirildi'})
 
+    except TimeoutError:
+        db.session.rollback()
+        logger.error(f"⏱️ Database timeout in transfer")
+        return jsonify({
+            'success': False,
+            'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
+            'error_type': 'timeout'
+        }), 504
+    except OperationalError as e:
+        db.session.rollback()
+        logger.error(f"🔌 Database connection xatosi: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+            'error_type': 'database_connection'
+        }), 503
+    except IntegrityError as e:
+        db.session.rollback()
+        logger.error(f"❌ Integrity error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Ma\'lumotlarni saqlashda xatolik',
+            'error_type': 'integrity_error'
+        }), 400
+    except BadRequest as e:
+        db.session.rollback()
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"❌ Transfer xatosi: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'error_type': 'internal_server_error'
+        }), 500
 
 
 @app.route('/api/transfer/history', methods=['GET'])
@@ -7337,12 +7594,45 @@ def create_sale():
             }
         })
 
-    except Exception as e:
+    except TimeoutError:
         db.session.rollback()
-        app.logger.error(f"Error creating sale: {str(e)}")
+        logger.error(f"⏱️ Database timeout in create_sale")
         return jsonify({
             'success': False,
-            'error': f'Savdo yaratishda xatolik: {str(e)}'
+            'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
+            'error_type': 'timeout'
+        }), 504
+    except OperationalError as e:
+        db.session.rollback()
+        logger.error(f"🔌 Database connection xatosi: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
+            'error_type': 'database_connection'
+        }), 503
+    except IntegrityError as e:
+        db.session.rollback()
+        logger.error(f"❌ Integrity error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Ma\'lumotlarni saqlashda xatolik',
+            'error_type': 'integrity_error'
+        }), 400
+    except BadRequest as e:
+        db.session.rollback()
+        logger.error(f"❌ Bad request: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Noto\'g\'ri so\'rov formati',
+            'error_type': 'bad_request'
+        }), 400
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"❌ Error creating sale: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Savdo yaratishda xatolik: {str(e)}',
+            'error_type': 'internal_server_error'
         }), 500
 
 
