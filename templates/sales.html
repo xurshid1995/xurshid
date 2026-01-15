@@ -4566,11 +4566,10 @@
         receiptWindow.document.write(receiptHTML);
         receiptWindow.document.close();
         
-        // Window'ni ko'rsatish va print dialog ochish
+        // Window'ni ko'rsatish (foydalanuvchi o'zi Ctrl+P bosib chop etadi)
         setTimeout(() => {
             receiptWindow.focus();
-            receiptWindow.print();
-        }, 1000);
+        }, 500);
     }
     
 </script>
