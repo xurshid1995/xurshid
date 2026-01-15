@@ -14,16 +14,16 @@ def add_stock_indexes():
             
             indexes_to_create = [
                 {
-                    'name': 'idx_store_stock_product_store',
-                    'table': 'store_stock',
+                    'name': 'idx_store_stocks_product_store',
+                    'table': 'store_stocks',
                     'columns': '(product_id, store_id)',
-                    'description': 'Store stock - product va store bo\'yicha qidiruv'
+                    'description': 'Store stocks - product va store bo\'yicha qidiruv'
                 },
                 {
-                    'name': 'idx_warehouse_stock_product_warehouse',
-                    'table': 'warehouse_stock',
+                    'name': 'idx_warehouse_stocks_product_warehouse',
+                    'table': 'warehouse_stocks',
                     'columns': '(product_id, warehouse_id)',
-                    'description': 'Warehouse stock - product va warehouse bo\'yicha qidiruv'
+                    'description': 'Warehouse stocks - product va warehouse bo\'yicha qidiruv'
                 },
                 {
                     'name': 'idx_products_barcode',
@@ -95,7 +95,7 @@ def add_stock_indexes():
                         indexname,
                         indexdef
                     FROM pg_indexes 
-                    WHERE tablename IN ('products', 'store_stock', 'warehouse_stock')
+                    WHERE tablename IN ('products', 'store_stocks', 'warehouse_stocks')
                     ORDER BY tablename, indexname
                 """)
                 
