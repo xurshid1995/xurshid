@@ -4339,8 +4339,8 @@
                     sale_date: new Date().toISOString(),
                     customer_name: customerName,
                     customer_phone: '',
-                    seller_name: '{% if current_user and current_user.is_authenticated %}{{ current_user.username }}{% else %}Admin{% endif %}',
-                    seller_phone: '',
+                    seller_name: '{{ current_user.full_name if current_user and current_user.full_name else current_user.username if current_user else "Sotuvchi" }}',
+                    seller_phone: '{{ current_user.phone if current_user and current_user.phone else "" }}',
                     store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
                     total_amount: totalUSD,
                     payment_details: paymentDetails.join(', '),
@@ -4553,6 +4553,7 @@
                         <div>Chek #${sale.id}</div>
                         <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
                         <div>Sotuvchi: ${sale.seller_name || 'Sotuvchi'}</div>
+                        ${sale.seller_phone ? '<div>' + sale.seller_phone + '</div>' : ''}
                         <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
                             <div><strong>Mijoz:</strong> ${sale.customer_name || 'Naqd mijoz'}</div>
                             ${sale.customer_phone ? '<div>' + sale.customer_phone + '</div>' : ''}
