@@ -257,12 +257,14 @@
 
         .temp-products-table {
             width: 100%;
-            min-width: 100%;
+            min-width: auto !important; /* Global CSS override */
+            max-width: 100%; /* Panel kengligidan oshmasin */
             border-collapse: collapse;
             background: white;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            table-layout: fixed; /* Fixed layout - ustunlar aniq kengliklarda */
         }
 
         .temp-products-table thead tr {
