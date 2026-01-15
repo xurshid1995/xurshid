@@ -4525,109 +4525,149 @@
         }
     }
     
+    // Double-click himoyasi uchun o'zgaruvchi
+    let isProcessingPayment = false;
+    
     // To'lovni tasdiqlash
     async function confirmPayment() {
-        // Ogohlantirishni yashirish
-        const paymentWarning = getActiveTabElement('paymentWarning');
-        if (paymentWarning) {
-            paymentWarning.style.display = 'none';
-            paymentWarning.textContent = '';
-        }
-        
-        const paymentCashUSD = getActiveTabElement('paymentCashUSD');
-        const paymentClickUSD = getActiveTabElement('paymentClickUSD');
-        const paymentTerminalUSD = getActiveTabElement('paymentTerminalUSD');
-        const paymentDebtUSD = getActiveTabElement('paymentDebtUSD');
-        const paymentCashUZS = getActiveTabElement('paymentCashUZS');
-        const paymentClickUZS = getActiveTabElement('paymentClickUZS');
-        const paymentTerminalUZS = getActiveTabElement('paymentTerminalUZS');
-        const paymentDebtUZS = getActiveTabElement('paymentDebtUZS');
-        
-        const cashUSD = paymentCashUSD ? parseFloat(paymentCashUSD.value) || 0 : 0;
-        const clickUSD = paymentClickUSD ? parseFloat(paymentClickUSD.value) || 0 : 0;
-        const terminalUSD = paymentTerminalUSD ? parseFloat(paymentTerminalUSD.value) || 0 : 0;
-        const debtUSD = paymentDebtUSD ? parseFloat(paymentDebtUSD.value) || 0 : 0;
-        
-        const cashUZS = paymentCashUZS ? parseFloat(paymentCashUZS.value) || 0 : 0;
-        const clickUZS = paymentClickUZS ? parseFloat(paymentClickUZS.value) || 0 : 0;
-        const terminalUZS = paymentTerminalUZS ? parseFloat(paymentTerminalUZS.value) || 0 : 0;
-        const debtUZS = paymentDebtUZS ? parseFloat(paymentDebtUZS.value) || 0 : 0;
-        
-        // Faqat USD qiymatlardan foydalanish (UZS avtomatik sinxronlashgan)
-        const totalPayment = cashUSD + clickUSD + terminalUSD + debtUSD;
-        
-        // Jami summani hisoblash
-        let totalUSD = 0;
-        cart.forEach(item => {
-            totalUSD += item.priceUSD * item.quantity;
-        });
-        
-        // Mijoz tanlanganligini tekshirish (agar qarz bo'lsa)
-        const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
-        const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value : null;
-        if (debtUSD > 0 && !customerId) {
-            if (paymentWarning) {
-                paymentWarning.textContent = '⚠️ Qarzga sotish uchun mijoz tanlanishi shart!';
-                paymentWarning.style.display = 'block';
-            }
+        // Double-click oldini olish
+        if (isProcessingPayment) {
+            console.log('⚠️ To\'lov allaqachon jarayonda');
             return;
         }
         
-        // To'lov tekshiruvi
-        if (Math.abs(totalPayment - totalUSD) > 0.01) {
-            if (paymentWarning) {
-                paymentWarning.textContent = `⚠️ Jami to'lov ($${totalPayment.toFixed(2)}) savdo summasiga ($${totalUSD.toFixed(2)}) teng emas!`;
-                paymentWarning.style.display = 'block';
-            }
-            return;
+        isProcessingPayment = true;
+        
+        // Tasdiqlash tugmasini topish va o'chirish
+        const confirmBtn = event.target;
+        const originalText = confirmBtn ? confirmBtn.textContent : '';
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = '⏳ Saqlanmoqda...';
+            confirmBtn.style.opacity = '0.6';
+            confirmBtn.style.cursor = 'not-allowed';
         }
-        
-        // Savdoni backend'ga yuborish uchun ma'lumotlarni tayyorlash
-        const saleData = {
-            customer_id: customerId ? parseInt(customerId) : null,
-            location_id: selectedLocationId,
-            location_type: selectedLocationType,
-            items: cart.map(item => ({
-                product_id: item.id || item.productId,  // id yoki productId
-                product_name: item.name || item.productName,  // name yoki productName
-                quantity: item.quantity,
-                unit_price: item.priceUSD,
-                price: item.priceUSD,
-                price_usd: item.priceUSD,
-                price_uzs: item.priceUZS
-            })),
-            payment: {
-                cash_usd: cashUSD,
-                cash_uzs: cashUZS,
-                click_usd: clickUSD,
-                click_uzs: clickUZS,
-                terminal_usd: terminalUSD,
-                terminal_uzs: terminalUZS,
-                debt_usd: debtUSD,
-                debt_uzs: debtUZS
-            },
-            total_usd: totalUSD,
-            total_uzs: totalUSD * exchangeRate,
-            exchange_rate: exchangeRate,
-            // Payment status ni avtomatik aniqlash
-            payment_status: debtUSD > 0 ? 'partial' : 'paid',
-            // Agar tahrirlash rejimida bo'lsa
-            original_sale_id: editingSaleId,
-            is_edit_mode: editingSaleId !== null
-        };
-        
-        console.log('📤 Savdoni backend ga yuborish:');
-        console.log('   - Tahrirlash rejimi:', editingSaleId !== null);
-        console.log('   - Original Sale ID:', editingSaleId);
-        console.log('   - Current Pending Sale ID:', currentPendingSaleId);
-        console.log('   - Jami mahsulotlar:', saleData.items.length);
-        console.log('   - Mijoz ID:', saleData.customer_id);
-        console.log('   - Location ID:', saleData.location_id);
-        console.log('   - Location Type:', saleData.location_type);
-        console.log('   - To\'lov holati:', saleData.payment_status);
-        console.log('Full sale data:', JSON.stringify(saleData, null, 2));
         
         try {
+            // Ogohlantirishni yashirish
+            const paymentWarning = getActiveTabElement('paymentWarning');
+            if (paymentWarning) {
+                paymentWarning.style.display = 'none';
+                paymentWarning.textContent = '';
+            }
+            
+            const paymentCashUSD = getActiveTabElement('paymentCashUSD');
+            const paymentClickUSD = getActiveTabElement('paymentClickUSD');
+            const paymentTerminalUSD = getActiveTabElement('paymentTerminalUSD');
+            const paymentDebtUSD = getActiveTabElement('paymentDebtUSD');
+            const paymentCashUZS = getActiveTabElement('paymentCashUZS');
+            const paymentClickUZS = getActiveTabElement('paymentClickUZS');
+            const paymentTerminalUZS = getActiveTabElement('paymentTerminalUZS');
+            const paymentDebtUZS = getActiveTabElement('paymentDebtUZS');
+            
+            const cashUSD = paymentCashUSD ? parseFloat(paymentCashUSD.value) || 0 : 0;
+            const clickUSD = paymentClickUSD ? parseFloat(paymentClickUSD.value) || 0 : 0;
+            const terminalUSD = paymentTerminalUSD ? parseFloat(paymentTerminalUSD.value) || 0 : 0;
+            const debtUSD = paymentDebtUSD ? parseFloat(paymentDebtUSD.value) || 0 : 0;
+            
+            const cashUZS = paymentCashUZS ? parseFloat(paymentCashUZS.value) || 0 : 0;
+            const clickUZS = paymentClickUZS ? parseFloat(paymentClickUZS.value) || 0 : 0;
+            const terminalUZS = paymentTerminalUZS ? parseFloat(paymentTerminalUZS.value) || 0 : 0;
+            const debtUZS = paymentDebtUZS ? parseFloat(paymentDebtUZS.value) || 0 : 0;
+            
+            // Faqat USD qiymatlardan foydalanish (UZS avtomatik sinxronlashgan)
+            const totalPayment = cashUSD + clickUSD + terminalUSD + debtUSD;
+            
+            // Jami summani hisoblash
+            let totalUSD = 0;
+            cart.forEach(item => {
+                totalUSD += item.priceUSD * item.quantity;
+            });
+            
+            // Mijoz tanlanganligini tekshirish (agar qarz bo'lsa)
+            const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
+            const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value : null;
+            if (debtUSD > 0 && !customerId) {
+                if (paymentWarning) {
+                    paymentWarning.textContent = '⚠️ Qarzga sotish uchun mijoz tanlanishi shart!';
+                    paymentWarning.style.display = 'block';
+                }
+                // Tugmani qayta faollashtirish
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.cursor = 'pointer';
+                }
+                return;
+            }
+            
+            // To'lov tekshiruvi
+            if (Math.abs(totalPayment - totalUSD) > 0.01) {
+                if (paymentWarning) {
+                    paymentWarning.textContent = `⚠️ Jami to'lov ($${totalPayment.toFixed(2)}) savdo summasiga ($${totalUSD.toFixed(2)}) teng emas!`;
+                    paymentWarning.style.display = 'block';
+                }
+                // Tugmani qayta faollashtirish
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.cursor = 'pointer';
+                }
+                return;
+            }
+            
+            // Idempotency key yaratish
+            const idempotencyKey = `sale-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Savdoni backend'ga yuborish uchun ma'lumotlarni tayyorlash
+            const saleData = {
+                customer_id: customerId ? parseInt(customerId) : null,
+                location_id: selectedLocationId,
+                location_type: selectedLocationType,
+                items: cart.map(item => ({
+                    product_id: item.id || item.productId,  // id yoki productId
+                    product_name: item.name || item.productName,  // name yoki productName
+                    quantity: item.quantity,
+                    unit_price: item.priceUSD,
+                    price: item.priceUSD,
+                    price_usd: item.priceUSD,
+                    price_uzs: item.priceUZS
+                })),
+                payment: {
+                    cash_usd: cashUSD,
+                    cash_uzs: cashUZS,
+                    click_usd: clickUSD,
+                    click_uzs: clickUZS,
+                    terminal_usd: terminalUSD,
+                    terminal_uzs: terminalUZS,
+                    debt_usd: debtUSD,
+                    debt_uzs: debtUZS
+                },
+                total_usd: totalUSD,
+                total_uzs: totalUSD * exchangeRate,
+                exchange_rate: exchangeRate,
+                // Payment status ni avtomatik aniqlash
+                payment_status: debtUSD > 0 ? 'partial' : 'paid',
+                // Agar tahrirlash rejimida bo'lsa
+                original_sale_id: editingSaleId,
+                is_edit_mode: editingSaleId !== null,
+                idempotency_key: idempotencyKey  // Idempotency key qo'shish
+            };
+            
+            console.log('📤 Savdoni backend ga yuborish:');
+            console.log('   - Idempotency Key:', idempotencyKey);
+            console.log('   - Tahrirlash rejimi:', editingSaleId !== null);
+            console.log('   - Original Sale ID:', editingSaleId);
+            console.log('   - Current Pending Sale ID:', currentPendingSaleId);
+            console.log('   - Jami mahsulotlar:', saleData.items.length);
+            console.log('   - Mijoz ID:', saleData.customer_id);
+            console.log('   - Location ID:', saleData.location_id);
+            console.log('   - Location Type:', saleData.location_type);
+            console.log('   - To\'lov holati:', saleData.payment_status);
+            console.log('Full sale data:', JSON.stringify(saleData, null, 2));
+            
             let response;
             
             // YANGI MANTIQ: Agar pending savdo mavjud bo'lsa, faqat statusni o'zgartirish
@@ -4636,12 +4676,16 @@
                 // Pending savdoni yakunlash - faqat status o'zgartirish
                 response = await fetch(`/api/finalize-sale/${currentPendingSaleId}`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Idempotency-Key': idempotencyKey
+                    },
                     body: JSON.stringify({
                         payment: saleData.payment,
                         payment_status: saleData.payment_status,
                         customer_id: saleData.customer_id,
-                        exchange_rate: saleData.exchange_rate
+                        exchange_rate: saleData.exchange_rate,
+                        idempotency_key: idempotencyKey
                     })
                 });
             } else {
@@ -4649,7 +4693,10 @@
                 console.log('➕ Yangi savdo yaratish (tahrirlash yoki pending yo\'q)');
                 response = await fetch('/api/create-sale', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Idempotency-Key': idempotencyKey
+                    },
                     body: JSON.stringify(saleData)
                 });
             }
@@ -4659,7 +4706,19 @@
             if (!result.success) {
                 alert('Savdo yaratishda xatolik: ' + (result.error || 'Noma\'lum xatolik'));
                 console.error('❌ Savdo xatosi:', result);
+                // Tugmani qayta faollashtirish xatolik bo'lganda
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.cursor = 'pointer';
+                }
                 return;
+            }
+            
+            // Agar bu takroriy so'rov bo'lsa
+            if (result.already_processed) {
+                console.log('⚠️ Bu savdo allaqachon qayd qilingan');
             }
             
             console.log('✅ Savdo muvaffaqiyatli saqlandi:', result);
@@ -4853,6 +4912,19 @@
         } catch (error) {
             console.error('❌ Savdoni yuborishda xatolik:', error);
             alert('Savdoni saqlashda xatolik yuz berdi!');
+            // Tugmani qayta faollashtirish xatolik bo'lganda
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = originalText;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.style.cursor = 'pointer';
+            }
+        } finally {
+            // 3 sekunddan keyin qayta bosish imkonini berish
+            setTimeout(() => {
+                isProcessingPayment = false;
+                console.log('✅ Payment processing flag cleared');
+            }, 3000);
         }
     }
     

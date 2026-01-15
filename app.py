@@ -84,7 +84,8 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'max_overflow': 20,       # Qo'shimcha 20 ta temporary connection
     'pool_timeout': 30,       # Connection olish uchun 30 sekund timeout
     'connect_args': {
-        'connect_timeout': 10  # PostgreSQL connection timeout
+        'connect_timeout': 10,  # PostgreSQL connection timeout
+        'options': '-c statement_timeout=10000'  # Query timeout: 10 sekund
     }
 }
 
@@ -107,6 +108,114 @@ TASHKENT_TZ = pytz.timezone('Asia/Tashkent')
 def get_tashkent_time():
     """O'zbekiston vaqtini qaytaradi"""
     return datetime.now(TASHKENT_TZ)
+
+
+# Timeout monitoring decorator
+def timeout_monitor(max_seconds=5, operation_name=None):
+    """API timeout va xatolarni monitoring qilish"""
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            operation_id = str(uuid.uuid4())[:8]
+            op_name = operation_name or f.__name__
+            start_time = time.time()
+            
+            logger.info(f"🆔 [{operation_id}] {op_name} started")
+            
+            try:
+                result = f(*args, **kwargs)
+                duration = time.time() - start_time
+                
+                # Sekin API'larni aniqlash
+                if duration > max_seconds:
+                    logger.warning(
+                        f"⚠️ [{operation_id}] SLOW API: {op_name} took {duration:.2f}s "
+                        f"(max: {max_seconds}s)"
+                    )
+                else:
+                    logger.info(
+                        f"✅ [{operation_id}] {op_name} completed in {duration:.2f}s"
+                    )
+                
+                return result
+                
+            except Exception as e:
+                duration = time.time() - start_time
+                logger.error(
+                    f"❌ [{operation_id}] {op_name} FAILED after {duration:.2f}s: {str(e)}"
+                )
+                raise
+                
+        return wrapped
+    return decorator
+
+
+# Idempotency key tekshirish uchun funksiya
+def check_idempotency(operation_type):
+    """Idempotency key orqali takroriy so'rovlarni oldini olish"""
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            # Idempotency key'ni olish (header yoki body dan)
+            idempotency_key = request.headers.get('X-Idempotency-Key')
+            
+            if not idempotency_key:
+                # Agar key berilmagan bo'lsa, body dan olish
+                data = request.get_json() or {}
+                idempotency_key = data.get('idempotency_key')
+            
+            if idempotency_key:
+                # Avval bajarilgan operatsiyani tekshirish
+                existing = ApiOperation.query.filter_by(
+                    idempotency_key=idempotency_key,
+                    operation_type=operation_type
+                ).first()
+                
+                if existing:
+                    logger.warning(
+                        f"⚠️ Duplicate request detected: {operation_type} - {idempotency_key}"
+                    )
+                    
+                    # Oldingi natijani qaytarish
+                    if existing.result_data:
+                        result = json.loads(existing.result_data)
+                        result['already_processed'] = True
+                        return jsonify(result)
+                    
+                    return jsonify({
+                        'success': True,
+                        'already_processed': True,
+                        'message': 'Bu operatsiya allaqachon bajarilgan'
+                    })
+            
+            # Yangi operatsiya - bajarish
+            result = f(*args, **kwargs)
+            
+            # Natijani saqlash (faqat success bo'lsa)
+            if idempotency_key and isinstance(result, tuple):
+                response_data, status_code = result
+                if status_code == 200:
+                    try:
+                        current_user = get_current_user()
+                        api_op = ApiOperation(
+                            idempotency_key=idempotency_key,
+                            operation_type=operation_type,
+                            user_id=current_user.id if current_user else None,
+                            status='completed',
+                            result_data=json.dumps(response_data.get_json() if hasattr(response_data, 'get_json') else {})
+                        )
+                        db.session.add(api_op)
+                        db.session.commit()
+                    except Exception as e:
+                        logger.error(f"❌ Idempotency save error: {e}")
+                        db.session.rollback()
+                        # Bu xatolik asosiy operatsiyaga ta'sir qilmasin
+                        pass
+            
+            return result
+            
+        return wrapped
+    return decorator
 
 # Konstantalar
 DEFAULT_PHONE_PLACEHOLDER = os.getenv('DEFAULT_PHONE_PLACEHOLDER', 'Telefon kiritilmagan')
@@ -691,6 +800,22 @@ class User(db.Model):
             'manager': 'Menejer'
         }
         return role_names.get(self.role, self.role)
+
+
+# API Operations modeli - Idempotency uchun
+class ApiOperation(db.Model):
+    __tablename__ = 'api_operations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    idempotency_key = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    operation_type = db.Column(db.String(50), nullable=False)  # 'transfer', 'sale', 'payment'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(20), default='completed')  # 'completed', 'failed'
+    result_data = db.Column(db.Text)  # JSON natija
+    created_at = db.Column(db.DateTime, default=get_tashkent_time)
+    
+    def __repr__(self):
+        return f'<ApiOperation {self.operation_type} - {self.idempotency_key}>'
 
 
 # Foydalanuvchi session'lari modeli - vaqtincha disabled
@@ -4433,6 +4558,8 @@ def api_debt_details(customer_id):
 
 @app.route('/api/debts/payment', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
+@timeout_monitor(max_seconds=10, operation_name='DebtPayment')
+@check_idempotency('payment')
 def api_debt_payment():
     """Qarzga to'lov qilish"""
     try:
@@ -5539,6 +5666,8 @@ def get_product_locations(product_id):
 
 @app.route('/api/transfer', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
+@timeout_monitor(max_seconds=10, operation_name='Transfer')
+@check_idempotency('transfer')
 def process_transfers():
     """Transferlarni amalga oshirish"""
     print("🔄 Transfer API called")

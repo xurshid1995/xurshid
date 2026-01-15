@@ -1501,8 +1501,17 @@
         }
     }
 
+    // Double-click himoyasi uchun o'zgaruvchi
+    let isProcessingTransfer = false;
+
     // Transferni yakunlash
     async function completeTransfer() {
+        // Double-click oldini olish
+        if (isProcessingTransfer) {
+            console.log('⚠️ Transfer allaqachon jarayonda');
+            return;
+        }
+        
         const fromLocation = document.getElementById('fromLocation').value;
         const toLocation = document.getElementById('toLocation').value;
         
@@ -1530,7 +1539,24 @@
             return;
         }
         
+        isProcessingTransfer = true;
+        
+        // Tugmani topish va o'chirish
+        const transferBtn = document.querySelector('button[onclick=\"completeTransfer()\"]');
+        let originalText = '';
+        if (transferBtn) {
+            originalText = transferBtn.textContent;
+            transferBtn.disabled = true;
+            transferBtn.textContent = '⏳ Transferlanmoqda...';
+            transferBtn.style.opacity = '0.6';
+            transferBtn.style.cursor = 'not-allowed';
+        }
+        }
+        
         try {
+            // Idempotency key yaratish
+            const idempotencyKey = `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
             // Server uchun to'g'ri formatga o'zgartirish
             const transfers = transferList.map(item => ({
                 product_id: item.id,
@@ -1539,18 +1565,29 @@
                 quantity: item.quantity
             }));
             
-            console.log('📤 Transfer yuborilmoqda:', { transfers });
+            console.log('📤 Transfer yuborilmoqda:', { transfers, idempotencyKey });
             
             const response = await fetch('/api/transfer', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ transfers })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Idempotency-Key': idempotencyKey
+                },
+                body: JSON.stringify({ 
+                    transfers,
+                    idempotency_key: idempotencyKey
+                })
             });
             
             const result = await response.json();
             console.log('📥 Server javobi:', result);
             
-            if (response.ok || result.message) {
+            if (response.ok || result.message || result.success) {
+                // Agar bu takroriy so'rov bo'lsa
+                if (result.already_processed) {
+                    console.log('⚠️ Bu transfer allaqachon bajarilgan');
+                }
+                
                 alert('✅ Transfer muvaffaqiyatli yakunlandi!');
                 
                 // Reset
@@ -1567,6 +1604,20 @@
         } catch (error) {
             console.error('Transfer xatosi:', error);
             alert('❌ Server bilan aloqa qilishda xatolik yuz berdi');
+        } finally {
+            // Tugmani qayta faollashtirish
+            if (transferBtn) {
+                transferBtn.disabled = false;
+                transferBtn.textContent = originalText || '✅ Transferni tasdiqlash';
+                transferBtn.style.opacity = '1';
+                transferBtn.style.cursor = 'pointer';
+            }
+            
+            // 3 sekunddan keyin qayta bosish imkonini berish
+            setTimeout(() => {
+                isProcessingTransfer = false;
+                console.log('✅ Transfer processing flag cleared');
+            }, 3000);
         }
     }
 
