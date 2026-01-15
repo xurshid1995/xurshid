@@ -2408,8 +2408,9 @@ function showSaleDetailsModal(sale) {
                                 ${sale.items.map(item => {
                                     const unitPriceUSD = parseFloat(item.unit_price || 0);
                                     const totalPriceUSD = parseFloat(item.total_price || 0);
-                                    const unitPriceUZS = Math.round(unitPriceUSD * EXCHANGE_RATE);
-                                    const totalPriceUZS = Math.round(totalPriceUSD * EXCHANGE_RATE);
+                                    const exchangeRate = 12700; // Default kurs
+                                    const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
+                                    const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
                                     
                                     return `
                                     <tr>
