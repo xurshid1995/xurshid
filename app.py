@@ -7510,22 +7510,36 @@ def create_sale():
                     'error': 'Sizga ruxsat etilgan joylashuvlar mavjud emas'
                 }), 403
 
+            allowed_locations = user.allowed_locations
+            
             # Joylashuvlarni tekshirish
             if multi_location:
                 for item in items:
                     item_location_id = item.get('location_id')
-                    if item_location_id and item_location_id not in user.allowed_locations:
-                        return jsonify({
-                            'success': False,
-                            'error': f'"{item.get("name", "")}" mahsuloti uchun tanlangan joylashuvga ruxsatingiz yo\'q'
-                        }), 403
+                    item_location_type = item.get('location_type', 'store')
+                    
+                    if item_location_id:
+                        # Extract allowed IDs for this location type
+                        allowed_ids = extract_location_ids(allowed_locations, item_location_type)
+                        
+                        if item_location_id not in allowed_ids:
+                            return jsonify({
+                                'success': False,
+                                'error': f'"{item.get("name", "")}" mahsuloti uchun tanlangan joylashuvga ruxsatingiz yo\'q'
+                            }), 403
             else:
                 location_id = data.get('location_id')
-                if location_id and location_id not in user.allowed_locations:
-                    return jsonify({
-                        'success': False,
-                        'error': 'Tanlangan joylashuvga ruxsatingiz yo\'q'
-                    }), 403
+                location_type = data.get('location_type', 'store')
+                
+                if location_id:
+                    # Extract allowed IDs for this location type
+                    allowed_ids = extract_location_ids(allowed_locations, location_type)
+                    
+                    if location_id not in allowed_ids:
+                        return jsonify({
+                            'success': False,
+                            'error': 'Tanlangan joylashuvga ruxsatingiz yo\'q'
+                        }), 403
 
         # Multi-location rejimida har bir item uchun joylashuv tekshirish
         if multi_location:
