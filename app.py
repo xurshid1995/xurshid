@@ -2538,10 +2538,12 @@ def debts():
 @role_required('admin', 'kassir', 'sotuvchi')
 def paid_debts_history():
     """Mijozlarni qarz to'lash tarixi sahifasi"""
+    user = get_current_user()
     return render_template(
         'paid_debts_history.html',
         page_title='Qarz to\'lash tarixi',
-        icon='📜')
+        icon='📜',
+        current_user=user)
 
 
 @app.route('/debts/customer/<int:customer_id>')

@@ -188,9 +188,11 @@
 
     <!-- Joylashuv tugmalari -->
     <div id="locationButtons" style="margin: 15px 0; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        {% if current_user.role in ['admin', 'kassir'] %}
         <button class="btn btn-sm me-2 mb-2 location-btn active" data-location="" onclick="selectLocation(this, '')">
             🏢 Barchasi
         </button>
+        {% endif %}
     </div>
 
     <!-- To'langan qarzlar jadvali -->
@@ -246,23 +248,40 @@
             const locations = await response.json();
             
             const container = document.getElementById('locationButtons');
-            // Barchasi tugmasini yaratish
+            container.innerHTML = '';
+            
+            // Admin/Kassir uchun Barchasi tugmasini yaratish
+            {% if current_user.role in ['admin', 'kassir'] %}
             const allButton = document.createElement('button');
             allButton.className = 'btn btn-sm me-2 mb-2 location-btn active';
             allButton.setAttribute('data-location', '');
             allButton.onclick = () => selectLocation(allButton, '');
             allButton.textContent = '🏢 Barchasi';
-            container.innerHTML = '';
             container.appendChild(allButton);
+            {% endif %}
             
-            locations.forEach(loc => {
+            let firstLocation = null;
+            locations.forEach((loc, index) => {
                 const button = document.createElement('button');
                 button.className = 'btn btn-sm me-2 mb-2 location-btn';
                 button.setAttribute('data-location', loc.id);
                 button.onclick = () => selectLocation(button, loc.id);
                 button.textContent = `${loc.emoji} ${loc.name}`;
                 container.appendChild(button);
+                
+                // Sotuvchi uchun birinchi locationni saqlash
+                if (index === 0) {
+                    firstLocation = { button, id: loc.id };
+                }
             });
+            
+            // Sotuvchi uchun birinchi locationni avtomatik tanlash
+            {% if current_user.role == 'sotuvchi' %}
+            if (firstLocation) {
+                selectLocation(firstLocation.button, firstLocation.id);
+            }
+            {% endif %}
+            
         } catch (error) {
             console.error('Locationlarni yuklashda xatolik:', error);
         }
