@@ -665,6 +665,8 @@
     let currentCustomerId = null;
     let exchangeRate = 13000;
     let selectedLocation = '';
+    const userRole = '{{ user_role }}';
+    const allowedLocations = {{ allowed_locations | tojson }};
 
     // Locationlarni yuklash va tugmalar yaratish
     async function loadLocations() {
@@ -673,23 +675,43 @@
             const locations = await response.json();
             
             const container = document.getElementById('locationButtons');
-            // Barchasi tugmasini yaratish
-            const allButton = document.createElement('button');
-            allButton.className = 'btn btn-sm me-2 mb-2 location-btn active';
-            allButton.setAttribute('data-location', '');
-            allButton.onclick = () => selectLocation(allButton, '');
-            allButton.textContent = '🏢 Barchasi';
             container.innerHTML = '';
-            container.appendChild(allButton);
             
-            locations.forEach(loc => {
+            // Admin uchun "Barchasi" tugmasini ko'rsatish
+            if (userRole === 'admin') {
+                const allButton = document.createElement('button');
+                allButton.className = 'btn btn-sm me-2 mb-2 location-btn';
+                allButton.setAttribute('data-location', '');
+                allButton.onclick = () => selectLocation(allButton, '');
+                allButton.textContent = '🏢 Barchasi';
+                container.appendChild(allButton);
+            }
+            
+            let firstLocation = null;
+            locations.forEach((loc, index) => {
                 const button = document.createElement('button');
                 button.className = 'btn btn-sm me-2 mb-2 location-btn';
                 button.setAttribute('data-location', loc.id);
                 button.onclick = () => selectLocation(button, loc.id);
                 button.textContent = `${loc.emoji} ${loc.name}`;
                 container.appendChild(button);
+                
+                // Sotuvchi uchun birinchi ruxsat etilgan locationni saqlash
+                if (userRole !== 'admin' && index === 0) {
+                    firstLocation = { button, id: loc.id };
+                }
             });
+            
+            // Sotuvchi uchun avtomatik birinchi locationni tanlash
+            if (userRole !== 'admin' && firstLocation) {
+                selectLocation(firstLocation.button, firstLocation.id);
+            } else if (userRole === 'admin') {
+                // Admin uchun "Barchasi" tugmasini avtomatik tanlash
+                const allBtn = container.querySelector('[data-location=""]');
+                if (allBtn) {
+                    selectLocation(allBtn, '');
+                }
+            }
         } catch (error) {
             console.error('Locationlarni yuklashda xatolik:', error);
         }

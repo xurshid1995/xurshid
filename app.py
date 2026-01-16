@@ -2447,10 +2447,13 @@ def customers():
 @role_required('admin', 'kassir', 'sotuvchi')
 def debts():
     """Qarzlar sahifasi"""
+    user = get_current_user()
     return render_template(
         'debts.html',
         page_title='Qarzlar',
-        icon='💰')
+        icon='💰',
+        user_role=user.get('role'),
+        allowed_locations=user.get('allowed_locations', []))
 
 
 @app.route('/paid-debts-history')
