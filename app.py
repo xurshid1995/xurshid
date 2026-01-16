@@ -10313,16 +10313,29 @@ def api_send_debt_sms():
         if not customer.phone:
             return jsonify({'success': False, 'error': 'Mijozda telefon raqam yo\'q'}), 400
         
-        # Qarz miqdorini hisoblash
-        debt_usd = db.session.query(
-            db.func.sum(Sale.debt_usd)
+        # Qarz miqdorini va joylashuvni hisoblash
+        sale_with_location = db.session.query(
+            db.func.sum(Sale.debt_usd).label('total_debt'),
+            Sale.location_id,
+            Sale.location_type
         ).filter(
             Sale.customer_id == customer_id,
             Sale.debt_usd > 0
-        ).scalar() or 0
+        ).group_by(Sale.location_id, Sale.location_type).first()
         
-        if debt_usd <= 0:
+        if not sale_with_location or not sale_with_location.total_debt:
             return jsonify({'success': False, 'error': 'Mijozda qarz yo\'q'}), 400
+        
+        debt_usd = sale_with_location.total_debt
+        
+        # Joylashuv nomini olish
+        location_name = None
+        if sale_with_location.location_type == 'store':
+            store = Store.query.get(sale_with_location.location_id)
+            location_name = store.name if store else None
+        elif sale_with_location.location_type == 'warehouse':
+            warehouse = Warehouse.query.get(sale_with_location.location_id)
+            location_name = warehouse.name if warehouse else None
         
         # Kurs olish
         rate = CurrencyRate.query.order_by(CurrencyRate.id.desc()).first()
@@ -10333,7 +10346,8 @@ def api_send_debt_sms():
             customer.phone,
             customer.name,
             float(debt_usd),
-            exchange_rate
+            exchange_rate,
+            location_name
         )
         
         # Log yozish

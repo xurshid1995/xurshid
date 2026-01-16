@@ -173,7 +173,7 @@ class EskizSMS:
             logger.error(f"❌ Balans tekshirishda xatolik: {str(e)}")
             return None
     
-    def send_debt_reminder(self, phone, customer_name, debt_usd, rate=13000):
+    def send_debt_reminder(self, phone, customer_name, debt_usd, rate=13000, location_name=None):
         """
         Qarz eslatmasi SMS yuborish
         
@@ -182,18 +182,27 @@ class EskizSMS:
             customer_name: Mijoz ismi
             debt_usd: Qarz miqdori (USD)
             rate: Valyuta kursi (UZS)
+            location_name: Joylashuv nomi (do'kon/ombor)
             
         Returns:
             dict: SMS yuborish natijasi
         """
         debt_uzs = float(debt_usd) * rate
         
-        message = (
-            f"Hurmatli {customer_name}!\n"
-            f"Sizning qarzingiz:\n"
-            f"${debt_usd:.2f} ({debt_uzs:,.0f} so'm)\n"
-            f"Iltimos, to'lovni amalga oshiring."
-        )
+        if location_name:
+            message = (
+                f"Hurmatli {customer_name}\n"
+                f"{location_name} dan qarzingiz\n"
+                f"${debt_usd:.2f} ({debt_uzs:,.0f} so'm)\n"
+                f"Iltimos tolovni amalga oshiring"
+            )
+        else:
+            message = (
+                f"Hurmatli {customer_name}\n"
+                f"Qarzingiz\n"
+                f"${debt_usd:.2f} ({debt_uzs:,.0f} so'm)\n"
+                f"Iltimos tolovni amalga oshiring"
+            )
         
         return self.send_sms(phone, message)
     
