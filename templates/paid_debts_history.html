@@ -43,27 +43,6 @@
         color: white;
     }
 
-    .stats-card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .stats-card h3 {
-        margin: 0 0 10px 0;
-        font-size: 14px;
-        color: #666;
-    }
-
-    .stats-card .value {
-        font-size: 32px;
-        font-weight: 700;
-        color: #28a745;
-    }
-
     .table-container {
         background: white;
         border-radius: 10px;
@@ -207,12 +186,6 @@
         </button>
     </div>
 
-    <!-- Statistika -->
-    <div class="stats-card">
-        <h3>💰 Jami to'langan qarzlar</h3>
-        <div class="value" id="totalPaid">0 USD</div>
-    </div>
-
     <!-- To'langan qarzlar jadvali -->
     <div class="table-container">
         <h2>✅ To'langan qarzlar ro'yxati</h2>
@@ -302,13 +275,6 @@
             
             const data = await response.json();
             paidDebts = data.payments || [];
-            
-            // Jami to'langan summani hisoblash
-            const totalPaid = paidDebts.reduce((sum, debt) => {
-                return sum + (debt.cash_usd || 0) + (debt.click_usd || 0) + (debt.terminal_usd || 0);
-            }, 0);
-            
-            document.getElementById('totalPaid').textContent = totalPaid.toFixed(2) + ' USD';
             
             renderTable();
         } catch (error) {
