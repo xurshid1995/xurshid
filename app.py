@@ -10223,8 +10223,11 @@ def dashboard():
     # Session tekshirish
     if 'user_id' not in session:
         return redirect('/login')
+    
+    # Current user ma'lumotlarini olish
+    current_user = get_current_user()
 
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', current_user=current_user)
 
 
 # =======================================================
