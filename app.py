@@ -9699,8 +9699,13 @@ def api_login():
             import uuid
             session_id = str(uuid.uuid4())
 
-            # Eski session'larni deactivate qilish
-            UserSession.query.filter_by(user_id=user.id, is_active=True).update({'is_active': False})
+            # Eski session'larni deactivate qilish (MUHIM: Avval commit qilish)
+            old_sessions = UserSession.query.filter_by(user_id=user.id, is_active=True).all()
+            for old_session in old_sessions:
+                old_session.is_active = False
+                app.logger.info(f"🔒 Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
+            
+            db.session.commit()  # Eski sessionlarni saqlash
 
             # Yangi session yaratish
             user_session = UserSession(
@@ -9712,7 +9717,7 @@ def api_login():
             )
 
             db.session.add(user_session)
-            db.session.commit()
+            db.session.commit()  # Yangi sessionni saqlash
 
             # Session'ga session_id qo'shish
             session['session_id'] = session_id
@@ -9720,6 +9725,7 @@ def api_login():
             app.logger.info(f"🔐 Yangi session yaratildi: User {user.username} (ID: {user.id}), Session: {session_id[:8]}...")
 
         except Exception as e:
+            db.session.rollback()
             app.logger.error(f"Session tracking xatosi: {e}")
             # Session tracking xato bo'lsa ham login'ga ruxsat berish
             pass
