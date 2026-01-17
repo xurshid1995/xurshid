@@ -6861,7 +6861,7 @@ def toggle_user_status(user_id):
 
 @app.route('/api/active-sessions', methods=['GET'])
 @role_required('admin', 'kassir')
-def get_active_sessions():
+def get_active_user_sessions():
     """Aktiv foydalanuvchi seanslarini olish"""
     try:
         # Aktiv seanslarni olish
