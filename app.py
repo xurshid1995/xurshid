@@ -5119,10 +5119,11 @@ def create_tables():
 
 @app.before_request
 def check_user_status():
-    """Har request da foydalanuvchining faol ekanligini tekshirish"""
+    """Har request da foydalanuvchining faol ekanligini va session statusini tekshirish"""
     try:
         # Faqat authenticated foydalanuvchilar uchun
         user_id = session.get('user_id')
+        session_id = session.get('session_id')
 
         if user_id:
             # Static fayllar va login sahifalari uchun tekshirmaslik
@@ -5131,6 +5132,31 @@ def check_user_status():
                          or request.endpoint == 'login_page'
                          or request.endpoint == 'api_login')):
                 return
+
+            # Session ID mavjudligini tekshirish
+            if session_id:
+                # Database'dan session holatini tekshirish
+                user_session = UserSession.query.filter_by(
+                    session_id=session_id,
+                    user_id=user_id
+                ).first()
+                
+                # Agar session topilmasa yoki faol bo'lmasa - logout
+                if not user_session or not user_session.is_active:
+                    username = session.get('username', 'Unknown')
+                    app.logger.info(f"🚫 Session bekor qilingan yoki faol emas: {username} (ID: {user_id})")
+                    
+                    session.clear()
+                    
+                    # AJAX request uchun
+                    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return jsonify({
+                            'error': 'Sessiyangiz boshqa kompyuterda ochilgan. Qayta login qiling.',
+                            'redirect': '/login',
+                            'logout': True
+                        }), 401
+                    else:
+                        return redirect('/login?message=session_expired')
 
             # Foydalanuvchi faol ekanligini tekshirish
             user = User.query.get(user_id)
@@ -9729,22 +9755,21 @@ def api_login():
 @app.route('/logout')
 def logout():
     try:
-        # Session'ni database'da deactivate qilish - vaqtincha disabled
-        # user_id = session.get('user_id')
-        # session_id = session.get('session_id')
+        # Session'ni database'da deactivate qilish
+        user_id = session.get('user_id')
+        session_id = session.get('session_id')
 
-        # if user_id and session_id:
-        #     user_session = UserSession.query.filter_by(
-        #         user_id=user_id,
-        #         session_id=session_id,
-        #         is_active=True
-        #     ).first()
+        if user_id and session_id:
+            user_session = UserSession.query.filter_by(
+                user_id=user_id,
+                session_id=session_id,
+                is_active=True
+            ).first()
 
-        #     if user_session:
-        #         user_session.is_active = False
-        #         db.session.commit()
-        #         app.logger.info(f"🚪 Session deactivated: User {user_id}, Session {session_id[:8]}...")
-        pass
+            if user_session:
+                user_session.is_active = False
+                db.session.commit()
+                app.logger.info(f"🚪 Session deactivated: User {user_id}, Session {session_id[:8]}...")
 
     except Exception as e:
         app.logger.error(f"Logout session deactivation xatosi: {e}")
