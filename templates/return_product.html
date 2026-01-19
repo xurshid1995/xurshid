@@ -22,6 +22,30 @@
             <button onclick="searchSale()" style="padding: 10px 30px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: 500;">
                 Qidirish
             </button>
+            <button onclick="loadRecentSales()" style="padding: 10px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: 500;">
+                📋 Oxirgi savdolar
+            </button>
+        </div>
+    </div>
+
+    <!-- Oxirgi savdolar jadvali -->
+    <div id="recentSalesSection" style="display: none; background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 15px; color: #333;">📊 Oxirgi savdolar</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th style="padding: 12px; text-align: left; font-weight: 600;">ID</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600;">Mijoz</th>
+                        <th style="padding: 12px; text-align: center; font-weight: 600;">Sana</th>
+                        <th style="padding: 12px; text-align: right; font-weight: 600;">Summa</th>
+                        <th style="padding: 12px; text-align: center; font-weight: 600;">Holat</th>
+                        <th style="padding: 12px; text-align: center; font-weight: 600;">Amal</th>
+                    </tr>
+                </thead>
+                <tbody id="recentSalesTableBody">
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -148,6 +172,81 @@
 <script>
     let currentSale = null;
     let returnItems = [];
+
+    // Sahifa yuklanganda oxirgi savdolarni yuklash
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecentSales();
+    });
+
+    async function loadRecentSales() {
+        try {
+            const response = await fetch('/api/sales-history?limit=20');
+            const data = await response.json();
+
+            if (!data.success || !data.sales) {
+                showMessage('❌ Savdolarni yuklashda xatolik!', 'error');
+                return;
+            }
+
+            const salesTableBody = document.getElementById('recentSalesTableBody');
+            let html = '';
+
+            if (data.sales.length === 0) {
+                html = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #666;">Savdolar topilmadi</td></tr>';
+            } else {
+                data.sales.forEach(sale => {
+                    const saleDate = new Date(sale.created_at).toLocaleString('uz-UZ', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const totalAmount = sale.total_usd || 0;
+                    const statusBadge = getPaymentStatusBadge(sale.payment_status);
+
+                    html += `
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; font-weight: 600;">#${sale.id}</td>
+                            <td style="padding: 12px;">${sale.customer_name || 'Noma\'lum'}</td>
+                            <td style="padding: 12px; text-align: center;">${saleDate}</td>
+                            <td style="padding: 12px; text-align: right; font-weight: 600;">$${totalAmount.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: center;">${statusBadge}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <button onclick="selectSale(${sale.id})" 
+                                        style="padding: 6px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                    Tanlash
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            salesTableBody.innerHTML = html;
+            document.getElementById('recentSalesSection').style.display = 'block';
+
+        } catch (error) {
+            console.error('Xatolik:', error);
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
+        }
+    }
+
+    function selectSale(saleId) {
+        document.getElementById('saleIdInput').value = saleId;
+        searchSale();
+    }
+
+    function getPaymentStatusBadge(status) {
+        const badges = {
+            'paid': '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✅ To\'langan</span>',
+            'partial': '<span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ Qisman</span>',
+            'pending': '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⏳ Kutilmoqda</span>',
+            'debt': '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">💳 Qarzda</span>'
+        };
+        return badges[status] || status;
+    }
 
     async function searchSale() {
         const saleId = document.getElementById('saleIdInput').value;
