@@ -2685,10 +2685,44 @@ function generatePaymentDetailsHTML(sale) {
         </div>
     `;
     
+    // Qaytarilgan to'lovlar
+    let refundsHTML = '';
+    if (sale.payment_refunds && sale.payment_refunds.length > 0) {
+        refundsHTML = `
+            <div style="margin-top: 15px; padding: 15px; background: #ffebee; border-radius: 6px; border-left: 4px solid #dc3545;">
+                <div style="font-weight: 600; margin-bottom: 10px; color: #c62828;">❌ Qaytarilgan to'lovlar:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
+        
+        const paymentTypeIcons = {
+            'cash': '💵',
+            'click': '📱',
+            'terminal': '💳',
+            'payme': '💳'
+        };
+        
+        sale.payment_refunds.forEach(refund => {
+            const icon = paymentTypeIcons[refund.payment_type] || '💰';
+            const amountUSD = parseFloat(refund.refund_amount_usd || 0);
+            const amountUZS = parseFloat(refund.refund_amount_uzs || 0);
+            
+            refundsHTML += `
+                <div style="background: white; padding: 10px 15px; border-radius: 4px; border-left: 3px solid #dc3545;">
+                    <div style="font-weight: 600; color: #c62828; margin-bottom: 4px;">${icon} ${refund.payment_type.toUpperCase()}</div>
+                    <div style="color: #c62828; font-weight: 600;">-$${amountUSD.toFixed(2)}</div>
+                    <div style="font-size: 11px; color: #c62828;">-${Math.round(amountUZS).toLocaleString('uz-UZ')} so'm</div>
+                </div>`;
+        });
+        
+        refundsHTML += `
+                </div>
+            </div>`;
+    }
+    
     return `
         <div class="total-row">
             <div style="margin-bottom: 8px; font-weight: 500; color: #495057;">To'lovlar:</div>
             <div style="display: flex; flex-wrap: wrap; align-items: center;">${paymentsHTML}${totalHTML}</div>
+            ${refundsHTML}
         </div>
     `;
 }
