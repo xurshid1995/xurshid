@@ -2754,14 +2754,31 @@ def api_return_product():
             })
             
             # Amaliyotlar tarixiga yozish
+            location_name = None
+            if location_type == 'store':
+                store = Store.query.get(location_id)
+                location_name = store.name if store else 'Noma\'lum do\'kon'
+            elif location_type == 'warehouse':
+                warehouse = Warehouse.query.get(location_id)
+                location_name = warehouse.name if warehouse else 'Noma\'lum ombor'
+                
             operation = OperationHistory(
                 operation_type='return',
+                table_name='sale_items',
+                record_id=sale_id,
                 user_id=session.get('user_id'),
-                details=f"Qaytarildi: {product.name} - {return_quantity} dona (Savdo #{sale_id})",
-                product_id=product_id,
-                quantity=return_quantity,
+                username=session.get('username'),
+                description=f"Qaytarildi: {product.name} - {return_quantity} dona (Savdo #{sale_id})",
+                new_data={
+                    'product_id': product_id,
+                    'product_name': product.name,
+                    'quantity': return_quantity,
+                    'sale_id': sale_id
+                },
+                ip_address=request.remote_addr,
                 location_id=location_id,
-                location_type=location_type
+                location_type=location_type,
+                location_name=location_name
             )
             db.session.add(operation)
         
