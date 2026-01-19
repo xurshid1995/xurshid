@@ -3002,6 +3002,12 @@ def api_return_product():
                 db.session.add(refund_operation)
             
             logger.info(f"Mahsulot qaytarildi: {len(returned_items)} ta")
+            
+            # Payment_status ni yangilash
+            if sale.debt_usd and sale.debt_usd <= 0:
+                # Qarz 0 ga tushgan yoki manfiy bo'lgan (to'liq to'langan)
+                sale.payment_status = 'paid'
+                logger.info(f"✅ Qarz to'liq qaytarildi, payment_status='paid' qilindi")
         
         # Agar sale'da mahsulot qolmasa, savdoni bekor qilish
         remaining_items = SaleItem.query.filter_by(sale_id=sale_id).count()
