@@ -313,14 +313,24 @@
     function displayProductSuggestions(products) {
         const suggestionsDiv = document.getElementById('productSuggestions');
         
+        console.log('displayProductSuggestions chaqirildi:', products);
+        console.log('suggestionsDiv elementi:', suggestionsDiv);
+        
+        if (!suggestionsDiv) {
+            console.error('❌ productSuggestions elementi topilmadi!');
+            return;
+        }
+        
         if (products.length === 0) {
             suggestionsDiv.innerHTML = '<div style="padding: 15px; text-align: center; color: #666;">Mahsulot topilmadi</div>';
             suggestionsDiv.style.display = 'block';
+            console.log('✅ "Mahsulot topilmadi" xabari ko\'rsatildi');
             return;
         }
 
         let html = '';
         products.forEach(product => {
+            console.log('Mahsulot qo\'shilmoqda:', product.name);
             html += `
                 <div onclick="selectProduct(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.barcode || ''}')" 
                      style="padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;"
@@ -332,8 +342,10 @@
             `;
         });
 
+        console.log('HTML yaratildi, uzunlik:', html.length);
         suggestionsDiv.innerHTML = html;
         suggestionsDiv.style.display = 'block';
+        console.log('✅ Mahsulotlar ko\'rsatildi, display:', suggestionsDiv.style.display);
     }
 
     async function selectProduct(productId, productName, barcode) {
