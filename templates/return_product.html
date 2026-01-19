@@ -1079,10 +1079,16 @@
                                 <tbody>`;
             
             sale.items.forEach(item => {
+                // Debug: Har bir mahsulotni console'ga chiqarish
+                console.log('Item product_id:', item.product_id, 'Type:', typeof item.product_id);
+                console.log('Checking if', item.product_id, 'is in', returnedProductIds);
+                
                 // Qaytarilgan mahsulotni aniqlash
                 const isReturned = returnedProductIds.includes(item.product_id);
                 const returnedItem = returnedProducts.find(rp => rp.product_id === item.product_id);
                 const returnedQty = returnedItem ? returnedItem.returned_quantity : 0;
+                
+                console.log('Is returned:', isReturned, 'Returned qty:', returnedQty);
                 
                 const rowStyle = isReturned ? 'background: #ffe6e6;' : '';
                 const textColor = isReturned ? 'color: #dc3545;' : '';
