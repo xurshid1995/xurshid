@@ -2866,8 +2866,21 @@
         const locationSelect = document.getElementById(`locationSelect_tab${tabId}`);
         const customerSearch = document.getElementById(`customerSearch_tab${tabId}`);
         const selectedCustomerId = document.getElementById(`selectedCustomerId_tab${tabId}`);
+        const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
         
         if (!cartItemsDiv || !cartTotalDiv || !cartTotalHeader) return;
+        
+        // Mijoz ma'lumotlarini ko'rsatish
+        if (cartCustomerInfo && customerSearch && selectedCustomerId && selectedCustomerId.value) {
+            const customerName = customerSearch.value;
+            if (customerName) {
+                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">👤 ${customerName}</h3>`;
+            } else {
+                cartCustomerInfo.innerHTML = '';
+            }
+        } else if (cartCustomerInfo) {
+            cartCustomerInfo.innerHTML = '';
+        }
         
         if (cart.length === 0) {
             cartItemsDiv.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 50px; color: #999;">Savat bo\'sh</td></tr>';
