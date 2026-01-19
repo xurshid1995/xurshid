@@ -1,0 +1,335 @@
+{% extends "base_with_sidebar.html" %}
+
+{% block title %}Mahsulotni Qaytarish - DOKON{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+    <div class="page-header" style="margin-bottom: 30px;">
+        <h1 style="color: #333; font-size: 28px; margin: 0;">
+            <span style="font-size: 32px;">↩️</span> Mahsulotni Qaytarish
+        </h1>
+        <p style="color: #666; margin-top: 8px;">Sotilgan mahsulotni qaytarib olish</p>
+    </div>
+
+    <!-- Savdo ID orqali qidirish -->
+    <div class="search-section" style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 15px; color: #333;">🔍 Savdoni qidirish</h3>
+        <div style="display: flex; gap: 10px; align-items: end;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 500;">Savdo ID:</label>
+                <input type="number" id="saleIdInput" placeholder="Savdo ID ni kiriting..." 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 15px;">
+            </div>
+            <button onclick="searchSale()" style="padding: 10px 30px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: 500;">
+                Qidirish
+            </button>
+        </div>
+    </div>
+
+    <!-- Savdo ma'lumotlari -->
+    <div id="saleDetails" style="display: none;">
+        <div class="sale-info" style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 15px; color: #333;">📋 Savdo ma'lumotlari</h3>
+            <div id="saleInfoContent"></div>
+        </div>
+
+        <!-- Mahsulotlar ro'yxati -->
+        <div class="products-section" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 15px; color: #333;">📦 Mahsulotlar</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                            <th style="padding: 12px; text-align: left; font-weight: 600;">Mahsulot</th>
+                            <th style="padding: 12px; text-align: center; font-weight: 600;">Sotilgan miqdor</th>
+                            <th style="padding: 12px; text-align: right; font-weight: 600;">Narx</th>
+                            <th style="padding: 12px; text-align: right; font-weight: 600;">Jami</th>
+                            <th style="padding: 12px; text-align: center; font-weight: 600;">Qaytarish miqdori</th>
+                            <th style="padding: 12px; text-align: center; font-weight: 600;">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dee2e6; text-align: right;">
+                <button onclick="confirmReturn()" id="returnBtn" style="padding: 12px 40px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                    ✅ Qaytarishni tasdiqlash
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Xabarlar -->
+    <div id="messageDiv" style="margin-top: 20px;"></div>
+</div>
+
+<style>
+    .container input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .container button:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .container button:active {
+        transform: translateY(0);
+    }
+
+    .return-input {
+        width: 80px;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .return-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .info-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .info-label {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        color: #333;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+    }
+</style>
+
+<script>
+    let currentSale = null;
+    let returnItems = [];
+
+    async function searchSale() {
+        const saleId = document.getElementById('saleIdInput').value;
+        if (!saleId) {
+            showMessage('⚠️ Savdo ID ni kiriting!', 'warning');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/sales/${saleId}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                showMessage('❌ Savdo topilmadi!', 'error');
+                return;
+            }
+
+            currentSale = data.sale;
+            displaySaleDetails();
+            document.getElementById('saleDetails').style.display = 'block';
+            showMessage('✅ Savdo muvaffaqiyatli yuklandi!', 'success');
+        } catch (error) {
+            console.error('Xatolik:', error);
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
+        }
+    }
+
+    function displaySaleDetails() {
+        // Savdo ma'lumotlarini ko'rsatish
+        const saleDate = new Date(currentSale.sale_date).toLocaleString('uz-UZ');
+        const infoHtml = `
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Savdo ID:</div>
+                    <div class="info-value">#${currentSale.id}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Mijoz:</div>
+                    <div class="info-value">${currentSale.customer_name || 'Noma\'lum'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Sana:</div>
+                    <div class="info-value">${saleDate}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">To'lov holati:</div>
+                    <div class="info-value">${getPaymentStatusText(currentSale.payment_status)}</div>
+                </div>
+            </div>
+        `;
+        document.getElementById('saleInfoContent').innerHTML = infoHtml;
+
+        // Mahsulotlarni ko'rsatish
+        let productsHtml = '';
+        returnItems = [];
+
+        currentSale.items.forEach((item, index) => {
+            returnItems.push({
+                product_id: item.product_id,
+                product_name: item.product_name,
+                sold_quantity: item.quantity,
+                unit_price: item.unit_price,
+                return_quantity: 0
+            });
+
+            const totalPrice = (item.quantity * item.unit_price).toFixed(2);
+            productsHtml += `
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 12px;">${item.product_name}</td>
+                    <td style="padding: 12px; text-align: center; font-weight: 600;">${item.quantity}</td>
+                    <td style="padding: 12px; text-align: right;">$${item.unit_price.toFixed(2)}</td>
+                    <td style="padding: 12px; text-align: right; font-weight: 600;">$${totalPrice}</td>
+                    <td style="padding: 12px; text-align: center;">
+                        <input type="number" 
+                               class="return-input" 
+                               id="return_${index}"
+                               min="0" 
+                               max="${item.quantity}" 
+                               value="0"
+                               onchange="updateReturnQuantity(${index}, this.value)">
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button onclick="setFullReturn(${index})" 
+                                style="padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                            Hammasi
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('productsTableBody').innerHTML = productsHtml;
+    }
+
+    function updateReturnQuantity(index, quantity) {
+        const qty = parseInt(quantity) || 0;
+        const maxQty = returnItems[index].sold_quantity;
+        
+        if (qty > maxQty) {
+            showMessage(`⚠️ Qaytarish miqdori sotilgan miqdordan oshmasligi kerak! (Max: ${maxQty})`, 'warning');
+            document.getElementById(`return_${index}`).value = maxQty;
+            returnItems[index].return_quantity = maxQty;
+        } else {
+            returnItems[index].return_quantity = qty;
+        }
+    }
+
+    function setFullReturn(index) {
+        const maxQty = returnItems[index].sold_quantity;
+        document.getElementById(`return_${index}`).value = maxQty;
+        returnItems[index].return_quantity = maxQty;
+    }
+
+    async function confirmReturn() {
+        // Qaytariladigan mahsulotlarni tekshirish
+        const itemsToReturn = returnItems.filter(item => item.return_quantity > 0);
+        
+        if (itemsToReturn.length === 0) {
+            showMessage('⚠️ Hech qanday mahsulot tanlanmagan!', 'warning');
+            return;
+        }
+
+        const confirmMsg = `${itemsToReturn.length} ta mahsulotni qaytarishni tasdiqlaysizmi?`;
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/return-product', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sale_id: currentSale.id,
+                    items: itemsToReturn,
+                    location_id: currentSale.location_id,
+                    location_type: currentSale.location_type
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showMessage('✅ Mahsulotlar muvaffaqiyatli qaytarildi!', 'success');
+                // Formani tozalash
+                setTimeout(() => {
+                    document.getElementById('saleIdInput').value = '';
+                    document.getElementById('saleDetails').style.display = 'none';
+                    currentSale = null;
+                    returnItems = [];
+                }, 2000);
+            } else {
+                showMessage('❌ Xatolik: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Xatolik:', error);
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
+        }
+    }
+
+    function getPaymentStatusText(status) {
+        const statuses = {
+            'paid': '✅ To\'langan',
+            'partial': '⚠️ Qisman to\'langan',
+            'pending': '⏳ Kutilmoqda',
+            'debt': '💳 Qarzda'
+        };
+        return statuses[status] || status;
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = document.getElementById('messageDiv');
+        const alertClass = type === 'success' ? 'alert-success' : 
+                          type === 'error' ? 'alert-error' : 'alert-warning';
+        
+        messageDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+        
+        setTimeout(() => {
+            messageDiv.innerHTML = '';
+        }, 5000);
+    }
+</script>
+{% endblock %}

@@ -2655,6 +2655,112 @@ def transfer():
     return render_template('transfer.html')
 
 
+@app.route('/return-product')
+@role_required('admin', 'kassir', 'sotuvchi')
+def return_product():
+    """Mahsulotni qaytarish sahifasi"""
+    return render_template('return_product.html')
+
+
+@app.route('/api/return-product', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_return_product():
+    """Mahsulotni qaytarish API"""
+    try:
+        data = request.json
+        sale_id = data.get('sale_id')
+        items = data.get('items', [])
+        location_id = data.get('location_id')
+        location_type = data.get('location_type')
+        
+        if not sale_id or not items:
+            return jsonify({'success': False, 'error': 'Savdo ID va mahsulotlar talab qilinadi'}), 400
+        
+        # Savdoni tekshirish
+        sale = Sale.query.get(sale_id)
+        if not sale:
+            return jsonify({'success': False, 'error': 'Savdo topilmadi'}), 404
+        
+        # Har bir mahsulotni qaytarish
+        returned_items = []
+        for item in items:
+            product_id = item.get('product_id')
+            return_quantity = item.get('return_quantity', 0)
+            
+            if return_quantity <= 0:
+                continue
+            
+            # Mahsulotni topish
+            product = Product.query.get(product_id)
+            if not product:
+                continue
+            
+            # Stock ga qaytarish
+            if location_type == 'store':
+                stock = StoreStock.query.filter_by(
+                    store_id=location_id,
+                    product_id=product_id
+                ).first()
+                
+                if stock:
+                    stock.quantity += return_quantity
+                else:
+                    # Agar stock yo'q bo'lsa, yangi yaratish
+                    new_stock = StoreStock(
+                        store_id=location_id,
+                        product_id=product_id,
+                        quantity=return_quantity
+                    )
+                    db.session.add(new_stock)
+                    
+            elif location_type == 'warehouse':
+                stock = WarehouseStock.query.filter_by(
+                    warehouse_id=location_id,
+                    product_id=product_id
+                ).first()
+                
+                if stock:
+                    stock.quantity += return_quantity
+                else:
+                    # Agar stock yo'q bo'lsa, yangi yaratish
+                    new_stock = WarehouseStock(
+                        warehouse_id=location_id,
+                        product_id=product_id,
+                        quantity=return_quantity
+                    )
+                    db.session.add(new_stock)
+            
+            returned_items.append({
+                'product_name': product.name,
+                'quantity': return_quantity
+            })
+            
+            # Amaliyotlar tarixiga yozish
+            operation = OperationHistory(
+                operation_type='return',
+                user_id=session.get('user_id'),
+                details=f"Qaytarildi: {product.name} - {return_quantity} dona (Savdo #{sale_id})",
+                product_id=product_id,
+                quantity=return_quantity,
+                location_id=location_id,
+                location_type=location_type
+            )
+            db.session.add(operation)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'{len(returned_items)} ta mahsulot qaytarildi',
+            'returned_items': returned_items
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Mahsulot qaytarishda xatolik: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/operations-history')
 @role_required('admin', 'kassir')
 def operations_history():
