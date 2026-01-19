@@ -2758,6 +2758,8 @@ def api_return_product():
         # Har bir mahsulotni qaytarish
         returned_items = []
         total_returned_usd = Decimal('0')
+        total_returned_cost = Decimal('0')
+        total_returned_profit = Decimal('0')
         
         for item in items:
             product_id = item.get('product_id')
@@ -2791,10 +2793,16 @@ def api_return_product():
             old_quantity = sale_item.quantity
             sale_item.quantity -= return_quantity
             
-            # Qaytariladigan summa (USD da)
+            # Qaytariladigan summa, xarajat va foyda (USD da)
             returned_usd = sale_item.unit_price * Decimal(str(return_quantity))
+            returned_cost = Decimal(str(sale_item.cost_price or 0)) * Decimal(str(return_quantity))
+            returned_profit = Decimal(str(sale_item.profit or 0)) * Decimal(str(return_quantity))
+            
             total_returned_usd += returned_usd
-            logger.info(f"Qaytarildi: {product.name} x{return_quantity} = ${returned_usd}")
+            total_returned_cost += returned_cost
+            total_returned_profit += returned_profit
+            
+            logger.info(f"Qaytarildi: {product.name} x{return_quantity} = ${returned_usd} (foyda: ${returned_profit})")
             
             # Agar miqdor 0 bo'lsa, SaleItem ni o'chirish
             if sale_item.quantity <= 0:
@@ -2889,11 +2897,16 @@ def api_return_product():
         # Sale jami summasini yangilash (USD da)
         if total_returned_usd > 0:
             sale.total_amount -= total_returned_usd
-            logger.info(f"Savdo #{sale_id} jami summasi yangilandi: -${total_returned_usd}")
+            sale.total_cost -= total_returned_cost
+            sale.total_profit -= total_returned_profit
             
-            # To'lovlarni hozircha avtomatik o'zgartirmaymiz
+            logger.info(f"Savdo #{sale_id} yangilandi:")
+            logger.info(f"  - Summa: -${total_returned_usd}")
+            logger.info(f"  - Xarajat: -${total_returned_cost}")
+            logger.info(f"  - Foyda: -${total_returned_profit}")
+            
             # Faqat mahsulot qaytarilganini yozib qo'yamiz
-            logger.info(f"Mahsulot qaytarildi: {len(returned_items)} ta, summa: ${total_returned_usd}")
+            logger.info(f"Mahsulot qaytarildi: {len(returned_items)} ta")
         
         # Agar sale'da mahsulot qolmasa, savdoni bekor qilish
         remaining_items = SaleItem.query.filter_by(sale_id=sale_id).count()
