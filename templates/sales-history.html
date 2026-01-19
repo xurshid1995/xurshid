@@ -2700,14 +2700,24 @@ function generatePaymentDetailsHTML(sale) {
             'payme': '💳'
         };
         
+        // To'lov turlari nomlari (inglizcha -> o'zbekcha)
+        const paymentTypeNames = {
+            'cash': 'Naqd',
+            'click': 'Click',
+            'terminal': 'Terminal',
+            'payme': 'Payme',
+            'debt': 'Qarz'
+        };
+        
         sale.payment_refunds.forEach(refund => {
             const icon = paymentTypeIcons[refund.payment_type] || '💰';
+            const typeName = paymentTypeNames[refund.payment_type] || refund.payment_type.toUpperCase();
             const amountUSD = parseFloat(refund.refund_amount_usd || 0);
             const amountUZS = parseFloat(refund.refund_amount_uzs || 0);
             
             refundsHTML += `
                 <div style="background: white; padding: 10px 15px; border-radius: 4px; border-left: 3px solid #dc3545;">
-                    <div style="font-weight: 600; color: #c62828; margin-bottom: 4px;">${icon} ${refund.payment_type.toUpperCase()}</div>
+                    <div style="font-weight: 600; color: #c62828; margin-bottom: 4px;">${icon} ${typeName}</div>
                     <div style="color: #c62828; font-weight: 600;">-$${amountUSD.toFixed(2)}</div>
                     <div style="font-size: 11px; color: #c62828;">-${Math.round(amountUZS).toLocaleString('uz-UZ')} so'm</div>
                 </div>`;
