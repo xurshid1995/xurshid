@@ -2936,11 +2936,19 @@ def api_return_product():
             logger.info(f"  - Xarajat: -${total_returned_cost}")
             logger.info(f"  - Foyda: -${total_returned_profit}")
             
-            # To'lovlarni avtomatik qaytarish (avval naqd, keyin click, keyin terminal)
+            # To'lovlarni avtomatik qaytarish (Smart Logic: avval qarz, keyin naqd, click, terminal)
             remaining_refund = total_returned_usd
             refunded_payments = []
             
-            # 1. Naqddan qaytarish
+            # 1. AVVAL qarzdan qaytarish (agar qarz mavjud bo'lsa)
+            if sale.debt_usd and sale.debt_usd > 0 and remaining_refund > 0:
+                debt_refund = min(Decimal(str(sale.debt_usd)), remaining_refund)
+                sale.debt_usd = float(Decimal(str(sale.debt_usd)) - debt_refund)
+                remaining_refund -= debt_refund
+                refunded_payments.append(('debt', float(debt_refund)))
+                logger.info(f"  📝 Qarzdan kamaytirildi: ${debt_refund} (Qolgan qarz: ${sale.debt_usd})")
+            
+            # 2. Naqddan qaytarish
             if sale.cash_usd and sale.cash_usd > 0 and remaining_refund > 0:
                 cash_refund = min(Decimal(str(sale.cash_usd)), remaining_refund)
                 sale.cash_usd = float(Decimal(str(sale.cash_usd)) - cash_refund)
@@ -2948,7 +2956,7 @@ def api_return_product():
                 refunded_payments.append(('cash', float(cash_refund)))
                 logger.info(f"  💵 Naqd puldan qaytarildi: ${cash_refund}")
             
-            # 2. Click dan qaytarish
+            # 3. Click dan qaytarish
             if sale.click_usd and sale.click_usd > 0 and remaining_refund > 0:
                 click_refund = min(Decimal(str(sale.click_usd)), remaining_refund)
                 sale.click_usd = float(Decimal(str(sale.click_usd)) - click_refund)
@@ -2956,7 +2964,7 @@ def api_return_product():
                 refunded_payments.append(('click', float(click_refund)))
                 logger.info(f"  📱 Click dan qaytarildi: ${click_refund}")
             
-            # 3. Terminal dan qaytarish
+            # 4. Terminal dan qaytarish
             if sale.terminal_usd and sale.terminal_usd > 0 and remaining_refund > 0:
                 terminal_refund = min(Decimal(str(sale.terminal_usd)), remaining_refund)
                 sale.terminal_usd = float(Decimal(str(sale.terminal_usd)) - terminal_refund)
@@ -2964,10 +2972,10 @@ def api_return_product():
                 refunded_payments.append(('terminal', float(terminal_refund)))
                 logger.info(f"  💳 Terminal dan qaytarildi: ${terminal_refund}")
             
-            # 4. Agar hali ham qolsa, qarzga qo'shish
+            # 5. Agar hali ham qolsa, qarzga qo'shish (manfiy qarz - endi do'kon mijozga qarzdor)
             if remaining_refund > 0:
                 sale.debt_usd = float(Decimal(str(sale.debt_usd or 0)) + remaining_refund)
-                logger.info(f"  📝 Qarzga qo'shildi: ${remaining_refund}")
+                logger.info(f"  📝 Qarzga qo'shildi: ${remaining_refund} (Jami qarz: ${sale.debt_usd})")
             
             # Qaytarilgan to'lovlarni operation_history ga yozish
             for payment_type, refund_amount in refunded_payments:
