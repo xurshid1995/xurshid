@@ -24,8 +24,9 @@
         <div style="display: flex; gap: 10px; align-items: end;">
             <div style="flex: 1; position: relative;">
                 <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 500;">Mahsulot nomi yoki barkodi:</label>
-                <input type="text" id="productSearchInput" placeholder="Mahsulot nomini kiriting..." 
+                <input type="text" id="productSearchInput" placeholder="Avval joylashuvni tanlang..." 
                        autocomplete="off"
+                       disabled
                        oninput="searchProducts()"
                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 15px;">
                 <div id="productSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></div>
@@ -252,12 +253,21 @@
         if (!selectedValue) {
             returnLocationId = null;
             returnLocationType = null;
+            // Mahsulot qidirishni tozalash
+            document.getElementById('productSearchInput').value = '';
+            document.getElementById('productSearchInput').disabled = true;
+            document.getElementById('productSearchInput').placeholder = 'Avval joylashuvni tanlang...';
+            clearProductSelection();
             return;
         }
 
         const parts = selectedValue.split('_');
         returnLocationType = parts[0];
         returnLocationId = parseInt(parts[1]);
+
+        // Mahsulot qidirishni yoqish
+        document.getElementById('productSearchInput').disabled = false;
+        document.getElementById('productSearchInput').placeholder = 'Mahsulot nomini kiriting...';
 
         console.log('Joylashuv tanlandi:', returnLocationType, returnLocationId);
     }
@@ -271,11 +281,20 @@
             return;
         }
 
+        // Joylashuv tanlanganligini tekshirish
+        if (!returnLocationId || !returnLocationType) {
+            showMessage('⚠️ Avval qaytarish joyini tanlang!', 'warning');
+            document.getElementById('productSuggestions').style.display = 'none';
+            return;
+        }
+
         // Debounce: 300ms kutish
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(async () => {
             try {
-                const response = await fetch(`/api/products?search=${encodeURIComponent(searchTerm)}&limit=20`);
+                // Joylashuv parametrlarini qo'shish
+                const url = `/api/products?search=${encodeURIComponent(searchTerm)}&limit=20&location_type=${returnLocationType}&location_id=${returnLocationId}`;
+                const response = await fetch(url);
                 const data = await response.json();
 
                 if (data.success && data.products) {
