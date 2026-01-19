@@ -2837,9 +2837,11 @@ def api_return_product():
         
         # Sale jami summasini yangilash
         if total_returned_usd > 0:
-            sale.total_usd -= total_returned_usd
-            sale.total_uzs = sale.total_usd * sale.exchange_rate
-            logger.info(f"Savdo #{sale_id} jami summasi yangilandi: -{total_returned_usd} USD")
+            # total_amount UZS da, qaytariladigan summa USD da
+            returned_uzs = total_returned_usd * sale.currency_rate
+            sale.total_amount -= returned_uzs
+            sale.total_cost -= returned_uzs  # Cost ham kamayadi
+            logger.info(f"Savdo #{sale_id} jami summasi yangilandi: -{returned_uzs} UZS (${total_returned_usd})")
         
         # Agar sale'da mahsulot qolmasa, savdoni bekor qilish
         remaining_items = SaleItem.query.filter_by(sale_id=sale_id).count()
