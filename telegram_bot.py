@@ -249,7 +249,8 @@ class DebtTelegramBot:
         paid_uzs: float,
         remaining_usd: float,
         remaining_uzs: float,
-        location_name: str
+        location_name: str,
+        customer_id: Optional[int] = None
     ) -> bool:
         """
         To'lov tasdiqlash xabarini yuborish
@@ -270,6 +271,10 @@ class DebtTelegramBot:
             return False
         
         try:
+            payment_details = ""
+            if customer_id and remaining_usd > 0:
+                payment_details = await self._get_payment_details(customer_id)
+            
             if remaining_usd <= 0:
                 # Qarz to'liq to'landi
                 message = (
@@ -287,9 +292,10 @@ class DebtTelegramBot:
                     f"✅ <b>TO'LOV QABUL QILINDI</b>\n\n"
                     f"Hurmatli {customer_name}!\n\n"
                     f"📍 Joylashuv: {location_name}\n"
-                    f"� To'langan: {paid_uzs:,.0f} so'm\n\n"
+                    f"💸 To'langan: {paid_uzs:,.0f} so'm\n\n"
                     f"📊 <b>Qolgan qarz:</b>\n"
-                    f"💸 {remaining_uzs:,.0f} so'm\n\n"
+                    f"💸 {remaining_uzs:,.0f} so'm\n"
+                    f"{payment_details}\n"
                     f"Rahmat! 🙏"
                 )
             
