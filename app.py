@@ -5544,9 +5544,15 @@ def api_debt_payment():
             sale.debt_usd = sale.debt_usd - total_paid
             sale.debt_amount = float(sale.debt_usd) * float(sale.currency_rate)
             
-            # Agar qarz to'liq yopilgan bo'lsa, statusni o'zgartirish
+            # Payment statusni yangilash
             if sale.debt_usd == 0:
+                # Qarz to'liq to'landi
                 sale.payment_status = 'paid'
+            elif sale.debt_usd > 0:
+                # Hali qarz qolgan (qisman to'langan yoki qisman to'landi)
+                sale.payment_status = 'partial'
+            
+            logger.info(f"💰 Savdo #{sale.id}: To'landi ${total_paid}, Qolgan qarz ${sale.debt_usd}, Status: {sale.payment_status}")
             
             # updated_at ni yangilash (qarz to'lash belgisi)
             sale.updated_at = get_tashkent_time()
