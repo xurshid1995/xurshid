@@ -502,12 +502,21 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 Sale.location_type
             ).all()
             
+            # Doimiy tugmalarni tayyorlash
+            keyboard = [
+                [KeyboardButton("💰 Qarzni tekshirish")]
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            
             if not debts:
                 await update.message.reply_text(
                     f"✅ Tasdiqlash muvaffaqiyatli!\n\n"
                     f"Assalomu alaykum, {customer.name}!\n\n"
                     f"🎉 Sizda qarz yo'q!\n\n"
-                    f"Rahmat! 🙏"
+                    f"Rahmat! 🙏",
+                    reply_markup=reply_markup
+                )
+                return
                 )
                 return
             
@@ -548,10 +557,106 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 f"Rahmat! 🙏"
             )
             
-            await update.message.reply_text(message, parse_mode='HTML')
+            # Doimiy tugmalarni ko'rsatish
+            keyboard = [
+                [KeyboardButton("💰 Qarzni tekshirish")]
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            
+            await update.message.reply_text(message, parse_mode='HTML', reply_markup=reply_markup)
             
         except Exception as e:
             logger.error(f"❌ Tasdiqlashda xatolik: {e}")
+            await update.message.reply_text("❌ Xatolik yuz berdi")
+
+async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Qarzni tekshirish tugmasi bosilganda"""
+    from app import app, db, Customer, Sale, Store, Warehouse
+    
+    chat_id = update.effective_chat.id
+    
+    with app.app_context():
+        try:
+            # Mijozni telegram_chat_id bo'yicha topish
+            customer = Customer.query.filter_by(telegram_chat_id=chat_id).first()
+            
+            if not customer:
+                # Telefon raqam tugmasini ko'rsatish
+                keyboard = [
+                    [KeyboardButton("📱 Telefon raqamni yuborish", request_contact=True)]
+                ]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                
+                await update.message.reply_text(
+                    "❌ Siz hali ro'yxatdan o'tmagansiz.\n\n"
+                    "Iltimos, telefon raqamingizni yuboring:",
+                    reply_markup=reply_markup
+                )
+                return
+            
+            # Qarzlarni hisoblash
+            debts = db.session.query(
+                Sale.location_id,
+                Sale.location_type,
+                db.func.sum(Sale.debt_usd).label('total_debt_usd'),
+                db.func.sum(Sale.debt_amount).label('total_debt_uzs')
+            ).filter(
+                Sale.customer_id == customer.id,
+                Sale.payment_status == 'partial',
+                Sale.debt_usd > 0
+            ).group_by(
+                Sale.location_id,
+                Sale.location_type
+            ).all()
+            
+            if not debts:
+                await update.message.reply_text(
+                    f"Assalomu alaykum, {customer.name}!\n\n"
+                    f"🎉 Sizda qarz yo'q!\n\n"
+                    f"Rahmat! 🙏"
+                )
+                return
+            
+            # Qarzlar haqida xabar
+            total_usd = 0
+            total_uzs = 0
+            debt_details = []
+            
+            for debt in debts:
+                debt_usd = float(debt.total_debt_usd or 0)
+                debt_uzs = float(debt.total_debt_uzs or 0)
+                total_usd += debt_usd
+                total_uzs += debt_uzs
+                
+                location_name = "Do'kon"
+                if debt.location_type == 'store' and debt.location_id:
+                    store = Store.query.get(debt.location_id)
+                    location_name = store.name if store else "Do'kon"
+                elif debt.location_type == 'warehouse' and debt.location_id:
+                    warehouse = Warehouse.query.get(debt.location_id)
+                    location_name = warehouse.name if warehouse else "Ombor"
+                
+                debt_details.append(
+                    f"📍 {location_name}\n"
+                    f"   💵 ${debt_usd:,.2f}\n"
+                    f"   💸 {debt_uzs:,.0f} so'm"
+                )
+            
+            message = (
+                f"Assalomu alaykum, {customer.name}!\n\n"
+                f"💰 <b>Sizning qarzlaringiz:</b>\n\n"
+                f"{chr(10).join(debt_details)}\n\n"
+                f"📊 <b>Jami qarz:</b>\n"
+                f"💵 ${total_usd:,.2f}\n"
+                f"💸 {total_uzs:,.0f} so'm\n\n"
+                f"Iltimos, qarzingizni to'lashni unutmang.\n"
+                f"Rahmat! 🙏"
+            )
+            
+            await update.message.reply_text(message, parse_mode='HTML')
+            
+        except Exception as e:
+            logger.error(f"❌ Qarzni tekshirishda xatolik: {e}")
             await update.message.reply_text("❌ Xatolik yuz berdi")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -749,6 +854,14 @@ def create_telegram_app():
         # Contact handler - telefon raqam tugmasi uchun
         application.add_handler(MessageHandler(filters.CONTACT, handle_contact))
         
+        # "Qarzni tekshirish" tugmasi handler
+        application.add_handler(
+            MessageHandler(
+                filters.TEXT & filters.Regex(r'^💰 Qarzni tekshirish$'),
+                check_debt_button
+            )
+        )
+        
         # Tasdiqlash kodi handler - 6 raqamli kod uchun
         application.add_handler(
             MessageHandler(
@@ -760,7 +873,7 @@ def create_telegram_app():
         # Message handler - oddiy telefon raqam yozib yuborish uchun (eski usul)
         application.add_handler(
             MessageHandler(
-                filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^\d{6}$'),
+                filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^\d{6}$') & ~filters.Regex(r'^💰 Qarzni tekshirish$'),
                 handle_phone_number
             )
         )
