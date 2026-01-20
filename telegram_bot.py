@@ -190,19 +190,13 @@ class DebtTelegramBot:
             if sale_date:
                 date_str = f"\n📅 Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
             
-            # To'lov turlarini olish (agar customer_id berilgan bo'lsa)
-            payment_details = ""
-            if customer_id:
-                payment_details = await self._get_payment_details(customer_id)
-            
-            # Xabar matni
+            # Xabar matni (qarz eslatmasida to'lov turlari ko'rsatilmaydi)
             message = (
                 f"💰 <b>QARZ ESLATMASI</b>\n\n"
                 f"Hurmatli {customer_name}!\n\n"
                 f"📍 Joylashuv: {location_name}\n"
                 f"💰 Qarz: ${debt_usd:,.2f}\n"
-                f"💸 Qarz: {debt_uzs:,.0f} so'm{date_str}"
-                f"{payment_details}\n\n"
+                f"💸 Qarz: {debt_uzs:,.0f} so'm{date_str}\n\n"
                 f"Iltimos, qarzingizni to'lashni unutmang. Qarz bu omonat.\n"
                 f"Rahmat! 🙏"
             )
@@ -262,18 +256,13 @@ class DebtTelegramBot:
             if sale_date:
                 date_str = f"\n📅 Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
             
-            # To'lov turlarini olish
-            payment_details = ""
-            if customer_id and self.db:
-                payment_details = self._get_payment_details_sync(customer_id)
-            
-            # Xabar matni
+            # Xabar matni (qarz eslatmasida to'lov turlari ko'rsatilmaydi)
             message = (
                 f"💰 <b>QARZ ESLATMASI</b>\n\n"
                 f"Hurmatli {customer_name}!\n\n"
                 f"📍 Joylashuv: {location_name}\n"
                 f"💎 Qarz: {debt_usd_str}\n"
-                f"💸 Qarz: {debt_uzs_str}{date_str}{payment_details}\n\n"
+                f"💸 Qarz: {debt_uzs_str}{date_str}\n\n"
                 f"Iltimos, qarzingizni to'lashni unutmang. Qarz bu omonat.\n"
                 f"Rahmat! 🙏"
             )
@@ -342,7 +331,7 @@ class DebtTelegramBot:
                     f"💵 To'langan: ${paid_usd:,.2f}\n"
                     f"💸 To'langan: {paid_uzs:,.0f} so'm\n\n"
                     f"🎉 <b>Qarzingiz to'liq to'landi!</b>\n"
-                    f"Rahmat! 🙏"
+                    f"Rahmat! 🙏 "
                 )
             else:
                 # Qisman to'lov
@@ -354,7 +343,7 @@ class DebtTelegramBot:
                     f"📊 <b>Qolgan qarz:</b>\n"
                     f"💸 {remaining_uzs:,.0f} so'm\n"
                     f"{payment_details}\n"
-                    f"Rahmat! 🙏"
+                    f"Rahmat! 🙏 Iltimos qolgan qarzingizniham tez orada Tolang chunki qarz bu sizga omonat"
                 )
             
             await self.bot.send_message(
