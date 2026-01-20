@@ -717,36 +717,20 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 )
                 return
             
-            # Qarzlar haqida xabar
+            # Qarzlar haqida xabar - faqat jami qarzni ko'rsatish
             total_usd = 0
             total_uzs = 0
-            debt_details = []
             
             for debt in debts:
                 debt_usd = float(debt.total_debt_usd or 0)
                 debt_uzs = float(debt.total_debt_uzs or 0)
                 total_usd += debt_usd
                 total_uzs += debt_uzs
-                
-                location_name = "Do'kon"
-                if debt.location_type == 'store' and debt.location_id:
-                    store = Store.query.get(debt.location_id)
-                    location_name = store.name if store else "Do'kon"
-                elif debt.location_type == 'warehouse' and debt.location_id:
-                    warehouse = Warehouse.query.get(debt.location_id)
-                    location_name = warehouse.name if warehouse else "Ombor"
-                
-                debt_details.append(
-                    f"📍 {location_name}\n"
-                    f"   � {debt_uzs:,.0f} so'm"
-                )
             
             message = (
                 f"✅ Tasdiqlash muvaffaqiyatli!\n\n"
                 f"Assalomu alaykum, {customer.name}!\n\n"
-                f"💰 <b>Sizning qarzlaringiz:</b>\n\n"
-                f"{chr(10).join(debt_details)}\n\n"
-                f"📊 <b>Jami qarz:</b>\n"
+                f"💰 <b>Sizning qarzingiz:</b>\n\n"
                 f"💸 {total_uzs:,.0f} so'm\n\n"
                 f"Iltimos, qarzingizni to'lashni unutmang.\n"
                 f"Rahmat! 🙏"
@@ -812,35 +796,19 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             
-            # Qarzlar haqida xabar
+            # Qarzlar haqida xabar - faqat jami qarzni ko'rsatish
             total_usd = 0
             total_uzs = 0
-            debt_details = []
             
             for debt in debts:
                 debt_usd = float(debt.total_debt_usd or 0)
                 debt_uzs = float(debt.total_debt_uzs or 0)
                 total_usd += debt_usd
                 total_uzs += debt_uzs
-                
-                location_name = "Do'kon"
-                if debt.location_type == 'store' and debt.location_id:
-                    store = Store.query.get(debt.location_id)
-                    location_name = store.name if store else "Do'kon"
-                elif debt.location_type == 'warehouse' and debt.location_id:
-                    warehouse = Warehouse.query.get(debt.location_id)
-                    location_name = warehouse.name if warehouse else "Ombor"
-                
-                debt_details.append(
-                    f"📍 {location_name}\n"
-                    f"   � {debt_uzs:,.0f} so'm"
-                )
             
             message = (
                 f"Assalomu alaykum, {customer.name}!\n\n"
-                f"💰 <b>Sizning qarzlaringiz:</b>\n\n"
-                f"{chr(10).join(debt_details)}\n\n"
-                f"📊 <b>Jami qarz:</b>\n"
+                f"💰 <b>Sizning qarzingiz:</b>\n\n"
                 f"💸 {total_uzs:,.0f} so'm\n\n"
                 f"Iltimos, qarzingizni to'lashni unutmang.\n"
                 f"Rahmat! 🙏"
