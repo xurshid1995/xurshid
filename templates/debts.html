@@ -1267,7 +1267,7 @@
         button.innerHTML = '⏳ Yuborilmoqda...';
 
         try {
-            const response = await fetch('/api/telegram/send-debt-reminder', {
+            const response = await fetch('/api/sms/send-debt-reminder', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({customer_id: customerId})
