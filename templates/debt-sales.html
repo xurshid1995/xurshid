@@ -2342,7 +2342,12 @@ function viewSaleDetails(saleId) {
     fetch(`/api/sales/${saleId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('✅ API response:', data);
             if (data.success && data.sale) {
+                console.log('📦 Sale data:', data.sale);
+                console.log('💳 debt_payments:', data.sale.debt_payments);
+                console.log('❌ returned_products:', data.sale.returned_products);
+                console.log('💰 payment_refunds:', data.sale.payment_refunds);
                 showSaleDetailsModal(data.sale);
             } else {
                 alert('❌ Savdo tafsilotlarini olishda xatolik: ' + (data.error || 'Noma\'lum xatolik'));
@@ -2356,10 +2361,31 @@ function viewSaleDetails(saleId) {
 
 // Savdo tafsilotlari modalini ko'rsatish
 function showSaleDetailsModal(sale) {
-    // Global o'zgaruvchiga saqlash
-    currentSaleData = sale;
-    
-    const modalHtml = `
+    try {
+        console.log('🔍 showSaleDetailsModal called with:', sale);
+        
+        // Global o'zgaruvchiga saqlash
+        currentSaleData = sale;
+        
+        // items array'ini tekshirish
+        if (!sale.items || !Array.isArray(sale.items)) {
+            console.error('❌ sale.items array emas:', sale.items);
+            sale.items = [];
+        }
+        
+        // returned_products array'ini tekshirish
+        if (!sale.returned_products || !Array.isArray(sale.returned_products)) {
+            console.warn('⚠️ returned_products array emas, bo\'sh array yaratildi');
+            sale.returned_products = [];
+        }
+        
+        // payment_refunds array'ini tekshirish
+        if (!sale.payment_refunds || !Array.isArray(sale.payment_refunds)) {
+            console.warn('⚠️ payment_refunds array emas, bo\'sh array yaratildi');
+            sale.payment_refunds = [];
+        }
+        
+        const modalHtml = `
         <div id="saleDetailsModal" class="modal sale-details-modal">
             <div class="modal-content sale-details-content">
                 <div class="modal-header">
