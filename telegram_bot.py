@@ -330,6 +330,8 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
     # Telefon raqamni tozalash
     phone = ''.join(filter(str.isdigit, message_text))
     
+    logger.info(f"📱 Telefon qidirish: Chat ID {chat_id}, Kiritilgan: '{message_text}', Tozalangan: '{phone}'")
+    
     # Turli formatlarni qabul qilish
     possible_phones = []
     if len(phone) == 12 and phone.startswith('998'):
@@ -343,11 +345,14 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
     else:
         possible_phones.append(message_text)
     
+    logger.info(f"🔍 Qidirilayotgan formatlar: {possible_phones}")
+    
     with app.app_context():
         try:
             # Mijozni qidirish
             customer = None
             for p in possible_phones:
+                logger.info(f"   - Format: '{p}' bilan qidirilmoqda...")
                 customer = Customer.query.filter(
                     db.or_(
                         Customer.phone == p,
@@ -355,6 +360,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                     )
                 ).first()
                 if customer:
+                    logger.info(f"✅ Mijoz topildi: {customer.name} (ID: {customer.id}, Phone DB: '{customer.phone}')")
                     break
             
             if not customer:
