@@ -2508,6 +2508,10 @@ function showSaleDetailsModal(sale) {
     `;
     
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    } catch (error) {
+        console.error('❌ Modal yaratishda xatolik:', error);
+        alert('❌ Savdo tafsilotlarini ko\'rsatishda xatolik: ' + error.message);
+    }
 }
 
 // Tafsilotlar modalini yopish
