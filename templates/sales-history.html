@@ -2520,7 +2520,7 @@ function generatePaymentDetailsHTML(sale) {
         const refundGroups = {};
         
         sale.debt_payments.forEach(payment => {
-            const type = payment.payment_type;
+            const type = payment.payment_type || 'cash';
             const amountUSD = parseFloat(payment.amount_usd || 0);
             const amountUZS = parseFloat(payment.amount_uzs || 0);
             
