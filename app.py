@@ -9277,28 +9277,34 @@ def create_pending_sale(data):
             print(
                 f"📦 Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
 
-            # SaleItem yaratish
-            total_price = Decimal(str(quantity * unit_price))
-            cost_price = product.cost_price or Decimal('0')
-            profit = total_price - (Decimal(str(quantity)) * cost_price)
+            # SaleItem yaratish - USD da
+            unit_price_usd = Decimal(str(unit_price))
+            total_price_usd = Decimal(str(quantity)) * unit_price_usd
+            
+            # Cost price ni USD ga aylantirish
+            cost_price_uzs = product.cost_price or Decimal('0')
+            cost_price_usd = cost_price_uzs / Decimal(str(current_rate))
+            
+            # Foyda USD da hisoblash
+            profit_usd = total_price_usd - (Decimal(str(quantity)) * cost_price_usd)
 
             sale_item = SaleItem(
                 sale_id=new_sale.id,
                 product_id=product_id,
                 quantity=quantity,
-                unit_price=unit_price,
-                total_price=total_price,  # Bu maydon NOT NULL
-                cost_price=cost_price,
-                profit=profit,  # Bu maydon ham NOT NULL bo'lishi mumkin
+                unit_price=unit_price_usd,  # USD da
+                total_price=total_price_usd,  # USD da
+                cost_price=cost_price_usd,  # USD da
+                profit=profit_usd,  # USD da
                 source_type=item_location_type,
                 source_id=item_location_id,
                 notes=f"Pending: {product.name}"
             )
 
             db.session.add(sale_item)
-            total_amount += float(total_price)  # Decimal'ni float'ga o'girish
+            total_amount += float(total_price_usd)  # USD da yig'ish
 
-        # Savdo jami summalarini hisoblash
+        # Savdo jami summalarini hisoblash (USD da)
         total_cost = 0
         total_profit = 0
 
@@ -9306,9 +9312,9 @@ def create_pending_sale(data):
             total_cost += float(sale_item.cost_price * sale_item.quantity)
             total_profit += float(sale_item.profit)
 
-        new_sale.total_amount = total_amount
-        new_sale.total_cost = total_cost
-        new_sale.total_profit = total_profit
+        new_sale.total_amount = total_amount  # USD da
+        new_sale.total_cost = total_cost  # USD da
+        new_sale.total_profit = total_profit  # USD da
 
         db.session.commit()
 
