@@ -8088,6 +8088,44 @@ def finalize_sale(sale_id):
         
         logger.info(f"✅ Savdo yakunlandi: Sale ID {sale_id}, Status: {payment_status}, Location: {sale.location_id}/{sale.location_type}")
         
+        # Telegram xabar yuborish (mijoz telegram_chat_id bor bo'lsa)
+        if customer_id:
+            try:
+                customer = Customer.query.get(customer_id)
+                if customer and customer.telegram_chat_id:
+                    from telegram_bot import get_bot_instance
+                    bot = get_bot_instance(db=db)
+                    
+                    # Joylashuv nomini olish
+                    if sale.location_type == 'warehouse':
+                        warehouse_obj = Warehouse.query.get(sale.location_id)
+                        location_name = warehouse_obj.name if warehouse_obj else "Ombor"
+                    else:
+                        store_obj = Store.query.get(sale.location_id)
+                        location_name = store_obj.name if store_obj else "Do'kon"
+                    
+                    # To'lov summalari
+                    total_uzs = float(sale.cash_amount) + float(sale.click_amount) + float(sale.terminal_amount) + float(sale.debt_amount)
+                    paid_uzs = float(sale.cash_amount) + float(sale.click_amount) + float(sale.terminal_amount)
+                    
+                    # Telegram xabar yuborish
+                    bot.send_sale_notification_sync(
+                        chat_id=customer.telegram_chat_id,
+                        customer_name=customer.name,
+                        sale_date=sale.sale_date,
+                        location_name=location_name,
+                        total_amount_uzs=total_uzs,
+                        paid_uzs=paid_uzs,
+                        cash_uzs=float(sale.cash_amount),
+                        click_uzs=float(sale.click_amount),
+                        terminal_uzs=float(sale.terminal_amount),
+                        debt_uzs=float(sale.debt_amount)
+                    )
+                    logger.info(f"✅ Telegram xabar yuborildi (finalize): {customer.name}")
+            except Exception as telegram_error:
+                logger.warning(f"⚠️ Telegram xabar yuborishda xatolik (finalize): {telegram_error}")
+                # Telegram xatosi savdoni to'xtatmasin
+        
         return jsonify({
             'success': True,
             'message': 'Savdo muvaffaqiyatli yakunlandi',
