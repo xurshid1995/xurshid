@@ -900,22 +900,16 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             
-            # Qarzlarni hisoblash
-            debts = db.session.query(
-                Sale.location_id,
-                Sale.location_type,
-                db.func.sum(Sale.debt_usd).label('total_debt_usd'),
-                db.func.sum(Sale.debt_amount).label('total_debt_uzs')
+            # Qarzlarni hisoblash - faqat USD dan
+            debts_result = db.session.query(
+                db.func.sum(Sale.debt_usd).label('total_debt_usd')
             ).filter(
                 Sale.customer_id == customer.id,
                 Sale.payment_status == 'partial',
                 Sale.debt_usd > 0
-            ).group_by(
-                Sale.location_id,
-                Sale.location_type
-            ).all()
+            ).first()
             
-            if not debts:
+            if not debts_result or not debts_result.total_debt_usd or debts_result.total_debt_usd <= 0:
                 await update.message.reply_text(
                     f"Assalomu alaykum, {customer.name}!\n\n"
                     f"🎉 Sizda qarz yo'q!\n\n"
@@ -923,29 +917,18 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             
-            # Qarzlar haqida xabar - faqat jami qarzni ko'rsatish
-            total_usd = 0
-            total_uzs = 0
+            # Qarzlar haqida xabar - jami qarzni ko'rsatish
+            total_debt_usd = float(debts_result.total_debt_usd or 0)
             
-            # Kurs olish
+            # Joriy kurs bilan UZS ga o'tkazish
             from app import get_current_currency_rate
             rate = get_current_currency_rate()
-            
-            for debt in debts:
-                debt_usd = float(debt.total_debt_usd or 0)
-                debt_uzs = float(debt.total_debt_uzs or 0)
-                
-                # Agar debt_uzs 0 yoki juda kichik bo'lsa (USD saqlanib qolgan), kursga ko'paytiramiz
-                if debt_uzs == 0 or debt_uzs < debt_usd * 100:
-                    debt_uzs = debt_usd * rate
-                
-                total_usd += debt_usd
-                total_uzs += debt_uzs
+            total_debt_uzs = total_debt_usd * rate
             
             message = (
                 f"Assalomu alaykum, {customer.name}!\n\n"
-                f"💰 <b>Sizning qarzingiz:</b>\n\n"
-                f"💸 {total_uzs:,.0f} so'm\n\n"
+                f"💰 <b>Sizning jami qarzingiz:</b>\n\n"
+                f"💸 {total_debt_uzs:,.0f} so'm\n\n"
                 f"Iltimos, qarzingizni to'lashni unutmang.\n"
                 f"Rahmat! 🙏"
             )
