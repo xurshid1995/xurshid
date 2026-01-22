@@ -306,6 +306,39 @@
     .stat-number {
         font-size: 1.5rem;
     }
+    
+    /* Mobil filtrlarni bir qatorda qilish */
+    #timeFilters {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: center;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #timeFilters .time-btn {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+        white-space: nowrap;
+    }
+    
+    #locationButtons {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: center;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #locationButtons .location-btn {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+        white-space: nowrap;
+    }
 }
 </style>
 
