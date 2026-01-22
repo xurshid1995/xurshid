@@ -124,15 +124,23 @@ body {
     padding: 8px 20px;
 }
 
-/* Oddiy holatda matn yashirin */
+/* Oddiy holatda matn yashirin (desktop) */
 .sidebar-menu a span:not(.icon) {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-/* Hover qilganda matn ko'rinadi */
+/* Hover qilganda matn ko'rinadi (desktop) */
 .sidebar:hover .sidebar-menu a span:not(.icon) {
     opacity: 1;
+}
+
+/* Mobilda barcha matnlar ko'rinadi */
+@media (max-width: 768px) {
+    .sidebar-menu a span:not(.icon) {
+        opacity: 1 !important;
+        display: inline !important;
+    }
 }
 
 /* Yuqoridan chiziq animatsiyasi */
@@ -1411,30 +1419,41 @@ footer {
     /* Mobile sidebar - Compact va user-friendly */
     .sidebar {
         position: fixed;
-        left: -100%;
-        top: 60px; /* Top header balandligi */
-        height: calc(100vh - 60px);
-        width: 280px;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-        z-index: 1160;
-        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-        box-shadow: none;
+        left: -100% !important;
+        top: 60px !important; /* Top header balandligi */
+        height: calc(100vh - 60px) !important;
+        width: 280px !important;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+        z-index: 1160 !important;
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%) !important;
+        box-shadow: none !important;
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
         overflow-y: auto !important; /* Scroll yoqish */
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch;
-        display: flex;
+        display: flex !important;
         flex-direction: column;
     }
     
+    /* Hover effekti mobilda o'chiriladi */
+    .sidebar:hover {
+        width: 280px !important;
+        left: -100% !important;
+    }
+    
     .sidebar.active {
-        left: 0;
-        box-shadow: 4px 0 30px rgba(0,0,0,0.4);
+        left: 0 !important;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.4) !important;
+    }
+    
+    .sidebar.active:hover {
+        left: 0 !important;
+        width: 280px !important;
     }
     
     .sidebar-overlay {
-        display: block;
+        display: block !important;
         position: fixed;
         top: 0;
         left: 0;
@@ -1442,16 +1461,16 @@ footer {
         height: 100%;
         background: rgba(0,0,0,0.6);
         z-index: 1150;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
         transition: all 0.3s ease;
     }
     
     .sidebar-overlay.active {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
     }
     
     /* Mobile sidebar menu - Compact va toza */

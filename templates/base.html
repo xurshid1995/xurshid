@@ -342,8 +342,25 @@
         
         // Close mobile nav when clicking on menu items
         document.addEventListener('DOMContentLoaded', function() {
-            // Sahifa yuklanganda navigatsiyani yopish
-            closeMobileNav();
+            console.log('📱 Sahifa yuklandi, navigatsiyani yopish...');
+            
+            // DARHOL navigatsiyani yopish
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
+            
+            if (sidebar) {
+                sidebar.classList.remove('active');
+                console.log('✅ Sidebar active class olib tashlandi');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+                console.log('✅ Overlay active class olib tashlandi');
+            }
+            if (body) {
+                body.classList.remove('sidebar-active');
+                console.log('✅ Body sidebar-active class olib tashlandi');
+            }
             
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
             menuLinks.forEach(link => {
@@ -362,7 +379,6 @@
             });
             
             // Prevent scroll behind sidebar
-            const overlay = document.querySelector('.sidebar-overlay');
             if (overlay) {
                 overlay.addEventListener('touchmove', function(e) {
                     e.preventDefault();
