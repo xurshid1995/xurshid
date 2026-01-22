@@ -306,9 +306,9 @@
 @media (max-width: 576px) {
     .stats-horizontal {
         flex-wrap: wrap;
-        gap: 5px;
-        justify-content: space-around;
-        font-size: 0.85rem;
+        gap: 3px;
+        justify-content: center;
+        font-size: 0.7rem;
     }
     
     .stat-separator {
@@ -318,14 +318,26 @@
     .stat-item {
         justify-content: center;
         flex: 0 1 auto;
+        font-size: 0.7rem;
+        padding: 2px 4px;
     }
     
     .stat-label-inline {
-        font-size: 0.75rem;
+        font-size: 0.65rem !important;
     }
     
     .stat-number-inline {
-        font-size: 0.9rem;
+        font-size: 0.75rem !important;
+        font-weight: 600;
+    }
+    
+    #paymentMethodsContainer {
+        flex: 0 1 auto !important;
+        font-size: 0.65rem !important;
+    }
+    
+    #paymentMethods {
+        font-size: 0.65rem !important;
     }
 }
 
