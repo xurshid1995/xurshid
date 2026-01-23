@@ -57,14 +57,35 @@
         position: relative;
     }
     
-    /* Desktop - mahsulot ustunini cheklash */
-    .sales-product-table th:first-child,
-    .sales-product-table td:first-child {
-        max-width: 250px;
+    /* Desktop - ustun kengliklarini optimallashtirish */
+    .sales-product-table th:nth-child(1),
+    .sales-product-table td:nth-child(1) {
+        width: 45%;
+        max-width: 300px;
         white-space: normal;
         word-wrap: break-word;
         word-break: break-word;
         line-height: 1.4;
+    }
+    
+    .sales-product-table th:nth-child(2),
+    .sales-product-table td:nth-child(2) {
+        width: 15%;
+        min-width: 90px;
+        text-align: center;
+    }
+    
+    .sales-product-table th:nth-child(3),
+    .sales-product-table td:nth-child(3) {
+        width: 30%;
+        min-width: 180px;
+    }
+    
+    .sales-product-table th:nth-child(4),
+    .sales-product-table td:nth-child(4) {
+        width: 10%;
+        min-width: 70px;
+        text-align: center;
     }
     
     /* Scroll indicator removed for better mobile UX */
