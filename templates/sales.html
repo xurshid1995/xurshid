@@ -2577,7 +2577,7 @@
                 // Miqdorni format qilish
                 const quantityDisplay = unitType === 'litr' 
                     ? `${parseFloat(quantity).toFixed(2)} L` 
-                    : `${Math.floor(quantity)} dona`;
+                    : (quantity % 1 === 0 ? `${Math.floor(quantity)} dona` : `${parseFloat(quantity).toFixed(1)} dona`);
                 
                 const productName = product.name || `Mahsulot #${product.id}`;
                 const safeProductName = productName.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
