@@ -4325,6 +4325,7 @@ def api_store_stock(store_id):
                         'id': stock.product.id,
                         'name': stock.product.name,
                         'barcode': stock.product.barcode,
+                        'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
@@ -4551,6 +4552,8 @@ def api_warehouse_stock(warehouse_id):
                     'product': {
                         'id': stock.product.id,
                         'name': stock.product.name,
+                        'barcode': stock.product.barcode,
+                        'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
