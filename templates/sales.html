@@ -55,6 +55,57 @@
         width: 100%;
         max-width: 100%;
         position: relative;
+        overflow-x: auto;
+    }
+    
+    .sales-product-table {
+        width: 100%;
+        table-layout: fixed;
+        box-sizing: border-box;
+        border-collapse: collapse;
+    }
+    
+    .sales-product-table thead tr {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .sales-product-table th {
+        padding: 10px 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    /* Desktop - ustun kengliklarini optimallashtirish */
+    .sales-product-table th:nth-child(1),
+    .sales-product-table td:nth-child(1) {
+        width: 45%;
+        text-align: left;
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-word;
+        line-height: 1.4;
+        overflow: hidden;
+    }
+    
+    .sales-product-table th:nth-child(2),
+    .sales-product-table td:nth-child(2) {
+        width: 15%;
+        text-align: center;
+    }
+    
+    .sales-product-table th:nth-child(3),
+    .sales-product-table td:nth-child(3) {
+        width: 30%;
+        text-align: left;
+    }
+    
+    .sales-product-table th:nth-child(4),
+    .sales-product-table td:nth-child(4) {
+        width: 10%;
+        text-align: center;
+        padding: 2px;
     }
     
     /* Scroll indicator removed for better mobile UX */
@@ -623,14 +674,14 @@
             </div>
             
             <!-- Mahsulotlar jadvali -->
-            <div class="table-wrapper" style="overflow-x: auto;">
-                <table class="sales-product-table" style="width: 100%; border-collapse: collapse;">
+            <div class="table-wrapper">
+                <table class="sales-product-table">
                     <thead>
-                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                            <th style="padding: 10px 8px; text-align: left; font-size: 15px; font-weight: 600; color: #495057;">Mahsulot</th>
-                            <th style="padding: 10px 8px; text-align: center; font-size: 15px; font-weight: 600; color: #495057;">Mavjud</th>
-                            <th style="padding: 10px 8px; text-align: left; font-size: 15px; font-weight: 600; color: #495057;">Narx</th>
-                            <th style="padding: 2px; text-align: center; font-size: 15px; font-weight: 600; color: #495057;">Amal</th>
+                        <tr>
+                            <th>Mahsulot</th>
+                            <th>Mavjud</th>
+                            <th>Narx</th>
+                            <th>Amal</th>
                         </tr>
                     </thead>
                     <tbody id="productsTable">
