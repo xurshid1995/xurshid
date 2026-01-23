@@ -2418,7 +2418,8 @@
         const locationValue = locationSelect.value;
         
         if (!locationValue) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 30px; color: #999;">Joylashuvni tanlang</td></tr>';
+            const colspan = window.innerWidth <= 768 ? 3 : 4;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; padding: 30px; color: #999;">Joylashuvni tanlang</td></tr>`;
             selectedLocationId = null;
             selectedLocationType = null;
             document.getElementById(`productsPagination_tab${tabId}`).innerHTML = '';
@@ -3718,11 +3719,13 @@
         
         const locationValue = locationSelect.value;
         if (!locationValue) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 30px; color: #999;">Joylashuvni tanlang</td></tr>';
+            const colspan = window.innerWidth <= 768 ? 3 : 4;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; padding: 30px; color: #999;">Joylashuvni tanlang</td></tr>`;
             return;
         }
         
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">⏳ Qidirilmoqda...</td></tr>';
+        const colspan = window.innerWidth <= 768 ? 3 : 4;
+        tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; padding: 30px; color: #999;">⏳ Qidirilmoqda...</td></tr>`;
         
         try {
             // Serverdan qidiruv so'rovi yuborish
