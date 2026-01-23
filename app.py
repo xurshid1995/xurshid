@@ -8617,7 +8617,7 @@ def create_sale():
         for item in items:
             # product_id ni id yoki product_id dan olish
             product_id = item.get('product_id') or item.get('id')
-            quantity = int(item.get('quantity', 0))
+            quantity = Decimal(str(item.get('quantity', 0)))
             unit_price_usd = float(item.get('unit_price') or item.get('price', 0))
 
             logger.debug(f" Processing item: {item}")
@@ -9027,7 +9027,7 @@ def update_sale(sale_id):
                 if not product:
                     continue
 
-                quantity = int(item_data['quantity'])
+                quantity = Decimal(str(item_data['quantity']))
                 unit_price_usd = Decimal(str(item_data['unit_price']))
                 
                 # Cost price allaqachon USD da (products jadvalidagi qiymat)
@@ -9354,7 +9354,7 @@ def create_pending_sale(data):
         total_amount = 0
         for item in items:
             product_id = item.get('product_id') or item.get('id')
-            quantity = int(item.get('quantity', 0))
+            quantity = Decimal(str(item.get('quantity', 0)))
             unit_price = float(item.get('unit_price') or item.get('price', 0))
 
             if quantity <= 0:
@@ -9454,7 +9454,7 @@ def api_reserve_stock():
     try:
         data = request.get_json()
         product_id = data.get('product_id')
-        quantity = int(data.get('quantity', 1))
+        quantity = Decimal(str(data.get('quantity', 1)))
         location_id = data.get('location_id')
         location_type = data.get('location_type')
 
@@ -9556,7 +9556,7 @@ def api_return_stock():
     try:
         data = request.get_json()
         product_id = data.get('product_id')
-        quantity = int(data.get('quantity', 1))
+        quantity = Decimal(str(data.get('quantity', 1)))
         location_id = data.get('location_id')
         location_type = data.get('location_type')
 
@@ -9734,7 +9734,7 @@ def api_update_pending_sale(sale_id):
         items = data.get('items', [])
         for item in items:
             product_id = item.get('id') or item.get('product_id')
-            quantity = int(item.get('quantity', 1))
+            quantity = Decimal(str(item.get('quantity', 1)))
             unit_price = Decimal(str(item.get('price', 0)))
 
             product = Product.query.get(product_id)
