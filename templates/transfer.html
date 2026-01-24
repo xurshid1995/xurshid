@@ -345,7 +345,8 @@
         /* Qayerdan/Qayerga grid mobil uchun - bir qatorda */
         .transfer-layout > div[style*="grid-template-columns"] {
             display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            grid-template-rows: auto auto !important;
             gap: 10px !important;
             padding: 12px !important;
             height: auto !important;
@@ -353,9 +354,9 @@
 
         .transfer-layout > div[style*="grid-template-columns"] label {
             font-size: 12px !important;
-            margin-bottom: 4px;
-            display: block;
-            font-weight: 600;
+            margin-bottom: 4px !important;
+            display: block !important;
+            font-weight: 600 !important;
         }
 
         .transfer-layout > div[style*="grid-template-columns"] select {
@@ -365,15 +366,25 @@
             height: auto !important;
         }
 
-        /* Har bir label va select ni vertikal bo'lsin */
-        .transfer-layout > div[style*="grid-template-columns"] label:nth-child(1),
-        .transfer-layout > div[style*="grid-template-columns"] select:nth-child(2) {
-            grid-column: 1;
+        /* Label va select ni to'g'ri joylashtirish */
+        .transfer-layout > div[style*="grid-template-columns"] label:nth-child(1) {
+            grid-column: 1 !important;
+            grid-row: 1 !important;
         }
 
-        .transfer-layout > div[style*="grid-template-columns"] label:nth-child(3),
+        .transfer-layout > div[style*="grid-template-columns"] select:nth-child(2) {
+            grid-column: 1 !important;
+            grid-row: 2 !important;
+        }
+
+        .transfer-layout > div[style*="grid-template-columns"] label:nth-child(3) {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+        }
+
         .transfer-layout > div[style*="grid-template-columns"] select:nth-child(4) {
-            grid-column: 2;
+            grid-column: 2 !important;
+            grid-row: 2 !important;
         }
 
         /* Qidiruv input */
