@@ -386,52 +386,65 @@
             font-size: 13px !important;
         }
 
-        /* Jadvallar mobil uchun - to'liq scrollable */
+        /* Jadvallar mobil uchun - to'liq sig'adigan qilish, scroll yo'q */
         .products-table-container,
         .transfer-list-container {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
+            overflow-x: visible !important;
             border: 1px solid #dee2e6;
             border-radius: 8px;
         }
 
-        .products-table-container::-webkit-scrollbar,
-        .transfer-list-container::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .products-table-container::-webkit-scrollbar-track,
-        .transfer-list-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .products-table-container::-webkit-scrollbar-thumb,
-        .transfer-list-container::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 10px;
-        }
-
         .transfer-product-table,
         .transfer-list-table {
-            min-width: 100% !important;
-            font-size: 13px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            font-size: 11px !important;
+            table-layout: fixed !important;
         }
 
         .transfer-product-table th,
         .transfer-product-table td,
         .transfer-list-table th,
         .transfer-list-table td {
-            padding: 8px 6px !important;
-            font-size: 13px !important;
-            white-space: nowrap;
+            padding: 6px 3px !important;
+            font-size: 11px !important;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
-        /* Mahsulot nomini wrap qilish */
-        .transfer-product-table td:first-child,
-        .transfer-list-table td:first-child {
-            white-space: normal !important;
-            word-wrap: break-word;
-            min-width: 120px;
+        /* Mahsulot nomi ustunini kengrok qilish */
+        .transfer-product-table th:nth-child(1),
+        .transfer-product-table td:nth-child(1),
+        .transfer-list-table th:nth-child(1),
+        .transfer-list-table td:nth-child(1) {
+            width: 45% !important;
+        }
+
+        /* Narx ustuni */
+        .transfer-product-table th:nth-child(2),
+        .transfer-product-table td:nth-child(2),
+        .transfer-list-table th:nth-child(2),
+        .transfer-list-table td:nth-child(2) {
+            width: 25% !important;
+            text-align: center;
+        }
+
+        /* Miqdor ustuni */
+        .transfer-product-table th:nth-child(3),
+        .transfer-product-table td:nth-child(3),
+        .transfer-list-table th:nth-child(3),
+        .transfer-list-table td:nth-child(3) {
+            width: 20% !important;
+            text-align: center;
+        }
+
+        /* Amal ustuni */
+        .transfer-product-table th:nth-child(4),
+        .transfer-product-table td:nth-child(4),
+        .transfer-list-table th:nth-child(4),
+        .transfer-list-table td:nth-child(4) {
+            width: 10% !important;
+            text-align: center;
         }
 
         /* Pagination mobil uchun */
@@ -537,15 +550,15 @@
 
         .transfer-product-table,
         .transfer-list-table {
-            font-size: 12px !important;
+            font-size: 10px !important;
         }
 
         .transfer-product-table th,
         .transfer-product-table td,
         .transfer-list-table th,
         .transfer-list-table td {
-            padding: 6px 4px !important;
-            font-size: 12px !important;
+            padding: 5px 2px !important;
+            font-size: 10px !important;
         }
 
         .pagination-btn {
