@@ -215,6 +215,11 @@
 
         // Foydalanuvchilar ro'yxatini yuklash
         loadUsers();
+        
+        // Avtomatik ma'lumotlarni yuklash
+        setTimeout(() => {
+            loadHistory();
+        }, 500);
     });
 
     function loadUsers() {
