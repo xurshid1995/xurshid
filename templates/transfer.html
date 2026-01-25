@@ -1984,6 +1984,25 @@
     }
 
     // Transfer ro'yxatini filterlash
+    function filterTransferList() {
+        const searchText = document.getElementById('transferListSearch').value.toLowerCase();
+        const tbody = document.getElementById('transferList');
+        const rows = tbody.getElementsByTagName('tr');
+        
+        if (transferList.length === 0) {
+            return; // Bo'sh ro'yxatda qidiruv yo'q
+        }
+        
+        let visibleCount = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            
+            if (cells.length < 4) continue; // Empty state qatorini o'tkazib yuborish
+            
+            const productName = cells[0].textContent.toLowerCase();
+            
+            if (!searchText || productName.includes(searchText)) {
                 row.style.display = '';
                 visibleCount++;
             } else {
