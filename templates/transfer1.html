@@ -140,12 +140,13 @@
                         <th style="color: white; background: #5DADE2;">Qayerdan</th>
                         <th style="color: white; background: #5DADE2;">Qayerga</th>
                         <th style="color: white; background: #5DADE2;">Mahsulotlar</th>
+                        <th style="color: white; background: #5DADE2;">Miqdor</th>
                         <th style="color: white; background: #5DADE2;">Foydalanuvchi</th>
                     </tr>
                 </thead>
                 <tbody id="transferHistoryBody">
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
                             ⏳ Yuklanmoqda...
                         </td>
                     </tr>
@@ -261,9 +262,8 @@
                         minute: '2-digit'
                     });
                     
-                    const products = transfer.products.map(p => 
-                        `${p.name} (${p.quantity})`
-                    ).join('<br>');
+                    const products = transfer.products.map(p => p.name).join('<br>');
+                    const quantities = transfer.products.map(p => p.quantity).join('<br>');
                     
                     return `
                         <tr>
@@ -271,6 +271,7 @@
                             <td>${transfer.from_location}</td>
                             <td>${transfer.to_location}</td>
                             <td>${products}</td>
+                            <td>${quantities}</td>
                             <td>${transfer.user_name}</td>
                         </tr>
                     `;
@@ -278,7 +279,7 @@
             } else {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
                             📭 Transfer tarixi bo'sh
                         </td>
                     </tr>
