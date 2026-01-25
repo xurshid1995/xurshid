@@ -6190,6 +6190,29 @@ def update_store_stock_quantity(store_id, product_id):
         print(
             f"✅ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
 
+        # OperationHistory logini yozish
+        try:
+            store = Store.query.get(store_id)
+            history = OperationHistory(
+                operation_type='edit_stock',
+                table_name='store_stock',
+                record_id=stock.id,
+                user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f"{stock.product.name} miqdori o'zgartirildi: {old_quantity} -> {new_quantity}",
+                old_data={'quantity': str(old_quantity)},
+                new_data={'quantity': str(new_quantity)},
+                ip_address=request.remote_addr,
+                location_id=store_id,
+                location_type='store',
+                location_name=store.name if store else 'Unknown',
+                amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_error:
+            logger.error(f"OperationHistory log xatoligi: {log_error}")
+
         return jsonify({
             'success': True,
             'message': f'{stock.product.name} miqdori yangilandi',
@@ -6238,6 +6261,29 @@ def update_warehouse_stock_quantity(warehouse_id, product_id):
 
         print(
             f"✅ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
+
+        # OperationHistory logini yozish
+        try:
+            warehouse = Warehouse.query.get(warehouse_id)
+            history = OperationHistory(
+                operation_type='edit_stock',
+                table_name='warehouse_stock',
+                record_id=stock.id,
+                user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f"{stock.product.name} miqdori o'zgartirildi: {old_quantity} -> {new_quantity}",
+                old_data={'quantity': str(old_quantity)},
+                new_data={'quantity': str(new_quantity)},
+                ip_address=request.remote_addr,
+                location_id=warehouse_id,
+                location_type='warehouse',
+                location_name=warehouse.name if warehouse else 'Unknown',
+                amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_error:
+            logger.error(f"OperationHistory log xatoligi: {log_error}")
 
         return jsonify({
             'success': True,
