@@ -2191,7 +2191,18 @@
     document.addEventListener('DOMContentLoaded', async function() {
         await loadLocations(); // Joylashuvlarni avval yuklash
         loadTransferHistory(); // Transfer tarixini yuklash
-        await loadPendingTransfer(); // Tasdiqlanmagan transferni yuklash
+        
+        // URL parametrlarini tekshirish - yangi transfer boshlanganmi?
+        const urlParams = new URLSearchParams(window.location.search);
+        const isNewTransfer = urlParams.get('new') === 'true';
+        
+        if (!isNewTransfer) {
+            // Faqat yangi transfer bo'lmasa, pending transferni yuklash
+            await loadPendingTransfer();
+        } else {
+            // Yangi transfer boshlanganda pending transferni o'chirish
+            await deletePendingTransfer();
+        }
         
         const productSearch = document.getElementById('productSearch');
         const fromLocation = document.getElementById('fromLocation');
