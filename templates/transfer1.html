@@ -5,14 +5,28 @@
 {% block extra_css %}
 <style>
     /* Transfer sahifasi stillari */
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
     
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-header">
     <h1>🔄 Transfer Sahifasi</h1>
-    <a href="{{ url_for('transfer_old') }}" class="btn btn-primary">
+    <a href="{{ url_for('transfer_old') }}" class="btn btn-success">
         <i class="fas fa-exchange-alt"></i> Yangi Transfer
     </a>
 </div>
