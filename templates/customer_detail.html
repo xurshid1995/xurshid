@@ -78,24 +78,340 @@
 
 
 
-    /* Savdo tarixi jadvali */
-    .orders-section {
+    /* Savdo tarixi card layouti */
+    .sales-section {
         background: white;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         overflow: hidden;
     }
 
-    .orders-header {
+    .sales-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 0.4rem 1rem;
     }
 
-    .orders-header h2 {
+    .sales-header h2 {
         margin: 0;
         font-size: 1rem;
         font-weight: 700;
+    }
+
+    /* Sale cards container */
+    .sales-cards-container {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Individual sale card */
+    .sale-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .sale-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+
+    /* Sale card header */
+    .sale-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .sale-info-left {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .sale-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sale-info-label {
+        font-size: 11px;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .sale-info-value {
+        font-size: 14px;
+        color: #212529;
+        font-weight: 600;
+    }
+
+    .sale-datetime {
+        font-size: 14px;
+        font-weight: 700;
+        color: #495057;
+    }
+
+    .sale-date {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .sale-time {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .sale-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Sale items table */
+    .sale-items-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sale-items-table thead {
+        background: #f8f9fa;
+    }
+
+    .sale-items-table th {
+        padding: 10px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .sale-items-table td {
+        padding: 10px;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f3f5;
+        vertical-align: middle;
+    }
+
+    .sale-items-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .sale-items-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    /* Sale card footer */
+    .sale-card-footer {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .sale-total-info {
+        display: flex;
+        gap: 30px;
+    }
+
+    .sale-total-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sale-total-label {
+        font-size: 11px;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .sale-total-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .profit-positive {
+        color: #28a745 !important;
+    }
+
+    .profit-negative {
+        color: #dc3545 !important;
+    }
+
+    /* Sale cards container */
+    .sales-cards-container {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Individual sale card */
+    .sale-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .sale-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+
+    /* Sale card header */
+    .sale-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .sale-info-left {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .sale-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sale-info-label {
+        font-size: 11px;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .sale-info-value {
+        font-size: 14px;
+        color: #212529;
+        font-weight: 600;
+    }
+
+    .sale-datetime {
+        font-size: 14px;
+        font-weight: 700;
+        color: #495057;
+    }
+
+    .sale-date {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .sale-time {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .sale-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Sale items table */
+    .sale-items-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sale-items-table thead {
+        background: #f8f9fa;
+    }
+
+    .sale-items-table th {
+        padding: 10px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .sale-items-table td {
+        padding: 10px;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f3f5;
+        vertical-align: middle;
+    }
+
+    .sale-items-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .sale-items-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    /* Sale card footer */
+    .sale-card-footer {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .sale-total-info {
+        display: flex;
+        gap: 30px;
+    }
+
+    .sale-total-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sale-total-label {
+        font-size: 11px;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .sale-total-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .profit-positive {
+        color: #28a745 !important;
+    }
+
+    .profit-negative {
+        color: #dc3545 !important;
     }
 
     /* Qidiruv va Filtr seksiyasi */
@@ -194,44 +510,45 @@
         border-bottom: 1px solid #dee2e6;
     }
 
-    /* Jadval responsive qilish */
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+    /* Tugmalar uchun umumiy style */
+    .btn-action {
+        transition: all 0.2s ease;
     }
 
-    .table-container {
-        min-width: 100%;
+    .btn-action:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
     }
 
-    /* Mahsulot ustunini qisqartirish */
-    .sales-table th:nth-child(4), .sales-table td:nth-child(4) { 
-        width: 390px !important; 
-        max-width: 390px !important; 
-        font-size: 14px !important;
-        font-weight: 500 !important;
-    }
+    /* Responsive dizayn */
+    @media (max-width: 768px) {
+        .sale-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-    /* Barcha jadval qatorlariga bir xil balandlik */
-    .sales-table tbody tr {
-        vertical-align: middle;
-    }
+        .sale-info-left {
+            width: 100%;
+        }
 
-    .sales-table tbody td {
-        vertical-align: middle;
-        padding: 8px;
-    }
+        .sale-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
 
-    /* Amallar tugmalarini vertikal qilish */
-    .group-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        align-items: center;
-        justify-content: center;
-        padding: 4px;
-        vertical-align: middle;
+        .sale-total-info {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sale-items-table {
+            font-size: 12px;
+        }
+
+        .sale-items-table th,
+        .sale-items-table td {
+            padding: 6px;
+        }
     }
 
     /* Loading va xabarlar */
@@ -482,34 +799,8 @@
             📭 Hozircha savdolar mavjud emas
         </div>
 
-        <div class="table-responsive">
-            <div class="table-container">
-                <table class="sales-table">
-                    <thead>
-                        <tr>
-                            <th>Sana va vaqt</th>
-                            <th>Sotuvchi</th>
-                            <th>Joylashuv</th>
-                            <th>Mahsulot</th>
-                            <th class="compact-hide">Miqdor</th>
-                            <th class="compact-hide">Narx</th>
-                            <th class="compact-hide">Yig'indi</th>
-                            <th>Jami yig'indi</th>
-                            {% if session.role in ['admin', 'manager'] %}
-                            <th>Jami foyda</th>
-                            {% endif %}
-                            <th>Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="salesTableBody">
-                        <tr>
-                            <td colspan="10" style="text-align: center; padding: 20px;">
-                                <div class="loading-state">Yuklanmoqda...</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div id="salesCardsContainer" class="sales-cards-container">
+            <!-- JavaScript orqali to'ldiriladi -->
         </div>
 
         <!-- Pagination -->
@@ -607,9 +898,8 @@ function loadCustomerOrders(customerId) {
 }
 
 function displayEmptyTable() {
-    const tbody = document.getElementById('salesTableBody');
-    const colspan = (userRole === 'admin' || userRole === 'manager') ? 10 : 9;
-    tbody.innerHTML = '<tr><td colspan="' + colspan + '" class="no-data-message">Hozircha savdolar mavjud emas</td></tr>';
+    const container = document.getElementById('salesCardsContainer');
+    container.innerHTML = '<div class="no-data-message">Hozircha savdolar mavjud emas</div>';
 }
 
 function displayOrders(orders) {
@@ -626,7 +916,7 @@ function displayOrders(orders) {
         });
     });
     
-    const tbody = document.getElementById('salesTableBody');
+    const container = document.getElementById('salesCardsContainer');
     let html = '';
     
     orders.forEach(sale => {
@@ -659,101 +949,112 @@ function displayOrders(orders) {
             minute: '2-digit'
         });
         
-        // Birinchi item (grupning boshlanishi)
-        const firstItem = items[0];
-        const isOnlyItem = items.length === 1;
+        // Card boshlanishi
+        html += '<div class="sale-card">';
         
-        let firstRowClasses = ['sale-group-start'];
-        if (isOnlyItem) firstRowClasses.push('sale-group-end');
+        // Card header
+        html += '<div class="sale-card-header">';
+        html += '<div class="sale-info-left">';
         
-        html += '<tr class="' + firstRowClasses.join(' ') + '">';
-        html += '<td rowspan="' + items.length + '" class="group-cell group-datetime">';
-        html += '<div class="datetime-info">';
+        // Sana va vaqt
+        html += '<div class="sale-info-item">';
+        html += '<span class="sale-info-label">📅 Sana</span>';
+        html += '<span class="sale-info-value">';
         html += '<div class="sale-date">' + formattedDate + '</div>';
         html += '<div class="sale-time">' + formattedTime + '</div>';
-        html += '</div></td>';
+        html += '</span>';
+        html += '</div>';
         
-        html += '<td rowspan="' + items.length + '" class="group-cell group-seller">';
-        html += '<div style="font-size: 14px; font-weight: 600; color: #495057;">' + (sale.seller_name || 'Admin') + '</div>';
+        // Sotuvchi
+        html += '<div class="sale-info-item">';
+        html += '<span class="sale-info-label">👤 Sotuvchi</span>';
+        html += '<span class="sale-info-value">' + (sale.seller_name || 'Admin');
         if (sale.seller_phone) {
-            html += '<div style="font-size: 12px; color: #6c757d; font-style: italic;">' + sale.seller_phone + '</div>';
+            html += '<div style="font-size: 11px; color: #6c757d; font-style: italic; font-weight: normal;">' + sale.seller_phone + '</div>';
         }
-        html += '</td>';
+        html += '</span>';
+        html += '</div>';
         
-        html += '<td class="group-cell group-location">' + getLocationName(firstItem) + '</td>';
-        html += '<td class="product-cell">' + (firstItem.product_name || 'Noma\'lum') + '</td>';
-        html += '<td style="text-align: center; font-weight: 600;">' + firstItem.quantity + '</td>';
-        html += '<td>';
-        html += '<div style="font-weight: 600; text-align: center;">$' + parseFloat(firstItem.unit_price || 0).toFixed(2) + '</div>';
-        if (sale.currency_rate) {
-            html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (parseFloat(firstItem.unit_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
-        }
-        html += '</td>';
-        html += '<td>';
-        html += '<div style="font-weight: 600; text-align: center;">$' + parseFloat(firstItem.total_price || 0).toFixed(2) + '</div>';
-        if (sale.currency_rate) {
-            html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (parseFloat(firstItem.total_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
-        }
-        html += '</td>';
+        html += '</div>';
         
-        html += '<td rowspan="' + items.length + '" class="group-cell group-total">';
-        html += '<div style="font-weight: 600; text-align: center;">$' + totalAmount.toFixed(2) + '</div>';
-        if (sale.currency_rate) {
-            html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (totalAmount * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
-        }
-        html += '</td>';
+        // Amallar
+        html += '<div class="sale-actions">';
+        html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">👁️</button>';
+        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash" style="background-color: #ffc107; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">✏️</button>';
+        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">🗑️</button>';
+        html += '</div>';
         
-        if (userRole === 'admin' || userRole === 'manager') {
-            html += '<td rowspan="' + items.length + '" class="group-cell group-profit ' + profitClass + '">';
-            html += '<div style="font-weight: 600; text-align: center;">$' + totalProfit.toFixed(2) + '</div>';
-            if (sale.currency_rate) {
-                html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (totalProfit * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
-            }
-            html += '</td>';
-        }
+        html += '</div>';
         
-        html += '<td rowspan="' + items.length + '" class="group-cell group-actions">';
-        html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
-        html += '👁️';
-        html += '</button>';
-        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash" style="background-color: #ffc107; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
-        html += '✏️';
-        html += '</button>';
-        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
-        html += '🗑️';
-        html += '</button>';
-        html += '</td>';
+        // Items table
+        html += '<table class="sale-items-table">';
+        html += '<thead>';
+        html += '<tr>';
+        html += '<th>Joylashuv</th>';
+        html += '<th>Mahsulot</th>';
+        html += '<th style="text-align: center;">Miqdor</th>';
+        html += '<th style="text-align: right;">Narx</th>';
+        html += '<th style="text-align: right;">Yig\'indi</th>';
         html += '</tr>';
+        html += '</thead>';
+        html += '<tbody>';
         
-        // Qolgan itemlar
-        for (let i = 1; i < items.length; i++) {
-            const item = items[i];
-            const isLast = i === items.length - 1;
-            
-            let rowClasses = ['sale-group-item'];
-            if (isLast) rowClasses.push('sale-group-end');
-            
-            html += '<tr class="' + rowClasses.join(' ') + '">';
-            html += '<td class="group-cell group-location">' + getLocationName(item) + '</td>';
-            html += '<td class="product-cell">' + (item.product_name || 'Noma\'lum') + '</td>';
+        items.forEach(item => {
+            html += '<tr>';
+            html += '<td>' + getLocationName(item) + '</td>';
+            html += '<td>' + (item.product_name || 'Noma\'lum') + '</td>';
             html += '<td style="text-align: center; font-weight: 600;">' + item.quantity + '</td>';
-            html += '<td>';
-            html += '<div style="font-weight: 600; text-align: center;">$' + parseFloat(item.unit_price || 0).toFixed(2) + '</div>';
+            html += '<td style="text-align: right;">';
+            html += '<div style="font-weight: 600;">$' + parseFloat(item.unit_price || 0).toFixed(2) + '</div>';
             if (sale.currency_rate) {
-                html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (parseFloat(item.unit_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
+                html += '<div style="font-size: 11px; color: #6c757d;">' + (parseFloat(item.unit_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' сум</div>';
             }
             html += '</td>';
-            html += '<td>';
-            html += '<div style="font-weight: 600; text-align: center;">$' + parseFloat(item.total_price || 0).toFixed(2) + '</div>';
+            html += '<td style="text-align: right;">';
+            html += '<div style="font-weight: 600;">$' + parseFloat(item.total_price || 0).toFixed(2) + '</div>';
             if (sale.currency_rate) {
-                html += '<div style="margin-top: 3px; text-align: center;"><span style="background-color: #5cb3fd; color: white; font-size: 11px; padding: 2px 6px; border-radius: 0; font-weight: 500;">' + (parseFloat(item.total_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + '</span></div>';
+                html += '<div style="font-size: 11px; color: #6c757d;">' + (parseFloat(item.total_price || 0) * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' сум</div>';
             }
             html += '</td>';
             html += '</tr>';
+        });
+        
+        html += '</tbody>';
+        html += '</table>';
+        
+        // Card footer
+        html += '<div class="sale-card-footer">';
+        html += '<div class="sale-total-info">';
+        
+        // Jami summa
+        html += '<div class="sale-total-item">';
+        html += '<span class="sale-total-label">💰 Jami summa</span>';
+        html += '<span class="sale-total-value">$' + totalAmount.toFixed(2);
+        if (sale.currency_rate) {
+            html += '<div style="font-size: 12px; color: #6c757d; font-weight: normal;">' + (totalAmount * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' сум</div>';
         }
+        html += '</span>';
+        html += '</div>';
+        
+        // Foyda (faqat admin va manager uchun)
+        if (userRole === 'admin' || userRole === 'manager') {
+            html += '<div class="sale-total-item">';
+            html += '<span class="sale-total-label">📊 Foyda</span>';
+            html += '<span class="sale-total-value ' + profitClass + '">$' + totalProfit.toFixed(2);
+            if (sale.currency_rate) {
+                html += '<div style="font-size: 12px; font-weight: normal;">' + (totalProfit * sale.currency_rate).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' сум</div>';
+            }
+            html += '</span>';
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        html += '</div>';
+        
+        html += '</div>'; // sale-card tugashi
     });
     
-    tbody.innerHTML = html;
+    container.innerHTML = html;
 }
 
 // Modal functions
