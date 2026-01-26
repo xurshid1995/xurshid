@@ -216,11 +216,26 @@
     /* Barcha jadval qatorlariga bir xil balandlik */
     .sales-table tbody tr {
         vertical-align: middle;
+        height: 60px; /* Minimal balandlik */
     }
 
     .sales-table tbody td {
         vertical-align: middle;
-        padding: 8px;
+        padding: 12px 8px;
+        line-height: 1.5;
+    }
+
+    /* Group sale birinchi va qolgan qatorlar uchun bir xil style */
+    .sale-group-start td,
+    .sale-group-item td {
+        padding: 12px 8px !important;
+        vertical-align: middle !important;
+    }
+
+    /* Rowspan ustunlari uchun maxsus style */
+    .group-cell {
+        vertical-align: middle !important;
+        padding: 12px 8px !important;
     }
 
     /* Amallar tugmalarini vertikal qilish */
