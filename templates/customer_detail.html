@@ -706,7 +706,7 @@ function displayOrders(orders) {
         html += '</td>';
         
         html += '<td class="group-cell group-location">' + getLocationName(firstItem) + '</td>';
-        html += '<td class="product-cell">' + (firstItem.product_name || 'Noma\'lum') + '</td>';
+        html += '<td class="group-cell product-cell">' + (firstItem.product_name || 'Noma\'lum') + '</td>';
         html += '<td style="text-align: center; font-weight: 600;">' + firstItem.quantity + '</td>';
         html += '<td>';
         html += '<div style="font-weight: 600; text-align: center;">$' + parseFloat(firstItem.unit_price || 0).toFixed(2) + '</div>';
