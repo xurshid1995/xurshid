@@ -743,6 +743,7 @@
             <div class="time-filter-buttons">
                 <button class="time-filter-btn active" onclick="filterByAnalysis('count')">🔢 Savdo soni</button>
                 <button class="time-filter-btn" onclick="filterByAnalysis('sum')">💰 Savdolar summasi</button>
+                <button class="time-filter-btn" onclick="filterByAnalysis('profit')">📊 Jami foyda</button>
             </div>
         </div>
 
@@ -855,6 +856,9 @@
             } else if (currentAnalysisFilter === 'sum') {
                 // Savdo summasi bo'yicha kamayish tartibida
                 sortedCustomers.sort((a, b) => (parseFloat(b.total_amount) || 0) - (parseFloat(a.total_amount) || 0));
+            } else if (currentAnalysisFilter === 'profit') {
+                // Jami foyda bo'yicha kamayish tartibida
+                sortedCustomers.sort((a, b) => (parseFloat(b.total_profit) || 0) - (parseFloat(a.total_profit) || 0));
             }
 
             // Jadval ma'lumotlarini yaratish
