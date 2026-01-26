@@ -801,7 +801,19 @@
             console.log('Mijozlarni yuklayapti...');
             const url = `/api/customers?time_filter=${currentTimeFilter}`;
             const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
+            
+            // Data array ekanligini tekshirish
+            if (!Array.isArray(data)) {
+                console.error('API javob formati noto\'g\'ri:', data);
+                throw new Error('API javob array emas');
+            }
+            
             console.log('Mijozlar yuklandi:', data.length, 'ta mijoz');
             allCustomers = data;
             filteredCustomers = [...allCustomers];
@@ -813,7 +825,9 @@
             }
         } catch (error) {
             console.error('Mijozlarni yuklashda xatolik:', error);
-            showError('Mijozlarni yuklashda xatolik yuz berdi');
+            allCustomers = [];
+            filteredCustomers = [];
+            showError('Mijozlarni yuklashda xatolik yuz berdi: ' + error.message);
         }
     }
 
