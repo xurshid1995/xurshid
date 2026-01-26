@@ -33,8 +33,9 @@ def clear_database():
                 (WarehouseStock, "Warehouse Stock"),
                 (Product, "Products"),
                 (Customer, "Customers"),
-                (Store, "Stores"),
-                (Warehouse, "Warehouses"),
+                # Store va Warehouse user'larga bog'langan, shuning uchun o'chirilmaydi
+                # (Store, "Stores"),
+                # (Warehouse, "Warehouses"),
                 (CurrencyRate, "Currency Rates"),
                 # User jadvali saqlanadi - hech qanday user o'chirilmaydi
             ]
@@ -80,8 +81,8 @@ if __name__ == "__main__":
     print("   - Barcha mahsulotlar")
     print("   - Barcha qarzlar")
     print("   - Barcha to'lovlar")
-    print("   - Barcha dokon va omborlar")
     print("   ⚠️  User'lar SAQLANADI (o'chirilmaydi)")
+    print("   ⚠️  Dokon va Omborlar SAQLANADI (o'chirilmaydi)")
     print("=" * 60)
     
     confirmation = input("\n❓ Davom etishni xohlaysizmi? (ha/yo'q): ").strip().lower()
