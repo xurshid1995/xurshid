@@ -749,26 +749,40 @@
             grid-template-columns: 1fr !important;
         }
 
-        /* To'lov input container */
+        /* To'lov input container - ixcham layout */
         .payment-section div[style*="display: flex"][style*="gap: 8px"] {
-            flex-wrap: wrap !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
         }
 
         .payment-section div[style*="display: flex"][style*="gap: 8px"] > label {
-            width: 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 4px;
+            width: auto !important;
+            min-width: auto !important;
+            flex-shrink: 0 !important;
+            font-size: 12px !important;
         }
 
         .payment-section div[style*="display: flex"][style*="gap: 8px"] > div {
-            flex: 1 1 calc(50% - 4px) !important;
-            min-width: calc(50% - 4px) !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .payment-section div[style*="display: flex"][style*="gap: 8px"] > div input {
+            padding: 6px 4px !important;
+            font-size: 13px !important;
+        }
+
+        .payment-section div[style*="display: flex"][style*="gap: 8px"] > div span {
+            font-size: 13px !important;
+            min-width: 20px;
         }
 
         .payment-section div[style*="display: flex"][style*="gap: 8px"] > button {
-            flex: 1 1 100% !important;
-            width: 100% !important;
-            margin-top: 4px;
+            flex: 0 0 auto !important;
+            width: auto !important;
+            padding: 6px 8px !important;
+            font-size: 10px !important;
+            margin-top: 0 !important;
         }
 
         /* Table scroll wrapper */
