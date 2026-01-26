@@ -724,11 +724,6 @@
 
     <!-- Boshqaruv paneli -->
     <div class="controls-section">
-        <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="customerSearch" placeholder="Mijozlarni qidirish..." oninput="searchCustomers()">
-        </div>
-        
         <div class="inline-filters">
             <div class="store-filter-buttons">
                 <button class="store-filter-btn active" onclick="filterByStore('')" id="allStoresBtn">
@@ -751,19 +746,23 @@
         <div class="customers-table-container">
         <!-- Ma'lumot ko'rsatuvchisi -->
         <div class="table-info">
-            <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="customerSearch" placeholder="Mijozlarni qidirish..." oninput="searchCustomers()">
+                </div>
                 <span id="resultsInfo">Mijozlar yuklanmoqda...</span>
                 <div class="time-filter-buttons">
-                    <button class="time-filter-btn active" onclick="filterByTime('today')">Bugun</button>
-                    <button class="time-filter-btn" onclick="filterByTime('week')">Bu hafta</button>
-                    <button class="time-filter-btn" onclick="filterByTime('month')">Bu oy</button>
-                    <button class="time-filter-btn" onclick="filterByTime('year')">Bu yil</button>
+                    <button class="analysis-filter-btn active" onclick="filterByAnalysis('count')">🔢 Savdo soni</button>
+                    <button class="analysis-filter-btn" onclick="filterByAnalysis('sum')">💰 Savdo summasi</button>
+                    <button class="analysis-filter-btn" onclick="filterByAnalysis('profit')">📊 Jami foyda</button>
                 </div>
             </div>
             <div class="time-filter-buttons">
-                <button class="analysis-filter-btn active" onclick="filterByAnalysis('count')">🔢 Savdo soni</button>
-                <button class="analysis-filter-btn" onclick="filterByAnalysis('sum')">💰 Savdo summasi</button>
-                <button class="analysis-filter-btn" onclick="filterByAnalysis('profit')">📊 Jami foyda</button>
+                <button class="time-filter-btn active" onclick="filterByTime('today')">Bugun</button>
+                <button class="time-filter-btn" onclick="filterByTime('week')">Bu hafta</button>
+                <button class="time-filter-btn" onclick="filterByTime('month')">Bu oy</button>
+                <button class="time-filter-btn" onclick="filterByTime('year')">Bu yil</button>
             </div>
         </div>
 
