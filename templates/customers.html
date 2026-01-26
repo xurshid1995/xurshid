@@ -832,9 +832,19 @@
             emptyState.style.display = 'none';
             customersTable.style.display = 'table';
 
+            // Savdo tahlili bo'yicha saralash
+            let sortedCustomers = [...filteredCustomers];
+            if (currentAnalysisFilter === 'count') {
+                // Savdo soni bo'yicha kamayish tartibida
+                sortedCustomers.sort((a, b) => (b.total_sales || 0) - (a.total_sales || 0));
+            } else if (currentAnalysisFilter === 'sum') {
+                // Savdo summasi bo'yicha kamayish tartibida
+                sortedCustomers.sort((a, b) => (parseFloat(b.total_amount) || 0) - (parseFloat(a.total_amount) || 0));
+            }
+
             // Jadval ma'lumotlarini yaratish
             let tableHtml = '';
-            filteredCustomers.forEach(customer => {
+            sortedCustomers.forEach(customer => {
                 const createdDate = new Date(customer.created_at).toLocaleDateString('uz-UZ');
                 
                 tableHtml += `
