@@ -4,8 +4,8 @@ Database Clear Script
 Ma'lumotlar bazasidagi barcha ma'lumotlarni o'chiradi (struktura saqlanadi)
 """
 
-from app import app, db
-from models import (
+from app import (
+    app, db,
     Sale, SaleItem, Customer, Product, Store, Warehouse, 
     StoreStock, WarehouseStock, Transfer, DebtPayment,
     OperationHistory, ProductAddHistory, User, CurrencyRate,
