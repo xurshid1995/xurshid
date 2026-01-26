@@ -7807,16 +7807,28 @@ def get_customers():
             customer_dict = customer.to_dict()
             
             # Savdolar ma'lumotini hisoblash
-            sales_query = Sale.query.filter_by(customer_id=customer.id)
-            if start_date:
-                sales_query = sales_query.filter(Sale.created_at >= start_date)
-            
-            sales = sales_query.all()
-            total_sales = len(sales)
-            total_amount = sum(float(sale.total_price_usd or 0) for sale in sales)
-            
-            customer_dict['total_sales'] = total_sales
-            customer_dict['total_amount'] = total_amount
+            try:
+                sales_query = Sale.query.filter_by(customer_id=customer.id)
+                if start_date:
+                    sales_query = sales_query.filter(Sale.sale_date >= start_date)
+                
+                sales = sales_query.all()
+                total_sales = len(sales)
+                
+                # Total amount ni hisoblash
+                total_amount = 0
+                for sale in sales:
+                    if hasattr(sale, 'total_amount_usd') and sale.total_amount_usd:
+                        total_amount += float(sale.total_amount_usd)
+                    elif hasattr(sale, 'total_price_usd') and sale.total_price_usd:
+                        total_amount += float(sale.total_price_usd)
+                
+                customer_dict['total_sales'] = total_sales
+                customer_dict['total_amount'] = total_amount
+            except Exception as e:
+                logger.error(f"Error calculating sales for customer {customer.id}: {str(e)}")
+                customer_dict['total_sales'] = 0
+                customer_dict['total_amount'] = 0
             
             result.append(customer_dict)
         
