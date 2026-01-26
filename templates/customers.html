@@ -754,8 +754,7 @@
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span id="resultsInfo">Mijozlar yuklanmoqda...</span>
                 <div class="time-filter-buttons">
-                    <button class="time-filter-btn active" onclick="filterByTime('all')">Hammasi</button>
-                    <button class="time-filter-btn" onclick="filterByTime('today')">Bugun</button>
+                    <button class="time-filter-btn active" onclick="filterByTime('today')">Bugun</button>
                     <button class="time-filter-btn" onclick="filterByTime('week')">Bu hafta</button>
                     <button class="time-filter-btn" onclick="filterByTime('month')">Bu oy</button>
                     <button class="time-filter-btn" onclick="filterByTime('year')">Bu yil</button>
@@ -1170,7 +1169,7 @@
 
     // Savdo tahlili bo'yicha filtr
     let currentAnalysisFilter = 'count'; // default: savdo soni
-    let currentTimeFilter = 'all'; // default: hammasi
+    let currentTimeFilter = 'today'; // default: bugun
 
     function filterByAnalysis(type) {
         currentAnalysisFilter = type;
