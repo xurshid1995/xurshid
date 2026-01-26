@@ -215,38 +215,56 @@
 
     /* Barcha jadval qatorlariga bir xil balandlik */
     .sales-table tbody tr {
-        vertical-align: middle;
-        height: 60px; /* Minimal balandlik */
+        height: auto;
+        min-height: 50px;
     }
 
     .sales-table tbody td {
-        vertical-align: middle;
         padding: 12px 8px;
         line-height: 1.5;
+        vertical-align: middle;
     }
 
-    /* Group sale birinchi va qolgan qatorlar uchun bir xil style */
-    .sale-group-start td,
-    .sale-group-item td {
-        padding: 12px 8px !important;
-        vertical-align: middle !important;
-    }
-
-    /* Rowspan ustunlari uchun maxsus style */
+    /* Rowspan ustunlari - vertical va horizontal markazlashtirilgan */
     .group-cell {
         vertical-align: middle !important;
+        text-align: center !important;
         padding: 12px 8px !important;
     }
 
-    /* Amallar tugmalarini vertikal qilish */
+    /* Sana va vaqt */
+    .group-datetime {
+        background-color: #f8f9fa;
+    }
+
+    /* Sotuvchi */
+    .group-seller {
+        background-color: #f8f9fa;
+    }
+
+    /* Jami summa */
+    .group-total {
+        background-color: #e7f3ff;
+        font-weight: 700 !important;
+    }
+
+    /* Jami foyda */
+    .group-profit {
+        background-color: #e8f5e9;
+        font-weight: 700 !important;
+    }
+
+    /* Amallar ustuni */
     .group-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        align-items: center;
-        justify-content: center;
-        padding: 4px;
-        vertical-align: middle;
+        background-color: #f8f9fa;
+        vertical-align: middle !important;
+        text-align: center !important;
+        padding: 8px !important;
+    }
+
+    .group-actions button {
+        width: 100%;
+        margin: 2px 0;
     }
 
     /* Loading va xabarlar */
