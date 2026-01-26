@@ -213,6 +213,16 @@
         font-weight: 500 !important;
     }
 
+    /* Barcha jadval qatorlariga bir xil balandlik */
+    .sales-table tbody tr {
+        vertical-align: middle;
+    }
+
+    .sales-table tbody td {
+        vertical-align: middle;
+        padding: 8px;
+    }
+
     /* Amallar tugmalarini vertikal qilish */
     .group-actions {
         display: flex;
@@ -703,13 +713,13 @@ function displayOrders(orders) {
         }
         
         html += '<td rowspan="' + items.length + '" class="group-cell group-actions">';
-        html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish" style="background-color: #007bff; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 14px;">';
+        html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
         html += '👁️';
         html += '</button>';
-        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash" style="background-color: #ffc107; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 14px;">';
+        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash" style="background-color: #ffc107; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
         html += '✏️';
         html += '</button>';
-        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish" style="background-color: #dc3545; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 14px;">';
+        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">';
         html += '🗑️';
         html += '</button>';
         html += '</td>';
