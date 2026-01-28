@@ -821,7 +821,7 @@
             
             <div style="display: flex; gap: 10px;">
                 <button onclick="closePaymentModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">Bekor qilish</button>
-                <button onclick="confirmPayment()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">✅ Tasdiqlash</button>
+                <button onclick="confirmPayment(event)" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">✅ Tasdiqlash</button>
             </div>
         </div>
     </div>
@@ -5039,7 +5039,7 @@
     let isProcessingPayment = false;
     
     // To'lovni tasdiqlash
-    async function confirmPayment() {
+    async function confirmPayment(event) {
         // Double-click oldini olish
         if (isProcessingPayment) {
             console.log('⚠️ To\'lov allaqachon jarayonda');
@@ -5049,7 +5049,7 @@
         isProcessingPayment = true;
         
         // Tasdiqlash tugmasini topish va o'chirish
-        const confirmBtn = event.target;
+        const confirmBtn = event ? event.target : null;
         const originalText = confirmBtn ? confirmBtn.textContent : '';
         if (confirmBtn) {
             confirmBtn.disabled = true;
