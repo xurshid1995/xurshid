@@ -3340,7 +3340,12 @@
         let totalUSD = 0;
         let totalUZS = 0;
         
-        cart.forEach((item, index) => {
+        // Yangi qo'shilgan mahsulotlar tepada ko'rinishi uchun teskari tartibda
+        const displayCart = [...cart].reverse();
+        
+        displayCart.forEach((item, displayIndex) => {
+            // Original index (cart massividagi haqiqiy index)
+            const index = cart.length - 1 - displayIndex;
             const subtotalUSD = item.priceUSD * item.quantity;
             const subtotalUZS = item.priceUZS * item.quantity;
             totalUSD += subtotalUSD;
