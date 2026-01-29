@@ -3603,9 +3603,14 @@
         // Jami summani sarlavhada ko'rsatish
         cartTotalHeader.innerHTML = `
             <div style="padding: 10px 15px; background: #f8f9fa; border-radius: 6px; border: 2px solid #dee2e6;">
-                <div style="font-size: 14px; font-weight: 600; color: #333;">
-                    Jami: <span style="color: #28a745; font-size: 16px;">$${totalUSD.toFixed(2)}</span>
-                    <span style="margin-left: 15px; color: #333; font-size: 16px;">${formatPrice(totalUZS)} so'm</span>
+                <div style="font-size: 14px; font-weight: 600; color: #333; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; min-width: 40px; text-align: center;">
+                        ${cart.length}
+                    </div>
+                    <div>
+                        Jami: <span style="color: #28a745; font-size: 16px;">$${totalUSD.toFixed(2)}</span>
+                        <span style="margin-left: 15px; color: #333; font-size: 16px;">${formatPrice(totalUZS)} so'm</span>
+                    </div>
                 </div>
             </div>
         `;
