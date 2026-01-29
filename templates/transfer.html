@@ -1225,10 +1225,20 @@
         
         // Qidiruv matni bo'lsa, filterlash
         if (searchText) {
+            // Qidiruv so'zlarini bo'laklarga ajratish
+            const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
+            
             filteredProducts = allProducts.filter(product => {
                 const productName = (product.name || '').toLowerCase();
                 const barcode = (product.barcode || '').toString().toLowerCase();
-                return productName.includes(searchText) || barcode.includes(searchText);
+                
+                // Barcode bilan to'liq moslik
+                if (barcode.includes(searchText)) {
+                    return true;
+                }
+                
+                // Qisman so'zlar bilan qidirish - barcha so'zlar mahsulot nomida bo'lishi kerak
+                return searchWords.every(word => productName.includes(word));
             });
         } else {
             filteredProducts = allProducts;

@@ -297,14 +297,25 @@
         }
     }
     
-    // Qidiruv funksiyasi
+    // Qidiruv funksiyasi - qisman so'zlar bilan
     document.getElementById('historySearch')?.addEventListener('input', function(e) {
-        const searchText = e.target.value.toLowerCase();
+        const searchText = e.target.value.toLowerCase().trim();
         const rows = document.querySelectorAll('#transferHistoryTable tbody tr');
+        
+        if (!searchText) {
+            // Qidiruv bo'sh bo'lsa, barcha qatorlarni ko'rsatish
+            rows.forEach(row => row.style.display = '');
+            return;
+        }
+        
+        // Qidiruv so'zlarini bo'laklarga ajratish
+        const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
         
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchText) ? '' : 'none';
+            // Barcha so'zlar matnda bo'lishi kerak
+            const matches = searchWords.every(word => text.includes(word));
+            row.style.display = matches ? '' : 'none';
         });
     });
     
