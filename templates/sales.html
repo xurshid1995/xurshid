@@ -2706,6 +2706,11 @@
     // Valyuta kursi (global o'zgaruvchi)
     let exchangeRate = 12700; // Default kurs
     
+    // Himoya mexanizmlari uchun o'zgaruvchilar
+    let priceChangeTimeout = null; // Debounce timer
+    let lockedProductId = null; // Hozir ishlayotgan mahsulot ID'si
+    let lastPriceUpdate = {}; // Har bir mahsulot uchun oxirgi narx
+    
     // Valyuta kursini olish (caching bilan)
     async function loadExchangeRate() {
         try {
@@ -2735,7 +2740,7 @@
         }
     }
     
-    // USD dan UZS ga avtomatik konversiya
+    // USD dan UZS ga avtomatik konversiya (debounce bilan)
     function updateUZSPrice() {
         const usdInput = getActiveTabElement('modalPriceUSD');
         const uzsInput = getActiveTabElement('modalPriceUZS');
@@ -2754,10 +2759,10 @@
         // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
         if (currentProduct) {
             validatePrice();
-        }
-    }
-    
-    // UZS dan USD ga avtomatik konversiya
+            
+            // Narx o'zgarishini saqlash (debounce bilan)
+            clearTimeout(priceChangeTimeout);
+            priceChangeTimeout = setTimeou (debounce bilan)
     function updateUSDPrice() {
         const usdInput = getActiveTabElement('modalPriceUSD');
         const uzsInput = getActiveTabElement('modalPriceUZS');
@@ -2776,6 +2781,47 @@
         // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
         if (currentProduct) {
             validatePrice();
+            
+            // Narx o'zgarishini saqlash (debounce bilan)
+            clearTimeout(priceChangeTimeout);
+            priceChangeTimeout = setTimeout(() => {
+                if (currentProduct && lockedProductId === currentProduct.id) {
+                    lastPriceUpdate[currentProduct.id] = {
+                        priceUSD: usdPrice,
+                        priceUZS: Math.round(uzsPrice),
+                        timestamp: Date.now()
+                    };
+                    console.log('🔒 Narx saqlandi:', currentProduct.id, '=', usdPrice, 'USD');
+                }
+            }, 500); // 500ms kutadisInput) {
+            console.error('❌ Modal input elementlari topilmadi');
+            return;
+        }
+        
+        const uzsPrice = parseFloat(uzsInput.value) || 0;
+        const usdPrice = uzsPrice / exchangeRate;
+        usdInput.value = usdPrice.toFixed(2);
+        
+        console.log('💱 Konversiya (UZS→USD):', uzsPrice, 'UZS ÷', exchangeRate, '=', usdPrice.toFixed(2), 'USD');
+        
+        // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
+        if (currentProduct) {
+            validatePrice();
+        // 🔒 Mahsulot ID'sini lock qilish
+        lockedProductId = productId;
+        console.log('🔒 Product locked:', lockedProductId);
+        
+        // Agar avval saqlangan narx bo'lsa, uni ishlatish
+        if (lastPriceUpdate[productId]) {
+            const savedPrice = lastPriceUpdate[productId];
+            const timeDiff = Date.now() - savedPrice.timestamp;
+            // Agar 30 soniyadan kam bo'lsa, saqlangan narxni ishlatish
+            if (timeDiff < 30000) {
+                console.log('♻️ Saqlangan narx ishlatilmoqda:', savedPrice.priceUSD, 'USD');
+                price = savedPrice.priceUSD;
+            }
+        }
+        
         }
     }
     
@@ -3016,6 +3062,10 @@
         if (quantityModal) {
             quantityModal.style.display = 'none';
         }
+        
+        // 🔓 Lock'ni tozalash
+        lockedProductId = null;
+        console.log('🔓 Product unlocked');
         
         currentProduct = null;
         delete window.editingCartIndex; // Tahrirlash rejimini tozalash
