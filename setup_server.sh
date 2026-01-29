@@ -60,7 +60,11 @@ SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
 echo -e "${BLUE}⚙️  Step 9: Creating .env file...${NC}"
 cat > .env << EOF
 SECRET_KEY=$SECRET_KEY
-DATABASE_URL=postgresql://xurshid_user:Xurshid2025!Strong@localhost/xurshid_db
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=xurshid_db
+DB_USER=xurshid_user
+DB_PASSWORD=Xurshid2025!Strong
 FLASK_ENV=production
 FLASK_APP=app.py
 EOF
