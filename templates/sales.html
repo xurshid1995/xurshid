@@ -5517,24 +5517,27 @@
             
                 // To'lov turlarini tanlangan valyutada formatlash
                 const paymentDetails = [];
-                // Global exchangeRate o'zgaruvchisidan foydalanish
                 
-                if (selectedCurrency === 'uzs') {
-                    if (cashUSD > 0) paymentDetails.push('Naqd: ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (clickUSD > 0) paymentDetails.push('Click: ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (terminalUSD > 0) paymentDetails.push('Terminal: ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (debtUSD > 0) paymentDetails.push('Qarz: ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                } else if (selectedCurrency === 'both') {
-                    if (cashUSD > 0) paymentDetails.push('Naqd: $' + cashUSD.toFixed(2) + ' / ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (clickUSD > 0) paymentDetails.push('Click: $' + clickUSD.toFixed(2) + ' / ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (terminalUSD > 0) paymentDetails.push('Terminal: $' + terminalUSD.toFixed(2) + ' / ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                    if (debtUSD > 0) paymentDetails.push('Qarz: $' + debtUSD.toFixed(2) + ' / ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
-                } else {
-                    if (cashUSD > 0) paymentDetails.push('Naqd: $' + cashUSD.toFixed(2));
-                    if (clickUSD > 0) paymentDetails.push('Click: $' + clickUSD.toFixed(2));
-                    if (terminalUSD > 0) paymentDetails.push('Terminal: $' + terminalUSD.toFixed(2));
-                    if (debtUSD > 0) paymentDetails.push('Qarz: $' + debtUSD.toFixed(2));
+                // Helper funksiya - takroriy kodni kamaytirish
+                function formatPaymentDetail(label, amountUSD, currency) {
+                    if (amountUSD <= 0) return;
+                    
+                    const amountUZS = Math.round(amountUSD * exchangeRate).toLocaleString('uz-UZ');
+                    
+                    if (currency === 'uzs') {
+                        paymentDetails.push(`${label}: ${amountUZS} som`);
+                    } else if (currency === 'both') {
+                        paymentDetails.push(`${label}: $${amountUSD.toFixed(2)} / ${amountUZS} som`);
+                    } else {
+                        paymentDetails.push(`${label}: $${amountUSD.toFixed(2)}`);
+                    }
                 }
+                
+                // Barcha to'lov turlarini formatlash
+                formatPaymentDetail('Naqd', cashUSD, selectedCurrency);
+                formatPaymentDetail('Click', clickUSD, selectedCurrency);
+                formatPaymentDetail('Terminal', terminalUSD, selectedCurrency);
+                formatPaymentDetail('Qarz', debtUSD, selectedCurrency);
                 
                 // Savdo ma'lumotlarini tayyorlash
                 const sellerName = '{{ session.get("user_name", session.get("username", "Sotuvchi")) }}';
