@@ -3,7 +3,7 @@ import multiprocessing
 import os
 
 # Server socket - faqat localhost (xavfsizlik uchun)
-bind = os.getenv('BIND', '127.0.0.1:8000')
+bind = os.getenv('BIND', '127.0.0.1:5000')
 backlog = 2048
 
 # Worker processes
@@ -25,7 +25,7 @@ loglevel = 'info'
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
 # Process naming
-proc_name = 'sayt_2025'
+proc_name = 'xurshid_app'
 
 # Server mechanics
 daemon = False
