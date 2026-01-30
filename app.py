@@ -11417,11 +11417,8 @@ def api_login():
             old_sessions = UserSession.query.filter_by(user_id=user.id, is_active=True).all()
             if old_sessions:
                 for old_session in old_sessions:
-                    # user_id ni saqlash va faqat is_active ni o'zgartirish
-                    db.session.execute(
-                        db.text("UPDATE user_sessions SET is_active = false WHERE id = :id"),
-                        {"id": old_session.id}
-                    )
+                    # SQLAlchemy ORM orqali yangilash
+                    old_session.is_active = False
                     app.logger.info(f"🔒 Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
                 
                 db.session.commit()  # Eski sessionlarni saqlash
