@@ -1111,7 +1111,7 @@
             row.innerHTML = `
                 <td style="color: #333; font-weight: 500;">${product.name || `Mahsulot #${product.id}`}</td>
                 <td style="text-align: center; color: #333; font-weight: 500;">
-                    $${sellingPrice.toFixed(2)}
+                    $${parseFloat(sellingPrice).toFixed(2)}
                 </td>
                 <td style="text-align: center;">
                     <span style="background: ${badgeColor}; color: white; padding: 4px 8px; border-radius: 0px; font-weight: 500;">${quantityDisplay}</span>
