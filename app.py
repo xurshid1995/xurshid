@@ -10345,6 +10345,7 @@ def create_pending_sale(data):
 
         # Items ni qo'shish (stock'dan ayirmasdan)
         total_amount = Decimal('0')
+
         for item in items:
             product_id = item.get('product_id') or item.get('id')
             quantity = Decimal(str(item.get('quantity', 0)))
@@ -10362,6 +10363,15 @@ def create_pending_sale(data):
                     'error': f'Mahsulot topilmadi: {product_id}'
                 }), 404
 
+            # Cost price allaqachon USD da (products jadvalidagi qiymat)
+            cost_price_usd = float(product.cost_price or Decimal('0'))
+            if unit_price < cost_price_usd:
+                db.session.rollback()
+                return jsonify({
+                    'success': False,
+                    'error': f"{product.name} uchun narx tan narxdan past bo'lishi mumkin emas (min: {cost_price_usd}, kiritilgan: {unit_price})"
+                }), 400
+
             # ESLATMA: Stock ayirish frontend'da korzinaga qo'shilganda amalga oshiriladi
             # Bu yerda faqat ma'lumot saqlash amalga oshiriladi
             item_location_id = item.get('location_id', store_id)
@@ -10374,11 +10384,8 @@ def create_pending_sale(data):
             unit_price_usd = Decimal(str(unit_price))
             total_price_usd = Decimal(str(quantity)) * unit_price_usd
 
-            # Cost price allaqachon USD da (products jadvalidagi qiymat)
-            cost_price_usd = product.cost_price or Decimal('0')
-
             # Foyda USD da hisoblash
-            profit_usd = total_price_usd - (Decimal(str(quantity)) * cost_price_usd)
+            profit_usd = total_price_usd - (Decimal(str(quantity)) * Decimal(str(cost_price_usd)))
 
             sale_item = SaleItem(
                 sale_id=new_sale.id,
@@ -10386,7 +10393,7 @@ def create_pending_sale(data):
                 quantity=quantity,
                 unit_price=unit_price_usd,  # USD da
                 total_price=total_price_usd,  # USD da
-                cost_price=cost_price_usd,  # USD da
+                cost_price=Decimal(str(cost_price_usd)),  # USD da
                 profit=profit_usd,  # USD da
                 source_type=item_location_type,
                 source_id=item_location_id,
@@ -10762,6 +10769,7 @@ def api_update_pending_sale(sale_id):
 
         # Yangi sale items qo'shish
         items = data.get('items', [])
+
         for item in items:
             product_id = item.get('id') or item.get('product_id')
             quantity = Decimal(str(item.get('quantity', 1)))
@@ -10771,8 +10779,15 @@ def api_update_pending_sale(sale_id):
             if not product:
                 continue
 
+            cost_price = Decimal(str(product.cost_price or Decimal('0')))
+            if unit_price < cost_price:
+                db.session.rollback()
+                return jsonify({
+                    'success': False,
+                    'error': f"{product.name} uchun narx tan narxdan past bo'lishi mumkin emas (min: {cost_price}, kiritilgan: {unit_price})"
+                }), 400
+
             total_price = Decimal(str(quantity * unit_price))
-            cost_price = product.cost_price or Decimal('0')
             profit = total_price - (Decimal(str(quantity)) * cost_price)
 
             sale_item = SaleItem(
