@@ -11415,11 +11415,16 @@ def api_login():
 
             # Eski session'larni deactivate qilish (MUHIM: Avval commit qilish)
             old_sessions = UserSession.query.filter_by(user_id=user.id, is_active=True).all()
-            for old_session in old_sessions:
-                old_session.is_active = False
-                app.logger.info(f"🔒 Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
-
-            db.session.commit()  # Eski sessionlarni saqlash
+            if old_sessions:
+                for old_session in old_sessions:
+                    # user_id ni saqlash va faqat is_active ni o'zgartirish
+                    db.session.execute(
+                        db.text("UPDATE user_sessions SET is_active = false WHERE id = :id"),
+                        {"id": old_session.id}
+                    )
+                    app.logger.info(f"🔒 Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
+                
+                db.session.commit()  # Eski sessionlarni saqlash
 
             # Yangi session yaratish
             user_session = UserSession(
