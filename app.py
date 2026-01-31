@@ -8966,7 +8966,7 @@ def api_sales_history():
         items_count_query = db.session.query(
             func.sum(SaleItem.quantity)
         ).filter(
-            SaleItem.sale_id.in_(db.select([sale_ids_subquery.c.id]))
+            SaleItem.sale_id.in_(select(sale_ids_subquery.c.id))
         )
         total_items = float(items_count_query.scalar() or 0)
 
