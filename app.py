@@ -1539,6 +1539,63 @@ def add_product_new():
 def currency_rate():
     return render_template('currency_rate.html')
 
+# API endpoint - keyingi barcode raqamini olish
+@app.route('/api/next-barcode')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_next_barcode():
+    """O'rtada qolgan yoki keyingi barcode'ni topish"""
+    try:
+        # Barcha 8 xonali barcode'larni olish
+        products = Product.query.filter(
+            Product.barcode.isnot(None),
+            Product.barcode != ''
+        ).all()
+        
+        # Barcha mavjud barcode'larni raqamga aylantirish
+        existing_barcodes = set()
+        max_barcode = 0
+        
+        for product in products:
+            try:
+                # Faqat raqamli va 8 xonali barcode'larni tekshirish
+                if product.barcode and product.barcode.isdigit() and len(product.barcode) == 8:
+                    barcode_num = int(product.barcode)
+                    existing_barcodes.add(barcode_num)
+                    if barcode_num > max_barcode:
+                        max_barcode = barcode_num
+            except:
+                continue
+        
+        # 1 dan boshlab birinchi bo'sh joyni topish
+        next_barcode_num = None
+        for i in range(1, max_barcode + 2):  # max + 2 gacha tekshirish
+            if i not in existing_barcodes:
+                next_barcode_num = i
+                break
+        
+        # Agar topilmasa (hamma joy band), eng kattasidan keyingisini berish
+        if next_barcode_num is None:
+            next_barcode_num = max_barcode + 1
+        
+        # 8 xonali formatga aylantirish
+        next_barcode = str(next_barcode_num).zfill(8)
+        
+        # O'rtada qolgan barcode ekanligini aniqlash
+        is_gap_filled = next_barcode_num <= max_barcode
+        
+        return jsonify({
+            'success': True,
+            'barcode': next_barcode,
+            'is_gap_filled': is_gap_filled,
+            'max_barcode': str(max_barcode).zfill(8) if max_barcode > 0 else None,
+            'total_used': len(existing_barcodes)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # API endpoint - mahsulotlar ro'yxati (faqat stock mavjud bo'lganlar)
 
 
@@ -12747,6 +12804,15 @@ def api_send_bulk_telegram():
     except Exception as e:
         logger.error(f"Bulk Telegram xatolik: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Monitoring routes qo'shish
+try:
+    from monitoring import setup_monitoring_routes
+    setup_monitoring_routes(app, db)
+    logger.info("✅ Monitoring tizimi ishga tushdi")
+except Exception as e:
+    logger.warning(f"⚠️ Monitoring tizimi ishga tushmadi: {e}")
 
 
 if __name__ == '__main__':

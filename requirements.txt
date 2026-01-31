@@ -12,6 +12,9 @@ reportlab==4.0.7
 pytz==2025.2
 requests==2.31.0
 
+# Monitoring
+psutil==5.9.0
+
 # Telegram Bot
 python-telegram-bot==20.7
 apscheduler==3.10.4
