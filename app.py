@@ -1540,10 +1540,10 @@ def currency_rate():
     return render_template('currency_rate.html')
 
 # API endpoint - keyingi barcode raqamini olish
-@app.route('/api/next-barcode')
+@app.route('/api/next-barcode', methods=['GET', 'POST'])
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_next_barcode():
-    """O'rtada qolgan yoki keyingi barcode'ni topish"""
+    """O'rtada qolgan yoki keyingi barcode'ni topish (vaqtinchalik ro'yxatni ham hisobga olib)"""
     try:
         # Barcha 8 xonali barcode'larni olish
         products = Product.query.filter(
@@ -1565,6 +1565,25 @@ def api_next_barcode():
                         max_barcode = barcode_num
             except:
                 continue
+        
+        # POST request bo'lsa, vaqtinchalik ro'yxatdagi barcode'larni ham qo'shish
+        temp_barcodes_count = 0
+        if request.method == 'POST':
+            data = request.get_json() or {}
+            temp_barcodes = data.get('temp_barcodes', [])
+            
+            for barcode in temp_barcodes:
+                try:
+                    if barcode and isinstance(barcode, str) and barcode.isdigit() and len(barcode) == 8:
+                        barcode_num = int(barcode)
+                        existing_barcodes.add(barcode_num)
+                        if barcode_num > max_barcode:
+                            max_barcode = barcode_num
+                        temp_barcodes_count += 1
+                except:
+                    continue
+            
+            logger.info(f"📦 Vaqtinchalik ro'yxatdan {temp_barcodes_count} ta barcode qo'shildi")
         
         # 1 dan boshlab birinchi bo'sh joyni topish
         next_barcode_num = None
@@ -1588,7 +1607,8 @@ def api_next_barcode():
             'barcode': next_barcode,
             'is_gap_filled': is_gap_filled,
             'max_barcode': str(max_barcode).zfill(8) if max_barcode > 0 else None,
-            'total_used': len(existing_barcodes)
+            'total_used': len(existing_barcodes),
+            'temp_barcodes_count': temp_barcodes_count
         })
     except Exception as e:
         return jsonify({

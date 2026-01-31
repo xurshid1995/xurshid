@@ -2220,7 +2220,7 @@
 
         // Avtomatik barcode generatsiya qilish
         function generateBarcode() {
-            // O'rtada qolgan yoki keyingi barcode'ni topish
+            // O'rtada qolgan yoki keyingi barcode'ni topish (vaqtinchalik ro'yxatni ham hisobga olib)
             const barcodeInput = document.getElementById('barcode');
             const autoGenerateBtn = document.getElementById('autoGenerateBtn');
             
@@ -2229,7 +2229,23 @@
             barcodeInput.disabled = true;
             autoGenerateBtn.disabled = true;
             
-            fetch('/api/next-barcode')
+            // Vaqtinchalik ro'yxatdagi barcode'larni to'plash
+            const tempBarcodes = tempProducts
+                .filter(p => p.barcode && p.barcode.trim() !== '')
+                .map(p => p.barcode.trim());
+            
+            console.log('📋 Vaqtinchalik ro\'yxatdagi barcode\'lar:', tempBarcodes);
+            
+            // API ga vaqtinchalik barcode'larni ham yuborish
+            fetch('/api/next-barcode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    temp_barcodes: tempBarcodes
+                })
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -2255,6 +2271,9 @@
                             console.log('📊 Eng katta barcode:', data.max_barcode);
                         }
                         console.log('📈 Jami ishlatilgan barcode:', data.total_used);
+                        if (data.temp_barcodes_count > 0) {
+                            console.log('📦 Vaqtinchalik ro\'yxatda:', data.temp_barcodes_count, 'ta barcode');
+                        }
                     } else {
                         alert('❌ Barcode yaratishda xatolik: ' + data.error);
                         barcodeInput.value = '';
