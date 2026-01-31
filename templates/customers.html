@@ -64,7 +64,7 @@
 
     .search-box input {
         width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        padding: 0.75rem 2.5rem 0.75rem 2.5rem;
         border: 2px solid #e9ecef;
         border-radius: 25px;
         font-size: 1rem;
@@ -84,6 +84,30 @@
         transform: translateY(-50%);
         color: #6c757d;
         font-size: 1rem;
+    }
+    
+    .search-box .clear-search-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .search-box .clear-search-btn:hover {
+        background: #c82333;
+        transform: translateY(-50%) scale(1.1);
     }
 
     .add-customer-btn {
@@ -294,29 +318,6 @@
         background: #667eea;
         color: white;
         border-color: #667eea;
-    }
-    
-    /* X tugmasi uchun stil */
-    .clear-filter-btn {
-        background: #dc3545;
-        color: white;
-        padding: 0.4rem 0.7rem;
-        border: 2px solid #dc3545;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        min-width: 36px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .clear-filter-btn:hover {
-        background: #c82333;
-        border-color: #c82333;
-        transform: scale(1.1);
     }
 
     .analysis-filter-btn {
@@ -773,6 +774,7 @@
                 <div class="search-box" style="flex: 1 1 auto; max-width: 450px; min-width: 250px;">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="customerSearch" placeholder="Mijozlarni qidirish..." oninput="searchCustomers()">
+                    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">❌</button>
                 </div>
                 <span id="resultsInfo">Mijozlar yuklanmoqda...</span>
                 <div class="time-filter-buttons">
@@ -780,7 +782,6 @@
                     <button class="time-filter-btn" onclick="filterByTime('week')">Bu hafta</button>
                     <button class="time-filter-btn" onclick="filterByTime('month')">Bu oy</button>
                     <button class="time-filter-btn" onclick="filterByTime('year')">Bu yil</button>
-                    <button class="clear-filter-btn" onclick="clearTimeFilter()" id="clearFilterBtn" style="display: none;">❌</button>
                 </div>
                 <div class="time-filter-buttons">
                     <button class="analysis-filter-btn active" onclick="filterByAnalysis('count')">🔢 Savdo soni</button>
@@ -942,6 +943,16 @@
 
     // Mijozlarni qidirish va filtrash
     function searchCustomers() {
+        // X tugmasini ko'rsatish/yashirish
+        const searchInput = document.getElementById('customerSearch');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        
+        if (searchInput.value.trim() !== '' || currentTimeFilter !== 'all') {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+        
         applyFilters();
     }
 
@@ -1220,15 +1231,23 @@
         });
         event.target.classList.add('active');
         
-        // X tugmasini ko'rsatish
-        document.getElementById('clearFilterBtn').style.display = 'inline-block';
+        // Qidiruv maydonidagi X tugmasini ko'rsatish
+        const searchInput = document.getElementById('customerSearch');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (searchInput.value.trim() !== '' || currentTimeFilter !== 'all') {
+            clearBtn.style.display = 'flex';
+        }
         
         // Mijozlarni qayta yuklash (backend'dan filtr bilan)
         loadCustomers();
     }
     
-    // Filtrni tozalash
-    function clearTimeFilter() {
+    // Qidiruvni tozalash
+    function clearSearch() {
+        // Qidiruv maydonini tozalash
+        document.getElementById('customerSearch').value = '';
+        
+        // Vaqt filtrini ham tozalash
         currentTimeFilter = 'all';
         
         // Barcha active classlarni olib tashlash
@@ -1237,10 +1256,11 @@
         });
         
         // X tugmasini yashirish
-        document.getElementById('clearFilterBtn').style.display = 'none';
+        document.getElementById('clearSearchBtn').style.display = 'none';
         
-        // Mijozlarni qayta yuklash (filtrsiz)
+        // Mijozlarni qayta yuklash va ko'rsatish
         loadCustomers();
+        displayCustomers();
     }
 
     // Vaqt oralig'ini hisoblash - ENDI BACKEND'DA ISHLATILADI
