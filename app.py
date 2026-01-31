@@ -4746,6 +4746,12 @@ def api_delete_store(store_id):
             if other_store_stocks == 0 and warehouse_stocks == 0:
                 product = Product.query.get(product_id)
                 if product:
+                    # Mahsulot bilan bog'liq sale_items'larda product_id ni NULL qilish (tarixni saqlab qolish)
+                    from models import SaleItem
+                    sale_items = SaleItem.query.filter_by(product_id=product_id).all()
+                    for sale_item in sale_items:
+                        sale_item.product_id = None
+                    
                     db.session.delete(product)
                     logger.info(f" Product ham o'chirildi: {product.name} (boshqa joylarda mavjud emas)")
             else:
@@ -5351,6 +5357,12 @@ def api_delete_warehouse(warehouse_id):
             if other_warehouse_stocks == 0 and store_stocks == 0:
                 product = Product.query.get(product_id)
                 if product:
+                    # Mahsulot bilan bog'liq sale_items'larda product_id ni NULL qilish (tarixni saqlab qolish)
+                    from models import SaleItem
+                    sale_items = SaleItem.query.filter_by(product_id=product_id).all()
+                    for sale_item in sale_items:
+                        sale_item.product_id = None
+                    
                     # Mahsulot bilan bog'liq transferlarni o'chirish
                     product_transfers = Transfer.query.filter(
                         db.or_(
