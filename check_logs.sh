@@ -22,7 +22,7 @@ fi
 
 echo ""
 echo "--- GUNICORN STATUS ---"
-systemctl status sayt2025.service --no-pager | head -15
+systemctl status xurshid.service --no-pager | head -15
 
 echo ""
 echo "--- DISK SPACE ---"
