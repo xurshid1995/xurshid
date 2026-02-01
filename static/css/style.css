@@ -1459,9 +1459,10 @@ footer {
         background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%) !important;
         box-shadow: none !important;
         border-radius: 0; /* To'liq ekran uchun border radius yo'q */
-        overflow-y: auto !important; /* Scroll yoqish */
+        overflow-y: scroll !important; /* Har doim scroll ko'rsatish */
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin; /* Firefox uchun */
         display: flex !important;
         flex-direction: column;
         padding-top: 70px; /* Tepada joy qoldirish */
@@ -1506,25 +1507,29 @@ footer {
     
     /* Mobile sidebar menu - Compact va toza */
     .sidebar-menu {
-        padding: 10px 0;
+        padding: 10px 0 30px 0; /* Pastda ko'proq joy */
         flex: 1;
-        overflow-y: auto !important; /* Scroll ta'minlash */
+        overflow-y: visible !important; /* Scroll sidebar'da bo'ladi, menu'da emas */
         overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch;
+        min-height: max-content; /* Barcha elementlar ko'rinsin */
     }
     
-    /* Sidebar scrollbar - mobile uchun */
-    .sidebar-menu::-webkit-scrollbar {
-        width: 4px;
+    /* Sidebar scrollbar - mobile uchun yorqinroq */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
     }
     
-    .sidebar-menu::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
+    .sidebar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.2);
     }
     
-    .sidebar-menu::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.3);
+    .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.4);
         border-radius: 10px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.6);
     }
     
     .sidebar-menu li a {
