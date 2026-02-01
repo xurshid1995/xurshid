@@ -1451,21 +1451,21 @@ footer {
     .sidebar {
         position: fixed;
         left: -100% !important;
-        top: 0 !important; /* Ekranning eng tepasidan boshlanadi */
-        height: 100vh !important; /* To'liq ekran balandligi */
+        top: 0 !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
         width: 280px !important;
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
-        z-index: 1250 !important; /* Mobile toggle'dan yuqoriroq */
+        z-index: 1250 !important;
         background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%) !important;
         box-shadow: none !important;
-        border-radius: 0; /* To'liq ekran uchun border radius yo'q */
-        overflow-y: scroll !important; /* Har doim scroll ko'rsatish */
+        border-radius: 0;
+        overflow-y: scroll !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin; /* Firefox uchun */
-        display: flex !important;
-        flex-direction: column;
-        padding-top: 70px; /* Tepada joy qoldirish */
+        scrollbar-width: thin;
+        padding: 70px 0 0 0 !important; /* Faqat tepada padding */
+        box-sizing: border-box !important;
     }
     
     /* Hover effekti mobilda o'chiriladi */
@@ -1507,11 +1507,11 @@ footer {
     
     /* Mobile sidebar menu - Compact va toza */
     .sidebar-menu {
-        padding: 10px 0 30px 0; /* Pastda ko'proq joy */
-        flex: 1;
-        overflow-y: visible !important; /* Scroll sidebar'da bo'ladi, menu'da emas */
-        overflow-x: hidden !important;
-        min-height: max-content; /* Barcha elementlar ko'rinsin */
+        padding: 10px 0 50px 0 !important; /* Pastda ko'proq joy */
+        margin: 0 !important;
+        list-style: none !important;
+        width: 100% !important;
+        min-height: calc(100vh - 70px) !important; /* Scroll ishlashi uchun minimal balandlik */
     }
     
     /* Sidebar scrollbar - mobile uchun yorqinroq */
