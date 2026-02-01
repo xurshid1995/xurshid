@@ -2599,12 +2599,11 @@
                     quantity = parseFloat(quantityText.replace(/[^0-9.]/g, '')) || 0;
                 }
                 
-                // Narxni olish - span ichidagi matnni parse qilish
-                const priceSpan = row.querySelector('td:nth-child(3) span:first-child');
+                // Narxni olish - button'ning data-price atributidan (to'g'ri qiymat)
+                const button = row.querySelector('.add-to-cart-btn');
                 let price = 0;
-                if (priceSpan) {
-                    const priceText = priceSpan.textContent.replace(/[^0-9.]/g, '');
-                    price = parseFloat(priceText) || 0;
+                if (button && button.dataset.price) {
+                    price = parseFloat(button.dataset.price) || 0;
                 }
                 
                 const costPrice = parseFloat(row.getAttribute('data-cost-price')) || 0;
