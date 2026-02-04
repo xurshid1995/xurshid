@@ -2456,11 +2456,11 @@ function generatePaymentDetailsHTML(sale) {
     const terminalUSD = parseFloat(sale.terminal_usd || 0);
     const debtUSD = parseFloat(sale.debt_usd || 0);
     
-    // UZS qiymatlarini olish yoki hisoblash
-    const cashUZS = (sale.cash_amount !== undefined && sale.cash_amount !== null) ? sale.cash_amount : (cashUSD * rate);
-    const clickUZS = (sale.click_amount !== undefined && sale.click_amount !== null) ? sale.click_amount : (clickUSD * rate);
-    const terminalUZS = (sale.terminal_amount !== undefined && sale.terminal_amount !== null) ? sale.terminal_amount : (terminalUSD * rate);
-    const debtUZS = (sale.debt_amount !== undefined && sale.debt_amount !== null) ? sale.debt_amount : (debtUSD * rate);
+    // UZS qiymatlarni doim hisoblash (database'da USD saqlanadi)
+    const cashUZS = cashUSD * rate;
+    const clickUZS = clickUSD * rate;
+    const terminalUZS = terminalUSD * rate;
+    const debtUZS = debtUSD * rate;
     
     const payments = [
         { name: '💵 Naqd pul', usd: cashUSD, uzs: cashUZS },

@@ -9622,13 +9622,19 @@ def create_sale():
         click_usd = float(payment_info.get('click_usd', 0))
         terminal_usd = float(payment_info.get('terminal_usd', 0))
         debt_usd = float(payment_info.get('debt_usd', 0))
+        
+        # UZS qiymatlarni olish
+        cash_uzs = float(payment_info.get('cash_uzs', 0))
+        click_uzs = float(payment_info.get('click_uzs', 0))
+        terminal_uzs = float(payment_info.get('terminal_uzs', 0))
+        debt_uzs = float(payment_info.get('debt_uzs', 0))
 
         # Debug: To'lov ma'lumotlarini ko'rsatish
         print("💰 To'lov ma'lumotlari:")
-        print(f"   Cash USD: {cash_usd}")
-        print(f"   Click USD: {click_usd}")
-        print(f"   Terminal USD: {terminal_usd}")
-        print(f"   Debt USD: {debt_usd}")
+        print(f"   Cash USD: {cash_usd}, UZS: {cash_uzs}")
+        print(f"   Click USD: {click_usd}, UZS: {click_uzs}")
+        print(f"   Terminal USD: {terminal_usd}, UZS: {terminal_uzs}")
+        print(f"   Debt USD: {debt_usd}, UZS: {debt_uzs}")
         print(f"   Jami: {cash_usd + click_usd + terminal_usd + debt_usd} USD")
 
         # Payment status ni qarz bo'yicha avtomatik aniqlash
@@ -9654,13 +9660,14 @@ def create_sale():
 
         print(f"💳 Payment method aniqlandi: {payment_method}")
 
-        # USD qiymatlarni saqlaymiz (UZS ga o'girmaymiz)
+        # Barcha qiymatlarni USD da saqlaymiz
+        # cash_amount, click_amount, terminal_amount, debt_amount - hammasi USD!
         cash_amount = cash_usd
         click_amount = click_usd
         terminal_amount = terminal_usd
         debt_amount = debt_usd
 
-        print("💵 USD summalar:")
+        print("💵 USD summalar (DB'ga saqlanadi):")
         print(f"   Cash: ${cash_amount}")
         print(f"   Click: ${click_amount}")
         print(f"   Terminal: ${terminal_amount}")
