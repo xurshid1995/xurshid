@@ -821,31 +821,31 @@ function updateStatistics(data) {
     
     // Formatlash va ko'rsatish
     document.getElementById('totalSales').textContent = totalSales.toLocaleString();
-    document.getElementById('totalAmount').textContent = Math.floor(totalAmount).toLocaleString() + '$';
-    document.getElementById('totalAmountUZS').textContent = Math.floor(totalAmount * exchangeRate).toLocaleString() + ' UZS';
+    document.getElementById('totalAmount').textContent = '$' + totalAmount.toFixed(2);
+    document.getElementById('totalAmountUZS').textContent = Math.round(totalAmount * exchangeRate).toLocaleString() + ' UZS';
     
     // To'lov turlarini ko'rsatish
     if (data.payment_totals) {
         console.log('💰 To\'lov turlari yangilanmoqda:', data.payment_totals);
         const payments = [];
         if (data.payment_totals.cash > 0) {
-            const cashUSD = Math.floor(data.payment_totals.cash);
-            const cashUZS = Math.floor(data.payment_totals.cash * exchangeRate);
+            const cashUSD = data.payment_totals.cash.toFixed(2);
+            const cashUZS = Math.round(data.payment_totals.cash * exchangeRate);
             payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #28a745; font-size: 14px;">💵 Naqd: <strong>$${cashUSD}</strong><br><span style="font-size: 11px; color: #666;">${cashUZS.toLocaleString()} UZS</span></span>`);
         }
         if (data.payment_totals.click > 0) {
-            const clickUSD = Math.floor(data.payment_totals.click);
-            const clickUZS = Math.floor(data.payment_totals.click * exchangeRate);
+            const clickUSD = data.payment_totals.click.toFixed(2);
+            const clickUZS = Math.round(data.payment_totals.click * exchangeRate);
             payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #007bff; font-size: 14px;">📱 Click: <strong>$${clickUSD}</strong><br><span style="font-size: 11px; color: #666;">${clickUZS.toLocaleString()} UZS</span></span>`);
         }
         if (data.payment_totals.terminal > 0) {
-            const termUSD = Math.floor(data.payment_totals.terminal);
-            const termUZS = Math.floor(data.payment_totals.terminal * exchangeRate);
+            const termUSD = data.payment_totals.terminal.toFixed(2);
+            const termUZS = Math.round(data.payment_totals.terminal * exchangeRate);
             payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #17a2b8; font-size: 14px;">💳 Terminal: <strong>$${termUSD}</strong><br><span style="font-size: 11px; color: #666;">${termUZS.toLocaleString()} UZS</span></span>`);
         }
         if (data.payment_totals.debt > 0) {
-            const debtUSD = Math.floor(data.payment_totals.debt);
-            const debtUZS = Math.floor(data.payment_totals.debt * exchangeRate);
+            const debtUSD = data.payment_totals.debt.toFixed(2);
+            const debtUZS = Math.round(data.payment_totals.debt * exchangeRate);
             payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #dc3545; font-size: 14px;">📝 Qarz: <strong>$${debtUSD}</strong><br><span style="font-size: 11px; color: #666;">${debtUZS.toLocaleString()} UZS</span></span>`);
         }
         
@@ -858,8 +858,8 @@ function updateStatistics(data) {
     
     // Foyda faqat sotuvchi bo'lmasa yangilanadi
     if (userRole !== 'sotuvchi') {
-        document.getElementById('totalProfit').textContent = Math.floor(totalProfit).toLocaleString() + '$';
-        document.getElementById('totalProfitUZS').textContent = Math.floor(totalProfit * exchangeRate).toLocaleString() + ' UZS';
+        document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
+        document.getElementById('totalProfitUZS').textContent = Math.round(totalProfit * exchangeRate).toLocaleString() + ' UZS';
     }
     
     console.log('📈 Statistikalar yangilandi:', {
