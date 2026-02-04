@@ -1,0 +1,54 @@
+# ========================================
+# SERVERGA O'RNATISH KOMANDALAR
+# ========================================
+
+# 1. Serverga kirish
+ssh root@sergeli0606.uz
+
+# 2. Loyiha papkasiga o'tish
+cd /var/www/sayt2025
+
+# 3. Yangi kodlarni GitHub dan pull qilish
+git pull origin main
+
+# 4. Virtual environment aktivlashtirish
+source venv/bin/activate
+
+# 5. psutil o'rnatish
+pip install psutil==5.9.0
+
+# 6. check_logs.sh ga ruxsat berish
+chmod +x check_logs.sh
+
+# 7. Gunicorn service restart
+sudo systemctl restart sayt2025
+
+# 8. Service holatini tekshirish
+sudo systemctl status sayt2025
+
+# 9. Health check test
+curl http://localhost:5000/health
+
+# 10. Loglarni tekshirish
+./check_logs.sh
+
+# ========================================
+# TEKSHIRISH
+# ========================================
+
+# Browser orqali:
+# 1. https://sergeli0606.uz/health
+# 2. https://sergeli0606.uz/monitoring/dashboard (login qiling)
+
+# ========================================
+# MUAMMO BO'LSA
+# ========================================
+
+# Error loglarni ko'rish:
+tail -50 logs/error.log
+
+# Gunicorn loglarni ko'rish:
+sudo journalctl -u sayt2025 -n 50
+
+# Service restart:
+sudo systemctl restart sayt2025

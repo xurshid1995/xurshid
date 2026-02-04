@@ -2519,10 +2519,10 @@ function generatePaymentDetailsHTML(sale) {
     
     console.log('💰 USD qiymatlar:', { cashUSD, clickUSD, terminalUSD, debtUSD });
     
-    const cashUZS = sale.cash_amount || (cashUSD * rate);
-    const clickUZS = sale.click_amount || (clickUSD * rate);
-    const terminalUZS = sale.terminal_amount || (terminalUSD * rate);
-    const debtUZS = sale.debt_amount || (debtUSD * rate);
+    const cashUZS = (sale.cash_amount !== undefined && sale.cash_amount !== null) ? sale.cash_amount : (cashUSD * rate);
+    const clickUZS = (sale.click_amount !== undefined && sale.click_amount !== null) ? sale.click_amount : (clickUSD * rate);
+    const terminalUZS = (sale.terminal_amount !== undefined && sale.terminal_amount !== null) ? sale.terminal_amount : (terminalUSD * rate);
+    const debtUZS = (sale.debt_amount !== undefined && sale.debt_amount !== null) ? sale.debt_amount : (debtUSD * rate);
     
     const payments = [
         { name: '💵 Naqd pul', usd: cashUSD, uzs: cashUZS, isDebt: false },
@@ -2739,8 +2739,7 @@ function printSaleReceipt(currency = 'uzs') {
 }
 
 // To'lov turlarini formatlash funksiyasi
-function formatPaymentDetails(paymentDetails, currency = 'uzs') {
-    const exchangeRate = 12700;
+function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 12700) {
     
     // Agar string bo'lsa, / belgisini <br> ga o'zgartirish
     if (typeof paymentDetails === 'string') {
@@ -2784,7 +2783,7 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs') {
 
 // Mini X90 printer uchun chek yaratish
 function generatePrintableReceipt(sale, currency = 'uzs') {
-    const exchangeRate = 12700;
+    const exchangeRate = sale.currency_rate || 12700;
     const currencySymbol = currency === 'uzs' ? 'so\'m' : '$';
     const receiptWindow = window.open('', '_blank', 'width=400,height=600');
     
@@ -2938,7 +2937,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 </div>
             </div>
             
-            ${sale.payment_details ? '<div style="margin-top: 3mm; padding: 2mm; background: #f8f9fa; border-radius: 2mm;"><strong style="font-size: 14px;">To\'lov:</strong><br><div style="margin-top: 2mm; font-size: 14px; font-weight: bold;">' + formatPaymentDetails(sale.payment_details, currency) + '</div></div>' : ''}
+            ${sale.payment_details ? '<div style="margin-top: 3mm; padding: 2mm; background: #f8f9fa; border-radius: 2mm;"><strong style="font-size: 14px;">To\'lov:</strong><br><div style="margin-top: 2mm; font-size: 14px; font-weight: bold;">' + formatPaymentDetails(sale.payment_details, currency, exchangeRate) + '</div></div>' : ''}
             
             <div class="footer">
                 <div>Rahmat!</div>
