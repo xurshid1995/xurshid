@@ -7992,19 +7992,26 @@ def get_customers():
 
         # Vaqt filtriga asosan savdo ma'lumotlarini hisoblash
         from datetime import datetime, timedelta
-        now = datetime.now()
+        now = get_tashkent_time()  # Toshkent vaqti
 
         # Vaqt oralig'ini aniqlash
+        start_date = None
+        end_date = None
+        
         if time_filter == 'today':
-            start_date = datetime(now.year, now.month, now.day)
+            # Bugun: kun boshidan kun oxirigacha
+            start_date = datetime(now.year, now.month, now.day, 0, 0, 0)
+            end_date = datetime(now.year, now.month, now.day, 23, 59, 59)
         elif time_filter == 'week':
+            # Oxirgi 7 kun
             start_date = now - timedelta(days=7)
         elif time_filter == 'month':
+            # Joriy oy boshidan
             start_date = datetime(now.year, now.month, 1)
         elif time_filter == 'year':
+            # Joriy yil boshidan
             start_date = datetime(now.year, 1, 1)
-        else:  # 'all'
-            start_date = None
+        # else: 'all' - barcha vaqt
 
         result = []
         for customer in customers:
@@ -8015,6 +8022,8 @@ def get_customers():
                 sales_query = Sale.query.filter_by(customer_id=customer.id)
                 if start_date:
                     sales_query = sales_query.filter(Sale.sale_date >= start_date)
+                if end_date:
+                    sales_query = sales_query.filter(Sale.sale_date <= end_date)
 
                 sales = sales_query.all()
                 total_sales = len(sales)
