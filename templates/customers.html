@@ -835,6 +835,10 @@
     let allCustomers = [];
     let filteredCustomers = [];
     let allStores = [];
+    
+    // Filtr o'zgaruvchilari (funktsiyalardan oldin e'lon qilish kerak!)
+    let currentAnalysisFilter = 'none'; // default: hech qanday filtr yo'q
+    let currentTimeFilter = 'all'; // default: hech qanday filtr yo'q
 
     // Sahifa yuklanganda mijozlar va dokonlarni olish
     document.addEventListener('DOMContentLoaded', function() {
@@ -846,8 +850,9 @@
     // Mijozlarni yuklash
     async function loadCustomers() {
         try {
-            console.log('Mijozlarni yuklayapti...');
+            console.log('🔍 Mijozlarni yuklayapti... currentTimeFilter:', currentTimeFilter);
             const url = `/api/customers?time_filter=${currentTimeFilter}`;
+            console.log('📡 API URL:', url);
             const response = await fetch(url);
             
             if (!response.ok) {
@@ -1205,9 +1210,6 @@
     }
 
     // Savdo tahlili bo'yicha filtr
-    let currentAnalysisFilter = 'none'; // default: hech qanday filtr yo'q
-    let currentTimeFilter = 'all'; // default: hech qanday filtr yo'q
-
     function filterByAnalysis(type) {
         currentAnalysisFilter = type;
         
