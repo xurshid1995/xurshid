@@ -7993,6 +7993,8 @@ def get_customers():
         # Vaqt filtriga asosan savdo ma'lumotlarini hisoblash
         from datetime import datetime, timedelta
         now = get_tashkent_time()  # Toshkent vaqti
+        
+        print(f"⏰ Time filter: {time_filter}, Toshkent vaqti: {now}")
 
         # Vaqt oralig'ini aniqlash
         start_date = None
@@ -8002,16 +8004,21 @@ def get_customers():
             # Bugun: kun boshidan kun oxirigacha
             start_date = datetime(now.year, now.month, now.day, 0, 0, 0)
             end_date = datetime(now.year, now.month, now.day, 23, 59, 59)
+            print(f"📅 Bugun filtri: {start_date} - {end_date}")
         elif time_filter == 'week':
             # Oxirgi 7 kun
             start_date = now - timedelta(days=7)
+            print(f"📅 Hafta filtri: {start_date} dan")
         elif time_filter == 'month':
             # Joriy oy boshidan
             start_date = datetime(now.year, now.month, 1)
+            print(f"📅 Oy filtri: {start_date} dan")
         elif time_filter == 'year':
             # Joriy yil boshidan
             start_date = datetime(now.year, 1, 1)
-        # else: 'all' - barcha vaqt
+            print(f"📅 Yil filtri: {start_date} dan")
+        else:
+            print("📅 Barcha vaqt (filtr yo'q)")
 
         result = []
         for customer in customers:
@@ -8042,15 +8049,23 @@ def get_customers():
                 customer_dict['total_sales'] = total_sales
                 customer_dict['total_amount'] = round(total_amount, 2)
                 customer_dict['total_profit'] = round(total_profit, 2)
+                
+                # ⚠️ MUHIM: Agar vaqt filtri qo'llangan bo'lsa va mijozning savdosi bo'lmasa, uni ro'yxatga qo'shmaslik
+                if time_filter != 'all' and total_sales == 0:
+                    continue  # Bu mijozni o'tkazib yuborish
+                
+                result.append(customer_dict)
             except Exception as e:
                 logger.error(f"Error calculating sales for customer {customer.id}: {str(e)}")
-                customer_dict['total_sales'] = 0
-                customer_dict['total_amount'] = 0
-                customer_dict['total_profit'] = 0
-
-            result.append(customer_dict)
+                # Xatolik bo'lsa ham, faqat 'all' filtri uchun mijozni qo'shamiz
+                if time_filter == 'all':
+                    customer_dict['total_sales'] = 0
+                    customer_dict['total_amount'] = 0
+                    customer_dict['total_profit'] = 0
+                    result.append(customer_dict)
 
         logger.debug(f" Returning {len(result)} customers with sales data")
+        print(f"📊 Jami {len(result)} ta mijoz qaytarilmoqda")
 
         return jsonify(result)
     except Exception as e:
