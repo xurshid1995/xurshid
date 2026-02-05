@@ -5176,6 +5176,11 @@
         if (paymentTerminalUZS) paymentTerminalUZS.value = '';
         if (paymentDebtUSD) paymentDebtUSD.value = '';
         if (paymentDebtUZS) paymentDebtUZS.value = '';
+        
+        // USD chek checkbox'ini doim belgilangan qilish
+        const printReceiptUSD = document.getElementById('printReceiptUSD');
+        if (printReceiptUSD) printReceiptUSD.checked = true;
+        
         if (paymentModal) paymentModal.style.display = 'flex';
         
         // Event listener'larni o'rnatish (real-time konversiya uchun)
