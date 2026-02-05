@@ -3217,44 +3217,12 @@
     
     // Modal yopish
     async function closeModal() {
-        // ❗ Muhim: Agar tahrirlash rejimi bo'lsa va bekor qilinayotgan bo'lsa
-        // mahsulotni qayta korzinaga qo'shish kerak
-        if (typeof window.editingCartIndex !== 'undefined' && currentProduct) {
-            const editingItem = cart[window.editingCartIndex];
-            console.log('⚠️ Tahrirlash bekor qilindi, mahsulotni stokdan qayta olib korzinaga qaytarish kerak:', editingItem);
-            
-            // Mahsulotni stokdan qayta olish (korzinaga qaytarish)
-            try {
-                const locationSelect = getActiveTabElement('locationSelect');
-                if (locationSelect) {
-                    const locationValue = locationSelect.value;
-                    const [type, id] = locationValue.split('_');
-                    const locationId = parseInt(id);
-                    
-                    const response = await fetch('/api/reserve-stock', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            product_id: editingItem.id,
-                            quantity: editingItem.quantity,
-                            location_id: locationId,
-                            location_type: type
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        console.log('✅ Mahsulot qayta korzinaga qo\'shildi:', editingItem.quantity, 'dona');
-                    } else {
-                        console.error('❌ Mahsulotni qayta korzinaga qo\'shishda xatolik:', result.error);
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Mahsulotni qayta rezerv qilishda xatolik:', error);
-            }
-            
-            // Chap tomondagi jadvalni yangilash
-            await loadProducts();
+        // ⚠️ Agar tahrirlash bekor qilinsa, hech narsa qilmaslik
+        // Chunki stok o'zgartirilmagan
+        if (typeof window.editingCartIndex !== 'undefined') {
+            console.log('❌ Tahrirlash bekor qilindi (stok o\'zgartirilmagan)');
+            delete window.editingCartIndex;
+            delete window.editingOriginalQuantity;
         }
         
         const quantityModal = getActiveTabElement('quantityModal');
@@ -3346,7 +3314,7 @@
             }
         }
         
-        // Agar tahrirlash rejimi bo'lsa - eski elementni o'chirib, yangisini qo'shamiz
+        // Agar tahrirlash rejimi bo'lsa - faqat farqni hisoblash
         if (typeof window.editingCartIndex !== 'undefined') {
             if (quantity <= 0) {
                 alert('Noto\'g\'ri miqdor!');
@@ -3364,35 +3332,72 @@
                 return;
             }
             
-            if (quantity > currentProduct.available) {
-                alert('Stokda yetarli mahsulot yo\'q! Mavjud: ' + currentProduct.available);
-                return;
-            }
+            // Eski miqdor va yangi miqdor orasidagi farqni hisoblash
+            const oldQuantity = window.editingOriginalQuantity || 0;
+            const quantityDifference = quantity - oldQuantity;
             
-            // Stokdan yangi miqdorni ayirish
-            try {
-                const response = await fetch('/api/reserve-stock', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        product_id: currentProduct.id,
-                        quantity: quantity,
-                        location_id: selectedLocationId,
-                        location_type: selectedLocationType
-                    })
-                });
-                
-                const result = await response.json();
-                if (!result.success) {
-                    alert(result.error || 'Stokdan ayirib bo\'lmadi!');
+            console.log('📊 Miqdor farqi: eski =', oldQuantity, ', yangi =', quantity, ', farq =', quantityDifference);
+            
+            // Agar farq > 0: qo'shimcha stokdan olish kerak
+            if (quantityDifference > 0) {
+                // Mavjud stokda yetarli borligini tekshirish
+                if (quantityDifference > currentProduct.available) {
+                    alert(`Stokda yetarli mahsulot yo'q!\n\nKerakli qo'shimcha: ${quantityDifference}\nMavjud stok: ${currentProduct.available}`);
                     return;
                 }
-                console.log('✅ Tahrirlash: stokdan yangi miqdor ayirildi:', quantity, 'dona');
-            } catch (error) {
-                console.error('Stok ayirish xatosi:', error);
-                alert('Stokni yangilashda xatolik!');
-                return;
+                
+                // Qo'shimcha miqdorni stokdan olish
+                try {
+                    const response = await fetch('/api/reserve-stock', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            product_id: currentProduct.id,
+                            quantity: quantityDifference,
+                            location_id: selectedLocationId,
+                            location_type: selectedLocationType
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (!result.success) {
+                        alert(result.error || 'Stokdan ayirib bo\'lmadi!');
+                        return;
+                    }
+                    console.log('➕ Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
+                } catch (error) {
+                    console.error('Stok ayirish xatosi:', error);
+                    alert('Stokni yangilashda xatolik!');
+                    return;
+                }
             }
+            // Agar farq < 0: ortiqcha stokka qaytarish kerak
+            else if (quantityDifference < 0) {
+                try {
+                    const response = await fetch('/api/return-stock', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            product_id: currentProduct.id,
+                            quantity: Math.abs(quantityDifference),
+                            location_id: selectedLocationId,
+                            location_type: selectedLocationType
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (!result.success) {
+                        console.error('Stokka qaytarishda xatolik:', result.error);
+                        // Bu xatolik critical emas, davom etamiz
+                    } else {
+                        console.log('➖ Ortiqcha stokka qaytarildi:', Math.abs(quantityDifference), 'dona');
+                    }
+                } catch (error) {
+                    console.error('Stok qaytarish xatosi:', error);
+                    // Davom etamiz
+                }
+            }
+            // Agar farq == 0: hech narsa qilmaslik (faqat narx o'zgargan bo'lishi mumkin)
             
             // Savatdagi elementni yangilash
             cart[window.editingCartIndex].quantity = quantity;
@@ -3400,6 +3405,7 @@
             cart[window.editingCartIndex].priceUZS = priceUZS;
             
             delete window.editingCartIndex;
+            delete window.editingOriginalQuantity;
             updateCart();
             closeModal();
             
@@ -3937,31 +3943,8 @@
         
         console.log('✏️ Mahsulot tahrirlash boshlandi:', item.name, '(', item.quantity, 'dona )');
         
-        // Avval eski miqdorni stokka qaytarish
-        try {
-            const response = await fetch('/api/return-stock', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    product_id: item.id,
-                    quantity: item.quantity,
-                    location_id: selectedLocationId,
-                    location_type: selectedLocationType
-                })
-            });
-            
-            const result = await response.json();
-            if (!result.success) {
-                console.error('Stokka qaytarishda xatolik:', result.error);
-            } else {
-                console.log('✅ Tahrirlash uchun stokka qaytarildi:', item.quantity, 'dona');
-            }
-        } catch (error) {
-            console.error('Stok qaytarish xatosi:', error);
-        }
-        
-        // Chap tomondagi jadvalni yangilash
-        await loadProducts();
+        // ⚠️ MUHIM: Tahrirlashda stokni o'zgartirmaslik (refresh xavfini oldini olish)
+        // Faqat Save bosilganda farqni hisoblash va stokni yangilash
         
         // Tab-aware modal elementlarini topish
         const quantityModal = getActiveTabElement('quantityModal');
@@ -3981,7 +3964,7 @@
         quantityModal.style.display = 'flex';
         modalProductName.textContent = item.name;
         
-        // Mavjud miqdorni olish (stokka qaytarilgandan keyin)
+        // Mavjud miqdorni olish (hozirgi stokdagi miqdor + korzinada band qilingan miqdor)
         const locationValue = locationSelect.value;
         const [type, id] = locationValue.split('_');
         try {
@@ -4002,13 +3985,16 @@
                 });
                 
                 if (matchingStock && modalAvailable && modalQuantity) {
-                    modalAvailable.value = matchingStock.quantity || 0;
-                    modalQuantity.max = matchingStock.quantity || 0;
+                    // Mavjud stok + korzinada band qilingan eski miqdor
+                    const totalAvailable = (matchingStock.quantity || 0) + item.quantity;
+                    modalAvailable.value = totalAvailable;
+                    modalQuantity.max = totalAvailable;
+                    console.log('📊 Mavjud: stok =', matchingStock.quantity, '+ korzina =', item.quantity, '= jami', totalAvailable);
                 }
             }
         } catch (error) {
             console.error('Mavjud miqdorni olishda xatolik:', error);
-            if (modalAvailable) modalAvailable.value = 0;
+            if (modalAvailable) modalAvailable.value = item.quantity;
         }
         
         // Korzinada qancha bo'lsa o'sha miqdorni ko'rsatish
@@ -4067,6 +4053,9 @@
         
         // Eski confirm funksiyasini yangilash uchun indexni saqlash
         window.editingCartIndex = index;
+        window.editingOriginalQuantity = item.quantity; // Eski miqdorni saqlash (farqni hisoblash uchun)
+        
+        console.log('💾 Tahrirlash rejimi: index =', index, ', eski miqdor =', item.quantity);
     }
     
     // Mahsulotni savatga qo'shish (eski)
