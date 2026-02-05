@@ -3426,7 +3426,13 @@ function updateTableForCompactView() {
         // Har bir savdo guruhi uchun bitta qator yaratish
         console.log('🔢 Savdo guruhlari soni:', Object.values(salesGroups).length);
         
-        Object.values(salesGroups).forEach((items, index) => {
+        // ⭐ MUHIM: Guruhlarni sortlangan tartibda chiqarish
+        // filteredSalesData allaqachon to'g'ri tartibda, shuni ishlatamiz
+        const uniqueSaleIds = [...new Set(filteredSalesData.map(s => s.id))];
+        console.log('📊 Unique sale IDs (tartib bilan):', uniqueSaleIds.slice(0, 5));
+        
+        uniqueSaleIds.forEach((saleId, index) => {
+            const items = salesGroups[saleId];
             if (items.length > 0) {
                 console.log(`📝 ${index + 1}-qator yaratilmoqda:`, items[0]);
                 
