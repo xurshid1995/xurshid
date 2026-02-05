@@ -551,19 +551,25 @@
 </div>
 
 <!-- Savdo tafsilotlari modali -->
-<div id="saleDetailsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>🛍️ Savdo tafsilotlari</h3>
+<div id="saleDetailsModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box;">
+    <div class="modal-content" style="max-width: 1200px; width: 95%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: modalFadeIn 0.3s ease-out;">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px 12px 0 0; color: white;">
+            <h3 style="margin: 0; font-size: 1.5rem;"><i class="fas fa-eye"></i> Savdo tafsilotlari</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="modal-print-btn" onclick="printSaleReceipt('uzs')" title="UZS chop etish" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    <i class="fas fa-print"></i> UZS
+                </button>
+                <button class="modal-print-btn" onclick="printSaleReceipt('usd')" title="USD chop etish" style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    <i class="fas fa-print"></i> USD
+                </button>
+                <button class="close-btn" onclick="closeSaleModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
         </div>
-        <div class="modal-body" id="saleDetailsContent">
+        <div class="modal-body" id="saleDetailsContent" style="padding: 2rem;">
             <!-- JavaScript orqali to'ldiriladi -->
         </div>
-        <div class="modal-footer">
-            <button class="modal-print-btn" onclick="printSaleReceipt()" title="Mini X90 printerda chop etish">
-                🖨️ Chop etish
-            </button>
-            <button class="modal-close-btn" onclick="closeSaleModal()">Yopish</button>
+        <div class="modal-footer" style="padding: 1rem 1.5rem; background: #f8f9fa; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px;">
+            <button type="button" class="btn btn-secondary" onclick="closeSaleModal()" style="padding: 0.5rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Yopish</button>
         </div>
     </div>
 </div>
@@ -837,10 +843,11 @@ function showSaleDetailsModal(sale) {
         ? '<span style="background: #28a745; color: white; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem;">✅ To\'langan</span>'
         : '<span style="background: #ffc107; color: #000; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem;">⏳ To\'lanmagan</span>';
     
-    // Mahsulotlar jadvali
+    const exchangeRate = 12700;
+    
+    // Mahsulotlar jadvali - LOCATION ustuni bilan
     let itemsHtml = '';
     if (sale.items && sale.items.length > 0) {
-        const exchangeRate = 12700;
         itemsHtml = sale.items.map((item, index) => {
             const unitPriceUSD = parseFloat(item.unit_price || 0);
             const totalPriceUSD = parseFloat(item.total_price || 0);
@@ -849,20 +856,26 @@ function showSaleDetailsModal(sale) {
             const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
             const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
             
+            // Agar miqdor 0 yoki manfiy bo'lsa, qaytarilgan mahsulot
+            const isReturned = item.quantity <= 0;
+            const rowStyle = isReturned ? 'background: #ffebee; color: #c62828; text-decoration: line-through;' : '';
+            const quantityBadge = isReturned ? '❌ ' : '';
+            
             return `
-                <tr style="border-bottom: 1px solid #e9ecef;">
+                <tr style="${rowStyle}border-bottom: 1px solid #e9ecef;">
                     <td style="padding: 12px 8px; font-size: 0.9rem;">
-                        <div style="font-weight: 600; color: #333;">${index + 1}. ${item.product_name || 'Noma\'lum'}</div>
-                        ${item.barcode ? `<div style="font-size: 0.75rem; color: #6c757d; margin-top: 2px;">📊 ${item.barcode}</div>` : ''}
+                        <div style="font-weight: 600; color: ${isReturned ? '#c62828' : '#333'};">${quantityBadge}${index + 1}. ${item.product_name || 'Noma\'lum'}${isReturned ? ' (Qaytarilgan)' : ''}</div>
+                        ${item.barcode ? `<div style="font-size: 0.75rem; color: ${isReturned ? '#c62828' : '#6c757d'}; margin-top: 2px;">📊 ${item.barcode}</div>` : ''}
                     </td>
+                    <td style="padding: 12px 8px; font-weight: 600;">${item.location_name || 'Noma\'lum'}</td>
                     <td style="padding: 12px 8px; text-align: center; font-weight: 600;">${item.quantity || 0}</td>
                     <td style="padding: 12px 8px; text-align: right;">
                         <div style="font-weight: 600;">$${unitPriceUSD.toFixed(2)}</div>
-                        <div style="font-size: 0.75rem; color: #6c757d;">${unitPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                        <div style="font-size: 0.75rem; color: ${isReturned ? '#c62828' : '#6c757d'};">${unitPriceUZS.toLocaleString('uz-UZ')} so'm</div>
                     </td>
                     <td style="padding: 12px 8px; text-align: right; font-weight: 600;">
-                        <div style="color: #28a745;">$${totalPriceUSD.toFixed(2)}</div>
-                        <div style="font-size: 0.75rem; color: #6c757d;">${totalPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                        <div style="color: ${isReturned ? '#c62828' : '#28a745'};">$${totalPriceUSD.toFixed(2)}</div>
+                        <div style="font-size: 0.75rem; color: ${isReturned ? '#c62828' : '#6c757d'};">${totalPriceUZS.toLocaleString('uz-UZ')} so'm</div>
                     </td>
                     ${(userRole === 'admin' || userRole === 'manager') ? `
                         <td style="padding: 12px 8px; text-align: right;">
@@ -872,46 +885,89 @@ function showSaleDetailsModal(sale) {
                 </tr>
             `;
         }).join('');
+        
+        // Qaytarilgan mahsulotlar
+        if (sale.returned_products && sale.returned_products.length > 0) {
+            itemsHtml += `
+                <tr style="background: #fff3cd; border-top: 2px solid #ffc107;">
+                    <td colspan="${(userRole === 'admin' || userRole === 'manager') ? '6' : '5'}" style="text-align: center; font-weight: 600; padding: 10px; color: #856404;">
+                        ⚠️ Qaytarilgan mahsulotlar
+                    </td>
+                </tr>
+            `;
+            itemsHtml += sale.returned_products.map(item => {
+                const unitPriceUSD = parseFloat(item.unit_price || 0);
+                const totalPriceUSD = parseFloat(item.total_price || 0);
+                const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
+                const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
+                
+                return `
+                    <tr style="background: #ffebee; color: #c62828;">
+                        <td style="font-weight: 600; padding: 12px 8px;">❌ ${item.product_name} (Qaytarilgan)</td>
+                        <td style="padding: 12px 8px;">${item.location_name}</td>
+                        <td style="font-weight: 600; text-align: center; padding: 12px 8px;">-${item.returned_quantity}</td>
+                        <td style="text-align: right; padding: 12px 8px;">
+                            <div>$${unitPriceUSD.toFixed(2)}</div>
+                            <div style="font-size: 0.75rem;">$ {unitPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                        </td>
+                        <td style="text-align: right; padding: 12px 8px;">
+                            <div>-$${totalPriceUSD.toFixed(2)}</div>
+                            <div style="font-size: 0.75rem;">-${totalPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                            ${item.return_date ? `<div style="font-size: 0.75rem; font-style: italic; margin-top: 4px;">${new Date(item.return_date).toLocaleString('uz-UZ', {timeZone: 'Asia/Tashkent', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</div>` : ''}
+                        </td>
+                        ${(userRole === 'admin' || userRole === 'manager') ? '<td></td>' : ''}
+                    </tr>
+                `;
+            }).join('');
+        }
     } else {
-        itemsHtml = `<tr><td colspan="${(userRole === 'admin' || userRole === 'manager') ? '5' : '4'}" style="text-align: center; padding: 2rem; color: #6c757d;">Mahsulotlar topilmadi</td></tr>`;
+        itemsHtml = `<tr><td colspan="${(userRole === 'admin' || userRole === 'manager') ? '6' : '5'}" style="text-align: center; padding: 2rem; color: #6c757d;">Mahsulotlar topilmadi</td></tr>`;
+    }
+    
+    // To'lov tafsilotlari
+    let paymentDetailsHTML = '';
+    if (sale.cash_usd || sale.click_usd || sale.terminal_usd || sale.debt_usd) {
+        const payments = [];
+        if (sale.cash_usd > 0) payments.push({ name: '💵 Naqd', usd: sale.cash_usd });
+        if (sale.click_usd > 0) payments.push({ name: '📱 Click', usd: sale.click_usd });
+        if (sale.terminal_usd > 0) payments.push({ name: '💳 Terminal', usd: sale.terminal_usd });
+        if (sale.debt_usd > 0) payments.push({ name: '📝 Qarz', usd: sale.debt_usd });
+        
+        if (payments.length > 0) {
+            paymentDetailsHTML = '<div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;"><div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.75rem; font-weight: 600;">💳 To\'lov tafsilotlari:</div><div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+            payments.forEach(p => {
+                const uzs = Math.round(p.usd * exchangeRate);
+                paymentDetailsHTML += `<div style="background: white; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #007bff;"><div style="font-weight: 600; color: #495057; margin-bottom: 2px;">${p.name}</div><div style="font-weight: 700; color: #28a745;">$${p.usd.toFixed(2)}</div><div style="font-size: 0.75rem; color: #6c757d;">${uzs.toLocaleString('uz-UZ')} so'm</div></div>`;
+            });
+            paymentDetailsHTML += '</div></div>';
+        }
     }
     
     content.innerHTML = `
+        <!-- Asosiy ma'lumotlar bir qatorda -->
+        <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; text-align: center;">
+            <span style="font-weight: 500; color: #6c757d;">Mijoz:</span>
+            <span style="font-weight: 700; color: #333;">${sale.customer_name || 'Noma\'lum'}</span>
+            ${sale.customer_phone ? `<span style="color: #6c757d;">(${sale.customer_phone})</span>` : ''}
+            <span style="color: #dee2e6; margin: 0 8px;">•</span>
+            <span style="font-weight: 500; color: #6c757d;">Savdo sanasi:</span>
+            <span style="font-weight: 700; color: #333;">${formattedDate}</span>
+        </div>
+        
         <div style="display: grid; gap: 1.5rem;">
-            <!-- Savdo turi badge -->
-            <div style="border-left: 4px solid #28a745; padding-left: 1rem;">
-                <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.3rem;">Amaliyot turi</div>
-                <div style="font-size: 1.1rem; font-weight: 600;">
-                    <span style="background: #28a745; color: white; padding: 0.4rem 1rem; border-radius: 20px;">🛒 Sotish</span>
-                </div>
-            </div>
-            
-            <!-- Asosiy ma'lumotlar -->
+            <!-- Sotuvchi va joylashuv -->
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                <div>
-                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.3rem;">📅 Sana va vaqt</div>
-                    <div style="font-weight: 600;">${formattedDate}</div>
-                </div>
                 <div>
                     <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.3rem;">👤 Sotuvchi</div>
                     <div style="font-weight: 600;">${sale.user_name || sale.username || '-'}</div>
                 </div>
-            </div>
-            
-            <!-- Mijoz va joylashuv -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">👤 Mijoz ma'lumotlari</div>
-                    <div style="font-weight: 600; margin-bottom: 0.3rem;">${sale.customer_name || 'Noma\'lum'}</div>
-                    ${sale.customer_phone ? `<div style="font-size: 0.85rem; color: #6c757d;">📞 ${sale.customer_phone}</div>` : ''}
-                </div>
-                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">📍 Joylashuv</div>
+                <div>
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.3rem;">📍 Joylashuv</div>
                     <div style="font-weight: 600;">${sale.store_name || sale.warehouse_name || 'Noma\'lum'}</div>
                 </div>
             </div>
             
-            <!-- To'lov ma'lumotlari -->
+            <!-- To'lov holati -->
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
                 <div>
                     <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">💳 To'lov usuli</div>
@@ -931,6 +987,7 @@ function showSaleDetailsModal(sale) {
                         <thead>
                             <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600; font-size: 0.85rem;">Mahsulot</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600; font-size: 0.85rem;">Joylashuv</th>
                                 <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 0.85rem;">Miqdor</th>
                                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; font-size: 0.85rem;">Narx</th>
                                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; font-size: 0.85rem;">Jami</th>
@@ -944,24 +1001,26 @@ function showSaleDetailsModal(sale) {
                 </div>
             </div>
             
+            ${paymentDetailsHTML}
+            
             <!-- Jami hisob-kitob -->
             <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 1.5rem; border-radius: 8px; border: 2px solid #dee2e6;">
                 <div style="display: grid; grid-template-columns: ${(userRole === 'admin' || userRole === 'manager') ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'}; gap: 1.5rem;">
                     <div style="text-align: center;">
                         <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">💰 Jami summa</div>
                         <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">$${parseFloat(sale.total_amount || 0).toFixed(2)}</div>
-                        <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_amount || 0) * 12700).toLocaleString('uz-UZ')} so'm</div>
+                        <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_amount || 0) * exchangeRate).toLocaleString('uz-UZ')} so'm</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">📊 Tan narx</div>
                         <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">$${parseFloat(sale.total_cost || 0).toFixed(2)}</div>
-                        <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_cost || 0) * 12700).toLocaleString('uz-UZ')} so'm</div>
+                        <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_cost || 0) * exchangeRate).toLocaleString('uz-UZ')} so'm</div>
                     </div>
                     ${(userRole === 'admin' || userRole === 'manager') ? `
                         <div style="text-align: center;">
                             <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">📈 Foyda</div>
                             <div style="font-size: 1.5rem; font-weight: bold; color: ${parseFloat(sale.total_profit || 0) >= 0 ? '#28a745' : '#dc3545'};">$${parseFloat(sale.total_profit || 0).toFixed(2)}</div>
-                            <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_profit || 0) * 12700).toLocaleString('uz-UZ')} so'm</div>
+                            <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">${Math.round(parseFloat(sale.total_profit || 0) * exchangeRate).toLocaleString('uz-UZ')} so'm</div>
                         </div>
                     ` : ''}
                 </div>
@@ -979,7 +1038,7 @@ function showSaleDetailsModal(sale) {
     // Global o'zgaruvchiga saqlash (chop etish uchun)
     window.currentSaleForPrint = sale;
     
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
 }
 
 function closeSaleModal() {
@@ -988,13 +1047,14 @@ function closeSaleModal() {
     window.currentSaleForPrint = null;
 }
 
-function printSaleReceipt() {
+function printSaleReceipt(currency = 'uzs') {
     if (!window.currentSaleForPrint) {
         alert('Chop etish uchun savdo ma\'lumotlari topilmadi');
         return;
     }
     
     const sale = window.currentSaleForPrint;
+    const exchangeRate = 12700;
     
     // Mini X90 (58mm) printer uchun format
     let receiptText = '\n';
@@ -1010,21 +1070,37 @@ function printSaleReceipt() {
     
     if (sale.items && sale.items.length > 0) {
         sale.items.forEach(item => {
-            receiptText += (item.product_name || 'Mahsulot').substring(0, 20) + '\n';
-            receiptText += item.quantity + ' x $' + parseFloat(item.unit_price || 0).toFixed(2) + 
-                          ' = $' + parseFloat(item.total_price || 0).toFixed(2) + '\n';
+            const productName = (item.product_name || 'Mahsulot').substring(0, 20);
+            const unitPrice = parseFloat(item.unit_price || 0);
+            const totalPrice = parseFloat(item.total_price || 0);
+            
+            receiptText += productName + '\n';
+            if (currency === 'usd') {
+                receiptText += item.quantity + ' x $' + unitPrice.toFixed(2) + 
+                              ' = $' + totalPrice.toFixed(2) + '\n';
+            } else {
+                const unitPriceUZS = Math.round(unitPrice * exchangeRate);
+                const totalPriceUZS = Math.round(totalPrice * exchangeRate);
+                receiptText += item.quantity + ' x ' + unitPriceUZS.toLocaleString('uz-UZ') + 
+                              ' = ' + totalPriceUZS.toLocaleString('uz-UZ') + ' so\'m\n';
+            }
         });
     }
     
     receiptText += '--------------------------------\n';
-    receiptText += 'JAMI: $' + parseFloat(sale.total_amount || 0).toFixed(2) + '\n';
+    if (currency === 'usd') {
+        receiptText += 'JAMI: $' + parseFloat(sale.total_amount || 0).toFixed(2) + '\n';
+    } else {
+        const totalUZS = Math.round(parseFloat(sale.total_amount || 0) * exchangeRate);
+        receiptText += 'JAMI: ' + totalUZS.toLocaleString('uz-UZ') + ' so\'m\n';
+    }
     receiptText += 'To\'lov: ' + (sale.payment_method === 'cash' ? 'Naqd' : 'Karta') + '\n';
     receiptText += '================================\n';
     receiptText += '      Rahmat! Yana keling!\n';
     receiptText += '================================\n\n';
     
     // Demo: Console'ga chiqarish
-    console.log('Mini X90 Printer Format:');
+    console.log('Mini X90 Printer Format (' + currency.toUpperCase() + '):');
     console.log(receiptText);
     
     // Brauzer print dialogini ochish
