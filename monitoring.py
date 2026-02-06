@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 class ServerMonitor:
     """Server resurslarini monitoring qilish"""
-    
+
     @staticmethod
     def get_cpu_usage():
         """CPU ishlatilishi (%)"""
         return psutil.cpu_percent(interval=1)
-    
+
     @staticmethod
     def get_memory_usage():
         """RAM ishlatilishi"""
@@ -32,7 +32,7 @@ class ServerMonitor:
             'used': round(memory.used / (1024**3), 2),    # GB
             'percent': memory.percent
         }
-    
+
     @staticmethod
     def get_disk_usage():
         """Disk ishlatilishi"""
@@ -42,7 +42,7 @@ class ServerMonitor:
             'used': round(disk.used / (1024**3), 2),      # GB
             'percent': disk.percent
         }
-    
+
     @staticmethod
     def get_network_stats():
         """Network statistikasi"""
@@ -55,10 +55,10 @@ class ServerMonitor:
 
 class DatabaseMonitor:
     """Database holatini monitoring qilish"""
-    
+
     def __init__(self, db):
         self.db = db
-    
+
     def check_connection(self):
         """Database connection tekshirish"""
         try:
@@ -67,7 +67,7 @@ class DatabaseMonitor:
         except Exception as e:
             logger.error(f"Database connection error: {e}")
             return {'status': 'error', 'connected': False, 'error': str(e)}
-    
+
     def get_connection_count(self):
         """Active connection sonini olish"""
         try:
@@ -81,7 +81,7 @@ class DatabaseMonitor:
         except Exception as e:
             logger.error(f"Error getting connection count: {e}")
             return None
-    
+
     def get_database_size(self):
         """Database hajmini olish"""
         try:
@@ -93,7 +93,7 @@ class DatabaseMonitor:
         except Exception as e:
             logger.error(f"Error getting database size: {e}")
             return None
-    
+
     def get_slow_queries(self, threshold_seconds=5):
         """Sekin ishlayotgan querylarni topish"""
         try:
@@ -120,11 +120,11 @@ class DatabaseMonitor:
 
 class ApplicationMonitor:
     """Ilova holatini monitoring qilish"""
-    
+
     def __init__(self, db):
         self.db = db
         self.start_time = datetime.now()
-    
+
     def get_uptime(self):
         """Ilova qancha vaqt ishlayapti"""
         uptime = datetime.now() - self.start_time
@@ -132,44 +132,44 @@ class ApplicationMonitor:
             'seconds': uptime.total_seconds(),
             'formatted': str(uptime).split('.')[0]  # HH:MM:SS formatda
         }
-    
+
     def get_recent_errors(self, hours=1):
         """Oxirgi xatolarni olish (log faylidan)"""
         try:
             log_file = 'logs/error.log'
             if not os.path.exists(log_file):
                 return []
-            
+
             # Oxirgi 100 qatorni o'qish
             with open(log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()[-100:]
-            
+
             errors = []
             for line in lines:
                 if 'ERROR' in line or 'CRITICAL' in line:
                     errors.append(line.strip())
-            
+
             return errors[-20:]  # Oxirgi 20 ta xato
         except Exception as e:
             logger.error(f"Error reading error log: {e}")
             return []
-    
+
     def get_request_stats(self):
         """Access log statistikasi"""
         try:
             log_file = 'logs/access.log'
             if not os.path.exists(log_file):
                 return {'total': 0, 'recent': 0}
-            
+
             # Oxirgi 1000 qatorni o'qish
             with open(log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()[-1000:]
-            
+
             total = len(lines)
-            
+
             # Oxirgi 5 daqiqadagi requestlar
             recent = min(100, total)  # Soddalashtirilgan hisoblash
-            
+
             return {'total': total, 'recent_5min': recent}
         except Exception as e:
             logger.error(f"Error reading access log: {e}")
@@ -178,11 +178,11 @@ class ApplicationMonitor:
 
 def setup_monitoring_routes(app, db):
     """Monitoring route'larni qo'shish"""
-    
+
     server_monitor = ServerMonitor()
     db_monitor = DatabaseMonitor(db)
     app_monitor = ApplicationMonitor(db)
-    
+
     @app.route('/api/monitoring/health')
     def monitoring_health_check():
         """Monitoring health check - load balancer uchun"""
@@ -193,15 +193,15 @@ def setup_monitoring_routes(app, db):
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 503
-    
+
     @app.route('/monitoring/status')
     def monitoring_status():
         """To'liq monitoring ma'lumotlari - API endpoint"""
-        
+
         # Admin tekshiruvi (login qilgan bo'lishi kerak)
         if 'user_id' not in session:
             return jsonify({'error': 'Unauthorized'}), 401
-        
+
         try:
             status = {
                 'timestamp': datetime.now().isoformat(),
@@ -223,44 +223,44 @@ def setup_monitoring_routes(app, db):
                     'requests': app_monitor.get_request_stats()
                 }
             }
-            
+
             return jsonify(status), 200
         except Exception as e:
             logger.error(f"Monitoring status error: {e}")
             return jsonify({'error': str(e)}), 500
-    
+
     @app.route('/monitoring/dashboard')
     def monitoring_dashboard():
         """Monitoring dashboard - HTML page"""
-        
+
         # Admin tekshiruvi
         if 'user_id' not in session:
             return redirect(url_for('login_page'))
-        
+
         return render_template('monitoring_dashboard.html')
-    
+
     @app.route('/monitoring/logs/<log_type>')
     def view_logs(log_type):
         """Log fayllarni ko'rish"""
-        
+
         # Admin tekshiruvi
         if 'user_id' not in session:
             return jsonify({'error': 'Unauthorized'}), 401
-        
+
         allowed_logs = ['access', 'error', 'app']
         if log_type not in allowed_logs:
             return jsonify({'error': 'Invalid log type'}), 400
-        
+
         try:
             log_file = f'logs/{log_type}.log'
             if not os.path.exists(log_file):
                 return jsonify({'error': 'Log file not found'}), 404
-            
+
             # Oxirgi N qatorni o'qish
             lines = int(request.args.get('lines', 100))
             with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.readlines()[-lines:]
-            
+
             return jsonify({
                 'log_type': log_type,
                 'lines': len(content),
