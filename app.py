@@ -3700,14 +3700,14 @@ def api_check_stock_active_sessions():
             checked_items_count = StockCheckItem.query.filter_by(session_id=check_session.id).count()
 
             # Jami mahsulotlar sonini olish (location_type va location_id ga qarab)
-            if session.location_type == 'warehouse':
+            if check_session.location_type == 'warehouse':
                 total_products = WarehouseStock.query.filter(
-                    WarehouseStock.warehouse_id == session.location_id,
+                    WarehouseStock.warehouse_id == check_session.location_id,
                     WarehouseStock.quantity > 0
                 ).count()
             else:  # store
                 total_products = StoreStock.query.filter(
-                    StoreStock.store_id == session.location_id,
+                    StoreStock.store_id == check_session.location_id,
                     StoreStock.quantity > 0
                 ).count()
 
@@ -3717,12 +3717,12 @@ def api_check_stock_active_sessions():
                 progress_percent = round((checked_items_count / total_products) * 100, 1)
 
             sessions_data.append({
-                'id': session.id,
-                'location_name': session.location_name,
-                'location_type': session.location_type,
-                'user_name': f"{session.user.first_name} {session.user.last_name}" if session.user else 'N/A',
-                'started_at': session.started_at.strftime('%d.%m.%Y %H:%M') if session.started_at else '',
-                'updated_at': session.updated_at.strftime('%d.%m.%Y %H:%M') if session.updated_at else '',
+                'id': check_session.id,
+                'location_name': check_session.location_name,
+                'location_type': check_session.location_type,
+                'user_name': f"{check_session.user.first_name} {check_session.user.last_name}" if check_session.user else 'N/A',
+                'started_at': check_session.started_at.strftime('%d.%m.%Y %H:%M') if check_session.started_at else '',
+                'updated_at': check_session.updated_at.strftime('%d.%m.%Y %H:%M') if check_session.updated_at else '',
                 'checked_items': checked_items_count,
                 'total_products': total_products,
                 'progress_percent': progress_percent
