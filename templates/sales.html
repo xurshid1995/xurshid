@@ -3975,9 +3975,18 @@
         
         const [type, id] = locationValue.split('_');
         
-        console.log('🔍 Mahsulot qidirilayotgan joylashuv:', locationValue);
-        console.log('   Korzina sourceType:', item.sourceType);
-        console.log('   Korzina sourceId:', item.sourceId);
+        console.log('═══════════════════════════════════════');
+        console.log('✏️ TAHRIRLASH BOSHLANDI');
+        console.log('═══════════════════════════════════════');
+        console.log('📝 Mahsulot nomi:', item.name);
+        console.log('🆔 Mahsulot ID:', item.id, '(type:', typeof item.id, ')');
+        console.log('📊 Korzina miqdori:', item.quantity);
+        console.log('📍 Korzina sourceType:', item.sourceType);
+        console.log('📍 Korzina sourceId:', item.sourceId);
+        console.log('🎯 Qidirilayotgan location:', locationValue);
+        console.log('🏪 Location type:', type);
+        console.log('🆔 Location ID:', id);
+        console.log('═══════════════════════════════════════');
         
         // Default qiymatlar
         let totalAvailable = 0;  // ⚠️ Default 0 - agar mahsulot topilmasa xatolik ko'rsatish uchun
@@ -3986,90 +3995,137 @@
         let stockQuantity = 0;  // Stokdagi sof miqdor
         
         try {
-            console.log('🌐 API so\'rov yuborilmoqda:', `/api/products?location=${locationValue}`);
+            console.log('🌐 API so\'rov: GET /api/products?location=' + locationValue);
             const response = await fetch(`/api/products?location=${locationValue}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             const products = Array.isArray(data) ? data : (data.products || []);
             
-            console.log('📦 Jami mahsulotlar soni:', products.length);
-            console.log('🔍 Qidirilayotgan mahsulot ID:', item.id, '(type:', typeof item.id, ')');
+            console.log('✅ API javob olindi');
+            console.log('📦 Jami mahsulotlar:', products.length);
+            console.log('📋 Barcha mahsulotlar:', products.map(p => `ID:${p.id} - ${p.name}`).join('\n   '));
+            console.log('═══════════════════════════════════════');
             
             // ID turini to'g'irlash - har ikkala holatni ham tekshirish
             const itemId = parseInt(item.id);
+            console.log('🔍 MAHSULOT QIDIRISH:');
+            console.log('   Qidirilayotgan ID:', itemId);
+            console.log('   Qidirilayotgan nom:', item.name);
+            
             const product = products.find(p => {
                 const productId = parseInt(p.id);
-                console.log('  Taqqoslash:', productId, '===', itemId, '?', productId === itemId);
-                return productId === itemId;
+                const isMatch = productId === itemId;
+                if (isMatch) {
+                    console.log('✅ TOPILDI! ID:', productId, '- Nom:', p.name);
+                }
+                return isMatch;
             });
             
             if (product) {
                 productFound = true;
-                console.log('✅ Mahsulot topildi:', product.name);
-                console.log('📦 Mahsulot ma\'lumotlari:', JSON.stringify(product, null, 2));
-                console.log('📊 product.available_quantity:', product.available_quantity);
-                console.log('📦 product.stocks:', product.stocks ? `${product.stocks.length} ta` : 'yo\'q');
+                console.log('═══════════════════════════════════════');
+                console.log('✅ MAHSULOT TOPILDI');
+                console.log('═══════════════════════════════════════');
+                console.log('📝 Nomi:', product.name);
+                console.log('🆔 ID:', product.id);
+                console.log('💰 Tan narx:', product.cost_price);
+                console.log('💰 Sotish narx:', product.sell_price);
+                console.log('📦 Stocks mavjudmi?', !!product.stocks);
+                console.log('📦 Stocks soni:', product.stocks ? product.stocks.length : 0);
+                
+                if (product.stocks && product.stocks.length > 0) {
+                    console.log('📋 BARCHA STOCKS:');
+                    product.stocks.forEach((stock, idx) => {
+                        console.log(`   ${idx + 1}. ${stock.warehouse_id ? 'Warehouse' : 'Store'} ID:${stock.warehouse_id || stock.store_id} - Miqdor: ${stock.quantity}`);
+                    });
+                }
+                console.log('═══════════════════════════════════════');
                 
                 // Tan narxni olish
                 if (product.cost_price) {
                     costPrice = product.cost_price;
-                    console.log('💰 Tan narx:', costPrice);
                 }
                 
                 // Stok ma'lumotlarini olish
                 if (product.stocks && product.stocks.length > 0) {
                     const locationId = parseInt(id);
-                    console.log('📍 Location ID:', locationId, '(type:', type, ')');
-                    console.log('📦 Barcha stocklar:', JSON.stringify(product.stocks, null, 2));
+                    console.log('═══════════════════════════════════════');
+                    console.log('🔍 STOK QIDIRISH:');
+                    console.log('═══════════════════════════════════════');
+                    console.log('🎯 Qidirilayotgan type:', type);
+                    console.log('🆔 Qidirilayotgan ID:', locationId);
+                    console.log('📦 Barcha stocks:', product.stocks.length, 'ta');
                     
                     const matchingStock = product.stocks.find(stock => {
                         let match = false;
                         if (type === 'warehouse') {
                             match = stock.warehouse_id === locationId;
-                            console.log(`   Taqqoslash: warehouse ${stock.warehouse_id} === ${locationId}? ${match}`);
+                            console.log(`   Tekshirilmoqda: warehouse_id ${stock.warehouse_id} === ${locationId}? ${match ? '✅ YES' : '❌ NO'}`);
                         } else if (type === 'store') {
                             match = stock.store_id === locationId;
-                            console.log(`   Taqqoslash: store ${stock.store_id} === ${locationId}? ${match}`);
+                            console.log(`   Tekshirilmoqda: store_id ${stock.store_id} === ${locationId}? ${match ? '✅ YES' : '❌ NO'}`);
                         }
                         return match;
                     });
+                    console.log('═══════════════════════════════════════');
                     
                     if (matchingStock) {
-                        console.log('✅ Stok topildi:', matchingStock);
+                        console.log('✅✅✅ STOK TOPILDI! ✅✅✅');
+                        console.log('📊 Stock miqdori:', matchingStock.quantity);
                         stockQuantity = matchingStock.quantity || 0;
                         // ⭐ MUHIM: Stokdagi miqdor + korzinada band qilingan miqdor
                         totalAvailable = stockQuantity + item.quantity;
-                        console.log('📊 Hisoblash:');
-                        console.log('   - Stokda mavjud:', stockQuantity);
-                        console.log('   - Korzinada band:', item.quantity);
-                        console.log('   - JAMI mavjud:', totalAvailable);
+                        console.log('📊 HISOBLASH:');
+                        console.log('   Stokda:', stockQuantity);
+                        console.log('   Korzinada:', item.quantity);
+                        console.log('   JAMI MAVJUD:', totalAvailable);
+                        console.log('═══════════════════════════════════════');
                     } else {
                         // ⚠️ NORMAL holat: Mahsulot boshqalar tomonidan sotilgan, stok 0
-                        console.warn('⚠️ Bu joylashuv uchun stok topilmadi (sotilgan yoki boshqa joylashuvda)');
-                        console.warn('📍 Qidirilgan:', type, locationId);
-                        console.warn('📦 Mavjud stocklar:', product.stocks);
+                        console.warn('⚠️⚠️⚠️ STOK TOPILMADI ⚠️⚠️⚠️');
+                        console.warn('Sabab: Bu joylashuv uchun stock mavjud emas (sotilgan yoki boshqa joylashuvda)');
+                        console.warn('Qidirilgan:', type, locationId);
                         stockQuantity = 0;
                         totalAvailable = item.quantity; // Faqat korzinada band qilingan miqdor
-                        console.log('📊 Stok yo\'q - faqat korzina miqdori ishlatiladi:', totalAvailable);
+                        console.log('📊 Faqat korzina miqdori ishlatiladi:', totalAvailable);
+                        console.log('═══════════════════════════════════════');
                     }
                 } else {
                     // ⚠️ NORMAL holat: Mahsulotda stok array bo'sh (butunlay sotilgan)
-                    console.warn('⚠️ Mahsulotda stok ma\'lumotlari yo\'q (butunlay sotilgan)');
-                    console.warn('📦 product.stocks:', product.stocks);
+                    console.warn('⚠️⚠️⚠️ STOCKS ARRAY BO\'SH ⚠️⚠️⚠️');
+                    console.warn('Mahsulotda stok ma\'lumotlari yo\'q (butunlay sotilgan)');
+                    console.warn('product.stocks:', product.stocks);
                     stockQuantity = 0;
                     totalAvailable = item.quantity; // Faqat korzinada band qilingan miqdor
-                    console.log('📊 Stocks array bo\'sh - faqat korzina miqdori ishlatiladi:', totalAvailable);
+                    console.log('📊 Stocks array bo\'sh - faqat korzina miqdori:', totalAvailable);
+                    console.log('═══════════════════════════════════════');
                 }
             } else {
                 // ❌ BU HAQIQIY XATOLIK: Mahsulot database'dan o'chirilgan yoki ma'lumotlar buzilgan
-                console.error('❌ XATOLIK: Mahsulot API javobida topilmadi!');
+                console.error('═══════════════════════════════════════');
+                console.error('❌❌❌ MAHSULOT TOPILMADI ❌❌❌');
+                console.error('═══════════════════════════════════════');
                 console.error('🔍 Qidirilgan ID:', itemId);
-                console.error('📋 Mavjud mahsulotlar:', products.map(p => ({ id: p.id, name: p.name })));
+                console.error('📝 Qidirilgan nom:', item.name);
+                console.error('📋 API javobidagi mahsulotlar:', products.length, 'ta');
+                console.error('📋 Mavjud ID\'lar:', products.map(p => p.id).join(', '));
+                console.error('═══════════════════════════════════════');
                 alert(`⚠️ JIDDIY XATOLIK: Mahsulot ma'lumotlari topilmadi!\n\nMahsulot ID: ${itemId}\nNomi: ${item.name}\n\nSabab: Mahsulot database'dan o'chirilgan yoki ma'lumotlar buzilgan.\n\nIltimos, sahifani yangilab qaytadan urinib ko'ring yoki admin bilan bog'laning.`);
                 quantityModal.style.display = 'none';
                 return;
             }
         } catch (error) {
-            console.error('❌ API so\'rovida XATOLIK:', error);
+            console.error('═══════════════════════════════════════');
+            console.error('❌❌❌ API XATOLIGI ❌❌❌');
+            console.error('═══════════════════════════════════════');
+            console.error('Xatolik:', error);
+            console.error('Xabar:', error.message);
+            console.error('Stack:', error.stack);
+            console.error('═══════════════════════════════════════');
             alert(`⚠️ XATOLIK: Server bilan bog'lanishda muammo!\n\nXatolik: ${error.message}\n\nIltimos, internetni tekshirib qaytadan urinib ko'ring.`);
             // API xatoligi bo'lsa, tahrirlashni davom ettirishga ruxsat bermaymiz
             quantityModal.style.display = 'none';
