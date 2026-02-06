@@ -1355,19 +1355,24 @@ class Sale(db.Model):
             include_items: SaleItem'larni qo'shish (default: True)
             include_details: Qo'shimcha ma'lumotlar (returned_products, payment_refunds, debt_payments)
         """
-        # Mijoz nomini aniqlash
+        # Mijoz nomini va telefon raqamini aniqlash
         if self.customer:
+            # Mijoz mavjud
             customer_name = self.customer.name
+            customer_phone = self.customer.phone if self.customer.phone else DEFAULT_PHONE_PLACEHOLDER
         elif self.customer_id is None:
-            customer_name = 'ğŸ‘¤ Noma\'lum'  # Mijoz tanlanmagan
+            # Mijoz tanlanmagan (naqd savdo)
+            customer_name = ''  # Bo'sh qoldirish
+            customer_phone = ''  # Bo'sh qoldirish
         else:
-            customer_name = 'ğŸš« O\'chirilgan mijoz'  # Mijoz o'chirilgan
-
+            # Mijoz o'chirilgan
+            customer_name = '🚫 O\'chirilgan mijoz'
+            customer_phone = ''
         result = {
             'id': self.id,
             'customer_id': self.customer_id,
             'customer_name': customer_name,
-            'customer_phone': self.customer.phone if self.customer and self.customer.phone else DEFAULT_PHONE_PLACEHOLDER,
+            'customer_phone': customer_phone,
             'store_id': self.store_id,
             'store_name': self.store.name if self.store else 'ğŸš« O\'chirilgan do\'kon',
             'location_id': self.location_id if self.location_id else self.store_id,
