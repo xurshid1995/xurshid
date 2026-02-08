@@ -7980,7 +7980,11 @@ def get_all_pending_transfers():
                 'id': pending.id,
                 'user_name': pending.user.username if pending.user else 'N/A',
                 'from_location': from_location_name,
+                'from_location_id': pending.from_location_id,
+                'from_location_type': pending.from_location_type,
                 'to_location': to_location_name,
+                'to_location_id': pending.to_location_id,
+                'to_location_type': pending.to_location_type,
                 'items': pending.items,
                 'created_at': pending.created_at.isoformat() if pending.created_at else None,
                 'updated_at': pending.updated_at.isoformat() if pending.updated_at else None

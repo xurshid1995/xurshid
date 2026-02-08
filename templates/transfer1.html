@@ -160,6 +160,46 @@
 
 {% block extra_js %}
 <script>
+    // Session ma'lumotlari
+    const userRole = '{{ session.get("role", "") }}';
+    const userTransferLocations = {{ session.get("transfer_locations", []) | tojson }};
+    const userAllowedLocations = {{ session.get("allowed_locations", []) | tojson }};
+    
+    // User'ning ruxsati bor joylashuvlarni olish
+    const userLocations = userTransferLocations.length > 0 ? userTransferLocations : userAllowedLocations;
+    
+    // Pending transfer uchun ruxsat tekshirish
+    function canManageTransfer(fromLocationType, fromLocationId, toLocationType, toLocationId) {
+        // Admin barcha transferlarni boshqarishi mumkin
+        if (userRole === 'admin') {
+            return true;
+        }
+        
+        // Agar joylashuvlar bo'sh bo'lsa - ruxsat yo'q
+        if (!userLocations || userLocations.length === 0) {
+            return false;
+        }
+        
+        // FROM yoki TO location da ruxsat borligini tekshirish
+        for (let loc of userLocations) {
+            // Yangi format: {id: 1, type: 'warehouse'}
+            if (typeof loc === 'object') {
+                if ((loc.id === fromLocationId && loc.type === fromLocationType) ||
+                    (loc.id === toLocationId && loc.type === toLocationType)) {
+                    return true;
+                }
+            }
+            // Eski format: integer id
+            else if (typeof loc === 'number') {
+                if (loc === fromLocationId || loc === toLocationId) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     // Tasdiqlanmagan transferlarni yuklash
     async function loadPendingTransfers() {
         try {
@@ -181,6 +221,35 @@
                     
                     const productCount = pending.items.length;
                     
+                    // Location ID larni olish
+                    const fromLocationId = pending.from_location_id;
+                    const fromLocationType = pending.from_location_type;
+                    const toLocationId = pending.to_location_id;
+                    const toLocationType = pending.to_location_type;
+                    
+                    // Ruxsat tekshirish
+                    const hasPermission = canManageTransfer(fromLocationType, fromLocationId, toLocationType, toLocationId);
+                    
+                    // Tugmalar
+                    let actionButtons = '';
+                    if (hasPermission) {
+                        actionButtons = `
+                            <a href="/transfer_old?id=${pending.id}" 
+                               class="btn-sm btn-success-sm">
+                                ✏️ Tahrirlash
+                            </a>
+                            <button class="btn-sm btn-danger-sm" 
+                                    onclick="deletePendingTransfer(${pending.id}); return false;" 
+                                    style="margin-left: 5px;">
+                                🗑️ O'chirish
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `
+                            <span style="color: #999; font-size: 0.9em;">🔒 Ruxsat yo'q</span>
+                        `;
+                    }
+                    
                     return `
                         <tr>
                             <td>${pending.from_location}</td>
@@ -191,11 +260,7 @@
                             </td>
                             <td>${pending.user_name}</td>
                             <td>
-                                <a href="/transfer_old?id=${pending.id}" 
-                                   class="btn-sm btn-success-sm">
-                                    ✏️ Tahrirlash
-                                </a>
-                                <button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left: 5px;">🗑️ O'chirish</button>
+                                ${actionButtons}
                             </td>
                         </tr>
                     `;
