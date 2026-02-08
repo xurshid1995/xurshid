@@ -3097,13 +3097,13 @@ def print_barcode():
 @app.route('/transfer')
 @role_required('admin', 'kassir', 'sotuvchi')
 def transfer():
-    return render_template('transfer1.html')
+    return render_template('transfer.html')
 
 
 @app.route('/transfer_old')
 @role_required('admin', 'kassir', 'sotuvchi')
 def transfer_old():
-    return render_template('transfer.html')
+    return render_template('transfer1.html')
 
 
 @app.route('/return-product')
