@@ -7380,13 +7380,31 @@ def process_transfers():
                 if not transfer_locations:
                     transfer_locations = current_user.allowed_locations or []
 
-                # Agar hali ham bo'sh bo'lsa, faqat o'shanda xatolik
-                if transfer_locations and from_location_id not in transfer_locations:
-                    print(
-                        f"âŒ User {current_user.username} cannot transfer from location {from_location_id}")
-                    return jsonify({
-                        'error': f'Bu joylashuvdan ({from_location}) transfer qilish huquqingiz yo\'q. Ruxsat etilgan joylashuvlar: {transfer_locations}'
-                    }), 403
+                # Ruxsat borligini tekshirish (yangi va eski formatni qo'llab-quvvatlash)
+                if transfer_locations:
+                    has_permission = False
+                    
+                    for loc in transfer_locations:
+                        # Yangi format: {'id': 1, 'type': 'warehouse'}
+                        if isinstance(loc, dict):
+                            if loc.get('id') == from_location_id and loc.get('type') == from_type:
+                                has_permission = True
+                                print(f"✅ Transfer permission granted: {from_type}_{from_location_id} matches {loc}")
+                                break
+                        # Eski format: integer (faqat id, type noma'lum)
+                        elif isinstance(loc, int):
+                            if loc == from_location_id:
+                                has_permission = True
+                                print(f"✅ Transfer permission granted (old format): location ID {from_location_id}")
+                                break
+                    
+                    if not has_permission:
+                        print(
+                            f"❌ User {current_user.username} cannot transfer from location {from_location} (type: {from_type}, id: {from_location_id})")
+                        print(f"❌ Available transfer locations: {transfer_locations}")
+                        return jsonify({
+                            'error': f'Bu joylashuvdan ({from_location}) transfer qilish huquqingiz yo\'q. Ruxsat etilgan joylashuvlar: {transfer_locations}'
+                        }), 403
 
             # Transfer tarixiga saqlash
             from_type, from_id = from_location.split('_')

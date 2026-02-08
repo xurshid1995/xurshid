@@ -5408,7 +5408,18 @@
     }
     
     // Qolgan summani maydonga qo'shish
+    // Double-click himoyasi uchun "Qolgan" tugmalari
+    let isAddingRemaining = false;
+    
     function addRemainingToField(fieldId) {
+        // Double-click himoyasi
+        if (isAddingRemaining) {
+            console.log('⚠️ Qolgan summa allaqachon qo\'shilmoqda');
+            return;
+        }
+        
+        isAddingRemaining = true;
+        
         console.log('🔧 addRemainingToField chaqirildi:', fieldId);
         
         // Jami summani hisoblash
@@ -5477,6 +5488,11 @@
         } else {
             console.error('❌ UZS maydoni topilmadi:', uzsFieldId);
         }
+        
+        // Double-click himoyasini 300ms dan keyin ochish
+        setTimeout(() => {
+            isAddingRemaining = false;
+        }, 300);
     }
     
     // Double-click himoyasi uchun o'zgaruvchi
@@ -5675,6 +5691,26 @@
                         receipt_format: receiptFormat  // Chek formatini qo'shish
                     })
                 });
+                
+                // Session expire yoki authentication muammosini tekshirish (finalize uchun)
+                if (response.status === 401) {
+                    console.error('❌ Session muddati tugagan (finalize)');
+                    alert('⚠️ DIQQAT!\n\nSession muddati tugagan!\n\nSizni login sahifasiga yo\'naltiramiz.\n\nEslatma: Ma\'lumotlaringiz saqlanmagan bo\'lishi mumkin!');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                if (response.status === 403) {
+                    console.error('❌ Ruxsat yo\'q (finalize)');
+                    alert('⚠️ Bu amalni bajarish uchun ruxsatingiz yo\'q!');
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = originalText;
+                        confirmBtn.style.opacity = '1';
+                        confirmBtn.style.cursor = 'pointer';
+                    }
+                    return;
+                }
             } else {
                 // Tahrirlash rejimida yoki pending yo'q bo'lsa - yangi savdo yaratish
                 console.log('➕ Yangi savdo yaratish (tahrirlash yoki pending yo\'q)');
@@ -5686,6 +5722,26 @@
                     },
                     body: JSON.stringify(saleData)
                 });
+            }
+            
+            // Session expire yoki authentication muammosini tekshirish
+            if (response.status === 401) {
+                console.error('❌ Session muddati tugagan yoki login talab qilinadi');
+                alert('⚠️ DIQQAT!\n\nSession muddati tugagan!\n\nSizni login sahifasiga yo\'naltiramiz.\n\nEslatma: Ma\'lumotlaringiz saqlanmagan bo\'lishi mumkin!');
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (response.status === 403) {
+                console.error('❌ Ruxsat yo\'q (Forbidden)');
+                alert('⚠️ Bu amalni bajarish uchun ruxsatingiz yo\'q!');
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.cursor = 'pointer';
+                }
+                return;
             }
             
             const result = await response.json();
