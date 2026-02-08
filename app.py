@@ -814,7 +814,7 @@ def user_can_manage_transfer(user, pending_transfer):
     Ruxsat beriladi agar:
     1. Admin (har doim)
     2. Transfer yaratuvchisi (har doim)
-    3. Transfer'dagi ikkala joylashuvga (FROM va TO) ruxsati bor foydalanuvchi
+    3. Transfer joylashuvlaridan (FROM yoki TO) kamida biriga ruxsati bor foydalanuvchi
     """
     # 1. Admin har doim
     if user.role == 'admin':
@@ -824,13 +824,53 @@ def user_can_manage_transfer(user, pending_transfer):
     if pending_transfer.user_id == user.id:
         return True
 
-    # 3. Ikkala joylashuvga ruxsati bor bo'lsa
+    # 3. FROM yoki TO joylashuvlaridan biriga ruxsati bo'lsa (transfer_locations yoki allowed_locations)
+    # Transfer locations dan tekshirish (transfer qilish huquqi)
+    transfer_locations = user.transfer_locations or []
+    if not transfer_locations:
+        transfer_locations = user.allowed_locations or []
+    
+    # Allowed locations dan ham tekshirish (umuman joylashuvga ruxsat)
     allowed_locations = user.allowed_locations or []
-
-    from_key = f"{pending_transfer.from_location_type}_{pending_transfer.from_location_id}"
-    to_key = f"{pending_transfer.to_location_type}_{pending_transfer.to_location_id}"
-
-    if from_key in allowed_locations and to_key in allowed_locations:
+    
+    # Barcha mavjud joylashuvlarni birlashtirish
+    all_user_locations = transfer_locations + allowed_locations
+    
+    if not all_user_locations:
+        return False
+    
+    # FROM joylashuv
+    from_type = pending_transfer.from_location_type
+    from_id = pending_transfer.from_location_id
+    
+    # TO joylashuv
+    to_type = pending_transfer.to_location_type
+    to_id = pending_transfer.to_location_id
+    
+    # Joylashuvlarni tekshirish (yangi va eski formatni qo'llab-quvvatlash)
+    has_from_permission = False
+    has_to_permission = False
+    
+    for loc in all_user_locations:
+        # Yangi format: {'id': 1, 'type': 'warehouse'}
+        if isinstance(loc, dict):
+            loc_id = loc.get('id')
+            loc_type = loc.get('type')
+            
+            if loc_id == from_id and loc_type == from_type:
+                has_from_permission = True
+            if loc_id == to_id and loc_type == to_type:
+                has_to_permission = True
+        
+        # Eski format: integer (faqat id)
+        elif isinstance(loc, int):
+            if loc == from_id:
+                has_from_permission = True
+            if loc == to_id:
+                has_to_permission = True
+    
+    # Kamida biriga ruxsat bo'lsa yetarli
+    if has_from_permission or has_to_permission:
         return True
 
     return False
