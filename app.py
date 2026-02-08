@@ -1150,6 +1150,7 @@ class StockCheckSession(db.Model):
         db.DateTime,
         default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
+    completed_at = db.Column(db.DateTime, nullable=True)  # Tekshiruv tugatilgan vaqt
     status = db.Column(db.String(20), default='active')  # 'active', 'completed', 'cancelled'
 
     # Relationships
@@ -3851,13 +3852,14 @@ def api_check_stock_completed_sessions():
             items_count = StockCheckItem.query.filter_by(session_id=check_session.id).count()
 
             sessions_data.append({
-                'id': session.id,
-                'location_name': session.location_name,
-                'location_type': session.location_type,
-                'started_user_name': f"{session.user.first_name} {session.user.last_name}" if session.user else 'N/A',
-                'completed_user_name': f"{session.completed_by.first_name} {session.completed_by.last_name}" if session.completed_by else (f"{session.user.first_name} {session.user.last_name}" if session.user else 'N/A'),
-                'started_at': session.started_at.strftime('%d.%m.%Y %H:%M') if session.started_at else '',
-                'updated_at': session.updated_at.strftime('%d.%m.%Y %H:%M') if session.updated_at else '',
+                'id': check_session.id,
+                'location_name': check_session.location_name,
+                'location_type': check_session.location_type,
+                'started_user_name': f"{check_session.user.first_name} {check_session.user.last_name}" if check_session.user else 'N/A',
+                'completed_user_name': f"{check_session.completed_by.first_name} {check_session.completed_by.last_name}" if check_session.completed_by else (f"{check_session.user.first_name} {check_session.user.last_name}" if check_session.user else 'N/A'),
+                'started_at': check_session.started_at.strftime('%d.%m.%Y %H:%M') if check_session.started_at else '',
+                'updated_at': check_session.updated_at.strftime('%d.%m.%Y %H:%M') if check_session.updated_at else '',
+                'completed_at': check_session.completed_at.strftime('%d.%m.%Y %H:%M') if check_session.completed_at else '',
                 'items_count': items_count
             })
 
@@ -5718,7 +5720,7 @@ def api_paid_debts():
             query = text("""
                 SELECT
                     s.id as sale_id,
-                    s.updated_at as payment_date,
+                    MAX(dp.payment_date) as payment_date,
                     s.created_at as sale_date,
                     c.name as customer_name,
                     s.total_amount as total_amount,
@@ -5727,13 +5729,12 @@ def api_paid_debts():
                     COALESCE(s.terminal_usd, 0) as terminal_usd
                 FROM sales s
                 JOIN customers c ON s.customer_id = c.id
+                JOIN debt_payments dp ON dp.sale_id = s.id
                 WHERE s.payment_status = 'paid'
                     AND s.debt_usd = 0
-                    AND s.total_amount > 0
-                    AND (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) > 0
-                    AND s.updated_at > s.created_at + INTERVAL '1 second'
                     AND s.location_id = :location_id
-                ORDER BY s.updated_at DESC
+                GROUP BY s.id, c.name, s.created_at, s.total_amount, s.cash_usd, s.click_usd, s.terminal_usd
+                ORDER BY MAX(dp.payment_date) DESC
                 LIMIT 200
             """)
             result = db.session.execute(query, {'location_id': location_id})
@@ -5747,7 +5748,7 @@ def api_paid_debts():
                 query = text(f"""
                 SELECT
                     s.id as sale_id,
-                    s.updated_at as payment_date,
+                    MAX(dp.payment_date) as payment_date,
                     s.created_at as sale_date,
                     c.name as customer_name,
                     s.total_amount as total_amount,
@@ -5756,13 +5757,12 @@ def api_paid_debts():
                     COALESCE(s.terminal_usd, 0) as terminal_usd
                 FROM sales s
                 JOIN customers c ON s.customer_id = c.id
+                JOIN debt_payments dp ON dp.sale_id = s.id
                 WHERE s.payment_status = 'paid'
                     AND s.debt_usd = 0
-                    AND s.total_amount > 0
-                    AND (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) > 0
-                    AND s.updated_at > s.created_at + INTERVAL '1 second'
                     AND s.location_id IN ({placeholders})
-                ORDER BY s.updated_at DESC
+                GROUP BY s.id, c.name, s.created_at, s.total_amount, s.cash_usd, s.click_usd, s.terminal_usd
+                ORDER BY MAX(dp.payment_date) DESC
                 LIMIT 200
             """)
                 params = {f'loc{i}': loc_id for i, loc_id in enumerate(allowed_location_ids)}
@@ -5772,7 +5772,7 @@ def api_paid_debts():
                 query = text("""
                 SELECT
                     s.id as sale_id,
-                    s.updated_at as payment_date,
+                    MAX(dp.payment_date) as payment_date,
                     s.created_at as sale_date,
                     c.name as customer_name,
                     s.total_amount as total_amount,
@@ -5781,12 +5781,11 @@ def api_paid_debts():
                     COALESCE(s.terminal_usd, 0) as terminal_usd
                 FROM sales s
                 JOIN customers c ON s.customer_id = c.id
+                JOIN debt_payments dp ON dp.sale_id = s.id
                 WHERE s.payment_status = 'paid'
                     AND s.debt_usd = 0
-                    AND s.total_amount > 0
-                    AND (COALESCE(s.cash_usd, 0) + COALESCE(s.click_usd, 0) + COALESCE(s.terminal_usd, 0)) > 0
-                    AND s.updated_at > s.created_at + INTERVAL '1 second'
-                ORDER BY s.updated_at DESC
+                GROUP BY s.id, c.name, s.created_at, s.total_amount, s.cash_usd, s.click_usd, s.terminal_usd
+                ORDER BY MAX(dp.payment_date) DESC
                 LIMIT 200
             """)
                 result = db.session.execute(query)
@@ -6941,18 +6940,25 @@ def end_stock_check():
         if status not in ['completed', 'cancelled']:
             return jsonify({'error': 'Noto\'g\'ri status'}), 400
 
+        current_user_id = session.get('user_id')
+        
+        # Sessiyani tugatish - completed_by_user_id va completed_at maydonlarini ham yangilash
         db.session.execute(text("""
             UPDATE stock_check_sessions
-            SET status = :status, updated_at = NOW()
+            SET status = :status, 
+                updated_at = NOW(), 
+                completed_at = NOW(),
+                completed_by_user_id = :completed_by_user_id
             WHERE user_id = :user_id
             AND location_id = :location_id
             AND location_type = :location_type
             AND status = 'active'
         """), {
-            'user_id': session.get('user_id'),
+            'user_id': current_user_id,
             'location_id': location_id,
             'location_type': location_type,
-            'status': status
+            'status': status,
+            'completed_by_user_id': current_user_id
         })
         db.session.commit()
 
@@ -11901,6 +11907,18 @@ def api_login():
         # Session'ni har doim permanent qilish (8 soat)
         session.permanent = True
 
+        # Foydalanuvchi tilini yuklash
+        try:
+            user_lang_setting = Settings.query.filter_by(key=f'user_language_{user.id}').first()
+            if user_lang_setting:
+                session['language'] = user_lang_setting.value
+                logger.info(f"🌐 Foydalanuvchi tili yuklandi: {user_lang_setting.value}")
+            else:
+                session['language'] = 'uz_latin'  # Standart til
+        except Exception as e:
+            logger.error(f"Til yuklashda xato: {e}")
+            session['language'] = 'uz_latin'
+
         # Muvaffaqiyatli javob
         redirect_url = '/dashboard'  # Barcha foydalanuvchilar bosh sahifaga
 
@@ -12381,7 +12399,8 @@ def get_settings():
         default_settings = {
             'stock_check_visible': True,  # Sotuvchi uchun qoldiq tekshirish sahifasi ko'rinadimi
             'auto_currency_update': False,
-            'auto_backup': False
+            'auto_backup': False,
+            'language': 'uz_latin'  # Standart til - O'zbek lotin
         }
 
         # Bazadan sozlamalarni olish
@@ -12394,6 +12413,10 @@ def get_settings():
             else:
                 settings_data[setting.key] = setting.value
 
+        # Session'dan til ma'lumotini olish
+        if 'language' in session:
+            settings_data['language'] = session['language']
+
         # Standart sozlamalar bilan birlashtirish
         result = {**default_settings, **settings_data}
 
@@ -12401,6 +12424,50 @@ def get_settings():
 
     except Exception as e:
         print(f"Sozlamalarni olishda xato: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/settings/language', methods=['POST'])
+def change_language():
+    """Til o'zgartirish"""
+    try:
+        data = request.get_json()
+        language = data.get('language', 'uz_latin')
+        
+        # Til qiymatini tekshirish
+        valid_languages = ['uz_latin', 'uz_cyrillic', 'ru']
+        if language not in valid_languages:
+            return jsonify({'error': 'Noto\'g\'ri til kodi'}), 400
+        
+        # Session'da til ma'lumotini saqlash
+        session['language'] = language
+        session.permanent = True
+        
+        # Database'ga ham saqlash (agar foydalanuvchi tizimga kirgan bo'lsa)
+        if 'user_id' in session:
+            user_id = session['user_id']
+            setting_key = f'user_language_{user_id}'
+            
+            setting = Settings.query.filter_by(key=setting_key).first()
+            if setting:
+                setting.value = language
+                setting.updated_at = get_tashkent_time()
+            else:
+                setting = Settings(
+                    key=setting_key,
+                    value=language,
+                    description=f'Foydalanuvchi {user_id} uchun til'
+                )
+                db.session.add(setting)
+            
+            db.session.commit()
+        
+        logger.info(f"Til o'zgartirildi: {language}")
+        return jsonify({'success': True, 'language': language})
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Til o'zgartirishda xato: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -12630,22 +12697,107 @@ def clear_stock_check_session():
 # Context processor - barcha templatelarga global o'zgaruvchilarni uzatish
 @app.context_processor
 def inject_settings():
-    """Barcha templatelarga sozlamalarni uzatish"""
+    """Barcha templatelarga sozlamalarni va til tarjimalarini uzatish"""
     try:
         # stock_check_visible sozlamasini olish
         setting = Settings.query.filter_by(key='stock_check_visible').first()
         stock_check_visible = (setting.value.lower() == 'true'
                                if setting else True)
 
+        # Hozirgi tilni olish
+        current_language = session.get('language', 'uz_latin')
+        
+        # Tarjima lug'ati
+        translations = {
+            'uz_latin': {
+                'dashboard': 'Bosh sahifa',
+                'products': 'Mahsulotlar',
+                'sales': 'Sotuvlar',
+                'warehouse': 'Ombor',
+                'store': 'Do\'kon',
+                'warehouse_transfer': 'Ombor → Do\'kon',
+                'store_transfer': 'Do\'kon → Do\'kon',
+                'check_stock': 'Qoldiqni Tekshirish',
+                'reports': 'Hisobotlar',
+                'customers': 'Mijozlar',
+                'settings': 'Sozlamalar',
+                'logout': 'Chiqish',
+                'search': 'Qidirish',
+                'add': 'Qo\'shish',
+                'edit': 'Tahrirlash',
+                'delete': 'O\'chirish',
+                'save': 'Saqlash',
+                'cancel': 'Bekor qilish',
+                'close': 'Yopish',
+            },
+            'uz_cyrillic': {
+                'dashboard': 'Бош саҳифа',
+                'products': 'Маҳсулотлар',
+                'sales': 'Сотувлар',
+                'warehouse': 'Омбор',
+                'store': 'Дўкон',
+                'warehouse_transfer': 'Омбор → Дўкон',
+                'store_transfer': 'Дўкон → Дўкон',
+                'check_stock': 'Қолдиқни Текшириш',
+                'reports': 'Ҳисоботлар',
+                'customers': 'Мижозлар',
+                'settings': 'Созламалар',
+                'logout': 'Чиқиш',
+                'search': 'Қидириш',
+                'add': 'Қўшиш',
+                'edit': 'Таҳрирлаш',
+                'delete': 'Ўчириш',
+                'save': 'Сақлаш',
+                'cancel': 'Бекор қилиш',
+                'close': 'Ёпиш',
+            },
+            'ru': {
+                'dashboard': 'Главная',
+                'products': 'Товары',
+                'sales': 'Продажи',
+                'warehouse': 'Склад',
+                'store': 'Магазин',
+                'warehouse_transfer': 'Склад → Магазин',
+                'store_transfer': 'Магазин → Магазин',
+                'check_stock': 'Проверка остатков',
+                'reports': 'Отчёты',
+                'customers': 'Клиенты',
+                'settings': 'Настройки',
+                'logout': 'Выход',
+                'search': 'Поиск',
+                'add': 'Добавить',
+                'edit': 'Изменить',
+                'delete': 'Удалить',
+                'save': 'Сохранить',
+                'cancel': 'Отменить',
+                'close': 'Закрыть',
+            }
+        }
+        
+        # Joriy til tarjimalarini olish
+        current_translations = translations.get(current_language, translations['uz_latin'])
+        
+        # Tarjima funksiyasi
+        def t(key):
+            """Kalit bo'yicha tarjimani qaytaradi"""
+            return current_translations.get(key, key)
+
         return {
             'stock_check_visible': stock_check_visible,
-            'config': app.config
+            'config': app.config,
+            'current_language': current_language,
+            't': t,  # Tarjima funksiyasi
+            'translations': current_translations
         }
-    except Exception:
+    except Exception as e:
+        logger.error(f"Context processor error: {e}")
         # Xato bo'lsa, standart qiymat
         return {
             'stock_check_visible': True,
-            'config': app.config
+            'config': app.config,
+            'current_language': 'uz_latin',
+            't': lambda key: key,
+            'translations': {}
         }
 
 

@@ -120,6 +120,22 @@
             </div>
         </div>
         
+        <!-- Til sozlamalari -->
+        <div class="setting-group">
+            <div class="setting-title">🌐 Interfeys Tili</div>
+            <div class="setting-description">
+                Tizim interfeysining tilini tanlang. Til o'zgargandan keyin "Sozlamalarni saqlash" tugmasini bosing.
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <select id="languageSelect" style="padding: 8px 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; width: 100%; max-width: 300px;">
+                    <option value="uz_latin">🇺🇿 O'zbek tili (Lotin)</option>
+                    <option value="uz_cyrillic">🇺🇿 Ўзбек тили (Кирилл)</option>
+                    <option value="ru">🇷🇺 Русский язык</option>
+                </select>
+            </div>
+        </div>
+        
         <!-- Currency sozlamalari -->
         <div class="setting-group">
             <div class="setting-title">Valyuta Sozlamalari</div>
@@ -205,7 +221,8 @@
         let settings = {
             stock_check_visible: false,
             auto_currency_update: false,
-            auto_backup: false
+            auto_backup: false,
+            language: 'uz_latin'  // Standart til
         };
 
         // Sozlamalarni serverdan olish
@@ -234,6 +251,12 @@
 
         // UI ni yangilash
         function updateUI() {
+            // Til select
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect && settings.language) {
+                languageSelect.value = settings.language;
+            }
+
             // Stock toggle
             const stockToggle = document.getElementById('stockToggle');
             const stockLabel = document.getElementById('stockLabel');
@@ -277,6 +300,14 @@
         // Sozlamalarni saqlash
         async function saveSettings() {
             try {
+                // Tanlangan tilni olish
+                const languageSelect = document.getElementById('languageSelect');
+                const selectedLanguage = languageSelect ? languageSelect.value : settings.language;
+                settings.language = selectedLanguage;
+                
+                console.log('💾 Saqlanayotgan sozlamalar:', settings);
+                
+                // Asosiy sozlamalarni saqlash
                 const response = await fetch('/api/settings', {
                     method: 'POST',
                     headers: {
@@ -286,13 +317,29 @@
                 });
 
                 if (response.ok) {
-                    alert('Sozlamalar muvaffaqiyatli saqlandi!');
+                    // Tilni alohida saqlash
+                    const langResponse = await fetch('/api/settings/language', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ language: selectedLanguage })
+                    });
+                    
+                    if (langResponse.ok) {
+                        alert('✅ Sozlamalar va til muvaffaqiyatli saqlandi! Sahifa yangilanadi...');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        alert('⚠️ Sozlamalar saqlandi, lekin tilni o\'zgartirishda xato!');
+                    }
                 } else {
-                    alert('Sozlamalarni saqlashda xato yuz berdi!');
+                    alert('❌ Sozlamalarni saqlashda xato yuz berdi!');
                 }
             } catch (error) {
                 console.error('Sozlamalarni saqlashda xato:', error);
-                alert('Sozlamalarni saqlashda xato yuz berdi!');
+                alert('❌ Sozlamalarni saqlashda xato yuz berdi!');
             }
         }
 </script>
