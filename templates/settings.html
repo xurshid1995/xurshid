@@ -204,7 +204,10 @@
                 const response = await fetch('/api/currency-rate');
                 if (response.ok) {
                     const data = await response.json();
-                    document.querySelector('.currency-rate').textContent = `💵 1 USD = ${data.rate} UZS`;
+                    if (data.success && data.rate && data.rate.rate) {
+                        const formattedRate = parseFloat(data.rate.rate).toLocaleString('uz-UZ');
+                        document.querySelector('.currency-rate').textContent = `💵 1 USD = ${formattedRate} UZS`;
+                    }
                 }
             } catch (error) {
                 console.error('Valyuta kursini yuklashda xato:', error);
