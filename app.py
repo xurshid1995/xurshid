@@ -7803,25 +7803,37 @@ def manage_pending_transfer(pending_id=None):
         if not current_user:
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
-        # GET - ID bo'yicha yoki foydalanuvchining birinchi pending transferini olish
+        # GET - ID bo'yicha yoki foydalanuvchining pending transferini olish
         if request.method == 'GET':
             if pending_id:
                 # ID bo'yicha olish
-                pending = PendingTransfer.query.filter_by(
-                    id=pending_id,
-                    user_id=current_user.id
-                ).first()
+                pending = PendingTransfer.query.get(pending_id)
+                
+                if pending:
+                    # Ruxsat tekshirish
+                    if not user_can_manage_transfer(current_user, pending):
+                        return jsonify({'error': 'Sizga bu transferni ko\'rish uchun ruxsat yo\'q'}), 403
+                    
+                    return jsonify({
+                        'success': True,
+                        'pending_transfer': pending.to_dict()
+                    })
             else:
-                # Eng oxirgi pending transferni olish
-                pending = PendingTransfer.query.filter_by(
-                    user_id=current_user.id
-                ).order_by(PendingTransfer.updated_at.desc()).first()
-
-            if pending:
-                return jsonify({
-                    'success': True,
-                    'pending_transfer': pending.to_dict()
-                })
+                # Barcha ruxsat etilgan pending transferlarni olish
+                all_pendings = PendingTransfer.query.order_by(PendingTransfer.updated_at.desc()).all()
+                
+                # Birinchi ruxsat etilgan transferni topish
+                pending = None
+                for p in all_pendings:
+                    if user_can_manage_transfer(current_user, p):
+                        pending = p
+                        break
+                
+                if pending:
+                    return jsonify({
+                        'success': True,
+                        'pending_transfer': pending.to_dict()
+                    })
             return jsonify({
                 'success': True,
                 'pending_transfer': None
@@ -7890,8 +7902,11 @@ def manage_pending_transfer(pending_id=None):
 
                 db.session.delete(pending)
             else:
-                # Barcha o'zining pending transferlarni o'chirish
-                PendingTransfer.query.filter_by(user_id=current_user.id).delete()
+                # Barcha ruxsat etilgan pending transferlarni o'chirish
+                all_pendings = PendingTransfer.query.all()
+                for p in all_pendings:
+                    if user_can_manage_transfer(current_user, p):
+                        db.session.delete(p)
 
             db.session.commit()
 
