@@ -229,7 +229,16 @@
                 alert('✅ Transfer o\'chirildi');
                 await loadPendingTransfers(); // Jadvalni yangilash
             } else {
-                alert('❌ Transferni o\'chirishda xatolik');
+                // Xatolik xabarini olish
+                const errorData = await response.json().catch(() => ({}));
+                const errorMsg = errorData.error || 'Transferni o\'chirishda xatolik';
+                
+                // Permission xatoligi uchun aniq xabar
+                if (response.status === 403) {
+                    alert('❌ Sizga bu transferni o\'chirish uchun ruxsat yo\'q');
+                } else {
+                    alert('❌ ' + errorMsg);
+                }
             }
         } catch (error) {
             console.error('Transferni o\'chirishda xatolik:', error);
