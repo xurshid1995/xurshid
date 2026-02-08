@@ -1985,6 +1985,11 @@
                     window.history.replaceState({}, '', newUrl);
                 }
                 console.log('✅ Tasdiqlanmagan transfer saqlandi, ID:', currentPendingTransferId);
+            } else {
+                // Xatolik - foydalanuvchiga ko'rsatish
+                const errorData = await response.json();
+                alert('❌ ' + (errorData.error || 'Transferni saqlashda xatolik'));
+                console.error('❌ Transfer saqlash xatoligi:', errorData);
             }
         } catch (error) {
             console.error('❌ Tasdiqlanmagan transferni saqlashda xatolik:', error);
@@ -2009,6 +2014,11 @@
                 newUrl.searchParams.delete('id');
                 window.history.replaceState({}, '', newUrl);
                 console.log('✅ Tasdiqlanmagan transfer o\'chirildi');
+            } else {
+                // Xatolik - foydalanuvchiga ko'rsatish
+                const errorData = await response.json();
+                alert('❌ ' + (errorData.error || 'Transferni o\'chirishda xatolik'));
+                console.error('❌ Transfer o\'chirish xatoligi:', errorData);
             }
         } catch (error) {
             console.error('❌ Tasdiqlanmagan transferni o\'chirishda xatolik:', error);
@@ -2284,6 +2294,19 @@
                 currentPendingTransferId = parseInt(pendingId);
                 
                 const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}`);
+                
+                // Xatolikni tekshirish
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert('❌ ' + (errorData.error || 'Transferni yuklashda xatolik'));
+                    // URL'dan ID'ni o'chirish
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.delete('id');
+                    window.history.replaceState({}, '', newUrl);
+                    currentPendingTransferId = null;
+                    return;
+                }
+                
                 const data = await response.json();
                 
                 if (data.pending_transfer) {

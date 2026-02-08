@@ -815,8 +815,12 @@ def user_can_manage_transfer(user, pending_transfer):
     1. Admin (har doim)
     2. Transfer joylashuvlaridan (FROM yoki TO) kamida biriga ruxsati bor foydalanuvchi
     """
+    print(f"🔍 user_can_manage_transfer: User={user.username}, Role={user.role}, Transfer ID={pending_transfer.id}")
+    print(f"   Transfer: {pending_transfer.from_location_type}_{pending_transfer.from_location_id} -> {pending_transfer.to_location_type}_{pending_transfer.to_location_id}")
+    
     # 1. Admin har doim
     if user.role == 'admin':
+        print(f"   ✅ ADMIN ACCESS")
         return True
 
     # 2. FROM yoki TO joylashuvlaridan biriga ruxsati bo'lsa (transfer_locations yoki allowed_locations)
@@ -831,7 +835,10 @@ def user_can_manage_transfer(user, pending_transfer):
     # Barcha mavjud joylashuvlarni birlashtirish
     all_user_locations = transfer_locations + allowed_locations
     
+    print(f"   User locations: {all_user_locations}")
+    
     if not all_user_locations:
+        print(f"   ❌ NO LOCATIONS")
         return False
     
     # FROM joylashuv
@@ -854,20 +861,26 @@ def user_can_manage_transfer(user, pending_transfer):
             
             if loc_id == from_id and loc_type == from_type:
                 has_from_permission = True
+                print(f"   ✅ FROM permission: {from_type}_{from_id}")
             if loc_id == to_id and loc_type == to_type:
                 has_to_permission = True
+                print(f"   ✅ TO permission: {to_type}_{to_id}")
         
         # Eski format: integer (faqat id)
         elif isinstance(loc, int):
             if loc == from_id:
                 has_from_permission = True
+                print(f"   ✅ FROM permission (old format): {from_id}")
             if loc == to_id:
                 has_to_permission = True
+                print(f"   ✅ TO permission (old format): {to_id}")
     
     # Kamida biriga ruxsat bo'lsa yetarli
     if has_from_permission or has_to_permission:
+        print(f"   ✅ ACCESS GRANTED (from={has_from_permission}, to={has_to_permission})")
         return True
 
+    print(f"   ❌ ACCESS DENIED")
     return False
 
 
