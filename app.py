@@ -10417,61 +10417,12 @@ def update_sale(sale_id):
                 total_cost += cost_price_usd * quantity
                 total_profit += sale_item.profit
 
-            # ✅ FIXED: Stock difference faqat CONFIRMED sale uchun
-            # Pending sale uchun stock /api/reserve-stock va /api/return-stock orqali boshqariladi
-            if is_confirmed_sale:
-                # Eski va yangi miqdorlarni solishtirish, farqni stockga qaytarish/ayirish
-                for key in set(list(old_quantities.keys()) + list(new_quantities.keys())):
-                    product_id, location_type, location_id = key
-                    old_qty = old_quantities.get(key, Decimal('0'))
-                    new_qty = new_quantities.get(key, Decimal('0'))
-                    difference = new_qty - old_qty  # Ijobiy: qo'shimcha sotildi, Manfiy: qaytarildi
-                    
-                    if difference != 0:
-                        app.logger.info(f"📦 STOCK DIFFERENCE UPDATE (confirmed sale): Product {product_id}, {location_type}/{location_id}")
-                        app.logger.info(f"   Old quantity: {old_qty}, New quantity: {new_qty}, Difference: {difference}")
-                        
-                        # Stock'ni yangilash
-                        if location_type == 'warehouse':
-                            warehouse_stock = WarehouseStock.query.filter_by(
-                                warehouse_id=location_id,
-                                product_id=product_id
-                            ).first()
-                            
-                            if warehouse_stock:
-                                old_stock = warehouse_stock.quantity
-                                warehouse_stock.quantity -= difference  # Difference ijobiy bo'lsa kamaytiradi, manfiy bo'lsa ko'paytiradi
-                                warehouse_stock.last_updated = db.func.current_timestamp()
-                                app.logger.info(f"   ✅ Warehouse stock: {old_stock} -> {warehouse_stock.quantity}")
-                        
-                        elif location_type == 'store':
-                            store_stock = StoreStock.query.filter_by(
-                                store_id=location_id,
-                                product_id=product_id
-                            ).first()
-                            
-                            if store_stock:
-                                old_stock = store_stock.quantity
-                                store_stock.quantity -= difference  # Difference ijobiy bo'lsa kamaytiradi, manfiy bo'lsa ko'paytiradi
-                                store_stock.last_updated = db.func.current_timestamp()
-                                app.logger.info(f"   ✅ Store stock: {old_stock} -> {store_stock.quantity}")
-                        
-                        # Operations history ga yozish (xatolik to'xtatmasin)
-                        try:
-                            log_operation(
-                                operation_type='sale_edit',
-                                table_name='sales',
-                                record_id=sale.id,
-                                description=f"Savdo tahrirlandi - Stock tuzatildi: Product #{product_id}, Eski: {old_qty}, Yangi: {new_qty}",
-                                old_data={'product_id': product_id, 'quantity': float(old_qty)},
-                                new_data={'product_id': product_id, 'quantity': float(new_qty), 'stock_difference': float(difference)},
-                                location_id=location_id,
-                                location_type=location_type
-                            )
-                        except Exception as log_error:
-                            app.logger.warning(f"⚠️ Log yozishda xatolik (ignored): {log_error}")
-            else:
-                app.logger.info("⏭️ PENDING SALE: Stock difference skipped (managed by real-time API)")
+            # ✅ COMPLETELY DISABLED: Stock difference logic removed
+            # Barcha stock operatsiyalari real-time API orqali boshqariladi:
+            # - /api/reserve-stock - stokdan ayirish
+            # - /api/return-stock - stokka qaytarish
+            # Bu endpoint faqat sale ma'lumotlarini (items, prices, etc.) yangilaydi
+            app.logger.info("⏭️ Stock difference DISABLED - stock managed by real-time API (/api/reserve-stock, /api/return-stock)")
             
             # Sale jami ma'lumotlarini yangilash
             sale.total_amount = total_amount
