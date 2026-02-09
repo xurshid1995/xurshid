@@ -3527,11 +3527,7 @@
     }
     
     // Savatni yangilash
-    let _updateCartCallCount = 0;
     function updateCart() {
-        _updateCartCallCount++;
-        console.log(`🟢 updateCart() CHAQIRILDI - CALL #${_updateCartCallCount}`);
-        
         // Faol tabdagi elementlarni topish
         const activeTab = document.querySelector('.sales-tab.active');
         if (!activeTab) return;
@@ -3779,15 +3775,8 @@
         console.log('✅ Savatdan o\'chirish tugadi');
     }
     
-    // Dublikat chaqiriqlarni bloklash uchun flag
-    let _updateCartQuantityCallCount = 0;
-    
     // Savat miqdorini yangilash
     async function updateCartQuantity(index, newQuantity) {
-        _updateCartQuantityCallCount++;
-        const callNumber = _updateCartQuantityCallCount;
-        console.log(`🔵 updateCartQuantity() CHAQIRILDI - CALL #${callNumber}`, {index, newQuantity});
-        
         const quantity = parseInt(newQuantity);
         const input = document.querySelector(`input[data-cart-index="${index}"]`);
         
@@ -3805,15 +3794,6 @@
         const oldQuantity = item.quantity;
         const quantityDiff = quantity - oldQuantity;
         
-        console.log(`📊 Miqdor taqqoslash:`, {
-            index, 
-            mahsulot: item.name,
-            oldQuantity, 
-            newQuantity: quantity, 
-            quantityDiff,
-            cart_length: cart.length
-        });
-        
         if (quantityDiff === 0) {
             // Rang to'g'rilash
             if (input) {
@@ -3825,7 +3805,6 @@
         
         // Agar miqdor oshsa, stokdan qo'shimcha ayirish
         if (quantityDiff > 0) {
-            console.log(`➕ STOKDAN AYIRISH: ${quantityDiff} dona (${oldQuantity} -> ${quantity})`);
             try {
                 const response = await fetch('/api/reserve-stock', {
                     method: 'POST',
@@ -3862,7 +3841,6 @@
         }
         // Agar miqdor kamaysa, stokka qaytarish
         else if (quantityDiff < 0) {
-            console.log(`➖ STOKKA QAYTARISH: ${Math.abs(quantityDiff)} dona (${oldQuantity} -> ${quantity})`);
             try {
                 const response = await fetch('/api/return-stock', {
                     method: 'POST',
@@ -3898,9 +3876,7 @@
             }
         }
         
-        console.log(`💾 Cart[${index}].quantity o'zgartirilmoqda: ${cart[index].quantity} -> ${quantity}`);
         cart[index].quantity = quantity;
-        console.log(`🔄 updateCart() chaqirilmoqda...`);
         updateCart();
         
         // Avtomatik pending savdo yangilash
