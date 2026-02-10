@@ -660,7 +660,7 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 const click = currentSalesData && currentSalesData.click_list ? currentSalesData.click_list[dataIndex] : 0;
                                 const terminal = currentSalesData && currentSalesData.terminal_list ? currentSalesData.terminal_list[dataIndex] : 0;
                                 
-                                const exchangeRateTooltip = window.currentExchangeRate || 12500;
+                                const exchangeRateTooltip = window.currentExchangeRate || 0;
                                 const formattedAmount = Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedAmountUZS = Math.floor(savdoSummasi * exchangeRateTooltip).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedProfit = Math.floor(savdoFoydasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -816,8 +816,8 @@ function updateStatistics(data) {
     // Jami foyda
     const totalProfit = data.profits.reduce((sum, profit) => sum + profit, 0);
     
-    // Valyuta kursi (backenddan keladi yoki default)
-    const exchangeRate = window.currentExchangeRate || 12500;
+    // Valyuta kursi (backenddan keladi)
+    const exchangeRate = window.currentExchangeRate || 0;
     
     // Formatlash va ko'rsatish (bo'sh joy bilan)
     document.getElementById('totalSales').textContent = totalSales.toLocaleString();

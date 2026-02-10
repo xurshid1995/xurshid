@@ -948,7 +948,7 @@ class DebtPayment(db.Model):
     click_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     terminal_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     total_usd = db.Column(db.DECIMAL(precision=12, scale=2), nullable=False)
-    currency_rate = db.Column(db.DECIMAL(precision=15, scale=4), nullable=False, default=12500)
+    currency_rate = db.Column(db.DECIMAL(precision=15, scale=4), nullable=True)
     received_by = db.Column(db.String(100), nullable=False)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
@@ -971,7 +971,7 @@ class DebtPayment(db.Model):
             'click_usd': float(self.click_usd or 0),
             'terminal_usd': float(self.terminal_usd or 0),
             'total_usd': float(self.total_usd or 0),
-            'currency_rate': float(self.currency_rate or 12500),
+            'currency_rate': float(self.currency_rate) if self.currency_rate else 0,
             'received_by': self.received_by,
             'notes': self.notes
         }
@@ -1316,8 +1316,7 @@ class Sale(db.Model):
         db.DECIMAL(
             precision=15,
             scale=4),
-        nullable=False,
-        default=12500.0000)
+        nullable=True)
     created_by = db.Column(db.String(100), default='System')
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
     updated_at = db.Column(db.DateTime, default=lambda: get_tashkent_time(), onupdate=lambda: get_tashkent_time())
@@ -1456,7 +1455,7 @@ class Sale(db.Model):
             },
             'notes': self.notes if self.notes else '',
             'currency_rate': float(
-                self.currency_rate) if self.currency_rate is not None else 12500.0,
+                self.currency_rate) if self.currency_rate is not None else 0,
             'created_by': self.created_by if self.created_by else 'System',
         }
 
@@ -10843,9 +10842,9 @@ def get_current_currency_rate():
         if current_rate:
             return float(current_rate.rate)
         else:
-            return 12500.0  # Default kursi
+            return None  # Kurs o'rnatilmagan
     except Exception:
-        return 12500.0  # Xatolik bo'lsa default qaytarish
+        return None  # Xatolik bo'lsa None qaytarish
 
 
 # Oxirgi operatsiyalarni saqlash (memory cache)
@@ -11275,17 +11274,11 @@ def get_currency_rate():
                 'rate': current_rate.to_dict()
             })
         else:
-            # Default kursi qaytarish
+            # Kurs o'rnatilmagan - xatolik qaytarish
             return jsonify({
-                'success': True,
-                'rate': {
-                    'id': 0,
-                    'from_currency': 'USD',
-                    'to_currency': 'UZS',
-                    'rate': 12500.0000,
-                    'is_active': True,
-                    'updated_by': 'system'
-                }
+                'success': False,
+                'error': 'Valyuta kursi o\'rnatilmagan. Iltimos, avval kursni o\'rnating.',
+                'rate': None
             })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -11495,21 +11488,30 @@ def add_currency_column():
                 'message': 'currency_rate column already exists'
             })
 
-        # Add currency_rate column
-        db.session.execute(text("""
-            ALTER TABLE sales
-            ADD COLUMN currency_rate DECIMAL(15,4) DEFAULT 12500.0000
-        """))
+        # Get current active rate first
+        current_rate = get_current_currency_rate()
+        
+        # Add currency_rate column with current rate as default
+        if current_rate:
+            db.session.execute(text("""
+                ALTER TABLE sales
+                ADD COLUMN currency_rate DECIMAL(15,4) DEFAULT :rate
+            """), {'rate': current_rate})
+        else:
+            # Agar kurs o'rnatilmagan bo'lsa, nullable qilamiz
+            db.session.execute(text("""
+                ALTER TABLE sales
+                ADD COLUMN currency_rate DECIMAL(15,4)
+            """))
         db.session.commit()
 
-        # Get current active rate
-        current_rate = get_current_currency_rate()
-
-        # Update all existing sales with current rate
-        result = db.session.execute(text("""
-            UPDATE sales
-            SET currency_rate = :rate
-        """), {'rate': current_rate})
+        # Update all existing sales with current rate if available
+        if current_rate:
+            result = db.session.execute(text("""
+                UPDATE sales
+                SET currency_rate = :rate
+                WHERE currency_rate IS NULL
+            """), {'rate': current_rate})
         db.session.commit()
 
         return jsonify({'success': True, 'message': f'currency_rate column added and {result.rowcount} sales updated with rate {current_rate}'})

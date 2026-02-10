@@ -6,7 +6,7 @@ echo ""
 
 # 1. Loyiha papkasiga o'tish
 echo "📁 Loyiha papkasiga o'tish..."
-cd /var/www/sayt2025 || exit
+cd /var/www/xurshid || exit
 
 # 2. Yangi kodlarni pull qilish
 echo "⬇️ GitHub'dan yangi kodlarni pull qilish..."
@@ -31,7 +31,7 @@ fi
 
 # 6. Gunicorn service restart
 echo "🔄 Gunicorn service restart..."
-sudo systemctl restart sayt2025
+sudo systemctl restart xurshid
 
 # 7. Service statusini tekshirish
 echo ""
