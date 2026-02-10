@@ -27,8 +27,9 @@ ALTER TABLE debt_payments
 
 -- Products jadvalidagi narx maydonlar
 ALTER TABLE products
-    ALTER COLUMN selling_price TYPE DECIMAL(10, 4),
-    ALTER COLUMN cost_price TYPE DECIMAL(10, 4);
+    ALTER COLUMN sell_price TYPE DECIMAL(10, 4),
+    ALTER COLUMN cost_price TYPE DECIMAL(10, 4),
+    ALTER COLUMN last_batch_cost TYPE DECIMAL(10, 4);
 
 -- Transfer jadvalidagi cost maydon(agar mavjud bo'lsa)
 DO $$
