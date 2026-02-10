@@ -491,14 +491,14 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     barcode = db.Column(db.String(255), unique=True, nullable=True, index=True)  # Barcode raqami
-    cost_price = db.Column(db.DECIMAL(precision=10, scale=2),
+    cost_price = db.Column(db.DECIMAL(precision=10, scale=4),
                            nullable=False)  # Ortacha tan narxi
-    sell_price = db.Column(db.DECIMAL(precision=10, scale=2),
+    sell_price = db.Column(db.DECIMAL(precision=10, scale=4),
                            nullable=False)  # Sotish narxi
     min_stock = db.Column(db.Integer, default=0,
                           nullable=False)  # Minimal qoldiq
     unit_type = db.Column(db.String(10), default='dona', nullable=False)  # O'lchov birligi: 'dona' yoki 'litr'
-    last_batch_cost = db.Column(db.DECIMAL(precision=10, scale=2))  # Oxirgi partiya tan narxi
+    last_batch_cost = db.Column(db.DECIMAL(precision=10, scale=4))  # Oxirgi partiya tan narxi
     last_batch_date = db.Column(db.DateTime)  # Oxirgi partiya sanasi
     created_at = db.Column(db.DateTime,
                            default=lambda: get_tashkent_time())  # Qo'shilgan sana
@@ -944,10 +944,10 @@ class DebtPayment(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id', ondelete='SET NULL'), nullable=True)
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id', ondelete='SET NULL'), nullable=True)
     payment_date = db.Column(db.DateTime, default=lambda: get_tashkent_time())
-    cash_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    click_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    terminal_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    total_usd = db.Column(db.DECIMAL(precision=12, scale=2), nullable=False)
+    cash_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    click_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    total_usd = db.Column(db.DECIMAL(precision=12, scale=4), nullable=False)
     currency_rate = db.Column(db.DECIMAL(precision=15, scale=4), nullable=True)
     received_by = db.Column(db.String(100), nullable=False)
     notes = db.Column(db.Text)
@@ -1219,10 +1219,10 @@ class SaleItem(db.Model):
         db.ForeignKey('products.id'),
         nullable=False)
     quantity = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
-    unit_price = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
-    total_price = db.Column(db.DECIMAL(precision=12, scale=2), nullable=False)
-    cost_price = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
-    profit = db.Column(db.DECIMAL(precision=12, scale=2), nullable=False)
+    unit_price = db.Column(db.DECIMAL(precision=10, scale=4), nullable=False)
+    total_price = db.Column(db.DECIMAL(precision=12, scale=4), nullable=False)
+    cost_price = db.Column(db.DECIMAL(precision=10, scale=4), nullable=False)
+    profit = db.Column(db.DECIMAL(precision=12, scale=4), nullable=False)
     source_type = db.Column(db.String(20))  # 'store' yoki 'warehouse'
     source_id = db.Column(db.Integer)  # Store yoki Warehouse ID
     notes = db.Column(db.Text)
@@ -1285,19 +1285,19 @@ class Sale(db.Model):
     total_amount = db.Column(
         db.DECIMAL(
             precision=12,
-            scale=2),
+            scale=4),
         nullable=False,
         default=0)
     total_cost = db.Column(
         db.DECIMAL(
             precision=12,
-            scale=2),
+            scale=4),
         nullable=False,
         default=0)
     total_profit = db.Column(
         db.DECIMAL(
             precision=12,
-            scale=2),
+            scale=4),
         nullable=False,
         default=0)
     payment_method = db.Column(db.String(20), default='cash')
@@ -1307,10 +1307,10 @@ class Sale(db.Model):
     terminal_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     debt_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     # USD ustunlari
-    debt_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    cash_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    click_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
-    terminal_usd = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    debt_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    cash_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    click_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=12, scale=4), default=0)
     notes = db.Column(db.Text)
     currency_rate = db.Column(
         db.DECIMAL(

@@ -2941,9 +2941,9 @@
         
         const uzsPrice = parseFloat(uzsInput.value) || 0;
         const usdPrice = uzsPrice / exchangeRate;
-        usdInput.value = usdPrice.toFixed(2);
+        usdInput.value = usdPrice.toFixed(4);
         
-        console.log('💱 Konversiya (UZS→USD):', uzsPrice, 'UZS ÷', exchangeRate, '=', usdPrice.toFixed(2), 'USD');
+        console.log('💱 Konversiya (UZS→USD):', uzsPrice, 'UZS ÷', exchangeRate, '=', usdPrice.toFixed(4), 'USD');
         
         // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
         if (currentProduct) {
@@ -3025,7 +3025,7 @@
             modalQuantity.min = '0.01';
         }
         
-        modalPriceUSD.value = price.toFixed(2);
+        modalPriceUSD.value = price.toFixed(4);
         console.log('💵 modalPriceUSD.value o\'rnatildi:', modalPriceUSD.value);
         updateUZSPrice();
         
@@ -4160,8 +4160,8 @@
         
         // Korzinada qancha bo'lsa o'sha miqdorni ko'rsatish
         if (modalPriceUSD) {
-            modalPriceUSD.value = item.priceUSD.toFixed(2);
-            console.log('💵 modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(2));
+            modalPriceUSD.value = item.priceUSD.toFixed(4);
+            console.log('💵 modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(4));
         }
         
         if (modalPriceUZS) {
@@ -4812,7 +4812,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentCashUSD_elem = document.getElementById('paymentCashUSD');
                 if (paymentCashUSD_elem) {
-                    paymentCashUSD_elem.value = (uzs / exchangeRate).toFixed(2);
+                    paymentCashUSD_elem.value = (uzs / exchangeRate).toFixed(4);
                 }
             });
         }
@@ -4823,7 +4823,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentClickUSD_elem = document.getElementById('paymentClickUSD');
                 if (paymentClickUSD_elem) {
-                    paymentClickUSD_elem.value = (uzs / exchangeRate).toFixed(2);
+                    paymentClickUSD_elem.value = (uzs / exchangeRate).toFixed(4);
                 }
             });
         }
@@ -4834,7 +4834,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentTerminalUSD_elem = document.getElementById('paymentTerminalUSD');
                 if (paymentTerminalUSD_elem) {
-                    paymentTerminalUSD_elem.value = (uzs / exchangeRate).toFixed(2);
+                    paymentTerminalUSD_elem.value = (uzs / exchangeRate).toFixed(4);
                 }
             });
         }
@@ -4845,7 +4845,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentDebtUSD_elem = document.getElementById('paymentDebtUSD');
                 if (paymentDebtUSD_elem) {
-                    paymentDebtUSD_elem.value = (uzs / exchangeRate).toFixed(2);
+                    paymentDebtUSD_elem.value = (uzs / exchangeRate).toFixed(4);
                 }
             });
         }
@@ -5260,7 +5260,7 @@
         
         if (paymentModalTotalUSD) paymentModalTotalUSD.textContent = `$${totalUSD.toFixed(2)}`;
         if (paymentModalTotalUZS) paymentModalTotalUZS.textContent = `${Math.round(totalUZS).toLocaleString('uz-UZ')} so'm`;
-        if (paymentCashUSD) paymentCashUSD.value = totalUSD.toFixed(2);
+        if (paymentCashUSD) paymentCashUSD.value = totalUSD.toFixed(4);
         if (paymentCashUZS) paymentCashUZS.value = Math.round(totalUZS);
         if (paymentClickUSD) paymentClickUSD.value = '';
         if (paymentClickUZS) paymentClickUZS.value = '';
@@ -5295,7 +5295,7 @@
                     if (cashUSD) cashUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (cashUSD) cashUSD.value = (uzsValue / exchangeRate).toFixed(2);
+                    if (cashUSD) cashUSD.value = (uzsValue / exchangeRate).toFixed(4);
                 }
             });
         }
@@ -5317,7 +5317,7 @@
                     if (clickUSD) clickUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (clickUSD) clickUSD.value = (uzsValue / exchangeRate).toFixed(2);
+                    if (clickUSD) clickUSD.value = (uzsValue / exchangeRate).toFixed(4);
                 }
             });
         }
