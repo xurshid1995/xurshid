@@ -413,9 +413,26 @@ let currentSalesData = null;
 const userRole = '{{ session.role }}';
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadLocations();
-    loadSalesChart();
+    // Avval valyuta kursini yuklash, keyin savdo ma'lumotlarini
+    waitForCurrencyRate().then(() => {
+        loadLocations();
+        loadSalesChart();
+    });
 });
+
+// Valyuta kursi yuklanguncha kutish
+async function waitForCurrencyRate() {
+    let attempts = 0;
+    while (!window.currentExchangeRate && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100)); // 100ms kutish
+        attempts++;
+    }
+    if (window.currentExchangeRate) {
+        console.log('✅ Valyuta kursi tayyor:', window.currentExchangeRate);
+    } else {
+        console.warn('⚠️ Valyuta kursi yuklanmadi, UZS qiymatlari ko\'rsatilmaydi');
+    }
+}
 
 async function loadLocations() {
     try {
@@ -660,7 +677,14 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 const click = currentSalesData && currentSalesData.click_list ? currentSalesData.click_list[dataIndex] : 0;
                                 const terminal = currentSalesData && currentSalesData.terminal_list ? currentSalesData.terminal_list[dataIndex] : 0;
                                 
-                                const exchangeRateTooltip = window.currentExchangeRate || 0;
+                                const exchangeRateTooltip = window.currentExchangeRate;
+                                if (!exchangeRateTooltip) {
+                                    // Kurs yo'q bo'lsa, faqat USD ko'rsatish
+                                    return [
+                                        `📊Savdo soni: ${savdoSoni}`,
+                                        `💰 Savdo summasi: ${Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} $`
+                                    ];
+                                }
                                 const formattedAmount = Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedAmountUZS = Math.floor(savdoSummasi * exchangeRateTooltip).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 const formattedProfit = Math.floor(savdoFoydasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -817,15 +841,21 @@ function updateStatistics(data) {
     const totalProfit = data.profits.reduce((sum, profit) => sum + profit, 0);
     
     // Valyuta kursi (backenddan keladi)
-    const exchangeRate = window.currentExchangeRate || 0;
+    const exchangeRate = window.currentExchangeRate;
     
     // Formatlash va ko'rsatish (bo'sh joy bilan)
     document.getElementById('totalSales').textContent = totalSales.toLocaleString();
     document.getElementById('totalAmount').textContent = '$' + totalAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById('totalAmountUZS').textContent = Math.round(totalAmount * exchangeRate).toLocaleString() + ' UZS';
+    
+    // UZS qiymatni faqat kurs mavjud bo'lsagina ko'rsatish
+    if (exchangeRate) {
+        document.getElementById('totalAmountUZS').textContent = Math.round(totalAmount * exchangeRate).toLocaleString() + ' UZS';
+    } else {
+        document.getElementById('totalAmountUZS').textContent = 'Kurs yuklanmoqda...';
+    }
     
     // To'lov turlarini ko'rsatish
-    if (data.payment_totals) {
+    if (data.payment_totals && exchangeRate) {
         console.log('💰 To\'lov turlari yangilanmoqda:', data.payment_totals);
         const payments = [];
         if (data.payment_totals.cash > 0) {
@@ -859,7 +889,11 @@ function updateStatistics(data) {
     // Foyda faqat sotuvchi bo'lmasa yangilanadi
     if (userRole !== 'sotuvchi') {
         document.getElementById('totalProfit').textContent = '$' + totalProfit.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        document.getElementById('totalProfitUZS').textContent = Math.round(totalProfit * exchangeRate).toLocaleString() + ' UZS';
+        if (exchangeRate) {
+            document.getElementById('totalProfitUZS').textContent = Math.round(totalProfit * exchangeRate).toLocaleString() + ' UZS';
+        } else {
+            document.getElementById('totalProfitUZS').textContent = 'Kurs yuklanmoqda...';
+        }
     }
     
     console.log('📈 Statistikalar yangilandi:', {
