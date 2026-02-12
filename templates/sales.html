@@ -5878,7 +5878,7 @@
                     seller_phone: sellerPhone,
                     store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
                     total_amount: totalUSD,
-                    payment_details: paymentDetails.join(' / '),
+                    payment_details: paymentDetails.join(' ### '),
                     items: cart.map(item => ({
                         product_name: item.name || item.productName,
                         quantity: item.quantity,
@@ -6323,7 +6323,7 @@
                     </div>
                 </div>
                 
-                ${sale.payment_details ? '<div class="payment-info"><div class="payment-label">To\'lov:</div><div class="payment-details">' + sale.payment_details.replace(/ \/ /g, '<br>') + '</div></div>' : ''}
+                ${sale.payment_details ? '<div class="payment-info"><div class="payment-label">To\'lov:</div><div class="payment-details">' + sale.payment_details.replace(/ ### /g, '<br>') + '</div></div>' : ''}
                 
                 <div class="footer">
                     <div>Rahmat!</div>
