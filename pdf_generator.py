@@ -114,10 +114,6 @@ def generate_sale_receipt_pdf(
     c.line(table_left + col1_width, y - 6*mm, table_left + col1_width, y)
     c.line(table_left + col1_width + col2_width, y - 6*mm, table_left + col1_width + col2_width, y)
     
-    # Narx sarlavhasi uchun sariq fon
-    c.setFillColor(colors.Color(1, 1, 0.7))  # Och sariq rang
-    c.rect(table_left + col1_width + col2_width, y - 6*mm, col3_width, 6*mm, stroke=0, fill=1)
-    
     c.setFillColor(colors.black)  # Matn uchun qora rang
     c.setFont("Helvetica-Bold", 9)
     c.drawString(table_left + 2*mm, y - 4*mm, "Mahsulot")
