@@ -6284,7 +6284,7 @@
                                 
                                 let priceDisplay;
                                 if (currency === 'both') {
-                                    priceDisplay = '$' + priceUSD.toFixed(2);
+                                    priceDisplay = '$' + priceUSD.toFixed(2) + '<br>' + priceUZS.toLocaleString('uz-UZ') + " so'm";
                                 } else if (currency === 'uzs') {
                                     priceDisplay = priceUZS.toLocaleString('uz-UZ');
                                 } else {
@@ -6307,7 +6307,9 @@
                         <span>Jami summa:</span>
                         <span>${(() => {
                             if (currency === 'both') {
-                                return '$' + parseFloat(sale.total_amount).toFixed(2);
+                                const totalUSD = parseFloat(sale.total_amount).toFixed(2);
+                                const totalUZS = Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ');
+                                return '$' + totalUSD + '<br>' + totalUZS + " so'm";
                             } else if (currency === 'uzs') {
                                 return Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + " so'm";
                             } else {
