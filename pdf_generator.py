@@ -71,27 +71,27 @@ def generate_sale_receipt_pdf(
     left_x = 5*mm  # Chap ustun
     right_x = page_width / 2  # O'ng ustun
     
-    # Sotuvchi ma'lumotlari (CHAP tomonda)
-    if sale_data.get('seller_name'):
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(left_x, info_y, "Sotuvchi:")
-        c.setFont("Helvetica", 8)
-        c.drawString(left_x, info_y - 3*mm, sale_data['seller_name'])
-        
-        # Sotuvchi telefoni
-        if sale_data.get('seller_phone'):
-            c.drawString(left_x, info_y - 6*mm, sale_data['seller_phone'])
-    
-    # Mijoz ma'lumotlari (O'NG tomonda)
+    # Mijoz ma'lumotlari (CHAP tomonda)
     if sale_data.get('customer_name'):
         c.setFont("Helvetica-Bold", 8)
-        c.drawString(right_x, info_y, "Mijoz:")
+        c.drawString(left_x, info_y, "Mijoz:")
         c.setFont("Helvetica", 8)
-        c.drawString(right_x, info_y - 3*mm, sale_data['customer_name'])
+        c.drawString(left_x, info_y - 3*mm, sale_data['customer_name'])
         
         # Mijoz telefoni
         if sale_data.get('customer_phone'):
-            c.drawString(right_x, info_y - 6*mm, sale_data['customer_phone'])
+            c.drawString(left_x, info_y - 6*mm, sale_data['customer_phone'])
+    
+    # Sotuvchi ma'lumotlari (O'NG tomonda)
+    if sale_data.get('seller_name'):
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(right_x, info_y, "Sotuvchi:")
+        c.setFont("Helvetica", 8)
+        c.drawString(right_x, info_y - 3*mm, sale_data['seller_name'])
+        
+        # Sotuvchi telefoni
+        if sale_data.get('seller_phone'):
+            c.drawString(right_x, info_y - 6*mm, sale_data['seller_phone'])
     
     # Y ni pastga siljitish (maksimal balandlikka qarab)
     y = info_y - 9*mm
