@@ -114,6 +114,11 @@ def generate_sale_receipt_pdf(
     c.line(table_left + col1_width, y - 6*mm, table_left + col1_width, y)
     c.line(table_left + col1_width + col2_width, y - 6*mm, table_left + col1_width + col2_width, y)
     
+    # Narx sarlavhasi uchun sariq fon
+    c.setFillColor(colors.Color(1, 1, 0.7))  # Och sariq rang
+    c.rect(table_left + col1_width + col2_width, y - 6*mm, col3_width, 6*mm, stroke=0, fill=1)
+    
+    c.setFillColor(colors.black)  # Matn uchun qora rang
     c.setFont("Helvetica-Bold", 9)
     c.drawString(table_left + 2*mm, y - 4*mm, "Mahsulot")
     c.drawCentredString(table_left + col1_width + col2_width/2, y - 4*mm, "Miqdor")
@@ -170,7 +175,12 @@ def generate_sale_receipt_pdf(
         quantity = item['quantity']
         c.drawCentredString(table_left + col1_width + col2_width/2, y - 4*mm, str(int(quantity)))
         
+        # Narx ustuni uchun sariq fon
+        c.setFillColor(colors.Color(1, 1, 0.7))  # Och sariq rang
+        c.rect(table_left + col1_width + col2_width, y - row_height, col3_width, row_height, stroke=0, fill=1)
+        
         # Narx (valyutaga qarab, yuqori qatorda)
+        c.setFillColor(colors.black)  # Matn uchun qora rang
         if currency == 'usd':
             unit_price = item.get('unit_price_usd', item.get('unit_price', 0))
             price_str = f"${unit_price:.2f}"
@@ -181,6 +191,7 @@ def generate_sale_receipt_pdf(
         c.drawRightString(table_right - 2*mm, y - 4*mm, price_str)
         
         # Qator borderlari
+        c.setFillColor(colors.white)  # Border uchun to'ldirmaslik
         c.rect(table_left, y - row_height, table_width, row_height, stroke=1, fill=0)
         c.line(table_left + col1_width, y - row_height, table_left + col1_width, y)
         c.line(table_left + col1_width + col2_width, y - row_height, table_left + col1_width + col2_width, y)
