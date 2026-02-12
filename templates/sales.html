@@ -5834,16 +5834,22 @@
             if ((printUSD && printUSD.checked) || (printUZS && printUZS.checked)) {
                 console.log('✅ Chek chiqarish belgilangan, modal yopilgandan keyin chiqariladi');
                 
-                // Mijoz ma'lumotlarini olish
-                const customerSearchInput = getActiveTabElement('customerSearch');
-                const customerName = customerId && customerSearchInput ? customerSearchInput.value : 'Naqd mijoz';
-                
-                // Mijoz telefon raqamini olish
+                // Mijoz ma'lumotlarini olish - result yoki input'dan
+                let customerName = 'Naqd mijoz';
                 let customerPhone = '';
-                if (customerId) {
-                    // Tanlangan mijozni topish
-                    const selectedCustomer = customers ? customers.find(c => c.id == customerId) : null;
-                    customerPhone = selectedCustomer && selectedCustomer.phone ? selectedCustomer.phone : '';
+                
+                if (result.sale && result.sale.customer_name) {
+                    // Backend'dan kelgan ma'lumot
+                    customerName = result.sale.customer_name;
+                    customerPhone = result.sale.customer_phone || '';
+                } else if (customerId) {
+                    // Input'dan olish (fallback)
+                    const customerSearchInput = getActiveTabElement('customerSearch');
+                    if (customerSearchInput && customerSearchInput.value) {
+                        const parts = customerSearchInput.value.split(' - ');
+                        customerName = parts[0].trim();
+                        customerPhone = parts.length > 1 ? parts[1].trim() : '';
+                    }
                 }
                 
                 // Qaysi valyuta tanlangani aniqlash
