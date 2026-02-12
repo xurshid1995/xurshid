@@ -478,7 +478,7 @@ class DebtTelegramBot:
                     message += f"<b>📋 OLDINGI QARZ: ${previous_debt_usd:,.2f}</b>\n"
                 message += f"<b>💳 JAMI QARZ: ${total_debt_usd:,.2f}</b>\n"
                 if total_debt_usd > 0:
-                    message += "Qarzingizni vaqtida to'lashni unutmang Qarz bu sizga omodat\n"
+                    message += "Qarzingizni vaqtida to'lashni unutmang Qarz bu sizga omonat\n"
             
             message += "\nRahmat! 🙏"
             
