@@ -6265,8 +6265,7 @@
                 <div class="header">
                     <div class="shop-name">${sale.store_name || 'Do\'kon'}</div>
                     <div style="border-top: 1px solid #000; padding-top: 2mm; margin-top: 2mm;">
-                        <div class="receipt-info">Chek #${sale.id}</div>
-                        <div class="receipt-date">${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
+                        <div class="receipt-info">Chek #${sale.id} | ${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
                     </div>
                     
                     <div class="customer-seller-info">
