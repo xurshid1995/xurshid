@@ -5869,6 +5869,11 @@
                 const sellerName = '{{ session.get("user_name", session.get("username", "Sotuvchi")) }}';
                 const sellerPhone = '{{ session.get("user_phone", "") }}';
                 
+                // Joylashuv nomini olish
+                const locationSelect = getActiveTabElement('locationSelect');
+                const selectedOption = locationSelect ? locationSelect.options[locationSelect.selectedIndex] : null;
+                const locationName = selectedOption ? selectedOption.text : 'Do\'kon';
+                
                 const saleForPrint = {
                     id: result.sale_id || result.id,
                     sale_date: new Date().toISOString(),
@@ -5876,7 +5881,7 @@
                     customer_phone: '',
                     seller_name: sellerName,
                     seller_phone: sellerPhone,
-                    store_name: selectedLocationId ? (document.querySelector('#locationSelect option:checked')?.text || 'Do\'kon') : 'Do\'kon',
+                    store_name: locationName,
                     total_amount: totalUSD,
                     payment_details: paymentDetails.join(' ### '),
                     items: cart.map(item => ({
