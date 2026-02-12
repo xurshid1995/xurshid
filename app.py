@@ -10627,6 +10627,7 @@ def delete_sale_with_stock_return(sale_id):
         products_desc = ', '.join([f"{item.product.name} ({item.quantity} ta)" for item in sale.items if item.product])
         
         # OperationHistory ga yozish
+        stock_returned = 'Ha' if return_stock else "Yo'q"
         operation = OperationHistory(
             operation_type='delete',
             user_id=current_user.id,
@@ -10635,7 +10636,7 @@ def delete_sale_with_stock_return(sale_id):
             amount=sale_total,
             location_type=sale.location_type,
             location_id=sale.location_id,
-            notes=f"Mijoz: {customer_name}, Jami: ${sale_total:.2f}, Stock qaytarildi: {'Ha' if return_stock else 'Yo\\'q'}"
+            notes=f"Mijoz: {customer_name}, Jami: ${sale_total:.2f}, Stock qaytarildi: {stock_returned}"
         )
         db.session.add(operation)
 
