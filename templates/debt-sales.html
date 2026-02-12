@@ -3070,17 +3070,12 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
             <div class="totals">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Jami summa:</span>
-                    <span>${(() => {
-                        if (currency === 'both') {
-                            const totalUSD = parseFloat(sale.total_amount).toFixed(2);
-                            const totalUZS = Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ');
-                            return '$' + totalUSD + '<br><span class="uzs-value">' + totalUZS + '</span>';
-                        } else if (currency === 'uzs') {
-                            return Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ');
-                        } else {
-                            return '$' + parseFloat(sale.total_amount).toFixed(2);
-                        }
-                    })()}</span>
+                    <span>${currency === 'both' 
+                        ? '$' + parseFloat(sale.total_amount).toFixed(2) + '<br><span class="uzs-value">' + Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ') + '</span>'
+                        : currency === 'uzs' 
+                            ? Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ')
+                            : '$' + parseFloat(sale.total_amount).toFixed(2)
+                    }</span>
                 </div>
             </div>
             
