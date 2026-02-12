@@ -6056,6 +6056,27 @@
         }
     });
     
+    // Telefon raqamini formatlash funksiyasi (chek uchun)
+    function formatPhoneForPrint(phone) {
+        if (!phone) return '';
+        
+        // Faqat raqamlarni qoldirish
+        let cleaned = phone.replace(/\D/g, '');
+        
+        // Agar 998 bilan boshlanmasa va 9 ta raqam bo'lsa, 998 qo'shish
+        if (cleaned.length === 9 && !cleaned.startsWith('998')) {
+            cleaned = '998' + cleaned;
+        }
+        
+        // Format: +998(XX) XXX-XX-XX
+        if (cleaned.length === 12 && cleaned.startsWith('998')) {
+            return `+${cleaned.substring(0, 3)}(${cleaned.substring(3, 5)}) ${cleaned.substring(5, 8)}-${cleaned.substring(8, 10)}-${cleaned.substring(10, 12)}`;
+        }
+        
+        // Agar formatni aniqlab bo'lmasa, asl qiymatni qaytarish
+        return phone;
+    }
+    
     // Chek chiqarish funksiyasi
     function generatePrintableReceiptToWindow(receiptWindow, sale, currency = 'uzs') {
         // Global exchangeRate o'zgaruvchisidan foydalanish
@@ -6278,12 +6299,12 @@
                         <div>
                             <div class="info-label">Mijoz:</div>
                             <div class="info-name">${sale.customer_name || 'Naqd mijoz'}</div>
-                            ${sale.customer_phone ? '<div class="info-phone">' + sale.customer_phone + '</div>' : ''}
+                            ${sale.customer_phone ? '<div class="info-phone">' + formatPhoneForPrint(sale.customer_phone) + '</div>' : ''}
                         </div>
                         <div>
                             <div class="info-label">Sotuvchi:</div>
                             <div class="info-name">${sale.seller_name || 'Sotuvchi'}</div>
-                            ${sale.seller_phone ? '<div class="info-phone">' + sale.seller_phone + '</div>' : ''}
+                            ${sale.seller_phone ? '<div class="info-phone">' + formatPhoneForPrint(sale.seller_phone) + '</div>' : ''}
                         </div>
                     </div>
                 </div>
