@@ -375,6 +375,7 @@ class DebtTelegramBot:
         sale_items: list = None,
         receipt_format: str = 'both',  # 'usd', 'uzs', yoki 'both'
         seller_phone: str = '',
+        customer_phone: str = '',
         total_amount_usd: float = 0,
         paid_usd: float = 0,
         cash_usd: float = 0,
@@ -505,6 +506,7 @@ class DebtTelegramBot:
                         'sale_id': sale_id,
                         'date': sale_date.strftime('%d.%m.%Y %H:%M'),
                         'customer_name': customer_name,
+                        'customer_phone': customer_phone,
                         'seller_name': sale_items[0].get('seller_name', '') if sale_items and isinstance(sale_items[0], dict) else '',
                         'seller_phone': seller_phone,
                         'location': location_name,
@@ -528,6 +530,7 @@ class DebtTelegramBot:
                         'sale_id': sale_id,
                         'date': sale_date.strftime('%d.%m.%Y %H:%M'),
                         'customer_name': customer_name,
+                        'customer_phone': customer_phone,
                         'seller_name': sale_items[0].get('seller_name', '') if sale_items and isinstance(sale_items[0], dict) else '',
                         'seller_phone': seller_phone,
                         'location': location_name,

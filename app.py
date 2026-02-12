@@ -9422,6 +9422,7 @@ def finalize_sale(sale_id):
                         sale_items=sale_items_for_pdf,
                         receipt_format=receipt_format,
                         seller_phone=seller_phone,
+                        customer_phone=customer.phone if customer.phone else '',
                         total_amount_usd=total_usd,
                         paid_usd=paid_usd,
                         cash_usd=float(sale.cash_usd),
@@ -10145,7 +10146,8 @@ def create_sale():
                         terminal_uzs=terminal_amount,
                         debt_uzs=debt_amount,
                         sale_id=current_sale.id,
-                        sale_items=sale_items_for_pdf
+                        sale_items=sale_items_for_pdf,
+                        customer_phone=customer.phone if customer.phone else ''
                     )
                     logger.info(f"âœ… Telegram xabar va PDF yuborildi: {customer.name}")
             except Exception as telegram_error:
