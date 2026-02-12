@@ -10165,11 +10165,16 @@ def create_sale():
                     tg_total_uzs = tg_total_usd * tg_exchange_rate
                     tg_paid_uzs = tg_paid_usd * tg_exchange_rate
 
+                    # Sotuvchi ma'lumotlarini olish (PDF uchun)
+                    seller_name = f"{current_sale.seller.first_name} {current_sale.seller.last_name}" if current_sale.seller else 'Sotuvchi'
+                    seller_phone = format_phone_number(current_sale.seller.phone) if current_sale.seller and current_sale.seller.phone else ''
+
                     # Savdo mahsulotlarini PDF uchun tayyorlash
                     sale_items_for_pdf = []
                     for item in current_sale.items:
                         sale_items_for_pdf.append({
                             'name': item.product.name if item.product else 'Mahsulot',
+                            'seller_name': seller_name,
                             'quantity': float(item.quantity),
                             'unit_price': float(item.unit_price) * tg_exchange_rate,
                             'total': float(item.total_price) * tg_exchange_rate,
@@ -10192,6 +10197,7 @@ def create_sale():
                         debt_uzs=tg_debt_uzs,
                         sale_id=current_sale.id,
                         sale_items=sale_items_for_pdf,
+                        seller_phone=seller_phone,
                         customer_phone=format_phone_number(customer.phone) if customer.phone else '',
                         # USD qiymatlar
                         total_amount_usd=tg_total_usd,
