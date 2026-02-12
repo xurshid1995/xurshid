@@ -10620,6 +10620,24 @@ def delete_sale_with_stock_return(sale_id):
         # Ma'lumotlarni olish (o'chirishdan oldin)
         total_items = len(sale.items)
         store_name = sale.store.name if sale.store else 'Noma\'lum'
+        sale_total = float(sale.total_amount) if sale.total_amount else 0
+        customer_name = sale.customer.name if sale.customer else 'Naqd mijoz'
+        
+        # Mahsulotlar ro'yxatini olish (o'chirishdan oldin)
+        products_desc = ', '.join([f"{item.product.name} ({item.quantity} ta)" for item in sale.items if item.product])
+        
+        # OperationHistory ga yozish
+        operation = OperationHistory(
+            operation_type='delete',
+            user_id=current_user.id,
+            description=f"Savdo o'chirildi #{sale_id}: {products_desc}",
+            quantity=total_items,
+            amount=sale_total,
+            location_type=sale.location_type,
+            location_id=sale.location_id,
+            notes=f"Mijoz: {customer_name}, Jami: ${sale_total:.2f}, Stock qaytarildi: {'Ha' if return_stock else 'Yo\\'q'}"
+        )
+        db.session.add(operation)
 
         # Savdoni o'chirish (cascade delete SaleItems ham o'chiradi)
         db.session.delete(sale)
