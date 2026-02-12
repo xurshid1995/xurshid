@@ -5838,8 +5838,12 @@
                 let customerName = 'Naqd mijoz';
                 let customerPhone = '';
                 
-                if (result.sale && result.sale.customer_name) {
-                    // Backend'dan kelgan ma'lumot
+                if (result.data && result.data.customer_name) {
+                    // Backend'dan kelgan ma'lumot (tahrirlash rejimida yoki yangi savdo)
+                    customerName = result.data.customer_name;
+                    customerPhone = result.data.customer_phone || '';
+                } else if (result.sale && result.sale.customer_name) {
+                    // Eski format (backward compatibility)
                     customerName = result.sale.customer_name;
                     customerPhone = result.sale.customer_phone || '';
                 } else if (customerId) {
@@ -5882,8 +5886,19 @@
                 formatPaymentDetail('Qarz', debtUSD, selectedCurrency);
                 
                 // Savdo ma'lumotlarini tayyorlash
-                const sellerName = '{{ session.get("user_name", session.get("username", "Sotuvchi")) }}';
-                const sellerPhone = '{{ session.get("user_phone", "") }}';
+                // Sotuvchi ma'lumotlari: agar result.data'da bo'lsa (tahrirlash rejimi), shundan olish
+                let sellerName = '{{ session.get("user_name", session.get("username", "Sotuvchi")) }}';
+                let sellerPhone = '{{ session.get("user_phone", "") }}';
+                
+                if (result.data && result.data.seller_name) {
+                    // Backend'dan kelgan ma'lumot (tahrirlash rejimida)
+                    sellerName = result.data.seller_name;
+                    sellerPhone = result.data.seller_phone || '';
+                } else if (result.sale && result.sale.seller_name) {
+                    // Eski format (backward compatibility)
+                    sellerName = result.sale.seller_name;
+                    sellerPhone = result.sale.seller_phone || '';
+                }
                 
                 // Joylashuv nomini olish
                 const locationSelect = getActiveTabElement('locationSelect');
