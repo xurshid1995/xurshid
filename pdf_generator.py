@@ -3,6 +3,7 @@
 PDF Generator - Savdo cheklari uchun
 """
 import os
+import io
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
@@ -10,6 +11,8 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
+import qrcode
+from reportlab.lib.utils import ImageReader
 
 def generate_sale_receipt_pdf(
     sale_data: dict,
@@ -277,10 +280,45 @@ def generate_sale_receipt_pdf(
     c.drawCentredString(page_width/2, y, "Rahmat!")
     y -= 3*mm
     c.drawCentredString(page_width/2, y, "Yana tashrif buyuring!")
+    y -= 8*mm
+    
+    # QR code - Telegram guruh linki
+    try:
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=1,
+        )
+        qr.add_data('https://t.me/DIAMONDCARAccesories')
+        qr.make(fit=True)
+        
+        # QR code rasmini yaratish
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        
+        # PIL Image'ni bytes'ga o'girish
+        img_buffer = io.BytesIO()
+        qr_img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        
+        # QR code o'lchami (25mm x 25mm)
+        qr_size = 25*mm
+        qr_x = (page_width - qr_size) / 2  # Markazda
+        
+        # QR code'ni chizish
+        c.drawImage(ImageReader(img_buffer), qr_x, y - qr_size, width=qr_size, height=qr_size)
+        y -= (qr_size + 3*mm)
+        
+        # QR code ostida matn
+        c.setFont("Helvetica", 6)
+        c.drawCentredString(page_width/2, y, "Telegram: @DIAMONDCARAccesories")
+    except Exception as e:
+        # QR code xato bo'lsa, oddiy matn qo'shish
+        c.setFont("Helvetica", 6)
+        c.drawCentredString(page_width/2, y, "Telegram: @DIAMONDCARAccesories")
+        y -= 3*mm
     
     # PDF ni saqlash
     c.save()
-    
-    return output_path
     
     return output_path
