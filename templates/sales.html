@@ -5872,7 +5872,9 @@
                 // Joylashuv nomini olish
                 const locationSelect = getActiveTabElement('locationSelect');
                 const selectedOption = locationSelect ? locationSelect.options[locationSelect.selectedIndex] : null;
-                const locationName = selectedOption ? selectedOption.text : 'Do\'kon';
+                let locationName = selectedOption ? selectedOption.text : 'Do\'kon';
+                // Emojini olib tashlash
+                locationName = locationName.replace(/^[\u{1F3ED}\u{1F3EA}]\s*/u, '').replace(/^(Ombor|Do'kon):\s*/i, '');
                 
                 const saleForPrint = {
                     id: result.sale_id || result.id,
