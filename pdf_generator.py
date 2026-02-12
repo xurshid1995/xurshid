@@ -206,6 +206,7 @@ def generate_sale_receipt_pdf(
     y -= 8*mm  # Jadval va jami summa orasidagi masofa
     
     # Jami summa (valyutaga qarab)
+    c.setFillColor(colors.black)  # Matn uchun qora rangni qayta o'rnatish
     c.setFont("Helvetica-Bold", 11)
     c.drawString(table_left, y, "Jami summa:")
     if currency == 'usd':
@@ -221,6 +222,7 @@ def generate_sale_receipt_pdf(
     paid_amount = sale_data.get(paid_key, sale_data.get('paid_amount', 0))
     
     if paid_amount > 0:
+        c.setFillColor(colors.black)  # Matn uchun qora rang
         c.setFont("Helvetica-Bold", 9)
         c.drawString(table_left, y, "To'lov:")
         y -= 4*mm
