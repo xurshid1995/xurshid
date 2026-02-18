@@ -772,7 +772,7 @@
             const data = await response.json();
             
             // Server-side pagination data
-            if (data.products && Array.isArray(data.products)) {
+            if (data.products) {
                 allProducts = data.products;
                 // Mahsulotlarni nom bo'yicha alifbo tartibida saralash (raqamli saralash bilan)
                 allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
@@ -786,7 +786,7 @@
                     currentSearch = data.filters.search || '';
                     currentLocation = data.filters.location || 'all';
                 }
-            } else if (Array.isArray(data)) {
+            } else {
                 // Fallback for old API format
                 allProducts = data;
                 // Mahsulotlarni nom bo'yicha alifbo tartibida saralash (raqamli saralash bilan)
@@ -794,12 +794,6 @@
                 filteredProducts = [...allProducts];
                 totalProducts = allProducts.length;
                 totalPages = Math.ceil(totalProducts / itemsPerPage);
-            } else {
-                console.error('Invalid data format received:', data);
-                allProducts = [];
-                filteredProducts = [];
-                totalProducts = 0;
-                totalPages = 0;
             }
             
             // Joylashuv tugmalarini yuklash (faqat birinchi marta)
