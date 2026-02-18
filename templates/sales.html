@@ -825,12 +825,12 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">💵 Sotish narxi ($):</label>
-                    <input type="text" inputmode="decimal" id="modalPriceUSD" value="0.00" 
+                    <input type="number" id="modalPriceUSD" step="0.01" value="0.00" 
                         style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">💰 Sotish narxi (UZS):</label>
-                    <input type="text" inputmode="decimal" id="modalPriceUZS" value="0" 
+                    <input type="number" id="modalPriceUZS" step="100" value="0" 
                         style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 </div>
             </div>
@@ -3053,11 +3053,15 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        const priceInput = getActiveTabElement('modalPriceUSD');
-                        if (priceInput) {
-                            priceInput.focus();
-                            priceInput.select();
-                        }
+                        // Klaviaturani to'liq yopib, yangi sessiya bilan ochish
+                        quantityInput.blur();
+                        setTimeout(() => {
+                            const priceInput = getActiveTabElement('modalPriceUSD');
+                            if (priceInput) {
+                                priceInput.focus();
+                                priceInput.select();
+                            }
+                        }, 300);
                         quantityInput.removeEventListener('keydown', handleQuantityEnter);
                     }
                 }, { once: false });
@@ -3070,11 +3074,15 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        const priceUZSInput = getActiveTabElement('modalPriceUZS');
-                        if (priceUZSInput) {
-                            priceUZSInput.focus();
-                            priceUZSInput.select();
-                        }
+                        // Klaviaturani to'liq yopib, yangi sessiya bilan ochish
+                        priceUSDInput.blur();
+                        setTimeout(() => {
+                            const priceUZSInput = getActiveTabElement('modalPriceUZS');
+                            if (priceUZSInput) {
+                                priceUZSInput.focus();
+                                priceUZSInput.select();
+                            }
+                        }, 300);
                         priceUSDInput.removeEventListener('keydown', handlePriceUSDEnter);
                     }
                 }, { once: false });
