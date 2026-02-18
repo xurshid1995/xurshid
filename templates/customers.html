@@ -1122,10 +1122,9 @@
         if (!confirmInput || !confirmBtn) return;
         
         confirmInput.addEventListener('input', function() {
-            const inputValue = this.value.trim().replace(/\s+/g, ' ');
-            const targetName = (currentCustomerName || '').trim().replace(/\s+/g, ' ');
+            const inputValue = this.value.trim();
             
-            if (inputValue === targetName) {
+            if (inputValue === currentCustomerName) {
                 confirmBtn.disabled = false;
                 confirmBtn.classList.add('enabled');
                 this.classList.remove('error');
