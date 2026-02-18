@@ -63,7 +63,7 @@ def generate_sale_receipt_pdf(
     
     # Chek ma'lumotlari (bordersiz)
     c.setFont("Helvetica-Bold", 9)
-    c.drawString(5*mm, y, f"Chek #{sale_data['sale_id']}")
+    c.drawString(5*mm, y, f"Savdo ID: {sale_data['sale_id']}")
     c.setFont("Helvetica", 9)
     c.drawRightString(page_width-5*mm, y, f"{sale_data['date']}")
     y -= 5*mm
