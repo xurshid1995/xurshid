@@ -202,7 +202,7 @@
     }
 
     .location-cell {
-        vertical-align: top;
+        vertical-align: middle;
         text-align: left;
         line-height: 0.9;
         padding-top: 0.3rem !important;
@@ -998,7 +998,7 @@
                             <span style="background-color: #28a745; color: white; font-weight: 600; padding: 2px 8px; border-radius: 0;">$${formatPrice(product.sell_price)}</span>
                             <span style="background-color: #007bff; color: white; font-size: 0.9rem; margin-left: 0.5rem; padding: 2px 8px; border-radius: 0;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
                         </td>
-                        <td class="location-cell">${locations}</td>
+                        <td class="location-cell" style="vertical-align: middle;">${locations}</td>
                         <td class="quantity-cell" style="vertical-align: middle;">${quantityDisplay}</td>
                         <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
                     </tr>
