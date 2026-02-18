@@ -36,7 +36,7 @@ sudo systemctl restart xurshid
 # 7. Service statusini tekshirish
 echo ""
 echo "📊 Service status:"
-sudo systemctl status sayt2025 --no-pager -n 5
+sudo systemctl status xurshid --no-pager -n 5
 
 # 8. Telegram bot statusini tekshirish
 echo ""
