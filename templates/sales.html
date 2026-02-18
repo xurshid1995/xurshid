@@ -3057,11 +3057,6 @@
                         if (priceInput) {
                             priceInput.focus();
                             priceInput.select();
-                            // VIZUAL DEBUG - 500ms keyin ekranda ko'rsatish
-                            setTimeout(() => {
-                                const info = `TYPE: ${priceInput.type}\nSEL: ${priceInput.selectionStart}-${priceInput.selectionEnd}\nVALUE: "${priceInput.value}"\nACTIVE: ${document.activeElement === priceInput}\nV2-TEXT-FIX`;
-                                alert(info);
-                            }, 500);
                         }
                         quantityInput.removeEventListener('keydown', handleQuantityEnter);
                     }
