@@ -5753,7 +5753,16 @@
                 // Agar tahrirlash rejimida bo'lsa
                 original_sale_id: editingSaleId,
                 is_edit_mode: editingSaleId !== null,
-                idempotency_key: idempotencyKey  // Idempotency key qo'shish
+                idempotency_key: idempotencyKey,  // Idempotency key qo'shish
+                // Chek formati (Telegram PDF uchun)
+                receipt_format: (() => {
+                    const pUSD = document.getElementById('printReceiptUSD');
+                    const pUZS = document.getElementById('printReceiptUZS');
+                    if (pUSD && pUSD.checked && pUZS && pUZS.checked) return 'both';
+                    if (pUSD && pUSD.checked) return 'usd';
+                    if (pUZS && pUZS.checked) return 'uzs';
+                    return 'none';
+                })()
             };
             
             console.log('📤 Savdoni backend ga yuborish:');

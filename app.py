@@ -10207,6 +10207,7 @@ def create_sale():
                         debt_uzs=tg_debt_uzs,
                         sale_id=current_sale.id,
                         sale_items=sale_items_for_pdf,
+                        receipt_format=data.get('receipt_format', 'both'),
                         seller_phone=seller_phone,
                         customer_phone=format_phone_number(customer.phone) if customer.phone else '',
                         # USD qiymatlar
