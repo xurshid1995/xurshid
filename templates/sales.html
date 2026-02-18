@@ -3053,14 +3053,12 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        setTimeout(() => {
-                            const priceInput = getActiveTabElement('modalPriceUSD');
-                            if (priceInput) {
-                                priceInput.focus();
-                                priceInput.select();
-                            }
-                        }, 100);
-                        // Listener o'chirish
+                        const priceInput = getActiveTabElement('modalPriceUSD');
+                        if (priceInput) {
+                            priceInput.focus();
+                            // IME cursor pozitsiyalashni tugallashini kutib select qilish
+                            setTimeout(() => priceInput.select(), 50);
+                        }
                         quantityInput.removeEventListener('keydown', handleQuantityEnter);
                     }
                 }, { once: false });
@@ -3073,13 +3071,12 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        setTimeout(() => {
-                            const priceUZSInput = getActiveTabElement('modalPriceUZS');
-                            if (priceUZSInput) {
-                                priceUZSInput.focus();
-                                priceUZSInput.select();
-                            }
-                        }, 100);
+                        const priceUZSInput = getActiveTabElement('modalPriceUZS');
+                        if (priceUZSInput) {
+                            priceUZSInput.focus();
+                            // IME cursor pozitsiyalashni tugallashini kutib select qilish
+                            setTimeout(() => priceUZSInput.select(), 50);
+                        }
                         priceUSDInput.removeEventListener('keydown', handlePriceUSDEnter);
                     }
                 }, { once: false });
