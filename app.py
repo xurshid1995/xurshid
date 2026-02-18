@@ -8360,6 +8360,9 @@ def delete_customer(customer_id):
         sales_count = Sale.query.filter_by(customer_id=customer_id).count()
         if sales_count > 0:
             logger.info(f" Bu mijozda {sales_count} ta savdo mavjud, lekin savdolar saqlanadi")
+            # Savdolardagi customer_id ni NULL qilish (savdo tarixi saqlanadi)
+            Sale.query.filter_by(customer_id=customer_id).update({'customer_id': None})
+            logger.info(f" {sales_count} ta savdoda customer_id NULL qilindi")
 
         # Debt payments yozuvlarida customer_id ni NULL qilish (tarixi saqlanadi)
         debt_payments_count = DebtPayment.query.filter_by(customer_id=customer_id).count()
