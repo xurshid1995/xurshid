@@ -86,6 +86,11 @@
                     <option value="">Barcha joylashuvlar</option>
                 </select>
             </div>
+            
+            <div class="filter-group">
+                <label for="saleIdFilter">Savdo ID:</label>
+                <input type="number" id="saleIdFilter" class="filter-input" placeholder="ID raqami..." min="1" style="width: 100px;">
+            </div>
         </div>
     </div>
 
@@ -1763,6 +1768,13 @@ async function loadSalesHistory(page = 1) {
             console.log('📍 Joylashuv filtri qo\'shildi:', locationFilter);
         }
         
+        // Savdo ID filtri qo'shish
+        const saleIdFilter = document.getElementById('saleIdFilter')?.value;
+        if (saleIdFilter) {
+            apiUrl += `&sale_id=${encodeURIComponent(saleIdFilter)}`;
+            console.log('🔢 Savdo ID filtri qo\'shildi:', saleIdFilter);
+        }
+        
         apiUrl += `&nocache=` + new Date().getTime();
         
         console.log('📅 API URL:', apiUrl);
@@ -3148,6 +3160,7 @@ function initializeSearchAndFilters() {
     const dateToFilter = document.getElementById('dateToFilter');
     const customerFilter = document.getElementById('customerFilter');
     const locationFilter = document.getElementById('locationFilter');
+    const saleIdFilter = document.getElementById('saleIdFilter');
     
     // Qidiruv input hodisalari
     searchInput.addEventListener('input', function() {
@@ -3162,6 +3175,7 @@ function initializeSearchAndFilters() {
         dateToFilter.value = '';
         customerFilter.value = '';
         locationFilter.value = '';
+        saleIdFilter.value = '';
         selectedCustomerId = '';
         this.style.display = 'none';
         // Filtrlar tozalanganda API'dan yangi ma'lumotlar yuklash (bugungi kun statistikasi)
@@ -3192,6 +3206,12 @@ function initializeSearchAndFilters() {
         applySearchAndFilters();
     });
     
+    // Savdo ID filtr change hodisasi
+    saleIdFilter.addEventListener('input', function() {
+        updateClearButtonVisibility();
+        applySearchAndFilters();
+    });
+    
     // Mijozlar ro'yxatini yuklash
     loadCustomersForFilter();
     
@@ -3210,12 +3230,14 @@ function updateClearButtonVisibility() {
     const clearSearchBtn = document.getElementById('clearSearch');
     
     const locationFilter = document.getElementById('locationFilter');
+    const saleIdFilter = document.getElementById('saleIdFilter');
     
     const hasFilters = searchInput.value.trim() || 
                       dateFromFilter.value || 
                       dateToFilter.value || 
                       selectedCustomerId ||
-                      locationFilter.value;
+                      locationFilter.value ||
+                      saleIdFilter.value;
     
     clearSearchBtn.style.display = hasFilters ? 'block' : 'none';
 }

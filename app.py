@@ -8937,6 +8937,7 @@ def api_sales_history():
         payment_method = request.args.get('payment_method')
         location_filter = request.args.get('location_filter')  # store_1, warehouse_2 formatida
         search_term = request.args.get('search_term')  # Mahsulot nomi bo'yicha qidiruv
+        sale_id_filter = request.args.get('sale_id')  # Savdo ID bo'yicha qidiruv
 
         # Statistika uchun logika:
         # - Agar sana filtri berilgan bo'lsa, shu sanalar bo'yicha statistika
@@ -9044,6 +9045,15 @@ def api_sales_history():
         # Apply other filters
         if customer_id and customer_id != 'all':
             query = query.filter(Sale.customer_id == customer_id)
+
+        # Savdo ID filtri
+        if sale_id_filter:
+            try:
+                sale_id_int = int(sale_id_filter)
+                query = query.filter(Sale.id == sale_id_int)
+                print(f"🔢 Sale ID filtri: {sale_id_int}")
+            except (ValueError, TypeError):
+                pass
 
         if store_id and store_id != 'all':
             query = query.filter(Sale.store_id == store_id)
