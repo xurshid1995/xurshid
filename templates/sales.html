@@ -825,12 +825,12 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">💵 Sotish narxi ($):</label>
-                    <input type="number" id="modalPriceUSD" step="0.01" value="0.00" 
+                    <input type="text" inputmode="decimal" id="modalPriceUSD" value="0.00" 
                         style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">💰 Sotish narxi (UZS):</label>
-                    <input type="number" id="modalPriceUZS" step="100" value="0" 
+                    <input type="text" inputmode="numeric" id="modalPriceUZS" value="0" 
                         style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 </div>
             </div>
@@ -3053,41 +3053,10 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        
                         const priceInput = getActiveTabElement('modalPriceUSD');
                         if (priceInput) {
-                            // DEBUG: Barcha eventlarni kuzatish
-                            const debugEvents = ['focus', 'blur', 'input', 'change', 'select', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'click', 'keydown', 'keyup', 'selectionchange'];
-                            debugEvents.forEach(evt => {
-                                priceInput.addEventListener(evt, function(ev) {
-                                    const sel = this.selectionStart !== null ? `sel:${this.selectionStart}-${this.selectionEnd}` : 'sel:N/A';
-                                    console.log(`🔍 DEBUG priceUSD [${evt}] value="${this.value}" ${sel} time=${Date.now()}`);
-                                }, { once: true });
-                            });
-                            // Document selectionchange ham kuzatish
-                            const selHandler = () => {
-                                const active = document.activeElement;
-                                if (active === priceInput) {
-                                    const sel = active.selectionStart !== null ? `sel:${active.selectionStart}-${active.selectionEnd}` : 'sel:N/A';
-                                    console.log(`🔍 DEBUG document.selectionchange active=priceUSD value="${active.value}" ${sel} time=${Date.now()}`);
-                                }
-                            };
-                            document.addEventListener('selectionchange', selHandler);
-                            setTimeout(() => document.removeEventListener('selectionchange', selHandler), 2000);
-                            
-                            console.log(`🔍 DEBUG START: value="${priceInput.value}" type="${priceInput.type}" time=${Date.now()}`);
                             priceInput.focus();
-                            console.log(`🔍 DEBUG AFTER focus(): sel=${priceInput.selectionStart}-${priceInput.selectionEnd} time=${Date.now()}`);
                             priceInput.select();
-                            console.log(`🔍 DEBUG AFTER select(): sel=${priceInput.selectionStart}-${priceInput.selectionEnd} time=${Date.now()}`);
-                            
-                            // 50ms, 100ms, 200ms keyin tekshirish
-                            [50, 100, 200, 500].forEach(ms => {
-                                setTimeout(() => {
-                                    const sel = priceInput.selectionStart !== null ? `${priceInput.selectionStart}-${priceInput.selectionEnd}` : 'N/A';
-                                    console.log(`🔍 DEBUG +${ms}ms: sel=${sel} activeEl=${document.activeElement === priceInput ? 'priceUSD' : document.activeElement.tagName} value="${priceInput.value}" time=${Date.now()}`);
-                                }, ms);
-                            });
                         }
                         quantityInput.removeEventListener('keydown', handleQuantityEnter);
                     }
@@ -3101,15 +3070,11 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        // Klaviaturani to'liq yopib, yangi sessiya bilan ochish
-                        priceUSDInput.blur();
-                        setTimeout(() => {
-                            const priceUZSInput = getActiveTabElement('modalPriceUZS');
-                            if (priceUZSInput) {
-                                priceUZSInput.focus();
-                                priceUZSInput.select();
-                            }
-                        }, 300);
+                        const priceUZSInput = getActiveTabElement('modalPriceUZS');
+                        if (priceUZSInput) {
+                            priceUZSInput.focus();
+                            priceUZSInput.select();
+                        }
                         priceUSDInput.removeEventListener('keydown', handlePriceUSDEnter);
                     }
                 }, { once: false });
@@ -3190,6 +3155,22 @@
         if (modalPriceUSD) modalPriceUSD.addEventListener('input', updateUZSPrice);
         if (modalPriceUZS) modalPriceUZS.addEventListener('input', updateUSDPrice);
         if (modalQuantity) modalQuantity.addEventListener('input', validateQuantity);
+        
+        // Raqam validatsiyasi - faqat raqam va nuqta kiritilishiga ruxsat berish
+        function filterNumericInput(e) {
+            const input = e.target;
+            // Faqat raqam, nuqta va minus ruxsat
+            const cleaned = input.value.replace(/[^0-9.\-]/g, '');
+            // Bir nechta nuqtani oldini olish
+            const parts = cleaned.split('.');
+            if (parts.length > 2) {
+                input.value = parts[0] + '.' + parts.slice(1).join('');
+            } else if (cleaned !== input.value) {
+                input.value = cleaned;
+            }
+        }
+        if (modalPriceUSD) modalPriceUSD.addEventListener('input', filterNumericInput);
+        if (modalPriceUZS) modalPriceUZS.addEventListener('input', filterNumericInput);
     }
     
     // Miqdorni validatsiya qilish
