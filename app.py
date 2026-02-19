@@ -3678,11 +3678,14 @@ def api_product_operations(product_id):
         warehouse_stock_ids = [ws.id for ws in WarehouseStock.query.filter_by(product_id=product_id).all()]
         store_stock_ids = [ss.id for ss in StoreStock.query.filter_by(product_id=product_id).all()]
 
+        # Bu mahsulot sotilgan savdo IDlarini olish (eski format: table_name='sales')
+        sale_ids_old = [si.sale_id for si in SaleItem.query.filter_by(product_id=product_id).all()]
+
         # To'liq filter: barcha amaliyotlarni qamrab olish
         from sqlalchemy import or_, and_, text as sa_text
 
         conditions = [
-            # 1. Bevosita mahsulot operatsiyalari (add_product, edit, delete)
+            # 1. Bevosita mahsulot operatsiyalari (add_product, yangi sale, edit, delete)
             and_(
                 OperationHistory.record_id == product_id,
                 OperationHistory.table_name == 'products'
@@ -3709,9 +3712,20 @@ def api_product_operations(product_id):
                 )
             )
 
+        # 5. Eski savdo loglari (table_name='sales') — faqat description da mahsulot nomi bor bo'lsa
+        if sale_ids_old:
+            conditions.append(
+                and_(
+                    OperationHistory.record_id.in_(sale_ids_old),
+                    OperationHistory.table_name == 'sales',
+                    OperationHistory.operation_type.in_(['sale', 'return', 'sale_edit', 'payment_refund']),
+                    OperationHistory.description.ilike(f'%{product.name}%')
+                )
+            )
+
         ops = OperationHistory.query.filter(
             or_(*conditions)
-        ).order_by(OperationHistory.created_at.desc()).limit(100).all()
+        ).order_by(OperationHistory.created_at.desc()).limit(200).all()
 
         op_labels = {
             'sale': '🛒 Sotish',
