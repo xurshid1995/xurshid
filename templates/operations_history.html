@@ -282,14 +282,10 @@
 
     // Sahifa yuklanganida
     document.addEventListener('DOMContentLoaded', function() {
-        // Bugungi sanani o'rnatish
+        // Bugungi sanani o'rnatish (boshlanish va tugash)
         const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
         document.getElementById('endDate').value = today;
-        
-        // 30 kun oldingi sanani o'rnatish
-        const monthAgo = new Date();
-        monthAgo.setDate(monthAgo.getDate() - 30);
-        document.getElementById('startDate').value = monthAgo.toISOString().split('T')[0];
 
         // Foydalanuvchilar ro'yxatini yuklash
         loadUsers();
@@ -392,11 +388,8 @@
 
     function resetFilters() {
         const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
         document.getElementById('endDate').value = today;
-        
-        const monthAgo = new Date();
-        monthAgo.setDate(monthAgo.getDate() - 30);
-        document.getElementById('startDate').value = monthAgo.toISOString().split('T')[0];
 
         document.getElementById('operationType').value = '';
         document.getElementById('userFilter').value = '';
