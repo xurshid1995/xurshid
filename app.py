@@ -851,6 +851,11 @@ def user_can_manage_transfer(user, pending_transfer):
         print(f"   ✅ ADMIN ACCESS")
         return True
 
+    # 1b. Transferni o'zi yaratgan bo'lsa
+    if pending_transfer.user_id and pending_transfer.user_id == user.id:
+        print(f"   ✅ CREATOR ACCESS: user created this transfer")
+        return True
+
     # 2. FROM yoki TO joylashuvlaridan biriga ruxsati bo'lsa (transfer_locations yoki allowed_locations)
     # Transfer locations dan tekshirish (transfer qilish huquqi)
     transfer_locations = user.transfer_locations or []
@@ -886,14 +891,19 @@ def user_can_manage_transfer(user, pending_transfer):
         if isinstance(loc, dict):
             loc_id = loc.get('id')
             loc_type = loc.get('type')
-            
+            # int/str type mismatch oldini olish
+            try:
+                loc_id = int(loc_id)
+            except (TypeError, ValueError):
+                pass
+
             if loc_id == from_id and loc_type == from_type:
                 has_from_permission = True
                 print(f"   ✅ FROM permission: {from_type}_{from_id}")
             if loc_id == to_id and loc_type == to_type:
                 has_to_permission = True
                 print(f"   ✅ TO permission: {to_type}_{to_id}")
-        
+
         # Eski format: integer (faqat id)
         elif isinstance(loc, int):
             if loc == from_id:
@@ -902,6 +912,16 @@ def user_can_manage_transfer(user, pending_transfer):
             if loc == to_id:
                 has_to_permission = True
                 print(f"   ✅ TO permission (old format): {to_id}")
+        # String format
+        elif isinstance(loc, str):
+            try:
+                loc_int = int(loc)
+                if loc_int == from_id:
+                    has_from_permission = True
+                if loc_int == to_id:
+                    has_to_permission = True
+            except (ValueError, TypeError):
+                pass
     
     # Kamida biriga ruxsat bo'lsa yetarli
     if has_from_permission or has_to_permission:
