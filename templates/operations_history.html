@@ -65,11 +65,6 @@
         </div>
     </div>
 
-    <!-- Statistika -->
-    <div id="statistics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-        <!-- Statistika kartochkalari JavaScript orqali to'ldiriladi -->
-    </div>
-
     <!-- Amaliyotlar jadvali -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
         <div style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-bottom: 2px solid #dee2e6;">
@@ -156,14 +151,6 @@
 
     .btn-success:hover {
         background: #218838;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid;
     }
 
     #historyTable tbody tr {
@@ -366,7 +353,6 @@
                 } else {
                     displayOperations(data.operations);
                     updatePagination();
-                    updateStatistics(data.operations);
                 }
             } else {
                 throw new Error(data.error || 'Ma\'lumot yuklashda xatolik');
@@ -516,50 +502,6 @@
             nextBtn.onclick = () => loadHistory(currentPage + 1);
             pagination.appendChild(nextBtn);
         }
-    }
-
-    function updateStatistics(operations) {
-        const stats = {
-            sale: 0,
-            add_product: 0,
-            transfer: 0,
-            return: 0,
-            edit: 0,
-            total_amount: 0
-        };
-
-        operations.forEach(op => {
-            if (stats.hasOwnProperty(op.operation_type)) {
-                stats[op.operation_type]++;
-            }
-            if (op.amount) {
-                stats.total_amount += parseFloat(op.amount);
-            }
-        });
-
-        const statContainer = document.getElementById('statistics');
-        statContainer.innerHTML = `
-            <div class="stat-card" style="border-left-color: #28a745;">
-                <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 0.5rem;">🛒 Sotishlar</div>
-                <div style="font-size: 1.8rem; font-weight: 700; color: #28a745;">${stats.sale}</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #007bff;">
-                <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 0.5rem;">📦 Mahsulot qo'shish</div>
-                <div style="font-size: 1.8rem; font-weight: 700; color: #007bff;">${stats.add_product}</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #17a2b8;">
-                <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 0.5rem;">🔄 Transferlar</div>
-                <div style="font-size: 1.8rem; font-weight: 700; color: #17a2b8;">${stats.transfer}</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #ffc107;">
-                <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 0.5rem;">↩️ Qaytarishlar</div>
-                <div style="font-size: 1.8rem; font-weight: 700; color: #ffc107;">${stats.return}</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #667eea;">
-                <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 0.5rem;">💰 Jami summa</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">${formatMoney(stats.total_amount)}</div>
-            </div>
-        `;
     }
 
     function viewDetails(operation) {
