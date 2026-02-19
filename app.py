@@ -6647,13 +6647,20 @@ def edit_stock(warehouse_id, product_id):
             # OperationHistory logini yozish
             try:
                 warehouse = Warehouse.query.get(warehouse_id)
+                _wh_diff = float(new_quantity) - float(old_quantity)
+                if _wh_diff > 0:
+                    _wh_qty_str = f"{float(new_quantity):.0f} ({float(old_quantity):.0f}+{_wh_diff:.0f}={float(new_quantity):.0f})"
+                elif _wh_diff < 0:
+                    _wh_qty_str = f"{float(new_quantity):.0f} ({float(old_quantity):.0f}{_wh_diff:.0f}={float(new_quantity):.0f})"
+                else:
+                    _wh_qty_str = f"{float(new_quantity):.0f} (o'zgarmadi)"
                 history = OperationHistory(
                     operation_type='edit_stock',
                     table_name='warehouse_stock',
                     record_id=stock.id,
                     user_id=session.get('user_id'),
                     username=session.get('username', 'Unknown'),
-                    description=f"{new_product_name} tahrirlandi: miqdor {old_quantity} -> {new_quantity}, narx ${new_cost_price:.2f} -> ${new_sell_price:.2f}",
+                    description=f"{new_product_name} tahrirlandi: miqdor {_wh_qty_str} ${new_sell_price:.2f}",
                     old_data={'quantity': str(old_quantity), 'cost_price': str(cost_price), 'sell_price': str(sell_price)},
                     new_data={'quantity': str(new_quantity), 'cost_price': str(new_cost_price), 'sell_price': str(new_sell_price)},
                     ip_address=request.remote_addr,
@@ -6861,13 +6868,20 @@ def edit_store_stock(store_id, product_id):
             # OperationHistory logini yozish
             try:
                 store = Store.query.get(store_id)
+                _st_diff = float(new_quantity) - float(old_quantity)
+                if _st_diff > 0:
+                    _st_qty_str = f"{float(new_quantity):.0f} ({float(old_quantity):.0f}+{_st_diff:.0f}={float(new_quantity):.0f})"
+                elif _st_diff < 0:
+                    _st_qty_str = f"{float(new_quantity):.0f} ({float(old_quantity):.0f}{_st_diff:.0f}={float(new_quantity):.0f})"
+                else:
+                    _st_qty_str = f"{float(new_quantity):.0f} (o'zgarmadi)"
                 history = OperationHistory(
                     operation_type='edit_stock',
                     table_name='store_stock',
                     record_id=stock.id,
                     user_id=session.get('user_id'),
                     username=session.get('username', 'Unknown'),
-                    description=f"{new_product_name} tahrirlandi: miqdor {old_quantity} -> {new_quantity}, narx ${new_cost_price:.2f} -> ${new_sell_price:.2f}",
+                    description=f"{new_product_name} tahrirlandi: miqdor {_st_qty_str} ${new_sell_price:.2f}",
                     old_data={'quantity': str(old_quantity), 'cost_price': str(cost_price), 'sell_price': str(sell_price)},
                     new_data={'quantity': str(new_quantity), 'cost_price': str(new_cost_price), 'sell_price': str(new_sell_price)},
                     ip_address=request.remote_addr,
