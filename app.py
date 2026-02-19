@@ -3797,7 +3797,82 @@ def api_product_operations(product_id):
                 'new_data': op.new_data,
                 'amount': float(op.amount) if op.amount else None,
                 'created_at': op.created_at.strftime('%d.%m.%Y %H:%M') if op.created_at else None,
+                '_sort_key': op.created_at if op.created_at else __import__('datetime').datetime.min,
             })
+
+        # 6. SaleItem dan to'g'ridan-to'g'ri qidirish (operations_history da yozilmagan eski savdolar)
+        import re as _re
+        covered_sale_ids = set()
+        for op in ops:
+            # table_name='sales' da record_id = sale_id
+            if op.table_name == 'sales':
+                covered_sale_ids.add(op.record_id)
+            # new_data da sale_id bo'lishi mumkin
+            if op.new_data and isinstance(op.new_data, dict):
+                sid = op.new_data.get('sale_id')
+                if sid:
+                    covered_sale_ids.add(int(sid))
+            # description da "Savdo #252" formatida
+            if op.description:
+                m = _re.search(r'Savdo #(\d+)', op.description)
+                if m:
+                    covered_sale_ids.add(int(m.group(1)))
+
+        all_sale_items = SaleItem.query.filter_by(product_id=product_id).all()
+        for si in all_sale_items:
+            if si.sale_id in covered_sale_ids:
+                continue
+            sale = Sale.query.get(si.sale_id)
+            if not sale or sale.payment_status not in ('paid', 'debt'):
+                continue
+            # Joylashuv
+            loc_name = ''
+            if si.source_type == 'store' and si.source_id:
+                s_obj = Store.query.get(si.source_id)
+                loc_name = s_obj.name if s_obj else ''
+            elif si.source_type == 'warehouse' and si.source_id:
+                w_obj = Warehouse.query.get(si.source_id)
+                loc_name = w_obj.name if w_obj else ''
+            elif sale.location_id and sale.location_type:
+                if sale.location_type == 'store':
+                    s_obj = Store.query.get(sale.location_id)
+                    loc_name = s_obj.name if s_obj else ''
+                else:
+                    w_obj = Warehouse.query.get(sale.location_id)
+                    loc_name = w_obj.name if w_obj else ''
+            # Sotuvchi
+            seller = sale.seller
+            si_user_role = None
+            si_user_phone = None
+            si_uname = None
+            if seller:
+                si_uname = f"{seller.first_name} {seller.last_name}".strip()
+                si_user_role = seller.get_role_display() if hasattr(seller, 'get_role_display') else seller.role
+                si_user_phone = seller.phone
+            # Valyuta kursi
+            rate = float(sale.currency_rate) if sale.currency_rate else 1
+            sort_dt = sale.sale_date if sale.sale_date else __import__('datetime').datetime.min
+            result.append({
+                'operation_type': 'sale',
+                'label': '🛒 Sotish',
+                'description': f"Sotildi: {product.name} - {float(si.quantity):.0f} ta × ${float(si.unit_price):.2f} (Savdo #{si.sale_id})",
+                'username': si_uname,
+                'user_role': si_user_role,
+                'user_phone': si_user_phone,
+                'location_name': loc_name,
+                'old_data': None,
+                'new_data': {'sale_id': si.sale_id, 'quantity': float(si.quantity), 'unit_price': float(si.unit_price)},
+                'amount': float(si.total_price) * rate if si.total_price else None,
+                'created_at': sale.sale_date.strftime('%d.%m.%Y %H:%M') if sale.sale_date else None,
+                '_sort_key': sort_dt,
+            })
+            covered_sale_ids.add(si.sale_id)
+
+        # Sana bo'yicha tartiblash (yangi → eski)
+        result.sort(key=lambda x: x.get('_sort_key', __import__('datetime').datetime.min), reverse=True)
+        # _sort_key ni javobdan olib tashlash
+        for r in result:
+            r.pop('_sort_key', None)
 
         return jsonify({'success': True, 'product_name': product.name, 'operations': result})
     except Exception as e:
@@ -9638,6 +9713,52 @@ def finalize_sale(sale_id):
             except Exception as telegram_error:
                 logger.warning(f"âš ï¸ Telegram xabar yuborishda xatolik (finalize): {telegram_error}")
                 # Telegram xatosi savdoni to'xtatmasin
+
+        # OperationHistory ga har bir SaleItem uchun log yozish
+        try:
+            current_user_fin = get_current_user()
+            fin_loc_name = ''
+            if sale.location_type == 'store':
+                s_obj = Store.query.get(sale.location_id)
+                fin_loc_name = s_obj.name if s_obj else ''
+            elif sale.location_type == 'warehouse':
+                w_obj = Warehouse.query.get(sale.location_id)
+                fin_loc_name = w_obj.name if w_obj else ''
+
+            fin_username = (f"{current_user_fin.first_name} {current_user_fin.last_name}".strip()
+                            if current_user_fin else session.get('username', 'System'))
+            fin_user_id = current_user_fin.id if current_user_fin else session.get('user_id')
+
+            for si in sale.items:
+                p = si.product
+                if not p:
+                    continue
+                fin_op = OperationHistory(
+                    operation_type='sale',
+                    table_name='products',
+                    record_id=si.product_id,
+                    user_id=fin_user_id,
+                    username=fin_username,
+                    description=f"Sotildi: {p.name} - {float(si.quantity):.0f} ta x ${float(si.unit_price):.2f} (Savdo #{sale.id})",
+                    old_data=None,
+                    new_data={
+                        'sale_id': sale.id,
+                        'product_id': si.product_id,
+                        'quantity': float(si.quantity),
+                        'unit_price': float(si.unit_price),
+                        'total_price': float(si.total_price),
+                    },
+                    ip_address=request.remote_addr,
+                    location_id=sale.location_id,
+                    location_type=sale.location_type,
+                    location_name=fin_loc_name,
+                    amount=float(si.total_price * (sale.currency_rate or 1))
+                )
+                db.session.add(fin_op)
+            db.session.commit()
+            logger.info(f"Finalize savdo #{sale_id} uchun {len(sale.items)} ta OperationHistory yozildi")
+        except Exception as log_err:
+            logger.warning(f"Finalize OperationHistory log xatoligi: {log_err}")
 
         return jsonify({
             'success': True,
