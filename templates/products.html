@@ -1524,12 +1524,19 @@
                         const dateStr = dtParts[0] || '';
                         const timeStr = dtParts[1] || '';
                         const dateHtml = dateStr ? `<span class="op-date"><span>${dateStr}</span><span style="text-align:right;font-size:1rem">${timeStr}</span></span>` : '';
+                        // Transfer uchun description dan joylashuv qismini olib tashlash
+                        let desc = op.description || '';
+                        if (op.operation_type === 'transfer') {
+                            // "Transfer: MahsulotNomi - UY → Sergeli 1/4/3" dan faqat mahsulot nomini olish
+                            const m = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+$/);
+                            if (m) desc = m[1];
+                        }
                         html += `<div class="op-row">
                             <div class="op-top">
                                 <span class="op-badge">${op.label}</span>${loc}${user}
                                 ${dateHtml}
                             </div>
-                            <div class="op-desc">${op.description || ''}</div>
+                            <div class="op-desc">${desc}</div>
                         </div>`;
                     });
                 }
