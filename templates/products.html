@@ -1480,11 +1480,13 @@
         popup.innerHTML = `<div class="pop-header"><h4>🕐 Yuklanmoqda...</h4><button class="pop-close" onclick="closeProductOps()">✕</button></div><div style="padding:1.2rem;text-align:center;color:#667eea;">⏳ Yuklanmoqda...</div>`;
 
         const rect = btn.getBoundingClientRect();
-        let top = rect.bottom + window.scrollY + 4;
-        let left = rect.left + window.scrollX;
+        let top = rect.bottom + 4;
+        let left = rect.left;
         // Ekrandan chiqib ketmaslik
         if (left + 385 > window.innerWidth) left = window.innerWidth - 390;
-        if (top + 430 > window.scrollY + window.innerHeight) top = rect.top + window.scrollY - 434;
+        if (left < 4) left = 4;
+        if (top + 430 > window.innerHeight) top = rect.top - 434;
+        if (top < 4) top = 4;
         popup.style.top = top + 'px';
         popup.style.left = left + 'px';
 
