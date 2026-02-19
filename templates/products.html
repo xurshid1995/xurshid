@@ -1533,17 +1533,26 @@
                         }
                         // edit_stock: eski format "miqdor X -> Y, narx $A -> $B" ni yangi formatga o'tkazish
                         if (op.operation_type === 'edit_stock') {
+                            // Eski format: "miqdor 6 -> 44, narx $24.77 -> $28.00"
                             const em = desc.match(/tahrirlandi:\s*miqdor\s+([\d.]+)\s*->\s*([\d.]+),\s*narx\s*\$([\d.]+)\s*->\s*\$([\d.]+)/);
+                            // Yangi format: "miqdor 44 (6+38=44) $28.00" yoki "miqdor 98 (100-2=98) $28.00"
+                            const em2 = desc.match(/tahrirlandi:\s*miqdor\s+[\d.]+\s*\((\d+\.?\d*)([-+])(\d+\.?\d*)=(\d+\.?\d*)\)\s*\$([\d.]+)/);
                             if (em) {
                                 const oldQty = parseFloat(em[1]);
                                 const newQty = parseFloat(em[2]);
                                 const newPrice = parseFloat(em[4]);
                                 const diff = newQty - oldQty;
-                                let qtyStr;
-                                if (diff > 0) qtyStr = `${newQty} (${oldQty}+${diff}=${newQty})`;
-                                else if (diff < 0) qtyStr = `${newQty} (${oldQty}${diff}=${newQty})`;
-                                else qtyStr = `${newQty} (o'zgarmadi)`;
-                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor ${qtyStr} $${newPrice.toFixed(2)}`);
+                                const sign = diff > 0 ? `+${diff}` : `${diff}`;
+                                const label = diff === 0 ? `o'zgarmadi` : sign + ' ta';
+                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty} → ${newQty} (${label}) | $${newPrice.toFixed(2)}`);
+                            } else if (em2) {
+                                const oldQty = parseFloat(em2[1]);
+                                const op2 = em2[2];
+                                const diffVal = parseFloat(em2[3]);
+                                const newQty = parseFloat(em2[4]);
+                                const newPrice = parseFloat(em2[5]);
+                                const sign = op2 === '+' ? `+${diffVal}` : `-${diffVal}`;
+                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty} → ${newQty} (${sign} ta) | $${newPrice.toFixed(2)}`);
                             }
                         }
                         html += `<div class="op-row">
