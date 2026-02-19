@@ -695,10 +695,11 @@
     #prodOpsPopup .op-row:last-child { border-bottom: none; }
     #prodOpsPopup .op-row .op-top {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 5px;
         margin-bottom: 2px;
     }
+    #prodOpsPopup .op-row .op-top .op-date { margin-left: auto; }
     #prodOpsPopup .op-badge {
         font-size: 0.78rem;
         font-weight: 600;
@@ -707,7 +708,7 @@
         padding: 1px 8px;
         border-radius: 12px;
     }
-    #prodOpsPopup .op-date { color: #888; font-size: 0.77rem; }
+    #prodOpsPopup .op-date { color: #888; font-size: 0.77rem; white-space: nowrap; }
     #prodOpsPopup .op-loc { color: #555; font-size: 0.78rem; background: #f0f0f0; border-radius: 4px; padding: 1px 6px; margin-left: 4px; }
     #prodOpsPopup .op-desc { color: #444; line-height: 1.4; }
     #prodOpsPopup .op-user { color: #667eea; font-size: 0.77rem; }
