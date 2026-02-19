@@ -1541,18 +1541,16 @@
                                 const oldQty = parseFloat(em[1]);
                                 const newQty = parseFloat(em[2]);
                                 const newPrice = parseFloat(em[4]);
-                                const diff = newQty - oldQty;
-                                const sign = diff > 0 ? `+${diff}` : `${diff}`;
-                                const label = diff === 0 ? `o'zgarmadi` : sign + ' ta';
-                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty} → ${newQty} (${label}) | $${newPrice.toFixed(2)}`);
+                                const diff = Math.abs(newQty - oldQty);
+                                const sep = newQty >= oldQty ? '+' : '-';
+                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty}${sep}${newQty} (${diff} ta) | $${newPrice.toFixed(2)}`);
                             } else if (em2) {
                                 const oldQty = parseFloat(em2[1]);
-                                const op2 = em2[2];
+                                const opSign = em2[2];
                                 const diffVal = parseFloat(em2[3]);
                                 const newQty = parseFloat(em2[4]);
                                 const newPrice = parseFloat(em2[5]);
-                                const sign = op2 === '+' ? `+${diffVal}` : `-${diffVal}`;
-                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty} → ${newQty} (${sign} ta) | $${newPrice.toFixed(2)}`);
+                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor: ${oldQty}${opSign}${newQty} (${diffVal} ta) | $${newPrice.toFixed(2)}`);
                             }
                         }
                         html += `<div class="op-row">
