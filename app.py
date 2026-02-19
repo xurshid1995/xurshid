@@ -3674,9 +3674,44 @@ def api_product_operations(product_id):
         if not product:
             return jsonify({'success': False, 'error': 'Mahsulot topilmadi'}), 404
 
+        # Bu mahsulotga tegishli stock IDlarini olish
+        warehouse_stock_ids = [ws.id for ws in WarehouseStock.query.filter_by(product_id=product_id).all()]
+        store_stock_ids = [ss.id for ss in StoreStock.query.filter_by(product_id=product_id).all()]
+
+        # To'liq filter: barcha amaliyotlarni qamrab olish
+        from sqlalchemy import or_, and_, text as sa_text
+
+        conditions = [
+            # 1. Bevosita mahsulot operatsiyalari (add_product, edit, delete)
+            and_(
+                OperationHistory.record_id == product_id,
+                OperationHistory.table_name == 'products'
+            ),
+            # 2. new_data ichida product_id bo'lgan operatsiyalar (transfer, ba'zi add_product)
+            sa_text(f"(new_data->>'product_id')::text = '{product_id}'"),
+        ]
+
+        # 3. Ombor stok operatsiyalari (edit_stock)
+        if warehouse_stock_ids:
+            conditions.append(
+                and_(
+                    OperationHistory.record_id.in_(warehouse_stock_ids),
+                    OperationHistory.table_name == 'warehouse_stock'
+                )
+            )
+
+        # 4. Do'kon stok operatsiyalari (edit_stock)
+        if store_stock_ids:
+            conditions.append(
+                and_(
+                    OperationHistory.record_id.in_(store_stock_ids),
+                    OperationHistory.table_name.in_(['store_stocks', 'store_stock'])
+                )
+            )
+
         ops = OperationHistory.query.filter(
-            OperationHistory.record_id == product_id
-        ).order_by(OperationHistory.created_at.desc()).limit(15).all()
+            or_(*conditions)
+        ).order_by(OperationHistory.created_at.desc()).limit(50).all()
 
         op_labels = {
             'sale': '🛒 Sotish',
@@ -3690,10 +3725,15 @@ def api_product_operations(product_id):
             'delete': '🗑️ O\'chirish',
             'delete_stock': '🗑️ Zaxira o\'chirish',
             'edit_user': '👤 Foydalanuvchi tahrirlash',
+            'create_store': '🏪 Do\'kon yaratish',
         }
 
         result = []
+        seen_ids = set()
         for op in ops:
+            if op.id in seen_ids:
+                continue
+            seen_ids.add(op.id)
             result.append({
                 'operation_type': op.operation_type,
                 'label': op_labels.get(op.operation_type, op.operation_type),
