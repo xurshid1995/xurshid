@@ -6,26 +6,26 @@
 <div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1rem;">
 
     <!-- Filterlar -->
-    <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">📅 Boshlanish sanasi:</label>
+    <div style="background: white; padding: 0.75rem 1rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: flex-end; gap: 0.6rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 130px;">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.78rem; font-weight: 600; color: #4a5568;">📅 Boshlanish</label>
                 <div class="filter-wrap">
-                    <input type="date" id="startDate" class="form-control" style="width: 100%;" onchange="onFilterChange('startDate')">
+                    <input type="date" id="startDate" class="form-control fc-sm" onchange="onFilterChange('startDate')">
                     <button class="filter-clear" id="clearStartDate" onclick="clearFilter('startDate')" title="Tozalash" style="display:none">✕</button>
                 </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">📅 Tugash sanasi:</label>
+            <div style="flex: 1; min-width: 130px;">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.78rem; font-weight: 600; color: #4a5568;">📅 Tugash</label>
                 <div class="filter-wrap">
-                    <input type="date" id="endDate" class="form-control" style="width: 100%;" onchange="onFilterChange('endDate')">
+                    <input type="date" id="endDate" class="form-control fc-sm" onchange="onFilterChange('endDate')">
                     <button class="filter-clear" id="clearEndDate" onclick="clearFilter('endDate')" title="Tozalash" style="display:none">✕</button>
                 </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">🏷️ Amaliyot turi:</label>
+            <div style="flex: 1; min-width: 150px;">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.78rem; font-weight: 600; color: #4a5568;">🏷️ Amaliyot turi</label>
                 <div class="filter-wrap">
-                    <select id="operationType" class="form-control" style="width: 100%;" onchange="onFilterChange('operationType')">
+                    <select id="operationType" class="form-control fc-sm" onchange="onFilterChange('operationType')">
                         <option value="">Barchasi</option>
                         <option value="sale">🛒 Sotish</option>
                         <option value="sale_edit">✏️ Savdo tahrirlash</option>
@@ -48,20 +48,20 @@
                     <button class="filter-clear" id="clearOperationType" onclick="clearFilter('operationType')" title="Tozalash" style="display:none">✕</button>
                 </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">👤 Foydalanuvchi:</label>
+            <div style="flex: 1; min-width: 150px;">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.78rem; font-weight: 600; color: #4a5568;">👤 Foydalanuvchi</label>
                 <div class="filter-wrap">
-                    <select id="userFilter" class="form-control" style="width: 100%;" onchange="onFilterChange('userFilter')">
+                    <select id="userFilter" class="form-control fc-sm" onchange="onFilterChange('userFilter')">
                         <option value="">Barchasi</option>
                     </select>
                     <button class="filter-clear" id="clearUserFilter" onclick="clearFilter('userFilter')" title="Tozalash" style="display:none">✕</button>
                 </div>
             </div>
-        </div>
-        <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
-            <button onclick="exportHistory()" class="btn btn-success">
-                📊 Excel ga eksport
-            </button>
+            <div style="flex: 0 0 auto; padding-bottom: 1px;">
+                <button onclick="exportHistory()" class="btn btn-success fc-sm" style="white-space: nowrap;">
+                    📊 Excel
+                </button>
+            </div>
         </div>
     </div>
 
@@ -195,6 +195,12 @@
         border-color: #667eea;
     }
 
+    .fc-sm {
+        padding: 0.35rem 0.55rem !important;
+        font-size: 0.85rem !important;
+        height: 34px;
+    }
+
     .filter-wrap {
         position: relative;
         display: flex;
@@ -204,6 +210,7 @@
     .filter-wrap .form-control {
         flex: 1;
         padding-right: 2rem;
+        width: 100%;
     }
 
     .filter-clear {
