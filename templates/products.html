@@ -1531,6 +1531,21 @@
                             const m = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+$/);
                             if (m) desc = m[1];
                         }
+                        // edit_stock: eski format "miqdor X -> Y, narx $A -> $B" ni yangi formatga o'tkazish
+                        if (op.operation_type === 'edit_stock') {
+                            const em = desc.match(/tahrirlandi:\s*miqdor\s+([\d.]+)\s*->\s*([\d.]+),\s*narx\s*\$([\d.]+)\s*->\s*\$([\d.]+)/);
+                            if (em) {
+                                const oldQty = parseFloat(em[1]);
+                                const newQty = parseFloat(em[2]);
+                                const newPrice = parseFloat(em[4]);
+                                const diff = newQty - oldQty;
+                                let qtyStr;
+                                if (diff > 0) qtyStr = `${newQty} (${oldQty}+${diff}=${newQty})`;
+                                else if (diff < 0) qtyStr = `${newQty} (${oldQty}${diff}=${newQty})`;
+                                else qtyStr = `${newQty} (o'zgarmadi)`;
+                                desc = desc.replace(/tahrirlandi: miqdor.*$/, `tahrirlandi: miqdor ${qtyStr} $${newPrice.toFixed(2)}`);
+                            }
+                        }
                         html += `<div class="op-row">
                             <div class="op-top">
                                 <span class="op-badge">${op.label}</span>${loc}${user}
