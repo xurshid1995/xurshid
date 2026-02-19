@@ -1507,7 +1507,14 @@
                     html += `<div style="padding:1.5rem;text-align:center;color:#888;">📢 Amaliyotlar topilmadi</div>`;
                 } else {
                     ops.forEach(op => {
-                        const loc = op.location_name ? `<span class="op-loc">📍 ${op.location_name}</span>` : '';
+                        let loc = '';
+                        if (op.operation_type === 'transfer' && op.old_data && op.new_data) {
+                            const from = op.old_data.from_location || '';
+                            const to = op.new_data.to_location || op.location_name || '';
+                            if (from || to) loc = `<span class="op-loc">${from} ➜ ${to}</span>`;
+                        } else if (op.location_name) {
+                            loc = `<span class="op-loc">📍 ${op.location_name}</span>`;
+                        }
                         let userInfo = op.username || '';
                         if (op.user_role) userInfo += ` (${op.user_role}`;
                         if (op.user_phone) userInfo += op.user_role ? `, ${op.user_phone})` : ` (${op.user_phone})`;

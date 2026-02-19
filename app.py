@@ -3770,6 +3770,8 @@ def api_product_operations(product_id):
                 'user_role': user_role,
                 'user_phone': user_phone,
                 'location_name': op.location_name,
+                'old_data': op.old_data,
+                'new_data': op.new_data,
                 'amount': float(op.amount) if op.amount else None,
                 'created_at': op.created_at.strftime('%d.%m.%Y %H:%M') if op.created_at else None,
             })
