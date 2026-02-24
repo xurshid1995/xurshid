@@ -244,17 +244,17 @@
         
         // Valyuta kursini o'zgartirish
         async function editCurrency() {
-            if (currentCurrencyRate === null) {
+            if (window.currentExchangeRate === null || window.currentExchangeRate === undefined) {
                 alert('⏳ Valyuta kursi hali yuklanmagan. Iltimos kuting...');
                 return;
             }
             
-            const currentRateFormatted = parseFloat(currentCurrencyRate).toLocaleString('uz-UZ');
+            const currentRateFormatted = parseFloat(window.currentExchangeRate).toLocaleString('uz-UZ');
             const newRate = prompt(
                 `💱 Valyuta kursini o'zgartirish:\n\n` +
                 `Joriy kurs: 1 USD = ${currentRateFormatted} UZS\n\n` +
                 `Yangi kursni kiriting:`, 
-                currentCurrencyRate.toString()
+                window.currentExchangeRate.toString()
             );
             
             if (newRate === null) return; // Cancel bosildi
@@ -281,7 +281,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    currentCurrencyRate = numericRate;
+                    window.currentExchangeRate = numericRate;
                     updateCurrencyDisplay(numericRate);
                     alert('✅ Valyuta kursi muvaffaqiyatli yangilandi!');
                     
