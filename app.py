@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import bcrypt
 import json
 import logging
@@ -79,7 +79,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 SECRET_KEY = os.getenv('SECRET_KEY')
 if not SECRET_KEY or SECRET_KEY in ['your-secret-key-here', 'your-very-secret-key-here-change-this']:
     raise ValueError(
-        "âŒ XAVFSIZLIK: SECRET_KEY o'rnatilmagan! "
+        "Ã¢ÂÅ’ XAVFSIZLIK: SECRET_KEY o'rnatilmagan! "
         "Yangi kalit: python -c 'import secrets; print(secrets.token_hex(32))'"
     )
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -117,7 +117,7 @@ def get_tashkent_time():
     """O'zbekiston vaqtini qaytaradi"""
     return datetime.now(TASHKENT_TZ)
 
-# âœ… Cache o'zgaruvchilari - xotira tejash uchun
+# Ã¢Å“â€¦ Cache o'zgaruvchilari - xotira tejash uchun
 _locations_cache = None
 _locations_cache_time = None
 _all_locations_cache = None
@@ -135,7 +135,7 @@ def timeout_monitor(max_seconds=5, operation_name=None):
             op_name = operation_name or f.__name__
             start_time = time.time()
 
-            logger.info(f"ğŸ†” [{operation_id}] {op_name} started")
+            logger.info(f"ÄŸÅ¸â€ â€ [{operation_id}] {op_name} started")
 
             try:
                 result = f(*args, **kwargs)
@@ -144,12 +144,12 @@ def timeout_monitor(max_seconds=5, operation_name=None):
                 # Sekin API'larni aniqlash
                 if duration > max_seconds:
                     logger.warning(
-                        f"âš ï¸ [{operation_id}] SLOW API: {op_name} took {duration:.2f}s "
+                        f"Ã¢Å¡Â Ã¯Â¸Â [{operation_id}] SLOW API: {op_name} took {duration:.2f}s "
                         f"(max: {max_seconds}s)"
                     )
                 else:
                     logger.info(
-                        f"âœ… [{operation_id}] {op_name} completed in {duration:.2f}s"
+                        f"Ã¢Å“â€¦ [{operation_id}] {op_name} completed in {duration:.2f}s"
                     )
 
                 return result
@@ -157,7 +157,7 @@ def timeout_monitor(max_seconds=5, operation_name=None):
             except Exception as e:
                 duration = time.time() - start_time
                 logger.error(
-                    f"âŒ [{operation_id}] {op_name} FAILED after {duration:.2f}s: {str(e)}"
+                    f"Ã¢ÂÅ’ [{operation_id}] {op_name} FAILED after {duration:.2f}s: {str(e)}"
                 )
                 raise
 
@@ -188,7 +188,7 @@ def check_idempotency(operation_type):
 
                 if existing:
                     logger.warning(
-                        f"âš ï¸ Duplicate request detected: {operation_type} - {idempotency_key}"
+                        f"Ã¢Å¡Â Ã¯Â¸Â Duplicate request detected: {operation_type} - {idempotency_key}"
                     )
 
                     # Oldingi natijani qaytarish
@@ -222,7 +222,7 @@ def check_idempotency(operation_type):
                         db.session.add(api_op)
                         db.session.commit()
                     except Exception as e:
-                        logger.error(f"âŒ Idempotency save error: {e}")
+                        logger.error(f"Ã¢ÂÅ’ Idempotency save error: {e}")
                         db.session.rollback()
                         # Bu xatolik asosiy operatsiyaga ta'sir qilmasin
                         pass
@@ -241,15 +241,15 @@ def format_phone_number(phone):
     """Telefon raqamini formatlash: +998(99) 123-45-67"""
     if not phone:
         return ''
-    
+
     # Faqat raqamlarni qoldirish
     digits = ''.join(filter(str.isdigit, phone))
-    
+
     # Agar 998 bilan boshlanmasa va 9 bilan boshlansa, 998 qo'shish
     if digits and not digits.startswith('998'):
         if digits.startswith('9') and len(digits) == 9:
             digits = '998' + digits
-    
+
     # Format: +998(99) 123-45-67
     if len(digits) >= 12:
         return f"+{digits[0:3]}({digits[3:5]}) {digits[5:8]}-{digits[8:10]}-{digits[10:12]}"
@@ -357,10 +357,10 @@ def log_operation(operation_type, table_name=None, record_id=None, description=N
         db.session.add(log_entry)
         db.session.commit()
 
-        logger.info(f"ğŸ“ Operation logged: {operation_type} by {log_entry.username}")
+        logger.info(f"ÄŸÅ¸â€œÂ Operation logged: {operation_type} by {log_entry.username}")
 
     except Exception as e:
-        logger.error(f"âŒ Operatsiyani loglashda xatolik: {str(e)}")
+        logger.error(f"Ã¢ÂÅ’ Operatsiyani loglashda xatolik: {str(e)}")
         # Loglash xatosi asosiy amaliyotni to'xtatmasligi kerak
         db.session.rollback()
 
@@ -480,35 +480,35 @@ def extract_location_ids(locations, location_type):
     locations: list - allowed_locations yoki transfer_locations
     location_type: str - 'store' yoki 'warehouse'
     """
-    print(f"ğŸ” extract_location_ids called: locations={locations}, type={location_type}")
+    print(f"ÄŸÅ¸â€Â extract_location_ids called: locations={locations}, type={location_type}")
 
     if not locations:
-        print("ğŸ” extract_location_ids: locations is empty, returning []")
+        print("ÄŸÅ¸â€Â extract_location_ids: locations is empty, returning []")
         return []
 
     # Eski format (ID'lar ro'yxati) tekshirish
     if isinstance(locations[0], int):
-        print("ğŸ” extract_location_ids: Old format detected (int list)")
+        print("ÄŸÅ¸â€Â extract_location_ids: Old format detected (int list)")
         # Eski format: [1, 2, 3]
         # Type bo'yicha filtrlash uchun ma'lumotlar bazasidan tekshirish kerak
 
         if location_type == 'store':
             # Faqat store ID'larni olish
             existing_store_ids = [s.id for s in Store.query.filter(Store.id.in_(locations)).all()]
-            print(f"ğŸ” extract_location_ids: Store IDs from DB: {existing_store_ids}")
+            print(f"ÄŸÅ¸â€Â extract_location_ids: Store IDs from DB: {existing_store_ids}")
             return existing_store_ids
         else:  # warehouse
             # Faqat warehouse ID'larni olish
             existing_warehouse_ids = [w.id for w in Warehouse.query.filter(Warehouse.id.in_(locations)).all()]
-            print(f"ğŸ” extract_location_ids: Warehouse IDs from DB: {existing_warehouse_ids}")
+            print(f"ÄŸÅ¸â€Â extract_location_ids: Warehouse IDs from DB: {existing_warehouse_ids}")
             return existing_warehouse_ids
 
     # Yangi format: [{'id': 1, 'type': 'store'}, {'id': 2, 'type':
     # 'warehouse'}]
-    print("ğŸ” extract_location_ids: New format detected (dict list)")
+    print("ÄŸÅ¸â€Â extract_location_ids: New format detected (dict list)")
     result = [loc['id'] for loc in locations if isinstance(
         loc, dict) and loc.get('type') == location_type]
-    print(f"ğŸ” extract_location_ids: Result: {result}")
+    print(f"ÄŸÅ¸â€Â extract_location_ids: Result: {result}")
     return result
 
 
@@ -843,12 +843,12 @@ def user_can_manage_transfer(user, pending_transfer):
     1. Admin (har doim)
     2. Transfer joylashuvlaridan (FROM yoki TO) kamida biriga ruxsati bor foydalanuvchi
     """
-    print(f"🔍 user_can_manage_transfer: User={user.username}, Role={user.role}, Transfer ID={pending_transfer.id}")
+    print(f"ğŸ” user_can_manage_transfer: User={user.username}, Role={user.role}, Transfer ID={pending_transfer.id}")
     print(f"   Transfer: {pending_transfer.from_location_type}_{pending_transfer.from_location_id} -> {pending_transfer.to_location_type}_{pending_transfer.to_location_id}")
-    
+
     # 1. Admin har doim
     if user.role == 'admin':
-        print(f"   ✅ ADMIN ACCESS")
+        print("   âœ… ADMIN ACCESS")
         return True
 
     # 2. FROM yoki TO joylashuvlaridan biriga ruxsati bo'lsa (transfer_locations yoki allowed_locations)
@@ -856,31 +856,31 @@ def user_can_manage_transfer(user, pending_transfer):
     transfer_locations = user.transfer_locations or []
     if not transfer_locations:
         transfer_locations = user.allowed_locations or []
-    
+
     # Allowed locations dan ham tekshirish (umuman joylashuvga ruxsat)
     allowed_locations = user.allowed_locations or []
-    
+
     # Barcha mavjud joylashuvlarni birlashtirish
     all_user_locations = transfer_locations + allowed_locations
-    
+
     print(f"   User locations: {all_user_locations}")
-    
+
     if not all_user_locations:
-        print(f"   ❌ NO LOCATIONS")
+        print("   âŒ NO LOCATIONS")
         return False
-    
+
     # FROM joylashuv
     from_type = pending_transfer.from_location_type
     from_id = pending_transfer.from_location_id
-    
+
     # TO joylashuv
     to_type = pending_transfer.to_location_type
     to_id = pending_transfer.to_location_id
-    
+
     # Joylashuvlarni tekshirish (yangi va eski formatni qo'llab-quvvatlash)
     has_from_permission = False
     has_to_permission = False
-    
+
     for loc in all_user_locations:
         # Yangi format: {'id': 1, 'type': 'warehouse'}
         if isinstance(loc, dict):
@@ -894,19 +894,19 @@ def user_can_manage_transfer(user, pending_transfer):
 
             if loc_id == from_id and loc_type == from_type:
                 has_from_permission = True
-                print(f"   ✅ FROM permission: {from_type}_{from_id}")
+                print(f"   âœ… FROM permission: {from_type}_{from_id}")
             if loc_id == to_id and loc_type == to_type:
                 has_to_permission = True
-                print(f"   ✅ TO permission: {to_type}_{to_id}")
+                print(f"   âœ… TO permission: {to_type}_{to_id}")
 
         # Eski format: integer (faqat id)
         elif isinstance(loc, int):
             if loc == from_id:
                 has_from_permission = True
-                print(f"   ✅ FROM permission (old format): {from_id}")
+                print(f"   âœ… FROM permission (old format): {from_id}")
             if loc == to_id:
                 has_to_permission = True
-                print(f"   ✅ TO permission (old format): {to_id}")
+                print(f"   âœ… TO permission (old format): {to_id}")
         # String format
         elif isinstance(loc, str):
             try:
@@ -917,13 +917,13 @@ def user_can_manage_transfer(user, pending_transfer):
                     has_to_permission = True
             except (ValueError, TypeError):
                 pass
-    
+
     # Kamida biriga ruxsat bo'lsa yetarli
     if has_from_permission or has_to_permission:
-        print(f"   ✅ ACCESS GRANTED (from={has_from_permission}, to={has_to_permission})")
+        print(f"   âœ… ACCESS GRANTED (from={has_from_permission}, to={has_to_permission})")
         return True
 
-    print(f"   ❌ ACCESS DENIED")
+    print("   âŒ ACCESS DENIED")
     return False
 
 
@@ -1457,7 +1457,7 @@ class Sale(db.Model):
             customer_phone = ''  # Bo'sh qoldirish
         else:
             # Mijoz o'chirilgan
-            customer_name = '🚫 O\'chirilgan mijoz'
+            customer_name = 'ğŸš« O\'chirilgan mijoz'
             customer_phone = ''
         result = {
             'id': self.id,
@@ -1465,7 +1465,7 @@ class Sale(db.Model):
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'store_id': self.store_id,
-            'store_name': self.store.name if self.store else 'ğŸš« O\'chirilgan do\'kon',
+            'store_name': self.store.name if self.store else 'ÄŸÅ¸Å¡Â« O\'chirilgan do\'kon',
             'location_id': self.location_id if self.location_id else self.store_id,
             'location_type': self.location_type if self.location_type else ('store' if self.store_id else None),
             'seller_id': self.seller_id,
@@ -1502,14 +1502,14 @@ class Sale(db.Model):
             'created_by': self.created_by if self.created_by else 'System',
         }
 
-        # âœ… Optional: Faqat kerak bo'lganda items yuklash
+        # Ã¢Å“â€¦ Optional: Faqat kerak bo'lganda items yuklash
         if include_items:
             result['items'] = [
                 item.to_dict() for item in self.items] if self.items else []
         else:
             result['items'] = []  # Bo'sh list qaytarish
 
-        # âœ… Optional: Qo'shimcha ma'lumotlar (xotira tejash uchun)
+        # Ã¢Å“â€¦ Optional: Qo'shimcha ma'lumotlar (xotira tejash uchun)
         if include_details:
             result['returned_products'] = self._get_returned_products()
             result['payment_refunds'] = self._get_payment_refunds()
@@ -1709,7 +1709,7 @@ def api_next_barcode():
                 except Exception:
                     continue
 
-            logger.info(f"ğŸ“¦ Vaqtinchalik ro'yxatdan {temp_barcodes_count} ta barcode qo'shildi")
+            logger.info(f"ÄŸÅ¸â€œÂ¦ Vaqtinchalik ro'yxatdan {temp_barcodes_count} ta barcode qo'shildi")
 
         # 1 dan boshlab birinchi bo'sh joyni topish
         next_barcode_num = None
@@ -1878,29 +1878,29 @@ def api_locations():
             return jsonify([])  # Bo'sh array qaytarish
 
         print(
-            f"ğŸ” API Locations - User: {current_user.username}, Role: {current_user.role}")
-        print(f"ğŸ” allowed_locations RAW: {current_user.allowed_locations}")
+            f"ÄŸÅ¸â€Â API Locations - User: {current_user.username}, Role: {current_user.role}")
+        print(f"ÄŸÅ¸â€Â allowed_locations RAW: {current_user.allowed_locations}")
 
         # Foydalanuvchi huquqlarini tekshirish
         if current_user.role == 'admin':
             # Admin hamma joylashuvlarni ko'radi
             allowed_store_ids = None
             allowed_warehouse_ids = None
-            print("ğŸ” Admin user - showing ALL locations")
+            print("ÄŸÅ¸â€Â Admin user - showing ALL locations")
         else:
             # Oddiy foydalanuvchilar faqat allowed_locations dan ruxsat etilgan
             # joylashuvlarni ko'radi (savdo uchun)
             allowed_locations = current_user.allowed_locations or []
             logger.debug(f" Raw allowed_locations: {allowed_locations}")
-            print("ğŸ” Non-admin user - filtering locations")
-            print(f"ğŸ” allowed_locations: {allowed_locations}")
+            print("ÄŸÅ¸â€Â Non-admin user - filtering locations")
+            print(f"ÄŸÅ¸â€Â allowed_locations: {allowed_locations}")
 
             # Helper funksiya bilan ID'larni olish (eski va yangi formatlar uchun)
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            print(f"ğŸ” Filtered store IDs: {allowed_store_ids}")
-            print(f"ğŸ” Filtered warehouse IDs: {allowed_warehouse_ids}")
+            print(f"ÄŸÅ¸â€Â Filtered store IDs: {allowed_store_ids}")
+            print(f"ÄŸÅ¸â€Â Filtered warehouse IDs: {allowed_warehouse_ids}")
             logger.debug(f" Allowed store IDs: {allowed_store_ids}")
             logger.debug(f" Allowed warehouse IDs: {allowed_warehouse_ids}")
 
@@ -1916,8 +1916,8 @@ def api_locations():
                 'type': 'store',
                 'id': store.id,
                 'name': store.name,
-                'emoji': '🏪',
-                'display': f'🏪 {store.name} (Do\'kon)'
+                'emoji': 'ğŸª',
+                'display': f'ğŸª {store.name} (Do\'kon)'
             })
 
         # Omborlarni qo'shish (ikkinchi bo'lib)
@@ -1932,8 +1932,8 @@ def api_locations():
                 'type': 'warehouse',
                 'id': warehouse.id,
                 'name': warehouse.name,
-                'emoji': '📦',
-                'display': f'📦 {warehouse.name} (Ombor)'
+                'emoji': 'ğŸ“¦',
+                'display': f'ğŸ“¦ {warehouse.name} (Ombor)'
             })
 
         logger.debug(f" Final locations count: {len(locations)}")
@@ -1953,11 +1953,11 @@ def api_all_locations():
     """Mahsulotlar sahifasi uchun barcha joylashuvlar (filterlashsiz)"""
     global _all_locations_cache, _all_locations_cache_time
 
-    # âœ… Cache tekshirish
+    # Ã¢Å“â€¦ Cache tekshirish
     if _all_locations_cache and _all_locations_cache_time:
         elapsed = (datetime.now() - _all_locations_cache_time).total_seconds()
         if elapsed < CACHE_DURATION:
-            logger.debug(f"ğŸ“¦ All-locations cache hit - {int(CACHE_DURATION - elapsed)}s qoldi")
+            logger.debug(f"ÄŸÅ¸â€œÂ¦ All-locations cache hit - {int(CACHE_DURATION - elapsed)}s qoldi")
             return jsonify(_all_locations_cache)
 
     logger.debug(" All Locations API - Barcha foydalanuvchilar uchun barcha joylashuvlar")
@@ -1972,7 +1972,7 @@ def api_all_locations():
             'type': 'warehouse',
             'id': warehouse.id,
             'name': warehouse.name,
-            'display': f'📦 {warehouse.name} (Ombor)'
+            'display': f'ğŸ“¦ {warehouse.name} (Ombor)'
         })
 
     # Barcha do'konlarni qo'shish
@@ -1983,15 +1983,15 @@ def api_all_locations():
             'type': 'store',
             'id': store.id,
             'name': store.name,
-            'display': f'🏪 {store.name} (Do\'kon)'
+            'display': f'ğŸª {store.name} (Do\'kon)'
         })
 
     logger.info(f" Total locations for products page: {len(locations)}")
 
-    # âœ… Cache'ga saqlash
+    # Ã¢Å“â€¦ Cache'ga saqlash
     _all_locations_cache = locations
     _all_locations_cache_time = datetime.now()
-    logger.debug("ğŸ’¾ All-locations cached")
+    logger.debug("ÄŸÅ¸â€™Â¾ All-locations cached")
     return jsonify(locations)
 
 
@@ -2152,7 +2152,7 @@ def search_product_by_barcode():
             product = Product.query.filter_by(barcode=barcode).first()
         except TimeoutError:
             duration = time.time() - start_time
-            logger.error(f"â±ï¸ Database timeout: {duration:.2f}s - Barcode: {barcode}")
+            logger.error(f"Ã¢ÂÂ±Ã¯Â¸Â Database timeout: {duration:.2f}s - Barcode: {barcode}")
             return jsonify({
                 'success': False,
                 'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
@@ -2160,7 +2160,7 @@ def search_product_by_barcode():
                 'duration': round(duration, 2)
             }), 504
         except OperationalError as e:
-            logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+            logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
             return jsonify({
                 'success': False,
                 'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -2196,7 +2196,7 @@ def search_product_by_barcode():
                     available_quantity = stock.quantity
                     location_name = stock.store.name if stock.store else 'Noma\'lum do\'kon'
         except TimeoutError:
-            logger.error("â±ï¸ Stock query timeout")
+            logger.error("Ã¢ÂÂ±Ã¯Â¸Â Stock query timeout")
             return jsonify({
                 'success': False,
                 'error': 'Stock ma\'lumotlarini olishda timeout',
@@ -2206,7 +2206,7 @@ def search_product_by_barcode():
         # Muvaffaqiyatli javob
         duration = time.time() - start_time
         if duration > 5:
-            logger.warning(f"âš ï¸ Slow query: {request.path} - {duration:.2f}s")
+            logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Slow query: {request.path} - {duration:.2f}s")
 
         product_dict = product.to_dict()
         product_dict['available_quantity'] = available_quantity
@@ -2214,7 +2214,7 @@ def search_product_by_barcode():
         product_dict['location_id'] = location_id
         product_dict['location_name'] = location_name
 
-        logger.info(f"âœ… Barcode {barcode} topildi: {product.name}, Miqdor: {available_quantity}")
+        logger.info(f"Ã¢Å“â€¦ Barcode {barcode} topildi: {product.name}, Miqdor: {available_quantity}")
         return jsonify({
             'success': True,
             'data': product_dict,
@@ -2222,7 +2222,7 @@ def search_product_by_barcode():
         })
 
     except BadRequest as e:
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'error': 'Noto\'g\'ri so\'rov formati',
@@ -2230,7 +2230,7 @@ def search_product_by_barcode():
         }), 400
     except Exception as e:
         duration = time.time() - start_time
-        logger.error(f"âŒ Kutilmagan xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        logger.error(f"Ã¢ÂÅ’ Kutilmagan xato ({duration:.2f}s): {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': 'Kutilmagan server xatosi',
@@ -2268,14 +2268,14 @@ def check_product_name():
             existing_product = query.first()
         except TimeoutError:
             duration = time.time() - start_time
-            logger.error(f"â±ï¸ Database timeout: {duration:.2f}s")
+            logger.error(f"Ã¢ÂÂ±Ã¯Â¸Â Database timeout: {duration:.2f}s")
             return jsonify({
                 'success': False,
                 'error': 'So\'rov juda uzoq davom etdi',
                 'error_type': 'timeout'
             }), 504
         except OperationalError as e:
-            logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+            logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
             return jsonify({
                 'success': False,
                 'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -2284,12 +2284,12 @@ def check_product_name():
 
         duration = time.time() - start_time
         if duration > 3:
-            logger.warning(f"âš ï¸ Slow query: {request.path} - {duration:.2f}s")
+            logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Slow query: {request.path} - {duration:.2f}s")
 
         return jsonify({'exists': existing_product is not None})
 
     except BadRequest as e:
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'error': 'Noto\'g\'ri so\'rov formati',
@@ -2297,7 +2297,7 @@ def check_product_name():
         }), 400
     except Exception as e:
         duration = time.time() - start_time
-        logger.error(f"âŒ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        logger.error(f"Ã¢ÂÅ’ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': 'Server xatosi',
@@ -2334,14 +2334,14 @@ def check_barcode():
             existing_product = query.first()
         except TimeoutError:
             duration = time.time() - start_time
-            logger.error(f"â±ï¸ Database timeout: {duration:.2f}s")
+            logger.error(f"Ã¢ÂÂ±Ã¯Â¸Â Database timeout: {duration:.2f}s")
             return jsonify({
                 'success': False,
                 'error': 'So\'rov juda uzoq davom etdi',
                 'error_type': 'timeout'
             }), 504
         except OperationalError as e:
-            logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+            logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
             return jsonify({
                 'success': False,
                 'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -2350,7 +2350,7 @@ def check_barcode():
 
         duration = time.time() - start_time
         if duration > 3:
-            logger.warning(f"âš ï¸ Slow query: {request.path} - {duration:.2f}s")
+            logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Slow query: {request.path} - {duration:.2f}s")
 
         if existing_product:
             return jsonify({
@@ -2365,7 +2365,7 @@ def check_barcode():
         return jsonify({'exists': False, 'product': None})
 
     except BadRequest as e:
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'error': 'Noto\'g\'ri so\'rov formati',
@@ -2373,7 +2373,7 @@ def check_barcode():
         }), 400
     except Exception as e:
         duration = time.time() - start_time
-        logger.error(f"âŒ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
+        logger.error(f"Ã¢ÂÅ’ Xato ({duration:.2f}s): {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': 'Server xatosi',
@@ -2387,7 +2387,7 @@ def check_barcode():
 def api_add_product():
     try:
         data = request.get_json()
-        logger.info(f"ğŸ“¦ Mahsulot qo'shish so'rovi: {data}")
+        logger.info(f"ÄŸÅ¸â€œÂ¦ Mahsulot qo'shish so'rovi: {data}")
 
         # Bir nechta mahsulotlar uchun
         if 'products' in data:
@@ -2402,7 +2402,7 @@ def api_add_product():
                 if not is_valid:
                     return jsonify({'error': f"{product_data['name']}: {error_msg}"}), 400
 
-                logger.info(f"ğŸ“Š Mahsulot: {product_data['name']}, Miqdor: {quantity}, Location: {product_data.get('locationValue', 'N/A')}")
+                logger.info(f"ÄŸÅ¸â€œÅ  Mahsulot: {product_data['name']}, Miqdor: {quantity}, Location: {product_data.get('locationValue', 'N/A')}")
 
                 # Validatsiya
                 if sell_price < cost_price:
@@ -2428,7 +2428,7 @@ def api_add_product():
                 if existing_product:
                     # Mavjud mahsulot - Frontend'dan ortacha narx va asl narx keladi
 
-                    logger.info("ğŸ“Š Mavjud mahsulot yangilanmoqda:")
+                    logger.info("ÄŸÅ¸â€œÅ  Mavjud mahsulot yangilanmoqda:")
                     logger.info(f"   Eski cost_price (ortacha): ${existing_product.cost_price}")
                     logger.info(f"   Frontend dan kelgan cost_price (ortacha): ${cost_price}")
                     logger.info(f"   Frontend dan kelgan last_batch_cost (yangi partiya): ${product_data.get('lastBatchCost', cost_price)}")
@@ -2529,7 +2529,7 @@ def api_add_product():
                             db.session.add(warehouse_stock)
 
                 # History yozuvi yaratish (faqat ma'lumot uchun)
-                logger.info(f"ğŸ” History check: quantity={quantity}, location_name='{location_name}', location_type='{location_type_str}'")
+                logger.info(f"ÄŸÅ¸â€Â History check: quantity={quantity}, location_name='{location_name}', location_type='{location_type_str}'")
                 if quantity > 0 and location_name:
                     current_user_name = None
                     if 'user_id' in session:
@@ -2579,9 +2579,9 @@ def api_add_product():
                     )
                     db.session.add(operation)
 
-                    logger.info(f"âœ… History yozuvi yaratildi: {product.name}, {quantity} ta, {location_name}")
+                    logger.info(f"Ã¢Å“â€¦ History yozuvi yaratildi: {product.name}, {quantity} ta, {location_name}")
                 else:
-                    logger.warning(f"âš ï¸ History yaratilmadi: quantity={quantity}, location_name='{location_name}'")
+                    logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â History yaratilmadi: quantity={quantity}, location_name='{location_name}'")
 
                 created_products.append(product)
 
@@ -2621,7 +2621,7 @@ def api_add_product():
         if 'unique constraint' in error_msg.lower() and 'barcode' in error_msg.lower():
             return jsonify({'error': 'Bu barcode allaqachon boshqa mahsulotda mavjud!'}), 400
 
-        logger.error(f"âŒ Mahsulot qo'shish xatosi: {e}")
+        logger.error(f"Ã¢ÂÅ’ Mahsulot qo'shish xatosi: {e}")
         return jsonify({'error': error_msg}), 400
 
 
@@ -2632,7 +2632,7 @@ def api_batch_products():
         data = request.get_json()
         products = data.get('products', [])
 
-        logger.info(f"ğŸ“¦ Batch products request keldi: {len(products)} ta mahsulot")
+        logger.info(f"ÄŸÅ¸â€œÂ¦ Batch products request keldi: {len(products)} ta mahsulot")
 
         if not products:
             return jsonify({'error': 'Mahsulotlar ro\'yxati bo\'sh'}), 400
@@ -2652,7 +2652,7 @@ def api_batch_products():
                 # Integer bo'lsa, o'zini qoldirish
                 location_id = int(location_id_raw)
 
-            logger.info(f"ğŸ” Location: type={location_type}, id={location_id} (raw: {location_id_raw})")
+            logger.info(f"ÄŸÅ¸â€Â Location: type={location_type}, id={location_id} (raw: {location_id_raw})")
             name = product_data['name']
             barcode = product_data.get('barcode', None)  # Barcode olish
             quantity = Decimal(str(product_data['quantity']))
@@ -2661,7 +2661,7 @@ def api_batch_products():
             min_stock = int(float(product_data['min_stock']))
             last_batch_cost = Decimal(str(product_data.get('lastBatchCost', cost_price)))
 
-            logger.info(f"ğŸ” Batch mahsulot qo'shilmoqda: {name}")
+            logger.info(f"ÄŸÅ¸â€Â Batch mahsulot qo'shilmoqda: {name}")
             logger.info(f"   Barcode: {barcode}")
             logger.info(f"   Tan narx (cost_price - ortacha): ${cost_price}")
             logger.info(f"   Asl tan narx (lastBatchCost): ${last_batch_cost}")
@@ -2682,7 +2682,7 @@ def api_batch_products():
             product = Product.query.filter_by(name=name).first()
             if not product:
                 # Yangi mahsulot yaratish
-                logger.info("âœ¨ Yangi mahsulot yaratilmoqda")
+                logger.info("Ã¢Å“Â¨ Yangi mahsulot yaratilmoqda")
                 product = Product(
                     name=name,
                     barcode=barcode,  # Barcode saqlash
@@ -2695,10 +2695,10 @@ def api_batch_products():
                 )
                 db.session.add(product)
                 db.session.flush()  # ID olish uchun
-                logger.info(f"âœ… Yangi mahsulot yaratildi - ID: {product.id}, barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
+                logger.info(f"Ã¢Å“â€¦ Yangi mahsulot yaratildi - ID: {product.id}, barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
             else:
                 # Mavjud mahsulot - Frontend'dan ortacha narx va asl narx keladi
-                logger.info(f"â™»ï¸ Mavjud mahsulot yangilanmoqda - ID: {product.id}")
+                logger.info(f"Ã¢â„¢Â»Ã¯Â¸Â Mavjud mahsulot yangilanmoqda - ID: {product.id}")
                 logger.info(f"   Eski cost_price (ortacha): ${product.cost_price}")
                 logger.info(f"   Frontend dan kelgan cost_price (ortacha): ${cost_price}")
                 logger.info(f"   Frontend dan kelgan last_batch_cost (yangi partiya): ${product_data.get('lastBatchCost', cost_price)}")
@@ -2718,7 +2718,7 @@ def api_batch_products():
                 product.last_batch_cost = last_batch_cost
                 product.last_batch_date = get_tashkent_time()
 
-                logger.info(f"âœ… Yangilandi - barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
+                logger.info(f"Ã¢Å“â€¦ Yangilandi - barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
 
                 # Boshqa maydonlar
                 product.sell_price = sell_price
@@ -2884,7 +2884,7 @@ def get_product_history():
 def search_product(product_name):
     """Mahsulot nomiga qarab joylashuvlarini topish (partial search)"""
     try:
-        logger.debug(f"ğŸ” Qidiruv so'rovi: '{product_name}'")
+        logger.debug(f"ÄŸÅ¸â€Â Qidiruv so'rovi: '{product_name}'")
 
         # Optimized query - eager loading va limit
         products = Product.query.filter(
@@ -2895,10 +2895,10 @@ def search_product(product_name):
         ).limit(10).all()  # Faqat birinchi 10 ta natija
 
         if not products:
-            logger.debug(f"âŒ Mahsulot topilmadi: '{product_name}'")
+            logger.debug(f"Ã¢ÂÅ’ Mahsulot topilmadi: '{product_name}'")
             return jsonify({'exists': False})
 
-        logger.info(f"âœ… {len(products)} ta mahsulot topildi")
+        logger.info(f"Ã¢Å“â€¦ {len(products)} ta mahsulot topildi")
 
         products_data = []
 
@@ -2980,7 +2980,7 @@ def sales_history():
     return render_template(
         'sales-history.html',
         page_title='Savdo tarixi',
-        icon='ğŸ“Š')
+        icon='ÄŸÅ¸â€œÅ ')
 
 
 @app.route('/debt-sales')
@@ -2988,7 +2988,7 @@ def debt_sales():
     return render_template(
         'debt-sales.html',
         page_title='Qarz savdolar',
-        icon='ğŸ’³')
+        icon='ÄŸÅ¸â€™Â³')
 
 
 @app.route('/pending-sales')
@@ -2996,7 +2996,7 @@ def pending_sales():
     return render_template(
         'pending-sales.html',
         page_title='Tasdiqlanmagan savdolar',
-        icon='â³')
+        icon='Ã¢ÂÂ³')
 
 
 @app.route('/customers')
@@ -3006,7 +3006,7 @@ def customers():
     return render_template(
         'customers.html',
         page_title='Mijozlar',
-        icon='ğŸ‘¥',
+        icon='ÄŸÅ¸â€˜Â¥',
         user_role=user_role)
 
 
@@ -3018,7 +3018,7 @@ def debts():
     return render_template(
         'debts.html',
         page_title='Qarzlar',
-        icon='ğŸ’°',
+        icon='ÄŸÅ¸â€™Â°',
         current_user=user,
         user_role=user.role if user else 'guest',
         allowed_locations=user.allowed_locations if user else [])
@@ -3032,7 +3032,7 @@ def paid_debts_history():
     return render_template(
         'paid_debts_history.html',
         page_title='Qarz to\'lash tarixi',
-        icon='ğŸ“œ',
+        icon='ÄŸÅ¸â€œÅ“',
         current_user=user)
 
 
@@ -3044,7 +3044,7 @@ def customer_debt_detail(customer_id):
         'customer_debt_detail.html',
         customer_id=customer_id,
         page_title='Qarz ma\'lumotlari',
-        icon='ğŸ’°')
+        icon='ÄŸÅ¸â€™Â°')
 
 
 @app.route('/debts/payment-history')
@@ -3054,7 +3054,7 @@ def debt_payment_history():
     return render_template(
         'debt_payment_history.html',
         page_title='Qarz to\'lash tarixi',
-        icon='ğŸ“œ')
+        icon='ÄŸÅ¸â€œÅ“')
 
 
 @app.route('/customer/<int:customer_id>')
@@ -3066,7 +3066,7 @@ def customer_detail(customer_id):
             'customer_detail.html',
             customer=customer,
             page_title='Mijoz tafsilotlari',
-            icon='ğŸ‘¤')
+            icon='ÄŸÅ¸â€˜Â¤')
     except Exception as e:
         app.logger.error(f"Error loading customer details: {str(e)}")
         return "Mijoz ma'lumotlari yuklanmadi", 500
@@ -3123,7 +3123,7 @@ def add_customer():
         'add_customer.html',
         stores=stores,
         page_title='Mijoz qo\'shish',
-        icon='ğŸ‘¥')
+        icon='ÄŸÅ¸â€˜Â¥')
 
 
 @app.route('/products')
@@ -3239,17 +3239,17 @@ def api_return_product():
             # Frontend'dan 'quantity' yoki 'return_quantity' kelishi mumkin
             return_quantity = item.get('return_quantity') or item.get('quantity', 0)
 
-            logger.info(f"ğŸ“¦ Item: product_id={product_id}, return_quantity={return_quantity}, type={type(return_quantity)}")
+            logger.info(f"ÄŸÅ¸â€œÂ¦ Item: product_id={product_id}, return_quantity={return_quantity}, type={type(return_quantity)}")
 
             # Decimal ga o'tkazish
             try:
                 return_quantity = Decimal(str(return_quantity))
             except BaseException:
-                logger.error(f"âŒ return_quantity Decimal'ga aylantirib bo'lmadi: {return_quantity}")
+                logger.error(f"Ã¢ÂÅ’ return_quantity Decimal'ga aylantirib bo'lmadi: {return_quantity}")
                 continue
 
             if return_quantity <= 0:
-                logger.warning(f"âš ï¸ return_quantity <= 0: {return_quantity}, o'tkazib yuborildi")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â return_quantity <= 0: {return_quantity}, o'tkazib yuborildi")
                 continue
 
             # Mahsulotni topish
@@ -3407,7 +3407,7 @@ def api_return_product():
                 sale.debt_usd = float(Decimal(str(sale.debt_usd)) - debt_refund)
                 remaining_refund -= debt_refund
                 refunded_payments.append(('debt', float(debt_refund)))
-                logger.info(f"  ğŸ“ Qarzdan kamaytirildi: ${debt_refund} (Qolgan qarz: ${sale.debt_usd})")
+                logger.info(f"  ÄŸÅ¸â€œÂ Qarzdan kamaytirildi: ${debt_refund} (Qolgan qarz: ${sale.debt_usd})")
 
             # 2. Naqddan qaytarish
             if sale.cash_usd and sale.cash_usd > 0 and remaining_refund > 0:
@@ -3415,7 +3415,7 @@ def api_return_product():
                 sale.cash_usd = float(Decimal(str(sale.cash_usd)) - cash_refund)
                 remaining_refund -= cash_refund
                 refunded_payments.append(('cash', float(cash_refund)))
-                logger.info(f"  ğŸ’µ Naqd puldan qaytarildi: ${cash_refund}")
+                logger.info(f"  ÄŸÅ¸â€™Âµ Naqd puldan qaytarildi: ${cash_refund}")
 
             # 3. Click dan qaytarish
             if sale.click_usd and sale.click_usd > 0 and remaining_refund > 0:
@@ -3423,7 +3423,7 @@ def api_return_product():
                 sale.click_usd = float(Decimal(str(sale.click_usd)) - click_refund)
                 remaining_refund -= click_refund
                 refunded_payments.append(('click', float(click_refund)))
-                logger.info(f"  ğŸ“± Click dan qaytarildi: ${click_refund}")
+                logger.info(f"  ÄŸÅ¸â€œÂ± Click dan qaytarildi: ${click_refund}")
 
             # 4. Terminal dan qaytarish
             if sale.terminal_usd and sale.terminal_usd > 0 and remaining_refund > 0:
@@ -3431,12 +3431,12 @@ def api_return_product():
                 sale.terminal_usd = float(Decimal(str(sale.terminal_usd)) - terminal_refund)
                 remaining_refund -= terminal_refund
                 refunded_payments.append(('terminal', float(terminal_refund)))
-                logger.info(f"  ğŸ’³ Terminal dan qaytarildi: ${terminal_refund}")
+                logger.info(f"  ÄŸÅ¸â€™Â³ Terminal dan qaytarildi: ${terminal_refund}")
 
             # 5. Agar hali ham qolsa, qarzga qo'shish (manfiy qarz - endi do'kon mijozga qarzdor)
             if remaining_refund > 0:
                 sale.debt_usd = float(Decimal(str(sale.debt_usd or 0)) + remaining_refund)
-                logger.info(f"  ğŸ“ Qarzga qo'shildi: ${remaining_refund} (Jami qarz: ${sale.debt_usd})")
+                logger.info(f"  ÄŸÅ¸â€œÂ Qarzga qo'shildi: ${remaining_refund} (Jami qarz: ${sale.debt_usd})")
 
             # Qaytarilgan to'lovlarni operation_history ga yozish
             for payment_type, refund_amount in refunded_payments:
@@ -3469,7 +3469,7 @@ def api_return_product():
             if current_debt <= 0:
                 # Qarz 0 ga tushgan yoki manfiy bo'lgan (to'liq to'langan)
                 sale.payment_status = 'paid'
-                logger.info(f"âœ… Qarz to'liq qaytarildi (${current_debt}), payment_status='paid' qilindi")
+                logger.info(f"Ã¢Å“â€¦ Qarz to'liq qaytarildi (${current_debt}), payment_status='paid' qilindi")
 
         # Agar sale'da mahsulot qolmasa, savdoni bekor qilish
         remaining_items = SaleItem.query.filter_by(sale_id=sale_id).count()
@@ -3727,7 +3727,7 @@ def api_product_operations(product_id):
                 )
             )
 
-        # 5. Eski savdo loglari (table_name='sales') — faqat description da mahsulot nomi bor bo'lsa
+        # 5. Eski savdo loglari (table_name='sales') â€” faqat description da mahsulot nomi bor bo'lsa
         if sale_ids_old:
             conditions.append(
                 and_(
@@ -3743,21 +3743,21 @@ def api_product_operations(product_id):
         ).order_by(OperationHistory.created_at.desc()).limit(200).all()
 
         op_labels = {
-            'sale': '🛒 Sotish',
-            'sale_edit': '✏️ Savdo tahrirlash',
-            'add_product': '📦 Qo\'shish',
-            'edit_stock': '📝 Zaxira tahrirlash',
-            'transfer': '🔄 Transfer',
-            'return': '↩️ Qaytarish',
-            'debt_payment': '💳 Qarz to\'lash',
-            'edit': '✏️ Tahrirlash',
-            'delete': '🗑️ O\'chirish',
-            'delete_stock': '🗑️ Zaxira o\'chirish',
-            'edit_user': '👤 Foydalanuvchi tahrirlash',
-            'create_store': '🏪 Do\'kon yaratish',
+            'sale': 'ğŸ›’ Sotish',
+            'sale_edit': 'âœï¸ Savdo tahrirlash',
+            'add_product': 'ğŸ“¦ Qo\'shish',
+            'edit_stock': 'ğŸ“ Zaxira tahrirlash',
+            'transfer': 'ğŸ”„ Transfer',
+            'return': 'â†©ï¸ Qaytarish',
+            'debt_payment': 'ğŸ’³ Qarz to\'lash',
+            'edit': 'âœï¸ Tahrirlash',
+            'delete': 'ğŸ—‘ï¸ O\'chirish',
+            'delete_stock': 'ğŸ—‘ï¸ Zaxira o\'chirish',
+            'edit_user': 'ğŸ‘¤ Foydalanuvchi tahrirlash',
+            'create_store': 'ğŸª Do\'kon yaratish',
         }
 
-        # user_id → user ma'lumotlari cache
+        # user_id â†’ user ma'lumotlari cache
         user_cache = {}
 
         result = []
@@ -3791,7 +3791,7 @@ def api_product_operations(product_id):
                         ((User.first_name + ' ' + User.last_name) == uname) |
                         (User.first_name == first)
                     ).first()
-                    # 'admin' string saqlangan lekin haqiqiy user topilmasa — role='admin' userni olish
+                    # 'admin' string saqlangan lekin haqiqiy user topilmasa â€” role='admin' userni olish
                     if not u and uname.lower() == 'admin':
                         u = User.query.filter_by(role='admin').first()
                     user_cache[cache_key] = u
@@ -3869,8 +3869,8 @@ def api_product_operations(product_id):
             sort_dt = sale.sale_date if sale.sale_date else __import__('datetime').datetime.min
             result.append({
                 'operation_type': 'sale',
-                'label': '🛒 Sotish',
-                'description': f"Sotildi: {product.name} - {float(si.quantity):.0f} ta × ${float(si.unit_price):.2f} (Savdo #{si.sale_id})",
+                'label': 'ğŸ›’ Sotish',
+                'description': f"Sotildi: {product.name} - {float(si.quantity):.0f} ta Ã— ${float(si.unit_price):.2f} (Savdo #{si.sale_id})",
                 'username': si_uname,
                 'user_role': si_user_role,
                 'user_phone': si_user_phone,
@@ -3883,7 +3883,7 @@ def api_product_operations(product_id):
             })
             covered_sale_ids.add(si.sale_id)
 
-        # Sana bo'yicha tartiblash (yangi → eski)
+        # Sana bo'yicha tartiblash (yangi â†’ eski)
         result.sort(key=lambda x: x.get('_sort_key', __import__('datetime').datetime.min), reverse=True)
         # _sort_key ni javobdan olib tashlash
         for r in result:
@@ -3934,25 +3934,25 @@ def api_check_stock_locations():
         if not current_user:
             return jsonify({'error': 'Unauthorized'}), 401
 
-        logger.debug(f"ğŸ” Check Stock Locations - User: {current_user.username}, Role: {current_user.role}")
+        logger.debug(f"ÄŸÅ¸â€Â Check Stock Locations - User: {current_user.username}, Role: {current_user.role}")
 
         # Foydalanuvchi huquqlarini tekshirish
         if current_user.role == 'admin':
             # Admin barcha joylashuvlarni ko'radi
             allowed_store_ids = None
             allowed_warehouse_ids = None
-            logger.debug("âœ… Admin user - showing all stock check locations")
+            logger.debug("Ã¢Å“â€¦ Admin user - showing all stock check locations")
         else:
             # Oddiy foydalanuvchilar faqat allowed_locations dan ruxsat etilgan joylashuvlarni ko'radi
             allowed_locations = current_user.allowed_locations or []
-            logger.debug(f"ğŸ“ User allowed_locations: {allowed_locations}")
+            logger.debug(f"ÄŸÅ¸â€œÂ User allowed_locations: {allowed_locations}")
 
             # Helper funksiya bilan ID'larni olish (eski va yangi formatlar uchun)
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            logger.debug(f"ğŸª Filtered store IDs: {allowed_store_ids}")
-            logger.debug(f"ğŸ­ Filtered warehouse IDs: {allowed_warehouse_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂª Filtered store IDs: {allowed_store_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂ­ Filtered warehouse IDs: {allowed_warehouse_ids}")
 
         # Do'konlarni olish - faqat ruxsat etilganlar
         if allowed_store_ids is None:
@@ -3961,7 +3961,7 @@ def api_check_stock_locations():
             stores = Store.query.filter(Store.id.in_(allowed_store_ids)).all() if allowed_store_ids else []
 
         stores_data = [{'id': s.id, 'name': s.name} for s in stores]
-        logger.debug(f"ğŸª Stores to return: {len(stores_data)}")
+        logger.debug(f"ÄŸÅ¸ÂÂª Stores to return: {len(stores_data)}")
 
         # Omborlarni olish - faqat ruxsat etilganlar
         if allowed_warehouse_ids is None:
@@ -3970,7 +3970,7 @@ def api_check_stock_locations():
             warehouses = Warehouse.query.filter(Warehouse.id.in_(allowed_warehouse_ids)).all() if allowed_warehouse_ids else []
 
         warehouses_data = [{'id': w.id, 'name': w.name} for w in warehouses]
-        logger.debug(f"ğŸ­ Warehouses to return: {len(warehouses_data)}")
+        logger.debug(f"ÄŸÅ¸ÂÂ­ Warehouses to return: {len(warehouses_data)}")
 
         # Faol tekshiruvlar bor joylashuvlarni olish
         active_sessions = StockCheckSession.query.filter_by(status='active').all()
@@ -4001,7 +4001,7 @@ def api_check_stock_active_sessions():
         if not current_user:
             return jsonify({'error': 'Unauthorized'}), 401
 
-        logger.debug(f"ğŸ” Active Sessions - User: {current_user.username}, Role: {current_user.role}")
+        logger.debug(f"ÄŸÅ¸â€Â Active Sessions - User: {current_user.username}, Role: {current_user.role}")
 
         # Faol sessiyalarni olish
         sessions = StockCheckSession.query.filter_by(status='active').order_by(StockCheckSession.started_at.desc()).all()
@@ -4010,13 +4010,13 @@ def api_check_stock_active_sessions():
         if current_user.role != 'admin':
             # Oddiy foydalanuvchilar faqat ruxsat etilgan joylashuvlardagi sessiyalarni ko'radi
             allowed_locations = current_user.allowed_locations or []
-            logger.debug(f"ğŸ“ User allowed_locations: {allowed_locations}")
+            logger.debug(f"ÄŸÅ¸â€œÂ User allowed_locations: {allowed_locations}")
 
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            logger.debug(f"ğŸª Allowed store IDs: {allowed_store_ids}")
-            logger.debug(f"ğŸ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂª Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
 
             # Sessiyalarni filterlash
             filtered_sessions = []
@@ -4027,9 +4027,9 @@ def api_check_stock_active_sessions():
                     filtered_sessions.append(check_session)
 
             sessions = filtered_sessions
-            logger.debug(f"âœ… Filtered sessions count: {len(sessions)}")
+            logger.debug(f"Ã¢Å“â€¦ Filtered sessions count: {len(sessions)}")
         else:
-            logger.debug("âœ… Admin user - showing all active sessions")
+            logger.debug("Ã¢Å“â€¦ Admin user - showing all active sessions")
 
         sessions_data = []
         for check_session in sessions:
@@ -4087,7 +4087,7 @@ def api_check_stock_completed_sessions():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
 
-        logger.debug(f"ğŸ” Completed Sessions - User: {current_user.username}, Role: {current_user.role}")
+        logger.debug(f"ÄŸÅ¸â€Â Completed Sessions - User: {current_user.username}, Role: {current_user.role}")
 
         # Base query
         query = StockCheckSession.query.filter_by(status='completed')
@@ -4096,13 +4096,13 @@ def api_check_stock_completed_sessions():
         if current_user.role != 'admin':
             # Oddiy foydalanuvchilar faqat ruxsat etilgan joylashuvlardagi sessiyalarni ko'radi
             allowed_locations = current_user.allowed_locations or []
-            logger.debug(f"ğŸ“ User allowed_locations: {allowed_locations}")
+            logger.debug(f"ÄŸÅ¸â€œÂ User allowed_locations: {allowed_locations}")
 
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            logger.debug(f"ğŸª Allowed store IDs: {allowed_store_ids}")
-            logger.debug(f"ğŸ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂª Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"ÄŸÅ¸ÂÂ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
 
             # Filterlash - faqat ruxsat etilgan joylashuvlar
             from sqlalchemy import or_, and_
@@ -4120,9 +4120,9 @@ def api_check_stock_completed_sessions():
                 # Agar hech qanday ruxsat yo'q bo'lsa, bo'sh natija
                 query = query.filter(StockCheckSession.id == -1)
 
-            logger.debug("âœ… Query filtered for non-admin user")
+            logger.debug("Ã¢Å“â€¦ Query filtered for non-admin user")
         else:
-            logger.debug("âœ… Admin user - showing all completed sessions")
+            logger.debug("Ã¢Å“â€¦ Admin user - showing all completed sessions")
 
         # Tugatilgan sessiyalarni olish (pagination bilan)
         pagination = query.order_by(StockCheckSession.updated_at.desc()).paginate(
@@ -4435,14 +4435,14 @@ def api_check_stock_add_item():
 
             duration = time.time() - start_time
             if duration > 5:
-                logger.warning(f"âš ï¸ Slow query: {request.path} - {duration:.2f}s")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Slow query: {request.path} - {duration:.2f}s")
 
             return jsonify({'success': True, 'item': item.to_dict()})
 
         except TimeoutError:
             db.session.rollback()
             duration = time.time() - start_time
-            logger.error(f"â±ï¸ Database timeout: {duration:.2f}s")
+            logger.error(f"Ã¢ÂÂ±Ã¯Â¸Â Database timeout: {duration:.2f}s")
             return jsonify({
                 'success': False,
                 'message': 'So\'rov juda uzoq davom etdi',
@@ -4450,7 +4450,7 @@ def api_check_stock_add_item():
             }), 504
         except OperationalError as e:
             db.session.rollback()
-            logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+            logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
             return jsonify({
                 'success': False,
                 'message': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -4458,7 +4458,7 @@ def api_check_stock_add_item():
             }), 503
         except IntegrityError as e:
             db.session.rollback()
-            logger.error(f"âŒ Integrity error: {e}")
+            logger.error(f"Ã¢ÂÅ’ Integrity error: {e}")
             return jsonify({
                 'success': False,
                 'message': 'Ma\'lumotlarni saqlashda xatolik (dublikat yoki bog\'liqlik)',
@@ -4466,7 +4466,7 @@ def api_check_stock_add_item():
             }), 400
 
     except BadRequest as e:
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'message': 'Noto\'g\'ri so\'rov formati',
@@ -4475,7 +4475,7 @@ def api_check_stock_add_item():
     except Exception as e:
         db.session.rollback()
         duration = time.time() - start_time
-        logger.error(f"âŒ Xato adding check item ({duration:.2f}s): {str(e)}", exc_info=True)
+        logger.error(f"Ã¢ÂÅ’ Xato adding check item ({duration:.2f}s): {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'message': 'Kutilmagan server xatosi',
@@ -4569,7 +4569,7 @@ def api_check_stock_finish():
             StockCheckItem.actual_quantity.isnot(None)
         ).all()
 
-        logger.info(f"ğŸ” Found {len(checked_items)} items with actual_quantity in session {session_id}")
+        logger.info(f"ÄŸÅ¸â€Â Found {len(checked_items)} items with actual_quantity in session {session_id}")
         updated_count = 0
         errors = []
 
@@ -4588,10 +4588,10 @@ def api_check_stock_finish():
                             old_qty = stock.quantity
                             stock.quantity = item.actual_quantity
                             updated_count += 1
-                            logger.info(f"ğŸ“¦ Store stock updated: Product {item.product_id} ({item.product_name}), "
+                            logger.info(f"ÄŸÅ¸â€œÂ¦ Store stock updated: Product {item.product_id} ({item.product_name}), "
                                         f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
                         else:
-                            error_msg = f"âŒ Store stock not found: store_id={session.location_id}, product_id={item.product_id}"
+                            error_msg = f"Ã¢ÂÅ’ Store stock not found: store_id={session.location_id}, product_id={item.product_id}"
                             logger.error(error_msg)
                             errors.append(error_msg)
 
@@ -4606,14 +4606,14 @@ def api_check_stock_finish():
                             old_qty = stock.quantity
                             stock.quantity = item.actual_quantity
                             updated_count += 1
-                            logger.info(f"ğŸ“¦ Warehouse stock updated: Product {item.product_id} ({item.product_name}), "
+                            logger.info(f"ÄŸÅ¸â€œÂ¦ Warehouse stock updated: Product {item.product_id} ({item.product_name}), "
                                         f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
                         else:
-                            error_msg = f"âŒ Warehouse stock not found: warehouse_id={session.location_id}, product_id={item.product_id}"
+                            error_msg = f"Ã¢ÂÅ’ Warehouse stock not found: warehouse_id={session.location_id}, product_id={item.product_id}"
                             logger.error(error_msg)
                             errors.append(error_msg)
             except Exception as item_error:
-                error_msg = f"âŒ Error updating product {item.product_id}: {str(item_error)}"
+                error_msg = f"Ã¢ÂÅ’ Error updating product {item.product_id}: {str(item_error)}"
                 logger.error(error_msg)
                 errors.append(error_msg)
 
@@ -4622,12 +4622,12 @@ def api_check_stock_finish():
         session.completed_by_user_id = current_user.id
         db.session.commit()
 
-        logger.info(f"âœ… Check stock finished: session_id={session_id}, user={current_user.username}, "
+        logger.info(f"Ã¢Å“â€¦ Check stock finished: session_id={session_id}, user={current_user.username}, "
                     f"updated={updated_count} products, errors={len(errors)}")
 
         message = f'Tekshiruv yakunlandi. {updated_count} ta mahsulot yangilandi.'
         if errors:
-            message += f'\n\nâš ï¸ {len(errors)} ta xatolik:'
+            message += f'\n\nÃ¢Å¡Â Ã¯Â¸Â {len(errors)} ta xatolik:'
             for err in errors[:3]:  # Faqat birinchi 3 ta xatolikni ko'rsatish
                 message += f'\n- {err}'
 
@@ -4639,7 +4639,7 @@ def api_check_stock_finish():
         })
     except Exception as e:
         db.session.rollback()
-        logger.error(f"âŒ Error finishing check stock: {e}")
+        logger.error(f"Ã¢ÂÅ’ Error finishing check stock: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
@@ -5428,19 +5428,19 @@ def api_warehouses():
 
         # Debug ma'lumotlari
         print(
-            f"ğŸ” Warehouses API - User: {current_user.username}, Role: {current_user.role}")
+            f"ÄŸÅ¸â€Â Warehouses API - User: {current_user.username}, Role: {current_user.role}")
 
         # Foydalanuvchi huquqlarini tekshirish
         if current_user.role == 'admin':
             # Admin hamma omborlarni ko'radi
             warehouses_list = Warehouse.query.all()
-            print(f"ğŸ” Admin user, returning all {len(warehouses_list)} warehouses")
+            print(f"ÄŸÅ¸â€Â Admin user, returning all {len(warehouses_list)} warehouses")
         else:
             # Oddiy foydalanuvchilar faqat allowed_locations dan ruxsat etilgan
             # omborlarni ko'radi (savdo uchun)
             allowed_locations = current_user.allowed_locations or []
             print(
-                f"ğŸ” User allowed locations for warehouses: {allowed_locations}")
+                f"ÄŸÅ¸â€Â User allowed locations for warehouses: {allowed_locations}")
 
             # Helper funksiya bilan warehouse ID'larni olish
             allowed_warehouse_ids = extract_location_ids(
@@ -5475,7 +5475,7 @@ def api_stores():
 
         # Debug ma'lumotlari
         print(
-            f"ğŸ” Stores API - User: {current_user.username}, Role: {current_user.role}")
+            f"ÄŸÅ¸â€Â Stores API - User: {current_user.username}, Role: {current_user.role}")
 
         # Foydalanuvchi huquqlarini tekshirish
         if current_user.role == 'admin':
@@ -5619,7 +5619,7 @@ def api_transfer_locations():
             if transfer_locations and isinstance(transfer_locations[0], int):
                 # Eski format: barcha ID'larni har ikki tipga qo'llamiz
                 print(
-                    "ğŸ” Using old format for transfer_locations - checking all IDs as both stores and warehouses")
+                    "ÄŸÅ¸â€Â Using old format for transfer_locations - checking all IDs as both stores and warehouses")
                 allowed_store_ids = transfer_locations
                 allowed_warehouse_ids = transfer_locations
             else:
@@ -5631,7 +5631,7 @@ def api_transfer_locations():
 
             logger.debug(f" Final store IDs for transfer: {allowed_store_ids}")
             print(
-                f"ğŸ” Final warehouse IDs for transfer: {allowed_warehouse_ids}")
+                f"ÄŸÅ¸â€Â Final warehouse IDs for transfer: {allowed_warehouse_ids}")
 
         # Do'konlarni qo'shish
         if allowed_store_ids is None:
@@ -5820,7 +5820,7 @@ def users():
     return render_template(
         'users.html',
         page_title='Foydalanuvchilar',
-        icon='ğŸ‘¤')
+        icon='ÄŸÅ¸â€˜Â¤')
 
 
 # Qarzlar API
@@ -5858,14 +5858,14 @@ def api_debts():
                 if warehouse_ids:
                     allowed_location_ids.extend(warehouse_ids)
 
-                logger.info(f"ğŸ“‹ User {current_user.username} allowed locations: {allowed_location_ids}")
+                logger.info(f"ÄŸÅ¸â€œâ€¹ User {current_user.username} allowed locations: {allowed_location_ids}")
 
         # Qarzli mijozlar ro'yxati
         if location_id:
             # Frontend'dan tanlangan location bo'yicha filter
             # Agar user allowed locations'ga ega bo'lsa, tekshirish
             if allowed_location_ids is not None and location_id not in allowed_location_ids:
-                logger.warning(f"âš ï¸ User {current_user.username} tried to access unauthorized location {location_id}")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â User {current_user.username} tried to access unauthorized location {location_id}")
                 return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
 
             query = text("""
@@ -5895,7 +5895,7 @@ def api_debts():
                     # Hech qanday location'ga ruxsat yo'q
                     return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
 
-                logger.info(f"ğŸ” Debts query location_ids: {allowed_location_ids}")
+                logger.info(f"ÄŸÅ¸â€Â Debts query location_ids: {allowed_location_ids}")
 
                 query = text("""
                     SELECT
@@ -6341,7 +6341,7 @@ def api_debt_payment():
                 # Hali qarz qolgan (qisman to'langan yoki qisman to'landi)
                 sale.payment_status = 'partial'
 
-            logger.info(f"ğŸ’° Savdo #{sale.id}: To'landi ${total_paid}, Qolgan qarz ${sale.debt_usd}, Status: {sale.payment_status}")
+            logger.info(f"ÄŸÅ¸â€™Â° Savdo #{sale.id}: To'landi ${total_paid}, Qolgan qarz ${sale.debt_usd}, Status: {sale.payment_status}")
 
             # updated_at ni yangilash (qarz to'lash belgisi)
             sale.updated_at = get_tashkent_time()
@@ -6444,12 +6444,12 @@ def api_debt_payment():
                 )
 
                 if telegram_result:
-                    logger.info(f"âœ… To'lov tasdiq xabari yuborildi: {customer.name}")
+                    logger.info(f"Ã¢Å“â€¦ To'lov tasdiq xabari yuborildi: {customer.name}")
                 else:
-                    logger.warning(f"âš ï¸ To'lov tasdiq xabari yuborilmadi: {customer.name}")
+                    logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â To'lov tasdiq xabari yuborilmadi: {customer.name}")
 
             except Exception as e:
-                logger.error(f"âŒ Telegram xabar yuborishda xatolik: {e}")
+                logger.error(f"Ã¢ÂÅ’ Telegram xabar yuborishda xatolik: {e}")
 
         return jsonify({
             'success': True,
@@ -6473,7 +6473,7 @@ def edit_user_page(user_id):
     return render_template(
         'edit_user.html',
         page_title='Foydalanuvchini Tahrirlash',
-        icon='âœï¸')
+        icon='Ã¢Å“ÂÃ¯Â¸Â')
 
 
 @app.route('/add-user')
@@ -6482,7 +6482,7 @@ def add_user_page():
     return render_template(
         'add_user.html',
         page_title='Yangi Foydalanuvchi',
-        icon='ğŸ‘¤')
+        icon='ÄŸÅ¸â€˜Â¤')
 
 
 # Database jadvallarini yaratish
@@ -6522,7 +6522,7 @@ def check_user_status():
                 # Agar session topilmasa yoki faol bo'lmasa - logout
                 if not user_session or not user_session.is_active:
                     username = session.get('username', 'Unknown')
-                    app.logger.info(f"ğŸš« Session bekor qilingan yoki faol emas: {username} (ID: {user_id})")
+                    app.logger.info(f"ÄŸÅ¸Å¡Â« Session bekor qilingan yoki faol emas: {username} (ID: {user_id})")
 
                     session.clear()
 
@@ -6542,7 +6542,7 @@ def check_user_status():
             if not user or not user.is_active:
                 # Foydalanuvchi faol emas - logout qilish
                 username = session.get('username', 'Unknown')
-                app.logger.info(f"ğŸš« Faol emas foydalanuvchi avtomatik logout: {username} (ID: {user_id})")
+                app.logger.info(f"ÄŸÅ¸Å¡Â« Faol emas foydalanuvchi avtomatik logout: {username} (ID: {user_id})")
 
                 session.clear()
 
@@ -6781,12 +6781,12 @@ def warehouse_detail(warehouse_id):
 @location_permission_required('store_id')
 def edit_store_stock(store_id, product_id):
     print(
-        f"ğŸ” DEBUG: edit_store_stock called with store_id={store_id}, product_id={product_id}")
+        f"ÄŸÅ¸â€Â DEBUG: edit_store_stock called with store_id={store_id}, product_id={product_id}")
     stock = StoreStock.query.filter_by(
         store_id=store_id,
         product_id=product_id
     ).first_or_404()
-    print(f"ğŸ” DEBUG: Stock found: {stock.product.name}, quantity: {stock.quantity}")
+    print(f"ÄŸÅ¸â€Â DEBUG: Stock found: {stock.product.name}, quantity: {stock.quantity}")
 
     # Hisob-kitoblar - to'g'ri cost_price va sell_price dan
     cost_price = stock.product.cost_price
@@ -6953,7 +6953,7 @@ def edit_store_stock(store_id, product_id):
 def update_store_stock_quantity(store_id, product_id):
     try:
         print(
-            f"ğŸ”„ API: Store stock miqdor yangilash: store_id={store_id}, product_id={product_id}")
+            f"ÄŸÅ¸â€â€ API: Store stock miqdor yangilash: store_id={store_id}, product_id={product_id}")
 
         stock = StoreStock.query.filter_by(
             store_id=store_id,
@@ -6979,7 +6979,7 @@ def update_store_stock_quantity(store_id, product_id):
         db.session.commit()
 
         print(
-            f"âœ… API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
+            f"Ã¢Å“â€¦ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
 
         # OperationHistory logini yozish
         try:
@@ -7012,7 +7012,7 @@ def update_store_stock_quantity(store_id, product_id):
         }), 200
 
     except Exception as e:
-        print(f"ğŸ’¥ API xatoligi: {e}")
+        print(f"ÄŸÅ¸â€™Â¥ API xatoligi: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7025,7 +7025,7 @@ def update_store_stock_quantity(store_id, product_id):
 def update_warehouse_stock_quantity(warehouse_id, product_id):
     try:
         print(
-            f"ğŸ”„ API: Warehouse stock miqdor yangilash: warehouse_id={warehouse_id}, product_id={product_id}")
+            f"ÄŸÅ¸â€â€ API: Warehouse stock miqdor yangilash: warehouse_id={warehouse_id}, product_id={product_id}")
 
         stock = WarehouseStock.query.filter_by(
             warehouse_id=warehouse_id,
@@ -7051,7 +7051,7 @@ def update_warehouse_stock_quantity(warehouse_id, product_id):
         db.session.commit()
 
         print(
-            f"âœ… API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
+            f"Ã¢Å“â€¦ API: {stock.product.name} stock yangilandi: {old_quantity} -> {new_quantity}")
 
         # OperationHistory logini yozish
         try:
@@ -7084,7 +7084,7 @@ def update_warehouse_stock_quantity(warehouse_id, product_id):
         }), 200
 
     except Exception as e:
-        print(f"ğŸ’¥ API xatoligi: {e}")
+        print(f"ÄŸÅ¸â€™Â¥ API xatoligi: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7138,7 +7138,7 @@ def start_stock_check():
         })
         db.session.commit()
 
-        logger.info(f"âœ… Stock check session boshlandi: {location_name} ({location_type} #{location_id}) - User: {session.get('user_id')}")
+        logger.info(f"Ã¢Å“â€¦ Stock check session boshlandi: {location_name} ({location_type} #{location_id}) - User: {session.get('user_id')}")
 
         return jsonify({
             'success': True,
@@ -7146,7 +7146,7 @@ def start_stock_check():
         }), 200
 
     except Exception as e:
-        logger.error(f"âŒ Start stock check error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Start stock check error: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7187,7 +7187,7 @@ def get_active_sessions():
         return jsonify({'sessions': result}), 200
 
     except Exception as e:
-        logger.error(f"âŒ Get active sessions error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Get active sessions error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -7218,7 +7218,7 @@ def update_stock_check_session():
         return jsonify({'success': True}), 200
 
     except Exception as e:
-        logger.error(f"âŒ Update session error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Update session error: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7238,12 +7238,12 @@ def end_stock_check():
             return jsonify({'error': 'Noto\'g\'ri status'}), 400
 
         current_user_id = session.get('user_id')
-        
+
         # Sessiyani tugatish - completed_by_user_id va completed_at maydonlarini ham yangilash
         db.session.execute(text("""
             UPDATE stock_check_sessions
-            SET status = :status, 
-                updated_at = NOW(), 
+            SET status = :status,
+                updated_at = NOW(),
                 completed_at = NOW(),
                 completed_by_user_id = :completed_by_user_id
             WHERE user_id = :user_id
@@ -7259,7 +7259,7 @@ def end_stock_check():
         })
         db.session.commit()
 
-        logger.info(f"âœ… Stock check session tugatildi: {location_type} #{location_id} - Status: {status}")
+        logger.info(f"Ã¢Å“â€¦ Stock check session tugatildi: {location_type} #{location_id} - Status: {status}")
 
         return jsonify({
             'success': True,
@@ -7267,7 +7267,7 @@ def end_stock_check():
         }), 200
 
     except Exception as e:
-        logger.error(f"âŒ End stock check error: {e}")
+        logger.error(f"Ã¢ÂÅ’ End stock check error: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7289,7 +7289,7 @@ def cleanup_old_sessions():
         db.session.commit()
 
         count = len(closed_sessions)
-        logger.info(f"ğŸ§¹ Tozalash: {count} ta eski session yopildi")
+        logger.info(f"ÄŸÅ¸Â§Â¹ Tozalash: {count} ta eski session yopildi")
 
         return jsonify({
             'success': True,
@@ -7298,7 +7298,7 @@ def cleanup_old_sessions():
         }), 200
 
     except Exception as e:
-        logger.error(f"âŒ Cleanup error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Cleanup error: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -7308,7 +7308,7 @@ def cleanup_old_sessions():
 def delete_store_stock(store_id, product_id):
     try:
         print(
-            f"ğŸŸ¡ Store stock o'chirish so'rovi: Store ID: {store_id}, Product ID: {product_id}")
+            f"ÄŸÅ¸Å¸Â¡ Store stock o'chirish so'rovi: Store ID: {store_id}, Product ID: {product_id}")
 
         stock = StoreStock.query.filter_by(
             store_id=store_id,
@@ -7317,7 +7317,7 @@ def delete_store_stock(store_id, product_id):
 
         if not stock:
             print(
-                f"ğŸ”´ Stock topilmadi: Store ID: {store_id}, Product ID: {product_id}")
+                f"ÄŸÅ¸â€Â´ Stock topilmadi: Store ID: {store_id}, Product ID: {product_id}")
             return jsonify({
                 'success': False,
                 'error': 'Mahsulot bu do\'konda topilmadi'
@@ -7389,11 +7389,11 @@ def delete_store_stock(store_id, product_id):
     except Exception as e:
         db.session.rollback()
         error_msg = str(e)
-        print("ğŸ”´ Store stock o'chirishda xatolik!")
-        print(f"ğŸ”´ Store ID: {store_id}, Product ID: {product_id}")
-        print(f"ğŸ”´ Xatolik: {error_msg}")
+        print("ÄŸÅ¸â€Â´ Store stock o'chirishda xatolik!")
+        print(f"ÄŸÅ¸â€Â´ Store ID: {store_id}, Product ID: {product_id}")
+        print(f"ÄŸÅ¸â€Â´ Xatolik: {error_msg}")
         import traceback
-        print(f"ğŸ”´ Traceback:\n{traceback.format_exc()}")
+        print(f"ÄŸÅ¸â€Â´ Traceback:\n{traceback.format_exc()}")
 
         logger.error(f"Store stock o'chirishda xatolik: {error_msg}")
         logger.error(f"Store ID: {store_id}, Product ID: {product_id}")
@@ -7494,7 +7494,7 @@ def debug_products():
     if not app.debug:
         abort(404)  # Production'da ko'rsatmaslik
     try:
-        # âœ… Eager loading - N+1 query muammosini hal qilish
+        # Ã¢Å“â€¦ Eager loading - N+1 query muammosini hal qilish
         from sqlalchemy.orm import joinedload
 
         products = Product.query.options(
@@ -7505,7 +7505,7 @@ def debug_products():
         products_data = []
 
         for product in products:
-            # âœ… Eager loading natijasida stocks allaqachon yuklangan
+            # Ã¢Å“â€¦ Eager loading natijasida stocks allaqachon yuklangan
             warehouse_data = []
             for ws in product.warehouse_stocks:
                 if ws.warehouse:  # Eager loaded
@@ -7663,7 +7663,7 @@ def get_product_locations(product_id):
 @check_idempotency('transfer')
 def process_transfers():
     """Transferlarni amalga oshirish"""
-    print("ğŸ”„ Transfer API called")
+    print("ÄŸÅ¸â€â€ Transfer API called")
     try:
         # Current user tekshirish
         current_user = get_current_user()
@@ -7671,7 +7671,7 @@ def process_transfers():
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
         print(
-            f"ğŸ” Transfer API - User: {current_user.username}, Role: {current_user.role}")
+            f"ÄŸÅ¸â€Â Transfer API - User: {current_user.username}, Role: {current_user.role}")
 
         # Sotuvchi uchun transfer huquqi va joylashuv tekshirish
         if current_user.role == 'sotuvchi':
@@ -7682,7 +7682,7 @@ def process_transfers():
             # Agar transfer huquqi yo'q bo'lsa, xatolik qaytarish
             if not has_transfer_permission:
                 print(
-                    f"âŒ User {current_user.username} has no transfer permission")
+                    f"Ã¢ÂÅ’ User {current_user.username} has no transfer permission")
                 return jsonify(
                     {'error': 'Transfer qilish huquqingiz yo\'q'}), 403
 
@@ -7692,19 +7692,19 @@ def process_transfers():
             # Agar transfer_locations bo'sh bo'lsa, allowed_locations dan foydalanish
             if not transfer_locations:
                 transfer_locations = current_user.allowed_locations or []
-                print(f"â„¹ï¸ Transfer locations bo'sh, allowed_locations ishlatilmoqda: {transfer_locations}")
+                print(f"Ã¢â€Â¹Ã¯Â¸Â Transfer locations bo'sh, allowed_locations ishlatilmoqda: {transfer_locations}")
 
             logger.debug(f" User transfer locations: {transfer_locations}")
 
             # Agar ikkala list ham bo'sh bo'lsa, faqat o'shanda xatolik qaytarish
             if not transfer_locations:
                 print(
-                    f"âŒ User {current_user.username} has no transfer locations")
+                    f"Ã¢ÂÅ’ User {current_user.username} has no transfer locations")
                 return jsonify(
                     {'error': 'Transfer qilish uchun ruxsat etilgan joylashuvlar yo\'q'}), 403
 
         data = request.get_json()
-        print(f"ğŸ“¥ Received data: {data}")
+        print(f"ÄŸÅ¸â€œÂ¥ Received data: {data}")
         transfers = data.get('transfers', [])
         logger.debug(f" Transfers count: {len(transfers)}")
 
@@ -7719,7 +7719,7 @@ def process_transfers():
             to_location = transfer['to_location']
             quantity = Decimal(str(transfer['quantity']))  # Decimal ishlatish (0.5 litr uchun)
             print(
-                f"ğŸ“¦ Transfer: {product_id} from {from_location} to {to_location}, qty: {quantity}")
+                f"ÄŸÅ¸â€œÂ¦ Transfer: {product_id} from {from_location} to {to_location}, qty: {quantity}")
 
             # Sotuvchi uchun from_location ruxsatini tekshirish
             if current_user.role == 'sotuvchi':
@@ -7734,25 +7734,25 @@ def process_transfers():
                 # Ruxsat borligini tekshirish (yangi va eski formatni qo'llab-quvvatlash)
                 if transfer_locations:
                     has_permission = False
-                    
+
                     for loc in transfer_locations:
                         # Yangi format: {'id': 1, 'type': 'warehouse'}
                         if isinstance(loc, dict):
                             if loc.get('id') == from_location_id and loc.get('type') == from_type:
                                 has_permission = True
-                                print(f"✅ Transfer permission granted: {from_type}_{from_location_id} matches {loc}")
+                                print(f"âœ… Transfer permission granted: {from_type}_{from_location_id} matches {loc}")
                                 break
                         # Eski format: integer (faqat id, type noma'lum)
                         elif isinstance(loc, int):
                             if loc == from_location_id:
                                 has_permission = True
-                                print(f"✅ Transfer permission granted (old format): location ID {from_location_id}")
+                                print(f"âœ… Transfer permission granted (old format): location ID {from_location_id}")
                                 break
-                    
+
                     if not has_permission:
                         print(
-                            f"❌ User {current_user.username} cannot transfer from location {from_location} (type: {from_type}, id: {from_location_id})")
-                        print(f"❌ Available transfer locations: {transfer_locations}")
+                            f"âŒ User {current_user.username} cannot transfer from location {from_location} (type: {from_type}, id: {from_location_id})")
+                        print(f"âŒ Available transfer locations: {transfer_locations}")
                         return jsonify({
                             'error': f'Bu joylashuvdan ({from_location}) transfer qilish huquqingiz yo\'q. Ruxsat etilgan joylashuvlar: {transfer_locations}'
                         }), 403
@@ -7877,7 +7877,7 @@ def process_transfers():
             transfer_desc = (
                 f"Transfer: {product.name} - "
                 f"{from_location_name} {before_from_qty:.0f}-{_qty:.0f}={_from_after:.0f}"
-                f" → {to_location_name} {before_to_qty:.0f}+{_qty:.0f}={_to_after:.0f}"
+                f" â†’ {to_location_name} {before_to_qty:.0f}+{_qty:.0f}={_to_after:.0f}"
             )
             operation = OperationHistory(
                 operation_type='transfer',
@@ -7915,7 +7915,7 @@ def process_transfers():
 
     except TimeoutError:
         db.session.rollback()
-        logger.error("â±ï¸ Database timeout in transfer")
+        logger.error("Ã¢ÂÂ±Ã¯Â¸Â Database timeout in transfer")
         return jsonify({
             'success': False,
             'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
@@ -7923,7 +7923,7 @@ def process_transfers():
         }), 504
     except OperationalError as e:
         db.session.rollback()
-        logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+        logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
         return jsonify({
             'success': False,
             'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -7931,7 +7931,7 @@ def process_transfers():
         }), 503
     except IntegrityError as e:
         db.session.rollback()
-        logger.error(f"âŒ Integrity error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Integrity error: {e}")
         return jsonify({
             'success': False,
             'error': 'Ma\'lumotlarni saqlashda xatolik',
@@ -7939,7 +7939,7 @@ def process_transfers():
         }), 400
     except BadRequest as e:
         db.session.rollback()
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'error': 'Noto\'g\'ri so\'rov formati',
@@ -7947,7 +7947,7 @@ def process_transfers():
         }), 400
     except Exception as e:
         db.session.rollback()
-        logger.error(f"âŒ Transfer xatosi: {str(e)}", exc_info=True)
+        logger.error(f"Ã¢ÂÅ’ Transfer xatosi: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': str(e),
@@ -8144,12 +8144,12 @@ def manage_pending_transfer(pending_id=None):
             if pending_id:
                 # ID bo'yicha olish
                 pending = PendingTransfer.query.get(pending_id)
-                
+
                 if pending:
                     # Ruxsat tekshirish
                     if not user_can_manage_transfer(current_user, pending):
                         return jsonify({'error': 'Sizga bu transferni ko\'rish uchun ruxsat yo\'q'}), 403
-                    
+
                     return jsonify({
                         'success': True,
                         'pending_transfer': pending.to_dict()
@@ -8157,14 +8157,14 @@ def manage_pending_transfer(pending_id=None):
             else:
                 # Barcha ruxsat etilgan pending transferlarni olish
                 all_pendings = PendingTransfer.query.order_by(PendingTransfer.updated_at.desc()).all()
-                
+
                 # Birinchi ruxsat etilgan transferni topish
                 pending = None
                 for p in all_pendings:
                     if user_can_manage_transfer(current_user, p):
                         pending = p
                         break
-                
+
                 if pending:
                     return jsonify({
                         'success': True,
@@ -8202,7 +8202,7 @@ def manage_pending_transfer(pending_id=None):
 
             if not pending_id:
                 return jsonify({'error': 'Transfer ID talab qilinadi'}), 400
-            
+
             pending = PendingTransfer.query.get(pending_id)
 
             if not pending:
@@ -8382,7 +8382,7 @@ def get_customers():
 
         # Debug ma'lumotlari
         print(
-            f"ğŸ” Customers API - User: {current_user.username}, Role: {current_user.role}, Search: {search}, Time: {time_filter}")
+            f"ÄŸÅ¸â€Â Customers API - User: {current_user.username}, Role: {current_user.role}, Search: {search}, Time: {time_filter}")
         logger.debug(f" Allowed locations: {current_user.allowed_locations}")
 
         # Mijozlarni joylashuv bo'yicha filterlash
@@ -8395,7 +8395,7 @@ def get_customers():
             if allowed_locations:
                 # Faqat store ID'larni olish (mijozlar faqat do'konlarda bo'ladi)
                 allowed_store_ids = extract_location_ids(allowed_locations, 'store')
-                print(f"ğŸ” Allowed store IDs for customers: {allowed_store_ids}")
+                print(f"ÄŸÅ¸â€Â Allowed store IDs for customers: {allowed_store_ids}")
 
                 if allowed_store_ids:
                     # Faqat ruxsat berilgan do'konlardagi mijozlar
@@ -8417,10 +8417,10 @@ def get_customers():
 
                     customers = query.all()
                     print(
-                        f"ğŸ” Found {len(customers)} customers in allowed stores")
+                        f"ÄŸÅ¸â€Â Found {len(customers)} customers in allowed stores")
                 else:
                     customers = []
-                    print("ğŸ” No allowed stores for this user")
+                    print("ÄŸÅ¸â€Â No allowed stores for this user")
             else:
                 # Agar ruxsat berilgan joylashuv bo'lmasa, bo'sh ro'yxat
                 customers = []
@@ -8449,7 +8449,7 @@ def get_customers():
         from datetime import datetime, timedelta
         now = get_tashkent_time()  # Toshkent vaqti
 
-        print(f"â° Time filter: {time_filter}, Toshkent vaqti: {now}")
+        print(f"Ã¢ÂÂ° Time filter: {time_filter}, Toshkent vaqti: {now}")
 
         # Vaqt oralig'ini aniqlash
         start_date = None
@@ -8459,21 +8459,21 @@ def get_customers():
             # Bugun: kun boshidan kun oxirigacha
             start_date = datetime(now.year, now.month, now.day, 0, 0, 0)
             end_date = datetime(now.year, now.month, now.day, 23, 59, 59)
-            print(f"ğŸ“… Bugun filtri: {start_date} - {end_date}")
+            print(f"ÄŸÅ¸â€œâ€¦ Bugun filtri: {start_date} - {end_date}")
         elif time_filter == 'week':
             # Oxirgi 7 kun
             start_date = now - timedelta(days=7)
-            print(f"ğŸ“… Hafta filtri: {start_date} dan")
+            print(f"ÄŸÅ¸â€œâ€¦ Hafta filtri: {start_date} dan")
         elif time_filter == 'month':
             # Joriy oy boshidan
             start_date = datetime(now.year, now.month, 1)
-            print(f"ğŸ“… Oy filtri: {start_date} dan")
+            print(f"ÄŸÅ¸â€œâ€¦ Oy filtri: {start_date} dan")
         elif time_filter == 'year':
             # Joriy yil boshidan
             start_date = datetime(now.year, 1, 1)
-            print(f"ğŸ“… Yil filtri: {start_date} dan")
+            print(f"ÄŸÅ¸â€œâ€¦ Yil filtri: {start_date} dan")
         else:
-            print("ğŸ“… Barcha vaqt (filtr yo'q)")
+            print("ÄŸÅ¸â€œâ€¦ Barcha vaqt (filtr yo'q)")
 
         result = []
         for customer in customers:
@@ -8505,7 +8505,7 @@ def get_customers():
                 customer_dict['total_amount'] = round(total_amount, 2)
                 customer_dict['total_profit'] = round(total_profit, 2)
 
-                # âš ï¸ MUHIM: Agar vaqt filtri qo'llangan bo'lsa va mijozning savdosi bo'lmasa, uni ro'yxatga qo'shmaslik
+                # Ã¢Å¡Â Ã¯Â¸Â MUHIM: Agar vaqt filtri qo'llangan bo'lsa va mijozning savdosi bo'lmasa, uni ro'yxatga qo'shmaslik
                 if time_filter != 'all' and total_sales == 0:
                     continue  # Bu mijozni o'tkazib yuborish
 
@@ -8520,7 +8520,7 @@ def get_customers():
                     result.append(customer_dict)
 
         logger.debug(f" Returning {len(result)} customers with sales data")
-        print(f"ğŸ“Š Jami {len(result)} ta mijoz qaytarilmoqda")
+        print(f"ÄŸÅ¸â€œÅ  Jami {len(result)} ta mijoz qaytarilmoqda")
 
         return jsonify(result)
     except Exception as e:
@@ -8545,11 +8545,11 @@ def api_add_customer():
         # Store_id ni data'dan olish
         store_id = data.get('store_id')
         print(
-            f"ğŸ” Customer API - Received store_id: {store_id} (type: {type(store_id)})")
+            f"ÄŸÅ¸â€Â Customer API - Received store_id: {store_id} (type: {type(store_id)})")
         print(
-            f"ğŸ” Customer API - Current user: {current_user.username}, role: {current_user.role}")
+            f"ÄŸÅ¸â€Â Customer API - Current user: {current_user.username}, role: {current_user.role}")
         print(
-            f"ğŸ” Customer API - User allowed_locations: {current_user.allowed_locations}")
+            f"ÄŸÅ¸â€Â Customer API - User allowed_locations: {current_user.allowed_locations}")
         if store_id:
             # Dokon mavjudligini tekshirish
             store = Store.query.get(store_id)
@@ -8561,10 +8561,10 @@ def api_add_customer():
                 allowed_locations = current_user.allowed_locations or []
                 store_id_int = int(store_id)  # String'dan integer'ga o'tkazish
                 print(
-                    f"ğŸ” Customer API - Checking if {store_id_int} in {allowed_locations}")
+                    f"ÄŸÅ¸â€Â Customer API - Checking if {store_id_int} in {allowed_locations}")
                 if store_id_int not in allowed_locations:
                     print(
-                        f"âŒ Customer API - Store {store_id_int} not in allowed locations {allowed_locations}")
+                        f"Ã¢ÂÅ’ Customer API - Store {store_id_int} not in allowed locations {allowed_locations}")
                     return jsonify(
                         {'error': 'Bu dokonga mijoz qo\'shish uchun ruxsatingiz yo\'q'}), 403
                 else:
@@ -8794,7 +8794,7 @@ def update_customer(customer_id):
 @role_required('admin', 'kassir')
 def get_users():
     try:
-        # âœ… Pagination qo'shish - xotira tejash
+        # Ã¢Å“â€¦ Pagination qo'shish - xotira tejash
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
         get_all = request.args.get('all', 'false').lower() == 'true'
@@ -8873,7 +8873,7 @@ def api_add_user():
         logger.debug(f" Allowed locations (after adding stock check): {allowed_locations}")
         logger.debug(f" Transfer locations: {transfer_locations}")
         print(
-            f"ğŸ” Primary store_id: {store_id} (UI uchun, huquqlarga ta'sir qilmaydi)")
+            f"ÄŸÅ¸â€Â Primary store_id: {store_id} (UI uchun, huquqlarga ta'sir qilmaydi)")
 
         # Yangi foydalanuvchi yaratish
         new_user = User(
@@ -8950,7 +8950,7 @@ def delete_user(user_id):
         db.session.delete(user)
         db.session.commit()
 
-        app.logger.info(f"âœ… User {user_id}, uning session'lari va stock check sessions'lari o'chirildi")
+        app.logger.info(f"Ã¢Å“â€¦ User {user_id}, uning session'lari va stock check sessions'lari o'chirildi")
 
         # OperationHistory logini yozish
         try:
@@ -9007,7 +9007,7 @@ def toggle_user_status(user_id):
 
         status_text = "faol" if user.is_active else "faol emas"
 
-        app.logger.info(f"ğŸ”„ User status o'zgartirildi: {user.username} -> {status_text}")
+        app.logger.info(f"ÄŸÅ¸â€â€ User status o'zgartirildi: {user.username} -> {status_text}")
 
         return jsonify({
             'success': True,
@@ -9165,10 +9165,10 @@ def update_user(user_id):
                 logger.error(f" Primary store set: {store_id} ({store.name})")
             else:
                 print(
-                    f"ğŸ­ Primary warehouse set: {store_id} ({warehouse.name})")
+                    f"ÄŸÅ¸ÂÂ­ Primary warehouse set: {store_id} ({warehouse.name})")
         else:
             user.store_id = None
-            print("ğŸš« No primary location set")
+            print("ÄŸÅ¸Å¡Â« No primary location set")
 
         db.session.commit()
 
@@ -9217,7 +9217,7 @@ def api_sales_history():
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
         print(
-            f"ğŸ” Sales history API - User: {current_user.username}, Role: {current_user.role}")
+            f"ÄŸÅ¸â€Â Sales history API - User: {current_user.username}, Role: {current_user.role}")
 
         # Get query parameters for filtering
         start_date = request.args.get('start_date')
@@ -9239,23 +9239,23 @@ def api_sales_history():
 
         if has_date_filter:
             stats_date_filter = 'filtered'  # Tanlangan sana oralig'i
-            logger.info(f"ğŸ“… Sana filtri aniqlandi: {start_date} - {end_date}")
+            logger.info(f"ÄŸÅ¸â€œâ€¦ Sana filtri aniqlandi: {start_date} - {end_date}")
         else:
             stats_date_filter = 'today'  # Default: bugungi kun
-            logger.info("ğŸ“… Sana filtri yo'q, default bugungi kun")
+            logger.info("ÄŸÅ¸â€œâ€¦ Sana filtri yo'q, default bugungi kun")
 
         print(
-            f"ğŸ“‹ Query parameters: start_date={start_date}, end_date={end_date}, customer_id={customer_id}, payment_status={payment_status}, location_filter={location_filter}, search_term={search_term}, stats_date_filter={stats_date_filter}")
+            f"ÄŸÅ¸â€œâ€¹ Query parameters: start_date={start_date}, end_date={end_date}, customer_id={customer_id}, payment_status={payment_status}, location_filter={location_filter}, search_term={search_term}, stats_date_filter={stats_date_filter}")
 
         # Base query - payment_status parametriga qarab filtrlash
         if payment_status and payment_status == 'pending':
             # Faqat tasdiqlanmagan savdolar
             query = Sale.query.filter(Sale.payment_status == 'pending')
-            logger.info("ğŸ“‹ Filter: pending savdolar")
+            logger.info("ÄŸÅ¸â€œâ€¹ Filter: pending savdolar")
         elif payment_status and payment_status == 'completed':
             # Faqat to'langan savdolar
             query = Sale.query.filter(Sale.payment_status == 'completed')
-            logger.info("ğŸ“‹ Filter: completed savdolar")
+            logger.info("ÄŸÅ¸â€œâ€¹ Filter: completed savdolar")
         elif payment_status and payment_status == 'partial':
             # Faqat qisman to'langan savdolar (QARZ SAVDOLAR)
             # MUHIM: debt_usd > 0 sharti - haqiqatdan qarz bor bo'lsa
@@ -9263,22 +9263,22 @@ def api_sales_history():
                 Sale.payment_status == 'partial',
                 Sale.debt_usd > 0
             )
-            logger.info("ğŸ’³ Filter: QARZ SAVDOLAR (partial + debt_usd > 0)")
+            logger.info("ÄŸÅ¸â€™Â³ Filter: QARZ SAVDOLAR (partial + debt_usd > 0)")
         elif payment_status and payment_status != 'all':
             # Belgilangan status bo'yicha filtrlash
             query = Sale.query.filter(Sale.payment_status == payment_status)
-            logger.info(f"ğŸ“‹ Filter: status={payment_status}")
+            logger.info(f"ÄŸÅ¸â€œâ€¹ Filter: status={payment_status}")
         else:
             # Default: barcha tasdiqlangan savdolar (pending emas)
             # Bu qarz savdolarni ham o'z ichiga oladi
             query = Sale.query.filter(Sale.payment_status.in_(['completed', 'partial']))
-            logger.info("ğŸ“‹ Filter: completed + partial (default)")
+            logger.info("ÄŸÅ¸â€œâ€¹ Filter: completed + partial (default)")
 
         # Sotuvchi uchun joylashuv filterlash
         if current_user.role == 'sotuvchi':
             allowed_locations = current_user.allowed_locations or []
             print(
-                f"ğŸ” Seller allowed locations for sales history: {allowed_locations}")
+                f"ÄŸÅ¸â€Â Seller allowed locations for sales history: {allowed_locations}")
 
             if allowed_locations:
                 # Extract location IDs from allowed locations
@@ -9306,15 +9306,15 @@ def api_sales_history():
                     # NULL location'li savdolar ham qo'shiladi (eski savdolar uchun)
                     location_conditions.append(Sale.location_id is None)
                     query = query.filter(db.or_(*location_conditions))
-                    logger.info(f"ğŸ” Sotuvchi uchun {len(location_conditions) - 1} ta joylashuv + NULL location bo'yicha filtrlash")
+                    logger.info(f"ÄŸÅ¸â€Â Sotuvchi uchun {len(location_conditions) - 1} ta joylashuv + NULL location bo'yicha filtrlash")
                 else:
                     # Hech qaysi joylashuv ruxsat berilmagan
                     query = query.filter(Sale.id == -1)
-                    logger.warning("âš ï¸ Sotuvchiga hech qaysi joylashuv ruxsat berilmagan!")
+                    logger.warning("Ã¢Å¡Â Ã¯Â¸Â Sotuvchiga hech qaysi joylashuv ruxsat berilmagan!")
             else:
                 # Ruxsat berilgan joylashuv bo'lmasa, bo'sh natija
                 query = query.filter(Sale.id == -1)
-                logger.warning("âš ï¸ Sotuvchining allowed_locations bo'sh!")
+                logger.warning("Ã¢Å¡Â Ã¯Â¸Â Sotuvchining allowed_locations bo'sh!")
 
         # Apply date filters
         if start_date:
@@ -9342,7 +9342,7 @@ def api_sales_history():
             try:
                 sale_id_int = int(sale_id_filter)
                 query = query.filter(Sale.id == sale_id_int)
-                print(f"🔢 Sale ID filtri: {sale_id_int}")
+                print(f"ğŸ”¢ Sale ID filtri: {sale_id_int}")
             except (ValueError, TypeError):
                 pass
 
@@ -9363,7 +9363,7 @@ def api_sales_history():
                     Sale.location_id == store_filter_id,
                     Sale.location_type == 'store'
                 )
-                print(f"ğŸª Location filtri: store_id={store_filter_id}")
+                print(f"ÄŸÅ¸ÂÂª Location filtri: store_id={store_filter_id}")
             elif location_filter.startswith('warehouse_'):
                 warehouse_filter_id = int(location_filter.replace('warehouse_', ''))
                 # Yangi tizim: location_id va location_type ishlatish
@@ -9371,7 +9371,7 @@ def api_sales_history():
                     Sale.location_id == warehouse_filter_id,
                     Sale.location_type == 'warehouse'
                 )
-                print(f"ğŸ­ Location filtri: warehouse_id={warehouse_filter_id}")
+                print(f"ÄŸÅ¸ÂÂ­ Location filtri: warehouse_id={warehouse_filter_id}")
 
         # Qidiruv filtri (mahsulot nomi bo'yicha - bir nechta so'z bilan)
         if search_term and search_term.strip():
@@ -9385,7 +9385,7 @@ def api_sales_history():
             query = query.join(SaleItem).join(Product).filter(
                 db.and_(*search_conditions)
             ).distinct()
-            print(f"ğŸ” Qidiruv: '{search_term_cleaned}' ({len(search_words)} ta so'z)")
+            print(f"ÄŸÅ¸â€Â Qidiruv: '{search_term_cleaned}' ({len(search_words)} ta so'z)")
 
         # STATISTIKA: SQL aggregate funksiyalari bilan optimal hisoblash
         from sqlalchemy import func
@@ -9403,15 +9403,15 @@ def api_sales_history():
                 Sale.sale_date >= today_start,
                 Sale.sale_date <= today_end
             )
-            logger.info(f"ğŸ“Š Statistika: Faqat bugungi kun ({today})")
+            logger.info(f"ÄŸÅ¸â€œÅ  Statistika: Faqat bugungi kun ({today})")
         elif stats_date_filter == 'filtered':
             # Tanlangan sana oralig'i (base_query allaqachon sana filtri bilan)
             stats_filtered_query = base_stats_query
-            logger.info(f"ğŸ“Š Statistika: Tanlangan sana oralig'i bo'yicha ({start_date} - {end_date})")
+            logger.info(f"ÄŸÅ¸â€œÅ  Statistika: Tanlangan sana oralig'i bo'yicha ({start_date} - {end_date})")
         else:
             # Barcha savdolar (sana filtrisiz)
             stats_filtered_query = base_stats_query
-            logger.info("ğŸ“Š Statistika: Barcha savdolar")
+            logger.info("ÄŸÅ¸â€œÅ  Statistika: Barcha savdolar")
 
         # Asosiy statistika (count, sum) - aggregate qilish
         stats_aggregate_result = stats_filtered_query.with_entities(
@@ -9424,9 +9424,9 @@ def api_sales_history():
         total_revenue = float(stats_aggregate_result.total_revenue or 0)
         total_profit = float(stats_aggregate_result.total_profit or 0)
 
-        logger.info(f"ğŸ“Š Jami savdolar: {total_sales_count}")
-        logger.info(f"ğŸ’° Jami daromad: ${total_revenue:.2f}")
-        logger.info(f"ğŸ’µ Jami foyda: ${total_profit:.2f}")
+        logger.info(f"ÄŸÅ¸â€œÅ  Jami savdolar: {total_sales_count}")
+        logger.info(f"ÄŸÅ¸â€™Â° Jami daromad: ${total_revenue:.2f}")
+        logger.info(f"ÄŸÅ¸â€™Âµ Jami foyda: ${total_profit:.2f}")
 
         # Order by date descending (yangi savdolardan eski savdolarga)
         # Bu pagination uchun kerak
@@ -9434,10 +9434,10 @@ def api_sales_history():
 
         # Pagination parametrlarini olish
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 20, type=int)  # âœ… Optimizatsiya: 50->20
+        per_page = request.args.get('per_page', 20, type=int)  # Ã¢Å“â€¦ Optimizatsiya: 50->20
         per_page = min(per_page, 100)  # Maximum 100 limit
 
-        # âœ… Eager loading - N+1 query muammosini hal qilish
+        # Ã¢Å“â€¦ Eager loading - N+1 query muammosini hal qilish
         from sqlalchemy.orm import joinedload
         query = query.options(
             joinedload(Sale.customer),
@@ -9450,14 +9450,14 @@ def api_sales_history():
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         sales = pagination.items
 
-        logger.info(f"ğŸ“„ Ma'lumotlar bazasidan topildi: {len(sales)} ta savdo (sahifa {page}, {per_page} ta per sahifa)")
-        logger.info(f"ğŸ“Š Jami sahifalar: {pagination.pages}, Jami savdolar: {pagination.total}")
+        logger.info(f"ÄŸÅ¸â€œâ€ Ma'lumotlar bazasidan topildi: {len(sales)} ta savdo (sahifa {page}, {per_page} ta per sahifa)")
+        logger.info(f"ÄŸÅ¸â€œÅ  Jami sahifalar: {pagination.pages}, Jami savdolar: {pagination.total}")
 
         # Qarz savdolar uchun maxsus log
         if payment_status == 'partial':
-            logger.info(f"ğŸ’³ QARZ SAVDOLAR: {pagination.total} ta")
+            logger.info(f"ÄŸÅ¸â€™Â³ QARZ SAVDOLAR: {pagination.total} ta")
             if pagination.total == 0:
-                logger.warning(f"âš ï¸ QARZ SAVDOLAR TOPILMADI! User: {current_user.username}, Role: {current_user.role}")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â QARZ SAVDOLAR TOPILMADI! User: {current_user.username}, Role: {current_user.role}")
 
         # Debug: Query parametrlarini ko'rsatish
         logger.debug(" Query details:")
@@ -9473,7 +9473,7 @@ def api_sales_history():
             print(f"   - Birinchi 3 ta savdo ID: {sale_ids}")
 
         # STATISTIKA: Subquery ishlatish - xotira sarfini kamaytirish
-        # âœ… Optimizatsiya: filtered_sale_ids list o'rniga subquery
+        # Ã¢Å“â€¦ Optimizatsiya: filtered_sale_ids list o'rniga subquery
         from sqlalchemy.orm import aliased
         sale_ids_subquery = stats_filtered_query.with_entities(Sale.id).subquery()
 
@@ -9514,7 +9514,7 @@ def api_sales_history():
         top_products = []
         Product_alias = aliased(Product)
 
-        # âœ… Subquery ishlatish - list o'rniga
+        # Ã¢Å“â€¦ Subquery ishlatish - list o'rniga
         top_products_query = db.session.query(
             Product_alias.name,
             func.sum(SaleItem.quantity).label('quantity'),
@@ -9540,7 +9540,7 @@ def api_sales_history():
         store_performance = []
         Store_alias = aliased(Store)
 
-        # âœ… Subquery ishlatish
+        # Ã¢Å“â€¦ Subquery ishlatish
         store_perf_query = db.session.query(
             Store_alias.name,
             func.count(Sale.id).label('sales'),
@@ -9657,7 +9657,7 @@ def finalize_sale(sale_id):
         if sale.payment_status != 'pending':
             return jsonify({'success': False, 'error': 'Bu savdo allaqachon yakunlangan'}), 400
 
-        logger.info(f"ğŸ”„ Pending savdoni yakunlash: Sale ID {sale_id}")
+        logger.info(f"ÄŸÅ¸â€â€ Pending savdoni yakunlash: Sale ID {sale_id}")
 
         # To'lov ma'lumotlarini olish
         payment = data.get('payment', {})
@@ -9686,11 +9686,11 @@ def finalize_sale(sale_id):
 
         db.session.commit()
 
-        logger.info(f"âœ… Savdo yakunlandi: Sale ID {sale_id}, Status: {payment_status}, Location: {sale.location_id}/{sale.location_type}")
+        logger.info(f"Ã¢Å“â€¦ Savdo yakunlandi: Sale ID {sale_id}, Status: {payment_status}, Location: {sale.location_id}/{sale.location_type}")
 
         # Chek formatini olish
         receipt_format = data.get('receipt_format', 'both')  # 'usd', 'uzs', yoki 'both'
-        logger.info(f"ğŸ“„ Tanlangan chek formati: {receipt_format}")
+        logger.info(f"ÄŸÅ¸â€œâ€ Tanlangan chek formati: {receipt_format}")
 
         # Telegram xabar yuborish (mijoz telegram_chat_id bor bo'lsa)
         if customer_id:
@@ -9759,9 +9759,9 @@ def finalize_sale(sale_id):
                         terminal_usd=float(sale.terminal_usd),
                         debt_usd=float(sale.debt_usd)
                     )
-                    logger.info(f"âœ… Telegram xabar va PDF yuborildi (finalize): {customer.name}")
+                    logger.info(f"Ã¢Å“â€¦ Telegram xabar va PDF yuborildi (finalize): {customer.name}")
             except Exception as telegram_error:
-                logger.warning(f"âš ï¸ Telegram xabar yuborishda xatolik (finalize): {telegram_error}")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Telegram xabar yuborishda xatolik (finalize): {telegram_error}")
                 # Telegram xatosi savdoni to'xtatmasin
 
         # OperationHistory ga har bir SaleItem uchun log yozish
@@ -9819,7 +9819,7 @@ def finalize_sale(sale_id):
 
     except Exception as e:
         db.session.rollback()
-        logger.error(f"âŒ Savdoni yakunlashda xatolik: {str(e)}")
+        logger.error(f"Ã¢ÂÅ’ Savdoni yakunlashda xatolik: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -9838,7 +9838,7 @@ def approve_sale(sale_id):
         sale.currency_rate = get_current_currency_rate()
         db.session.commit()
 
-        app.logger.info(f"âœ… Savdo tasdiqlandi: Sale ID {sale_id}")
+        app.logger.info(f"Ã¢Å“â€¦ Savdo tasdiqlandi: Sale ID {sale_id}")
 
         return jsonify({
             'success': True,
@@ -9862,7 +9862,7 @@ def reject_sale(sale_id):
         if not sale:
             return jsonify({'success': False, 'error': 'Savdo topilmadi'}), 404
 
-        print(f"ğŸš« Savdoni rad etish va o'chirish: Sale ID {sale_id}")
+        print(f"ÄŸÅ¸Å¡Â« Savdoni rad etish va o'chirish: Sale ID {sale_id}")
 
         # Stock'ni qaytarish - har bir mahsulot uchun
         for sale_item in sale.items:
@@ -9876,7 +9876,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"ğŸ“¦ Store stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
+                        f"ÄŸÅ¸â€œÂ¦ Store stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = StoreStock(
@@ -9886,7 +9886,7 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"ğŸ“¦ Yangi store stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
+                        f"ÄŸÅ¸â€œÂ¦ Yangi store stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
             elif sale_item.source_type == 'warehouse':
                 # Warehouse stock'ni qaytarish
@@ -9898,7 +9898,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"ğŸ“¦ Warehouse stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
+                        f"ÄŸÅ¸â€œÂ¦ Warehouse stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = WarehouseStock(
@@ -9908,14 +9908,14 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"ğŸ“¦ Yangi warehouse stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
+                        f"ÄŸÅ¸â€œÂ¦ Yangi warehouse stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
         # Savdoni butunlay o'chirish
         db.session.delete(sale)
         db.session.commit()
 
         app.logger.info(
-            f"âŒ Savdo rad etildi va o'chirildi: Sale ID {sale_id}, Sabab: {reason}")
+            f"Ã¢ÂÅ’ Savdo rad etildi va o'chirildi: Sale ID {sale_id}, Sabab: {reason}")
 
         return jsonify({
             'success': True,
@@ -9954,7 +9954,7 @@ def edit_sale_page(sale_id):
 def create_sale():
     """Yangi savdo yaratish API endpoint"""
     try:
-        print("ğŸš€ create-sale API ga so'rov keldi")
+        print("ÄŸÅ¸Å¡â‚¬ create-sale API ga so'rov keldi")
         logger.debug(f" Request method: {request.method}")
         logger.debug(f" Content-Type: {request.content_type}")
         logger.debug(f" Raw data: {request.get_data(as_text=True)}")
@@ -9984,7 +9984,7 @@ def create_sale():
 
         logger.debug(f" Customer ID: {customer_id} (type: {type(customer_id)})")
         logger.info(f" Original Sale ID: {original_sale_id}")
-        print(f"ğŸ“ Is Edit Mode: {is_edit_mode}")
+        print(f"ÄŸÅ¸â€œÂ Is Edit Mode: {is_edit_mode}")
         logger.debug(f" Items count: {len(items)}")
         logger.info(f" Multi-location mode: {multi_location}")
 
@@ -9996,7 +9996,7 @@ def create_sale():
         # Debug: har bir item ni ko'rsatish
         for i, item in enumerate(items):
             print(
-                f"ğŸ“‹ Item {i + 1}: ID={item.get('id')}, Name={item.get('name')}")
+                f"ÄŸÅ¸â€œâ€¹ Item {i + 1}: ID={item.get('id')}, Name={item.get('name')}")
             print(
                 f"   Location ID: {item.get('location_id')} (type: {type(item.get('location_id'))})")
             print(f"   Location Type: {item.get('location_type')}")
@@ -10161,7 +10161,7 @@ def create_sale():
         debt_uzs = float(payment_info.get('debt_uzs', 0))
 
         # Debug: To'lov ma'lumotlarini ko'rsatish
-        print("ğŸ’° To'lov ma'lumotlari:")
+        print("ÄŸÅ¸â€™Â° To'lov ma'lumotlari:")
         print(f"   Cash USD: {cash_usd}, UZS: {cash_uzs}")
         print(f"   Click USD: {click_usd}, UZS: {click_uzs}")
         print(f"   Terminal USD: {terminal_usd}, UZS: {terminal_uzs}")
@@ -10172,11 +10172,11 @@ def create_sale():
         if debt_usd > 0:
             # Agar qarz bo'lsa - partial (qisman to'langan)
             final_payment_status = 'partial'
-            logger.info(f"ğŸ’³ Qarz aniqlandi: {debt_usd} USD, payment_status = 'partial'")
+            logger.info(f"ÄŸÅ¸â€™Â³ Qarz aniqlandi: {debt_usd} USD, payment_status = 'partial'")
         else:
             # Agar qarz yo'q bo'lsa - to'liq to'langan (pending bo'lsa ham)
             final_payment_status = 'paid'
-            logger.info("âœ… To'liq to'langan, payment_status = 'paid'")
+            logger.info("Ã¢Å“â€¦ To'liq to'langan, payment_status = 'paid'")
 
         # Payment method ni aniqlash (birinchi to'lov turini olish)
         payment_method = 'cash'  # default
@@ -10189,7 +10189,7 @@ def create_sale():
         elif cash_usd > 0:
             payment_method = 'cash'
 
-        print(f"ğŸ’³ Payment method aniqlandi: {payment_method}")
+        print(f"ÄŸÅ¸â€™Â³ Payment method aniqlandi: {payment_method}")
 
         # Barcha qiymatlarni USD da saqlaymiz
         # cash_amount, click_amount, terminal_amount, debt_amount - hammasi USD!
@@ -10198,7 +10198,7 @@ def create_sale():
         terminal_amount = terminal_usd
         debt_amount = debt_usd
 
-        print("ğŸ’µ USD summalar (DB'ga saqlanadi):")
+        print("ÄŸÅ¸â€™Âµ USD summalar (DB'ga saqlanadi):")
         print(f"   Cash: ${cash_amount}")
         print(f"   Click: ${click_amount}")
         print(f"   Terminal: ${terminal_amount}")
@@ -10217,7 +10217,7 @@ def create_sale():
 
         # TAHRIRLASH yoki YANGI SAVDO?
         if is_edit_mode and original_sale_id:
-            print(f"\nğŸ”„ TAHRIRLASH REJIMI: Sale ID={original_sale_id}")
+            print(f"\nÄŸÅ¸â€â€ TAHRIRLASH REJIMI: Sale ID={original_sale_id}")
 
             current_sale = Sale.query.get(original_sale_id)
             if not current_sale:
@@ -10226,11 +10226,11 @@ def create_sale():
                     'error': f'Tahrirlash uchun savdo topilmadi: {original_sale_id}'
                 }), 404
 
-            print("âœ… Asl savdo topildi - UPDATE qilinmoqda")
+            print("Ã¢Å“â€¦ Asl savdo topildi - UPDATE qilinmoqda")
 
             # Eski SaleItem'larni o'chirish
             SaleItem.query.filter_by(sale_id=original_sale_id).delete()
-            print("ğŸ—‘ï¸  Eski mahsulotlar o'chirildi")
+            print("ÄŸÅ¸â€”â€˜Ã¯Â¸Â  Eski mahsulotlar o'chirildi")
 
             # Sale ma'lumotlarini yangilash
             current_sale.customer_id = final_customer_id
@@ -10256,7 +10256,7 @@ def create_sale():
 
         else:
             # Yangi savdo yaratish
-            print("\nâœ… YANGI SAVDO yaratilmoqda")
+            print("\nÃ¢Å“â€¦ YANGI SAVDO yaratilmoqda")
 
             current_sale = Sale(
                 customer_id=final_customer_id,
@@ -10337,9 +10337,9 @@ def create_sale():
                 # Tahrirlash rejimida asl savdo miqdorini hisobga olish
                 available_quantity = stock.quantity
                 print(
-                    f"ğŸ” Store stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
+                    f"ÄŸÅ¸â€Â Store stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
                 print(
-                    f"ğŸ” Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
+                    f"ÄŸÅ¸â€Â Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
 
                 if is_edit_mode and original_sale_id:
                     # Asl savdoda bu mahsulotning miqdorini topish
@@ -10351,28 +10351,28 @@ def create_sale():
                     logger.debug(f" Asl savdo item topildi: {original_sale_item}")
                     if original_sale_item:
                         print(
-                            f"ğŸ” Asl savdo miqdori: {original_sale_item.quantity}")
+                            f"ÄŸÅ¸â€Â Asl savdo miqdori: {original_sale_item.quantity}")
                         # Asl savdo miqdorini qo'shish (chunki tahrirlashda
                         # qaytariladi)
                         available_quantity += original_sale_item.quantity
                         print(
-                            f"ğŸ“ Tahrirlash rejimi: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
+                            f"ÄŸÅ¸â€œÂ Tahrirlash rejimi: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
                         print(
-                            f"ğŸ“Š Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
+                            f"ÄŸÅ¸â€œÅ  Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
                         logger.info(f" Kerakli miqdor: {quantity}")
                         logger.info(f" Farq: {available_quantity - quantity}")
                     else:
                         print(
-                            f"âš ï¸ Asl savdoda mahsulot {product_id} topilmadi")
+                            f"Ã¢Å¡Â Ã¯Â¸Â Asl savdoda mahsulot {product_id} topilmadi")
 
                 # Stock tekshirish olib tashlandi - stock allaqachon rezerv
                 # qilingan
                 print(
-                    f"â„¹ï¸ Stock validation o'tkazildi: available={available_quantity}, required={quantity}")
+                    f"Ã¢â€Â¹Ã¯Â¸Â Stock validation o'tkazildi: available={available_quantity}, required={quantity}")
 
                 # Stock allaqachon korzinaga qo'shilganda ayirilgan
                 print(
-                    "â„¹ï¸ Store stock dan ayirilmaydi (allaqachon rezerv qilingan)")
+                    "Ã¢â€Â¹Ã¯Â¸Â Store stock dan ayirilmaydi (allaqachon rezerv qilingan)")
 
             elif item_location_type == 'warehouse':
                 # Warehouse stock tekshirish
@@ -10393,9 +10393,9 @@ def create_sale():
                 # Tahrirlash rejimida asl savdo miqdorini hisobga olish
                 available_quantity = stock.quantity
                 print(
-                    f"ğŸ” Warehouse stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
+                    f"ÄŸÅ¸â€Â Warehouse stock tekshiruvi: product_id={product_id}, current_stock={stock.quantity}")
                 print(
-                    f"ğŸ” Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
+                    f"ÄŸÅ¸â€Â Tahrirlash rejimi: is_edit_mode={is_edit_mode}, original_sale_id={original_sale_id}")
 
                 if is_edit_mode and original_sale_id:
                     # Asl savdoda bu mahsulotning miqdorini topish
@@ -10407,27 +10407,27 @@ def create_sale():
                     logger.debug(f" Asl savdo item topildi: {original_sale_item}")
                     if original_sale_item:
                         print(
-                            f"ğŸ” Asl savdo miqdori: {original_sale_item.quantity}")
+                            f"ÄŸÅ¸â€Â Asl savdo miqdori: {original_sale_item.quantity}")
                         # Asl savdo miqdorini qo'shish
                         available_quantity += original_sale_item.quantity
                         print(
-                            f"ğŸ“ Warehouse tahrirlash: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
+                            f"ÄŸÅ¸â€œÂ Warehouse tahrirlash: mahsulot {product_id} uchun asl miqdor {original_sale_item.quantity} qo'shildi")
                         print(
-                            f"ğŸ“Š Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
+                            f"ÄŸÅ¸â€œÅ  Mavjud miqdor: {stock.quantity} + {original_sale_item.quantity} = {available_quantity}")
                         logger.info(f" Kerakli miqdor: {quantity}")
                         logger.info(f" Farq: {available_quantity - quantity}")
                     else:
                         print(
-                            f"âš ï¸ Asl savdoda mahsulot {product_id} topilmadi")
+                            f"Ã¢Å¡Â Ã¯Â¸Â Asl savdoda mahsulot {product_id} topilmadi")
 
                 # Stock tekshirish olib tashlandi - stock allaqachon rezerv
                 # qilingan
                 print(
-                    f"â„¹ï¸ Warehouse stock validation o'tkazildi: available={available_quantity}, required={quantity}")
+                    f"Ã¢â€Â¹Ã¯Â¸Â Warehouse stock validation o'tkazildi: available={available_quantity}, required={quantity}")
 
                 # Stock allaqachon korzinaga qo'shilganda ayirilgan
                 print(
-                    "â„¹ï¸ Warehouse stock dan ayirilmaydi (allaqachon rezerv qilingan)")
+                    "Ã¢â€Â¹Ã¯Â¸Â Warehouse stock dan ayirilmaydi (allaqachon rezerv qilingan)")
 
             # Savdo summasini hisoblash
             total_amount_usd = Decimal(str(unit_price_usd)) * quantity  # USD da
@@ -10475,7 +10475,7 @@ def create_sale():
         db.session.commit()
 
         action_text = 'tahrirlandi' if is_edit_mode else 'yaratildi'
-        print(f"âœ… Savdo {action_text}: ID={current_sale.id}, Items={len(items)}, Total=${total_revenue}")
+        print(f"Ã¢Å“â€¦ Savdo {action_text}: ID={current_sale.id}, Items={len(items)}, Total=${total_revenue}")
 
         # Telegram xabar yuborish (yangi savdo yaratilganda yoki tahrirlanganda, mijoz telegram_chat_id bor bo'lsa)
         if final_customer_id:
@@ -10495,7 +10495,7 @@ def create_sale():
 
                     # Valyuta kursi
                     tg_exchange_rate = float(current_sale.currency_rate) if current_sale.currency_rate else 12300
-                    
+
                     # To'lov summalari USD da (bazada USD saqlanadi)
                     tg_cash_usd = float(current_sale.cash_usd) if current_sale.cash_usd else 0
                     tg_click_usd = float(current_sale.click_usd) if current_sale.click_usd else 0
@@ -10503,7 +10503,7 @@ def create_sale():
                     tg_debt_usd = float(current_sale.debt_usd) if current_sale.debt_usd else 0
                     tg_total_usd = float(current_sale.total_amount) if current_sale.total_amount else 0
                     tg_paid_usd = tg_cash_usd + tg_click_usd + tg_terminal_usd
-                    
+
                     # UZS ga konvertatsiya qilish
                     tg_cash_uzs = tg_cash_usd * tg_exchange_rate
                     tg_click_uzs = tg_click_usd * tg_exchange_rate
@@ -10555,9 +10555,9 @@ def create_sale():
                         terminal_usd=tg_terminal_usd,
                         debt_usd=tg_debt_usd
                     )
-                    logger.info(f"âœ… Telegram xabar va PDF yuborildi: {customer.name}")
+                    logger.info(f"Ã¢Å“â€¦ Telegram xabar va PDF yuborildi: {customer.name}")
             except Exception as telegram_error:
-                logger.warning(f"âš ï¸ Telegram xabar yuborishda xatolik: {telegram_error}")
+                logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Telegram xabar yuborishda xatolik: {telegram_error}")
                 # Telegram xatosi savdo yaratishni to'xtatmasin
 
         # OperationHistory ga yozish
@@ -10615,7 +10615,7 @@ def create_sale():
 
     except TimeoutError:
         db.session.rollback()
-        logger.error("â±ï¸ Database timeout in create_sale")
+        logger.error("Ã¢ÂÂ±Ã¯Â¸Â Database timeout in create_sale")
         return jsonify({
             'success': False,
             'error': 'So\'rov juda uzoq davom etdi. Qayta urinib ko\'ring.',
@@ -10623,7 +10623,7 @@ def create_sale():
         }), 504
     except OperationalError as e:
         db.session.rollback()
-        logger.error(f"ğŸ”Œ Database connection xatosi: {e}")
+        logger.error(f"ÄŸÅ¸â€Å’ Database connection xatosi: {e}")
         return jsonify({
             'success': False,
             'error': 'Ma\'lumotlar bazasiga ulanishda xatolik',
@@ -10631,7 +10631,7 @@ def create_sale():
         }), 503
     except IntegrityError as e:
         db.session.rollback()
-        logger.error(f"âŒ Integrity error: {e}")
+        logger.error(f"Ã¢ÂÅ’ Integrity error: {e}")
         return jsonify({
             'success': False,
             'error': 'Ma\'lumotlarni saqlashda xatolik',
@@ -10639,7 +10639,7 @@ def create_sale():
         }), 400
     except BadRequest as e:
         db.session.rollback()
-        logger.error(f"âŒ Bad request: {e}")
+        logger.error(f"Ã¢ÂÅ’ Bad request: {e}")
         return jsonify({
             'success': False,
             'error': 'Noto\'g\'ri so\'rov formati',
@@ -10647,7 +10647,7 @@ def create_sale():
         }), 400
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"âŒ Error creating sale: {str(e)}", exc_info=True)
+        app.logger.error(f"Ã¢ÂÅ’ Error creating sale: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': f'Savdo yaratishda xatolik: {str(e)}',
@@ -10738,13 +10738,13 @@ def update_sale(sale_id):
                 }), 403
 
         data = request.get_json()
-        app.logger.info(f"ğŸ”„ UPDATE Sale ID: {sale_id}")
-        app.logger.info(f"ğŸ“¦ Update data: {data}")
-        app.logger.info(f"ğŸ’° Sale payment status: {sale.payment_status}")
+        app.logger.info(f"ÄŸÅ¸â€â€ UPDATE Sale ID: {sale_id}")
+        app.logger.info(f"ÄŸÅ¸â€œÂ¦ Update data: {data}")
+        app.logger.info(f"ÄŸÅ¸â€™Â° Sale payment status: {sale.payment_status}")
 
         # Sale statusini tekshirish
         is_confirmed_sale = sale.payment_status == 'paid'
-        app.logger.info(f"ğŸ” Is confirmed sale: {is_confirmed_sale}")
+        app.logger.info(f"ÄŸÅ¸â€Â Is confirmed sale: {is_confirmed_sale}")
 
         # Eski Sale ma'lumotlarini yangilash
         if 'customer_id' in data and data['customer_id']:
@@ -10769,7 +10769,7 @@ def update_sale(sale_id):
         # Confirmed sale: stock allaqachon ayirilgan, real-time API bilan boshqariladi
         # Edit da faqat difference logic ishlatamiz
         app.logger.info(
-            f"ğŸ“¦ Real-time stock system: {'confirmed' if is_confirmed_sale else 'pending'} sale")
+            f"ÄŸÅ¸â€œÂ¦ Real-time stock system: {'confirmed' if is_confirmed_sale else 'pending'} sale")
 
         # Eski SaleItem'larni o'chirish
         SaleItem.query.filter_by(sale_id=sale.id).delete()
@@ -10824,13 +10824,13 @@ def update_sale(sale_id):
                 total_cost += cost_price_usd * quantity
                 total_profit += sale_item.profit
 
-            # ✅ COMPLETELY DISABLED: Stock difference logic removed
+            # âœ… COMPLETELY DISABLED: Stock difference logic removed
             # Barcha stock operatsiyalari real-time API orqali boshqariladi:
             # - /api/reserve-stock - stokdan ayirish
             # - /api/return-stock - stokka qaytarish
             # Bu endpoint faqat sale ma'lumotlarini (items, prices, etc.) yangilaydi
-            app.logger.info("⏭️ Stock difference DISABLED - stock managed by real-time API (/api/reserve-stock, /api/return-stock)")
-            
+            app.logger.info("â­ï¸ Stock difference DISABLED - stock managed by real-time API (/api/reserve-stock, /api/return-stock)")
+
             # Sale jami ma'lumotlarini yangilash
             sale.total_amount = total_amount
             sale.total_cost = total_cost
@@ -10839,7 +10839,7 @@ def update_sale(sale_id):
             sale.currency_rate = get_current_currency_rate()
 
         db.session.commit()
-        app.logger.info(f"âœ… Sale {sale_id} successfully updated")
+        app.logger.info(f"Ã¢Å“â€¦ Sale {sale_id} successfully updated")
 
         return jsonify({
             'success': True,
@@ -10895,24 +10895,24 @@ def delete_sale_with_stock_return(sale_id):
                 }), 403
 
         # Debug: Savdo ma'lumotlarini ko'rsatish
-        print("ğŸ—‘ï¸ ========== SAVDO O'CHIRILMOQDA ==========")
-        print(f"ğŸ—‘ï¸ Sale ID: {sale_id}")
-        print(f"ğŸ—‘ï¸ Return stock: {return_stock}")
-        print(f"ğŸ—‘ï¸ Items count: {len(sale.items)}")
-        logger.info(f"ğŸ—‘ï¸ DELETE: Sale ID={sale_id}, return_stock={return_stock}, items={len(sale.items)}")
+        print("ÄŸÅ¸â€”â€˜Ã¯Â¸Â ========== SAVDO O'CHIRILMOQDA ==========")
+        print(f"ÄŸÅ¸â€”â€˜Ã¯Â¸Â Sale ID: {sale_id}")
+        print(f"ÄŸÅ¸â€”â€˜Ã¯Â¸Â Return stock: {return_stock}")
+        print(f"ÄŸÅ¸â€”â€˜Ã¯Â¸Â Items count: {len(sale.items)}")
+        logger.info(f"ÄŸÅ¸â€”â€˜Ã¯Â¸Â DELETE: Sale ID={sale_id}, return_stock={return_stock}, items={len(sale.items)}")
 
         # Faqat return_stock=true bo'lsa stokni qaytarish
         if return_stock:
-            print(f"âœ… Stock qaytariladi - {len(sale.items)} ta mahsulot")
+            print(f"Ã¢Å“â€¦ Stock qaytariladi - {len(sale.items)} ta mahsulot")
             for item in sale.items:
                 # Agar product o'chirilgan bo'lsa (product_id NULL), stock qaytarib bo'lmaydi
                 if not item.product_id:
-                    logger.warning(f"âš ï¸ DELETE: Product o'chirilgan (sale_item {item.id}), stock qaytarilmaydi")
+                    logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â DELETE: Product o'chirilgan (sale_item {item.id}), stock qaytarilmaydi")
                     continue
 
                 # Agar source_id yo'q bo'lsa (ma'lumot buzilgan), stock qaytarib bo'lmaydi
                 if not item.source_id:
-                    logger.warning(f"âš ï¸ DELETE: Source ID yo'q (sale_item {item.id}), stock qaytarilmaydi")
+                    logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â DELETE: Source ID yo'q (sale_item {item.id}), stock qaytarilmaydi")
                     continue
 
                 logger.debug(f" DELETE: Product {item.product_id}, Qty: {item.quantity}")
@@ -10932,7 +10932,7 @@ def delete_sale_with_stock_return(sale_id):
                         warehouse_stock.quantity += item.quantity
                         warehouse_stock.last_updated = db.func.current_timestamp()
                         print(
-                            f"ğŸ” DELETE: Warehouse updated: {old_qty} + {item.quantity}")
+                            f"ÄŸÅ¸â€Â DELETE: Warehouse updated: {old_qty} + {item.quantity}")
                     else:
                         # Yangi stock yaratish
                         new_stock = WarehouseStock(
@@ -10957,7 +10957,7 @@ def delete_sale_with_stock_return(sale_id):
                         store_stock.quantity += item.quantity
                         store_stock.last_updated = db.func.current_timestamp()
                         print(
-                            f"ğŸ” DELETE: Store updated: {old_qty} + {item.quantity}")
+                            f"ÄŸÅ¸â€Â DELETE: Store updated: {old_qty} + {item.quantity}")
                     else:
                         # Yangi stock yaratish
                         new_stock = StoreStock(
@@ -10969,17 +10969,17 @@ def delete_sale_with_stock_return(sale_id):
                         db.session.add(new_stock)
                         logger.debug(f" DELETE: New store stock: {item.quantity}")
         else:
-            logger.debug("âš ï¸ DELETE: Stock qaytarilmaydi (return_stock=false)")
+            logger.debug("Ã¢Å¡Â Ã¯Â¸Â DELETE: Stock qaytarilmaydi (return_stock=false)")
 
         # Ma'lumotlarni olish (o'chirishdan oldin)
         total_items = len(sale.items)
         store_name = sale.store.name if sale.store else 'Noma\'lum'
         sale_total = float(sale.total_amount) if sale.total_amount else 0
         customer_name = sale.customer.name if sale.customer else 'Naqd mijoz'
-        
+
         # Mahsulotlar ro'yxatini olish (o'chirishdan oldin)
         products_desc = ', '.join([f"{item.product.name} ({item.quantity} ta)" for item in sale.items if item.product])
-        
+
         # OperationHistory ga yozish
         stock_returned = 'Ha' if return_stock else "Yo'q"
         operation = OperationHistory(
@@ -11011,9 +11011,9 @@ def delete_sale_with_stock_return(sale_id):
     except Exception as e:
         db.session.rollback()
         error_msg = str(e)
-        print("ğŸ”´ Sale o'chirishda xatolik!")
-        print(f"ğŸ”´ Sale ID: {sale_id}")
-        print(f"ğŸ”´ Xatolik: {error_msg}")
+        print("ÄŸÅ¸â€Â´ Sale o'chirishda xatolik!")
+        print(f"ÄŸÅ¸â€Â´ Sale ID: {sale_id}")
+        print(f"ÄŸÅ¸â€Â´ Xatolik: {error_msg}")
         import traceback
         traceback.print_exc()
         app.logger.error(f"Error deleting sale {sale_id}: {error_msg}")
@@ -11031,7 +11031,7 @@ def create_pending_sale(data):
         if not current_user:
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
-        logger.info("ğŸ“ Pending savdo yaratilmoqda...")
+        logger.info("ÄŸÅ¸â€œÂ Pending savdo yaratilmoqda...")
 
         customer_id = data.get('customer_id')
         items = data.get('items', [])
@@ -11041,7 +11041,7 @@ def create_pending_sale(data):
         skip_stock_return = data.get('skip_stock_return', False)
         original_quantities = data.get('original_quantities', {})  # Asl miqdorlar
 
-        logger.info("ğŸ” PENDING SALE PARAMS:")
+        logger.info("ÄŸÅ¸â€Â PENDING SALE PARAMS:")
         logger.info(f"   original_sale_id: {original_sale_id}")
         logger.info(f"   pending_sale_id: {pending_sale_id}")
         logger.info(f"   skip_stock_return: {skip_stock_return} (type: {type(skip_stock_return)})")
@@ -11063,25 +11063,25 @@ def create_pending_sale(data):
         # Agar asl savdo ID'si berilgan bo'lsa, uni o'chirish
         original_sale_date = None  # Asl savdo vaqtini saqlash uchun
         if original_sale_id:
-            logger.info(f"ğŸ“ Asl savdoni pending qilish: ID={original_sale_id}")
+            logger.info(f"ÄŸÅ¸â€œÂ Asl savdoni pending qilish: ID={original_sale_id}")
             original_sale = Sale.query.get(original_sale_id)
             if original_sale:
                 # Asl savdo vaqtini saqlash
                 original_sale_date = original_sale.sale_date
-                logger.info(f"ğŸ• Asl savdo vaqti saqlandi: {original_sale_date}")
+                logger.info(f"ÄŸÅ¸â€¢Â Asl savdo vaqti saqlandi: {original_sale_date}")
 
-                # âš ï¸ MUHIM: Stock qaytarilmasligi kerak!
+                # Ã¢Å¡Â Ã¯Â¸Â MUHIM: Stock qaytarilmasligi kerak!
                 # Frontend allaqachon real-time stock boshqaradi:
                 # - Miqdor kamaysa: frontend stock qaytaradi
                 # - Miqdor oshsa: frontend stock rezerv qiladi
                 # Backend'da stock qaytarish duplicate yaratadi!
-                logger.info("â­ï¸ Stock qaytarilmaydi - frontend real-time boshqaradi")
+                logger.info("Ã¢ÂÂ­Ã¯Â¸Â Stock qaytarilmaydi - frontend real-time boshqaradi")
 
                 # Asl savdoni o'chirish
                 db.session.delete(original_sale)
-                logger.info("âœ… Asl savdo o'chirildi")
+                logger.info("Ã¢Å“â€¦ Asl savdo o'chirildi")
         else:
-            logger.info("ğŸ“ Yangi pending savdo yaratilmoqda (asl savdo yo'q)")
+            logger.info("ÄŸÅ¸â€œÂ Yangi pending savdo yaratilmoqda (asl savdo yo'q)")
 
         # Customer ID ni int ga o'girish
         final_customer_id = None
@@ -11096,7 +11096,7 @@ def create_pending_sale(data):
         item_location_id = first_item.get('location_id')
         item_location_type = first_item.get('location_type')
 
-        logger.info(f"ğŸ“ Location ma'lumotlari: location_id={item_location_id}, location_type={item_location_type}")
+        logger.info(f"ÄŸÅ¸â€œÂ Location ma'lumotlari: location_id={item_location_id}, location_type={item_location_type}")
 
         # Store ID ni aniqlash
         if item_location_type == 'store':
@@ -11123,12 +11123,12 @@ def create_pending_sale(data):
             created_by=f'{current_user.first_name} {current_user.last_name} - Pending'
         )
 
-        logger.info(f"âœ… Pending savdo yaratildi: location_id={new_sale.location_id}, location_type={new_sale.location_type}")
+        logger.info(f"Ã¢Å“â€¦ Pending savdo yaratildi: location_id={new_sale.location_id}, location_type={new_sale.location_type}")
 
         # Agar asl savdo vaqti mavjud bo'lsa, uni o'rnatish
         if original_sale_date:
             new_sale.sale_date = original_sale_date
-            logger.info(f"âœ… Asl savdo vaqti o'rnatildi: {original_sale_date}")
+            logger.info(f"Ã¢Å“â€¦ Asl savdo vaqti o'rnatildi: {original_sale_date}")
 
         db.session.add(new_sale)
         db.session.flush()  # ID ni olish uchun
@@ -11168,7 +11168,7 @@ def create_pending_sale(data):
             item_location_type = item.get('location_type', 'store')
 
             print(
-                f"ğŸ“¦ Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
+                f"ÄŸÅ¸â€œÂ¦ Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
 
             # SaleItem yaratish - USD da
             unit_price_usd = Decimal(str(unit_price))
@@ -11230,7 +11230,7 @@ def create_pending_sale(data):
                 record_id=sale_item.product_id,
                 user_id=current_user.id,
                 username=sale_username,
-                description=f"Sotildi: {sale_item.product.name} - {sale_item.quantity} ta × ${sale_item.unit_price:.2f} (Savdo #{new_sale.id})",
+                description=f"Sotildi: {sale_item.product.name} - {sale_item.quantity} ta Ã— ${sale_item.unit_price:.2f} (Savdo #{new_sale.id})",
                 old_data=None,
                 new_data={
                     'sale_id': new_sale.id,
@@ -11294,7 +11294,7 @@ def api_reserve_stock():
         import traceback
         logger.debug(''.join(traceback.format_stack()[-5:-1]))
         print(f"\n{'=' * 80}")
-        print("ğŸ“¦ RESERVE-STOCK API CHAQIRILDI:")
+        print("ÄŸÅ¸â€œÂ¦ RESERVE-STOCK API CHAQIRILDI:")
         print(f"   Product ID: {product_id}")
         print(f"   Quantity: {quantity}")
         print(f"   Location: {location_id} ({location_type})")
@@ -11309,7 +11309,7 @@ def api_reserve_stock():
             last_time = _last_operations[operation_key]
             time_diff = (current_time - last_time).total_seconds()
             if time_diff < 2:  # 2 sekund ichida bir xil operatsiya
-                print(f"âš ï¸ DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
+                print(f"Ã¢Å¡Â Ã¯Â¸Â DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
                 return jsonify({'success': True, 'message': 'Duplicate operatsiya blocked', 'blocked': True}), 200
 
         _last_operations[operation_key] = current_time
@@ -11344,7 +11344,7 @@ def api_reserve_stock():
             old_quantity = stock.quantity
             stock.quantity -= quantity
             remaining_stock = stock.quantity
-            print(f"âœ… STORE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
+            print(f"Ã¢Å“â€¦ STORE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
             print(f"   Product: {product.name} (ID: {product_id})")
             print(f"   Store ID: {location_id}")
 
@@ -11371,7 +11371,7 @@ def api_reserve_stock():
             old_quantity = stock.quantity
             stock.quantity -= quantity
             remaining_stock = stock.quantity
-            print(f"âœ… WAREHOUSE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
+            print(f"Ã¢Å“â€¦ WAREHOUSE STOCK O'ZGARDI: {old_quantity} - {quantity} = {remaining_stock}")
             print(f"   Product: {product.name} (ID: {product_id})")
             print(f"   Warehouse ID: {location_id}")
 
@@ -11381,7 +11381,7 @@ def api_reserve_stock():
 
         # O'zgarishlarni saqlash
         db.session.commit()
-        print("ğŸ’¾ DB COMMIT: Stock o'zgarish saqlandi\n")
+        print("ÄŸÅ¸â€™Â¾ DB COMMIT: Stock o'zgarish saqlandi\n")
 
         return jsonify({
             'success': True,
@@ -11407,7 +11407,7 @@ def api_return_stock():
         location_type = data.get('location_type')
 
         print(f"\n{'=' * 80}")
-        print("â†©ï¸ RETURN-STOCK API CHAQIRILDI:")
+        print("Ã¢â€ Â©Ã¯Â¸Â RETURN-STOCK API CHAQIRILDI:")
         print(f"   Product ID: {product_id}")
         print(f"   Quantity: {quantity}")
         print(f"   Location: {location_id} ({location_type})")
@@ -11422,7 +11422,7 @@ def api_return_stock():
             last_time = _last_operations[operation_key]
             time_diff = (current_time - last_time).total_seconds()
             if time_diff < 2:  # 2 sekund ichida bir xil operatsiya
-                print(f"âš ï¸ DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
+                print(f"Ã¢Å¡Â Ã¯Â¸Â DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
                 return jsonify({'success': True, 'message': 'Duplicate operatsiya blocked', 'blocked': True}), 200
 
         _last_operations[operation_key] = current_time
@@ -11449,13 +11449,13 @@ def api_return_stock():
                     quantity=quantity
                 )
                 db.session.add(stock)
-                print(f"âœ… YANGI STORE STOCK YARATILDI: {quantity}")
+                print(f"Ã¢Å“â€¦ YANGI STORE STOCK YARATILDI: {quantity}")
                 print(f"   Product: {product.name} (ID: {product_id})")
                 print(f"   Store ID: {location_id}")
             else:
                 old_quantity = stock.quantity
                 stock.quantity += quantity
-                print(f"âœ… STORE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
+                print(f"Ã¢Å“â€¦ STORE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
                 print(f"   Product: {product.name} (ID: {product_id})")
                 print(f"   Store ID: {location_id}")
 
@@ -11476,13 +11476,13 @@ def api_return_stock():
                     quantity=quantity
                 )
                 db.session.add(stock)
-                print(f"âœ… YANGI WAREHOUSE STOCK YARATILDI: {quantity}")
+                print(f"Ã¢Å“â€¦ YANGI WAREHOUSE STOCK YARATILDI: {quantity}")
                 print(f"   Product: {product.name} (ID: {product_id})")
                 print(f"   Warehouse ID: {location_id}")
             else:
                 old_quantity = stock.quantity
                 stock.quantity += quantity
-                print(f"âœ… WAREHOUSE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
+                print(f"Ã¢Å“â€¦ WAREHOUSE STOCK O'ZGARDI: {old_quantity} + {quantity} = {stock.quantity}")
                 print(f"   Product: {product.name} (ID: {product_id})")
                 print(f"   Warehouse ID: {location_id}")
 
@@ -11494,7 +11494,7 @@ def api_return_stock():
 
         # O'zgarishlarni saqlash
         db.session.commit()
-        print("ğŸ’¾ DB COMMIT: Stock qaytarish saqlandi\n")
+        print("ÄŸÅ¸â€™Â¾ DB COMMIT: Stock qaytarish saqlandi\n")
 
         return jsonify({
             'success': True,
@@ -11520,7 +11520,7 @@ def api_create_pending_sale():
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
         print(
-            f"ğŸ’¾ API pending-sales - User: {current_user.username}, Role: {current_user.role}")
+            f"ÄŸÅ¸â€™Â¾ API pending-sales - User: {current_user.username}, Role: {current_user.role}")
         data = request.get_json()
         logger.debug(f" Avtomatik pending savdo ma'lumotlari: {data}")
 
@@ -11554,7 +11554,7 @@ def api_update_pending_sale(sale_id):
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
         print(
-            f"ğŸ”„ Pending savdo yangilash - User: {current_user.username}, Sale ID: {sale_id}")
+            f"ÄŸÅ¸â€â€ Pending savdo yangilash - User: {current_user.username}, Sale ID: {sale_id}")
         data = request.get_json()
         logger.debug(f" Yangilanayotgan ma'lumotlar: {data}")
 
@@ -11574,7 +11574,7 @@ def api_update_pending_sale(sale_id):
                 }), 403
 
         print(
-            f"âœ… Mavjud savdo topildi: {existing_sale.id}, Status: {existing_sale.payment_status}")
+            f"Ã¢Å“â€¦ Mavjud savdo topildi: {existing_sale.id}, Status: {existing_sale.payment_status}")
 
         # Eski sale items'ni o'chirish
         SaleItem.query.filter_by(sale_id=sale_id).delete()
@@ -11652,7 +11652,7 @@ def api_delete_pending_sale(sale_id):
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
         print(
-            f"ğŸ—‘ï¸ Pending savdo o'chirish - User: {current_user.username}, Sale ID: {sale_id}")
+            f"ÄŸÅ¸â€”â€˜Ã¯Â¸Â Pending savdo o'chirish - User: {current_user.username}, Sale ID: {sale_id}")
 
         # Savdoni topish
         sale = Sale.query.get(sale_id)
@@ -11814,7 +11814,7 @@ def clear_currency_rate_history():
         db.session.commit()
 
         print(
-            f"âœ… Valyuta kursi tarixi tozalandi: {deleted_count} ta yozuv o'chirildi")
+            f"Ã¢Å“â€¦ Valyuta kursi tarixi tozalandi: {deleted_count} ta yozuv o'chirildi")
 
         return jsonify({
             'success': True,
@@ -11920,7 +11920,7 @@ def add_currency_column():
 
         # Get current active rate first
         current_rate = get_current_currency_rate()
-        
+
         # Add currency_rate column with current rate as default
         if current_rate:
             db.session.execute(text("""
@@ -11958,7 +11958,7 @@ def add_currency_column():
 def api_stock_status():
     """Barcha stock ma'lumotlarini qaytarish API"""
     try:
-        print("ğŸ“¦ Stock status API so'rovi")
+        print("ÄŸÅ¸â€œÂ¦ Stock status API so'rovi")
 
         # Store stocks
         store_stocks = db.session.query(
@@ -12063,7 +12063,7 @@ def api_unchecked_products_count():
 
         for product in products:
             is_checked = product.get('isChecked', False)
-            print(f"ğŸ” DEBUG: Product {product.get('name', 'Unknown')}: isChecked = {is_checked}")
+            print(f"ÄŸÅ¸â€Â DEBUG: Product {product.get('name', 'Unknown')}: isChecked = {is_checked}")
 
             if is_checked:
                 checked_products += 1
@@ -12112,7 +12112,7 @@ def get_stock_by_location():
         ) == 'true'  # 0 miqdorlilarni ko'rsatishmi
 
         print(
-            f"ğŸ“ Stock ma'lumotlari: {location_type}, ID: {location_id}, Show zero: {show_zero}")
+            f"ÄŸÅ¸â€œÂ Stock ma'lumotlari: {location_type}, ID: {location_id}, Show zero: {show_zero}")
 
         if not location_type or not location_id:
             return jsonify({
@@ -12264,7 +12264,7 @@ def api_login():
                         db.text("UPDATE user_sessions SET is_active = false WHERE id = :id"),
                         {"id": old_session.id}
                     )
-                    app.logger.info(f"ğŸ”’ Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
+                    app.logger.info(f"ÄŸÅ¸â€â€™ Eski session o'chirildi: User {user.username}, Session: {old_session.session_id[:8]}...")
 
                 db.session.commit()  # Eski sessionlarni saqlash
 
@@ -12283,7 +12283,7 @@ def api_login():
             # Session'ga session_id qo'shish
             session['session_id'] = session_id
 
-            app.logger.info(f"ğŸ” Yangi session yaratildi: User {user.username} (ID: {user.id}), Session: {session_id[:8]}...")
+            app.logger.info(f"ÄŸÅ¸â€Â Yangi session yaratildi: User {user.username} (ID: {user.id}), Session: {session_id[:8]}...")
 
         except Exception as e:
             db.session.rollback()
@@ -12299,7 +12299,7 @@ def api_login():
             user_lang_setting = Settings.query.filter_by(key=f'user_language_{user.id}').first()
             if user_lang_setting:
                 session['language'] = user_lang_setting.value
-                logger.info(f"🌐 Foydalanuvchi tili yuklandi: {user_lang_setting.value}")
+                logger.info(f"ğŸŒ Foydalanuvchi tili yuklandi: {user_lang_setting.value}")
             else:
                 session['language'] = 'uz_latin'  # Standart til
         except Exception as e:
@@ -12349,7 +12349,7 @@ def logout():
             if user_session:
                 user_session.is_active = False
                 db.session.commit()
-                app.logger.info(f"ğŸšª Session deactivated: User {user_id}, Session {session_id[:8]}...")
+                app.logger.info(f"ÄŸÅ¸Å¡Âª Session deactivated: User {user_id}, Session {session_id[:8]}...")
 
     except Exception as e:
         app.logger.error(f"Logout session deactivation xatosi: {e}")
@@ -12455,7 +12455,7 @@ def api_sales_chart():
 
         # Debug uchun parametrlarni chop etamiz
         print(
-            f"ğŸ” API parametrlari: location_id={location_id}, period={period}, date_from={date_from}, date_to={date_to}")
+            f"ÄŸÅ¸â€Â API parametrlari: location_id={location_id}, period={period}, date_from={date_from}, date_to={date_to}")
 
         from datetime import datetime, timedelta
 
@@ -12483,7 +12483,7 @@ def api_sales_chart():
 
         # Hisoblangan sanalarni chop etamiz
         print(
-            f"ğŸ“… Hisoblangan sanalar: date_from={date_from}, date_to={date_to}")
+            f"ÄŸÅ¸â€œâ€¦ Hisoblangan sanalar: date_from={date_from}, date_to={date_to}")
 
         # Bugun filtri uchun soat bo'yicha, boshqalar uchun kun bo'yicha
         if period == 'today':
@@ -12524,17 +12524,17 @@ def api_sales_chart():
             if location_type == 'store':
                 conditions.append("(s.location_id = :location_id AND s.location_type = 'store')")
                 params['location_id'] = int(location_id)
-                print(f"ğŸª Store filtri: location_id={location_id}, location_type=store")
+                print(f"ÄŸÅ¸ÂÂª Store filtri: location_id={location_id}, location_type=store")
             elif location_type == 'warehouse':
                 # Warehouse'dan savdo bo'lishi mumkin (yangi tizimda)
                 conditions.append("(s.location_id = :location_id AND s.location_type = 'warehouse')")
                 params['location_id'] = int(location_id)
-                print(f"ğŸ­ Warehouse filtri: location_id={location_id}, location_type=warehouse")
+                print(f"ÄŸÅ¸ÂÂ­ Warehouse filtri: location_id={location_id}, location_type=warehouse")
             else:
                 # Type berilmagan, location_id bo'yicha
                 conditions.append("s.location_id = :location_id")
                 params['location_id'] = int(location_id)
-                print(f"ğŸ¢ Umumiy filtri: location_id={location_id}")
+                print(f"ÄŸÅ¸ÂÂ¢ Umumiy filtri: location_id={location_id}")
 
         if date_from:
             conditions.append("DATE(s.sale_date) >= :date_from")
@@ -12554,10 +12554,10 @@ def api_sales_chart():
             query += " GROUP BY DATE(s.sale_date) ORDER BY time_period"
 
         # SQLAlchemy ishlatamiz
-        print(f"ğŸ” SQL Query: {query}")
-        print(f"ğŸ” Params: {params}")
+        print(f"ÄŸÅ¸â€Â SQL Query: {query}")
+        print(f"ÄŸÅ¸â€Â Params: {params}")
         results = db.session.execute(text(query), params).fetchall()
-        print(f"ğŸ“Š Results count: {len(results)}")
+        print(f"ÄŸÅ¸â€œÅ  Results count: {len(results)}")
         for row in results:
             print(f"  Row: {row}")
 
@@ -12820,21 +12820,21 @@ def change_language():
     try:
         data = request.get_json()
         language = data.get('language', 'uz_latin')
-        
+
         # Til qiymatini tekshirish
         valid_languages = ['uz_latin', 'uz_cyrillic', 'ru']
         if language not in valid_languages:
             return jsonify({'error': 'Noto\'g\'ri til kodi'}), 400
-        
+
         # Session'da til ma'lumotini saqlash
         session['language'] = language
         session.permanent = True
-        
+
         # Database'ga ham saqlash (agar foydalanuvchi tizimga kirgan bo'lsa)
         if 'user_id' in session:
             user_id = session['user_id']
             setting_key = f'user_language_{user_id}'
-            
+
             setting = Settings.query.filter_by(key=setting_key).first()
             if setting:
                 setting.value = language
@@ -12846,12 +12846,12 @@ def change_language():
                     description=f'Foydalanuvchi {user_id} uchun til'
                 )
                 db.session.add(setting)
-            
+
             db.session.commit()
-        
+
         logger.info(f"Til o'zgartirildi: {language}")
         return jsonify({'success': True, 'language': language})
-        
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Til o'zgartirishda xato: {e}")
@@ -12935,7 +12935,7 @@ def save_stock_check_session():
     """Stock checking session holatini saqlash (deprecated - heartbeat ishlatiladi)"""
     try:
         user_id = session.get('user_id')
-        print(f"ğŸ” SESSION SAVE - User ID: {user_id}")
+        print(f"ÄŸÅ¸â€Â SESSION SAVE - User ID: {user_id}")
 
         if not user_id:
             logger.error(" User not authenticated")
@@ -12945,7 +12945,7 @@ def save_stock_check_session():
         location_type = data.get('location_type')
         location_id = data.get('location_id')
 
-        print("ğŸ“¥ Kelgan ma'lumotlar:")
+        print("ÄŸÅ¸â€œÂ¥ Kelgan ma'lumotlar:")
         print(f"  - Location type: {location_type}")
         print(f"  - Location ID: {location_id}")
 
@@ -12973,7 +12973,7 @@ def save_stock_check_session():
             })
         else:
             # Active session yo'q - bu route deprecated, /api/start-stock-check ishlatilishi kerak
-            print("âš ï¸ Active session topilmadi - /api/start-stock-check ishlatilishi kerak")
+            print("Ã¢Å¡Â Ã¯Â¸Â Active session topilmadi - /api/start-stock-check ishlatilishi kerak")
             return jsonify({
                 'success': False,
                 'message': 'Active session topilmadi. Avval tekshiruvni boshlang.'
@@ -13015,7 +13015,7 @@ def load_stock_check_session():
                 }), 403
             logger.info(f" Stock check permission verified for user: {user.username}")
         else:
-            print("âœ… Admin user - stock check permission granted")
+            print("Ã¢Å“â€¦ Admin user - stock check permission granted")
 
         # Active session'ni topish
         active_session = StockCheckSession.query.filter_by(
@@ -13024,15 +13024,15 @@ def load_stock_check_session():
         ).order_by(StockCheckSession.updated_at.desc()).first()
 
         if not active_session:
-            print("â„¹ï¸ Active session topilmadi")
+            print("Ã¢â€Â¹Ã¯Â¸Â Active session topilmadi")
             return jsonify({
                 'success': False,
                 'message': 'Active session topilmadi'
             })
 
         logger.info(f" Active session topildi: {active_session.location_type}-{active_session.location_id}")
-        print(f"ğŸ“ Location: {active_session.location_type}-{active_session.location_id}")
-        print(f"ğŸ• Updated at: {active_session.updated_at}")
+        print(f"ÄŸÅ¸â€œÂ Location: {active_session.location_type}-{active_session.location_id}")
+        print(f"ÄŸÅ¸â€¢Â Updated at: {active_session.updated_at}")
 
         # Session ma'lumotlarini qaytarish
         result = {
@@ -13044,7 +13044,7 @@ def load_stock_check_session():
             'updated_at': active_session.updated_at.isoformat()
         }
 
-        print("ğŸ“¤ Session ma'lumotlari qaytarilmoqda")
+        print("ÄŸÅ¸â€œÂ¤ Session ma'lumotlari qaytarilmoqda")
         return jsonify(result)
 
     except Exception as e:
@@ -13093,7 +13093,7 @@ def inject_settings():
 
         # Hozirgi tilni olish
         current_language = session.get('language', 'uz_latin')
-        
+
         # Tarjima lug'ati
         translations = {
             'uz_latin': {
@@ -13102,8 +13102,8 @@ def inject_settings():
                 'sales': 'Sotuvlar',
                 'warehouse': 'Ombor',
                 'store': 'Do\'kon',
-                'warehouse_transfer': 'Ombor → Do\'kon',
-                'store_transfer': 'Do\'kon → Do\'kon',
+                'warehouse_transfer': 'Ombor â†’ Do\'kon',
+                'store_transfer': 'Do\'kon â†’ Do\'kon',
                 'check_stock': 'Qoldiqni Tekshirish',
                 'reports': 'Hisobotlar',
                 'customers': 'Mijozlar',
@@ -13118,52 +13118,52 @@ def inject_settings():
                 'close': 'Yopish',
             },
             'uz_cyrillic': {
-                'dashboard': 'Бош саҳифа',
-                'products': 'Маҳсулотлар',
-                'sales': 'Сотувлар',
-                'warehouse': 'Омбор',
-                'store': 'Дўкон',
-                'warehouse_transfer': 'Омбор → Дўкон',
-                'store_transfer': 'Дўкон → Дўкон',
-                'check_stock': 'Қолдиқни Текшириш',
-                'reports': 'Ҳисоботлар',
-                'customers': 'Мижозлар',
-                'settings': 'Созламалар',
-                'logout': 'Чиқиш',
-                'search': 'Қидириш',
-                'add': 'Қўшиш',
-                'edit': 'Таҳрирлаш',
-                'delete': 'Ўчириш',
-                'save': 'Сақлаш',
-                'cancel': 'Бекор қилиш',
-                'close': 'Ёпиш',
+                'dashboard': 'Ğ‘Ğ¾Ñˆ ÑĞ°Ò³Ğ¸Ñ„Ğ°',
+                'products': 'ĞœĞ°Ò³ÑÑƒĞ»Ğ¾Ñ‚Ğ»Ğ°Ñ€',
+                'sales': 'Ğ¡Ğ¾Ñ‚ÑƒĞ²Ğ»Ğ°Ñ€',
+                'warehouse': 'ĞĞ¼Ğ±Ğ¾Ñ€',
+                'store': 'Ğ”ÑĞºĞ¾Ğ½',
+                'warehouse_transfer': 'ĞĞ¼Ğ±Ğ¾Ñ€ â†’ Ğ”ÑĞºĞ¾Ğ½',
+                'store_transfer': 'Ğ”ÑĞºĞ¾Ğ½ â†’ Ğ”ÑĞºĞ¾Ğ½',
+                'check_stock': 'ÒšĞ¾Ğ»Ğ´Ğ¸Ò›Ğ½Ğ¸ Ğ¢ĞµĞºÑˆĞ¸Ñ€Ğ¸Ñˆ',
+                'reports': 'Ò²Ğ¸ÑĞ¾Ğ±Ğ¾Ñ‚Ğ»Ğ°Ñ€',
+                'customers': 'ĞœĞ¸Ğ¶Ğ¾Ğ·Ğ»Ğ°Ñ€',
+                'settings': 'Ğ¡Ğ¾Ğ·Ğ»Ğ°Ğ¼Ğ°Ğ»Ğ°Ñ€',
+                'logout': 'Ğ§Ğ¸Ò›Ğ¸Ñˆ',
+                'search': 'ÒšĞ¸Ğ´Ğ¸Ñ€Ğ¸Ñˆ',
+                'add': 'ÒšÑÑˆĞ¸Ñˆ',
+                'edit': 'Ğ¢Ğ°Ò³Ñ€Ğ¸Ñ€Ğ»Ğ°Ñˆ',
+                'delete': 'ĞÑ‡Ğ¸Ñ€Ğ¸Ñˆ',
+                'save': 'Ğ¡Ğ°Ò›Ğ»Ğ°Ñˆ',
+                'cancel': 'Ğ‘ĞµĞºĞ¾Ñ€ Ò›Ğ¸Ğ»Ğ¸Ñˆ',
+                'close': 'ĞĞ¿Ğ¸Ñˆ',
             },
             'ru': {
-                'dashboard': 'Главная',
-                'products': 'Товары',
-                'sales': 'Продажи',
-                'warehouse': 'Склад',
-                'store': 'Магазин',
-                'warehouse_transfer': 'Склад → Магазин',
-                'store_transfer': 'Магазин → Магазин',
-                'check_stock': 'Проверка остатков',
-                'reports': 'Отчёты',
-                'customers': 'Клиенты',
-                'settings': 'Настройки',
-                'logout': 'Выход',
-                'search': 'Поиск',
-                'add': 'Добавить',
-                'edit': 'Изменить',
-                'delete': 'Удалить',
-                'save': 'Сохранить',
-                'cancel': 'Отменить',
-                'close': 'Закрыть',
+                'dashboard': 'Ğ“Ğ»Ğ°Ğ²Ğ½Ğ°Ñ',
+                'products': 'Ğ¢Ğ¾Ğ²Ğ°Ñ€Ñ‹',
+                'sales': 'ĞŸÑ€Ğ¾Ğ´Ğ°Ğ¶Ğ¸',
+                'warehouse': 'Ğ¡ĞºĞ»Ğ°Ğ´',
+                'store': 'ĞœĞ°Ğ³Ğ°Ğ·Ğ¸Ğ½',
+                'warehouse_transfer': 'Ğ¡ĞºĞ»Ğ°Ğ´ â†’ ĞœĞ°Ğ³Ğ°Ğ·Ğ¸Ğ½',
+                'store_transfer': 'ĞœĞ°Ğ³Ğ°Ğ·Ğ¸Ğ½ â†’ ĞœĞ°Ğ³Ğ°Ğ·Ğ¸Ğ½',
+                'check_stock': 'ĞŸÑ€Ğ¾Ğ²ĞµÑ€ĞºĞ° Ğ¾ÑÑ‚Ğ°Ñ‚ĞºĞ¾Ğ²',
+                'reports': 'ĞÑ‚Ñ‡Ñ‘Ñ‚Ñ‹',
+                'customers': 'ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ñ‹',
+                'settings': 'ĞĞ°ÑÑ‚Ñ€Ğ¾Ğ¹ĞºĞ¸',
+                'logout': 'Ğ’Ñ‹Ñ…Ğ¾Ğ´',
+                'search': 'ĞŸĞ¾Ğ¸ÑĞº',
+                'add': 'Ğ”Ğ¾Ğ±Ğ°Ğ²Ğ¸Ñ‚ÑŒ',
+                'edit': 'Ğ˜Ğ·Ğ¼ĞµĞ½Ğ¸Ñ‚ÑŒ',
+                'delete': 'Ğ£Ğ´Ğ°Ğ»Ğ¸Ñ‚ÑŒ',
+                'save': 'Ğ¡Ğ¾Ñ…Ñ€Ğ°Ğ½Ğ¸Ñ‚ÑŒ',
+                'cancel': 'ĞÑ‚Ğ¼ĞµĞ½Ğ¸Ñ‚ÑŒ',
+                'close': 'Ğ—Ğ°ĞºÑ€Ñ‹Ñ‚ÑŒ',
             }
         }
-        
+
         # Joriy til tarjimalarini olish
         current_translations = translations.get(current_language, translations['uz_latin'])
-        
+
         # Tarjima funksiyasi
         def t(key):
             """Kalit bo'yicha tarjimani qaytaradi"""
@@ -13274,18 +13274,18 @@ def api_send_debt_sms():
             )
 
             if telegram_result:
-                logger.info(f"âœ… Telegram qarz eslatmasi yuborildi: {customer.name} (Chat ID: {customer.telegram_chat_id})")
+                logger.info(f"Ã¢Å“â€¦ Telegram qarz eslatmasi yuborildi: {customer.name} (Chat ID: {customer.telegram_chat_id})")
                 return jsonify({
                     'success': True,
                     'message': f'Telegram orqali qarz eslatmasi yuborildi: {customer.name}',
                     'telegram_sent': True
                 })
             else:
-                logger.error(f"âŒ Telegram xabar yuborilmadi: {customer.name}")
+                logger.error(f"Ã¢ÂÅ’ Telegram xabar yuborilmadi: {customer.name}")
                 return jsonify({'success': False, 'error': 'Telegram xabar yuborilmadi'}), 500
 
         except Exception as e:
-            logger.error(f"âŒ Telegram xabar yuborishda xatolik: {e}")
+            logger.error(f"Ã¢ÂÅ’ Telegram xabar yuborishda xatolik: {e}")
             return jsonify({'success': False, 'error': f'Telegram xatolik: {str(e)}'}), 500
 
     except Exception as e:
@@ -13373,7 +13373,7 @@ def api_send_payment_sms():
             )
 
             if telegram_result:
-                logger.info(f"âœ… To'lov Telegram xabari yuborildi: {customer.name}")
+                logger.info(f"Ã¢Å“â€¦ To'lov Telegram xabari yuborildi: {customer.name}")
                 return jsonify({
                     'success': True,
                     'message': f'Telegram orqali to\'lov tasdiq xabari yuborildi: {customer.name}',
@@ -13383,7 +13383,7 @@ def api_send_payment_sms():
                 return jsonify({'success': False, 'error': 'Telegram xabar yuborilmadi'}), 500
 
         except Exception as e:
-            logger.error(f"âš ï¸ Telegram to'lov xabari yuborishda xatolik: {e}")
+            logger.error(f"Ã¢Å¡Â Ã¯Â¸Â Telegram to'lov xabari yuborishda xatolik: {e}")
             return jsonify({'success': False, 'error': f'Telegram xatolik: {str(e)}'}), 500
 
     except Exception as e:
@@ -13464,7 +13464,7 @@ def api_send_bulk_telegram():
                     'error': str(e)
                 })
 
-        logger.info(f"ğŸ“Š Bulk Telegram: {sent_count} yuborildi, {failed_count} xatolik")
+        logger.info(f"ÄŸÅ¸â€œÅ  Bulk Telegram: {sent_count} yuborildi, {failed_count} xatolik")
 
         return jsonify({
             'success': True,
@@ -13482,20 +13482,20 @@ def api_send_bulk_telegram():
 try:
     from monitoring import setup_monitoring_routes
     setup_monitoring_routes(app, db)
-    logger.info("âœ… Monitoring tizimi ishga tushdi")
+    logger.info("Ã¢Å“â€¦ Monitoring tizimi ishga tushdi")
 except Exception as e:
-    logger.warning(f"âš ï¸ Monitoring tizimi ishga tushmadi: {e}")
+    logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Monitoring tizimi ishga tushmadi: {e}")
 
 
 if __name__ == '__main__':
     # Telegram bot scheduler ni ishga tushirish
     try:
         from debt_scheduler import init_debt_scheduler
-        logger.info("ğŸ¤– Telegram bot scheduler ishga tushirilmoqda...")
+        logger.info("ÄŸÅ¸Â¤â€“ Telegram bot scheduler ishga tushirilmoqda...")
         init_debt_scheduler(app, db)
-        logger.info("âœ… Telegram bot scheduler ishga tushdi")
+        logger.info("Ã¢Å“â€¦ Telegram bot scheduler ishga tushdi")
     except Exception as e:
-        logger.warning(f"âš ï¸ Telegram bot scheduler ishga tushmadi: {e}")
+        logger.warning(f"Ã¢Å¡Â Ã¯Â¸Â Telegram bot scheduler ishga tushmadi: {e}")
 
     # Development rejimi uchun debug=True (avtomatik qayta yuklash)
     app.run(debug=True, host='0.0.0.0', port=5000)
