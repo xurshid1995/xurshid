@@ -6,7 +6,7 @@
 ssh root@sergeli0606.uz
 
 # 2. Loyiha papkasiga o'tish
-cd /var/www/sayt2025
+cd /var/www/XURSHID
 
 # 3. Yangi kodlarni GitHub dan pull qilish
 git pull origin main
@@ -21,10 +21,10 @@ pip install psutil==5.9.0
 chmod +x check_logs.sh
 
 # 7. Gunicorn service restart
-sudo systemctl restart sayt2025
+sudo systemctl restart XURSHID
 
 # 8. Service holatini tekshirish
-sudo systemctl status sayt2025
+sudo systemctl status XURSHID
 
 # 9. Health check test
 curl http://localhost:5000/health
@@ -48,7 +48,7 @@ curl http://localhost:5000/health
 tail -50 logs/error.log
 
 # Gunicorn loglarni ko'rish:
-sudo journalctl -u sayt2025 -n 50
+sudo journalctl -u XURSHID -n 50
 
 # Service restart:
-sudo systemctl restart sayt2025
+sudo systemctl restart XURSHID

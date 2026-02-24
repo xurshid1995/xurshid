@@ -42,7 +42,7 @@ scp create_api_operations_table.py root@YOUR_SERVER:/var/www/sayt_2025/
 ssh root@YOUR_SERVER
 
 # Loyiha papkasiga o'tish
-cd /var/www/sayt_2025
+cd /var/www/Xurshid
 
 # Virtual environment aktivlashtirish
 source venv/bin/activate
@@ -65,10 +65,10 @@ API OPERATIONS JADVALI YARATISH
 
 ```bash
 # Systemd service'ni qayta ishga tushirish
-sudo systemctl restart sayt_2025
+sudo systemctl restart Xurshid
 
 # Status tekshirish
-sudo systemctl status sayt_2025
+sudo systemctl status Xurshid
 
 # Log'larni kuzatish
 tail -f logs/error.log
