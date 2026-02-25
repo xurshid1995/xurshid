@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Telegram Bot - Qarz eslatmalari tizimi
 Mijozlarga qarz haqida avtomatik xabar yuborish
@@ -33,13 +33,13 @@ class DebtTelegramBot:
         self.db = db  # Database instance
 
         if not self.token:
-            logger.warning("âš ï¸ TELEGRAM_BOT_TOKEN .env faylida sozlanmagan!")
+            logger.warning("⚠️ TELEGRAM_BOT_TOKEN .env faylida sozlanmagan!")
         else:
             try:
                 self.bot = Bot(token=self.token)
-                logger.info("âœ… Telegram bot muvaffaqiyatli ishga tushdi")
+                logger.info("✅ Telegram bot muvaffaqiyatli ishga tushdi")
             except Exception as e:
-                logger.error(f"âŒ Telegram bot xatosi: {e}")
+                logger.error(f"❌ Telegram bot xatosi: {e}")
 
     def _parse_admin_ids(self) -> List[int]:
         """Admin chat ID larini parse qilish"""
@@ -50,7 +50,7 @@ class DebtTelegramBot:
         try:
             return [int(id_.strip()) for id_ in admin_ids_str.split(',') if id_.strip()]
         except ValueError:
-            logger.warning("âš ï¸ TELEGRAM_ADMIN_CHAT_IDS noto'g'ri formatda")
+            logger.warning("⚠️ TELEGRAM_ADMIN_CHAT_IDS noto'g'ri formatda")
             return []
 
     def _get_payment_details_sync(self, customer_id: int) -> str:
@@ -89,19 +89,19 @@ class DebtTelegramBot:
             # To'lov turlarini formatlash
             payments = []
             if cash > 0:
-                payments.append(f"ğŸ’µ Naqd: ${cash:,.2f}")
+                payments.append(f"💵 Naqd: ${cash:,.2f}")
             if click > 0:
-                payments.append(f"ğŸ“± Click: ${click:,.2f}")
+                payments.append(f"📱 Click: ${click:,.2f}")
             if terminal > 0:
-                payments.append(f"ğŸ’³ Terminal: ${terminal:,.2f}")
+                payments.append(f"💳 Terminal: ${terminal:,.2f}")
 
             if payments:
-                return "\n\n<b>ğŸ“Š To'lov turlari:</b>\n" + "\n".join(payments)
+                return "\n\n<b>📊 To'lov turlari:</b>\n" + "\n".join(payments)
 
             return ""
 
         except Exception as e:
-            logger.error(f"âŒ To'lov ma'lumotlarini olishda xatolik: {e}")
+            logger.error(f"❌ To'lov ma'lumotlarini olishda xatolik: {e}")
             return ""
 
     async def _get_payment_details(self, customer_id: int) -> str:
@@ -137,19 +137,19 @@ class DebtTelegramBot:
             # To'lov turlarini formatlash (faqat to'lov turlarini ko'rsatish, qarzni emas)
             payments = []
             if result.total_cash > 0:
-                payments.append(f"ğŸ’µ Naqd: ${result.total_cash:,.2f}")
+                payments.append(f"💵 Naqd: ${result.total_cash:,.2f}")
             if result.total_click > 0:
-                payments.append(f"ğŸ“± Click: ${result.total_click:,.2f}")
+                payments.append(f"📱 Click: ${result.total_click:,.2f}")
             if result.total_terminal > 0:
-                payments.append(f"ğŸ’³ Terminal: ${result.total_terminal:,.2f}")
+                payments.append(f"💳 Terminal: ${result.total_terminal:,.2f}")
 
             if payments:
-                return "\n\n<b>ğŸ“Š To'lov turlari:</b>\n" + "\n".join(payments)
+                return "\n\n<b>📊 To'lov turlari:</b>\n" + "\n".join(payments)
 
             return ""
 
         except Exception as e:
-            logger.error(f"âŒ To'lov ma'lumotlarini olishda xatolik: {e}")
+            logger.error(f"❌ To'lov ma'lumotlarini olishda xatolik: {e}")
             return ""
 
     async def send_debt_reminder(
@@ -189,16 +189,16 @@ class DebtTelegramBot:
             # Sana formatlash
             date_str = ""
             if sale_date:
-                date_str = f"\nğŸ“… Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
+                date_str = f"\n📅 Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
 
             # Xabar matni (qarz eslatmasida to'lov turlari ko'rsatilmaydi)
             message = (
-                f"ğŸ’° <b>QARZ ESLATMASI</b>\n\n"
+                f"💰 <b>QARZ ESLATMASI</b>\n\n"
                 f"Hurmatli {customer_name}!\n\n"
-                f"ğŸ“ Joylashuv: {location_name}\n\n"
-                f"ğŸ’¸ Qarz: {debt_uzs:,.0f} so'm{date_str}\n\n"
+                f"📍 Joylashuv: {location_name}\n\n"
+                f"💸 Qarz: {debt_uzs:,.0f} so'm{date_str}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang. Qarz bu omonat.\n"
-                "Rahmat! ğŸ™"
+                "Rahmat! 🙏"
             )
 
             await self.bot.send_message(
@@ -207,14 +207,14 @@ class DebtTelegramBot:
                 parse_mode='HTML'
             )
 
-            logger.info(f"âœ… Qarz eslatmasi yuborildi: {customer_name} (Chat ID: {chat_id})")
+            logger.info(f"✅ Qarz eslatmasi yuborildi: {customer_name} (Chat ID: {chat_id})")
             return True
 
         except TelegramError as e:
-            logger.error(f"âŒ Telegram xatosi ({customer_name}): {e}")
+            logger.error(f"❌ Telegram xatosi ({customer_name}): {e}")
             return False
         except Exception as e:
-            logger.error(f"âŒ Xatolik ({customer_name}): {e}")
+            logger.error(f"❌ Xatolik ({customer_name}): {e}")
             return False
 
     def send_debt_reminder_sync(
@@ -254,16 +254,16 @@ class DebtTelegramBot:
             # Sana formatlash
             date_str = ""
             if sale_date:
-                date_str = f"\nğŸ“… Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
+                date_str = f"\n📅 Savdo sanasi: {sale_date.strftime('%d.%m.%Y')}"
 
             # Xabar matni (qarz eslatmasida to'lov turlari ko'rsatilmaydi)
             message = (
-                f"ğŸ’° <b>QARZ ESLATMASI</b>\n\n"
+                f"💰 <b>QARZ ESLATMASI</b>\n\n"
                 f"Hurmatli {customer_name}!\n\n"
-                f"ğŸ“ Joylashuv: {location_name}\n\n"
-                f"ğŸ’¸ Qarz: {debt_uzs_str}{date_str}\n\n"
+                f"📍 Joylashuv: {location_name}\n\n"
+                f"💸 Qarz: {debt_uzs_str}{date_str}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang. Qarz bu omonat.\n"
-                "Rahmat! ğŸ™"
+                "Rahmat! 🙏"
             )
 
             # HTTP API orqali yuborish
@@ -277,14 +277,14 @@ class DebtTelegramBot:
             response = requests.post(url, json=payload, timeout=10)
 
             if response.status_code == 200:
-                logger.info(f"âœ… Qarz eslatmasi yuborildi: {customer_name} (Chat ID: {chat_id})")
+                logger.info(f"✅ Qarz eslatmasi yuborildi: {customer_name} (Chat ID: {chat_id})")
                 return True
             else:
-                logger.error(f"âŒ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
+                logger.error(f"❌ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
                 return False
 
         except Exception as e:
-            logger.error(f"âŒ Xatolik ({customer_name}): {e}")
+            logger.error(f"❌ Xatolik ({customer_name}): {e}")
             return False
 
     async def send_payment_confirmation(
@@ -324,25 +324,25 @@ class DebtTelegramBot:
             if remaining_usd <= 0:
                 # Qarz to'liq to'landi
                 message = (
-                    f"âœ… <b>TO'LOV QABUL QILINDI</b>\n\n"
+                    f"✅ <b>TO'LOV QABUL QILINDI</b>\n\n"
                     f"Hurmatli {customer_name}!\n\n"
-                    f"ğŸ“ Joylashuv: {location_name}\n"
-                    f"ğŸ’µ To'langan: ${paid_usd:,.2f}\n"
-                    f"ğŸ’¸ To'langan: {paid_uzs:,.0f} so'm\n\n"
-                    f"ğŸ‰ <b>Qarzingiz to'liq to'landi!</b>\n"
-                    "Rahmat! ğŸ™ "
+                    f"📍 Joylashuv: {location_name}\n"
+                    f"💵 To'langan: ${paid_usd:,.2f}\n"
+                    f"💸 To'langan: {paid_uzs:,.0f} so'm\n\n"
+                    f"🎉 <b>Qarzingiz to'liq to'landi!</b>\n"
+                    "Rahmat! 🙏 "
                 )
             else:
                 # Qisman to'lov
                 message = (
-                    f"âœ… <b>TO'LOV QABUL QILINDI</b>\n\n"
+                    f"✅ <b>TO'LOV QABUL QILINDI</b>\n\n"
                     f"Hurmatli {customer_name}!\n\n"
-                    f"ğŸ“ Joylashuv: {location_name}\n"
-                    f"ğŸ’¸ To'langan: {paid_uzs:,.0f} so'm\n\n"
-                    f"ğŸ“Š <b>Qolgan qarz:</b>\n"
-                    f"ğŸ’¸ {remaining_uzs:,.0f} so'm\n"
+                    f"📍 Joylashuv: {location_name}\n"
+                    f"💸 To'langan: {paid_uzs:,.0f} so'm\n\n"
+                    f"📊 <b>Qolgan qarz:</b>\n"
+                    f"💸 {remaining_uzs:,.0f} so'm\n"
                     f"{payment_details}\n"
-                    "Rahmat! ğŸ™ Iltimos qolgan qarzingizniham tez orada Tolang chunki qarz bu sizga omonat"
+                    "Rahmat! 🙏 Iltimos qolgan qarzingizniham tez orada Tolang chunki qarz bu sizga omonat"
                 )
 
             await self.bot.send_message(
@@ -351,11 +351,11 @@ class DebtTelegramBot:
                 parse_mode='HTML'
             )
 
-            logger.info(f"âœ… To'lov tasdiq xabari yuborildi: {customer_name}")
+            logger.info(f"✅ To'lov tasdiq xabari yuborildi: {customer_name}")
             return True
 
         except Exception as e:
-            logger.error(f"âŒ To'lov tasdiq xabarida xatolik: {e}")
+            logger.error(f"❌ To'lov tasdiq xabarida xatolik: {e}")
             return False
 
     def send_sale_notification_sync(
@@ -418,28 +418,28 @@ class DebtTelegramBot:
         try:
             # Savdo xabari (USD formatda)
             message = (
-                f"ğŸ“… {sale_date.strftime('%d.%m.%Y %H:%M')}\n"
-                f"ğŸ“ Do'kon: {location_name}dan\n"
+                f"📅 {sale_date.strftime('%d.%m.%Y %H:%M')}\n"
+                f"📍 Do'kon: {location_name}dan\n"
                 f"Savdo qildingiz\n\n"
-                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
-                f"ğŸ’° Jami: ${total_amount_usd:,.2f}\n"
+                f"━━━━━━━━━━━━━━━━━━━\n"
+                f"💰 Jami: ${total_amount_usd:,.2f}\n"
             )
 
             # To'lov ma'lumotlari
             if paid_usd > 0:
-                message += f"âœ… To'langan: ${paid_usd:,.2f}\n"
+                message += f"✅ To'langan: ${paid_usd:,.2f}\n"
 
                 # To'lov turlarini ko'rsatish
                 if cash_usd > 0:
-                    message += f"   ğŸ’µ Naqd: ${cash_usd:,.2f}\n"
+                    message += f"   💵 Naqd: ${cash_usd:,.2f}\n"
                 if click_usd > 0:
-                    message += f"   ğŸ“± Click: ${click_usd:,.2f}\n"
+                    message += f"   📱 Click: ${click_usd:,.2f}\n"
                 if terminal_usd > 0:
-                    message += f"   ğŸ’³ Terminal: ${terminal_usd:,.2f}\n"
+                    message += f"   💳 Terminal: ${terminal_usd:,.2f}\n"
 
             # Qarz ma'lumoti
             if debt_usd > 0:
-                message += f"âš ï¸ Qarz: ${debt_usd:,.2f}\n"
+                message += f"⚠️ Qarz: ${debt_usd:,.2f}\n"
 
             # Oldingi va jami qarzni hisoblash (database'dan) - har doim ko'rsatish
             previous_debt_usd = 0
@@ -466,21 +466,21 @@ class DebtTelegramBot:
                         # Oldingi qarz = Jami qarz - Joriy savdo qarzi
                         previous_debt_usd = total_debt_usd - debt_usd
 
-                        logger.info(f"ğŸ’° Qarz hisoblandi: previous=${previous_debt_usd:.2f}, total=${total_debt_usd:.2f}, current=${debt_usd:.2f}")
+                        logger.info(f"💰 Qarz hisoblandi: previous=${previous_debt_usd:.2f}, total=${total_debt_usd:.2f}, current=${debt_usd:.2f}")
 
                 except Exception as db_error:
-                    logger.error(f"âŒ Jami qarzni olishda xatolik: {db_error}", exc_info=True)
+                    logger.error(f"❌ Jami qarzni olishda xatolik: {db_error}", exc_info=True)
 
             # Oldingi yoki jami qarz bo'lsa ko'rsatish
             if previous_debt_usd > 0 or total_debt_usd > 0:
                 message += "\n"
                 if previous_debt_usd > 0:
-                    message += f"<b>ğŸ“‹ OLDINGI QARZ: ${previous_debt_usd:,.2f}</b>\n"
-                message += f"<b>ğŸ’³ JAMI QARZ: ${total_debt_usd:,.2f}</b>\n"
+                    message += f"<b>📋 OLDINGI QARZ: ${previous_debt_usd:,.2f}</b>\n"
+                message += f"<b>💳 JAMI QARZ: ${total_debt_usd:,.2f}</b>\n"
                 if total_debt_usd > 0:
                     message += "Qarzingizni vaqtida to'lashni unutmang Qarz bu sizga omonat\n"
 
-            message += "\nRahmat! ğŸ™"
+            message += "\nRahmat! 🙏"
 
             # HTTP API orqali xabar yuborish
             url = f"https://api.telegram.org/bot{self.token}/sendMessage"
@@ -493,9 +493,9 @@ class DebtTelegramBot:
             response = requests.post(url, json=payload, timeout=10)
 
             if response.status_code == 200:
-                logger.info(f"âœ… Savdo xabari yuborildi: {customer_name} (Chat ID: {chat_id})")
+                logger.info(f"✅ Savdo xabari yuborildi: {customer_name} (Chat ID: {chat_id})")
             else:
-                logger.error(f"âŒ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
+                logger.error(f"❌ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
                 return False
 
             # PDF chek yuborish
@@ -568,7 +568,7 @@ class DebtTelegramBot:
                             files = {'document': pdf_file}
                             data = {
                                 'chat_id': chat_id,
-                                'caption': f"ğŸ“„ Savdo cheki #{sale_id} ({currency_label})"
+                                'caption': f"📄 Savdo cheki #{sale_id} ({currency_label})"
                             }
                             response_pdf = requests.post(url_doc, files=files, data=data, timeout=30)
 
@@ -577,17 +577,17 @@ class DebtTelegramBot:
                             os.remove(pdf_path)
 
                         if response_pdf.status_code == 200:
-                            logger.info(f"âœ… {currency_label} PDF chek yuborildi: {customer_name}")
+                            logger.info(f"✅ {currency_label} PDF chek yuborildi: {customer_name}")
                         else:
-                            logger.error(f"âŒ {currency_label} PDF yuborishda xatolik: {response_pdf.status_code}")
+                            logger.error(f"❌ {currency_label} PDF yuborishda xatolik: {response_pdf.status_code}")
 
                 except Exception as pdf_error:
-                    logger.error(f"âŒ PDF yaratishda xatolik: {pdf_error}")
+                    logger.error(f"❌ PDF yaratishda xatolik: {pdf_error}")
 
             return True
 
         except Exception as e:
-            logger.error(f"âŒ Savdo xabarida xatolik ({customer_name}): {e}")
+            logger.error(f"❌ Savdo xabarida xatolik ({customer_name}): {e}")
             return False
 
     def send_payment_confirmation_sync(
@@ -633,38 +633,38 @@ class DebtTelegramBot:
             # Aynan shu to'lovning turlarini ko'rsatish (USD)
             payment_details = ""
             if cash_uzs > 0 or click_uzs > 0 or terminal_uzs > 0:
-                payment_details = "\n\n<b>ğŸ“Š To'lov turlari:</b>\n"
+                payment_details = "\n\n<b>📊 To'lov turlari:</b>\n"
                 # USD ga o'tkazish (cash_uzs parametri USD hisoblanadi)
                 cash_usd = cash_uzs
                 click_usd = click_uzs
                 terminal_usd = terminal_uzs
 
                 if cash_usd > 0:
-                    payment_details += f"ğŸ’µ Naqd: ${cash_usd:,.2f}\n"
+                    payment_details += f"💵 Naqd: ${cash_usd:,.2f}\n"
                 if click_usd > 0:
-                    payment_details += f"ğŸ“± Click: ${click_usd:,.2f}\n"
+                    payment_details += f"📱 Click: ${click_usd:,.2f}\n"
                 if terminal_usd > 0:
-                    payment_details += f"ğŸ’³ Terminal: ${terminal_usd:,.2f}"
+                    payment_details += f"💳 Terminal: ${terminal_usd:,.2f}"
 
             if remaining_usd <= 0:
                 # Qarz to'liq to'landi
                 message = (
-                    f"âœ… <b>TO'LOV QABUL QILINDI</b>\n\n"
+                    f"✅ <b>TO'LOV QABUL QILINDI</b>\n\n"
                     f"Hurmatli {customer_name}!\n\n"
-                    f"ğŸ’° Avvalgi qarz: ${previous_debt_usd:,.2f}\n\n"
-                    f"âœ… To'langan: ${paid_usd:,.2f}\n\n"
-                    f"ğŸ‰ <b>Qarzingiz to'liq to'landi!</b>\n\n"
-                    "Rahmat! ğŸ™"
+                    f"💰 Avvalgi qarz: ${previous_debt_usd:,.2f}\n\n"
+                    f"✅ To'langan: ${paid_usd:,.2f}\n\n"
+                    f"🎉 <b>Qarzingiz to'liq to'landi!</b>\n\n"
+                    "Rahmat! 🙏"
                 )
             else:
                 # Qisman to'lov
                 message = (
-                    f"âœ… <b>TO'LOV QABUL QILINDI</b>\n\n"
+                    f"✅ <b>TO'LOV QABUL QILINDI</b>\n\n"
                     f"Hurmatli {customer_name}!\n\n"
-                    f"ğŸ’° Avvalgi qarz: ${previous_debt_usd:,.2f}\n\n"
-                    f"âœ… To'langan: ${paid_usd:,.2f}\n\n"
-                    f"ğŸ“Š Qolgan qarz: ${remaining_usd:,.2f}{payment_details}\n\n"
-                    "Rahmat! ğŸ™"
+                    f"💰 Avvalgi qarz: ${previous_debt_usd:,.2f}\n\n"
+                    f"✅ To'langan: ${paid_usd:,.2f}\n\n"
+                    f"📊 Qolgan qarz: ${remaining_usd:,.2f}{payment_details}\n\n"
+                    "Rahmat! 🙏"
                 )
 
             # HTTP API orqali yuborish
@@ -678,14 +678,14 @@ class DebtTelegramBot:
             response = requests.post(url, json=payload, timeout=10)
 
             if response.status_code == 200:
-                logger.info(f"âœ… To'lov tasdiq xabari yuborildi: {customer_name} (Chat ID: {chat_id})")
+                logger.info(f"✅ To'lov tasdiq xabari yuborildi: {customer_name} (Chat ID: {chat_id})")
                 return True
             else:
-                logger.error(f"âŒ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
+                logger.error(f"❌ Telegram API xatosi ({customer_name}): {response.status_code} - {response.text}")
                 return False
 
         except Exception as e:
-            logger.error(f"âŒ To'lov tasdiq xabarida xatolik ({customer_name}): {e}")
+            logger.error(f"❌ To'lov tasdiq xabarida xatolik ({customer_name}): {e}")
             return False
 
     async def send_debt_list_to_admin(self, debts_data: List[Dict]) -> bool:
@@ -699,30 +699,30 @@ class DebtTelegramBot:
             bool: Yuborildi/yuborilmadi
         """
         if not self.bot or not self.admin_chat_ids:
-            logger.warning("âš ï¸ Admin chat IDs mavjud emas")
+            logger.warning("⚠️ Admin chat IDs mavjud emas")
             return False
 
         if not debts_data:
-            message = "ğŸ“Š <b>QARZLAR HISOBOTI</b>\n\nâœ… Hozirda qarz yo'q"
+            message = "📊 <b>QARZLAR HISOBOTI</b>\n\n✅ Hozirda qarz yo'q"
         else:
             total_debt_usd = sum(d['debt_usd'] for d in debts_data)
             total_debt_uzs = sum(d['debt_uzs'] for d in debts_data)
 
             message = (
-                f"ğŸ“Š <b>QARZLAR HISOBOTI</b>\n"
-                f"ğŸ“… Sana: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n\n"
-                f"ğŸ‘¥ Jami qarzlar: {len(debts_data)} ta\n"
-                f"ï¿½ Umumiy qarz: {total_debt_uzs:,.0f} so'm\n\n"
-                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n\n"
+                f"📊 <b>QARZLAR HISOBOTI</b>\n"
+                f"📅 Sana: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n\n"
+                f"👥 Jami qarzlar: {len(debts_data)} ta\n"
+                f"� Umumiy qarz: {total_debt_uzs:,.0f} so'm\n\n"
+                f"━━━━━━━━━━━━━━━━━━━\n\n"
             )
 
             # Har bir qarzni qo'shish (maksimum 20 ta)
             for i, debt in enumerate(debts_data[:20], 1):
                 message += (
                     f"{i}. <b>{debt['customer_name']}</b>\n"
-                    f"   ğŸ“ {debt['location_name']}\n"
-                    f"   ğŸ’¸ {debt['debt_uzs']:,.0f} so'm\n"
-                    f"   ğŸ“± {debt.get('phone', 'Telefon yo\'q')}\n\n"
+                    f"   📍 {debt['location_name']}\n"
+                    f"   💸 {debt['debt_uzs']:,.0f} so'm\n"
+                    f"   📱 {debt.get('phone', 'Telefon yo\'q')}\n\n"
                 )
 
             if len(debts_data) > 20:
@@ -737,15 +737,15 @@ class DebtTelegramBot:
                         text=message,
                         parse_mode='HTML'
                     )
-                    logger.info(f"âœ… Admin {admin_id} ga hisobot yuborildi")
+                    logger.info(f"✅ Admin {admin_id} ga hisobot yuborildi")
                 except Exception as e:
-                    logger.error(f"âŒ Admin {admin_id} ga yuborishda xatolik: {e}")
+                    logger.error(f"❌ Admin {admin_id} ga yuborishda xatolik: {e}")
                     success = False
 
             return success
 
         except Exception as e:
-            logger.error(f"âŒ Admin hisobotida xatolik: {e}")
+            logger.error(f"❌ Admin hisobotida xatolik: {e}")
             return False
 
     async def send_daily_summary(
@@ -774,13 +774,13 @@ class DebtTelegramBot:
 
         try:
             message = (
-                f"ğŸ“Š <b>KUNLIK HISOBOT</b>\n"
-                f"ğŸ“… {datetime.now().strftime('%d.%m.%Y')}\n\n"
-                f"ğŸ‘¥ Jami qarzlar: {total_debts} ta\n"
-                f"ğŸ’µ Umumiy: ${total_amount_usd:,.2f}\n"
-                f"ğŸ’¸ Umumiy: {total_amount_uzs:,.0f} so'm\n\n"
-                f"ğŸ“ˆ Bugun yangi: {new_debts} ta\n"
-                f"âœ… Bugun to'landi: {paid_today} ta\n"
+                f"📊 <b>KUNLIK HISOBOT</b>\n"
+                f"📅 {datetime.now().strftime('%d.%m.%Y')}\n\n"
+                f"👥 Jami qarzlar: {total_debts} ta\n"
+                f"💵 Umumiy: ${total_amount_usd:,.2f}\n"
+                f"💸 Umumiy: {total_amount_uzs:,.0f} so'm\n\n"
+                f"📈 Bugun yangi: {new_debts} ta\n"
+                f"✅ Bugun to'landi: {paid_today} ta\n"
             )
 
             for admin_id in self.admin_chat_ids:
@@ -791,12 +791,12 @@ class DebtTelegramBot:
                         parse_mode='HTML'
                     )
                 except Exception as e:
-                    logger.error(f"âŒ Admin {admin_id} ga kunlik hisobot yuborishda xatolik: {e}")
+                    logger.error(f"❌ Admin {admin_id} ga kunlik hisobot yuborishda xatolik: {e}")
 
             return True
 
         except Exception as e:
-            logger.error(f"âŒ Kunlik hisobot yuborishda xatolik: {e}")
+            logger.error(f"❌ Kunlik hisobot yuborishda xatolik: {e}")
             return False
 
 
@@ -815,29 +815,29 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if customer:
                 # Mijoz allaqachon ro'yxatdan o'tgan - tugmalarni ko'rsatish
                 keyboard = [
-                    [KeyboardButton("ğŸ’° Qarzni tekshirish")],
-                    [KeyboardButton("ğŸ“œ To'lov tarixi")]
+                    [KeyboardButton("💰 Qarzni tekshirish")],
+                    [KeyboardButton("📜 To'lov tarixi")]
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
                 await update.message.reply_text(
-                    f"Assalomu alaykum, {customer.name}! ğŸ‘‹\n\n"
+                    f"Assalomu alaykum, {customer.name}! 👋\n\n"
                     f"Xush kelibsiz!\n\n"
                     f"Qarzingizni tekshirish yoki to'lov tarixini ko'rish uchun pastdagi tugmalardan foydalaning:",
                     reply_markup=reply_markup
                 )
                 return
         except Exception as e:
-            logger.error(f"âŒ Start commandda mijozni tekshirishda xatolik: {e}")
+            logger.error(f"❌ Start commandda mijozni tekshirishda xatolik: {e}")
 
     # Yangi mijoz - telefon raqam yuborish tugmasini ko'rsatish
     keyboard = [
-        [KeyboardButton("ğŸ“± Telefon raqamni yuborish", request_contact=True)]
+        [KeyboardButton("📱 Telefon raqamni yuborish", request_contact=True)]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     await update.message.reply_text(
-        "Assalomu alaykum! ğŸ‘‹\n\n"
+        "Assalomu alaykum! 👋\n\n"
         "Bu qarz eslatmalari botidir.\n\n"
         "Qarzingizni tekshirish uchun telefon raqamingizni yuboring.\n\n"
         "Pastdagi tugmani bosing:",
@@ -852,7 +852,7 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     phone_number = contact.phone_number
 
-    logger.info(f"ğŸ“± Contact qabul qilindi: Chat ID {chat_id}, Phone: {phone_number}")
+    logger.info(f"📱 Contact qabul qilindi: Chat ID {chat_id}, Phone: {phone_number}")
 
     await _process_phone_verification(update, chat_id, phone_number)
 
@@ -863,7 +863,7 @@ async def handle_phone_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     phone_number = update.message.text.strip()
 
-    logger.info(f"ğŸ“± Telefon raqam matn sifatida qabul qilindi: Chat ID {chat_id}, Phone: {phone_number}")
+    logger.info(f"📱 Telefon raqam matn sifatida qabul qilindi: Chat ID {chat_id}, Phone: {phone_number}")
 
     await _process_phone_verification(update, chat_id, phone_number)
 
@@ -874,7 +874,7 @@ async def _process_phone_verification(update, chat_id, phone_number):
     # Telefon raqamni tozalash
     phone = ''.join(filter(str.isdigit, phone_number))
 
-    logger.info(f"ğŸ” Telefon qidirish: tozalangan raqam: {phone}")
+    logger.info(f"🔍 Telefon qidirish: tozalangan raqam: {phone}")
 
     with app.app_context():
         try:
@@ -882,7 +882,7 @@ async def _process_phone_verification(update, chat_id, phone_number):
             customer = None
             all_customers = Customer.query.all()
 
-            logger.info(f"ğŸ“Š Jami mijozlar soni: {len(all_customers)}")
+            logger.info(f"📊 Jami mijozlar soni: {len(all_customers)}")
 
             for cust in all_customers:
                 if cust.phone:
@@ -891,13 +891,13 @@ async def _process_phone_verification(update, chat_id, phone_number):
                     if len(phone) >= 9 and len(clean_db_phone) >= 9:
                         if clean_db_phone[-9:] == phone[-9:]:
                             customer = cust
-                            logger.info(f"âœ… Mijoz topildi: {customer.name} (ID: {customer.id}, Tel: {customer.phone})")
+                            logger.info(f"✅ Mijoz topildi: {customer.name} (ID: {customer.id}, Tel: {customer.phone})")
                             break
 
             if not customer:
-                logger.warning(f"âŒ Mijoz topilmadi: {phone_number}")
+                logger.warning(f"❌ Mijoz topilmadi: {phone_number}")
                 await update.message.reply_text(
-                    "âŒ Sizning raqamingiz tizimda topilmadi.\n\n"
+                    "❌ Sizning raqamingiz tizimda topilmadi.\n\n"
                     "Iltimos:\n"
                     "1. Raqamingizni to'g'ri yuborganingizni tekshiring\n"
                     "2. Yoki do'konga murojaat qiling\n\n"
@@ -914,26 +914,26 @@ async def _process_phone_verification(update, chat_id, phone_number):
                 'phone': phone_number
             }
 
-            logger.info(f"ğŸ” Tasdiqlash kodi yaratildi: {verification_code} mijoz {customer.name} (ID: {customer.id}) uchun")
-            logger.info(f"ğŸ“ Verification codes dictionary: {verification_codes}")
+            logger.info(f"🔐 Tasdiqlash kodi yaratildi: {verification_code} mijoz {customer.name} (ID: {customer.id}) uchun")
+            logger.info(f"📝 Verification codes dictionary: {verification_codes}")
 
             # Tasdiqlash kodini yuborish - yanada aniq ko'rsatmalar bilan
             await update.message.reply_text(
-                f"âœ… Telefon raqam qabul qilindi!\n\n"
+                f"✅ Telefon raqam qabul qilindi!\n\n"
                 f"Hurmatli <b>{customer.name}</b>!\n\n"
                 f"Tasdiqlash uchun quyidagi 6 raqamli kodni kiriting:\n\n"
-                f"ğŸ” <b><code>{verification_code}</code></b>\n\n"
-                f"ğŸ’¡ Kodni ko'chirib oling va menga yuboring.",
+                f"🔐 <b><code>{verification_code}</code></b>\n\n"
+                f"💡 Kodni ko'chirib oling va menga yuboring.",
                 parse_mode='HTML',
                 reply_markup=ReplyKeyboardRemove()
             )
 
-            logger.info(f"â¡ï¸ Tasdiqlash kodi yuborildi Chat ID {chat_id} ga")
+            logger.info(f"➡️ Tasdiqlash kodi yuborildi Chat ID {chat_id} ga")
 
         except Exception as e:
-            logger.error(f"âŒ Telefon tekshirishda xatolik: {e}", exc_info=True)
+            logger.error(f"❌ Telefon tekshirishda xatolik: {e}", exc_info=True)
             await update.message.reply_text(
-                "âŒ Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.\n\n"
+                "❌ Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.\n\n"
                 "/start buyrug'ini boshing.",
                 reply_markup=ReplyKeyboardRemove()
             )
@@ -945,32 +945,32 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
     chat_id = update.effective_chat.id
     code = update.message.text.strip()
 
-    logger.info(f"ğŸ“¥ Kiritilgan kod: '{code}' Chat ID: {chat_id}")
+    logger.info(f"📥 Kiritilgan kod: '{code}' Chat ID: {chat_id}")
 
     # Kod formatini tekshirish (6 ta raqam)
     if not code.isdigit() or len(code) != 6:
-        logger.info(f"âš ï¸ Noto'g'ri kod formati: '{code}'")
+        logger.info(f"⚠️ Noto'g'ri kod formati: '{code}'")
         return
 
     # Tasdiqlash kodini tekshirish
     if chat_id not in verification_codes:
-        logger.warning(f"âš ï¸ Chat ID {chat_id} uchun tasdiqlash kodi topilmadi")
-        logger.info(f"ğŸ“ Mavjud verification codes: {list(verification_codes.keys())}")
+        logger.warning(f"⚠️ Chat ID {chat_id} uchun tasdiqlash kodi topilmadi")
+        logger.info(f"📝 Mavjud verification codes: {list(verification_codes.keys())}")
 
         await update.message.reply_text(
-            "âŒ Tasdiqlash kodi topilmadi.\n\n"
+            "❌ Tasdiqlash kodi topilmadi.\n\n"
             "Iltimos, avval telefon raqamingizni yuboring:\n\n"
             "/start buyrug'ini bosing."
         )
         return
 
     saved_data = verification_codes[chat_id]
-    logger.info(f"ğŸ” Saqlangan kod: {saved_data['code']}, Kiritilgan kod: {code}")
+    logger.info(f"🔍 Saqlangan kod: {saved_data['code']}, Kiritilgan kod: {code}")
 
     if saved_data['code'] != code:
-        logger.warning(f"âŒ Noto'g'ri kod kiritildi. Kutilgan: {saved_data['code']}, Kiritildi: {code}")
+        logger.warning(f"❌ Noto'g'ri kod kiritildi. Kutilgan: {saved_data['code']}, Kiritildi: {code}")
         await update.message.reply_text(
-            "âŒ Noto'g'ri tasdiqlash kodi!\n\n"
+            "❌ Noto'g'ri tasdiqlash kodi!\n\n"
             "Iltimos, yuborilgan 6 raqamli kodni to'g'ri kiriting.\n\n"
             "Agar kod yo'qolgan bo'lsa, /start dan qayta boshlang."
         )
@@ -985,14 +985,14 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
         try:
             customer = Customer.query.get(customer_id)
             if not customer:
-                await update.message.reply_text("âŒ Xatolik: Mijoz topilmadi")
+                await update.message.reply_text("❌ Xatolik: Mijoz topilmadi")
                 return
 
             # Telegram chat ID ni saqlash
             customer.telegram_chat_id = chat_id
             db.session.commit()
 
-            logger.info(f"âœ… Mijoz tasdiqlandi va telegram_chat_id saqlandi: {customer.name} (Chat ID: {chat_id})")
+            logger.info(f"✅ Mijoz tasdiqlandi va telegram_chat_id saqlandi: {customer.name} (Chat ID: {chat_id})")
 
             # Tasdiqlash kodini o'chirish
             del verification_codes[chat_id]
@@ -1014,17 +1014,17 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
 
             # Doimiy tugmalarni tayyorlash
             keyboard = [
-                [KeyboardButton("ğŸ’° Qarzni tekshirish")],
-                [KeyboardButton("ğŸ“œ To'lov tarixi")]
+                [KeyboardButton("💰 Qarzni tekshirish")],
+                [KeyboardButton("📜 To'lov tarixi")]
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
             if not debts:
                 await update.message.reply_text(
-                    f"âœ… Tasdiqlash muvaffaqiyatli!\n\n"
+                    f"✅ Tasdiqlash muvaffaqiyatli!\n\n"
                     f"Assalomu alaykum, {customer.name}!\n\n"
-                    f"ğŸ‰ Sizda qarz yo'q!\n\n"
-                    "Rahmat! ğŸ™",
+                    f"🎉 Sizda qarz yo'q!\n\n"
+                    "Rahmat! 🙏",
                     reply_markup=reply_markup
                 )
                 return
@@ -1037,26 +1037,26 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 total_usd += debt_usd
 
             message = (
-                f"âœ… Tasdiqlash muvaffaqiyatli!\n\n"
+                f"✅ Tasdiqlash muvaffaqiyatli!\n\n"
                 f"Assalomu alaykum, {customer.name}!\n\n"
-                f"ğŸ’° <b>Sizning qarzingiz:</b>\n\n"
-                f"ğŸ’¸ ${total_usd:,.2f}\n\n"
+                f"💰 <b>Sizning qarzingiz:</b>\n\n"
+                f"💸 ${total_usd:,.2f}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang.\n"
-                "Rahmat! ğŸ™"
+                "Rahmat! 🙏"
             )
 
             # Doimiy tugmalarni ko'rsatish
             keyboard = [
-                [KeyboardButton("ğŸ’° Qarzni tekshirish")],
-                [KeyboardButton("ğŸ“œ To'lov tarixi")]
+                [KeyboardButton("💰 Qarzni tekshirish")],
+                [KeyboardButton("📜 To'lov tarixi")]
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
             await update.message.reply_text(message, parse_mode='HTML', reply_markup=reply_markup)
 
         except Exception as e:
-            logger.error(f"âŒ Tasdiqlashda xatolik: {e}")
-            await update.message.reply_text("âŒ Xatolik yuz berdi")
+            logger.error(f"❌ Tasdiqlashda xatolik: {e}")
+            await update.message.reply_text("❌ Xatolik yuz berdi")
 
 async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Qarzni tekshirish tugmasi bosilganda"""
@@ -1072,12 +1072,12 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not customer:
                 # Telefon raqam tugmasini ko'rsatish
                 keyboard = [
-                    [KeyboardButton("ğŸ“± Telefon raqamni yuborish", request_contact=True)]
+                    [KeyboardButton("📱 Telefon raqamni yuborish", request_contact=True)]
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
                 await update.message.reply_text(
-                    "âŒ Siz hali ro'yxatdan o'tmagansiz.\n\n"
+                    "❌ Siz hali ro'yxatdan o'tmagansiz.\n\n"
                     "Iltimos, telefon raqamingizni yuboring:",
                     reply_markup=reply_markup
                 )
@@ -1095,8 +1095,8 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not debts_result or not debts_result.total_debt_usd or debts_result.total_debt_usd <= 0:
                 await update.message.reply_text(
                     f"Assalomu alaykum, {customer.name}!\n\n"
-                    f"ğŸ‰ Sizda qarz yo'q!\n\n"
-                    "Rahmat! ğŸ™"
+                    f"🎉 Sizda qarz yo'q!\n\n"
+                    "Rahmat! 🙏"
                 )
                 return
 
@@ -1105,17 +1105,17 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             message = (
                 f"Assalomu alaykum, {customer.name}!\n\n"
-                f"ğŸ’° <b>Sizning jami qarzingiz:</b>\n\n"
-                f"ğŸ’¸ ${total_debt_usd:,.2f}\n\n"
+                f"💰 <b>Sizning jami qarzingiz:</b>\n\n"
+                f"💸 ${total_debt_usd:,.2f}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang.\n"
-                "Rahmat! ğŸ™"
+                "Rahmat! 🙏"
             )
 
             await update.message.reply_text(message, parse_mode='HTML')
 
         except Exception as e:
-            logger.error(f"âŒ Qarzni tekshirishda xatolik: {e}")
-            await update.message.reply_text("âŒ Xatolik yuz berdi")
+            logger.error(f"❌ Qarzni tekshirishda xatolik: {e}")
+            await update.message.reply_text("❌ Xatolik yuz berdi")
 
 async def payment_history_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """To'lov tarixi tugmasi bosilganda"""
@@ -1131,12 +1131,12 @@ async def payment_history_button(update: Update, context: ContextTypes.DEFAULT_T
             if not customer:
                 # Telefon raqam tugmasini ko'rsatish
                 keyboard = [
-                    [KeyboardButton("ğŸ“± Telefon raqamni yuborish", request_contact=True)]
+                    [KeyboardButton("📱 Telefon raqamni yuborish", request_contact=True)]
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
                 await update.message.reply_text(
-                    "âŒ Siz hali ro'yxatdan o'tmagansiz.\n\n"
+                    "❌ Siz hali ro'yxatdan o'tmagansiz.\n\n"
                     "Iltimos, telefon raqamingizni yuboring:",
                     reply_markup=reply_markup
                 )
@@ -1152,14 +1152,14 @@ async def payment_history_button(update: Update, context: ContextTypes.DEFAULT_T
             if not payments:
                 await update.message.reply_text(
                     f"Assalomu alaykum, {customer.name}!\n\n"
-                    f"ğŸ“œ To'lov tarixingiz topilmadi.\n\n"
+                    f"📜 To'lov tarixingiz topilmadi.\n\n"
                     f"Siz hali qarz to'lamagan yoki to'lovlar qayd qilinmagan."
                 )
                 return
 
             # To'lov tarixini formatlash (USD)
             message = (
-                f"ğŸ“œ <b>To'lov tarixi</b>\n"
+                f"📜 <b>To'lov tarixi</b>\n"
                 f"Mijoz: {customer.name}\n\n"
             )
 
@@ -1168,33 +1168,33 @@ async def payment_history_button(update: Update, context: ContextTypes.DEFAULT_T
                 payment_usd = float(payment.total_usd or 0)
 
                 message += f"<b>{idx}.</b> {payment_datetime}\n"
-                message += f"ğŸ’° ${payment_usd:,.2f}\n"
+                message += f"💰 ${payment_usd:,.2f}\n"
 
                 # To'lov turlarini USD da alohida qatorlarda ko'rsatish
                 if float(payment.cash_usd or 0) > 0:
-                    message += f"   ğŸ’µ Naqd: ${float(payment.cash_usd):,.2f}\n"
+                    message += f"   💵 Naqd: ${float(payment.cash_usd):,.2f}\n"
                 if float(payment.click_usd or 0) > 0:
-                    message += f"   ğŸ“± Click: ${float(payment.click_usd):,.2f}\n"
+                    message += f"   📱 Click: ${float(payment.click_usd):,.2f}\n"
                 if float(payment.terminal_usd or 0) > 0:
-                    message += f"   ğŸ’³ Terminal: ${float(payment.terminal_usd):,.2f}\n"
+                    message += f"   💳 Terminal: ${float(payment.terminal_usd):,.2f}\n"
 
                 if payment.notes:
-                    message += f"ğŸ“ {payment.notes}\n"
+                    message += f"📝 {payment.notes}\n"
 
                 message += "\n"
 
-            message += "Rahmat! ğŸ™"
+            message += "Rahmat! 🙏"
 
             await update.message.reply_text(message, parse_mode='HTML')
 
         except Exception as e:
-            logger.error(f"âŒ To'lov tarixini olishda xatolik: {e}")
-            await update.message.reply_text("âŒ Xatolik yuz berdi")
+            logger.error(f"❌ To'lov tarixini olishda xatolik: {e}")
+            await update.message.reply_text("❌ Xatolik yuz berdi")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Help command handler"""
     await update.message.reply_text(
-        "ğŸ“± <b>Bot buyruqlari:</b>\n\n"
+        "📱 <b>Bot buyruqlari:</b>\n\n"
         "/start - Botni boshlash\n"
         "/help - Yordam\n"
         "/mydebt - Qarzimni ko'rish\n\n"
@@ -1207,7 +1207,7 @@ async def my_debt_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
 
     await update.message.reply_text(
-        "ğŸ“± Qarzingizni tekshirish uchun telefon raqamingizni yuboring.\n\n"
+        "📱 Qarzingizni tekshirish uchun telefon raqamingizni yuboring.\n\n"
         "Format: +998901234567\n"
         "yoki: 998901234567\n"
         "yoki: 901234567"
@@ -1223,7 +1223,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
     # Telefon raqamni tozalash
     phone = ''.join(filter(str.isdigit, message_text))
 
-    logger.info(f"ğŸ“± Telefon qidirish: Chat ID {chat_id}, Kiritilgan: '{message_text}', Tozalangan: '{phone}'")
+    logger.info(f"📱 Telefon qidirish: Chat ID {chat_id}, Kiritilgan: '{message_text}', Tozalangan: '{phone}'")
 
     # Turli formatlarni qabul qilish
     possible_phones = []
@@ -1238,7 +1238,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
     else:
         possible_phones.append(message_text)
 
-    logger.info(f"ğŸ” Qidirilayotgan formatlar: {possible_phones}")
+    logger.info(f"🔍 Qidirilayotgan formatlar: {possible_phones}")
 
     with app.app_context():
         try:
@@ -1255,7 +1255,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                     )
                 ).first()
                 if customer:
-                    logger.info(f"âœ… Mijoz topildi (to'g'ridan-to'g'ri): {customer.name} (ID: {customer.id}, Phone DB: '{customer.phone}')")
+                    logger.info(f"✅ Mijoz topildi (to'g'ridan-to'g'ri): {customer.name} (ID: {customer.id}, Phone DB: '{customer.phone}')")
                     break
 
             # Agar topilmasa, barcha mijozlarni sanab chiqib, telefon raqamlarni tozalab qidirish
@@ -1269,12 +1269,12 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                         # Oxirgi 9 raqamni solishtirish
                         if clean_db_phone[-9:] == phone[-9:]:
                             customer = cust
-                            logger.info(f"âœ… Mijoz topildi (tozalab): {customer.name} (ID: {customer.id}, Phone DB: '{customer.phone}', Clean: '{clean_db_phone}')")
+                            logger.info(f"✅ Mijoz topildi (tozalab): {customer.name} (ID: {customer.id}, Phone DB: '{customer.phone}', Clean: '{clean_db_phone}')")
                             break
 
             if not customer:
                 await update.message.reply_text(
-                    "âŒ Sizning raqamingiz tizimda topilmadi.\n\n"
+                    "❌ Sizning raqamingiz tizimda topilmadi.\n\n"
                     "Iltimos, to'g'ri telefon raqam kiriting yoki "
                     "do'konga murojaat qiling."
                 )
@@ -1302,9 +1302,9 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
 
             if not debts:
                 await update.message.reply_text(
-                    f"âœ… Assalomu alaykum, {customer.name}!\n\n"
-                    f"ğŸ‰ Sizda qarz yo'q!\n\n"
-                    "Rahmat! ğŸ™"
+                    f"✅ Assalomu alaykum, {customer.name}!\n\n"
+                    f"🎉 Sizda qarz yo'q!\n\n"
+                    "Rahmat! 🙏"
                 )
                 return
 
@@ -1331,12 +1331,12 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                     location_name = warehouse.name if warehouse else "Ombor"
 
                 debt_details.append(
-                    f"ğŸ“ {location_name}\n"
-                    f"   ï¿½ {debt_uzs:,.0f} so'm"
+                    f"📍 {location_name}\n"
+                    f"   � {debt_uzs:,.0f} so'm"
                 )
 
             message = (
-                f"ğŸ’° <b>QARZ MA'LUMOTLARI</b>\n\n"
+                f"💰 <b>QARZ MA'LUMOTLARI</b>\n\n"
                 f"Hurmatli {customer.name}!\n\n"
             )
 
@@ -1344,36 +1344,36 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                 message += "<b>Qarzlar ro'yxati:</b>\n\n"
                 message += "\n\n".join(debt_details)
                 message += (
-                    f"\n\nâ”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+                    f"\n\n━━━━━━━━━━━━━━━━━━━\n"
                     f"<b>JAMI:</b>\n"
-                    f"ğŸ’¸ {total_uzs:,.0f} so'm\n\n"
+                    f"💸 {total_uzs:,.0f} so'm\n\n"
                 )
             else:
                 message += debt_details[0] + "\n\n"
 
             message += (
                 "Iltimos, qarzingizni to'lashni unutmang.\n"
-                "Rahmat! ğŸ™"
+                "Rahmat! 🙏"
             )
 
             await update.message.reply_text(message, parse_mode='HTML')
 
         except Exception as e:
-            logger.error(f"âŒ Qarz tekshirishda xatolik: {e}")
+            logger.error(f"❌ Qarz tekshirishda xatolik: {e}")
             await update.message.reply_text(
-                "âŒ Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring."
+                "❌ Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring."
             )
 
 async def handle_unknown_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Noma'lum xabarlarga javob berish - faqat tugmalardan foydalanishni tavsiya qilish"""
     keyboard = [
-        [KeyboardButton("ğŸ’° Qarzni tekshirish")],
-        [KeyboardButton("ğŸ“œ To'lov tarixi")]
+        [KeyboardButton("💰 Qarzni tekshirish")],
+        [KeyboardButton("📜 To'lov tarixi")]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     await update.message.reply_text(
-        "âš ï¸ Iltimos, quyidagi tugmalardan foydalaning:",
+        "⚠️ Iltimos, quyidagi tugmalardan foydalaning:",
         reply_markup=reply_markup
     )
 
@@ -1382,7 +1382,7 @@ def create_telegram_app():
     """Telegram Application yaratish"""
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     if not token:
-        logger.error("âŒ TELEGRAM_BOT_TOKEN topilmadi")
+        logger.error("❌ TELEGRAM_BOT_TOKEN topilmadi")
         return None
 
     try:
@@ -1400,7 +1400,7 @@ def create_telegram_app():
         # "Qarzni tekshirish" tugmasi handler
         application.add_handler(
             MessageHandler(
-                filters.TEXT & filters.Regex(r'^ğŸ’° Qarzni tekshirish$'),
+                filters.TEXT & filters.Regex(r'^💰 Qarzni tekshirish$'),
                 check_debt_button
             )
         )
@@ -1408,7 +1408,7 @@ def create_telegram_app():
         # "To'lov tarixi" tugmasi handler
         application.add_handler(
             MessageHandler(
-                filters.TEXT & filters.Regex(r'^ğŸ“œ To\'lov tarixi$'),
+                filters.TEXT & filters.Regex(r'^📜 To\'lov tarixi$'),
                 payment_history_button
             )
         )
@@ -1432,16 +1432,16 @@ def create_telegram_app():
         # Message handler - oddiy xabarlarni rad etish (faqat tugmalardan foydalanish)
         application.add_handler(
             MessageHandler(
-                filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^\d{6}$') & ~filters.Regex(r'^ğŸ’° Qarzni tekshirish$') & ~filters.Regex(r'^ğŸ“œ To\'lov tarixi$') & ~filters.Regex(r'^\+?998?\d{9}$|^\d{9}$'),
+                filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^\d{6}$') & ~filters.Regex(r'^💰 Qarzni tekshirish$') & ~filters.Regex(r'^📜 To\'lov tarixi$') & ~filters.Regex(r'^\+?998?\d{9}$|^\d{9}$'),
                 handle_unknown_message
             )
         )
 
-        logger.info("âœ… Telegram application yaratildi")
+        logger.info("✅ Telegram application yaratildi")
         return application
 
     except Exception as e:
-        logger.error(f"âŒ Telegram application yaratishda xatolik: {e}")
+        logger.error(f"❌ Telegram application yaratishda xatolik: {e}")
         return None
 
 
@@ -1478,7 +1478,7 @@ if __name__ == "__main__":
             sale_date=datetime.now()
         )
 
-        print("âœ… Test xabar yuborildi")
+        print("✅ Test xabar yuborildi")
 
     # asyncio.run(test_bot())
-    print("âš ï¸ Test uchun chat_id ni o'zgartiring va ishga tushiring")
+    print("⚠️ Test uchun chat_id ni o'zgartiring va ishga tushiring")
