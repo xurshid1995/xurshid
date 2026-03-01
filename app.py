@@ -10523,10 +10523,12 @@ def create_sale():
                             'name': item.product.name if item.product else 'Mahsulot',
                             'seller_name': seller_name,
                             'quantity': float(item.quantity),
-                            'unit_price': float(item.unit_price) * tg_exchange_rate,
-                            'total': float(item.total_price) * tg_exchange_rate,
+                            'unit_price_uzs': float(item.unit_price) * tg_exchange_rate,
+                            'total_uzs': float(item.total_price) * tg_exchange_rate,
                             'unit_price_usd': float(item.unit_price),
-                            'total_usd': float(item.total_price)
+                            'total_usd': float(item.total_price),
+                            'unit_price': float(item.unit_price) * tg_exchange_rate,  # Backward compatibility
+                            'total': float(item.total_price) * tg_exchange_rate  # Backward compatibility
                         })
 
                     # Telegram xabar yuborish
