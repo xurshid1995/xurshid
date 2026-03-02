@@ -771,38 +771,6 @@
         </div>
     </div>
 
-    <!-- Transfer tarixi jadvali -->
-    <div style="margin-top: 30px; padding: 20px;">
-        <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #dee2e6;">
-                <h2 style="margin: 0; color: #333; font-size: 20px;">📋 Transfer Tarixi</h2>
-                <button class="btn" onclick="loadTransferHistory()" style="background: #667eea; color: white; padding: 8px 16px; font-size: 14px;">🔄 Yangilash</button>
-            </div>
-            
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                    <thead>
-                        <tr style="background: #5DADE2;">
-                            <th style="padding: 12px; text-align: left; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Sana</th>
-                            <th style="padding: 12px; text-align: left; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Qayerdan</th>
-                            <th style="padding: 12px; text-align: left; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Qayerga</th>
-                            <th style="padding: 12px; text-align: left; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Mahsulotlar</th>
-                            <th style="padding: 12px; text-align: center; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Jami</th>
-                            <th style="padding: 12px; text-align: left; color: white; font-weight: 600; border-bottom: 2px solid #dee2e6;">Foydalanuvchi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transferHistoryBody">
-                        <tr>
-                            <td colspan="6" style="padding: 40px; text-align: center; color: #999;">
-                                <div style="font-size: 48px; margin-bottom: 10px;">⏳</div>
-                                <div>Yuklanmoqda...</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Modal oyna - Miqdor kiritish -->
@@ -2146,8 +2114,7 @@
                 updateTransferListDisplay();
                 loadProducts();
                 
-                // Transfer tarixini yangilash
-                loadTransferHistory();
+
                 
                 // Tasdiqlanmagan transferni o'chirish
                 await deletePendingTransfer();
@@ -2175,64 +2142,9 @@
         }
     }
 
-    // Transfer tarixini yuklash
-    async function loadTransferHistory() {
-        const tbody = document.getElementById('transferHistoryBody');
-        tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 10px;">⏳</div><div>Yuklanmoqda...</div></td></tr>';
-        
-        try {
-            const response = await fetch('/api/transfer-history?limit=50');
-            const data = await response.json();
-            
-            if (!data.transfers || data.transfers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 10px;">📋</div><div>Transfer tarixi yo\'q</div></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = '';
-            data.transfers.forEach(transfer => {
-                const row = document.createElement('tr');
-                row.style.borderBottom = '1px solid #f0f0f0';
-                
-                // Sana formatlash
-                const date = new Date(transfer.created_at);
-                const dateStr = date.toLocaleString('uz-UZ', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                // Mahsulotlar ro'yxati
-                const productsText = transfer.products.map(p => 
-                    `${p.name} (${p.quantity} dona)`
-                ).join(', ');
-                
-                const totalQuantity = transfer.products.reduce((sum, p) => sum + p.quantity, 0);
-                
-                row.innerHTML = `
-                    <td style="padding: 12px; color: #666;">${dateStr}</td>
-                    <td style="padding: 12px; color: #333; font-weight: 500;">${transfer.from_location}</td>
-                    <td style="padding: 12px; color: #333; font-weight: 500;">${transfer.to_location}</td>
-                    <td style="padding: 12px; color: #666; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productsText}">${productsText}</td>
-                    <td style="padding: 12px; text-align: center;"><span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 600;">${totalQuantity}</span></td>
-                    <td style="padding: 12px; color: #666;">${transfer.user_name || 'N/A'}</td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            console.log(`✅ ${data.transfers.length} ta transfer tarixi yuklandi`);
-        } catch (error) {
-            console.error('Transfer tarixini yuklashda xatolik:', error);
-            tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #dc3545;"><div style="font-size: 48px; margin-bottom: 10px;">⚠️</div><div>Xatolik yuz berdi</div></td></tr>';
-        }
-    }
-
     // Sahifa yuklanganda
     document.addEventListener('DOMContentLoaded', async function() {
         await loadLocations(); // Joylashuvlarni avval yuklash
-        loadTransferHistory(); // Transfer tarixini yuklash
         
         // URL parametrlarini tekshirish
         const urlParams = new URLSearchParams(window.location.search);
