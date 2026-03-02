@@ -780,6 +780,9 @@ class HostingPaymentBot:
                 )
                 self.db.session.add(payment)
 
+                # Balansni yangilash
+                client.balance = (client.balance or Decimal('0')) + Decimal(str(total_amount))
+
                 # Server yoqish (agar o'chiq bo'lsa)
                 server_msg = ""
                 if client.droplet_id:
@@ -1286,6 +1289,9 @@ class HostingPaymentBot:
                 notes=f"Buyurtma #{order_code} orqali tasdiqlangan"
             )
             self.db.session.add(payment)
+
+            # Balansni yangilash
+            client.balance = (client.balance or Decimal('0')) + order.amount_uzs
 
             # Order ni yangilash
             order.status = 'approved'

@@ -1620,6 +1620,7 @@ class HostingClient(db.Model):
     # To'lov ma'lumotlari
     monthly_price_uzs = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     payment_day = db.Column(db.Integer, default=1)  # Oyning nechanchi kuni to'laydi
+    balance = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)  # Mijoz balansi
 
     # Holat
     is_active = db.Column(db.Boolean, default=True)
@@ -1649,6 +1650,7 @@ class HostingClient(db.Model):
             'server_ip': self.server_ip,
             'monthly_price_uzs': float(self.monthly_price_uzs or 0),
             'payment_day': self.payment_day,
+            'balance': float(self.balance or 0),
             'is_active': self.is_active,
             'server_status': self.server_status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -13685,12 +13687,6 @@ def api_hosting_clients():
                 data['days_left'] = None
                 data['payment_status'] = 'never_paid'
 
-            # Jami to'langan summa (balans)
-            total_paid = db.session.query(
-                db.func.coalesce(db.func.sum(HostingPayment.amount_uzs), 0)
-            ).filter(HostingPayment.client_id == c.id).scalar()
-            data['balance'] = float(total_paid)
-
             # Pending buyurtmalar soni
             pending_count = HostingPaymentOrder.query.filter(
                 HostingPaymentOrder.client_id == c.id,
@@ -13769,6 +13765,8 @@ def api_hosting_client_update(client_id):
             client.is_active = data['is_active']
         if 'notes' in data:
             client.notes = data['notes']
+        if 'balance' in data:
+            client.balance = Decimal(str(data['balance']))
 
         db.session.commit()
         return jsonify({'success': True, 'client': client.to_dict()})
@@ -13854,6 +13852,9 @@ def api_hosting_order_approve(order_id):
             confirmed_by=session.get('user_name', 'admin')
         )
         db.session.add(payment)
+
+        # Balansni yangilash
+        client.balance = (client.balance or Decimal('0')) + order.amount_uzs
 
         order.status = 'approved'
         order.approved_at = now
@@ -13942,6 +13943,10 @@ def api_hosting_payment_manual():
             notes=data.get('notes', 'Qo\'lda qo\'shildi')
         )
         db.session.add(payment)
+
+        # Balansni yangilash
+        client.balance = (client.balance or Decimal('0')) + Decimal(str(data['amount_uzs']))
+
         db.session.commit()
 
         return jsonify({'success': True, 'payment': payment.to_dict()})

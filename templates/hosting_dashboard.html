@@ -267,6 +267,11 @@
             <textarea id="client-notes" placeholder="Qo'shimcha ma'lumot"></textarea>
         </div>
 
+        <div class="form-group">
+            <label>Balans (so'm)</label>
+            <input type="number" id="client-balance" placeholder="0" step="0.01">
+        </div>
+
         <div class="modal-actions">
             <button class="btn-hosting btn-outline" onclick="closeClientModal()">Bekor qilish</button>
             <button class="btn-hosting btn-primary" onclick="saveClient()">💾 Saqlash</button>
@@ -384,7 +389,11 @@ async function loadClients() {
                 <td class="money">${formatMoney(c.monthly_price_uzs)}</td>
                 <td>${statusBadge}</td>
                 <td>${payBadge}</td>
-                <td class="money">${formatMoney(c.balance || 0)}</td>
+                <td class="money">
+                    <span class="editable-balance" onclick="editBalance(${c.id}, ${c.balance || 0})" title="Bosib tahrirlash" style="cursor:pointer; border-bottom: 1px dashed #667eea; color: #667eea;">
+                        ${formatMoney(c.balance || 0)}
+                    </span>
+                </td>
                 <td>
                     <button class="btn-hosting btn-sm btn-outline" onclick="editClient(${c.id})" title="Tahrirlash">
                         <i class="fas fa-edit"></i>
@@ -481,6 +490,29 @@ async function loadPayments() {
 // TAB SWITCHING
 // ==========================================
 
+async function editBalance(clientId, currentBalance) {
+    const newBalance = prompt('Yangi balans (so\'m):', currentBalance);
+    if (newBalance === null) return;
+    const val = parseFloat(newBalance);
+    if (isNaN(val)) { alert('Noto\'g\'ri summa!'); return; }
+    try {
+        const res = await fetch(`/api/hosting/clients/${clientId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ balance: val })
+        });
+        const data = await res.json();
+        if (data.success) {
+            loadClients();
+            loadStats();
+        } else {
+            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+        }
+    } catch (e) {
+        alert('Xatolik: ' + e.message);
+    }
+}
+
 function switchTab(tab) {
     document.querySelectorAll('.hosting-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -512,6 +544,7 @@ function showAddClientModal() {
     document.getElementById('client-price').value = '';
     document.getElementById('client-payment-day').value = '1';
     document.getElementById('client-notes').value = '';
+    document.getElementById('client-balance').value = '';
     document.getElementById('clientModal').classList.add('show');
 }
 
@@ -536,6 +569,7 @@ async function editClient(id) {
         document.getElementById('client-price').value = c.monthly_price_uzs || '';
         document.getElementById('client-payment-day').value = c.payment_day || 1;
         document.getElementById('client-notes').value = c.notes || '';
+        document.getElementById('client-balance').value = c.balance || 0;
         document.getElementById('clientModal').classList.add('show');
     } catch (e) {
         alert('Xatolik: ' + e.message);
@@ -558,7 +592,8 @@ async function saveClient() {
         server_ip: document.getElementById('client-server-ip').value.trim() || null,
         monthly_price_uzs: parseFloat(document.getElementById('client-price').value) || 0,
         payment_day: parseInt(document.getElementById('client-payment-day').value) || 1,
-        notes: document.getElementById('client-notes').value.trim() || null
+        notes: document.getElementById('client-notes').value.trim() || null,
+        balance: parseFloat(document.getElementById('client-balance').value) || 0
     };
 
     if (!data.name) { alert('Ism kiritilmagan!'); return; }
