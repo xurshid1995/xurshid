@@ -2721,14 +2721,18 @@ function generateExcelHTML(sale) {
             <td>${sale.seller_name || 'Admin'}</td>
             <td>${sale.seller_phone || ''}</td>
         </tr>
-        
-        <tr><td colspan="4">&nbsp;</td></tr>
-        
+    </table>
+    <br>
+    <table border="1" width="100%">
+        <col style="width: 50%;">
+        <col style="width: 10%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
         <tr style="background-color: #f0f0f0; font-weight: bold;">
-            <td style="width: 50%;">Mahsulot nomi</td>
-            <td style="width: 10%;">Miqdor</td>
-            <td style="width: 20%;">Birlik narxi ($)</td>
-            <td style="width: 20%;">Jami narx ($)</td>
+            <td>Mahsulot nomi</td>
+            <td>Miqdor</td>
+            <td>Birlik narxi ($)</td>
+            <td>Jami narx ($)</td>
         </tr>`;
     
     // Mahsulotlar
