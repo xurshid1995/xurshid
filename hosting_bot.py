@@ -57,6 +57,9 @@ class HostingPaymentBot:
         self.click_provider_token = os.getenv('CLICK_PROVIDER_TOKEN', '')
         self.payme_provider_token = os.getenv('PAYME_PROVIDER_TOKEN', '')
 
+        # Ixtiyoriy summa kiritish uchun kutish
+        self.waiting_custom_amount = {}  # {chat_id: client_id}
+
         # Card Xabar matching uchun vaqt oynasi (daqiqa)
         self.match_window_minutes = int(os.getenv('PAYMENT_MATCH_WINDOW', '30'))
 
@@ -146,6 +149,9 @@ class HostingPaymentBot:
         """Bot boshlash - /start"""
         chat_id = update.effective_chat.id
         user = update.effective_user
+
+        # Ixtiyoriy summa kutish holatini tozalash
+        self.waiting_custom_amount.pop(chat_id, None)
 
         client = self._get_client_by_chat_id(chat_id)
 
@@ -348,19 +354,33 @@ class HostingPaymentBot:
                 if client:
                     await self._show_payment_method(query.message, client, months, edit=True)
 
-            elif data.startswith("paymethod_card_"):
-                months = int(data.split("_")[2])
+            elif data == "pay_custom_amount":
                 client = self._get_client_by_chat_id(chat_id)
                 if client:
-                    await self._create_payment_order(query.message, client, months, edit=True)
+                    self.waiting_custom_amount[chat_id] = client.id
+                    await query.message.edit_text(
+                        "✏️ Ixtiyoriy to'lov summasi\n\n"
+                        "To'lamoqchi bo'lgan summangizni kiriting (so'mda).\n\n"
+                        "Masalan: 500000 yoki 1000000\n\n"
+                        "❌ Bekor qilish uchun /start bosing"
+                    )
+
+            elif data.startswith("paymethod_card_"):
+                parts = data.split("_")
+                months = int(parts[2])
+                custom_amount = float(parts[3]) if len(parts) > 3 else None
+                client = self._get_client_by_chat_id(chat_id)
+                if client:
+                    await self._create_payment_order(query.message, client, months, edit=True, custom_amount=custom_amount)
 
             elif data.startswith("paymethod_click_") or data.startswith("paymethod_payme_"):
                 parts = data.split("_")
                 provider = parts[1]  # click yoki payme
                 months = int(parts[2])
+                custom_amount = float(parts[3]) if len(parts) > 3 else None
                 client = self._get_client_by_chat_id(chat_id)
                 if client:
-                    await self._send_telegram_invoice(query.message, client, months, provider, context)
+                    await self._send_telegram_invoice(query.message, client, months, provider, context, custom_amount=custom_amount)
 
             elif data.startswith("confirm_paid_"):
                 order_code = data.split("confirm_paid_")[1]
@@ -448,6 +468,8 @@ class HostingPaymentBot:
             label = f"{months} oy - {self._format_money(total)} so'm"
             keyboard.append([InlineKeyboardButton(label, callback_data=f"pay_months_{months}")])
 
+        # Ixtiyoriy summa tugmasi
+        keyboard.append([InlineKeyboardButton("✏️ Boshqa summa kiritish", callback_data="pay_custom_amount")])
         keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data="back_to_menu")])
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -455,7 +477,7 @@ class HostingPaymentBot:
             f"💳 To'lov qilish\n\n"
             f"🖥️ Server: {client.droplet_name or 'N/A'}\n"
             f"💰 Oylik narx: {self._format_money(price)} so'm\n\n"
-            f"Nechi oylik to'laysiz?"
+            f"Nechi oylik to'laysiz yoki ixtiyoriy summa kiriting?"
         )
 
         if edit:
@@ -463,32 +485,38 @@ class HostingPaymentBot:
         else:
             await message.reply_text(text, reply_markup=reply_markup)
 
-    async def _show_payment_method(self, message, client, months: int, edit=False):
+    async def _show_payment_method(self, message, client, months: int, edit=False, custom_amount: float = None):
         """To'lov usulini tanlash - Click, Payme yoki Karta"""
         price = float(client.monthly_price_uzs or 0)
-        total = price * months
+        if custom_amount:
+            total = custom_amount
+        else:
+            total = price * months
 
         keyboard = []
+
+        # custom_amount bo'lsa callback_data ga qo'shamiz
+        amount_suffix = f"_{int(custom_amount)}" if custom_amount else ""
 
         # Click mavjud bo'lsa
         if self.click_provider_token:
             keyboard.append([InlineKeyboardButton(
                 "📱 Click orqali to'lash",
-                callback_data=f"paymethod_click_{months}"
+                callback_data=f"paymethod_click_{months}{amount_suffix}"
             )])
 
         # Payme mavjud bo'lsa
         if self.payme_provider_token:
             keyboard.append([InlineKeyboardButton(
                 "📱 Payme orqali to'lash",
-                callback_data=f"paymethod_payme_{months}"
+                callback_data=f"paymethod_payme_{months}{amount_suffix}"
             )])
 
         # Karta orqali (har doim mavjud)
         if self.card_number:
             keyboard.append([InlineKeyboardButton(
                 "💳 Karta orqali o'tkazish",
-                callback_data=f"paymethod_card_{months}"
+                callback_data=f"paymethod_card_{months}{amount_suffix}"
             )])
 
         keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data="payment_start")])
@@ -496,16 +524,24 @@ class HostingPaymentBot:
 
         # Agar faqat karta mavjud bo'lsa, to'g'ridan-to'g'ri karta sahifasiga o'tish
         if not self.click_provider_token and not self.payme_provider_token:
-            await self._create_payment_order(message, client, months, edit=edit)
+            await self._create_payment_order(message, client, months, edit=edit, custom_amount=custom_amount)
             return
 
-        text = (
-            f"💳 To'lov usulini tanlang\n\n"
-            f"🖥️ Server: {client.droplet_name or 'N/A'}\n"
-            f"📅 Davr: {months} oy\n"
-            f"💰 Summa: {self._format_money(total)} so'm\n\n"
-            f"Quyidagi to'lov usullaridan birini tanlang 👇"
-        )
+        if custom_amount:
+            text = (
+                f"💳 To'lov usulini tanlang\n\n"
+                f"🖥️ Server: {client.droplet_name or 'N/A'}\n"
+                f"💰 Summa: {self._format_money(total)} so'm\n\n"
+                f"Quyidagi to'lov usullaridan birini tanlang 👇"
+            )
+        else:
+            text = (
+                f"💳 To'lov usulini tanlang\n\n"
+                f"🖥️ Server: {client.droplet_name or 'N/A'}\n"
+                f"📅 Davr: {months} oy\n"
+                f"💰 Summa: {self._format_money(total)} so'm\n\n"
+                f"Quyidagi to'lov usullaridan birini tanlang 👇"
+            )
 
         if edit:
             await message.edit_text(text, reply_markup=reply_markup)
@@ -514,13 +550,17 @@ class HostingPaymentBot:
 
     async def _send_telegram_invoice(
         self, message, client, months: int,
-        provider: str, context: ContextTypes.DEFAULT_TYPE
+        provider: str, context: ContextTypes.DEFAULT_TYPE,
+        custom_amount: float = None
     ):
         """Telegram Payments API orqali invoice yuborish (Click/Payme)"""
         from app import HostingPaymentOrder
 
         price = float(client.monthly_price_uzs or 0)
-        total = price * months
+        if custom_amount:
+            total = custom_amount
+        else:
+            total = price * months
         # Telegram UZS uchun tiyinda ishlaydi (1 so'm = 100 tiyin)
         total_tiyin = int(total * 100)
 
@@ -566,15 +606,25 @@ class HostingPaymentBot:
             self.db.session.commit()
 
         # Telegram Invoice yuborish
-        title = f"Hosting - {months} oylik"
-        description = (
-            f"Server: {client.droplet_name or 'N/A'}\n"
-            f"Mijoz: {client.name}\n"
-            f"Davr: {months} oy"
-        )
+        if custom_amount:
+            title = "Hosting to'lov"
+            description = (
+                f"Server: {client.droplet_name or 'N/A'}\n"
+                f"Mijoz: {client.name}\n"
+                f"Summa: {self._format_money(total)} so'm"
+            )
+            label_text = "Hosting to'lov"
+        else:
+            title = f"Hosting - {months} oylik"
+            description = (
+                f"Server: {client.droplet_name or 'N/A'}\n"
+                f"Mijoz: {client.name}\n"
+                f"Davr: {months} oy"
+            )
+            label_text = f"Hosting {months} oy"
 
         prices = [LabeledPrice(
-            label=f"Hosting {months} oy",
+            label=label_text,
             amount=total_tiyin
         )]
 
@@ -793,12 +843,15 @@ class HostingPaymentBot:
                 "⚠️ Ma'lumotlarni saqlashda xatolik. Admin tekshiradi."
             )
 
-    async def _create_payment_order(self, message, client, months: int, edit=False):
+    async def _create_payment_order(self, message, client, months: int, edit=False, custom_amount: float = None):
         """To'lov buyurtmasini yaratish va karta ma'lumotlarini ko'rsatish"""
         from app import HostingPaymentOrder
 
         price = float(client.monthly_price_uzs or 0)
-        total = price * months
+        if custom_amount:
+            total = custom_amount
+        else:
+            total = price * months
 
         with self.app.app_context():
             # Mavjud pending orderni tekshirish
@@ -842,10 +895,12 @@ class HostingPaymentBot:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
+        davr_text = f"📅 Davr: {months} oy" if not custom_amount else "✏️ Ixtiyoriy summa"
+
         text = (
             f"📋 Buyurtma #{order_code}\n\n"
             f"🖥️ Server: {client.droplet_name or 'N/A'}\n"
-            f"📅 Davr: {months} oy\n"
+            f"{davr_text}\n"
             f"💰 Summa: {self._format_money(total)} so'm\n\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
             f"💳 Karta raqami:\n"
@@ -961,14 +1016,66 @@ class HostingPaymentBot:
             await message.reply_text(text, reply_markup=reply_markup)
 
     # ==========================================
+    # IXTIYORIY SUMMA HANDLER
+    # ==========================================
+
+    async def _handle_custom_amount_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE,
+                                          text: str, chat_id: int):
+        """Mijoz ixtiyoriy summa kiritganida"""
+        # Summani parse qilish
+        amount_str = text.replace(' ', '').replace(',', '').replace('.', '').strip()
+
+        # Faqat raqamlarni olish
+        digits = re.sub(r'\D', '', amount_str)
+
+        if not digits:
+            await update.message.reply_text(
+                "❌ Noto'g'ri format. Faqat raqam kiriting.\n\n"
+                "Masalan: 500000 yoki 1 000 000\n\n"
+                "Bekor qilish uchun /start bosing"
+            )
+            return
+
+        amount = int(digits)
+
+        # Minimum summa tekshirish
+        if amount < 1000:
+            await update.message.reply_text(
+                "❌ Summa juda kichik. Kamida 1 000 so'm bo'lishi kerak.\n\n"
+                "Qayta kiriting:"
+            )
+            return
+
+        # Maximum summa tekshirish
+        if amount > 100_000_000:
+            await update.message.reply_text(
+                "❌ Summa juda katta. Maksimum 100 000 000 so'm.\n\n"
+                "Qayta kiriting:"
+            )
+            return
+
+        # Kutish ro'yxatidan o'chirish
+        client_id = self.waiting_custom_amount.pop(chat_id, None)
+
+        client = self._get_client_by_chat_id(chat_id)
+        if not client:
+            await update.message.reply_text("❌ Siz tizimda ro'yxatdan o'tmagansiz.")
+            return
+
+        # To'lov usulini tanlash sahifasiga o'tish
+        await self._show_payment_method(
+            update.message, client, months=0,
+            edit=False, custom_amount=float(amount)
+        )
+
+    # ==========================================
     # CARD XABAR HANDLER
     # ==========================================
 
     async def handle_card_xabar(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
         Card Xabar botdan kelgan xabarni qayta ishlash.
-        Bu xabarni admin o'z chatida forward qiladi yoki
-        bot Card Xabar bilan bir guruhda bo'ladi.
+        Shuningdek, ixtiyoriy summa kiritishni ham boshqaradi.
 
         Card Xabar formati (misol):
         💳 Karta: **** 1234
@@ -978,6 +1085,11 @@ class HostingPaymentBot:
         """
         text = update.message.text or update.message.caption or ''
         chat_id = update.effective_chat.id
+
+        # Ixtiyoriy summa kiritishni tekshirish
+        if chat_id in self.waiting_custom_amount:
+            await self._handle_custom_amount_input(update, context, text, chat_id)
+            return
 
         # Faqat admin chatidan yoki belgilangan chatdan qabul qilish
         if chat_id != self.admin_chat_id and chat_id != self.card_xabar_chat_id:
