@@ -903,7 +903,7 @@
                 {% endif %}
             </div>
             <button onclick="sendBulkDebtTelegram()" class="btn-sms" style="padding: 10px 20px; border-radius: 8px; font-weight: 500;">
-                <img src="https://img.icons8.com/fluency/120/telegram-app.png" alt="Telegram" style="width:20px; height:20px; vertical-align:middle;"> Barchaga Telegram yuborish
+                <img src="https://img.icons8.com/fluency/150/telegram-app.png" alt="Telegram" style="width:20px; height:20px; vertical-align:middle;"> Barchaga Telegram yuborish
             </button>
             <a href="/paid-debts-history" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: 500; text-decoration: none; color: white;">
                 <i class="fas fa-history"></i> Mijozlarni qarz to'lash tarixi
@@ -1366,7 +1366,7 @@
                         <div class="action-buttons">
                             <a href="/debts/customer/${debt.customer_id}" class="btn-view" style="text-decoration: none;">👁️ Ko'rish</a>
                             ${remainingDebt > 0 ? `<button class="btn-pay" onclick="openPaymentModal(${debt.customer_id})">💳 To'lov</button>` : ''}
-                            ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/120/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
+                            ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/150/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -1430,7 +1430,7 @@
                         <div class="action-buttons">
                             <a href="/debts/customer/${debt.customer_id}" class="btn-view" style="text-decoration: none;">👁️ Ko'rish</a>
                             ${remainingDebt > 0 ? `<button class="btn-pay" onclick="openPaymentModal(${debt.customer_id})">💳 To'lov</button>` : ''}
-                            ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/120/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
+                            ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/150/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
                         </div>
                     </td>
                 </tr>
