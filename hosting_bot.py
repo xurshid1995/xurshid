@@ -649,11 +649,17 @@ class HostingPaymentBot:
                     await query.answer(ok=False, error_message="Bu buyurtma allaqachon qayta ishlangan.")
                     return
 
-                if order.expires_at and get_tashkent_time() > order.expires_at:
-                    order.status = 'expired'
-                    self.db.session.commit()
-                    await query.answer(ok=False, error_message="Buyurtma muddati o'tgan.")
-                    return
+                if order.expires_at:
+                    expires = order.expires_at
+                    now = get_tashkent_time()
+                    # timezone-naive vs aware muammosini hal qilish
+                    if expires.tzinfo is None:
+                        expires = TASHKENT_TZ.localize(expires)
+                    if now > expires:
+                        order.status = 'expired'
+                        self.db.session.commit()
+                        await query.answer(ok=False, error_message="Buyurtma muddati o'tgan.")
+                        return
 
             # Hammasi OK - to'lovga ruxsat berish
             await query.answer(ok=True)
