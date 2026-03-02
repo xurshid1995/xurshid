@@ -1844,18 +1844,18 @@ function generateExcelHTML(sale) {
         </tr>
         <tr><td colspan="12">&nbsp;</td></tr>
         <tr style="background-color: #f0f0f0; font-weight: bold;">
-            <td colspan="3">Sana</td>
+            <td colspan="4">Sana</td>
             <td colspan="3">Mijoz</td>
-            <td colspan="2">Mijoz telefoni</td>
-            <td colspan="2">Sotuvchi</td>
-            <td colspan="2">Sotuvchi telefoni</td>
+            <td colspan="1">Telefon</td>
+            <td colspan="3">Sotuvchi</td>
+            <td colspan="1">Telefon</td>
         </tr>
         <tr>
-            <td colspan="3">${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</td>
+            <td colspan="4">${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</td>
             <td colspan="3">${sale.customer_name || 'Noma\'lum'}</td>
-            <td colspan="2">${(sale.customer_phone && sale.customer_phone !== '+998 XX XXX XX XX') ? sale.customer_phone : ''}</td>
-            <td colspan="2">${sale.seller_name || 'Admin'}</td>
-            <td colspan="2">${sale.seller_phone || ''}</td>
+            <td colspan="1">${(sale.customer_phone && sale.customer_phone !== '+998 XX XXX XX XX') ? sale.customer_phone : ''}</td>
+            <td colspan="3">${sale.seller_name || 'Admin'}</td>
+            <td colspan="1">${sale.seller_phone || ''}</td>
         </tr>
         <tr><td colspan="12">&nbsp;</td></tr>
         <tr style="background-color: #f0f0f0; font-weight: bold;">
