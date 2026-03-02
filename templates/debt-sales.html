@@ -2708,12 +2708,26 @@ function generateExcelHTML(sale) {
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
     <meta charset="UTF-8">
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 6px 10px; }
+    </style>
     <!--[if gte mso 9]>
     <xml>
         <x:ExcelWorkbook>
             <x:ExcelWorksheets>
                 <x:ExcelWorksheet>
                     <x:Name>Savdo ${sale.id}</x:Name>
+                    <x:WorksheetOptions>
+                        <x:Print>
+                            <x:ValidPrinterInfo/>
+                            <x:PaperSizeIndex>9</x:PaperSizeIndex>
+                            <x:HorizontalResolution>600</x:HorizontalResolution>
+                            <x:VerticalResolution>600</x:VerticalResolution>
+                        </x:Print>
+                        <x:FitToPage/>
+                        <x:DoNotDisplayGridlines/>
+                    </x:WorksheetOptions>
                     <x:WorksheetSource HRef="sheet001.htm"/>
                 </x:ExcelWorksheet>
             </x:ExcelWorksheets>
@@ -2722,7 +2736,7 @@ function generateExcelHTML(sale) {
     <![endif]-->
 </head>
 <body>
-    <table border="1">
+    <table border="1" width="100%">
         <tr>
             <td colspan="5" style="text-align: center; font-size: 16pt; font-weight: bold; background-color: #d9e2f3;">${sale.store_name || "Do'kon"}</td>
         </tr>
