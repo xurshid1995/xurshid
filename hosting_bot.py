@@ -91,6 +91,31 @@ class HostingPaymentBot:
                 is_active=True
             ).first()
 
+    def _get_client_by_phone(self, phone: str):
+        """Telefon raqam bo'yicha mijozni topish"""
+        from app import HostingClient
+        # Telefon raqamni normallashtirish - faqat raqamlarni olish
+        digits = re.sub(r'\D', '', phone)
+        # Oxirgi 9 ta raqamni olish (998XXXXXXXXX → XXXXXXXXX)
+        if len(digits) >= 9:
+            last9 = digits[-9:]
+        else:
+            last9 = digits
+
+        with self.app.app_context():
+            # Barcha aktiv mijozlarni tekshirish
+            clients = HostingClient.query.filter_by(is_active=True).all()
+            for client in clients:
+                if client.phone:
+                    client_digits = re.sub(r'\D', '', client.phone)
+                    if len(client_digits) >= 9:
+                        client_last9 = client_digits[-9:]
+                    else:
+                        client_last9 = client_digits
+                    if client_last9 == last9:
+                        return client
+            return None
+
     def _get_client_by_id(self, client_id: int):
         """ID bo'yicha mijozni olish"""
         from app import HostingClient
@@ -137,12 +162,67 @@ class HostingPaymentBot:
                 reply_markup=reply_markup
             )
         else:
-            # Ro'yxatdan o'tmagan - admin ga xabar
+            # Ro'yxatdan o'tmagan - telefon raqamini so'rash
+            keyboard = ReplyKeyboardMarkup(
+                [[KeyboardButton("📞 Telefon raqamni yuborish", request_contact=True)]],
+                resize_keyboard=True,
+                one_time_keyboard=True
+            )
             await update.message.reply_text(
                 "👋 Assalomu alaykum!\n\n"
-                "Siz hali tizimda ro'yxatdan o'tmagansiz.\n"
-                "Admin sizni tizimga qo'shganidan keyin botdan foydalanishingiz mumkin.\n\n"
-                "📞 Admin bilan bog'lanish uchun yozing."
+                "Tizimda ro'yxatdan o'tish uchun telefon raqamingizni yuboring.\n"
+                "Pastdagi tugmani bosing 👇",
+                reply_markup=keyboard
+            )
+
+    async def handle_contact(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Telefon raqam orqali mijozni avtomatik aniqlash"""
+        from app import HostingClient, db as app_db
+
+        contact = update.message.contact
+        chat_id = update.effective_chat.id
+        user = update.effective_user
+        phone = contact.phone_number
+
+        logger.info(f"📞 Kontakt qabul qilindi: {phone} (chat_id: {chat_id})")
+
+        # Telefon raqam bo'yicha mijozni izlash
+        client = self._get_client_by_phone(phone)
+
+        if client:
+            # Mijoz topildi - telegram ma'lumotlarini yangilash
+            with self.app.app_context():
+                db_client = HostingClient.query.get(client.id)
+                db_client.telegram_chat_id = chat_id
+                db_client.telegram_username = user.username
+                app_db.session.commit()
+                client_name = db_client.name
+                client_droplet = db_client.droplet_name
+                client_price = db_client.monthly_price_uzs
+
+            logger.info(f"✅ Mijoz aniqlandi: {client_name} (ID: {client.id})")
+
+            # Mijozga xabar
+            keyboard = [
+                [InlineKeyboardButton("💳 To'lov qilish", callback_data="payment_start")],
+                [InlineKeyboardButton("📊 To'lov tarixi", callback_data="payment_history")],
+                [InlineKeyboardButton("🖥️ Server holati", callback_data="server_status")],
+                [InlineKeyboardButton("ℹ️ Ma'lumotlarim", callback_data="my_info")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            await update.message.reply_text(
+                f"✅ Muvaffaqiyatli ro'yxatdan o'tdingiz!\n\n"
+                f"👤 Ism: {client_name}\n"
+                f"🖥️ Server: {client_droplet or 'N/A'}\n"
+                f"💰 Oylik to'lov: {self._format_money(client_price)} so'm\n\n"
+                f"Quyidagi tugmalardan birini tanlang:",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            # Inline tugmalarni alohida yuborish
+            await update.message.reply_text(
+                "📋 Xizmatlar:",
+                reply_markup=reply_markup
             )
 
             # Admin ga xabar
@@ -151,9 +231,34 @@ class HostingPaymentBot:
                     await context.bot.send_message(
                         chat_id=self.admin_chat_id,
                         text=(
-                            f"🆕 Yangi foydalanuvchi botga kirdi:\n\n"
+                            f"✅ Mijoz avtomatik aniqlandi:\n\n"
+                            f"👤 Ism: {client_name}\n"
+                            f"📞 Telefon: {phone}\n"
+                            f"🆔 Username: @{user.username or 'yoq'}\n"
+                            f"🔑 Chat ID: {chat_id}"
+                        )
+                    )
+                except Exception as e:
+                    logger.error(f"Admin ga xabar yuborishda xato: {e}")
+        else:
+            # Mijoz topilmadi - admin ga yangi foydalanuvchi haqida xabar
+            await update.message.reply_text(
+                "⏳ Telefon raqamingiz qabul qilindi.\n\n"
+                "Hozircha tizimda sizning ma'lumotlaringiz topilmadi.\n"
+                "Admin sizni tizimga qo'shganidan keyin botdan foydalanishingiz mumkin bo'ladi.\n\n"
+                "📞 Tez orada siz bilan bog'lanamiz.",
+                reply_markup=ReplyKeyboardRemove()
+            )
+
+            if self.admin_chat_id:
+                try:
+                    await context.bot.send_message(
+                        chat_id=self.admin_chat_id,
+                        text=(
+                            f"🆕 Yangi foydalanuvchi telefon yubordi:\n\n"
                             f"👤 Ism: {user.first_name} {user.last_name or ''}\n"
-                            f"🆔 Username: @{user.username or 'yo`q'}\n"
+                            f"📞 Telefon: {phone}\n"
+                            f"🆔 Username: @{user.username or 'yoq'}\n"
                             f"🔑 Chat ID: {chat_id}\n\n"
                             f"Tizimga qo'shish uchun admin paneldan foydalaning."
                         )
@@ -1136,6 +1241,12 @@ def create_hosting_bot_app(db=None, app=None) -> Optional[Application]:
 
         # Callback handler
         application.add_handler(CallbackQueryHandler(hosting_bot.handle_callback))
+
+        # Contact handler - telefon raqam orqali auto-identifikatsiya
+        application.add_handler(MessageHandler(
+            filters.CONTACT,
+            hosting_bot.handle_contact
+        ))
 
         # Card Xabar message handler (forwarded messages yoki matn xabarlari)
         application.add_handler(MessageHandler(
