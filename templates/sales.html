@@ -1888,9 +1888,9 @@
             // Statusni ko'rsatish
             showBarcodeStatus(`✓ ${product.name} savatga qo'shildi!`, 'success');
             
-            // Universal qidiruv inputini tozalash
+            // Universal qidiruv inputiga fokus va matnni belgilash
             const universalSearch = getActiveTabElement('universalSearch');
-            if (universalSearch) universalSearch.value = '';
+            if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
             
             // Barcode inputni tozalash
             const barcodeInput = document.getElementById('barcodeInput');
@@ -1900,7 +1900,7 @@
             console.error('❌ Barcode qidiruv xatosi:', error);
             showBarcodeStatus('❌ Server xatosi', 'error');
             const universalSearch = getActiveTabElement('universalSearch');
-            if (universalSearch) universalSearch.value = '';
+            if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
         }
     }
     
@@ -4490,9 +4490,9 @@
         if (productId && quantity > 0 && price > 0) {
             addToCart(parseInt(productId), productName, quantity, price, costPrice);
             
-            // Qidiruvni tozalash
+            // Qidiruv maydoniga fokus va matnni belgilash
             const universalSearch = getActiveTabElement('universalSearch');
-            if (universalSearch) universalSearch.value = '';
+            if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
             filterProducts();
             clearProductSelection();
         } else if (productId && quantity <= 0) {
