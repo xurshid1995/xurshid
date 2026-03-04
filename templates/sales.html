@@ -2553,18 +2553,39 @@
             const activeTab = document.querySelector('.sales-tab.active');
             if (!activeTab) return;
             const tabId = activeTab.dataset.tabId;
+            const tbody = document.getElementById(`productsTable_tab${tabId}`);
+            if (!tbody) return;
+            
+            // Jadvaldagi mahsulotni topish va miqdorini kamaytirish
+            const rows = tbody.querySelectorAll('tr[data-product-id]');
+            for (const row of rows) {
+                if (parseInt(row.getAttribute('data-product-id')) === productId) {
+                    const quantityBadge = row.querySelector('td:nth-child(2) span');
+                    const addBtn = row.querySelector('.add-to-cart-btn');
+                    if (quantityBadge) {
+                        const currentQty = parseFloat(quantityBadge.textContent.replace(/[^0-9.]/g, '')) || 0;
+                        const newQty = Math.max(0, currentQty - soldQuantity);
+                        quantityBadge.textContent = newQty % 1 === 0 ? newQty.toFixed(0) : newQty.toFixed(1);
+                        
+                        // Tugmadagi miqdorni ham yangilash
+                        if (addBtn) addBtn.dataset.quantity = newQty;
+                        
+                        // Row atributini yangilash
+                        row.setAttribute('data-quantity', newQty);
+                    }
+                    break;
+                }
+            }
+            
+            // Cache'ni tozalash
             const locationSelect = document.getElementById(`locationSelect_tab${tabId}`);
             const locationValue = locationSelect?.value;
-            if (!locationValue) return;
+            if (locationValue) {
+                const cacheKey = `${locationValue}_${currentPage}`;
+                productsCache.delete(cacheKey);
+            }
             
-            // Joriy sahifaning cache'ini tozalash
-            const cacheKey = `${locationValue}_${currentPage}`;
-            productsCache.delete(cacheKey);
-            
-            // Jadvalni yangilash (cache'siz, backend'dan yangi ma'lumot oladi)
-            await loadProducts(currentPage);
-            
-            console.log(`🔄 Mahsulotlar jadvali yangilandi (cache tozalandi)`);
+            console.log(`🔄 Mahsulot miqdori jadvalda yangilandi (ID: ${productId})`);
         } catch (error) {
             console.error('Jadvalni yangilashda xatolik:', error);
         }
