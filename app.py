@@ -3920,12 +3920,23 @@ def api_product_operations(product_id):
         # user_id → user ma'lumotlari cache
         user_cache = {}
 
+        import re as _re
         result = []
         seen_ids = set()
+        seen_sale_keys = set()  # "Savdo #NNN" takroriylikni bloklash
         for op in ops:
             if op.id in seen_ids:
                 continue
             seen_ids.add(op.id)
+
+            # Savdo takroriyligini tekshirish
+            if op.operation_type == 'sale' and op.description:
+                sale_match = _re.search(r'Savdo #(\d+)', op.description)
+                if sale_match:
+                    sale_key = sale_match.group(1)
+                    if sale_key in seen_sale_keys:
+                        continue
+                    seen_sale_keys.add(sale_key)
 
             user_role = None
             user_phone = None
@@ -3976,7 +3987,6 @@ def api_product_operations(product_id):
             })
 
         # 6. SaleItem dan to'g'ridan-to'g'ri qidirish (operations_history da yozilmagan eski savdolar)
-        import re as _re
         covered_sale_ids = set()
         for op in ops:
             # table_name='sales' da record_id = sale_id
