@@ -1256,6 +1256,10 @@
             <div style="background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
                 <strong id="reminderCustomerName">-</strong>
                 <span style="color: #666; margin-left: 8px;" id="reminderDebtAmount"></span>
+                <div id="reminderDueDateInfo" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 13px;">
+                    <span id="reminderDueDateIcon"></span>
+                    <span id="reminderDueDateText"></span>
+                </div>
             </div>
 
             <div class="reminder-form-group">
@@ -1585,7 +1589,7 @@
                             <a href="/debts/customer/${debt.customer_id}" class="btn-view" style="text-decoration: none;">👁️ Ko'rish</a>
                             ${remainingDebt > 0 ? `<button class="btn-pay" onclick="openPaymentModal(${debt.customer_id})">💳 To'lov</button>` : ''}
                             ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/150/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
-                            ${remainingDebt > 0 ? `<button class="btn-reminder" onclick="openReminderModal(${debt.customer_id}, '${debt.customer_name.replace(/'/g, "\\'") }', ${remainingDebt})">⏰ Eslatma</button>` : ''}
+                            ${remainingDebt > 0 ? `<button class="btn-reminder" onclick="openReminderModal(${debt.customer_id}, '${debt.customer_name.replace(/'/g, "\\'") }', ${remainingDebt}, ${debt.nearest_due_date ? "'" + debt.nearest_due_date + "'" : 'null'})">⏰ Eslatma</button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -1650,7 +1654,7 @@
                             <a href="/debts/customer/${debt.customer_id}" class="btn-view" style="text-decoration: none;">👁️ Ko'rish</a>
                             ${remainingDebt > 0 ? `<button class="btn-pay" onclick="openPaymentModal(${debt.customer_id})">💳 To'lov</button>` : ''}
                             ${remainingDebt > 0 && debt.customer_phone ? `<button class="btn-sms" onclick="sendDebtSMS(${debt.customer_id}, '${debt.customer_name}', ${remainingDebt})"><img src='https://img.icons8.com/fluency/150/telegram-app.png' alt='Telegram' style='width:16px; height:16px; vertical-align:middle;'> SMS</button>` : ''}
-                            ${remainingDebt > 0 ? `<button class="btn-reminder" onclick="openReminderModal(${debt.customer_id}, '${debt.customer_name.replace(/'/g, "\\'")}', ${remainingDebt})">⏰ Eslatma</button>` : ''}
+                            ${remainingDebt > 0 ? `<button class="btn-reminder" onclick="openReminderModal(${debt.customer_id}, '${debt.customer_name.replace(/'/g, "\\'")}', ${remainingDebt}, ${debt.nearest_due_date ? "'" + debt.nearest_due_date + "'" : 'null'})">⏰ Eslatma</button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -1967,13 +1971,54 @@
     let reminderCustomerName = '';
     let reminderDebtAmount = 0;
 
-    function openReminderModal(customerId, customerName, debtAmount) {
+    function openReminderModal(customerId, customerName, debtAmount, nearestDueDate) {
         reminderCustomerId = customerId;
         reminderCustomerName = customerName;
         reminderDebtAmount = debtAmount;
 
         document.getElementById('reminderCustomerName').textContent = '👤 ' + customerName;
         document.getElementById('reminderDebtAmount').textContent = `Qarz: $${debtAmount.toFixed(2)}`;
+
+        // Qarz to'lash muddatini ko'rsatish
+        const dueDateInfo = document.getElementById('reminderDueDateInfo');
+        const dueDateIcon = document.getElementById('reminderDueDateIcon');
+        const dueDateText = document.getElementById('reminderDueDateText');
+        if (nearestDueDate && dueDateInfo) {
+            const dueDate = new Date(nearestDueDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            dueDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.round((dueDate - today) / (1000 * 60 * 60 * 24));
+            const formattedDate = dueDate.toLocaleDateString('uz-UZ', {day: '2-digit', month: '2-digit', year: 'numeric'});
+
+            let bgColor, textColor, icon, statusMsg;
+            if (diffDays < 0) {
+                bgColor = '#fff0f0'; textColor = '#dc3545';
+                icon = '🔴';
+                statusMsg = `Muddat: ${formattedDate} (${Math.abs(diffDays)} kun o'tgan!)`;
+            } else if (diffDays === 0) {
+                bgColor = '#fff8e1'; textColor = '#e65100';
+                icon = '🟡';
+                statusMsg = `Muddat: ${formattedDate} (Bugun!)`;
+            } else if (diffDays <= 3) {
+                bgColor = '#fff8e1'; textColor = '#f57c00';
+                icon = '🟠';
+                statusMsg = `Muddat: ${formattedDate} (${diffDays} kun qoldi)`;
+            } else {
+                bgColor = '#e8f5e9'; textColor = '#2e7d32';
+                icon = '🟢';
+                statusMsg = `Muddat: ${formattedDate} (${diffDays} kun qoldi)`;
+            }
+
+            dueDateInfo.style.display = 'block';
+            dueDateInfo.style.background = bgColor;
+            dueDateInfo.style.color = textColor;
+            dueDateInfo.style.fontWeight = '600';
+            dueDateIcon.textContent = icon;
+            dueDateText.textContent = ' ' + statusMsg;
+        } else if (dueDateInfo) {
+            dueDateInfo.style.display = 'none';
+        }
 
         // Default sana - ertaga
         const tomorrow = new Date();

@@ -6087,7 +6087,8 @@ def api_debts():
                     COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                     c.last_debt_payment_date as last_payment_date,
                     COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
-                    COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate
+                    COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
+                    MIN(s.payment_due_date) as nearest_due_date
                 FROM customers c
                 LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0 AND s.location_id = :location_id
                 GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
@@ -6116,7 +6117,8 @@ def api_debts():
                         COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                         c.last_debt_payment_date as last_payment_date,
                         COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
-                        COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate
+                        COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
+                        MIN(s.payment_due_date) as nearest_due_date
                     FROM customers c
                     LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
                         AND s.location_id = ANY(:location_ids)
@@ -6138,7 +6140,8 @@ def api_debts():
                         COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                         c.last_debt_payment_date as last_payment_date,
                         COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
-                        COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate
+                        COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
+                        MIN(s.payment_due_date) as nearest_due_date
                     FROM customers c
                     LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
                 GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
@@ -6160,7 +6163,8 @@ def api_debts():
                 'remaining_debt': float(row.remaining_debt),
                 'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None,
                 'last_payment_amount': float(row.last_payment_amount) if row.last_payment_amount else 0,
-                'last_payment_rate': float(row.last_payment_rate) if row.last_payment_rate else 13000
+                'last_payment_rate': float(row.last_payment_rate) if row.last_payment_rate else 13000,
+                'nearest_due_date': row.nearest_due_date.strftime('%Y-%m-%d') if row.nearest_due_date else None
             })
 
         return jsonify({
