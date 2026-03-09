@@ -2045,14 +2045,6 @@
             return;
         }
 
-        // O'tgan sanani tekshirish
-        const selectedDate = new Date(date + 'T' + time);
-        const now = new Date();
-        if (selectedDate < now) {
-            alert('❌ O\'tgan sana va vaqtni tanlash mumkin emas');
-            return;
-        }
-
         try {
             const response = await fetch('/api/debt-reminders', {
                 method: 'POST',
