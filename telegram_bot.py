@@ -201,7 +201,8 @@ class DebtTelegramBot:
                 f"Hurmatli: {customer_name}!\n\n"
                 f"📍 {location_name}dan\n\n"
                 f"💸 Qarzingiz: {debt_usd_str}\n\n"
-                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang "
+                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang\n"
+                "Qarz bu sizga omonat\n"
                 "Rahmat! 🙏"
             )
 
@@ -270,7 +271,8 @@ class DebtTelegramBot:
                 f"Hurmatli: {customer_name}!\n\n"
                 f"📍 {location_name}dan\n\n"
                 f"💸 Qarzingiz: {debt_usd_str}\n\n"
-                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang "
+                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang\n"
+                "Qarz bu sizga omonat\n"
                 "Rahmat! 🙏"
             )
 
