@@ -5355,6 +5355,12 @@
         if (paymentDebtUSD) paymentDebtUSD.value = '';
         if (paymentDebtUZS) paymentDebtUZS.value = '';
         
+        // Qarz muddat seksiyasini yashirish va tozalash
+        const dueDateSection = document.getElementById('paymentDueDateSection');
+        if (dueDateSection) dueDateSection.style.display = 'none';
+        const dueDateEl = document.getElementById('paymentDueDate');
+        if (dueDateEl) dueDateEl.value = '';
+        
         // USD chek checkbox'ini doim belgilangan qilish
         const printReceiptUSD = document.getElementById('printReceiptUSD');
         if (printReceiptUSD) printReceiptUSD.checked = true;
