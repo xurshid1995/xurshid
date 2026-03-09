@@ -424,35 +424,50 @@ class DebtScheduler:
                         reminder.is_active = False
                         continue
                     
-                    # Mijozning hali qarzi bormi
-                    remaining_debt = self.db.session.query(
-                        self.db.func.sum(Sale.debt_usd)
-                    ).filter(
+                    # Mijozning hali qarzi bormi va qaysi do'kondan
+                    from app import Store, Warehouse
+                    
+                    debt_sales = Sale.query.filter(
                         Sale.customer_id == reminder.customer_id,
                         Sale.debt_usd > 0
-                    ).scalar() or 0
+                    ).all()
                     
-                    if float(remaining_debt) <= 0:
+                    remaining_debt = sum(float(s.debt_usd or 0) for s in debt_sales)
+                    
+                    if remaining_debt <= 0:
                         logger.info(f"✅ Qarz yo'q, eslatma o'chirildi: {customer.name}")
                         reminder.is_sent = True
                         reminder.is_active = False
                         continue
                     
+                    # Do'kon nomini olish (birinchi qarzli savdodan)
+                    location_name = "Do'kon"
+                    if debt_sales:
+                        sale = debt_sales[0]
+                        if sale.location_type == 'store' and sale.location_id:
+                            store = Store.query.get(sale.location_id)
+                            if store:
+                                location_name = store.name
+                        elif sale.location_type == 'warehouse' and sale.location_id:
+                            warehouse = Warehouse.query.get(sale.location_id)
+                            if warehouse:
+                                location_name = warehouse.name
+                    
                     # Kurs
                     rate = CurrencyRate.query.order_by(CurrencyRate.id.desc()).first()
                     exchange_rate = float(rate.rate) if rate else 13000
-                    debt_uzs = float(remaining_debt) * exchange_rate
+                    debt_uzs = remaining_debt * exchange_rate
                     
-                    logger.info(f"📨 Eslatma yuborilmoqda: {customer.name}, qarz: ${remaining_debt}")
+                    logger.info(f"📨 Eslatma yuborilmoqda: {customer.name}, qarz: ${remaining_debt}, joy: {location_name}")
                     
                     # Telegram yuborish
                     try:
                         success = self.bot.send_debt_reminder_sync(
                             chat_id=customer.telegram_chat_id,
                             customer_name=customer.name,
-                            debt_usd=float(remaining_debt),
+                            debt_usd=remaining_debt,
                             debt_uzs=debt_uzs,
-                            location_name="Do'kon",
+                            location_name=location_name,
                             customer_id=customer.id
                         )
                         
