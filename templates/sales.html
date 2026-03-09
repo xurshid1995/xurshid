@@ -5446,6 +5446,8 @@
                 const usdValue = parseFloat(this.value) || 0;
                 const debtUZS = document.getElementById('paymentDebtUZS');
                 if (debtUZS) debtUZS.value = Math.round(usdValue * exchangeRate);
+                // Qarz tozalansa muddat seksiyasini yashirish, yozilsa ko'rsatish
+                showHideDueDateSection();
             });
             newDebtUZS.addEventListener('input', function() {
                 const debtUSD = document.getElementById('paymentDebtUSD');
@@ -5455,6 +5457,8 @@
                     const uzsValue = parseFloat(this.value) || 0;
                     if (debtUSD) debtUSD.value = (uzsValue / exchangeRate).toFixed(2);
                 }
+                // Qarz tozalansa muddat seksiyasini yashirish, yozilsa ko'rsatish
+                showHideDueDateSection();
             });
         }
         
