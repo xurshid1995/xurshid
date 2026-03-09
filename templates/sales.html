@@ -5623,6 +5623,13 @@
         const debtVal = parseFloat(debtInput.value) || 0;
         if (debtVal > 0) {
             dueDateSection.style.display = 'block';
+            // Agar muddat hali kiritilmagan bo'lsa, default 7 kun qo'yish
+            const dueDateEl = document.getElementById('paymentDueDate');
+            if (dueDateEl && !dueDateEl.value) {
+                const d = new Date();
+                d.setDate(d.getDate() + 7);
+                dueDateEl.value = d.toISOString().split('T')[0];
+            }
         } else {
             dueDateSection.style.display = 'none';
             const dueDateEl = document.getElementById('paymentDueDate');
