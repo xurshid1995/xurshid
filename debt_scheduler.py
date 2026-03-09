@@ -378,6 +378,16 @@ class DebtScheduler:
             )
             logger.info("✅ Belgilangan eslatmalar: har 5 daqiqada tekshiriladi")
             
+            # Muddatli qarz eslatmalari (har kuni soat 09:00 da)
+            self.scheduler.add_job(
+                self.check_due_date_reminders,
+                CronTrigger(hour=9, minute=0),
+                id='due_date_reminders',
+                name='Muddatli qarz eslatmalari',
+                replace_existing=True
+            )
+            logger.info("✅ Muddatli qarz eslatmalari: har kuni 09:00 da")
+            
             # Schedulerni boshlash
             self.scheduler.start()
             logger.info("✅ Scheduler ishga tushdi")
@@ -494,6 +504,144 @@ class DebtScheduler:
             except Exception as e:
                 self.db.session.rollback()
                 logger.error(f"❌ Belgilangan eslatmalarni tekshirishda xatolik: {e}")
+    
+    def check_due_date_reminders(self):
+        """
+        Muddatli qarz eslatmalari:
+        1. Muddatdan 1 kun oldin - oldindan ogohlantirish
+        2. Muddat kuni - bugun to'lash kerak
+        3. Muddat o'tgan - har kuni eslatma (qarz to'lanmaguncha)
+        """
+        if not self.app or not self.db:
+            logger.warning("⚠️ check_due_date_reminders: app yoki db mavjud emas")
+            return
+        
+        with self.app.app_context():
+            try:
+                from app import Sale, Customer, Store, Warehouse, CurrencyRate, get_tashkent_time
+                
+                now = get_tashkent_time()
+                today = now.date()
+                tomorrow = today + timedelta(days=1)
+                
+                logger.info(f"📅 Muddatli qarz eslatmalari tekshirilmoqda: {today}")
+                
+                # Qarzli savdolarni olish (payment_due_date belgilangan)
+                debt_sales = Sale.query.filter(
+                    Sale.debt_usd > 0,
+                    Sale.payment_status == 'partial',
+                    Sale.payment_due_date.isnot(None),
+                    Sale.customer_id.isnot(None)
+                ).all()
+                
+                logger.info(f"📋 Muddatli qarzlar: {len(debt_sales)} ta")
+                
+                # Kurs
+                rate = CurrencyRate.query.order_by(CurrencyRate.id.desc()).first()
+                exchange_rate = float(rate.rate) if rate else 13000
+                
+                sent_count = 0
+                
+                for sale in debt_sales:
+                    customer = Customer.query.get(sale.customer_id)
+                    if not customer or not customer.telegram_chat_id:
+                        continue
+                    
+                    due_date = sale.payment_due_date
+                    debt_usd = float(sale.debt_usd or 0)
+                    debt_uzs = debt_usd * exchange_rate
+                    
+                    # Do'kon nomini olish
+                    location_name = "Do'kon"
+                    if sale.location_type == 'store' and sale.location_id:
+                        store = Store.query.get(sale.location_id)
+                        if store:
+                            location_name = store.name
+                    elif sale.location_type == 'warehouse' and sale.location_id:
+                        warehouse = Warehouse.query.get(sale.location_id)
+                        if warehouse:
+                            location_name = warehouse.name
+                    
+                    # Qaysi xabar turini aniqlash
+                    message_type = None
+                    if due_date == tomorrow:
+                        message_type = 'pre_reminder'  # 1 kun oldin
+                    elif due_date == today:
+                        message_type = 'due_today'  # Bugun muddat
+                    elif due_date < today:
+                        message_type = 'overdue'  # Muddat o'tgan
+                    
+                    if not message_type:
+                        continue  # Hali muddat kelmagan
+                    
+                    # Xabar yuborish
+                    try:
+                        debt_usd_str = f"${debt_usd:,.2f}"
+                        due_date_str = due_date.strftime('%d.%m.%Y')
+                        today_str = today.strftime('%d.%m.%Y')
+                        
+                        if message_type == 'pre_reminder':
+                            message = (
+                                f"💰 <b>QARZ ESLATMASI</b>\n\n"
+                                f"Hurmatli: {customer.name}!\n\n"
+                                f"📍 {location_name}dan\n\n"
+                                f"💸 Qarzingiz: {debt_usd_str}\n\n"
+                                f"⚠️ Qarzingizni to'lash muddati <b>ertaga ({due_date_str})</b>\n"
+                                f"Iltimos, ertaga qarzingizni to'lashni unutmang!\n"
+                                "Rahmat! 🙏"
+                            )
+                        elif message_type == 'due_today':
+                            message = (
+                                f"💰 <b>QARZ ESLATMASI</b>\n\n"
+                                f"Hurmatli: {customer.name}!\n\n"
+                                f"📍 {location_name}dan\n\n"
+                                f"💸 Qarzingiz: {debt_usd_str}\n\n"
+                                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang\n"
+                                "Qarz bu sizga omonat\n"
+                                "Rahmat! 🙏"
+                            )
+                        elif message_type == 'overdue':
+                            days_overdue = (today - due_date).days
+                            message = (
+                                f"🔴 <b>QARZ MUDDATI O'TGAN!</b>\n\n"
+                                f"Hurmatli: {customer.name}!\n\n"
+                                f"📍 {location_name}dan\n\n"
+                                f"💸 Qarzingiz: {debt_usd_str}\n\n"
+                                f"❗ Qarzingiz to'lash muddati ({due_date_str}) <b>{days_overdue} kun oldin</b> o'tgan!\n"
+                                f"Iltimos, qarzingizni imkon qadar tezroq to'lang!\n"
+                                "Qarz bu sizga omonat\n"
+                                "Rahmat! 🙏"
+                            )
+                        
+                        # Telegram yuborish
+                        url = f"https://api.telegram.org/bot{self.bot.token}/sendMessage"
+                        payload = {
+                            'chat_id': customer.telegram_chat_id,
+                            'text': message,
+                            'parse_mode': 'HTML'
+                        }
+                        
+                        import requests
+                        response = requests.post(url, json=payload, timeout=10)
+                        
+                        if response.status_code == 200:
+                            sent_count += 1
+                            logger.info(f"✅ Muddatli eslatma yuborildi ({message_type}): {customer.name}")
+                        else:
+                            logger.error(f"❌ Telegram xatosi ({customer.name}): {response.status_code}")
+                        
+                        time_module.sleep(1)
+                        
+                    except Exception as e:
+                        logger.error(f"❌ Muddatli eslatma yuborishda xatolik ({customer.name}): {e}")
+                
+                if sent_count > 0:
+                    logger.info(f"📊 Muddatli eslatmalar: {sent_count} ta yuborildi")
+                else:
+                    logger.info("📊 Muddatli eslatma yuborish kerak emas")
+                
+            except Exception as e:
+                logger.error(f"❌ Muddatli eslatmalarni tekshirishda xatolik: {e}")
     
     def stop(self):
         """Schedulerni to'xtatish"""

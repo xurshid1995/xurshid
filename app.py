@@ -1398,6 +1398,7 @@ class Sale(db.Model):
             precision=15,
             scale=4),
         nullable=True)
+    payment_due_date = db.Column(db.Date, nullable=True)  # Qarz to'lash muddati
     created_by = db.Column(db.String(100), default='System')
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
     updated_at = db.Column(db.DateTime, default=lambda: get_tashkent_time(), onupdate=lambda: get_tashkent_time())
@@ -10400,6 +10401,17 @@ def create_sale():
 
         print(f"💳 Payment method aniqlandi: {payment_method}")
 
+        # Qarz to'lash muddati
+        payment_due_date = None
+        payment_due_date_str = data.get('payment_due_date')
+        if payment_due_date_str and debt_usd > 0:
+            try:
+                from datetime import datetime as dt_parse
+                payment_due_date = dt_parse.strptime(payment_due_date_str, '%Y-%m-%d').date()
+                logger.info(f"📅 Qarz to'lash muddati: {payment_due_date}")
+            except (ValueError, TypeError):
+                logger.warning(f"⚠️ Noto'g'ri sana formati: {payment_due_date_str}")
+
         # Barcha qiymatlarni USD da saqlaymiz
         # cash_amount, click_amount, terminal_amount, debt_amount - hammasi USD!
         cash_amount = cash_usd
@@ -10461,6 +10473,7 @@ def create_sale():
             current_sale.debt_usd = Decimal(str(debt_usd))
             current_sale.notes = f'Tahrirlandi - {len(items)} ta mahsulot' if multi_location else 'Tahrirlandi'
             current_sale.currency_rate = current_rate
+            current_sale.payment_due_date = payment_due_date
             # Savdo sanasi asl holatda qoladi (o'zgartirilmaydi)
 
         else:
@@ -10487,7 +10500,8 @@ def create_sale():
                 debt_usd=Decimal(str(debt_usd)),
                 notes=f'Multi-location savdo - {len(items)} ta mahsulot' if multi_location else None,
                 currency_rate=current_rate,
-                created_by=f'{current_user.first_name} {current_user.last_name}'
+                created_by=f'{current_user.first_name} {current_user.last_name}',
+                payment_due_date=payment_due_date
             )
             db.session.add(current_sale)
             db.session.flush()  # ID ni olish uchun

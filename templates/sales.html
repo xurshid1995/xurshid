@@ -895,6 +895,20 @@
                 <input type="number" id="paymentDebtUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <button onclick="addRemainingToField('paymentDebtUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ Qolgan</button>
             </div>
+            
+            <!-- Qarz to'lash muddati -->
+            <div id="paymentDueDateSection" style="display: none; margin-top: 10px; padding: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;">
+                <label style="font-weight: 600; color: #856404; display: block; margin-bottom: 8px;">📅 Qarz to'lash muddati:</label>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <input type="date" id="paymentDueDate" style="flex: 1; padding: 8px; border: 1px solid #ffc107; border-radius: 6px; font-size: 14px; min-width: 150px;">
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <button type="button" onclick="setDueDate(3)" style="padding: 6px 10px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">3 kun</button>
+                        <button type="button" onclick="setDueDate(7)" style="padding: 6px 10px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">1 hafta</button>
+                        <button type="button" onclick="setDueDate(14)" style="padding: 6px 10px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">2 hafta</button>
+                        <button type="button" onclick="setDueDate(30)" style="padding: 6px 10px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">1 oy</button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div id="paymentWarning" style="display: none; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; margin-bottom: 15px; color: #856404; font-size: 14px;"></div>
@@ -5572,6 +5586,34 @@
         }, 300);
     }
     
+    // Qarz to'lash muddati - tezkor sana belgilash
+    function setDueDate(days) {
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        const dateStr = date.toISOString().split('T')[0];
+        document.getElementById('paymentDueDate').value = dateStr;
+    }
+    
+    // Qarz inputga event listener - muddat seksiyasini ko'rsatish/yashirish
+    document.addEventListener('DOMContentLoaded', function() {
+        const debtInput = document.getElementById('paymentDebtUSD');
+        const dueDateSection = document.getElementById('paymentDueDateSection');
+        
+        if (debtInput && dueDateSection) {
+            function checkDebtForDueDate() {
+                const debtVal = parseFloat(debtInput.value) || 0;
+                if (debtVal > 0) {
+                    dueDateSection.style.display = 'block';
+                } else {
+                    dueDateSection.style.display = 'none';
+                    document.getElementById('paymentDueDate').value = '';
+                }
+            }
+            debtInput.addEventListener('input', checkDebtForDueDate);
+            debtInput.addEventListener('change', checkDebtForDueDate);
+        }
+    });
+    
     // Double-click himoyasi uchun o'zgaruvchi
     let isProcessingPayment = false;
     
@@ -5753,6 +5795,8 @@
                 exchange_rate: exchangeRate,
                 // Payment status ni avtomatik aniqlash
                 payment_status: debtUSD > 0 ? 'partial' : 'paid',
+                // Qarz to'lash muddati
+                payment_due_date: debtUSD > 0 ? (document.getElementById('paymentDueDate') ? document.getElementById('paymentDueDate').value : null) : null,
                 // Agar tahrirlash rejimida bo'lsa
                 original_sale_id: editingSaleId,
                 is_edit_mode: editingSaleId !== null,
