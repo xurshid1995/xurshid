@@ -145,8 +145,8 @@
 
 <script>
     const DPHLANG = {
-        load_error: '{{ t("dph_load_error") }}',
-        no_data: '{{ t("dph_no_data") }}'
+        load_error: {{ t("dph_load_error")|tojson }},
+        no_data: {{ t("dph_no_data")|tojson }}
     };
 
     let exchangeRate = 13000;

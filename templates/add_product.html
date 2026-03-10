@@ -605,7 +605,7 @@
                             <label for="product_name">{{ t('ap_product_name_label') }}</label>
                             <div class="product-name-container">
                                 <input type="text" id="product_name" name="product_name" class="form-control" 
-                                       placeholder="{{ t('ap_product_name_placeholder') }}" 
+                                       placeholder={{ t('ap_product_name_placeholder')|tojson }} 
                                        oninput="searchProduct(); calculateProfit();"
                                        onfocus="showSearchResults()"
                                        onkeydown="handleProductNameKeyDown(event)"
@@ -648,7 +648,7 @@
                             <div id="barcodeErrorContainer" style="margin-top: 4px; margin-bottom: 4px;"></div>
                             <div style="display: flex; gap: 5px;">
                                 <input type="text" id="barcode" name="barcode" class="form-control" 
-                                       placeholder="{{ t('ap_barcode_placeholder') }}" 
+                                       placeholder={{ t('ap_barcode_placeholder')|tojson }} 
                                        autocomplete="off"
                                        maxlength="8"
                                        pattern="[0-9]{8}"
@@ -658,14 +658,14 @@
                                         id="autoGenerateBtn"
                                         onclick="generateBarcode()" 
                                         style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; white-space: nowrap;"
-                                        title="{{ t('ap_auto_barcode_title') }}">
+                                        title={{ t('ap_auto_barcode_title')|tojson }}>
                                     🔄 Auto
                                 </button>
                                 <button type="button" 
                                         onclick="printBarcodeFromForm()" 
                                         id="printBarcodeBtn"
                                         style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; white-space: nowrap;"
-                                        title="{{ t('ap_print_barcode_title') }}">
+                                        title={{ t('ap_print_barcode_title')|tojson }}>
                                     🖨️
                                 </button>
                             </div>
@@ -833,38 +833,38 @@
 
     <script>
         const APLANG = {
-            select_location: "{{ t('ap_select_location') }}",
-            excel_lib_not_loaded: "{{ t('ap_excel_lib_not_loaded') }}",
-            select_location_first: "{{ t('ap_select_location_first') }}",
-            excel_select_location_hint: "{{ t('ap_excel_select_location_hint') }}",
-            excel_template_error: "{{ t('ap_excel_template_error') }}",
-            excel_lib_not_loaded2: "{{ t('ap_excel_lib_not_loaded2') }}",
-            excel_no_sheet: "{{ t('ap_excel_no_sheet') }}",
-            excel_no_data: "{{ t('ap_excel_no_data') }}",
-            excel_read_error: "{{ t('ap_excel_read_error') }}",
-            file_read_error: "{{ t('ap_file_read_error') }}",
-            enter_product_name: "{{ t('ap_enter_product_name') }}",
-            barcode_8_digits: "{{ t('ap_barcode_8_digits') }}",
-            barcode_exists: "{{ t('ap_barcode_exists') }}",
-            enter_cost_price: "{{ t('ap_enter_cost_price') }}",
-            enter_sell_price: "{{ t('ap_enter_sell_price') }}",
-            enter_quantity: "{{ t('ap_enter_quantity') }}",
-            select_location_error: "{{ t('ap_select_location_error') }}",
-            product_loaded_for_edit: "{{ t('ap_product_loaded_for_edit') }}",
-            barcode_generate_error: "{{ t('ap_barcode_generate_error') }}",
-            enter_barcode: "{{ t('ap_enter_barcode') }}",
-            clear_all_confirm: "{{ t('ap_clear_all_confirm') }}",
-            no_products_added: "{{ t('ap_no_products_added') }}",
-            all_products_saved: "{{ t('ap_all_products_saved') }}",
-            save_error: "{{ t('ap_save_error') }}",
-            barcode_exists_in: "{{ t('ap_barcode_exists_in') }}",
-            optgroup_warehouses: "{{ t('ap_optgroup_warehouses') }}",
-            optgroup_stores: "{{ t('ap_optgroup_stores') }}",
-            total_products_suffix: "{{ t('ap_total_products_suffix') }}",
-            total_products: "{{ t('ap_total_products') }}",
-            total_value: "{{ t('ap_total_value') }}",
-            empty_state: "{{ t('ap_empty_state') }}",
-            empty_state_hint: "{{ t('ap_empty_state_hint') }}"
+            select_location: {{ t('ap_select_location')|tojson }},
+            excel_lib_not_loaded: {{ t('ap_excel_lib_not_loaded')|tojson }},
+            select_location_first: {{ t('ap_select_location_first')|tojson }},
+            excel_select_location_hint: {{ t('ap_excel_select_location_hint')|tojson }},
+            excel_template_error: {{ t('ap_excel_template_error')|tojson }},
+            excel_lib_not_loaded2: {{ t('ap_excel_lib_not_loaded2')|tojson }},
+            excel_no_sheet: {{ t('ap_excel_no_sheet')|tojson }},
+            excel_no_data: {{ t('ap_excel_no_data')|tojson }},
+            excel_read_error: {{ t('ap_excel_read_error')|tojson }},
+            file_read_error: {{ t('ap_file_read_error')|tojson }},
+            enter_product_name: {{ t('ap_enter_product_name')|tojson }},
+            barcode_8_digits: {{ t('ap_barcode_8_digits')|tojson }},
+            barcode_exists: {{ t('ap_barcode_exists')|tojson }},
+            enter_cost_price: {{ t('ap_enter_cost_price')|tojson }},
+            enter_sell_price: {{ t('ap_enter_sell_price')|tojson }},
+            enter_quantity: {{ t('ap_enter_quantity')|tojson }},
+            select_location_error: {{ t('ap_select_location_error')|tojson }},
+            product_loaded_for_edit: {{ t('ap_product_loaded_for_edit')|tojson }},
+            barcode_generate_error: {{ t('ap_barcode_generate_error')|tojson }},
+            enter_barcode: {{ t('ap_enter_barcode')|tojson }},
+            clear_all_confirm: {{ t('ap_clear_all_confirm')|tojson }},
+            no_products_added: {{ t('ap_no_products_added')|tojson }},
+            all_products_saved: {{ t('ap_all_products_saved')|tojson }},
+            save_error: {{ t('ap_save_error')|tojson }},
+            barcode_exists_in: {{ t('ap_barcode_exists_in')|tojson }},
+            optgroup_warehouses: {{ t('ap_optgroup_warehouses')|tojson }},
+            optgroup_stores: {{ t('ap_optgroup_stores')|tojson }},
+            total_products_suffix: {{ t('ap_total_products_suffix')|tojson }},
+            total_products: {{ t('ap_total_products')|tojson }},
+            total_value: {{ t('ap_total_value')|tojson }},
+            empty_state: {{ t('ap_empty_state')|tojson }},
+            empty_state_hint: {{ t('ap_empty_state_hint')|tojson }}
         };
 
         let tempProducts = [];

@@ -86,9 +86,9 @@
 {% block extra_js %}
 <script>
     const IDXLANG = {
-        total_value: "{{ t('idx_total_value') }}",
-        exact_value: "{{ t('idx_exact_value') }}",
-        calc_error: "{{ t('idx_calc_error') }}"
+        total_value: {{ t('idx_total_value')|tojson }},
+        exact_value: {{ t('idx_exact_value')|tojson }},
+        calc_error: {{ t('idx_calc_error')|tojson }}
     };
 
     function calculateTotal() {

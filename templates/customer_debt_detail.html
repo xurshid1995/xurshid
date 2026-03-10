@@ -391,16 +391,16 @@
 
 <script>
     const CDDLANG = {
-        loading: "{{ t('cdd_loading') }}",
-        no_data: "{{ t('cdd_no_data') }}",
-        view: "{{ t('cdd_view') }}",
-        days_overdue: "{{ t('cdd_days_overdue') }}",
-        today: "{{ t('cdd_today') }}",
-        days_left: "{{ t('cdd_days_left') }}",
-        load_error: "{{ t('cdd_load_error') }}",
-        payment_error: "{{ t('cdd_payment_error') }}",
-        payment_success: "{{ t('cdd_payment_success') }}",
-        payment_amount_error: "{{ t('cdd_payment_amount_error') }}"
+        loading: {{ t('cdd_loading')|tojson }},
+        no_data: {{ t('cdd_no_data')|tojson }},
+        view: {{ t('cdd_view')|tojson }},
+        days_overdue: {{ t('cdd_days_overdue')|tojson }},
+        today: {{ t('cdd_today')|tojson }},
+        days_left: {{ t('cdd_days_left')|tojson }},
+        load_error: {{ t('cdd_load_error')|tojson }},
+        payment_error: {{ t('cdd_payment_error')|tojson }},
+        payment_success: {{ t('cdd_payment_success')|tojson }},
+        payment_amount_error: {{ t('cdd_payment_amount_error')|tojson }}
     };
 
     const customerId = {{ customer_id }};

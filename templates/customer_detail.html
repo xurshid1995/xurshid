@@ -747,7 +747,7 @@
             <div class="search-filter-row">
                 <div class="search-input-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="customerSearchInput" placeholder="{{ t('cd_search') }}" class="search-input">
+                    <input type="text" id="customerSearchInput" placeholder={{ t('cd_search')|tojson }} class="search-input">
                     <button id="customerClearSearch" class="clear-search-btn" style="display: none;">
                         <i class="fas fa-times"></i>
                     </button>
@@ -826,9 +826,9 @@
 <script>
 // CDLANG - Customer Detail translations
 const CDLANG = {
-    loading: "{{ t('cd_loading') }}",
-    no_data: "{{ t('cd_no_data') }}",
-    view: "{{ t('cd_view') }}"
+    loading: {{ t('cd_loading')|tojson }},
+    no_data: {{ t('cd_no_data')|tojson }},
+    view: {{ t('cd_view')|tojson }}
 };
 
 // Global o'zgaruvchilar

@@ -221,7 +221,7 @@
                     <span class="emoji">👤</span>{{ t('ec_name') }} *
                 </label>
                 <input type="text" id="customerName" class="form-control" 
-                       placeholder="{{ t('ec_name_placeholder') }}" required>
+                       placeholder={{ t('ec_name_placeholder')|tojson }} required>
             </div>
 
             <div class="form-group">
@@ -245,7 +245,7 @@
                     <span class="emoji">📍</span>{{ t('ec_address') }}
                 </label>
                 <textarea id="customerAddress" class="form-control" 
-                          placeholder="{{ t('ec_address_placeholder') }}"></textarea>
+                          placeholder={{ t('ec_address_placeholder')|tojson }}></textarea>
             </div>
 
             <div class="form-group">
@@ -274,18 +274,18 @@
 
 <script>
     const ECLANG = {
-        store_select: "{{ t('ec_store_select') }}",
-        updating: "{{ t('ec_updating') }}",
-        phone_error: "{{ t('ec_phone_error') }}",
-        update_success: "{{ t('ec_update_success') }}",
-        update_error: "{{ t('ec_update_error') }}",
-        id_not_found: "{{ t('ec_id_not_found') }}",
-        not_found: "{{ t('ec_not_found') }}",
-        fetch_error: "{{ t('ec_fetch_error') }}",
-        delete_confirm: "{{ t('ec_delete_confirm') }}",
-        delete_success: "{{ t('ec_delete_success') }}",
-        delete_error: "{{ t('ec_delete_error') }}",
-        delete_error2: "{{ t('ec_delete_error2') }}"
+        store_select: {{ t('ec_store_select')|tojson }},
+        updating: {{ t('ec_updating')|tojson }},
+        phone_error: {{ t('ec_phone_error')|tojson }},
+        update_success: {{ t('ec_update_success')|tojson }},
+        update_error: {{ t('ec_update_error')|tojson }},
+        id_not_found: {{ t('ec_id_not_found')|tojson }},
+        not_found: {{ t('ec_not_found')|tojson }},
+        fetch_error: {{ t('ec_fetch_error')|tojson }},
+        delete_confirm: {{ t('ec_delete_confirm')|tojson }},
+        delete_success: {{ t('ec_delete_success')|tojson }},
+        delete_error: {{ t('ec_delete_error')|tojson }},
+        delete_error2: {{ t('ec_delete_error2')|tojson }}
     };
     let currentCustomer = null;
     const customerId = new URLSearchParams(window.location.search).get('id') || 

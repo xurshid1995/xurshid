@@ -1320,7 +1320,7 @@
 
             <div class="reminder-form-group">
                 <label>💬 {{ t('additional_message') }}</label>
-                <textarea id="reminderMessage" placeholder="{{ t('additional_message_placeholder') }}"></textarea>
+                <textarea id="reminderMessage" placeholder={{ t('additional_message_placeholder')|tojson }}></textarea>
             </div>
 
             <!-- Mavjud eslatmalar -->
@@ -1341,8 +1341,8 @@
     const DLANG = {
         status_debtor: '💳 {{ t("status_debtor") }}',
         status_paid: '✅ {{ t("status_paid") }}',
-        sum_currency: '{{ t("sum_currency") }}',
-        data_loading: '{{ t("data_loading") }}',
+        sum_currency: {{ t("sum_currency")|tojson }},
+        data_loading: {{ t("data_loading")|tojson }},
         data_error: '❌ {{ t("data_loading") }}'
     };
 

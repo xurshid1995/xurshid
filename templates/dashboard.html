@@ -409,16 +409,16 @@
 <!-- Cache buster: v2.0 -->
 <script>
 const DLANG = {
-    sales_count: '{{ t("sales_count") }}',
-    sales_amount: '{{ t("sales_amount") }}',
-    sales_amount_usd: '{{ t("sales_amount_usd") }}',
-    debts_usd: '{{ t("debts_usd") }}',
-    all_locations: '{{ t("all_locations") }}',
-    selected_location: '{{ t("selected_location") }}',
-    profit: '{{ t("profit") }}',
-    payments: '{{ t("payments") }}',
-    cash: '{{ t("cash") }}',
-    debt: '{{ t("debt") }}',
+    sales_count: {{ t("sales_count")|tojson }},
+    sales_amount: {{ t("sales_amount")|tojson }},
+    sales_amount_usd: {{ t("sales_amount_usd")|tojson }},
+    debts_usd: {{ t("debts_usd")|tojson }},
+    all_locations: {{ t("all_locations")|tojson }},
+    selected_location: {{ t("selected_location")|tojson }},
+    profit: {{ t("profit")|tojson }},
+    payments: {{ t("payments")|tojson }},
+    cash: {{ t("cash")|tojson }},
+    debt: {{ t("debt")|tojson }},
 };
 
 let salesChart;

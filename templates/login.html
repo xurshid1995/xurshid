@@ -296,7 +296,7 @@
                            id="username" 
                            name="username" 
                            class="form-control" 
-                           placeholder="{{ t('username') }}"
+                           placeholder={{ t('username')|tojson }}
                            required>
                     <div class="error-message" id="usernameError"></div>
                 </div>
@@ -308,7 +308,7 @@
                                id="password" 
                                name="password" 
                                class="form-control" 
-                               placeholder="{{ t('password') }}"
+                               placeholder={{ t('password')|tojson }}
                                required>
                         <button type="button" class="password-toggle" onclick="togglePassword()">
                             👁️
@@ -406,11 +406,11 @@
                 }, 1000);
             } else {
                 // Xatolik
-                showError(data.message || '{{ t("login_error") }}');
+                showError(data.message || {{ t("login_error")|tojson }});
             }
         } catch (error) {
             console.error('Login error:', error);
-            showError('{{ t("server_connection_error") }}');
+            showError({{ t("server_connection_error")|tojson }});
         } finally {
             setLoading(false);
         }
@@ -420,12 +420,12 @@
         let isValid = true;
 
         if (!data.username) {
-            showFieldError('username', '{{ t("required_field") }}');
+            showFieldError('username', {{ t("required_field")|tojson }});
             isValid = false;
         }
 
         if (!data.password) {
-            showFieldError('password', '{{ t("required_field") }}');
+            showFieldError('password', {{ t("required_field")|tojson }});
             isValid = false;
         }
 

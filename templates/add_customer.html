@@ -178,13 +178,13 @@
 
                 <div class="form-group">
                     <label for="email">{{ t('email_label') }}</label>
-                    <input type="email" id="email" name="email" placeholder="{{ t('placeholder_email') }}">
+                    <input type="email" id="email" name="email" placeholder={{ t('placeholder_email')|tojson }}>
                     <div class="form-hint">{{ t('hint_email') }}</div>
                 </div>
 
                 <div class="form-group">
                     <label for="address">{{ t('address_label') }}</label>
-                    <textarea id="address" name="address" placeholder="{{ t('placeholder_address') }}"></textarea>
+                    <textarea id="address" name="address" placeholder={{ t('placeholder_address')|tojson }}></textarea>
                     <div class="form-hint">{{ t('hint_address') }}</div>
                 </div>
 
@@ -214,12 +214,12 @@
 {% block extra_js %}
 <script>
     const ACLANG = {
-        phone_format_error: '{{ t("phone_format_error") }}',
-        customer_added_success: '{{ t("customer_added_success") }}',
-        adding: '{{ t("adding") }}',
-        error_prefix: '{{ t("error_prefix") }}',
-        placeholder_select_store: '{{ t("placeholder_select_store") }}',
-        stores_load_error: '{{ t("stores_load_error") }}'
+        phone_format_error: {{ t("phone_format_error")|tojson }},
+        customer_added_success: {{ t("customer_added_success")|tojson }},
+        adding: {{ t("adding")|tojson }},
+        error_prefix: {{ t("error_prefix")|tojson }},
+        placeholder_select_store: {{ t("placeholder_select_store")|tojson }},
+        stores_load_error: {{ t("stores_load_error")|tojson }}
     };
     // Telefon raqamini formatlash +998(99) 406-47-49
     function formatPhoneNumber(input) {

@@ -96,25 +96,25 @@
                 <div class="form-group">
                     <label for="name">{{ t('label_store_name') }}</label>
                     <input type="text" id="name" name="name" required 
-                           placeholder="{{ t('placeholder_store_name') }}">
+                           placeholder={{ t('placeholder_store_name')|tojson }}>
                 </div>
 
                 <div class="form-group">
                     <label for="address">📍 {{ t('address_label') }}:</label>
                     <textarea id="address" name="address" required rows="3" 
-                              placeholder="{{ t('placeholder_address') }}"></textarea>
+                              placeholder={{ t('placeholder_address')|tojson }}></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="manager_name">{{ t('label_manager') }}</label>
                     <input type="text" id="manager_name" name="manager_name" required 
-                           placeholder="{{ t('placeholder_manager_name') }}">
+                           placeholder={{ t('placeholder_manager_name')|tojson }}>
                 </div>
 
                 <div class="form-group">
                     <label for="phone">📞 {{ t('phone_number_label') }}:</label>
                     <input type="tel" id="phone" name="phone" 
-                           placeholder="{{ t('placeholder_phone_format') }}">
+                           placeholder={{ t('placeholder_phone_format')|tojson }}>
                 </div>
 
                 <div style="text-align: center; margin-top: 2rem;">
@@ -138,7 +138,7 @@
 
             if (!name || !address || !manager) {
                 e.preventDefault();
-                alert('{{ t("fill_required_fields") }}');
+                alert({{ t("fill_required_fields")|tojson }});
                 return;
             }
 

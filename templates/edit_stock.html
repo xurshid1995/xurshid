@@ -112,7 +112,7 @@
                 <div class="form-group">
                     <label for="barcode">📷 {{ t('es_barcode_label') }}</label>
                     <input type="text" id="barcode" name="barcode" value="{{ stock.product.barcode or '' }}" 
-                           placeholder="{{ t('es_barcode_opt') }}" 
+                           placeholder={{ t('es_barcode_opt')|tojson }} 
                            style="border: 2px solid #28a745;">
                 </div>
             </div>
@@ -160,11 +160,11 @@
 
 <script>
 const ESLANG = {
-    sell_below_cost: '{{ t("es_sell_below_cost") }}',
-    name_exists: '{{ t("es_name_exists") }}',
-    sell_below_cost_err: '{{ t("es_sell_below_cost_err") }}',
-    quantity_negative: '{{ t("es_quantity_negative") }}',
-    price_negative: '{{ t("es_price_negative") }}'
+    sell_below_cost: {{ t("es_sell_below_cost")|tojson }},
+    name_exists: {{ t("es_name_exists")|tojson }},
+    sell_below_cost_err: {{ t("es_sell_below_cost_err")|tojson }},
+    quantity_negative: {{ t("es_quantity_negative")|tojson }},
+    price_negative: {{ t("es_price_negative")|tojson }}
 };
 
 // Foyda hisobi

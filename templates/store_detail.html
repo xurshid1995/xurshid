@@ -213,7 +213,7 @@
 <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
     <div style="overflow-x: auto;">
         <div class="search-container" style="padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
-            <input type="text" id="search-input" class="search-box" placeholder="{{ t('sd_search') }}" onkeyup="filterTable()" style="width: 500px !important; max-width: 500px; border-radius: 25px; padding: 12px 20px; border: 2px solid #ddd;">
+            <input type="text" id="search-input" class="search-box" placeholder={{ t('sd_search')|tojson }} onkeyup="filterTable()" style="width: 500px !important; max-width: 500px; border-radius: 25px; padding: 12px 20px; border: 2px solid #ddd;">
             <select id="status-filter" class="filter-select" onchange="handleFilterChange()" style="border-radius: 20px; padding: 10px 15px;">
                 <option value="">{{ t('sd_all_statuses') }}</option>
                 <option value="normal">{{ t('sd_status_enough') }}</option>
@@ -271,25 +271,25 @@
 
 <script>
     const SDLANG = {
-        loading: "{{ t('sd_loading') }}",
-        not_found: "{{ t('sd_not_found') }}",
-        litr: "{{ t('sd_litr') }}",
-        pcs: "{{ t('sd_pcs') }}",
-        status_out: "{{ t('sd_status_out') }}",
-        status_low: "{{ t('sd_status_low') }}",
-        status_enough: "{{ t('sd_status_enough') }}",
-        edit: "{{ t('sd_edit') }}",
-        delete: "{{ t('sd_delete') }}",
-        products_count: "{{ t('sd_products_count') }}",
-        prev: "{{ t('sd_prev') }}",
-        next: "{{ t('sd_next') }}",
-        load_error: "{{ t('sd_load_error') }}",
-        excel_not_loaded: "{{ t('sd_excel_not_loaded') }}",
-        table_not_found: "{{ t('sd_table_not_found') }}",
-        excel_error: "{{ t('sd_excel_error') }}",
-        confirm_delete: "{{ t('sd_confirm_delete') }}",
-        delete_error: "{{ t('sd_delete_error') }}",
-        store_info: "{{ t('sd_store_info') }}"
+        loading: {{ t('sd_loading')|tojson }},
+        not_found: {{ t('sd_not_found')|tojson }},
+        litr: {{ t('sd_litr')|tojson }},
+        pcs: {{ t('sd_pcs')|tojson }},
+        status_out: {{ t('sd_status_out')|tojson }},
+        status_low: {{ t('sd_status_low')|tojson }},
+        status_enough: {{ t('sd_status_enough')|tojson }},
+        edit: {{ t('sd_edit')|tojson }},
+        delete: {{ t('sd_delete')|tojson }},
+        products_count: {{ t('sd_products_count')|tojson }},
+        prev: {{ t('sd_prev')|tojson }},
+        next: {{ t('sd_next')|tojson }},
+        load_error: {{ t('sd_load_error')|tojson }},
+        excel_not_loaded: {{ t('sd_excel_not_loaded')|tojson }},
+        table_not_found: {{ t('sd_table_not_found')|tojson }},
+        excel_error: {{ t('sd_excel_error')|tojson }},
+        confirm_delete: {{ t('sd_confirm_delete')|tojson }},
+        delete_error: {{ t('sd_delete_error')|tojson }},
+        store_info: {{ t('sd_store_info')|tojson }}
     };
 
     let searchTimeout;

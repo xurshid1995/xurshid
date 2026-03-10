@@ -53,7 +53,7 @@
         <div class="search-filter-row">
             <div class="search-input-container">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" placeholder="{{ t('placeholder_search') }}" class="search-input">
+                <input type="text" id="searchInput" placeholder={{ t('placeholder_search')|tojson }} class="search-input">
                 <button id="clearSearch" class="clear-search-btn" style="display: none;">
                     <i class="fas fa-times"></i>
                 </button>
@@ -75,7 +75,7 @@
                 <label for="customerFilter">{{ t('label_customer') }}</label>
                 <div class="customer-search-container">
                     <input type="text" id="customerFilter" class="filter-input customer-search-input" 
-                           placeholder="{{ t('search_customer') }}" autocomplete="off">
+                           placeholder={{ t('search_customer')|tojson }} autocomplete="off">
                     <div id="customerDropdown" class="customer-dropdown" style="display: none;">
                         <div class="customer-option" data-value="">{{ t('all_customers') }}</div>
                     </div>
@@ -91,7 +91,7 @@
             
             <div class="filter-group">
                 <label for="saleIdFilter">{{ t('sale_id') }}</label>
-                <input type="number" id="saleIdFilter" class="filter-input" placeholder="{{ t('id_number') }}" min="1" style="width: 100px;">
+                <input type="number" id="saleIdFilter" class="filter-input" placeholder={{ t('id_number')|tojson }} min="1" style="width: 100px;">
             </div>
         </div>
     </div>

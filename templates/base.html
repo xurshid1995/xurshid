@@ -179,9 +179,9 @@
             </h1>
         </div>
         <div class="header-right">
-            <div class="currency-display" title="{{ t('exchange_rate') }}">
+            <div class="currency-display" title={{ t('exchange_rate')|tojson }}>
                 <span class="currency-rate">💵 1 USD = ... UZS</span>
-                <button class="edit-rate-btn" onclick="editCurrency()" title="{{ t('rate_change') }}">
+                <button class="edit-rate-btn" onclick="editCurrency()" title={{ t('rate_change')|tojson }}>
                     <span>📝</span>
                 </button>
             </div>
@@ -198,7 +198,7 @@
                 <span class="user-name">{{ session.user_name or t('user') }}</span>
                 <span class="user-role">({{ session.role or t('role') }})</span>
             </div>
-            <button class="logout-btn" onclick="logout()" title="{{ t('exit_system') }}">
+            <button class="logout-btn" onclick="logout()" title={{ t('exit_system')|tojson }}>
                 <span class="logout-icon">➡️</span>
                 <span class="logout-text">{{ t('logout') }}</span>
             </button>

@@ -684,7 +684,7 @@
                     <input type="text" 
                            id="productSearch" 
                            class="search-input" 
-                           placeholder="{{ t('placeholder_search') }}" 
+                           placeholder={{ t('placeholder_search')|tojson }} 
                            style="padding-right: 40px; border: 2px solid #28a745;"
                            autofocus>
                 </div>
@@ -739,7 +739,7 @@
             </div>
 
             <div style="margin-bottom: 0;">
-                <input type="text" id="transferListSearch" class="search-input" placeholder="{{ t('placeholder_search') }}" onkeyup="filterTransferList()">
+                <input type="text" id="transferListSearch" class="search-input" placeholder={{ t('placeholder_search')|tojson }} onkeyup="filterTransferList()">
             </div>
 
             <div class="products-table-container">
@@ -810,44 +810,44 @@
 {% block extra_js %}
 <script>
     const TLANG = {
-        warehouses_group: '{{ t("warehouses_group") }}',
-        stores_group: '{{ t("stores_group") }}',
-        select_location_msg: '{{ t("select_location_msg") }}',
-        products_not_found: '{{ t("products_not_found") }}',
-        loading_text: '{{ t("loading_text") }}',
-        error_occurred: '{{ t("error_occurred") }}',
-        transfer_add_product: '{{ t("transfer_add_product") }}',
-        product_not_found: '{{ t("product_not_found") }}',
-        already_in_list: '{{ t("already_in_list") }}',
-        edit_quantity_confirm: '{{ t("edit_quantity_confirm") }}',
-        quantity_must_positive: '{{ t("quantity_must_positive") }}',
-        stock_only_available: '{{ t("stock_only_available") }}',
-        available_word: '{{ t("available_word") }}',
-        list_empty: '{{ t("list_empty") }}',
-        delete_all_confirm: '{{ t("delete_all_confirm") }}',
-        delete_item_confirm: '{{ t("delete_item_confirm") }}',
-        select_from_location: '{{ t("select_from_location") }}',
-        select_both_locations: '{{ t("select_both_locations") }}',
-        select_from: '{{ t("select_from") }}',
-        select_to: '{{ t("select_to") }}',
-        same_location_error: '{{ t("same_location_error") }}',
-        add_products_to_list: '{{ t("add_products_to_list") }}',
-        transfer_confirm: '{{ t("transfer_confirm") }}',
-        transfer_success: '{{ t("transfer_success") }}',
-        transferring: '{{ t("transferring") }}',
-        transfer_confirm_btn: '{{ t("transfer_confirm_btn") }}',
-        in_list_text: '{{ t("in_list_text") }}',
-        not_in_stock: '{{ t("not_in_stock") }}',
-        add_to_list: '{{ t("add_to_list") }}',
-        searching: '{{ t("searching") }}',
-        found_text: '{{ t("found_text") }}',
-        not_found_barcode: '{{ t("not_found_barcode") }}',
-        search_error: '{{ t("search_error") }}',
-        edit_label: '{{ t("edit_label") }}',
-        delete_label: '{{ t("delete_label") }}',
-        pagination_from: '{{ t("pagination_from") }}',
-        items_count: '{{ t("items_count") }}',
-        only_step_half: '{{ t("only_step_half") }}'
+        warehouses_group: {{ t("warehouses_group")|tojson }},
+        stores_group: {{ t("stores_group")|tojson }},
+        select_location_msg: {{ t("select_location_msg")|tojson }},
+        products_not_found: {{ t("products_not_found")|tojson }},
+        loading_text: {{ t("loading_text")|tojson }},
+        error_occurred: {{ t("error_occurred")|tojson }},
+        transfer_add_product: {{ t("transfer_add_product")|tojson }},
+        product_not_found: {{ t("product_not_found")|tojson }},
+        already_in_list: {{ t("already_in_list")|tojson }},
+        edit_quantity_confirm: {{ t("edit_quantity_confirm")|tojson }},
+        quantity_must_positive: {{ t("quantity_must_positive")|tojson }},
+        stock_only_available: {{ t("stock_only_available")|tojson }},
+        available_word: {{ t("available_word")|tojson }},
+        list_empty: {{ t("list_empty")|tojson }},
+        delete_all_confirm: {{ t("delete_all_confirm")|tojson }},
+        delete_item_confirm: {{ t("delete_item_confirm")|tojson }},
+        select_from_location: {{ t("select_from_location")|tojson }},
+        select_both_locations: {{ t("select_both_locations")|tojson }},
+        select_from: {{ t("select_from")|tojson }},
+        select_to: {{ t("select_to")|tojson }},
+        same_location_error: {{ t("same_location_error")|tojson }},
+        add_products_to_list: {{ t("add_products_to_list")|tojson }},
+        transfer_confirm: {{ t("transfer_confirm")|tojson }},
+        transfer_success: {{ t("transfer_success")|tojson }},
+        transferring: {{ t("transferring")|tojson }},
+        transfer_confirm_btn: {{ t("transfer_confirm_btn")|tojson }},
+        in_list_text: {{ t("in_list_text")|tojson }},
+        not_in_stock: {{ t("not_in_stock")|tojson }},
+        add_to_list: {{ t("add_to_list")|tojson }},
+        searching: {{ t("searching")|tojson }},
+        found_text: {{ t("found_text")|tojson }},
+        not_found_barcode: {{ t("not_found_barcode")|tojson }},
+        search_error: {{ t("search_error")|tojson }},
+        edit_label: {{ t("edit_label")|tojson }},
+        delete_label: {{ t("delete_label")|tojson }},
+        pagination_from: {{ t("pagination_from")|tojson }},
+        items_count: {{ t("items_count")|tojson }},
+        only_step_half: {{ t("only_step_half")|tojson }}
     };
 
     let transferList = [];

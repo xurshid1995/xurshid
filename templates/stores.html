@@ -329,7 +329,7 @@
                 <input 
                     type="text" 
                     id="confirmInput" 
-                    placeholder="{{ t('store_name_placeholder') }}"
+                    placeholder={{ t('store_name_placeholder')|tojson }}
                     autocomplete="off"
                 >
             </div>
@@ -413,11 +413,11 @@
 {% block extra_js %}
 <script>
     const STLANG = {
-        modal_delete: '{{ t("modal_delete") }}',
-        deleting: '{{ t("deleting") }}',
-        delete_error: '{{ t("delete_error") }}',
-        connection_error_retry: '{{ t("connection_error_retry") }}',
-        error_prefix: '{{ t("error_prefix") }}'
+        modal_delete: {{ t("modal_delete")|tojson }},
+        deleting: {{ t("deleting")|tojson }},
+        delete_error: {{ t("delete_error")|tojson }},
+        connection_error_retry: {{ t("connection_error_retry")|tojson }},
+        error_prefix: {{ t("error_prefix")|tojson }}
     };
 
     // Sidebar active link

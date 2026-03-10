@@ -361,12 +361,12 @@
 
 <script>
     const PDHLANG = {
-        load_error: '{{ t("pdh_load_error") }}',
-        no_data: '{{ t("pdh_no_data") }}',
-        cash: '{{ t("pdh_cash") }}',
-        click: '{{ t("pdh_click") }}',
-        terminal: '{{ t("pdh_terminal") }}',
-        not_found: '{{ t("pdh_not_found") }}'
+        load_error: {{ t("pdh_load_error")|tojson }},
+        no_data: {{ t("pdh_no_data")|tojson }},
+        cash: {{ t("pdh_cash")|tojson }},
+        click: {{ t("pdh_click")|tojson }},
+        terminal: {{ t("pdh_terminal")|tojson }},
+        not_found: {{ t("pdh_not_found")|tojson }}
     };
 
     let paidDebts = [];

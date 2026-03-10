@@ -334,13 +334,13 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="last_name">{{ t('label_last_name') }} <span class="required">*</span></label>
-                    <input type="text" id="last_name" name="last_name" required placeholder="{{ t('placeholder_last_name') }}">
+                    <input type="text" id="last_name" name="last_name" required placeholder={{ t('placeholder_last_name')|tojson }}>
                     <div class="error-message" id="lastNameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="first_name">{{ t('label_first_name') }} <span class="required">*</span></label>
-                    <input type="text" id="first_name" name="first_name" required placeholder="{{ t('placeholder_first_name') }}">
+                    <input type="text" id="first_name" name="first_name" required placeholder={{ t('placeholder_first_name')|tojson }}>
                     <div class="error-message" id="firstNameError"></div>
                 </div>
             </div>
@@ -362,14 +362,14 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="username">{{ t('label_username_required') }} <span class="required">*</span></label>
-                    <input type="text" id="username" name="username" required placeholder="{{ t('placeholder_username') }}">
+                    <input type="text" id="username" name="username" required placeholder={{ t('placeholder_username')|tojson }}>
                     <div class="error-message" id="usernameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">{{ t('eu_new_password') }}</label>
                     <div class="password-input-container" style="position: relative;">
-                        <input type="password" id="password" name="password" placeholder="{{ t('eu_password_placeholder') }}" style="padding-right: 40px; background-color: white !important; border: 1px solid #ddd;">
+                        <input type="password" id="password" name="password" placeholder={{ t('eu_password_placeholder')|tojson }} style="padding-right: 40px; background-color: white !important; border: 1px solid #ddd;">
                         <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #666;">👁️</button>
                     </div>
                     <div class="error-message" id="passwordError"></div>
@@ -523,19 +523,19 @@
 
 <script>
     const EULANG = {
-        eu_user_not_found: '{{ t("eu_user_not_found") }}',
-        eu_user_id_not_found: '{{ t("eu_user_id_not_found") }}',
-        eu_updating: '{{ t("eu_updating") }}',
-        eu_update_error: '{{ t("eu_update_error") }}',
-        eu_updated_success: '{{ t("eu_updated_success") }}',
-        eu_confirm_delete: '{{ t("eu_confirm_delete") }}',
-        eu_deleted_success: '{{ t("eu_deleted_success") }}',
-        eu_delete_error: '{{ t("eu_delete_error") }}',
-        eu_delete_fetch_error: '{{ t("eu_delete_fetch_error") }}',
-        error_prefix: '{{ t("error_prefix") }}',
-        select_option: '{{ t("select_option") }}',
-        eu_store_label: '{{ t("eu_store_label") }}',
-        eu_warehouse_label: '{{ t("eu_warehouse_label") }}'
+        eu_user_not_found: {{ t("eu_user_not_found")|tojson }},
+        eu_user_id_not_found: {{ t("eu_user_id_not_found")|tojson }},
+        eu_updating: {{ t("eu_updating")|tojson }},
+        eu_update_error: {{ t("eu_update_error")|tojson }},
+        eu_updated_success: {{ t("eu_updated_success")|tojson }},
+        eu_confirm_delete: {{ t("eu_confirm_delete")|tojson }},
+        eu_deleted_success: {{ t("eu_deleted_success")|tojson }},
+        eu_delete_error: {{ t("eu_delete_error")|tojson }},
+        eu_delete_fetch_error: {{ t("eu_delete_fetch_error")|tojson }},
+        error_prefix: {{ t("error_prefix")|tojson }},
+        select_option: {{ t("select_option")|tojson }},
+        eu_store_label: {{ t("eu_store_label")|tojson }},
+        eu_warehouse_label: {{ t("eu_warehouse_label")|tojson }}
     };
 
     let allStores = [];

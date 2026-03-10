@@ -161,16 +161,16 @@
 {% block extra_js %}
 <script>
     const TR1LANG = {
-        no_pending: "{{ t('tr1_no_pending') }}",
-        edit: "{{ t('tr1_edit') }}",
-        delete_btn: "{{ t('tr1_delete') }}",
-        no_permission: "{{ t('tr1_no_permission') }}",
-        empty_history: "{{ t('tr1_empty_history') }}",
-        error: "{{ t('tr1_error') }}",
-        delete_confirm: "{{ t('tr1_delete_confirm') }}",
-        delete_success: "{{ t('tr1_delete_success') }}",
-        delete_error: "{{ t('tr1_delete_error') }}",
-        delete_no_perm: "{{ t('tr1_delete_no_perm') }}"
+        no_pending: {{ t('tr1_no_pending')|tojson }},
+        edit: {{ t('tr1_edit')|tojson }},
+        delete_btn: {{ t('tr1_delete')|tojson }},
+        no_permission: {{ t('tr1_no_permission')|tojson }},
+        empty_history: {{ t('tr1_empty_history')|tojson }},
+        error: {{ t('tr1_error')|tojson }},
+        delete_confirm: {{ t('tr1_delete_confirm')|tojson }},
+        delete_success: {{ t('tr1_delete_success')|tojson }},
+        delete_error: {{ t('tr1_delete_error')|tojson }},
+        delete_no_perm: {{ t('tr1_delete_no_perm')|tojson }}
     };
 
     // Session ma'lumotlari

@@ -24,7 +24,7 @@
         <div style="display: flex; gap: 10px; align-items: end;">
             <div style="flex: 1; position: relative;">
                 <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 500;">{{ t('product_name_or_barcode_label') }}</label>
-                <input type="text" id="productSearchInput" placeholder="{{ t('select_location_first') }}" 
+                <input type="text" id="productSearchInput" placeholder={{ t('select_location_first')|tojson }} 
                        autocomplete="off"
                        disabled
                        oninput="searchProducts()"

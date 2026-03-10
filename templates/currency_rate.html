@@ -227,11 +227,11 @@
         <form id="updateRateForm">
             <div class="form-group">
                 <label for="newRate">💵 {{ t('new_rate_label') }}</label>
-                <input type="number" id="newRate" name="newRate" step="0.01" min="1" placeholder="{{ t('rate_example') }}" required>
+                <input type="number" id="newRate" name="newRate" step="0.01" min="1" placeholder={{ t('rate_example')|tojson }} required>
             </div>
             <div class="form-group">
                 <label for="updatedBy">👤 {{ t('updated_by_label') }}:</label>
-                <input type="text" id="updatedBy" name="updatedBy" placeholder="{{ t('admin_name') }}" value="admin">
+                <input type="text" id="updatedBy" name="updatedBy" placeholder={{ t('admin_name')|tojson }} value="admin">
             </div>
             <button type="submit" class="btn-update">
                 🔄 {{ t('update_rate') }}
@@ -268,21 +268,21 @@
 
 <script>
     const CLANG = {
-        last_updated: '{{ t("last_updated") }}',
-        status_active: '{{ t("status_active") }}',
-        status_inactive: '{{ t("status_inactive") }}',
-        rate_load_error: '{{ t("rate_load_error") }}',
-        history_load_error: '{{ t("history_load_error") }}',
-        rate_updated_success: '{{ t("rate_updated_success") }}',
-        rate_update_error: '{{ t("rate_update_error") }}',
-        enter_correct_rate: '{{ t("enter_correct_rate") }}',
-        server_error: '{{ t("server_error") }}',
-        clear_history_confirm1: '{{ t("clear_history_confirm1") }}',
-        clear_history_confirm2: '{{ t("clear_history_confirm2") }}',
-        clearing: '{{ t("clearing") }}',
-        records_deleted: '{{ t("records_deleted") }}',
-        no_history: '{{ t("no_history") }}',
-        clear_history_error: '{{ t("clear_history_error") }}'
+        last_updated: {{ t("last_updated")|tojson }},
+        status_active: {{ t("status_active")|tojson }},
+        status_inactive: {{ t("status_inactive")|tojson }},
+        rate_load_error: {{ t("rate_load_error")|tojson }},
+        history_load_error: {{ t("history_load_error")|tojson }},
+        rate_updated_success: {{ t("rate_updated_success")|tojson }},
+        rate_update_error: {{ t("rate_update_error")|tojson }},
+        enter_correct_rate: {{ t("enter_correct_rate")|tojson }},
+        server_error: {{ t("server_error")|tojson }},
+        clear_history_confirm1: {{ t("clear_history_confirm1")|tojson }},
+        clear_history_confirm2: {{ t("clear_history_confirm2")|tojson }},
+        clearing: {{ t("clearing")|tojson }},
+        records_deleted: {{ t("records_deleted")|tojson }},
+        no_history: {{ t("no_history")|tojson }},
+        clear_history_error: {{ t("clear_history_error")|tojson }}
     };
 
     let currentRate = null;

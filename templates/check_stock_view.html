@@ -224,12 +224,12 @@
 
 <script>
 const CSVLANG = {
-    not_found: '{{ t("csv_not_found") }}',
-    status_unchecked: '{{ t("csv_status_unchecked") }}',
-    status_excess: '{{ t("csv_status_excess") }}',
-    status_deficit: '{{ t("csv_status_deficit") }}',
-    status_normal: '{{ t("csv_status_normal") }}',
-    loading: '{{ t("csv_loading") }}'
+    not_found: {{ t("csv_not_found")|tojson }},
+    status_unchecked: {{ t("csv_status_unchecked")|tojson }},
+    status_excess: {{ t("csv_status_excess")|tojson }},
+    status_deficit: {{ t("csv_status_deficit")|tojson }},
+    status_normal: {{ t("csv_status_normal")|tojson }},
+    loading: {{ t("csv_loading")|tojson }}
 };
 
 const sessionId = {{ check_session.id }};

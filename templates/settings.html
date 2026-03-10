@@ -174,15 +174,15 @@
 <script>
         // Translation strings for JS
         const SLANG = {
-            status_shown: '{{ t("status_shown") }}',
-            status_hidden: '{{ t("status_hidden") }}',
-            status_enabled: '{{ t("status_enabled") }}',
-            status_off: '{{ t("status_off") }}',
-            alert_settings_saved: '{{ t("alert_settings_saved") }}',
-            alert_lang_error: '{{ t("alert_lang_error") }}',
-            alert_settings_error: '{{ t("alert_settings_error") }}',
-            alert_currency_updated: '{{ t("alert_currency_updated") }}',
-            prompt_currency_rate: '{{ t("prompt_currency_rate") }}'
+            status_shown: {{ t("status_shown")|tojson }},
+            status_hidden: {{ t("status_hidden")|tojson }},
+            status_enabled: {{ t("status_enabled")|tojson }},
+            status_off: {{ t("status_off")|tojson }},
+            alert_settings_saved: {{ t("alert_settings_saved")|tojson }},
+            alert_lang_error: {{ t("alert_lang_error")|tojson }},
+            alert_settings_error: {{ t("alert_settings_error")|tojson }},
+            alert_currency_updated: {{ t("alert_currency_updated")|tojson }},
+            prompt_currency_rate: {{ t("prompt_currency_rate")|tojson }}
         };
 
         // Currency va logout funksiyalari

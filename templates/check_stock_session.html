@@ -315,7 +315,7 @@
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">{{ t('css_actual_quantity') }}</label>
             <input type="number" 
                    id="actualQuantityInput" 
-                   placeholder="{{ t('css_enter_quantity') }}"
+                   placeholder={{ t('css_enter_quantity')|tojson }}
                    min="0"
                    step="0.01"
                    style="width: 100%; padding: 12px; border: 2px solid #28a745; border-radius: 8px; font-size: 16px; box-sizing: border-box;"
@@ -395,34 +395,34 @@
 
 <script>
 const CSSLANG = {
-    not_found: '{{ t("css_not_found") }}',
-    already_checked: '{{ t("css_already_checked") }}',
-    save_error: '{{ t("css_save_error") }}',
-    save_fetch_error: '{{ t("css_save_fetch_error") }}',
-    already_checked_alert: '{{ t("css_already_checked_alert") }}',
-    load_error: '{{ t("css_load_error") }}',
-    products_not_found: '{{ t("css_products_not_found") }}',
-    search_not_found: '{{ t("css_search_not_found") }}',
-    total_label: '{{ t("css_total_label") }}',
-    product_suffix: '{{ t("css_product_suffix") }}',
-    page: '{{ t("css_page") }}',
-    search_label: '{{ t("css_search_label") }}',
-    search_error: '{{ t("css_search_error") }}',
-    status_normal: '{{ t("css_status_normal") }}',
-    status_excess: '{{ t("css_status_excess") }}',
-    status_deficit: '{{ t("css_status_deficit") }}',
-    not_checked_yet: '{{ t("css_not_checked_yet") }}',
-    no_error_products: '{{ t("css_no_error_products") }}',
-    no_correct_products: '{{ t("css_no_correct_products") }}',
-    search_no_result: '{{ t("css_search_no_result") }}',
-    delete_error: '{{ t("css_delete_error") }}',
-    delete_fetch_error: '{{ t("css_delete_fetch_error") }}',
-    confirm_finish_empty: '{{ t("css_confirm_finish_empty") }}',
-    confirm_finish: '{{ t("css_confirm_finish") }}',
-    finished_empty: '{{ t("css_finished_empty") }}',
-    finished_success: '{{ t("css_finished_success") }}',
-    finish_error: '{{ t("css_finish_error") }}',
-    finish_fetch_error: '{{ t("css_finish_fetch_error") }}'
+    not_found: {{ t("css_not_found")|tojson }},
+    already_checked: {{ t("css_already_checked")|tojson }},
+    save_error: {{ t("css_save_error")|tojson }},
+    save_fetch_error: {{ t("css_save_fetch_error")|tojson }},
+    already_checked_alert: {{ t("css_already_checked_alert")|tojson }},
+    load_error: {{ t("css_load_error")|tojson }},
+    products_not_found: {{ t("css_products_not_found")|tojson }},
+    search_not_found: {{ t("css_search_not_found")|tojson }},
+    total_label: {{ t("css_total_label")|tojson }},
+    product_suffix: {{ t("css_product_suffix")|tojson }},
+    page: {{ t("css_page")|tojson }},
+    search_label: {{ t("css_search_label")|tojson }},
+    search_error: {{ t("css_search_error")|tojson }},
+    status_normal: {{ t("css_status_normal")|tojson }},
+    status_excess: {{ t("css_status_excess")|tojson }},
+    status_deficit: {{ t("css_status_deficit")|tojson }},
+    not_checked_yet: {{ t("css_not_checked_yet")|tojson }},
+    no_error_products: {{ t("css_no_error_products")|tojson }},
+    no_correct_products: {{ t("css_no_correct_products")|tojson }},
+    search_no_result: {{ t("css_search_no_result")|tojson }},
+    delete_error: {{ t("css_delete_error")|tojson }},
+    delete_fetch_error: {{ t("css_delete_fetch_error")|tojson }},
+    confirm_finish_empty: {{ t("css_confirm_finish_empty")|tojson }},
+    confirm_finish: {{ t("css_confirm_finish")|tojson }},
+    finished_empty: {{ t("css_finished_empty")|tojson }},
+    finished_success: {{ t("css_finished_success")|tojson }},
+    finish_error: {{ t("css_finish_error")|tojson }},
+    finish_fetch_error: {{ t("css_finish_fetch_error")|tojson }}
 };
 
 const sessionId = '{{ session_id }}';

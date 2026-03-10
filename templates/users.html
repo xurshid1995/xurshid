@@ -344,27 +344,27 @@
 
 <script>
     const ULANG = {
-        all_stores: '{{ t("all_stores") }}',
-        status_active: '{{ t("status_active") }}',
-        status_inactive: '{{ t("status_inactive") }}',
-        your_account: '{{ t("your_account") }}',
-        btn_edit: '{{ t("btn_edit") }}',
-        deactivate_btn: '{{ t("deactivate_btn") }}',
-        activate_btn: '{{ t("activate_btn") }}',
-        modal_delete: '{{ t("modal_delete") }}',
-        confirm_delete_user: '{{ t("confirm_delete_user") }}',
-        user_deleted: '{{ t("user_deleted") }}',
-        confirm_toggle_user: '{{ t("confirm_toggle_user") }}',
-        action_deactivate: '{{ t("action_deactivate") }}',
-        action_activate: '{{ t("action_activate") }}',
-        users_load_error: '{{ t("users_load_error") }}',
-        error_prefix: '{{ t("error_prefix") }}',
-        th_store: '{{ t("th_store") }}',
-        th_login: '{{ t("th_login") }}',
-        th_email: '{{ t("th_email") }}',
-        th_phone: '{{ t("th_phone") }}',
-        th_joined: '{{ t("th_joined") }}',
-        th_status: '{{ t("th_status") }}'
+        all_stores: {{ t("all_stores")|tojson }},
+        status_active: {{ t("status_active")|tojson }},
+        status_inactive: {{ t("status_inactive")|tojson }},
+        your_account: {{ t("your_account")|tojson }},
+        btn_edit: {{ t("btn_edit")|tojson }},
+        deactivate_btn: {{ t("deactivate_btn")|tojson }},
+        activate_btn: {{ t("activate_btn")|tojson }},
+        modal_delete: {{ t("modal_delete")|tojson }},
+        confirm_delete_user: {{ t("confirm_delete_user")|tojson }},
+        user_deleted: {{ t("user_deleted")|tojson }},
+        confirm_toggle_user: {{ t("confirm_toggle_user")|tojson }},
+        action_deactivate: {{ t("action_deactivate")|tojson }},
+        action_activate: {{ t("action_activate")|tojson }},
+        users_load_error: {{ t("users_load_error")|tojson }},
+        error_prefix: {{ t("error_prefix")|tojson }},
+        th_store: {{ t("th_store")|tojson }},
+        th_login: {{ t("th_login")|tojson }},
+        th_email: {{ t("th_email")|tojson }},
+        th_phone: {{ t("th_phone")|tojson }},
+        th_joined: {{ t("th_joined")|tojson }},
+        th_status: {{ t("th_status")|tojson }}
     };
 
     let allUsers = [];
