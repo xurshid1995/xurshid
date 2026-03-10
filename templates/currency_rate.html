@@ -227,11 +227,11 @@
         <form id="updateRateForm">
             <div class="form-group">
                 <label for="newRate">💵 {{ t('new_rate_label') }}</label>
-                <input type="number" id="newRate" name="newRate" step="0.01" min="1" placeholder={{ t('rate_example')|tojson }} required>
+                <input type="number" id="newRate" name="newRate" step="0.01" min="1" placeholder="{{ t('rate_example') }}" required>
             </div>
             <div class="form-group">
                 <label for="updatedBy">👤 {{ t('updated_by_label') }}:</label>
-                <input type="text" id="updatedBy" name="updatedBy" placeholder={{ t('admin_name')|tojson }} value="admin">
+                <input type="text" id="updatedBy" name="updatedBy" placeholder="{{ t('admin_name') }}" value="admin">
             </div>
             <button type="submit" class="btn-update">
                 🔄 {{ t('update_rate') }}

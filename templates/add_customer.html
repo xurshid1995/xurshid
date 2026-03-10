@@ -178,13 +178,13 @@
 
                 <div class="form-group">
                     <label for="email">{{ t('email_label') }}</label>
-                    <input type="email" id="email" name="email" placeholder={{ t('placeholder_email')|tojson }}>
+                    <input type="email" id="email" name="email" placeholder="{{ t('placeholder_email') }}">
                     <div class="form-hint">{{ t('hint_email') }}</div>
                 </div>
 
                 <div class="form-group">
                     <label for="address">{{ t('address_label') }}</label>
-                    <textarea id="address" name="address" placeholder={{ t('placeholder_address')|tojson }}></textarea>
+                    <textarea id="address" name="address" placeholder="{{ t('placeholder_address') }}"></textarea>
                     <div class="form-hint">{{ t('hint_address') }}</div>
                 </div>
 

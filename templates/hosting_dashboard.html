@@ -102,7 +102,7 @@
             <button class="btn-hosting btn-primary" onclick="showAddClientModal()">
                 <i class="fas fa-plus"></i> {{ t('hd2_add_client') }}
             </button>
-            <button class="btn-hosting btn-outline" onclick="loadDroplets()" title={{ t('hd2_do_servers')|tojson }}>
+            <button class="btn-hosting btn-outline" onclick="loadDroplets()" title="{{ t('hd2_do_servers') }}">
                 <i class="fas fa-cloud"></i> {{ t('hd2_do_servers') }}
             </button>
         </div>
@@ -211,7 +211,7 @@
 
         <div class="form-group">
             <label>{{ t('hd2_lbl_name') }} *</label>
-            <input type="text" id="client-name" placeholder={{ t('hd2_ph_name')|tojson }} required>
+            <input type="text" id="client-name" placeholder="{{ t('hd2_ph_name') }}" required>
         </div>
 
         <div class="form-group">
@@ -221,12 +221,12 @@
 
         <div class="form-group">
             <label>Telegram Chat ID <small style="color:#888;">({{ t('hd2_auto_detect') }})</small></label>
-            <input type="number" id="client-telegram-id" placeholder={{ t('hd2_ph_auto')|tojson }}>
+            <input type="number" id="client-telegram-id" placeholder="{{ t('hd2_ph_auto') }}">
         </div>
 
         <div class="form-group">
             <label>Telegram Username <small style="color:#888;">({{ t('hd2_auto_detect') }})</small></label>
-            <input type="text" id="client-telegram-username" placeholder={{ t('hd2_ph_auto')|tojson }}>
+            <input type="text" id="client-telegram-username" placeholder="{{ t('hd2_ph_auto') }}">
         </div>
 
         <div class="form-group">
@@ -256,7 +256,7 @@
 
         <div class="form-group">
             <label>{{ t('hd2_lbl_notes') }}</label>
-            <textarea id="client-notes" placeholder={{ t('hd2_ph_notes')|tojson }}></textarea>
+            <textarea id="client-notes" placeholder="{{ t('hd2_ph_notes') }}"></textarea>
         </div>
 
         <div class="form-group">
@@ -302,7 +302,7 @@
 
         <div class="form-group">
             <label>{{ t('hd2_lbl_notes') }}</label>
-            <textarea id="pay-notes" placeholder={{ t('hd2_ph_payment_note')|tojson }}></textarea>
+            <textarea id="pay-notes" placeholder="{{ t('hd2_ph_payment_note') }}"></textarea>
         </div>
 
         <div class="modal-actions">

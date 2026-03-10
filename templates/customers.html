@@ -774,7 +774,7 @@
             <div style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap;">
                 <div class="search-box" style="flex: 1 1 auto; max-width: 450px; min-width: 250px;">
                     <span class="search-icon">🔍</span>
-                    <input type="text" id="customerSearch" placeholder={{ t('customer_search')|tojson }} oninput="searchCustomers()">
+                    <input type="text" id="customerSearch" placeholder="{{ t('customer_search') }}" oninput="searchCustomers()">
                     <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">❌</button>
                 </div>
                 <span id="resultsInfo">{{ t('loading') }}</span>

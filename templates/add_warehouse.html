@@ -22,7 +22,7 @@
                 {{ t('label_warehouse_name_required') }}
             </label>
             <input type="text" id="name" name="name" required 
-                   placeholder={{ t('placeholder_warehouse_name')|tojson }}>
+                   placeholder="{{ t('placeholder_warehouse_name') }}">
         </div>
 
         <div class="form-group">
@@ -31,7 +31,7 @@
                 {{ t('label_address_required') }}
             </label>
             <textarea id="address" name="address" rows="3" required 
-                     placeholder={{ t('placeholder_address')|tojson }}></textarea>
+                     placeholder="{{ t('placeholder_address') }}"></textarea>
         </div>
 
         <div class="form-group">
@@ -40,7 +40,7 @@
                 {{ t('label_manager_name_required') }}
             </label>
             <input type="text" id="manager_name" name="manager_name" required 
-                   placeholder={{ t('placeholder_manager_full_name')|tojson }}>
+                   placeholder="{{ t('placeholder_manager_full_name') }}">
         </div>
 
         <div class="form-group">
@@ -49,7 +49,7 @@
                 {{ t('phone_number_label') }}
             </label>
             <input type="text" id="phone" name="phone" 
-                   placeholder={{ t('placeholder_phone_format')|tojson }}>
+                   placeholder="{{ t('placeholder_phone_format') }}">
         </div>
 
         <div class="form-actions">

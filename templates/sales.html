@@ -674,7 +674,7 @@
             <div class="tabs-container" id="salesTabsContainer">
                 <!-- Tabs dinamik qo'shiladi -->
             </div>
-            <button class="btn-new-sale" onclick="addNewSaleTab()" title={{ t('btn_new_sale')|tojson }}>
+            <button class="btn-new-sale" onclick="addNewSaleTab()" title="{{ t('btn_new_sale') }}">
                 {{ t('btn_new_sale') }}
             </button>
         </div>
@@ -710,7 +710,7 @@
                             <span style="filter: grayscale(100%) brightness(200%);">➕</span> {{ t('btn_new') }}
                         </button>
                     </div>
-                    <input type="text" id="customerSearch" placeholder={{ t('placeholder_customer_name')|tojson }} autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
+                    <input type="text" id="customerSearch" placeholder="{{ t('placeholder_customer_name') }}" autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     <div id="customerDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 1500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                     <input type="hidden" id="selectedCustomerId" value="">
                 </div>
@@ -721,7 +721,7 @@
                 <div style="position: relative;">
                     <input type="text" 
                            id="universalSearch" 
-                           placeholder={{ t('placeholder_scan_or_search')|tojson }} 
+                           placeholder="{{ t('placeholder_scan_or_search') }}" 
                            autocomplete="off"
                            style="width: 100%; padding: 10px 45px 10px 10px; border: 2px solid #28a745; border-radius: 6px; font-size: 14px; background: white;">
                     <!-- Mobile uchun native camera input (yashirin) -->
@@ -977,22 +977,22 @@
             
             <div style="margin-bottom: 0.8rem;">
                 <label style="display: block; margin-bottom: 0.35rem; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ t('label_customer_name_required') }} <span style="color: #e74c3c;">*</span></label>
-                <input type="text" id="newCustomerName" placeholder={{ t('placeholder_full_name')|tojson }} style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
+                <input type="text" id="newCustomerName" placeholder="{{ t('placeholder_full_name') }}" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
             </div>
             
             <div style="margin-bottom: 0.8rem;">
                 <label style="display: block; margin-bottom: 0.35rem; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ t('label_phone') }}</label>
-                <input type="tel" id="newCustomerPhone" placeholder={{ t('placeholder_phone')|tojson }} maxlength="18" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
+                <input type="tel" id="newCustomerPhone" placeholder="{{ t('placeholder_phone') }}" maxlength="18" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
             </div>
             
             <div style="margin-bottom: 0.8rem;">
                 <label style="display: block; margin-bottom: 0.35rem; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ t('label_email') }}</label>
-                <input type="email" id="newCustomerEmail" placeholder={{ t('placeholder_email')|tojson }} style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
+                <input type="email" id="newCustomerEmail" placeholder="{{ t('placeholder_email') }}" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease;">
             </div>
             
             <div style="margin-bottom: 0.8rem;">
                 <label style="display: block; margin-bottom: 0.35rem; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ t('label_address') }}</label>
-                <textarea id="newCustomerAddress" placeholder={{ t('placeholder_address')|tojson }} rows="2" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; resize: vertical; transition: all 0.3s ease; min-height: 60px;"></textarea>
+                <textarea id="newCustomerAddress" placeholder="{{ t('placeholder_address') }}" rows="2" style="width: 100%; padding: 0.6rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; resize: vertical; transition: all 0.3s ease; min-height: 60px;"></textarea>
             </div>
             
             <div style="margin-bottom: 1rem;">

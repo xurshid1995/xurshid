@@ -285,13 +285,13 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="last_name">{{ t('label_last_name') }} <span class="required">*</span></label>
-                    <input type="text" id="last_name" name="last_name" required placeholder={{ t('placeholder_last_name')|tojson }}>
+                    <input type="text" id="last_name" name="last_name" required placeholder="{{ t('placeholder_last_name') }}">
                     <div class="error-message" id="lastNameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="first_name">{{ t('label_first_name') }} <span class="required">*</span></label>
-                    <input type="text" id="first_name" name="first_name" required placeholder={{ t('placeholder_first_name')|tojson }}>
+                    <input type="text" id="first_name" name="first_name" required placeholder="{{ t('placeholder_first_name') }}">
                     <div class="error-message" id="firstNameError"></div>
                 </div>
             </div>
@@ -313,13 +313,13 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="username">{{ t('label_username_required') }} <span class="required">*</span></label>
-                    <input type="text" id="username" name="username" required placeholder={{ t('placeholder_username')|tojson }}>
+                    <input type="text" id="username" name="username" required placeholder="{{ t('placeholder_username') }}">
                     <div class="error-message" id="usernameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">{{ t('label_password_required') }} <span class="required">*</span></label>
-                    <input type="password" id="password" name="password" required placeholder={{ t('placeholder_password')|tojson }}>
+                    <input type="password" id="password" name="password" required placeholder="{{ t('placeholder_password') }}">
                     <div class="error-message" id="passwordError"></div>
                 </div>
             </div>
