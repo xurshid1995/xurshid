@@ -6070,6 +6070,7 @@ def api_debts():
 
         # Location filter parametri (frontend dan)
         location_id = request.args.get('location_id', type=int)
+        location_type = request.args.get('location_type', type=str, default='store')
 
         # Foydalanuvchi huquqlarini tekshirish
         allowed_location_ids = None
@@ -6098,6 +6099,10 @@ def api_debts():
                 logger.warning(f"⚠️ User {current_user.username} tried to access unauthorized location {location_id}")
                 return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
 
+            # Warehouse tanlansa, customers jadvalida warehouse bog'liq maydon yo'q
+            if location_type == 'warehouse':
+                return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
+
             query = text("""
                 SELECT
                     c.id as customer_id,
@@ -6113,10 +6118,7 @@ def api_debts():
                     MIN(s.payment_due_date) as nearest_due_date
                 FROM customers c
                 LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-                WHERE c.id IN (
-                    SELECT DISTINCT customer_id FROM sales
-                    WHERE location_id = :location_id AND debt_usd > 0
-                )
+                WHERE c.store_id = :location_id
                 GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
                 HAVING COALESCE(SUM(s.debt_usd), 0) > 0
                 ORDER BY remaining_debt DESC
@@ -6125,12 +6127,19 @@ def api_debts():
         else:
             # Location tanlanmagan - barcha ruxsat etilgan locationlar
             if allowed_location_ids is not None:
-                # Admin bo'lmagan user - faqat ruxsat etilgan locationlar
+                # Admin bo'lmagan user - faqat ruxsat etilgan store locationlar
                 if not allowed_location_ids:
                     # Hech qanday location'ga ruxsat yo'q
                     return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
 
-                logger.info(f"🔍 Debts query location_ids: {allowed_location_ids}")
+                # Faqat store ID larini olish (customers.store_id faqat stores ga reference)
+                allowed_store_ids = extract_location_ids(
+                    current_user.allowed_locations or [], 'store')
+                if not allowed_store_ids:
+                    # Faqat warehouse larga ruxsat bor, customers warehouse ga tegishli emas
+                    return jsonify({'success': True, 'debts': [], 'exchange_rate': exchange_rate})
+
+                logger.info(f"🔍 Debts query store_ids: {allowed_store_ids}")
 
                 query = text("""
                     SELECT
@@ -6147,15 +6156,12 @@ def api_debts():
                         MIN(s.payment_due_date) as nearest_due_date
                     FROM customers c
                     LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-                    WHERE c.id IN (
-                        SELECT DISTINCT customer_id FROM sales
-                        WHERE location_id = ANY(:location_ids) AND debt_usd > 0
-                    )
+                    WHERE c.store_id = ANY(:store_ids)
                     GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
                     HAVING COALESCE(SUM(s.debt_usd), 0) > 0
                     ORDER BY remaining_debt DESC
                 """)
-                result = db.session.execute(query, {'location_ids': allowed_location_ids})
+                result = db.session.execute(query, {'store_ids': allowed_store_ids})
             else:
                 # Admin - barcha qarzlar
                 query = text("""

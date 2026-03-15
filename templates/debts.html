@@ -1405,6 +1405,7 @@
     let currentCustomerId = null;
     let exchangeRate = 13000;
     let selectedLocation = '';
+    let selectedLocationType = '';
     const userRole = '{{ user_role }}';
     const allowedLocations = {{ allowed_locations | tojson }};
 
@@ -1432,24 +1433,24 @@
                 const button = document.createElement('button');
                 button.className = 'btn btn-sm me-2 mb-2 location-btn';
                 button.setAttribute('data-location', loc.id);
-                button.onclick = () => selectLocation(button, loc.id);
+                button.onclick = () => selectLocation(button, loc.id, loc.type);
                 button.textContent = `${loc.emoji} ${loc.name}`;
                 container.appendChild(button);
                 
                 // Sotuvchi uchun birinchi ruxsat etilgan locationni saqlash
                 if (userRole !== 'admin' && index === 0) {
-                    firstLocation = { button, id: loc.id };
+                    firstLocation = { button, id: loc.id, type: loc.type };
                 }
             });
             
             // Sotuvchi uchun avtomatik birinchi locationni tanlash
             if (userRole !== 'admin' && firstLocation) {
-                selectLocation(firstLocation.button, firstLocation.id);
+                selectLocation(firstLocation.button, firstLocation.id, firstLocation.type);
             } else if (userRole === 'admin') {
                 // Admin uchun "Barchasi" tugmasini avtomatik tanlash
                 const allBtn = container.querySelector('[data-location=""]');
                 if (allBtn) {
-                    selectLocation(allBtn, '');
+                    selectLocation(allBtn, '', '');
                 }
             }
         } catch (error) {
@@ -1458,7 +1459,7 @@
     }
 
     // Location tugmasini tanlash
-    function selectLocation(button, locationId) {
+    function selectLocation(button, locationId, locationType) {
         // Barcha tugmalardan active classni olib tashlash
         document.querySelectorAll('.location-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -1469,6 +1470,7 @@
         
         // Tanlangan locationni saqlash
         selectedLocation = locationId;
+        selectedLocationType = locationType || '';
         
         // Ma'lumotlarni yangilash
         loadDebts();
@@ -1569,7 +1571,7 @@
     // Ma'lumotlarni yuklash
     async function loadDebts() {
         try {
-            const url = selectedLocation ? `/api/debts?location_id=${selectedLocation}` : '/api/debts';
+            const url = selectedLocation ? `/api/debts?location_id=${selectedLocation}&location_type=${selectedLocationType}` : '/api/debts';
             const response = await fetch(url);
             if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
             
