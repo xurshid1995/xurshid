@@ -6112,7 +6112,8 @@ def api_debts():
                     COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
                     MIN(s.payment_due_date) as nearest_due_date
                 FROM customers c
-                LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0 AND s.location_id = :location_id
+                LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
+                WHERE c.store_id = :location_id
                 GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
                 HAVING COALESCE(SUM(s.debt_usd), 0) > 0
                 ORDER BY remaining_debt DESC
@@ -6143,7 +6144,7 @@ def api_debts():
                         MIN(s.payment_due_date) as nearest_due_date
                     FROM customers c
                     LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-                        AND s.location_id = ANY(:location_ids)
+                    WHERE c.store_id = ANY(:location_ids)
                     GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate
                     HAVING COALESCE(SUM(s.debt_usd), 0) > 0
                     ORDER BY remaining_debt DESC
@@ -6193,36 +6194,15 @@ def api_debts():
         if debts:
             customer_ids = [d['customer_id'] for d in debts]
 
-            # Location shartini qo'shish
-            if location_id:
-                sales_query = text("""
-                    SELECT s.id as sale_id, s.customer_id, s.debt_usd, s.payment_due_date, s.created_at
-                    FROM sales s
-                    WHERE s.customer_id = ANY(:customer_ids)
-                      AND s.debt_usd > 0
-                      AND s.location_id = :location_id
-                    ORDER BY s.payment_due_date ASC NULLS LAST, s.created_at DESC
-                """)
-                sales_result = db.session.execute(sales_query, {'customer_ids': customer_ids, 'location_id': location_id})
-            elif allowed_location_ids is not None:
-                sales_query = text("""
-                    SELECT s.id as sale_id, s.customer_id, s.debt_usd, s.payment_due_date, s.created_at
-                    FROM sales s
-                    WHERE s.customer_id = ANY(:customer_ids)
-                      AND s.debt_usd > 0
-                      AND s.location_id = ANY(:location_ids)
-                    ORDER BY s.payment_due_date ASC NULLS LAST, s.created_at DESC
-                """)
-                sales_result = db.session.execute(sales_query, {'customer_ids': customer_ids, 'location_ids': allowed_location_ids})
-            else:
-                sales_query = text("""
-                    SELECT s.id as sale_id, s.customer_id, s.debt_usd, s.payment_due_date, s.created_at
-                    FROM sales s
-                    WHERE s.customer_id = ANY(:customer_ids)
-                      AND s.debt_usd > 0
-                    ORDER BY s.payment_due_date ASC NULLS LAST, s.created_at DESC
-                """)
-                sales_result = db.session.execute(sales_query, {'customer_ids': customer_ids})
+            # sale_due_dates: barcha joylashuvlardagi qarz savdolar (location filtersiz)
+            sales_query = text("""
+                SELECT s.id as sale_id, s.customer_id, s.debt_usd, s.payment_due_date, s.created_at
+                FROM sales s
+                WHERE s.customer_id = ANY(:customer_ids)
+                  AND s.debt_usd > 0
+                ORDER BY s.payment_due_date ASC NULLS LAST, s.created_at DESC
+            """)
+            sales_result = db.session.execute(sales_query, {'customer_ids': customer_ids})
 
             # customer_id bo'yicha guruhlash
             from collections import defaultdict
@@ -6466,30 +6446,12 @@ def api_debt_details(customer_id):
         # Mijoz ma'lumotlari
         customer = Customer.query.get_or_404(customer_id)
 
-        # Joriy foydalanuvchini olish va location filter aniqlash
-        current_user_obj = get_current_user()
-        allowed_location_ids = None
-        if current_user_obj and current_user_obj.role != 'admin':
-            allowed_locations = current_user_obj.allowed_locations or []
-            if allowed_locations:
-                store_ids = extract_location_ids(allowed_locations, 'store')
-                warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
-                allowed_location_ids = []
-                if store_ids:
-                    allowed_location_ids.extend(store_ids)
-                if warehouse_ids:
-                    allowed_location_ids.extend(warehouse_ids)
-
-        # Faqat qarz mavjud savdolarni olish (pending emas), location bo'yicha filtrlash
-        base_filter = [
+        # Faqat qarz mavjud savdolarni olish (pending emas) - barcha lokatsiyalar
+        debt_sales = Sale.query.filter(
             Sale.customer_id == customer_id,
             Sale.debt_usd > 0,
             Sale.payment_status != 'pending'
-        ]
-        if allowed_location_ids is not None:
-            base_filter.append(Sale.location_id.in_(allowed_location_ids))
-
-        debt_sales = Sale.query.filter(*base_filter).order_by(Sale.created_at.desc()).all()
+        ).order_by(Sale.created_at.desc()).all()
 
         history = []
         total_debt = Decimal('0')
