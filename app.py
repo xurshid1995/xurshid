@@ -6466,12 +6466,30 @@ def api_debt_details(customer_id):
         # Mijoz ma'lumotlari
         customer = Customer.query.get_or_404(customer_id)
 
-        # Faqat qarz mavjud savdolarni olish (pending emas)
-        debt_sales = Sale.query.filter(
+        # Joriy foydalanuvchini olish va location filter aniqlash
+        current_user_obj = get_current_user()
+        allowed_location_ids = None
+        if current_user_obj and current_user_obj.role != 'admin':
+            allowed_locations = current_user_obj.allowed_locations or []
+            if allowed_locations:
+                store_ids = extract_location_ids(allowed_locations, 'store')
+                warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
+                allowed_location_ids = []
+                if store_ids:
+                    allowed_location_ids.extend(store_ids)
+                if warehouse_ids:
+                    allowed_location_ids.extend(warehouse_ids)
+
+        # Faqat qarz mavjud savdolarni olish (pending emas), location bo'yicha filtrlash
+        base_filter = [
             Sale.customer_id == customer_id,
             Sale.debt_usd > 0,
             Sale.payment_status != 'pending'
-        ).order_by(Sale.created_at.desc()).all()
+        ]
+        if allowed_location_ids is not None:
+            base_filter.append(Sale.location_id.in_(allowed_location_ids))
+
+        debt_sales = Sale.query.filter(*base_filter).order_by(Sale.created_at.desc()).all()
 
         history = []
         total_debt = Decimal('0')
