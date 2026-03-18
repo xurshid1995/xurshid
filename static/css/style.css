@@ -1372,7 +1372,8 @@ footer {
         align-items: center;
         width: 100%;
         justify-content: flex-end;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow: hidden;
     }
     
     .top-header .currency-display {
