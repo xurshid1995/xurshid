@@ -2030,8 +2030,13 @@
             const product = result.data || result;
             console.log('✅ Mahsulot topildi:', product);
             
+            // sell_price va cost_price string bo'lishi mumkin (to_dict() str() qaytaradi)
+            const sellPrice = parseFloat(product.sell_price || product.price || 0);
+            const costPrice = parseFloat(product.cost_price || 0);
+            const availableQty = parseFloat(product.available_quantity || 0);
+            
             // Mahsulotni darhol savatga qo'shish
-            addToCart(product.id, product.name, product.available_quantity, product.sell_price, product.cost_price);
+            addToCart(product.id, product.name, availableQty, sellPrice, costPrice);
             
             // Statusni ko'rsatish
             showBarcodeStatus(`✓ ${product.name} savatga qo'shildi!`, 'success');
