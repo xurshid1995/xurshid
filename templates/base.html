@@ -479,7 +479,7 @@
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
             menuLinks.forEach(link => {
                 link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= 1024) {
                         closeMobileNav();
                     }
                 });
@@ -487,7 +487,7 @@
             
             // Close mobile nav on window resize if screen becomes larger
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
+                if (window.innerWidth > 1024) {
                     closeMobileNav();
                 }
             });

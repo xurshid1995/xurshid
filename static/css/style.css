@@ -139,8 +139,8 @@ body {
     opacity: 1;
 }
 
-/* Mobilda barcha matnlar ko'rinadi */
-@media (max-width: 768px) {
+/* Mobil va planşetda barcha matnlar ko'rinadi */
+@media (max-width: 1024px) {
     .sidebar-menu a span:not(.icon) {
         opacity: 1 !important;
         display: inline !important;
@@ -389,10 +389,12 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Desktop uchun minimal kenglik - olib tashlandi layout muammosi tufayli */
-@media (min-width: 769px) {
+/* Planşet (769-1024px): sidebar yopiq — main-content to'liq kenglikda */
+@media (min-width: 769px) and (max-width: 1024px) {
     .main-content {
-        /* min-width olib tashlandi - flex layout ishlatadi */
+        margin-left: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
     }
 }
 
@@ -1190,7 +1192,7 @@ footer {
 }
 
 /* Mobile animation optimizations */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .sidebar {
         transition: left 0.25s ease-out;
         will-change: transform;
@@ -1215,8 +1217,8 @@ footer {
    MOBILE RESPONSIVE DESIGN
    ============================================== */
 
-/* Desktop da mobile elementlarni yashirish */
-@media (min-width: 769px) {
+/* Desktop da mobile elementlarni yashirish (1025px+) */
+@media (min-width: 1025px) {
     .mobile-nav-toggle {
         display: none;
     }
@@ -1227,6 +1229,13 @@ footer {
     
     .sidebar-overlay {
         display: none;
+    }
+}
+
+/* Planşet (769-1024px): sidebar toggle uchun header chapdan joy qoldirish */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .top-header {
+        padding-left: 70px;
     }
 }
 
@@ -1292,7 +1301,7 @@ footer {
 }
 
 /* Mobile Styles */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     
     /* Show mobile navigation elements */
     .mobile-nav-toggle {
