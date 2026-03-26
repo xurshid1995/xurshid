@@ -52,8 +52,10 @@
         <!-- Sarlavha va filtrlar bir qatorda -->
         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 15px; flex-wrap: wrap;">
             <h3 style="margin: 0; color: #333; white-space: nowrap;">📊 {{ t('product_sales') }}</h3>
-            <input type="text" id="saleCustomerFilter" oninput="filterProductSales()" placeholder="Mijoz ismi..." 
-                   style="padding: 7px 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; width: 190px; outline: none;">
+            <select id="saleCustomerFilter" onchange="filterProductSales()"
+                   style="padding: 7px 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; width: 200px; outline: none; cursor: pointer; background: white;">
+                <option value="">Barcha mijozlar</option>
+            </select>
             <input type="number" id="saleIdFilterReturn" oninput="filterProductSales()" placeholder="Savdo ID" 
                    style="padding: 7px 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; width: 110px; outline: none;" min="1">
             <button onclick="clearProductSaleFilters()" style="padding: 7px 14px; background: #6c757d; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 13px;">✕ Tozalash</button>
@@ -456,10 +458,11 @@
             // Barcha savdolarni saqlab qo'yish (filtr uchun)
             allProductSalesData = data.sales;
 
-            // Filtr inputlarni tozalash
-            const custF = document.getElementById('saleCustomerFilter');
+            // Mijozlar dropdownni yaratish
+            buildCustomerDropdown(allProductSalesData);
+
+            // ID filtrni tozalash
             const idF = document.getElementById('saleIdFilterReturn');
-            if (custF) custF.value = '';
             if (idF) idF.value = '';
 
             // Jadvalga chiqarish
@@ -516,19 +519,29 @@
     }
 
     function filterProductSales() {
-        const customerFilter = document.getElementById('saleCustomerFilter').value.trim().toLowerCase();
+        const customerFilter = document.getElementById('saleCustomerFilter').value;
         const idFilter = document.getElementById('saleIdFilterReturn').value.trim();
 
         let filtered = allProductSalesData;
 
         if (customerFilter) {
-            filtered = filtered.filter(s => (s.customer_name || '').toLowerCase().includes(customerFilter));
+            filtered = filtered.filter(s => (s.customer_name || '') === customerFilter);
         }
         if (idFilter) {
             filtered = filtered.filter(s => String(s.id) === idFilter);
         }
 
         renderProductSalesTable(filtered);
+    }
+
+    function buildCustomerDropdown(sales) {
+        const select = document.getElementById('saleCustomerFilter');
+        const uniqueCustomers = [...new Set(sales.map(s => s.customer_name).filter(Boolean))].sort();
+        let html = '<option value="">Barcha mijozlar</option>';
+        uniqueCustomers.forEach(name => {
+            html += `<option value="${name}">${name}</option>`;
+        });
+        select.innerHTML = html;
     }
 
     function clearProductSaleFilters() {
