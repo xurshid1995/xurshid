@@ -3754,9 +3754,11 @@ def api_sales_by_product(product_id):
                 if sale_item:
                     # Customer name'ni xavfsiz olish
                     customer_name = 'Noma\'lum'
+                    customer_phone = ''
                     try:
                         if sale.customer:
                             customer_name = sale.customer.name
+                            customer_phone = sale.customer.phone or ''
                     except Exception as ce:
                         logger.warning(f"Customer ma'lumotini olishda xatolik: {str(ce)}")
 
@@ -3773,6 +3775,7 @@ def api_sales_by_product(product_id):
                     sales_list.append({
                         'id': sale.id,
                         'customer_name': customer_name,
+                        'customer_phone': customer_phone,
                         'created_at': sale.created_at.isoformat() if sale.created_at else None,
                         'payment_status': sale.payment_status,
                         'location_id': sale.location_id,

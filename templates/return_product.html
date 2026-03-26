@@ -541,13 +541,25 @@
             return;
         }
 
-        dropdown.innerHTML = matched.map(name =>
-            `<div onclick="selectCustomerFilter('${name.replace(/'/g, "\\'")}')"
+        // Mijoz nomi → telefon xaritasi
+        const customerMap = {};
+        allProductSalesData.forEach(s => {
+            if (s.customer_name && !customerMap[s.customer_name]) {
+                customerMap[s.customer_name] = s.customer_phone || '';
+            }
+        });
+
+        dropdown.innerHTML = matched.map(name => {
+            const phone = customerMap[name] || '';
+            const safeName = name.replace(/'/g, "\\'");
+            const highlighted = name.replace(new RegExp(term, 'gi'), m => `<b>${m}</b>`);
+            return `<div onclick="selectCustomerFilter('${safeName}')"
                   style="padding:10px; cursor:pointer; border-bottom:1px solid #f0f0f0; transition:all 0.2s;"
                   onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-                <div style="font-weight:500; color:#333;">${name.replace(new RegExp(term, 'gi'), m => `<b>${m}</b>`)}</div>
-            </div>`
-        ).join('');
+                <div style="font-weight:500; color:#333;">${highlighted}</div>
+                ${phone ? `<div style="font-size:12px; color:#6c757d;">${phone}</div>` : ''}
+            </div>`;
+        }).join('');
         dropdown.style.display = 'block';
     }
 
