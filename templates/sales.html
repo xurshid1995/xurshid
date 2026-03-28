@@ -59,6 +59,8 @@
         border-bottom: 2px solid #dee2e6;
     }
 
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .page-header h1 {
         margin: 0;
         color: #333;
@@ -715,6 +717,11 @@
     <!-- Page Header (yuqorida) -->
     <div class="page-header" style="margin-bottom: 15px;">
         <h1>🛒 {{ t('page_sales') }}</h1>
+        <!-- Offline buyruqlar badge -->
+        <div id="stockQueueBadge" style="display:none; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:4px 12px; font-size:13px; color:#856404; cursor:default;">
+            <span style="animation: spin 1.5s linear infinite; display:inline-block;">⏳</span>
+            <span id="stockQueueCount"></span> ta amal kutmoqda...
+        </div>
     </div>
     
     <!-- Tab System Header -->
@@ -1160,7 +1167,111 @@
     function log(...args) { if (DEBUG) console.log(...args); }
     function warn(...args) { if (DEBUG) console.warn(...args); }
     function error(...args) { console.error(...args); } // Xatolar doim ko'rinadi
-    
+
+    // ============================================
+    // STOCK QUEUE - Offline holda buyruqlarni saqlab, internet tiklanganda yuborish
+    // ============================================
+    const StockQueue = {
+        STORAGE_KEY: 'stock_pending_queue',
+
+        _uuid() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return 'op-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        },
+
+        get() {
+            try { return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]'); }
+            catch { return []; }
+        },
+
+        _save(queue) {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(queue));
+            this._updateBadge();
+        },
+
+        add(url, data) {
+            const id = this._uuid();
+            const queue = this.get();
+            queue.push({ id, url, data, addedAt: Date.now() });
+            this._save(queue);
+            return id; // idempotency_key sifatida qaytariladi
+        },
+
+        remove(id) {
+            this._save(this.get().filter(op => op.id !== id));
+        },
+
+        _updateBadge() {
+            const count = this.get().length;
+            const badge = document.getElementById('stockQueueBadge');
+            const countEl = document.getElementById('stockQueueCount');
+            if (!badge) return;
+            if (countEl) countEl.textContent = count;
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+            badge.title = count > 0 ? `${count} ta amal internet tiklanganda avtomatik yuboriladi` : '';
+        },
+
+        // Asosiy fetch funksiyasi - idempotency bilan
+        async send(url, data) {
+            const id = this._uuid();
+            const payload = { ...data, idempotency_key: id };
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                return result; // Muvaffaqiyatli - navbatga qo'shilmaydi
+            } catch (err) {
+                // Network xatosi - navbatga qo'shamiz
+                const queue = this.get();
+                queue.push({ id, url, data, addedAt: Date.now() });
+                this._save(queue);
+                console.warn(`\u23f3 Navbatga qo'shildi (${url}), internet tiklanganda yuboriladi. Key: ${id}`);
+                throw err; // Yuqorida catch qilsin
+            }
+        },
+
+        // Internet tiklanganda barcha kutayotgan amallarni yuborish
+        async processAll() {
+            const queue = this.get();
+            if (queue.length === 0) return;
+            console.log(`\ud83d\udd04 Stok navbati: ${queue.length} ta buyruq qayta urinilmoqda...`);
+            for (const op of [...queue]) {
+                await this._processOne(op);
+            }
+        },
+
+        async _processOne(op) {
+            try {
+                const response = await fetch(op.url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...op.data, idempotency_key: op.id })
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success || result.already_processed) {
+                        this.remove(op.id);
+                        console.log(`\u2705 Navbat amali yuborildi: ${op.id}`);
+                    }
+                }
+            } catch (e) {
+                // Hali internet yo'q, keyinroq urinamiz
+            }
+        },
+
+        init() {
+            this._updateBadge();
+            window.addEventListener('online', () => {
+                console.log('\ud83d\udfe2 Internet tiklandi - navbat tekshirilmoqda...');
+                setTimeout(() => this.processAll(), 1000);
+            });
+        }
+    };
+
+    // ============================================
     // XSS himoya funksiyasi
     function escapeHtml(text) {
         if (text === null || text === undefined) return '';
@@ -3570,52 +3681,40 @@
                 
                 // Qo'shimcha miqdorni stokdan olish
                 try {
-                    const response = await fetch('/api/reserve-stock', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            product_id: currentProduct.id,
-                            quantity: quantityDifference,
-                            location_id: selectedLocationId,
-                            location_type: selectedLocationType
-                        })
+                    const result = await StockQueue.send('/api/reserve-stock', {
+                        product_id: currentProduct.id,
+                        quantity: quantityDifference,
+                        location_id: selectedLocationId,
+                        location_type: selectedLocationType
                     });
-                    
-                    const result = await response.json();
-                    if (!result.success) {
+                    if (!result.success && !result.already_processed) {
                         alert(result.error || SLANG.stock_update_error);
                         return;
                     }
                     console.log('➕ Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
                 } catch (error) {
                     console.error('Stok ayirish xatosi (network):', error);
-                    alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nInternet aloqasini tekshirib qaytadan urining.');
+                    alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
                     return;
                 }
             }
             // Agar farq < 0: ortiqcha stokka qaytarish kerak
             else if (quantityDifference < 0) {
                 try {
-                    const response = await fetch('/api/return-stock', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            product_id: currentProduct.id,
-                            quantity: Math.abs(quantityDifference),
-                            location_id: selectedLocationId,
-                            location_type: selectedLocationType
-                        })
+                    const result = await StockQueue.send('/api/return-stock', {
+                        product_id: currentProduct.id,
+                        quantity: Math.abs(quantityDifference),
+                        location_id: selectedLocationId,
+                        location_type: selectedLocationType
                     });
-                    
-                    const result = await response.json();
-                    if (!result.success) {
+                    if (!result.success && !result.already_processed) {
                         console.error('Stokka qaytarishda xatolik:', result.error);
                         // Bu xatolik critical emas, davom etamiz
                     } else {
                         console.log('➖ Ortiqcha stokka qaytarildi:', Math.abs(quantityDifference), 'dona');
                     }
                 } catch (error) {
-                    console.error('Stok qaytarish xatosi:', error);
+                    console.error('Stok qaytarish xatosi (navbatga qo\'shildi):', error);
                     // Davom etamiz
                 }
             }
@@ -3684,27 +3783,20 @@
         
         // Stokdan darhol ayirish
         try {
-            const response = await fetch('/api/reserve-stock', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    product_id: currentProduct.id,
-                    quantity: quantity,
-                    location_id: selectedLocationId,
-                    location_type: selectedLocationType
-                })
+            const result = await StockQueue.send('/api/reserve-stock', {
+                product_id: currentProduct.id,
+                quantity: quantity,
+                location_id: selectedLocationId,
+                location_type: selectedLocationType
             });
-            
-            const result = await response.json();
-            if (!result.success) {
+            if (!result.success && !result.already_processed) {
                 alert(result.error || SLANG.stock_update_error);
                 return;
             }
-            
             console.log('✅ Stokdan ayirildi:', quantity, 'dona');
         } catch (error) {
             console.error('Stok ayirish xatosi (network):', error);
-            alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nInternet aloqasini tekshirib qaytadan urining.');
+            alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
             return;
         }
         
@@ -3948,33 +4040,23 @@
                 };
                 console.log('📤 API ga yuborilayotgan ma\'lumot:', JSON.stringify(requestData, null, 2));
                 
-                const response = await fetch('/api/return-stock', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(requestData)
-                });
-                
-                console.log('📡 API response status:', response.status);
-                
-                const result = await response.json();
+                const result = await StockQueue.send('/api/return-stock', requestData);
                 console.log('📦 API response:', JSON.stringify(result, null, 2));
                 
-                if (!result.success) {
+                if (!result.success && !result.already_processed) {
                     console.error('❌ Stokka qaytarishda xatolik:', result.error);
                     alert(SLANG.stock_return_error + ': ' + result.error);
                     console.log(`${'='.repeat(80)}\n`);
                     return; // Xatolik bo'lsa savatdan o'chirmaymiz
                 } else {
                     console.log('✅ Stokka qaytarildi:', item.quantity, 'dona');
-                    console.log('📊 Yangi stock:', result.new_stock);
                     item._stockReturned = true; // Belgi qo'yamiz
                     console.log('🔒 _stockReturned flag = true');
                 }
             } catch (error) {
-                console.error('❌ Stok qaytarish xatosi (network):', error);
-                alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nInternet aloqasini tekshirib qaytadan urining.');
-                console.log(`${'='.repeat(80)}\n`);
-                return; // Xatolik bo'lsa savatdan o'chirmaymiz
+                console.error('❌ Stok qaytarish xatosi (navbatga qo\'shildi):', error);
+                // Navbatga qo'shildi, savatdan o'chirishni davom ettiramiz
+                item._stockReturned = true;
             }
         } else {
             console.log('⚠️ Stock allaqachon qaytarilgan, qayta qaytarmaymiz');
@@ -4049,19 +4131,13 @@
         // Agar miqdor oshsa, stokdan qo'shimcha ayirish
         if (quantityDiff > 0) {
             try {
-                const response = await fetch('/api/reserve-stock', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        product_id: item.id,
-                        quantity: quantityDiff,
-                        location_id: selectedLocationId,
-                        location_type: selectedLocationType
-                    })
+                const result = await StockQueue.send('/api/reserve-stock', {
+                    product_id: item.id,
+                    quantity: quantityDiff,
+                    location_id: selectedLocationId,
+                    location_type: selectedLocationType
                 });
-                
-                const result = await response.json();
-                if (!result.success) {
+                if (!result.success && !result.already_processed) {
                     if (input) {
                         input.style.borderColor = '#dc3545';
                         input.style.backgroundColor = '#ffe6e6';
@@ -4072,32 +4148,20 @@
                 }
                 console.log('✅ Stokdan qo\'shimcha ayirildi:', quantityDiff, 'dona');
             } catch (error) {
-                console.error('Stok ayirish xatosi (network):', error);
-                if (input) {
-                    input.style.borderColor = '#dc3545';
-                    input.style.backgroundColor = '#ffe6e6';
-                }
-                alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nInternet aloqasini tekshirib qaytadan urining.');
-                updateCart();
-                return;
+                console.error('Stok ayirish xatosi (navbatga qo\'shildi):', error);
+                // Navbatga qo'shildi, davom etamiz
             }
         }
         // Agar miqdor kamaysa, stokka qaytarish
         else if (quantityDiff < 0) {
             try {
-                const response = await fetch('/api/return-stock', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        product_id: item.id,
-                        quantity: Math.abs(quantityDiff),
-                        location_id: selectedLocationId,
-                        location_type: selectedLocationType
-                    })
+                const result = await StockQueue.send('/api/return-stock', {
+                    product_id: item.id,
+                    quantity: Math.abs(quantityDiff),
+                    location_id: selectedLocationId,
+                    location_type: selectedLocationType
                 });
-                
-                const result = await response.json();
-                if (!result.success) {
+                if (!result.success && !result.already_processed) {
                     if (input) {
                         input.style.borderColor = '#dc3545';
                         input.style.backgroundColor = '#ffe6e6';
@@ -4108,15 +4172,8 @@
                 }
                 console.log('✅ Stokka qaytarildi:', Math.abs(quantityDiff), 'dona');
             } catch (error) {
-                console.error('Stok qaytarish xatosi:', error);
-                if (input) {
-                    input.style.borderColor = '#dc3545';
-                    input.style.backgroundColor = '#ffe6e6';
-                }
-                alert(SLANG.stock_update_error);
-                updateCart();
-                return;
-            }
+                console.error('Stok qaytarish xatosi (navbatga qo\'shildi):', error);
+                // Navbatga qo'shildi, davom etamiz
         }
         
         cart[index].quantity = quantity;
@@ -4992,6 +5049,9 @@
     
     // Sahifa yuklanganda joylashuvlarni yuklash
     document.addEventListener('DOMContentLoaded', async function() {
+        // StockQueue ni ishga tushirish (offline buyruqlarni boshqarish)
+        StockQueue.init();
+
         // Avval asosiy ma'lumotlarni yuklash
         await loadLocations();
         await loadCustomers();
@@ -5162,25 +5222,19 @@
         
         for (const item of cart) {
             try {
-                const response = await fetch('/api/return-stock', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        product_id: item.id,
-                        quantity: item.quantity,
-                        location_id: selectedLocationId,
-                        location_type: selectedLocationType
-                    })
+                const result = await StockQueue.send('/api/return-stock', {
+                    product_id: item.id,
+                    quantity: item.quantity,
+                    location_id: selectedLocationId,
+                    location_type: selectedLocationType
                 });
-                
-                const result = await response.json();
-                if (result.success) {
+                if (result.success || result.already_processed) {
                     console.log(`✅ ${item.name}: ${item.quantity} dona stokga qaytarildi`);
                 } else {
                     console.error(`❌ ${item.name}: Stokga qaytarishda xatolik - ${result.error}`);
                 }
             } catch (error) {
-                console.error(`❌ ${item.name}: Stok qaytarish xatosi:`, error);
+                console.error(`❌ ${item.name}: Stok qaytarish navbatga qo'shildi:`, error);
             }
         }
         

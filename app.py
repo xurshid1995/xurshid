@@ -11702,6 +11702,29 @@ def get_current_currency_rate():
 # Oxirgi operatsiyalarni saqlash (memory cache)
 _last_operations = {}
 
+# Idempotency keys - qayta bajarilmasligi uchun (1 soat saqlanadi)
+_processed_idempotency_keys = {}
+
+def _check_idempotency(key):
+    """Agar bu key allaqachon bajarilgan bo'lsa True qaytaradi"""
+    if not key:
+        return False
+    if key in _processed_idempotency_keys:
+        return True
+    return False
+
+def _mark_idempotency(key):
+    """Keyni bajarilgan deb belgilash"""
+    if not key:
+        return
+    _processed_idempotency_keys[key] = get_tashkent_time()
+    # Eski keylarni tozalash (1000 dan oshsa)
+    if len(_processed_idempotency_keys) > 1000:
+        cutoff = get_tashkent_time() - timedelta(hours=1)
+        expired = [k for k, t in _processed_idempotency_keys.items() if t < cutoff]
+        for k in expired:
+            del _processed_idempotency_keys[k]
+
 # API endpoint - Real-time stock rezerv qilish (korzinaga qo'shilganda)
 @app.route('/api/reserve-stock', methods=['POST'])
 def api_reserve_stock():
@@ -11712,6 +11735,12 @@ def api_reserve_stock():
         quantity = Decimal(str(data.get('quantity', 1)))
         location_id = data.get('location_id')
         location_type = data.get('location_type')
+        idempotency_key = data.get('idempotency_key')
+
+        # Idempotency tekshiruvi - bir xil so'rov ikki marta bajarilmaydi
+        if _check_idempotency(idempotency_key):
+            print(f"✅ IDEMPOTENCY: {idempotency_key} allaqachon bajarilgan, qaytarish")
+            return jsonify({'success': True, 'already_processed': True}), 200
 
         import traceback
         logger.debug(''.join(traceback.format_stack()[-5:-1]))
@@ -11720,6 +11749,7 @@ def api_reserve_stock():
         print(f"   Product ID: {product_id}")
         print(f"   Quantity: {quantity}")
         print(f"   Location: {location_id} ({location_type})")
+        print(f"   Idempotency Key: {idempotency_key}")
         print(f"   Timestamp: {get_tashkent_time()}")
         print(f"{'=' * 80}\n")
 
@@ -11805,6 +11835,9 @@ def api_reserve_stock():
         db.session.commit()
         print("💾 DB COMMIT: Stock o'zgarish saqlandi\n")
 
+        # Idempotency keyni bajarilgan deb belgilash
+        _mark_idempotency(idempotency_key)
+
         return jsonify({
             'success': True,
             'message': f'{product.name} uchun {quantity} ta stock real-time rezerv qilindi',
@@ -11827,12 +11860,19 @@ def api_return_stock():
         quantity = Decimal(str(data.get('quantity', 1)))
         location_id = data.get('location_id')
         location_type = data.get('location_type')
+        idempotency_key = data.get('idempotency_key')
+
+        # Idempotency tekshiruvi - bir xil so'rov ikki marta bajarilmaydi
+        if _check_idempotency(idempotency_key):
+            print(f"✅ IDEMPOTENCY: {idempotency_key} allaqachon bajarilgan, qaytarish")
+            return jsonify({'success': True, 'already_processed': True}), 200
 
         print(f"\n{'=' * 80}")
         print("↩️ RETURN-STOCK API CHAQIRILDI:")
         print(f"   Product ID: {product_id}")
         print(f"   Quantity: {quantity}")
         print(f"   Location: {location_id} ({location_type})")
+        print(f"   Idempotency Key: {idempotency_key}")
         print(f"   Timestamp: {get_tashkent_time()}")
         print(f"{'=' * 80}\n")
 
@@ -11917,6 +11957,9 @@ def api_return_stock():
         # O'zgarishlarni saqlash
         db.session.commit()
         print("💾 DB COMMIT: Stock qaytarish saqlandi\n")
+
+        # Idempotency keyni bajarilgan deb belgilash
+        _mark_idempotency(idempotency_key)
 
         return jsonify({
             'success': True,
