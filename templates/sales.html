@@ -187,23 +187,49 @@
         }
     }
     
-    /* O'rta ekranlar uchun (tablet/medium) - Amal ustunini yashirish */
+    /* O'rta ekranlar uchun (tablet/medium) - Amal ustunini kichiklashtirish */
     @media (max-width: 1100px) {
-        .sales-product-table th:nth-child(4),
-        .sales-product-table td:nth-child(4) {
-            display: none !important;
+        .sales-product-table th:nth-child(4) {
+            width: 36px !important;
+            padding: 4px 2px !important;
+            font-size: 0 !important; /* Sarlavha matnini yashirish */
         }
-        .sales-product-table th:nth-child(1) { width: 45% !important; }
-        .sales-product-table th:nth-child(2) { width: 22% !important; }
-        .sales-product-table th:nth-child(3) { width: 33% !important; }
-        .sales-product-table td:nth-child(1) { width: 45% !important; }
-        .sales-product-table td:nth-child(2) { width: 22% !important; }
-        .sales-product-table td:nth-child(3) { width: 33% !important; }
+        .sales-product-table td:nth-child(4) {
+            width: 36px !important;
+            padding: 2px !important;
+        }
+        .sales-product-table th:nth-child(1) { width: 40% !important; }
+        .sales-product-table th:nth-child(2) { width: 18% !important; }
+        .sales-product-table th:nth-child(3) { width: calc(100% - 40% - 18% - 36px) !important; }
+        .sales-product-table td:nth-child(1) { width: 40% !important; }
+        .sales-product-table td:nth-child(2) { width: 18% !important; }
+        .sales-product-table td:nth-child(3) { width: calc(100% - 40% - 18% - 36px) !important; }
         .sales-product-table tbody tr {
             cursor: pointer !important;
         }
         .sales-product-table tbody tr:hover {
             background-color: #f0f8ff !important;
+        }
+        /* Narx ustunida so'm spanini yashirish, faqat $ qoladi */
+        .sales-product-table .price-uzs {
+            display: none !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        /* Juda kichik ekranlarda ham Amal ustuni ko'rinsin */
+        .sales-product-table th:nth-child(4) {
+            width: 32px !important;
+            padding: 2px !important;
+            font-size: 0 !important;
+        }
+        .sales-product-table td:nth-child(4) {
+            width: 32px !important;
+            padding: 1px !important;
+        }
+        .add-to-cart-btn {
+            font-size: 16px !important;
+            padding: 2px 4px !important;
         }
     }
 
@@ -250,12 +276,6 @@
         .cart-table td {
             padding: 8px 4px !important;
             font-size: 0.8rem !important;
-        }
-        
-        /* Mahsulot jadvalidagi Amal ustunini yashirish (mobilda qatorni bosish mumkin) */
-        .sales-product-table th:nth-child(4),
-        .sales-product-table td:nth-child(4) {
-            display: none !important;
         }
         
         /* Mahsulot qatorini bosish mumkin qilish */
@@ -3054,7 +3074,7 @@
                     </td>
                     <td style="padding: 12px 8px; text-align: left; font-size: 14px;">
                         <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; margin-right: 6px; display: inline-block; font-size: 12px;">$${formatPrice(sellingPrice)}</span>
-                        <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
+                        <span class="price-uzs" style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
                         <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" data-unit-type="${unitType}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
@@ -4623,7 +4643,7 @@
                     </td>
                     <td style="padding: 12px 8px; text-align: left; font-size: 14px;">
                         <span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; margin-right: 6px; display: inline-block; font-size: 12px;">$${formatPrice(sellingPrice)}</span>
-                        <span style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
+                        <span class="price-uzs" style="background: #5cb3ff; color: white; padding: 4px 8px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
                         <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
