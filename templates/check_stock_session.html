@@ -1091,6 +1091,11 @@ async function updateActualQuantity(productId, actualQty) {
 
 // Tekshirilganlardan o'chirish
 async function removeFromChecked(productId) {
+    const product = checkedProducts.find(p => p.id === productId);
+    const productName = product ? product.name : '';
+    if (!confirm(`"${productName}" mahsulotini tekshirilganlar ro'yxatidan o'chirishni tasdiqlaysizmi?`)) {
+        return;
+    }
     try {
         // Database'dan o'chirish
         const response = await fetch('/api/check_stock/remove_item', {
