@@ -42,7 +42,7 @@
     
     .sales-container {
         padding: 15px;
-        background: #f8f9fa;
+        background: transparent;
         min-height: 100vh;
         width: 100%;
         max-width: 100%;
@@ -56,14 +56,14 @@
         align-items: center;
         margin-bottom: 20px;
         padding-bottom: 15px;
-        border-bottom: 2px solid #dee2e6;
+        border-bottom: 2px solid rgba(13,148,136,0.2);
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .page-header h1 {
         margin: 0;
-        color: #333;
+        color: #0d9488;
         font-size: 24px;
     }
     
@@ -108,15 +108,15 @@
     }
     
     .sales-product-table thead tr {
-        background: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
+        background: linear-gradient(135deg, #0d9488 0%, #0a7c72 100%);
+        border-bottom: 2px solid #0a7c72;
     }
     
     .sales-product-table th {
         padding: 10px 8px;
         font-size: 15px;
         font-weight: 600;
-        color: #495057;
+        color: #ffffff;
         box-sizing: border-box;
     }
     
@@ -142,15 +142,15 @@
     }
     
     .cart-table thead tr {
-        background: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
+        background: linear-gradient(135deg, #0d9488 0%, #0a7c72 100%);
+        border-bottom: 2px solid #0a7c72;
     }
     
     .cart-table th {
         padding: 8px 5px;
         font-size: 15px;
         font-weight: 600;
-        color: #495057;
+        color: #ffffff;
         box-sizing: border-box;
     }
     
@@ -337,7 +337,7 @@
         /* Sticky ustun uchun background */
         .sales-product-table th:first-child,
         .cart-table th:first-child {
-            background: #f8f9fa;
+            background: #0d9488;
         }
         
         .sales-product-table td:first-child,
@@ -550,8 +550,8 @@
     .sales-tabs-header {
         display: flex;
         align-items: center;
-        background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 2px solid #dee2e6;
+        background: linear-gradient(to bottom, #f0fdfb 0%, #e6f7f5 100%);
+        border-bottom: 2px solid rgba(13,148,136,0.25);
         padding: 8px 15px;
         gap: 10px;
         overflow-x: auto;
@@ -586,14 +586,14 @@
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        background: #e9ecef;
-        border: 1px solid #ced4da;
+        background: rgba(13,148,136,0.08);
+        border: 1px solid rgba(13,148,136,0.2);
         border-radius: 6px 6px 0 0;
         cursor: pointer;
         transition: all 0.2s;
         font-size: 14px;
         font-weight: 500;
-        color: #495057;
+        color: #0f766e;
         white-space: nowrap;
         user-select: none;
         min-width: 120px;
@@ -601,16 +601,16 @@
     }
     
     .sales-tab:hover {
-        background: #dee2e6;
-        border-color: #adb5bd;
+        background: rgba(13,148,136,0.15);
+        border-color: rgba(13,148,136,0.35);
     }
     
     .sales-tab.active {
         background: white;
         border-bottom-color: white;
-        color: #007bff;
+        color: #0d9488;
         font-weight: 600;
-        box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 -2px 4px rgba(13,148,136,0.1);
     }
     
     .tab-title {
@@ -648,7 +648,7 @@
     }
     
     .btn-new-sale {
-        background: #28a745;
+        background: linear-gradient(135deg, #0d9488, #0a7c72);
         color: white;
         border: none;
         padding: 8px 16px;
@@ -658,14 +658,14 @@
         font-weight: 600;
         white-space: nowrap;
         transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+        box-shadow: 0 2px 4px rgba(13,148,136,0.3);
         align-self: flex-end;
         margin-bottom: 2px;
     }
     
     .btn-new-sale:hover {
-        background: #218838;
-        box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+        background: linear-gradient(135deg, #0a7c72, #065f46);
+        box-shadow: 0 3px 8px rgba(13,148,136,0.4);
         transform: translateY(-1px);
     }
     
@@ -695,7 +695,7 @@
     
     /* Tab badge (mijoz/mahsulotlar soni) */
     .tab-badge {
-        background: #007bff;
+        background: #0d9488;
         color: white;
         font-size: 10px;
         padding: 2px 6px;
@@ -705,7 +705,7 @@
     }
     
     .sales-tab.active .tab-badge {
-        background: #0056b3;
+        background: #0a7c72;
     }
 </style>
 {% endblock %}
@@ -764,7 +764,7 @@
                 <div style="position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                         <label style="font-size: 14px; font-weight: 500; color: #495057;">👤 {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
-                        <button id="addCustomerBtn" class="add-customer-btn" onclick="openAddCustomerModal()" style="padding: 3px 8px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
+                        <button id="addCustomerBtn" class="add-customer-btn" onclick="openAddCustomerModal()" style="padding: 3px 8px; background: #0d9488; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
                             {{ t('btn_new') }}
                         </button>
                     </div>
@@ -855,7 +855,7 @@
                 <!-- Tugmalar -->
                 <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                     <button onclick="savePending()" style="background: #ffc107; color: #333; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_save_pending') }}</button>
-                    <button onclick="completeSale()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_complete_sale') }}</button>
+                    <button onclick="completeSale()" style="background: linear-gradient(135deg, #0d9488, #0a7c72); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_complete_sale') }}</button>
                 </div>
             </div>
         </div>
@@ -898,7 +898,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">{{ t('btn_cancel') }}</button>
-                <button onclick="confirmAddToCart()" style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">{{ t('btn_add') }}</button>
+                <button onclick="confirmAddToCart()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #0d9488, #0a7c72); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">{{ t('btn_add') }}</button>
             </div>
         </div>
     </div>
@@ -933,25 +933,25 @@
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_cash') }}</label>
                 <input type="number" id="paymentCashUSD" step="0.01" placeholder="$" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <input type="number" id="paymentCashUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-                <button onclick="addRemainingToField('paymentCashUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
+                <button onclick="addRemainingToField('paymentCashUSD')" style="padding: 8px 12px; background: #0d9488; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_click') }}</label>
                 <input type="number" id="paymentClickUSD" step="0.01" placeholder="$" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <input type="number" id="paymentClickUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-                <button onclick="addRemainingToField('paymentClickUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
+                <button onclick="addRemainingToField('paymentClickUSD')" style="padding: 8px 12px; background: #0d9488; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_terminal') }}</label>
                 <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="$" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <input type="number" id="paymentTerminalUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-                <button onclick="addRemainingToField('paymentTerminalUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
+                <button onclick="addRemainingToField('paymentTerminalUSD')" style="padding: 8px 12px; background: #0d9488; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_debt') }}</label>
                 <input type="number" id="paymentDebtUSD" step="0.01" placeholder="$" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <input type="number" id="paymentDebtUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-                <button onclick="addRemainingToField('paymentDebtUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
+                <button onclick="addRemainingToField('paymentDebtUSD')" style="padding: 8px 12px; background: #0d9488; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
             </div>
             
             <!-- Qarz to'lash muddati -->
@@ -973,7 +973,7 @@
         
         <div style="display: flex; gap: 10px;">
             <button onclick="closePaymentModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_cancel') }}</button>
-            <button id="confirmPaymentBtn" onclick="confirmPayment()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_confirm') }}</button>
+            <button id="confirmPaymentBtn" onclick="confirmPayment()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #0d9488, #0a7c72); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">{{ t('btn_confirm') }}</button>
         </div>
     </div>
 </div>
@@ -3977,14 +3977,14 @@
         
         // Jami summani sarlavhada ko'rsatish
         cartTotalHeader.innerHTML = `
-            <div style="padding: 10px 15px; background: #f8f9fa; border-radius: 6px; border: 2px solid #dee2e6;">
-                <div style="font-size: 14px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 10px;">
-                    <div style="background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; min-width: 40px; text-align: center;">
+            <div style="padding: 10px 15px; background: rgba(13,148,136,0.06); border-radius: 6px; border: 2px solid rgba(13,148,136,0.2);">
+                <div style="font-size: 14px; font-weight: 600; color: #0f766e; display: flex; align-items: center; gap: 10px;">
+                    <div style="background: linear-gradient(135deg, #0d9488, #0a7c72); color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; min-width: 40px; text-align: center;">
                         ${cart.length}
                     </div>
                     <div>
-                        Jami: <span style="color: #28a745; font-size: 16px;">$${totalUSD.toFixed(2)}</span>
-                        <span style="margin-left: 15px; color: #333; font-size: 16px;">${formatPrice(totalUZS)} so'm</span>
+                        Jami: <span style="color: #0d9488; font-size: 16px;">$${totalUSD.toFixed(2)}</span>
+                        <span style="margin-left: 15px; color: #0f766e; font-size: 16px;">${formatPrice(totalUZS)} so'm</span>
                     </div>
                 </div>
             </div>
