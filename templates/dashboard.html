@@ -11,10 +11,10 @@
 {% block content %}
 <div class="db-page">
 
-    <div class="row g-4 align-items-start">
+    <div class="row g-4">
 
-        <!-- ===== LEFT: Chart Card ===== -->
-        <div class="col-12 col-lg-7">
+        <!-- ===== Chart Card (full width) ===== -->
+        <div class="col-12">
             <div class="db-card">
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
@@ -32,89 +32,41 @@
                 <div class="db-chart-container">
                     <canvas id="salesChart"></canvas>
                 </div>
-            </div>
-        </div>
 
-        <!-- ===== RIGHT: Stats Column ===== -->
-        <div class="col-12 col-lg-5">
-
-            <!-- Stats Overview Card -->
-            <div class="db-card db-stats-overview-card mb-4">
-                <div class="db-card-head">
-                    <span class="db-card-label">{{ t('cs_statistics') }}</span>
-                </div>
-                <div class="db-stats-bar-row">
-                    <div class="db-stats-bar">
-                        <div class="db-bar-green"></div>
-                        <div class="db-bar-blue"></div>
-                        <div class="db-bar-red"></div>
+                <!-- ===== Horizontal Stats Bar ===== -->
+                <div class="db-hstats">
+                    <div class="db-hs-item">
+                        <span class="db-hs-label">📊 {{ t('total_sales') }}</span>
+                        <span class="db-hs-val" id="totalSales">0</span>
                     </div>
-                </div>
-                <div class="db-stats-cols-row">
-                    <div class="db-stats-col-item">
-                        <div class="db-stats-col-label">{{ t('total_sales') }}</div>
-                        <div class="db-stats-col-val" id="totalSales">0</div>
+                    <div class="db-hs-sep">|</div>
+                    <div class="db-hs-item">
+                        <span class="db-hs-label">💰 {{ t('total_amount') }}</span>
+                        <div style="display:flex;flex-direction:column;align-items:flex-start;">
+                            <span class="db-hs-val green" id="totalAmount">$0</span>
+                            <span class="db-hs-sub" id="totalAmountUZS">0 UZS</span>
+                        </div>
                     </div>
-                    <div class="db-stats-divider"></div>
-                    <div class="db-stats-col-item">
-                        <div class="db-stats-col-label">{{ t('total_amount') }}</div>
-                        <div class="db-stats-col-val green" id="totalAmount">$0</div>
-                        <div class="db-stats-col-sub" id="totalAmountUZS">0 UZS</div>
+                    <div class="db-hs-sep">|</div>
+                    <div class="db-hs-item db-hs-payments" id="paymentMethodsContainer">
+                        <span class="db-hs-label">{{ t('payments') }}:</span>
+                        <span id="paymentMethods" style="font-size:13px;color:#555;">-</span>
                     </div>
                     {% if session.role != 'sotuvchi' %}
-                    <div class="db-stats-divider"></div>
-                    <div class="db-stats-col-item">
-                        <div class="db-stats-col-label">{{ t('profit') }}</div>
-                        <div class="db-stats-col-val blue" id="totalProfit">$0</div>
-                        <div class="db-stats-col-sub" id="totalProfitUZS">0 UZS</div>
+                    <div class="db-hs-sep">|</div>
+                    <div class="db-hs-item">
+                        <span class="db-hs-label">💵 {{ t('profit') }}</span>
+                        <div style="display:flex;flex-direction:column;align-items:flex-start;">
+                            <span class="db-hs-val blue" id="totalProfit">$0</span>
+                            <span class="db-hs-sub" id="totalProfitUZS">0 UZS</span>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
-            </div>
 
-            <!-- 2x2 Mini Stat Cards -->
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <div class="db-mini-card" style="--mc:#14b8a6">
-                        <div class="db-mini-icon" style="--mc:#14b8a6">🛒</div>
-                        <div class="db-mini-label">{{ t('total_sales') }}</div>
-                        <div class="db-mini-val" id="totalSalesMini">0</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="db-mini-card" style="--mc:#4a7af7">
-                        <div class="db-mini-icon" style="--mc:#4a7af7">💰</div>
-                        <div class="db-mini-label">{{ t('total_amount') }}</div>
-                        <div class="db-mini-val" id="totalAmountMini">$0</div>
-                    </div>
-                </div>
-                {% if session.role != 'sotuvchi' %}
-                <div class="col-6">
-                    <div class="db-mini-card" style="--mc:#f59e0b">
-                        <div class="db-mini-icon" style="--mc:#f59e0b">💵</div>
-                        <div class="db-mini-label">{{ t('profit') }}</div>
-                        <div class="db-mini-val" id="totalProfitMini">$0</div>
-                    </div>
-                </div>
-                {% endif %}
-                <div class="col-6">
-                    <div class="db-mini-card" style="--mc:#f43f5e">
-                        <div class="db-mini-icon" style="--mc:#f43f5e">📝</div>
-                        <div class="db-mini-label">{{ t('debt') }}</div>
-                        <div class="db-mini-val" id="totalDebtMini">$0</div>
-                    </div>
-                </div>
             </div>
-
-            <!-- Payment Methods Gradient Card -->
-            <div class="db-promo-card">
-                <div class="db-promo-title">💳 {{ t('payments') }}</div>
-                <div class="db-promo-body" id="paymentMethodsContainer">
-                    <span id="paymentMethods">-</span>
-                </div>
-            </div>
-
         </div>
+
     </div>
 </div>
 
@@ -348,19 +300,82 @@
     color: rgba(255,255,255,0.85);
 }
 
-/* Payment items inside promo card - override inline styles */
+/* Horizontal Stats Bar */
+.db-hstats {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 0;
+    padding: 12px 20px 14px;
+    border-top: 1px solid #f1f5f9;
+    background: #fafcff;
+    border-radius: 0 0 16px 16px;
+}
+.db-hs-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.db-hs-payments {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.db-hs-label {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.db-hs-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.db-hs-val.green { color: #14b8a6; }
+.db-hs-val.blue  { color: #4a7af7; }
+.db-hs-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 1px;
+}
+.db-hs-sep {
+    color: #e2e8f0;
+    font-size: 18px;
+    padding: 0 10px;
+    font-weight: 300;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+}
+/* Payment items inside stats bar (override inline styles from JS) */
 #paymentMethods span[style] {
-    background: rgba(255,255,255,0.18) !important;
-    border-left-color: rgba(255,255,255,0.7) !important;
-    color: #ffffff !important;
-    margin-bottom: 4px !important;
+    background: #f8f9fa !important;
+    border-left: 3px solid #14b8a6 !important;
+    color: #1e293b !important;
+    margin-right: 6px !important;
+    margin-bottom: 2px !important;
+    padding: 4px 10px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
 }
 #paymentMethods span[style] strong {
-    color: #ffffff;
+    color: #1e293b;
 }
 #paymentMethods span[style] span {
-    color: rgba(255,255,255,0.75) !important;
-    font-size: 10px !important;
+    color: #6c757d !important;
+    font-size: 11px !important;
+}
+@media (max-width: 768px) {
+    .db-hstats {
+        gap: 4px 0;
+        padding: 10px 12px;
+    }
+    .db-hs-val { font-size: 13px; }
+    .db-hs-label { font-size: 11px; }
+    .db-hs-sep { padding: 0 6px; }
+    .db-hs-sub { font-size: 10px; }
 }
 
 /* Responsive */
@@ -841,11 +856,7 @@ function updateStatistics(data) {
     document.getElementById('totalSales').textContent = totalSales.toLocaleString();
     document.getElementById('totalAmount').textContent = '$' + totalAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     
-    // Mini card qiymatlarini yangilash
-    if (document.getElementById('totalSalesMini')) document.getElementById('totalSalesMini').textContent = totalSales.toLocaleString();
-    if (document.getElementById('totalAmountMini')) document.getElementById('totalAmountMini').textContent = '$' + Math.floor(totalAmount).toLocaleString();
-    if (document.getElementById('totalProfitMini')) document.getElementById('totalProfitMini').textContent = '$' + Math.floor(totalProfit).toLocaleString();
-    if (document.getElementById('totalDebtMini')) document.getElementById('totalDebtMini').textContent = '$' + Math.floor(totalDebt).toLocaleString();
+
     
     // UZS qiymatni faqat kurs mavjud bo'lsagina ko'rsatish
     if (exchangeRate) {
