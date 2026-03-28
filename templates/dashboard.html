@@ -29,10 +29,6 @@
                         <button class="db-loc-btn active" data-location="" onclick="selectLocation(this, '')">🏢 {{ t('all') }}</button>
                     </div>
                 </div>
-                <div class="db-chart-container">
-                    <canvas id="salesChart"></canvas>
-                </div>
-
                 <!-- ===== Horizontal Stats Bar ===== -->
                 <div class="db-hstats">
                     <div class="db-hs-item">
@@ -62,6 +58,10 @@
                         </div>
                     </div>
                     {% endif %}
+                </div>
+
+                <div class="db-chart-container">
+                    <canvas id="salesChart"></canvas>
                 </div>
 
             </div>
@@ -307,9 +307,9 @@
     flex-wrap: wrap;
     gap: 6px 0;
     padding: 12px 20px 14px;
-    border-top: 1px solid #f1f5f9;
-    background: #fafcff;
-    border-radius: 0 0 16px 16px;
+    border-top: none;
+    border-bottom: 1px solid #f1f5f9;
+    border-radius: 0;
 }
 .db-hs-item {
     display: flex;
