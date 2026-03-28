@@ -102,7 +102,7 @@
     </div>
 
     <div class="table-responsive">
-        <div class="table-container" id="tableContainer">
+        <div class="table-container">
             <table class="sales-table">
                 <thead>
                     <tr>
@@ -125,12 +125,12 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
 
-        <!-- Pagination - jadval tashqarisida, har doim ko'rinib turadi -->
-        <div class="pagination" id="pagination" style="display: none;">
-            <div id="paginationButtons">
-                <!-- Pagination tugmalari bu yerga yuklanadi -->
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <div id="paginationButtons">
+                    <!-- Pagination tugmalari bu yerga yuklanadi -->
+                </div>
             </div>
         </div>
     </div>
@@ -161,17 +161,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     overflow-x: auto;
-    overflow-y: auto;
-    max-height: calc(100vh - 280px);
-}
-
-/* Sticky jadval ustun sarlavhalari */
-.sales-history-page .sales-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #007bff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    overflow-y: visible;
 }
 
 .sales-history-page .sales-table {
@@ -3999,32 +3989,6 @@ window.addEventListener('currencyRateUpdated', function(event) {
     
     // Sahifani qayta yuklash (narxlar yangilansin)
     loadSalesHistory();
-});
-
-// Jadval konteyner balandligini dinamik hisoblash
-function adjustTableHeight() {
-    const container = document.getElementById('tableContainer');
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const paginationHeight = 60; // pagination uchun joy
-    const bottomPadding = 20;
-    const availableHeight = windowHeight - rect.top - paginationHeight - bottomPadding;
-    const minHeight = 200;
-    container.style.maxHeight = Math.max(availableHeight, minHeight) + 'px';
-}
-
-// Sahifa yuklanganda va o'lcham o'zgarganda balandlikni yangilash
-document.addEventListener('DOMContentLoaded', function() {
-    adjustTableHeight();
-});
-window.addEventListener('resize', adjustTableHeight);
-// Filter/qidiruv paneli o'zgarganda ham qayta hisoblash
-document.addEventListener('DOMContentLoaded', function() {
-    const filterPanel = document.querySelector('.search-filter-panel');
-    if (filterPanel && window.ResizeObserver) {
-        new ResizeObserver(adjustTableHeight).observe(filterPanel);
-    }
 });
 
 </script>
