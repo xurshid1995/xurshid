@@ -258,6 +258,44 @@
         color: #999;
         font-size: 16px;
     }
+
+    @media (max-width: 576px) {
+        .payment-section-wrap {
+            min-width: 0 !important;
+        }
+
+        .payment-form {
+            padding: 15px !important;
+        }
+
+        .payment-type-row {
+            display: grid !important;
+            grid-template-columns: 1fr auto !important;
+            gap: 6px 8px !important;
+            align-items: center !important;
+        }
+
+        .payment-type-row > label {
+            grid-column: 1;
+            grid-row: 1;
+            min-width: unset !important;
+        }
+
+        .payment-type-row .pt-btn {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .payment-type-row .pt-usd {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .payment-type-row .pt-uzs {
+            grid-column: 2;
+            grid-row: 2;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -305,7 +343,7 @@
         </div>
 
         <!-- To'lov qilish -->
-        <div style="flex: 1; min-width: 400px;">
+        <div class="payment-section-wrap" style="flex: 1; min-width: 400px;">
             <div class="payment-form" style="margin-bottom: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h2 style="margin: 0;">💳 {{ t('cdd_pay_debt') }}</h2>
@@ -318,41 +356,41 @@
         <div style="margin-bottom: 20px;">
             <h3 style="margin-bottom: 12px; color: #333; font-size: 16px;">{{ t('cdd_payment_types') }}</h3>
             <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="payment-type-row" style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">💵 {{ t('cdd_cash') }}</label>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-usd" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #28a745; font-size: 16px;">$</span>
                         <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-uzs" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #6c757d; font-size: 16px;">UZS</span>
                         <input type="number" id="paymentCashUZS" step="1" placeholder="0" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <button onclick="addRemainingToField('paymentCashUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
+                    <button class="pt-btn" onclick="addRemainingToField('paymentCashUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="payment-type-row" style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">📱 {{ t('cdd_click') }}</label>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-usd" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #28a745; font-size: 16px;">$</span>
                         <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-uzs" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #6c757d; font-size: 16px;">UZS</span>
                         <input type="number" id="paymentClickUZS" step="1" placeholder="0" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <button onclick="addRemainingToField('paymentClickUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
+                    <button class="pt-btn" onclick="addRemainingToField('paymentClickUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="payment-type-row" style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">🏧 {{ t('cdd_terminal') }}</label>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-usd" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #28a745; font-size: 16px;">$</span>
                         <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                    <div class="pt-uzs" style="flex: 1; display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #6c757d; font-size: 16px;">UZS</span>
                         <input type="number" id="paymentTerminalUZS" step="1" placeholder="0" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                     </div>
-                    <button onclick="addRemainingToField('paymentTerminalUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
+                    <button class="pt-btn" onclick="addRemainingToField('paymentTerminalUSD')" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap;">+ {{ t('cdd_remaining') }}</button>
                 </div>
             </div>
         </div>
