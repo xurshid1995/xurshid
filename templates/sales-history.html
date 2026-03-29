@@ -446,6 +446,7 @@
     transition: all 0.2s ease;
     background: #f9fafb;
     color: #1a1f36;
+    appearance: auto;
 }
 
 .filter-input:focus, .filter-select:focus {
@@ -453,6 +454,19 @@
     border-color: #4338ca;
     box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
     background: white;
+}
+
+/* Select option tanlanganda indigo rang */
+#locationFilter option:checked,
+#locationFilter option:hover {
+    background-color: #4338ca !important;
+    color: white !important;
+}
+
+#locationFilter optgroup {
+    font-weight: 700;
+    color: #6b7280;
+    background: #f9fafb;
 }
 
 /* Mijoz qidiruv dropdown */
