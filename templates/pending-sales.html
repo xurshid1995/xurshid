@@ -83,10 +83,14 @@
             </div>
             
             <div class="filter-group filter-group-location">
-                <label for="locationFilter">{{ t('header_location') }}:</label>
-                <select id="locationFilter" class="filter-input">
-                    <option value="">{{ t('all_locations') }}</option>
-                </select>
+                <label>{{ t('header_location') }}:</label>
+                <div class="location-search-container">
+                    <input type="text" id="locationFilterInput" class="filter-input"
+                           placeholder="{{ t('all_locations') }}" autocomplete="off"
+                           style="cursor:pointer;">
+                    <input type="hidden" id="locationFilter" value="">
+                    <div id="locationDropdown" class="location-dropdown" style="display: none;"></div>
+                </div>
             </div>
             
             <div class="filter-group">
@@ -202,15 +206,17 @@
 }
 
 .sales-history-page .sales-table th {
-    background: #007bff;
-    color: white !important;
-    padding: 8px 6px;
+    background: #6366f1;
+    color: #ffffff !important;
+    padding: 12px 8px;
     text-align: center;
     font-weight: 600;
-    font-size: 14px !important;
-    height: 45px;
+    font-size: 13px !important;
+    height: 46px;
     vertical-align: middle;
     line-height: 1.4;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid #3730a3;
 }
 
 .sales-history-page .sales-table tr:hover {
@@ -250,14 +256,15 @@
 }
 
 .page-header h1 {
-    color: #495057;
-    font-size: 1.8rem;
+    color: #0f172a;
+    font-size: 24px;
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.3px;
 }
 
 .page-header h1 i {
-    color: #007bff;
+    color: #4338ca;
     margin-right: 10px;
 }
 
@@ -301,11 +308,11 @@
 }
 
 .toggle-switch input[type="checkbox"]:checked + .toggle-slider {
-    background-color: #007bff;
+    background-color: #4338ca;
 }
 
 .toggle-switch input[type="checkbox"]:checked + .toggle-slider:before {
-    transform: translateX(24px);
+    transform: translateX(22px);
 }
 
 .toggle-label {
@@ -346,7 +353,7 @@
 }
 
 .compact-mode .compact-row:hover {
-    background-color: rgba(0, 123, 255, 0.08);
+    background-color: rgba(74, 108, 247, 0.07);
 }
 
 .sales-stats {
@@ -356,45 +363,51 @@
 }
 
 .stat-card {
-    background: #007bff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
     flex: 1;
-    color: white;
+    border-left: 4px solid #4338ca;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.stat-card:nth-child(2) {
-    background: #dc3545;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-}
-
-.stat-card:nth-child(3) {
-    background: #28a745;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+.stat-card:nth-child(2) { border-left-color: #f59e0b; }
+.stat-card:nth-child(3) { border-left-color: #10b981; }
 
 .stat-card i {
     font-size: 2rem;
-    color: white;
+    color: #4338ca;
+    background: rgba(67, 56, 202, 0.1);
+    padding: 14px;
+    border-radius: 12px;
+    line-height: 1;
 }
+
+.stat-card:nth-child(2) i { color: #f59e0b; background: rgba(245,158,11,0.1); }
+.stat-card:nth-child(3) i { color: #10b981; background: rgba(16,185,129,0.1); }
 
 .stat-number {
     display: block;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1f36;
     line-height: 1.2;
+    letter-spacing: -0.5px;
 }
 
 .stat-label {
     display: block;
-    font-size: 0.9rem;
-    color: white;
-    opacity: 0.9;
+    font-size: 0.825rem;
+    color: #9ca3af;
+    font-weight: 500;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Qidiruv va filtr paneli */
@@ -440,8 +453,8 @@
 
 .search-input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    border-color: #4338ca;
+    box-shadow: 0 0 0 3px rgba(67,56,202,0.1);
 }
 
 .clear-search-btn {
@@ -487,8 +500,8 @@
 
 .filter-input:focus, .filter-select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    border-color: #4338ca;
+    box-shadow: 0 0 0 3px rgba(67,56,202,0.1);
 }
 
 /* Mijoz qidiruv dropdown */
@@ -527,16 +540,50 @@
     border-bottom: none;
 }
 
-.customer-option.selected {
-    background-color: #007bff;
-    color: white;
-}
+.customer-option.selected { background-color: #4338ca; color: white; }
+.customer-option.keyboard-focused { background-color: #4338ca; color: white; outline: none; }
 
 .customer-search-input:focus + .customer-dropdown {
-    border-color: #007bff;
+    border-color: #4338ca;
 }
 
-
+/* Location custom dropdown */
+.location-search-container { position: relative; }
+.location-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.location-option {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.15s ease;
+}
+.location-option:hover { background-color: #eef0fd; color: #4338ca; }
+.location-option:last-child { border-bottom: none; }
+.location-option.selected { background-color: #4338ca; color: white; }
+.location-option.keyboard-focused { background-color: #3730a3; color: white; outline: none; }
+.location-group-label {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f9fafb;
+    border-bottom: 1px solid #f3f4f6;
+}
 
 /* Joylashuv filtri uchun maxsus kenglik */
 .filter-group-location {
@@ -690,49 +737,28 @@
 
 .btn-action {
     background: none;
-    border: 1px solid #dee2e6;
-    padding: 3px 5px;
-    border-radius: 3px;
+    border: none;
+    padding: 0;
+    border-radius: 8px;
     cursor: pointer;
-    margin: 1px;
-    font-size: 10px;
-    transition: all 0.2s;
-    display: block;
-    width: 24px;
-    height: 20px;
+    margin: 2px auto;
+    font-size: 13px;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 28px;
     text-align: center;
-    line-height: 12px;
+    line-height: 1;
 }
 
-.btn-edit {
-    color: #007bff;
-    border-color: #007bff;
-}
-
-.btn-edit:hover {
-    background: #007bff;
-    color: white;
-}
-
-.btn-delete {
-    color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-delete:hover {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-view {
-    color: #28a745;
-    border-color: #28a745;
-}
-
-.btn-view:hover {
-    background: #28a745;
-    color: white;
-}
+.btn-edit { color: #4338ca; background: rgba(67,56,202,0.08); }
+.btn-edit:hover { background: #4338ca; color: white; transform: scale(1.1); }
+.btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+.btn-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
+.btn-view { color: #059669; background: rgba(5,150,105,0.08); }
+.btn-view:hover { background: #059669; color: white; transform: scale(1.1); }
 
 
 
@@ -813,13 +839,13 @@ tbody tr.sale-group-start:first-child {
 
 /* Ombor matnini sariq fon bilan ajratish */
 .warehouse-location {
-    background-color: #fff3cd !important;
+    background-color: transparent !important;
     padding: 2px 6px !important;
-    border-radius: 3px !important;
+    border-radius: 4px !important;
 }
 
 .group-datetime {
-    background-color: #e3f2fd !important;
+    background-color: #ffffff !important;
 }
 
 .datetime-info {
@@ -828,42 +854,53 @@ tbody tr.sale-group-start:first-child {
 
 .sale-date {
     font-weight: 600;
-    font-size: 14px;
-    color: #2c3e50;
+    font-size: 13px;
+    color: #1a1f36;
     margin-bottom: 2px;
 }
 
-.sale-time {
-    font-weight: 500;
-    font-size: 17px;
-    color: white;
-    background: #007bff;
+.sale-id-badge {
+    font-weight: 700;
+    font-size: 11px;
+    color: #92400e;
+    background: #fef08a;
     padding: 2px 8px;
-    border-radius: 0;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.sale-time {
+    font-weight: 600;
+    font-size: 12px;
+    color: white;
+    background: #4338ca;
+    padding: 2px 8px;
+    border-radius: 6px;
     display: inline-block;
 }
 
 .group-customer {
-    background-color: #e8f5e8 !important;
+    background-color: #ffffff !important;
 }
 
 .group-location {
-    background-color: #f0f8ff !important;
+    background-color: #ffffff !important;
     font-size: 12px;
-    color: #495057;
+    color: #374151;
     text-align: center;
 }
 
 .group-total {
-    background-color: #fff3cd !important;
+    background-color: #ffffff !important;
 }
 
 .group-profit {
-    background-color: #f8d7da !important;
+    background-color: #ffffff !important;
 }
 
 .group-actions {
-    background-color: #e2e3e5 !important;
+    background-color: #ffffff !important;
     padding: 8px 4px !important;
 }
 
@@ -2039,7 +2076,7 @@ function displaySalesData(data) {
             <tr class="${firstRowClasses.join(' ')}">
                 <td rowspan="${items.length}" class="group-cell group-datetime col-datetime">
                     <div class="datetime-info">
-                        <div class="sale-id" style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 2px;">ID: ${sale.id}</div>
+                        <div class="sale-id-badge">ID: ${sale.id}</div>
                         <div class="sale-date">${formattedDate}</div>
                         <div class="sale-time">${formattedTime}</div>
                     </div>
@@ -3107,6 +3144,8 @@ function initializeSearchAndFilters() {
         dateToFilter.value = '';
         customerFilter.value = '';
         locationFilter.value = '';
+        const locationFilterInput = document.getElementById('locationFilterInput');
+        if (locationFilterInput) locationFilterInput.value = '';
         saleIdFilter.value = '';
         selectedCustomerId = '';
         this.style.display = 'none';
@@ -3132,11 +3171,8 @@ function initializeSearchAndFilters() {
     // Mijoz qidiruv funksiyasini sozlash
     initializeCustomerSearch();
     
-    // Joylashuv filtr change hodisasi
-    locationFilter.addEventListener('change', function() {
-        updateClearButtonVisibility();
-        applySearchAndFilters();
-    });
+    // Joylashuv custom dropdown sozlash
+    initializeLocationSearch();
     
     // Savdo ID filtr change hodisasi
     saleIdFilter.addEventListener('input', function() {
@@ -3148,7 +3184,7 @@ function initializeSearchAndFilters() {
     loadCustomersForFilter();
     
     // Joylashuvlar ro'yxatini yuklash (agar ma'lumotlar mavjud bo'lsa)
-    if (allSalesData && allSalesData.length > 0) {
+    if (!window._locationItems || window._locationItems.length === 0) {
         loadLocationsForFilter();
     }
 }
@@ -3188,17 +3224,113 @@ async function loadCustomersForFilter() {
     }
 }
 
-// Joylashuvlar ro'yxatini yuklash (barcha do'konlar va omborlar)
+// Joylashuvlar ro'yxatini yuklash
 async function loadLocationsForFilter() {
     try {
-        console.log('📍 ===== JOYLASHUVLAR YUKLASH BOSHLANDI =====');
-        
-        // Backend'dan foydalanuvchi ruxsatlari bo'yicha joylashuvlarni olish
-        console.log('🔄 API so\'rovlari yuborilmoqda...');
         const [storesResponse, warehousesResponse] = await Promise.all([
-            fetch('/api/stores'),  // Foydalanuvchi huquqlari bo'yicha filterlangan
-            fetch('/api/warehouses')  // Foydalanuvchi huquqlari bo'yicha filterlangan
+            fetch('/api/stores'),
+            fetch('/api/warehouses')
         ]);
+        const stores = await storesResponse.json();
+        const warehouses = await warehousesResponse.json();
+        buildLocationDropdown(stores, warehouses);
+    } catch (error) {
+        console.error('Joylashuvlarni yuklashda xatolik:', error);
+    }
+}
+
+// Custom location dropdown qurish
+function buildLocationDropdown(stores, warehouses) {
+    window._locationItems = [];
+    if (stores && stores.length > 0) {
+        stores.forEach(store => {
+            window._locationItems.push({ value: `store_${store.id}`, label: `${store.name} (${PSLANG.store})`, group: '🏪 Do\'konlar' });
+        });
+    }
+    if (warehouses && warehouses.length > 0) {
+        warehouses.forEach(w => {
+            window._locationItems.push({ value: `warehouse_${w.id}`, label: `${w.name} (${PSLANG.warehouse})`, group: '🏭 Omborlar' });
+        });
+    }
+}
+
+// Location dropdown render
+function renderLocationDropdown(searchTerm) {
+    const dropdown = document.getElementById('locationDropdown');
+    const currentValue = document.getElementById('locationFilter').value;
+    dropdown.innerHTML = '';
+
+    const allOpt = document.createElement('div');
+    allOpt.className = 'location-option' + (currentValue === '' ? ' selected' : '');
+    allOpt.textContent = PSLANG.all_locations || 'Barcha joylashuvlar';
+    allOpt.addEventListener('click', function() { selectLocation('', ''); });
+    dropdown.appendChild(allOpt);
+
+    const items = (window._locationItems || []).filter(item => {
+        if (!searchTerm) return true;
+        return item.label.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    let lastGroup = '';
+    items.forEach(item => {
+        if (item.group !== lastGroup) {
+            const groupLabel = document.createElement('div');
+            groupLabel.className = 'location-group-label';
+            groupLabel.textContent = item.group;
+            dropdown.appendChild(groupLabel);
+            lastGroup = item.group;
+        }
+        const opt = document.createElement('div');
+        opt.className = 'location-option' + (item.value === currentValue ? ' selected' : '');
+        opt.textContent = item.label;
+        opt.addEventListener('click', function() { selectLocation(item.value, item.label); });
+        dropdown.appendChild(opt);
+    });
+}
+
+// Location tanlash
+function selectLocation(value, label) {
+    document.getElementById('locationFilter').value = value;
+    document.getElementById('locationFilterInput').value = label;
+    document.getElementById('locationDropdown').style.display = 'none';
+    updateClearButtonVisibility();
+    applySearchAndFilters();
+}
+
+// Location qidiruv sozlash
+function initializeLocationSearch() {
+    const locationInput = document.getElementById('locationFilterInput');
+    const locationDropdown = document.getElementById('locationDropdown');
+    let focusedIndex = -1;
+
+    function getOptions() { return locationDropdown.querySelectorAll('.location-option'); }
+    function highlightLocationOption(options, idx) {
+        options.forEach(o => o.classList.remove('keyboard-focused'));
+        if (idx >= 0 && options[idx]) { options[idx].classList.add('keyboard-focused'); options[idx].scrollIntoView({ block: 'nearest' }); }
+    }
+
+    locationInput.addEventListener('click', function() {
+        if (locationDropdown.style.display === 'none' || !locationDropdown.style.display) {
+            renderLocationDropdown(this.value); locationDropdown.style.display = 'block';
+        } else { locationDropdown.style.display = 'none'; }
+    });
+    locationInput.addEventListener('input', function() {
+        focusedIndex = -1; renderLocationDropdown(this.value); locationDropdown.style.display = 'block';
+    });
+    locationInput.addEventListener('keydown', function(e) {
+        const options = getOptions();
+        if (!options.length || locationDropdown.style.display === 'none') return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); focusedIndex = Math.min(focusedIndex + 1, options.length - 1); highlightLocationOption(options, focusedIndex); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); focusedIndex = Math.max(focusedIndex - 1, 0); highlightLocationOption(options, focusedIndex); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (focusedIndex >= 0 && options[focusedIndex]) options[focusedIndex].click(); }
+        else if (e.key === 'Escape') { locationDropdown.style.display = 'none'; focusedIndex = -1; }
+    });
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.location-search-container')) { locationDropdown.style.display = 'none'; focusedIndex = -1; }
+    });
+}
+
+// Mijoz qidiruv funksiyasini sozlash
         
         console.log('✅ API javoblari olindi:', {
             storesStatus: storesResponse.status,
@@ -3267,103 +3399,46 @@ async function loadLocationsForFilter() {
                 console.log(`   ➕ Option yaratildi: "${option.textContent}" = "${option.value}"`);
             });
             
-            console.log(`🏪 StoreGroup yaratildi, children: ${storeGroup.children.length}`);
-            if (storeGroup.children.length > 0) {
-                locationSelect.appendChild(storeGroup);
-                console.log('✅ Do\'konlar guruhi select\'ga qo\'shildi');
-            } else {
-                console.warn('⚠️ StoreGroup bo\'sh, qo\'shilmadi');
-            }
-        } else {
-            console.warn('⚠️ Do\'konlar yo\'q yoki bo\'sh array');
-        }
-        
-        // Omborlarni qo'shish
-        console.log('🏭 Omborlarni qo\'shish jarayoni...');
-        if (warehouses && warehouses.length > 0) {
-            console.log(`✅ ${warehouses.length} ta ombor topildi`);
-            const warehouseGroup = document.createElement('optgroup');
-            warehouseGroup.label = '🏭 Omborlar';
-            
-            warehouses.forEach((warehouse, index) => {
-                console.log(`🏭 Ombor ${index + 1}:`, {
-                    id: warehouse.id,
-                    name: warehouse.name,
-                    address: warehouse.address,
-                    manager_name: warehouse.manager_name
-                });
-                
-                const option = document.createElement('option');
-                option.value = `warehouse_${warehouse.id}`;
-                option.textContent = `${warehouse.name} (${PSLANG.warehouse})`;
-                warehouseGroup.appendChild(option);
-                
-                console.log(`   ➕ Option yaratildi: "${option.textContent}" = "${option.value}"`);
-            });
-            
-            console.log(`🏭 WarehouseGroup yaratildi, children: ${warehouseGroup.children.length}`);
-            locationSelect.appendChild(warehouseGroup);
-            console.log('✅ Omborlar guruhi select\'ga qo\'shildi');
-        } else {
-            console.warn('⚠️ Omborlar yo\'q yoki bo\'sh array');
-        }
-        
-        // Final natija
-        console.log('🔍 FINAL SELECT TARKIBI:');
-        console.log('   innerHTML:', locationSelect.innerHTML);
-        console.log('   Children soni:', locationSelect.children.length);
-        console.log('   Options soni:', locationSelect.querySelectorAll('option').length);
-        console.log('📍 ===== JOYLASHUVLAR YUKLASH TUGADI =====');
-        
-    } catch (error) {
-        console.error('Joylashuvlarni yuklashda xatolik:', error);
-        
-        // Xato holatida eski mantiqni ishlatish
-        console.log('⚠️ Backend xatosi, savdo ma\'lumotlaridan joylashuvlar olinadi...');
-        if (allSalesData && allSalesData.length > 0) {
-            const uniqueLocations = [...new Set(
-                allSalesData.flatMap(sale => 
-                    sale.items.map(item => item.location_name)
-                ).filter(location => location && location.trim())
-            )].sort();
-            
-            const locationSelect = document.getElementById('locationFilter');
-            if (locationSelect) {
-                locationSelect.innerHTML = '<option value="">' + PSLANG.all_locations + '</option>';
-                uniqueLocations.forEach(location => {
-                    const option = document.createElement('option');
-                    option.value = location;
-                    option.textContent = location;
-                    locationSelect.appendChild(option);
-                });
-            }
-        }
-    }
-}
-
 // Mijoz qidiruv funksiyasini sozlash
 function initializeCustomerSearch() {
     const customerInput = document.getElementById('customerFilter');
     const customerDropdown = document.getElementById('customerDropdown');
-    
-    // Input focus hodisasi
-    customerInput.addEventListener('focus', function() {
-        updateCustomerDropdown();
-        customerDropdown.style.display = 'block';
-    });
-    
-    // Input qidiruv hodisasi
+    let focusedIndex = -1;
+
+    function highlightOption(options, idx) {
+        options.forEach(o => o.classList.remove('keyboard-focused'));
+        if (idx >= 0 && options[idx]) { options[idx].classList.add('keyboard-focused'); options[idx].scrollIntoView({ block: 'nearest' }); }
+    }
+
+    // Faqat yozganda dropdown ko'rsin
     customerInput.addEventListener('input', function() {
-        updateCustomerDropdown();
-        customerDropdown.style.display = 'block';
+        focusedIndex = -1;
+        if (this.value.trim().length > 0) {
+            updateCustomerDropdown();
+            customerDropdown.style.display = 'block';
+        } else {
+            selectedCustomerId = '';
+            customerDropdown.style.display = 'none';
+        }
         updateClearButtonVisibility();
         applySearchAndFilters();
     });
-    
+
+    // Klaviatura navigatsiyasi
+    customerInput.addEventListener('keydown', function(e) {
+        const options = customerDropdown.querySelectorAll('.customer-option');
+        if (!options.length || customerDropdown.style.display === 'none') return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); focusedIndex = Math.min(focusedIndex + 1, options.length - 1); highlightOption(options, focusedIndex); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); focusedIndex = Math.max(focusedIndex - 1, 0); highlightOption(options, focusedIndex); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (focusedIndex >= 0 && options[focusedIndex]) options[focusedIndex].click(); }
+        else if (e.key === 'Escape') { customerDropdown.style.display = 'none'; focusedIndex = -1; }
+    });
+
     // Tashqi joyga bosganda yashirish
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.customer-search-container')) {
             customerDropdown.style.display = 'none';
+            focusedIndex = -1;
         }
     });
 }
@@ -3377,8 +3452,12 @@ function updateCustomerDropdown() {
     // Filtrlangan mijozlar
     const filteredCustomers = allCustomers.filter(customer => {
         const name = (customer.name || '').toLowerCase();
-        const phone = (customer.phone || '').toLowerCase();
-        return name.includes(searchTerm) || phone.includes(searchTerm);
+        const phone = (customer.phone || '').replace(/\D/g, '');
+        const searchDigits = searchTerm.replace(/\D/g, '');
+        if (searchDigits.length > 0) {
+            return name.includes(searchTerm) || phone.includes(searchDigits);
+        }
+        return name.includes(searchTerm);
     });
     
     // Dropdown ni tozalash
