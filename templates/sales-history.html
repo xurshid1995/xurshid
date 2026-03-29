@@ -1573,8 +1573,11 @@ function displaySalesData(data) {
         console.log('🔄 Ma\'lumotlar sortlandi, birinchi 3 ta sana:', 
             sortedSales.slice(0, 3).map(s => s.sale_date));
         
-        // Joylashuvlar ro'yxatini yangilash
-        loadLocationsForFilter();
+        // Joylashuvlar ro'yxatini faqat birinchi marta yuklash
+        const locationSelect = document.getElementById('locationFilter');
+        if (locationSelect && locationSelect.options.length <= 1) {
+            loadLocationsForFilter();
+        }
     }
     
     console.log('📈 Statistikalar:', stats);
