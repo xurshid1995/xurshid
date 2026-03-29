@@ -48,6 +48,30 @@
         {% endif %}
     </div>
 
+    <!-- Tasdiqlanmagan savdo tarixi statistikasi -->
+    <div class="pending-stats-section" id="pendingStatsSection">
+        <div class="pending-stats-header">
+            <i class="fas fa-clock"></i>
+            <span>{{ t('pending_sales_title') }}</span>
+        </div>
+        <div class="pending-stats" id="pendingStats">
+            <div class="pending-stat-card">
+                <i class="fas fa-shopping-cart"></i>
+                <div>
+                    <span class="stat-number" id="pendingTotalSales">0</span>
+                    <span class="stat-label">{{ t('total_sales_count') }}</span>
+                </div>
+            </div>
+            <div class="pending-stat-card">
+                <i class="fas fa-dollar-sign"></i>
+                <div>
+                    <span class="stat-number" id="pendingTotalRevenue">$0</span>
+                    <span class="stat-label">{{ t('total_sum') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Qidiruv va Filtr paneli -->
     <div class="search-filter-panel">
         <div class="search-filter-row">
@@ -321,6 +345,62 @@
 .compact-mode .sales-history-page .sales-table td { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding: 8px !important; }
 .compact-mode .compact-row { background-color: rgba(74, 108, 247, 0.02); }
 .compact-mode .compact-row:hover { background-color: rgba(74, 108, 247, 0.07); }
+
+/* ===== PENDING STATS SECTION ===== */
+.pending-stats-section {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.pending-stats-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f97316;
+    color: white;
+    padding: 11px 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.pending-stats {
+    display: flex;
+    gap: 0;
+    background: white;
+}
+
+.pending-stat-card {
+    background: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    border-bottom: 3px solid #f97316;
+    border-right: 1px solid #f3f4f6;
+    transition: background 0.2s;
+}
+
+.pending-stat-card:last-child {
+    border-right: none;
+}
+
+.pending-stat-card:hover {
+    background: #fff7ed;
+}
+
+.pending-stat-card i {
+    font-size: 1.8rem;
+    color: #f97316;
+    background: rgba(249,115,22,0.1);
+    padding: 12px;
+    border-radius: 10px;
+    line-height: 1;
+}
 
 /* ===== STAT CARDS ===== */
 .sales-stats {
@@ -1459,6 +1539,9 @@ document.addEventListener('DOMContentLoaded', function() {
     clearTable();
     // Real ma'lumotlarni yuklash
     loadSalesHistory();
+    
+    // Tasdiqlanmagan savdolar statistikasini yuklash
+    loadPendingStats();
     
     // Qidiruv va filtr funksiyalarini sozlash
     initializeSearchAndFilters();
@@ -3685,6 +3768,28 @@ function formatTime(dateString) {
     } catch (e) {
         console.log('❌ formatTime xatosi:', e);
         return '';
+    }
+}
+
+// Tasdiqlanmagan savdolar statistikasini yuklash
+async function loadPendingStats() {
+    try {
+        const response = await fetch('/api/sales-history?payment_status=pending&per_page=1&nocache=' + new Date().getTime(), {
+            method: 'GET',
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.success && data.data) {
+            const stats = data.data.statistics || {};
+            const totalSales = stats.total_sales ?? (data.data.pagination ? data.data.pagination.total_items : 0);
+            const totalRevenue = stats.total_revenue || 0;
+            document.getElementById('pendingTotalSales').textContent = totalSales;
+            document.getElementById('pendingTotalRevenue').textContent = '$' + parseFloat(totalRevenue).toFixed(2);
+        }
+    } catch (e) {
+        console.error('Pending stats yuklashda xatolik:', e);
     }
 }
 
