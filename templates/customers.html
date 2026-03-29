@@ -811,20 +811,20 @@
             <colgroup>
                 <col>
                 <col>
+                <col style="width: 85px;">
                 <col style="width: 140px;">
                 <col>
                 <col>
-                <col style="width: 85px;">
                 <col style="width: 105px;">
             </colgroup>
             <thead>
                 <tr>
                     <th><span class="emoji">🏪</span>{{ t('header_store') }}</th>
                     <th><span class="emoji">👤</span>{{ t('header_customer_name') }}</th>
+                    <th><span class="emoji">📅</span>{{ t('header_added_date') }}</th>
                     <th><span class="emoji">📞</span>{{ t('header_phone') }}</th>
                     <th><span class="emoji">📊</span>{{ t('sales_history') }}</th>
-                    <th><span class="emoji">�</span>{{ t('header_last_sale') }}</th>
-                    <th><span class="emoji">📅</span>{{ t('header_added_date') }}</th>
+                    <th><span class="emoji">📅</span>{{ t('header_last_sale') }}</th>
                     <th><span class="emoji">⚙️</span>{{ t('actions') }}</th>
                 </tr>
             </thead>
@@ -945,6 +945,7 @@
                     <tr>
                         <td class="store-name">${customer.store_name || CSLANG.general}</td>
                         <td class="customer-name">${customer.name || CSLANG.unknown}</td>
+                        <td>${createdDate}</td>
                         <td class="customer-phone">${customer.phone || '-'}</td>
                         <td class="customer-email">
                             <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: center;">
@@ -954,7 +955,6 @@
                             </div>
                         </td>
                         <td>${customer.last_sale_date || '-'}</td>
-                        <td>${createdDate}</td>
                         <td class="actions">
                             <button onclick="viewCustomer(${customer.id})" class="btn-view" title="${CSLANG.view}"><i class="fas fa-eye"></i></button>
                             ${userRole === 'admin' ? `<a href="/edit-customer/${customer.id}" class="btn-edit" title="${CSLANG.edit}"><i class="fas fa-pencil-alt"></i></a>` : ''}
