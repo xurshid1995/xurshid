@@ -806,7 +806,7 @@
                 <col>
                 <col style="width: 85px;">
                 <col style="width: 140px;">
-                <col>
+                <col style="min-width: 260px;">
                 <col>
                 <col style="width: 105px;">
             </colgroup>
@@ -941,7 +941,7 @@
                         <td>${createdDate}</td>
                         <td class="customer-phone">${customer.phone || '-'}</td>
                         <td class="customer-email">
-                            <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: center;">
+                            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 4px; align-items: center;">
                                 <span style="font-size: 0.82rem; background: #eef0fd; color: #4338ca; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">🔢 ${CSLANG.count}: <strong>${customer.total_sales || 0}</strong></span>
                                 <span style="font-size: 0.82rem; background: #fff7ed; color: #d97706; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">💰 ${CSLANG.amount}: <strong>$${customer.total_amount ? parseFloat(customer.total_amount).toFixed(2) : '0.00'}</strong></span>
                                 ${userRole !== 'sotuvchi' ? `<span style="font-size: 0.82rem; background: #f0fdf4; color: #059669; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">📊 ${CSLANG.profit}: <strong>$${customer.total_profit ? parseFloat(customer.total_profit).toFixed(2) : '0.00'}</strong></span>` : ''}
