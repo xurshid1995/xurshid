@@ -24,18 +24,41 @@
     
     .check-stock-box {
         background: white;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 1px solid #eef0f7;
         box-sizing: border-box;
         max-width: 100%;
     }
+
+    .layout-header {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #0f172a;
+        border-bottom: 1.5px solid #ebebf5;
+        padding-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .layout-header .count-badge {
+        background: #eef0f7;
+        color: #4338ca;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 20px;
+    }
     
     .table-wrapper-check {
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
+        border: 1px solid #eef0f7;
+        border-radius: 10px;
         margin-top: 10px;
         overflow-x: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .table-wrapper-check table {
         width: 100%;
@@ -158,13 +181,9 @@
         }
 
         /* Sarlavha bar */
-        .check-stock-box > div:first-child {
-            height: auto !important;
-            padding: 10px !important;
+        .layout-header {
             font-size: 14px !important;
-        }
-        .check-stock-box > div:first-child div {
-            font-size: 14px !important;
+            padding-bottom: 8px !important;
         }
 
         /* Modal oyna */
@@ -186,21 +205,17 @@
 {% block content %}
 <div class="container-fluid">
     <!-- Sahifa sarlavhasi -->
-    <div class="row mb-4">
+    <div class="row mb-3">
         <div class="col-12">
             <div class="page-header">
-                <div class="session-header-wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h2 style="margin: 0;"><i class="fas fa-clipboard-check"></i> {{ location_name }} - {{ t('css_check_stock') }}</h2>
-                    </div>
-                    <div class="session-header-buttons" style="display: flex; gap: 1rem; align-items: center;">
-                        <button type="button" onclick="finishCheck()" style="background-color: #dc3545 !important; color: white !important; border: none !important; padding: 0.5rem 1rem; font-size: 1.25rem; border-radius: 0.5rem; cursor: pointer;">
-                            <i class="fas fa-check me-2"></i>{{ t('css_finish_check') }}
-                        </button>
-                        <a href="/check_stock" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-arrow-left me-2"></i>{{ t('css_back') }}
-                        </a>
-                    </div>
+                <h2><i class="fas fa-clipboard-check"></i> {{ location_name }} - {{ t('css_check_stock') }}</h2>
+                <div class="session-header-buttons" style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" onclick="finishCheck()" style="background: #dc3545; color: white; border: none; padding: 9px 20px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-check"></i> {{ t('css_finish_check') }}
+                    </button>
+                    <a href="/check_stock" style="background: #6c757d; color: white; border: none; padding: 9px 20px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-arrow-left"></i> {{ t('css_back') }}
+                    </a>
                 </div>
             </div>
         </div>
@@ -210,18 +225,18 @@
     <div class="check-stock-grid">
         <!-- Chap jadval - Mahsulotlar ro'yxati -->
         <div class="check-stock-box">
-            <div style="background: #3498db; padding: 15px; border-radius: 8px; margin-bottom: 10px; height: 54px; display: flex; align-items: center; justify-content: space-between;">
-                <div style="color: white; font-weight: 600; font-size: 16px;">📦 {{ t('css_products_list') }}</div>
-                <div style="color: white; font-size: 16px;">
-                    <span id="productsCount" style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 10px; font-weight: 600;">0</span> {{ t('css_count_suffix') }}
-                </div>
+            <div class="layout-header">
+                <span>📦 {{ t('css_products_list') }}</span>
+                <span class="count-badge"><span id="productsCount">0</span> {{ t('css_count_suffix') }}</span>
             </div>
 
-            <div style="margin-bottom: 10px;">
+            <div style="margin-bottom: 12px;">
                 <input type="text" 
                        id="productSearch" 
                        placeholder="🔍 {{ t('css_search_product') }}" 
-                       style="width: 100%; padding: 10px 12px; border: 2px solid #28a745; border-radius: 25px; font-size: 14px;"
+                       style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; background: #f9fafb; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
+                       onfocus="this.style.borderColor='#4338ca'; this.style.background='white';"
+                       onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
                        autofocus>
             </div>
 
@@ -247,43 +262,45 @@
             </div>
             
             <!-- Pagination -->
-            <div id="productsPagination" style="display: none; margin-top: 15px; text-align: center; padding: 10px;">
-                <button id="prevPageBtn" onclick="prevProductsPage()" style="padding: 8px 16px; margin: 0 5px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-                    ← {{ t('css_prev') }}
-                </button>
-                <span id="pageInfo" style="margin: 0 15px; font-weight: 600; font-size: 14px;"></span>
-                <button id="nextPageBtn" onclick="nextProductsPage()" style="padding: 8px 16px; margin: 0 5px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-                    {{ t('css_next') }} →
-                </button>
+            <div id="productsPagination" style="display: none; margin-top: 12px; display: none; justify-content: space-between; align-items: center; padding: 8px 4px; border-top: 1px solid #f0f2f5;">
+                <span id="pageInfo" style="font-size: 13px; color: #666; font-weight: 500;"></span>
+                <div style="display: flex; gap: 5px;">
+                    <button id="prevPageBtn" onclick="prevProductsPage()" style="padding: 6px 12px; border: 1px solid #e5e7eb; background: white; color: #333; cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;"
+                            onmouseover="this.style.background='#4338ca'; this.style.color='white'; this.style.borderColor='#4338ca';"
+                            onmouseout="this.style.background='white'; this.style.color='#333'; this.style.borderColor='#e5e7eb';">← {{ t('css_prev') }}</button>
+                    <button id="nextPageBtn" onclick="nextProductsPage()" style="padding: 6px 12px; border: 1px solid #e5e7eb; background: white; color: #333; cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;"
+                            onmouseover="this.style.background='#4338ca'; this.style.color='white'; this.style.borderColor='#4338ca';"
+                            onmouseout="this.style.background='white'; this.style.color='#333'; this.style.borderColor='#e5e7eb';">{{ t('css_next') }} →</button>
+                </div>
             </div>
         </div>
 
         <!-- O'ng jadval - Tekshirilgan mahsulotlar -->
         <div class="check-stock-box">
-            <div style="background: #3498db; padding: 15px; border-radius: 8px; margin-bottom: 10px; height: 54px; display: flex; align-items: center; justify-content: space-between;">
-                <div style="color: white; font-weight: 600; font-size: 16px;">✅ {{ t('css_checked_products') }}</div>
-                <div style="color: white; font-size: 16px;">
-                    <span id="checkedCount" style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 10px; font-weight: 600;">0</span> {{ t('css_count_suffix') }}
-                </div>
+            <div class="layout-header">
+                <span>✅ {{ t('css_checked_products') }}</span>
+                <span class="count-badge"><span id="checkedCount">0</span> {{ t('css_count_suffix') }}</span>
             </div>
 
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center;">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center;">
                 <input type="text" 
                        id="checkedSearch" 
                        placeholder="🔍 {{ t('css_search_checked') }}" 
-                       style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 25px; font-size: 13px;">
+                       style="flex: 1; min-width: 120px; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 13px; background: #f9fafb; outline: none;"
+                       onfocus="this.style.borderColor='#4338ca'; this.style.background='white';"
+                       onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <button onclick="filterChecked('all')" id="filterAll" 
-                            style="background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        📊 {{ t('css_filter_checked') }} <span id="allCount" style="background: rgba(255,255,255,0.3); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+                            style="background: #4338ca; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                        📊 {{ t('css_filter_checked') }} <span id="allCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
                     </button>
                     <button onclick="filterChecked('error')" id="filterError" 
                             style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        ⚠️ {{ t('css_filter_error') }} <span id="errorCount" style="background: rgba(255,255,255,0.3); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+                        ⚠️ {{ t('css_filter_error') }} <span id="errorCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
                     </button>
                     <button onclick="filterChecked('correct')" id="filterCorrect" 
                             style="background: #28a745; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        ✅ {{ t('css_filter_correct') }} <span id="correctCount" style="background: rgba(255,255,255,0.3); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+                        ✅ {{ t('css_filter_correct') }} <span id="correctCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
                     </button>
                 </div>
             </div>
@@ -356,16 +373,26 @@
 
 <style>
 .page-header {
-    background: white;
-    color: #333;
-    padding: 0.75rem 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    padding-bottom: 15px;
+    border-bottom: 1.5px solid #ebebf5;
+    padding: 20px 20px 15px;
 }
 
 .page-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.page-header h2 i {
+    color: #4338ca;
+    margin-right: 8px;
 }
 
 .card {
