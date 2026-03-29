@@ -4,118 +4,225 @@
 
 {% block extra_css %}
 <style>
-    /* Transfer sahifasi stillari */
-    .content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    
-    .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-    }
-    
-    .btn-success:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
-    }
-    
-    .card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .transfer-list-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .transfer-list-table th,
-    .transfer-list-table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .transfer-list-table th {
-        font-weight: 600;
-        white-space: nowrap;
-    }
-    
-    .transfer-list-table tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .btn-sm {
-        padding: 5px 10px;
-        font-size: 12px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        margin-right: 5px;
-    }
-    
-    .btn-success-sm {
-        background-color: #28a745;
-        color: white;
-    }
-    
-    .btn-danger-sm {
-        background-color: #dc3545;
-        color: white;
-    }
-    
-    .btn-success-sm:hover {
-        background-color: #218838;
-    }
-    
-    .btn-danger-sm:hover {
-        background-color: #c82333;
-    }
-    
-    @media (max-width: 768px) {
-        .transfer-list-table {
-            font-size: 12px;
-        }
-        
-        .transfer-list-table th,
-        .transfer-list-table td {
-            padding: 8px 4px;
-        }
-    }
+/* ===== TRANSFER1 PAGE - SALES HISTORY STYLE ===== */
+.transfer1-page {
+    padding: 20px;
+    width: 100%;
+    max-width: none;
+}
+
+/* Page Header */
+.transfer1-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1.5px solid #ebebf5;
+}
+.transfer1-page .page-header h1 {
+    color: #0f172a;
+    font-size: 24px;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+.transfer1-page .page-header h1 i {
+    color: #4338ca;
+    margin-right: 10px;
+}
+.btn-new-transfer {
+    background: #4338ca;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+.btn-new-transfer:hover {
+    background: #3730a3;
+    color: white;
+    text-decoration: none;
+}
+
+/* Section cards */
+.transfer1-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border: 1px solid #eef0f7;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+.transfer1-section-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f2f5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.transfer1-section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Search panel */
+.transfer1-search-panel {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f2f5;
+}
+.transfer1-search-wrap {
+    position: relative;
+    max-width: 360px;
+}
+.transfer1-search-wrap .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+}
+.transfer1-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f9fafb;
+    color: #1a1f36;
+    transition: all 0.2s;
+}
+.transfer1-search-input:focus {
+    outline: none;
+    border-color: #4338ca;
+    box-shadow: 0 0 0 3px rgba(67,56,202,0.1);
+    background: white;
+}
+
+/* Table */
+.transfer1-table-wrap {
+    overflow-x: auto;
+}
+.transfer1-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.transfer1-table th {
+    background: #6366f1;
+    color: #ffffff;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 2px solid #3730a3;
+    white-space: nowrap;
+}
+.transfer1-table th:first-child { border-radius: 0; }
+.transfer1-table th:last-child  { border-radius: 0; }
+.transfer1-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 13px;
+    vertical-align: middle;
+    text-align: center;
+}
+.transfer1-table tbody tr:hover { background: #f8f9ff; }
+
+/* Badges */
+.badge-count {
+    background: #4338ca;
+    color: white;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+.badge-pending {
+    background: #f59e0b;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Action buttons */
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.btn-success-sm {
+    background: #10b981;
+    color: white;
+}
+.btn-success-sm:hover { background: #059669; }
+.btn-danger-sm {
+    background: #ef4444;
+    color: white;
+    margin-left: 4px;
+}
+.btn-danger-sm:hover { background: #dc2626; }
+
+@media (max-width: 768px) {
+    .transfer1-page { padding: 10px; }
+    .transfer1-table { font-size: 12px; }
+    .transfer1-table th,
+    .transfer1-table td { padding: 8px 6px; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="content-header">
-    <h1>🔄 {{ t('tr1_title') }}</h1>
-    <a href="{{ url_for('transfer_old') }}?new=true" class="btn btn-success">
-        <i class="fas fa-exchange-alt"></i> {{ t('tr1_new_transfer') }}
-    </a>
-</div>
+<div class="transfer1-page">
 
-<!-- Tasdiqlanmagan Transferlar -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body" style="padding: 15px;">
-        <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #333;">⏳ {{ t('tr1_pending') }}</h3>
-        <div style="overflow-x: auto;">
-            <table class="table transfer-list-table" id="pendingTransfersTable">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-exchange-alt"></i> {{ t('tr1_title') }}</h1>
+        <a href="{{ url_for('transfer_old') }}?new=true" class="btn-new-transfer">
+            <i class="fas fa-plus"></i> {{ t('tr1_new_transfer') }}
+        </a>
+    </div>
+
+    <!-- Tasdiqlanmagan Transferlar -->
+    <div class="transfer1-section">
+        <div class="transfer1-section-header">
+            <i class="fas fa-clock" style="color:#f59e0b; font-size:16px;"></i>
+            <h3>{{ t('tr1_pending') }}</h3>
+        </div>
+        <div class="transfer1-table-wrap">
+            <table class="transfer1-table" id="pendingTransfersTable">
                 <thead>
                     <tr>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_from') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_to') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_created') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_products') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_user') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_actions') }}</th>
+                        <th>{{ t('tr1_th_from') }}</th>
+                        <th>{{ t('tr1_th_to') }}</th>
+                        <th>{{ t('tr1_th_created') }}</th>
+                        <th>{{ t('tr1_th_products') }}</th>
+                        <th>{{ t('tr1_th_user') }}</th>
+                        <th>{{ t('tr1_th_actions') }}</th>
                     </tr>
                 </thead>
                 <tbody id="pendingTransfersBody">
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af;">
                             📭 {{ t('tr1_no_pending') }}
                         </td>
                     </tr>
@@ -123,30 +230,34 @@
             </table>
         </div>
     </div>
-</div>
 
-<!-- Transfer Tarixi -->
-<div class="card">
-    <div class="card-body" style="padding: 15px;">
-        <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #333;">📋 {{ t('tr1_history') }}</h3>
-        <div style="margin-bottom: 15px;">
-            <input type="text" id="historySearch" class="form-control" placeholder="🔍 {{ t('tr1_search') }}" style="padding: 10px; border: 2px solid #ddd; border-radius: 4px;">
+    <!-- Transfer Tarixi -->
+    <div class="transfer1-section">
+        <div class="transfer1-section-header">
+            <i class="fas fa-history" style="color:#4338ca; font-size:16px;"></i>
+            <h3>{{ t('tr1_history') }}</h3>
         </div>
-        <div style="overflow-x: auto;">
-            <table class="table transfer-list-table" id="transferHistoryTable">
+        <div class="transfer1-search-panel">
+            <div class="transfer1-search-wrap">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="historySearch" class="transfer1-search-input" placeholder="{{ t('tr1_search') }}">
+            </div>
+        </div>
+        <div class="transfer1-table-wrap">
+            <table class="transfer1-table" id="transferHistoryTable">
                 <thead>
                     <tr>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_date') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_from') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_to') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_products2') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_quantity') }}</th>
-                        <th style="color: white; background: #5DADE2;">{{ t('tr1_th_user') }}</th>
+                        <th>{{ t('tr1_th_date') }}</th>
+                        <th>{{ t('tr1_th_from') }}</th>
+                        <th>{{ t('tr1_th_to') }}</th>
+                        <th>{{ t('tr1_th_products2') }}</th>
+                        <th>{{ t('tr1_th_quantity') }}</th>
+                        <th>{{ t('tr1_th_user') }}</th>
                     </tr>
                 </thead>
                 <tbody id="transferHistoryBody">
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af;">
                             ⏳ {{ t('tr1_loading') }}
                         </td>
                     </tr>
@@ -154,8 +265,8 @@
             </table>
         </div>
     </div>
-</div>
 
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -269,7 +380,7 @@
                             <td>${pending.to_location}</td>
                             <td style="white-space: nowrap;">${formattedDate}</td>
                             <td style="text-align: center;">
-                                <span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 600;">${productCount}</span>
+                                <span class="badge-count">${productCount}</span>
                             </td>
                             <td>${pending.user_name}</td>
                             <td>
