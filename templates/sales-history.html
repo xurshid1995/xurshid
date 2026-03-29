@@ -105,10 +105,6 @@
         <span id="resultsText"></span>
     </div>
 
-    <div class="sh-bar sh-bar-tbl">
-        <i class="fas fa-list-alt"></i>
-        <span>{{ t('sales_history') }}</span>
-    </div>
     <div class="table-responsive">
         <div class="table-container">
             <table class="sales-table">
@@ -209,8 +205,8 @@
 }
 
 .sales-history-page .sales-table th {
-    background: #f0f3f7;
-    color: #546e7a !important;
+    background: #546e7a;
+    color: #ffffff !important;
     padding: 12px 8px;
     text-align: center;
     font-weight: 700;
@@ -219,11 +215,11 @@
     vertical-align: middle;
     line-height: 1.4;
     letter-spacing: 0.5px;
-    border-bottom: 2px solid #d0d8e4;
+    border-bottom: 2px solid #455a64;
 }
 
-.sales-history-page .sales-table th:first-child { border-radius: 0; }
-.sales-history-page .sales-table th:last-child { border-radius: 0; }
+.sales-history-page .sales-table th:first-child { border-radius: 8px 0 0 0; }
+.sales-history-page .sales-table th:last-child { border-radius: 0 8px 0 0; }
 
 .sales-history-page .sales-table tr:hover {
     background: #f8f9ff;
