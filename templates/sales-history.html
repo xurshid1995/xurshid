@@ -3152,7 +3152,13 @@ function updateCustomerDropdown() {
     const filteredCustomers = allCustomers.filter(customer => {
         const name = (customer.name || '').toLowerCase();
         const phone = (customer.phone || '').toLowerCase();
-        return name.includes(searchTerm) || phone.includes(searchTerm);
+        // Faqat raqamlarni ajratib solishtirish (belgilarni e'tiborsiz qoldirish)
+        const phoneDigits = phone.replace(/\D/g, '');
+        const searchDigits = searchTerm.replace(/\D/g, '');
+        const phoneMatch = searchDigits.length > 0
+            ? phoneDigits.includes(searchDigits)
+            : phone.includes(searchTerm);
+        return name.includes(searchTerm) || phoneMatch;
     });
     
     // Dropdown ni tozalash
