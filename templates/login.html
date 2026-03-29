@@ -18,390 +18,322 @@
         height: 100%; width: 100%;
         overflow: hidden;
         font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        background: #fff;
     }
 
     /* ===== WRAPPER ===== */
     .login-wrapper {
         display: flex;
-        min-height: 100vh;
         height: 100vh;
         width: 100vw;
         overflow: hidden;
+        background: #fff;
     }
 
     /* ===== LEFT PANEL ===== */
     .login-left {
-        flex: 1;
-        background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%);
+        flex: 0 0 44%;
+        background: linear-gradient(170deg, #2196f3 0%, #1565c0 45%, #0d47a1 100%);
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 40px;
-        position: relative;
-        overflow: hidden;
+        padding: 40px 88px 40px 44px;
+        z-index: 2;
+        /* NO overflow:hidden — cloud bumps must extend into white area */
     }
 
-    /* Animated blobs */
-    .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(60px);
-        opacity: 0.18;
-        animation: blobFloat 8s ease-in-out infinite;
-    }
-    .blob-1 { width: 350px; height: 350px; background: #6366f1; top: -80px; left: -80px; animation-delay: 0s; }
-    .blob-2 { width: 280px; height: 280px; background: #0891b2; bottom: -60px; right: -60px; animation-delay: 3s; }
-    .blob-3 { width: 200px; height: 200px; background: #7c3aed; top: 40%; left: 30%; animation-delay: 1.5s; }
-
-    @keyframes blobFloat {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        33%       { transform: translate(20px, -20px) scale(1.05); }
-        66%       { transform: translate(-15px, 15px) scale(0.97); }
-    }
-
-    /* Grid dots background */
+    /* Dot-grid texture */
     .login-left::before {
         content: '';
         position: absolute; inset: 0;
-        background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-        background-size: 32px 32px;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1.5px, transparent 1.5px);
+        background-size: 28px 28px;
+        pointer-events: none;
     }
 
-    .brand-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        max-width: 400px;
-    }
-
-    .brand-logo {
-        width: 80px; height: 80px;
-        background: linear-gradient(135deg, #6366f1, #4338ca);
-        border-radius: 22px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 36px;
-        margin: 0 auto 28px;
-        box-shadow: 0 8px 32px rgba(99,102,241,0.45);
-        animation: logoPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes logoPulse {
-        0%, 100% { box-shadow: 0 8px 32px rgba(99,102,241,0.45); transform: scale(1); }
-        50%       { box-shadow: 0 12px 48px rgba(99,102,241,0.65); transform: scale(1.04); }
-    }
-
-    .brand-title {
-        color: #fff;
-        font-size: 2rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 12px;
-        line-height: 1.2;
-    }
-
-    .brand-subtitle {
-        color: rgba(255,255,255,0.55);
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 40px;
-    }
-
-    /* Feature bullets */
-    .brand-features {
+    /* ===== CLOUD BUMPS — white circles at right edge ===== */
+    .cloud-bumps {
+        position: absolute;
+        right: -76px;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex;
         flex-direction: column;
-        gap: 14px;
-        text-align: left;
+        align-items: flex-start;
+        pointer-events: none;
+        z-index: 3;
     }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: rgba(255,255,255,0.75);
-        font-size: 0.9rem;
-    }
-
-    .feature-icon {
-        width: 36px; height: 36px;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 16px;
+    /* Back-layer circles (semi-transparent, slightly further left) */
+    .cloud-back {
+        width: 152px; height: 152px;
+        background: rgba(255,255,255,0.22);
+        border-radius: 50%;
+        margin-bottom: -36px;
         flex-shrink: 0;
+        position: relative;
+        left: -20px;
+    }
+    .cloud-back:last-child { margin-bottom: 0; }
+    /* Front-layer circles (solid white, at the actual boundary) */
+    .cloud-front {
+        width: 152px; height: 152px;
+        background: #ffffff;
+        border-radius: 50%;
+        margin-bottom: -36px;
+        flex-shrink: 0;
+    }
+    .cloud-front:last-child { margin-bottom: 0; }
+
+    /* ===== BRAND CONTENT ===== */
+    .brand-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: #fff;
+        max-width: 280px;
+    }
+
+    .brand-welcome {
+        font-size: 1.25rem;
+        font-weight: 400;
+        opacity: 0.85;
+        margin-bottom: 22px;
+        letter-spacing: 0.3px;
+    }
+
+    .brand-logo-circle {
+        width: 88px; height: 88px;
+        background: rgba(255,255,255,0.15);
+        border: 2.5px solid rgba(255,255,255,0.55);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 18px;
+    }
+
+    .brand-name {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.25;
+        margin-bottom: 16px;
+    }
+
+    .brand-desc {
+        font-size: 0.85rem;
+        line-height: 1.65;
+        opacity: 0.7;
     }
 
     /* ===== RIGHT PANEL ===== */
     .login-right {
-        width: 480px;
-        flex-shrink: 0;
-        background: #f8fafc;
+        flex: 1;
+        background: #ffffff;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 48px 40px;
+        padding: 40px 52px;
         position: relative;
+        z-index: 1;
         overflow-y: auto;
     }
 
     .login-form-box {
         width: 100%;
-        max-width: 360px;
+        max-width: 340px;
     }
 
-    .form-heading {
-        margin-bottom: 32px;
+    .form-title {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: #1a2233;
+        margin-bottom: 34px;
+        letter-spacing: -0.2px;
     }
 
-    .form-heading h2 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 6px;
-        letter-spacing: -0.4px;
-    }
-
-    .form-heading p {
-        color: #64748b;
-        font-size: 0.95rem;
-    }
-
-    /* Input fields */
-    .field-group {
-        margin-bottom: 20px;
+    /* ===== UNDERLINE INPUTS ===== */
+    .uf-group {
+        margin-bottom: 26px;
         position: relative;
     }
 
-    .field-group label {
+    .uf-label {
         display: block;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #475569;
-        margin-bottom: 7px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 6px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
     }
 
-    .input-wrap {
+    .uf-row {
         position: relative;
         display: flex;
         align-items: center;
     }
 
-    .input-icon {
-        position: absolute;
-        left: 14px;
-        color: #94a3b8;
-        font-size: 16px;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .field-control {
-        width: 100%;
-        padding: 12px 14px 12px 42px;
-        background: #fff;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        color: #0f172a;
-        transition: all 0.2s;
+    .uf-input {
+        flex: 1;
+        border: none;
+        border-bottom: 1.5px solid #d1d5db;
         outline: none;
+        padding: 9px 28px 9px 0;
+        font-size: 0.95rem;
+        color: #1a2233;
+        background: transparent;
+        transition: border-color 0.25s;
+        width: 100%;
     }
+    .uf-input::placeholder { color: #c4cdd6; font-size: 0.9rem; }
+    .uf-input:focus { border-bottom-color: #1565c0; }
+    .uf-input.uf-error { border-bottom-color: #ef4444; }
 
-    .field-control::placeholder { color: #cbd5e1; }
-
-    .field-control:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
-        background: #fff;
-    }
-
-    .field-control.has-error {
-        border-color: #ef4444;
-        box-shadow: 0 0 0 4px rgba(239,68,68,0.08);
-    }
-
-    .password-toggle {
+    /* Checkmark icon (✓) shown when field valid */
+    .uf-tick {
         position: absolute;
-        right: 12px;
+        right: 4px;
+        color: #1565c0;
+        font-size: 13px;
+        font-weight: 700;
+        display: none;
+        pointer-events: none;
+    }
+
+    /* Eye toggle for password */
+    .uf-eye {
+        position: absolute;
+        right: 2px;
         background: none;
         border: none;
         cursor: pointer;
         font-size: 15px;
-        color: #94a3b8;
-        padding: 4px;
-        border-radius: 6px;
-        transition: color 0.2s;
+        color: #aab0bc;
+        padding: 2px;
         line-height: 1;
+        transition: color 0.2s;
     }
-    .password-toggle:hover { color: #6366f1; }
+    .uf-eye:hover { color: #1565c0; }
 
-    .field-error {
+    .uf-field-error {
         color: #ef4444;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         margin-top: 5px;
         display: none;
     }
 
-    /* Remember / Forgot */
-    .remember-forgot {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 6px 0 24px;
-    }
-
-    .remember-me {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #475569;
-        font-size: 0.88rem;
-        cursor: pointer;
-    }
-
-    .remember-me input[type="checkbox"] {
-        width: 16px; height: 16px;
-        accent-color: #6366f1;
-        cursor: pointer;
-    }
-
-    .forgot-link {
-        color: #6366f1;
-        font-size: 0.88rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    .forgot-link:hover { color: #4338ca; text-decoration: underline; }
-
-    /* Submit button */
-    .btn-login {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.25s;
-        letter-spacing: 0.2px;
-        box-shadow: 0 4px 16px rgba(99,102,241,0.35);
-    }
-
-    .btn-login:hover {
-        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(99,102,241,0.45);
-    }
-
-    .btn-login:active { transform: translateY(0); }
-
-    .btn-login:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    /* Alerts */
+    /* ===== ALERTS ===== */
     .alert {
-        padding: 12px 16px;
-        border-radius: 10px;
+        padding: 10px 14px;
+        border-radius: 8px;
         margin-bottom: 20px;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         display: flex;
         align-items: center;
         gap: 8px;
     }
-
     .alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     .alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
 
-    /* Language selector */
+    /* ===== REMEMBER / FORGOT ===== */
+    .rf-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 4px 0 30px;
+    }
+
+    .remember-me {
+        display: flex; align-items: center; gap: 7px;
+        cursor: pointer; font-size: 0.87rem; color: #555;
+    }
+    .remember-me input { accent-color: #1565c0; width: 14px; height: 14px; cursor: pointer; }
+
+    .forgot-link {
+        color: #1565c0; font-size: 0.87rem; font-weight: 600;
+        text-decoration: none; transition: opacity 0.2s;
+    }
+    .forgot-link:hover { opacity: 0.7; text-decoration: underline; }
+
+    /* ===== SUBMIT BUTTON ===== */
+    .btn-login {
+        width: 100%;
+        padding: 13px 24px;
+        background: #1565c0;
+        color: #fff;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.97rem;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        box-shadow: 0 6px 20px rgba(21,101,192,0.38);
+        transition: all 0.25s;
+    }
+    .btn-login:hover {
+        background: #1251a3;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(21,101,192,0.45);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled {
+        opacity: 0.6; cursor: not-allowed; transform: none;
+        box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+    }
+
+    /* Footer copyright */
+    .form-footer {
+        margin-top: 32px;
+        text-align: center;
+        color: #b0bac7;
+        font-size: 0.76rem;
+    }
+
+    /* ===== LANG SELECTOR ===== */
     .login-lang-selector {
         position: fixed;
-        top: 16px;
-        right: 20px;
+        top: 14px;
+        right: 18px;
         z-index: 9999;
     }
     .login-lang-btn {
         display: flex; align-items: center; gap: 6px;
-        padding: 7px 12px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 8px;
-        background: #fff;
-        color: #374151;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        padding: 6px 11px;
+        border: 1.5px solid #e2e8f0; border-radius: 8px;
+        background: #fff; color: #374151; font-size: 12px;
+        cursor: pointer; outline: none;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
         transition: border-color 0.2s;
     }
-    .login-lang-btn:hover { border-color: #6366f1; }
+    .login-lang-btn:hover { border-color: #1565c0; }
     .login-lang-menu {
-        display: none;
-        position: absolute;
-        top: 110%; right: 0;
-        background: white;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 10px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        min-width: 160px;
-        overflow: hidden;
-        z-index: 9999;
+        display: none; position: absolute; top: 110%; right: 0;
+        background: white; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 155px;
+        overflow: hidden; z-index: 9999;
     }
     .login-lang-option {
         display: flex; align-items: center; gap: 8px;
-        padding: 10px 14px;
-        cursor: pointer;
-        font-size: 13px;
-        color: #374151;
+        padding: 9px 14px; cursor: pointer; font-size: 13px; color: #374151;
         transition: background 0.2s;
     }
-    .login-lang-option:hover { background: #f0f4ff; }
-    .login-lang-option.active { background: #eef2ff; font-weight: 700; color: #4338ca; }
+    .login-lang-option:hover { background: #eff6ff; }
+    .login-lang-option.active { background: #dbeafe; font-weight: 700; color: #1565c0; }
 
-    /* Decorative divider */
-    .form-divider {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 24px 0 0;
-        color: #cbd5e1;
-        font-size: 0.82rem;
-    }
-    .form-divider::before,
-    .form-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e2e8f0;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 860px) {
         .login-left { display: none; }
         .login-right {
-            width: 100%;
-            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(160deg, #1e88e5, #0d47a1);
         }
         .login-form-box {
-            background: #fff;
-            border-radius: 20px;
-            padding: 36px 28px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: white; border-radius: 20px; padding: 36px 28px;
+            max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
         }
     }
-
     @media (max-width: 480px) {
-        .login-right { padding: 24px 16px; }
+        .login-right { padding: 20px 16px; }
         .login-form-box { padding: 28px 20px; }
     }
     </style>
@@ -437,45 +369,42 @@
 
         <!-- LEFT — Branding panel -->
         <div class="login-left">
-            <div class="blob blob-1"></div>
-            <div class="blob blob-2"></div>
-            <div class="blob blob-3"></div>
+
+            <!-- Back layer cloud circles (semi-transparent, recessed) -->
+            <div class="cloud-bumps" style="right:-96px;">
+                <div class="cloud-back"></div>
+                <div class="cloud-back"></div>
+                <div class="cloud-back"></div>
+                <div class="cloud-back"></div>
+            </div>
+
+            <!-- Front layer cloud circles (solid white — invisible over white panel) -->
+            <div class="cloud-bumps">
+                <div class="cloud-front"></div>
+                <div class="cloud-front"></div>
+                <div class="cloud-front"></div>
+                <div class="cloud-front"></div>
+            </div>
 
             <div class="brand-content">
-                <div class="brand-logo">📊</div>
-                <h1 class="brand-title">Xurshid<br>Hisobot</h1>
-                <p class="brand-subtitle">
-                    Savdo, ombor va mijozlarni<br>boshqarishning eng qulay tizimi
-                </p>
-
-                <div class="brand-features">
-                    <div class="feature-item">
-                        <div class="feature-icon">📦</div>
-                        <span>Mahsulot va ombor nazorati</span>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">💰</div>
-                        <span>Savdo va moliya hisoboti</span>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">👥</div>
-                        <span>Mijozlar bazasi va qarzdorlik</span>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">📈</div>
-                        <span>Real vaqt statistikasi</span>
-                    </div>
+                <p class="brand-welcome">Welcome to</p>
+                <div class="brand-logo-circle">
+                    <!-- Bar chart SVG icon -->
+                    <svg width="42" height="42" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="12" width="4" height="9" rx="1" opacity="0.9"/>
+                        <rect x="10" y="7" width="4" height="14" rx="1"/>
+                        <rect x="17" y="3" width="4" height="18" rx="1" opacity="0.9"/>
+                    </svg>
                 </div>
+                <h1 class="brand-name">Xurshid<br>Hisobot</h1>
+                <p class="brand-desc">Savdo, ombor va mijozlarni boshqarishning eng qulay tizimi</p>
             </div>
         </div>
 
         <!-- RIGHT — Login form -->
         <div class="login-right">
             <div class="login-form-box">
-                <div class="form-heading">
-                    <h2>{{ t('login_title') }}</h2>
-                    <p>Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
-                </div>
+                <h2 class="form-title">{{ t('login_title') }}</h2>
 
                 <!-- Session tugash xabari -->
                 <div id="sessionExpiredAlert" class="alert alert-warning" style="display:none;">
@@ -496,42 +425,39 @@
 
                 <form id="loginForm">
                     <!-- Username -->
-                    <div class="field-group">
-                        <label for="username">{{ t('username') }}</label>
-                        <div class="input-wrap">
-                            <span class="input-icon">👤</span>
+                    <div class="uf-group">
+                        <label class="uf-label" for="username">{{ t('username') }}</label>
+                        <div class="uf-row">
                             <input type="text"
                                    id="username"
                                    name="username"
-                                   class="field-control"
+                                   class="uf-input"
                                    placeholder="{{ t('username') }}"
                                    autocomplete="username"
                                    required>
+                            <span class="uf-tick" id="usernameTick">✓</span>
                         </div>
-                        <div class="field-error" id="usernameError"></div>
+                        <div class="uf-field-error" id="usernameError"></div>
                     </div>
 
                     <!-- Password -->
-                    <div class="field-group">
-                        <label for="password">{{ t('password') }}</label>
-                        <div class="input-wrap">
-                            <span class="input-icon">🔒</span>
+                    <div class="uf-group">
+                        <label class="uf-label" for="password">{{ t('password') }}</label>
+                        <div class="uf-row">
                             <input type="password"
                                    id="password"
                                    name="password"
-                                   class="field-control"
+                                   class="uf-input"
                                    placeholder="{{ t('password') }}"
                                    autocomplete="current-password"
                                    required>
-                            <button type="button" class="password-toggle" onclick="togglePassword()" title="Ko'rsatish/yashirish">
-                                👁️
-                            </button>
+                            <button type="button" class="uf-eye" id="passwordToggle" onclick="togglePassword()">👁️</button>
                         </div>
-                        <div class="field-error" id="passwordError"></div>
+                        <div class="uf-field-error" id="passwordError"></div>
                     </div>
 
                     <!-- Remember / Forgot -->
-                    <div class="remember-forgot">
+                    <div class="rf-row">
                         <label class="remember-me">
                             <input type="checkbox" id="rememberMe" name="remember">
                             <span>{{ t('remember_me') }}</span>
@@ -545,7 +471,7 @@
                     </button>
                 </form>
 
-                <div class="form-divider">©&nbsp;2025&nbsp;Xurshid&nbsp;Hisobot</div>
+                <div class="form-footer">© 2025 Xurshid Hisobot</div>
             </div>
         </div>
 
@@ -663,7 +589,7 @@
         const input = document.getElementById(field);
         const errorDiv = document.getElementById(field + 'Error');
 
-        input.classList.add('has-error');
+        input.classList.add('uf-error');
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
     }
@@ -671,27 +597,31 @@
     // Parolni ko'rsatish/yashirish
     function togglePassword() {
         const passwordInput = document.getElementById('password');
-        const toggleButton = document.querySelector('.password-toggle');
-        
+        const toggleButton = document.getElementById('passwordToggle');
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            toggleButton.textContent = '🙈';  // Parol ko'rinayotganda
+            toggleButton.textContent = '🙈';
         } else {
             passwordInput.type = 'password';
-            toggleButton.textContent = '👁️';  // Parol yashiringanda
+            toggleButton.textContent = '👁️';
         }
     }
 
+    // Show/hide checkmark tick icons
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').addEventListener('input', function() {
+            document.getElementById('usernameTick').style.display = this.value.trim() ? 'inline' : 'none';
+        });
+    });
+
     function clearErrors() {
-        errorAlert.style.display = 'none';
+        document.getElementById('errorAlert').style.display = 'none';
 
-        const inputs = document.querySelectorAll('.field-control');
-        const errors = document.querySelectorAll('.field-error');
-
-        inputs.forEach(input => input.classList.remove('has-error'));
-        errors.forEach(error => {
-            error.style.display = 'none';
-            error.textContent = '';
+        document.querySelectorAll('.uf-input').forEach(i => i.classList.remove('uf-error'));
+        document.querySelectorAll('.uf-field-error').forEach(e => {
+            e.style.display = 'none';
+            e.textContent = '';
         });
     }
 
