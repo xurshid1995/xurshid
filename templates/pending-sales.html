@@ -2753,9 +2753,11 @@ function updateTableForCompactView() {
                 // Faqat kerakli ustunlar bilan HTML yaratish
                 row.innerHTML = `
                     <td class="col-datetime">
-                        <div class="sale-id" style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 2px;">ID: ${firstItem.id}</div>
-                        <div class="sale-date">${formatDate(firstItem.sale_date)}</div>
-                        <div class="sale-time">${formatTime(firstItem.sale_date)}</div>
+                        <div class="datetime-info">
+                            <div class="sale-id-badge">ID: ${firstItem.id}</div>
+                            <div class="sale-date">${formatDate(firstItem.sale_date)}</div>
+                            <div class="sale-time">${formatTime(firstItem.sale_date)}</div>
+                        </div>
                     </td>
                     <td class="col-customer">
                         <div class="customer-name">${firstItem.customer_name || 'Noma\'lum'}</div>
