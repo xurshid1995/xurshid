@@ -22,7 +22,7 @@
     margin-bottom: 16px;
 }
 .ps-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
-.ps-title i { color: #4338ca; margin-right: 8px; }
+.ps-title i { color: #1a6eff; margin-right: 8px; }
 .ps-header-right { display: flex; align-items: center; gap: 12px; }
 
 /* ── Filter Panel ── */
@@ -65,8 +65,8 @@
     font-size: 13px; font-weight: 500; cursor: pointer;
     transition: all 0.2s; white-space: nowrap;
 }
-.location-button:hover { border-color: #4338ca; background: #eef0fd; color: #4338ca; }
-.location-button.active { background: #4338ca; border-color: #4338ca; color: white; box-shadow: 0 2px 8px rgba(67,56,202,0.3); }
+.location-button:hover { border-color: #1a6eff; background: #eff6ff; color: #1a6eff; }
+.location-button.active { background: #1a6eff; border-color: #1a6eff; color: white; box-shadow: 0 2px 8px rgba(26,110,255,0.3); }
 
 /* ── Table Card ── */
 .ps-table-card {
@@ -169,7 +169,7 @@
 .ps-empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
 .ps-loading-spinner {
     display: inline-block; width: 2rem; height: 2rem;
-    border: 3px solid #f1f5f9; border-top: 3px solid #4338ca;
+    border: 3px solid #f1f5f9; border-top: 3px solid #1a6eff;
     border-radius: 50%; animation: ps-spin 1s linear infinite;
     margin-bottom: 1rem;
 }
@@ -244,7 +244,7 @@
         font-size: 0.88rem;
     }
     #prodOpsPopup .pop-header {
-        background: linear-gradient(135deg,#4338ca,#6366f1);
+        background: linear-gradient(135deg,#1a6eff,#2563eb);
         color: white;
         padding: 0.75rem 1rem;
         border-radius: 10px 10px 0 0;
@@ -284,7 +284,7 @@
     #prodOpsPopup .op-badge {
         font-size: 0.78rem;
         font-weight: 600;
-        background: #4338ca;
+        background: #1a6eff;
         color: white;
         padding: 1px 8px;
         border-radius: 12px;
@@ -1090,7 +1090,7 @@
         // Popup ochish
         backdrop.style.display = 'block';
         popup.style.display = 'block';
-        popup.innerHTML = `<div class="pop-header"><h4>🕐 ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()">✕</button></div><div style="padding:1.2rem;text-align:center;color:#4338ca;">⏳ ${PLANG.loading}</div>`;
+        popup.innerHTML = `<div class="pop-header"><h4>🕐 ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()">✕</button></div><div style="padding:1.2rem;text-align:center;color:#1a6eff;">⏳ ${PLANG.loading}</div>`;
 
         fetch(`/api/product/${productId}/operations`)
             .then(r => r.json())
