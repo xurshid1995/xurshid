@@ -103,7 +103,9 @@
 .ps-table .col-name     { width: 38%; text-align: left; }
 .ps-table td.col-name   { text-align: left !important; }
 .ps-table td.product-name { text-align: left !important; }
-.ps-table .col-price    { width: 18%; text-align: right; }
+.ps-table .col-price    { width: 18%; text-align: left; }
+.ps-table td.col-price  { text-align: left !important; }
+.ps-table td.price-cell { text-align: left !important; }
 .ps-table .col-location { width: 15%; text-align: left; }
 .ps-table .col-quantity { width: 8%; text-align: center; }
 .ps-table .col-status   { width: 8%; text-align: center; }
@@ -764,7 +766,7 @@
                     <tr>
                         <td style="text-align: center;">${barcodeCell}</td>
                         <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">🕐</button>${highlightedName}</td>
-                        <td class="price-cell">
+                        <td class="price-cell col-price">
                             <span style="background-color: #5cb85c; color: white; font-weight: 600; padding: 2px 8px; border-radius: 0;">$${formatPrice(product.sell_price)}</span>
                             <span style="background-color: #5dade2; color: white; font-size: 0.9rem; margin-left: 0.5rem; padding: 2px 8px; border-radius: 0;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
                         </td>
