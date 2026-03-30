@@ -48,8 +48,9 @@ body {
     }
 }
 
-/* Sidebar Navigation */
-.sidebar {
+/* Til nomi - katta ekranlar uchun to'liq nom, qisqa nom yashirilgan */
+.lang-short { display: none; }
+.lang-full  { display: inline; }
     width: 70px; /* Oddiy holatda tor */
     background: #0f172a;
     border-right: none;
@@ -1907,21 +1908,21 @@ footer {
         gap: 0.25rem !important;
     }
     
-    /* Til selector - faqat bayroq ko'rinadi */
+    /* Til selector - bayroq + qisqa nom ko'rinadi */
     .top-header .language-selector {
         display: flex !important;
-    }
-    .top-header .language-selector button#langDropdownBtn > span:not([style]) {
-        display: none !important; /* Til nomini yashirish */
     }
     .top-header .language-selector button#langDropdownBtn > span[style*="font-size:10px"] {
         display: none !important; /* ▼ yashirish */
     }
     .top-header .language-selector button#langDropdownBtn {
         padding: 4px 5px !important;
-        gap: 0 !important;
+        gap: 3px !important;
         min-width: 0 !important;
     }
+    /* 480px: qisqa nom (uz/уз/ру) ko'rinadi, to'liq nom yashiriladi */
+    .lang-full  { display: none !important; }
+    .lang-short { display: inline !important; font-size: 0.6rem; }
     
     /* Foydalanuvchi ismini kengroq ko'rsatish */
     .top-header .user-name {
