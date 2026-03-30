@@ -19,7 +19,7 @@
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
                     <div id="timeFilters" class="db-time-filters">
-                        <button class="db-tf-btn active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
+                        <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
                         <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
                         <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
                     </div>
@@ -139,6 +139,11 @@
     cursor: pointer;
     transition: all 0.2s;
 }
+.db-tf-btn-wide {
+    padding: 6px 28px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
 .db-tf-btn:hover:not(.active) {
     border-color: #1a6eff;
     color: #1a6eff;
@@ -186,7 +191,7 @@
 /* Chart */
 .db-chart-container {
     padding: 16px 16px 12px;
-    height: 380px;
+    height: 500px;
 }
 
 /* Stats overview card */
@@ -383,7 +388,7 @@
 
 /* Responsive */
 @media (max-width: 991px) {
-    .db-chart-container { height: 280px; }
+    .db-chart-container { height: 360px; }
     .db-stats-col-val { font-size: 17px; }
 }
 @media (max-width: 576px) {
@@ -393,7 +398,7 @@
     .db-loc-btn { padding: 3px 10px; font-size: 11px; }
     .db-mini-val { font-size: 16px; }
     .db-stats-col-val { font-size: 15px; }
-    .db-chart-container { height: 240px; }
+    .db-chart-container { height: 300px; }
 }
 </style>
 
