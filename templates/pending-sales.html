@@ -444,19 +444,25 @@ tbody tr.sale-group-start:first-child { border-top: none; }
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
-    /* Qidiruv — to'liq kenglik (1-qator, ikkala ustun) */
+    /* 1: Qidiruv — to'liq kenglik */
     .ps-search-box {
         grid-column: 1 / -1;
         max-width: 100%;
     }
-    /* Joylashuv — to'liq kenglik */
-    .ps-filter-location {
+    /* 2-3: Sana (dan) + Sana (gacha) — 50/50, avtomatik */
+    /* 4: Mijoz — to'liq kenglik */
+    .ps-filter-row > .ps-filter-group:nth-child(4) {
         grid-column: 1 / -1;
     }
-    /* Qolgan filter grouplar (sana, mijoz, id) — har biri yarim kenglik */
-    .ps-filter-group {
-        min-width: 0;
+    /* 5: Joylashuv — yarim (50%) */
+    .ps-filter-location {
+        grid-column: auto;
     }
+    /* 6: Savdo ID — yarim (50%) */
+    .ps-filter-id {
+        grid-column: auto;
+    }
+    .ps-filter-group { min-width: 0; }
 
     .ps-table-card { border-radius: 12px; }
     .ps-table-wrap { overflow-x: auto; }
