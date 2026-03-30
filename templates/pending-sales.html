@@ -433,6 +433,17 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* ── Mobile ── */
 .mobile-sales-cards { display: none; }
+/* ── Tablet (1024px) ── */
+@media (max-width: 1024px) {
+    .ps-page { padding: 18px; }
+    .ps-stats { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .ps-stat-card { padding: 16px 18px; }
+    .ps-stat-number { font-size: 1.5rem; }
+    .ps-table { min-width: 860px; }
+    .ps-filter-row { gap: 10px; }
+}
+
+/* ── Mobil (768px) ── */
 @media (max-width: 768px) {
     .ps-page { padding: 12px; }
     .ps-header { flex-direction: column; gap: 10px; }
@@ -450,25 +461,44 @@ tbody tr.sale-group-start:first-child { border-top: none; }
         grid-column: 1 / -1;
         max-width: 100%;
     }
-    /* 2-3: Sana (dan) + Sana (gacha) — 50/50, avtomatik */
     /* 4: Mijoz — to'liq kenglik */
     .ps-filter-row > .ps-filter-group:nth-child(4) {
         grid-column: 1 / -1;
     }
-    /* 5: Joylashuv — yarim (50%) */
-    .ps-filter-location {
-        grid-column: auto;
-    }
-    /* 6: Savdo ID — yarim (50%) */
-    .ps-filter-id {
-        grid-column: auto;
-    }
+    /* 5: Joylashuv — yarim; 6: ID — yarim */
+    .ps-filter-location, .ps-filter-id { grid-column: auto; }
     .ps-filter-group { min-width: 0; }
 
     .ps-table-card { border-radius: 12px; }
     .ps-table-wrap { overflow-x: auto; }
     .ps-pagination { padding: 12px; }
     .pagination-btn { padding: 5px 8px; font-size: 12px; min-width: 30px; }
+    .ps-stat-card { padding: 14px 16px; gap: 12px; }
+    .ps-stat-icon { width: 44px; height: 44px; font-size: 18px; border-radius: 12px; }
+    .ps-stat-number { font-size: 1.4rem; }
+}
+
+/* ── Kichik telefon (480px) ── */
+@media (max-width: 480px) {
+    .ps-page { padding: 8px; }
+    .ps-filter-panel { padding: 10px; }
+    .ps-filter-row {
+        grid-template-columns: 1fr;
+    }
+    .ps-search-box,
+    .ps-filter-row > .ps-filter-group:nth-child(4),
+    .ps-filter-location, .ps-filter-id {
+        grid-column: 1 / -1;
+    }
+    /* Sana filtrlari ham alohida qatorga */
+    .ps-filter-row > .ps-filter-group:nth-child(2),
+    .ps-filter-row > .ps-filter-group:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+    .ps-title { font-size: 15px; }
+    .ps-stat-number { font-size: 1.2rem; }
+    .ps-pagination { padding: 8px; }
+    .pagination-btn { padding: 4px 7px; font-size: 11px; min-width: 26px; }
 }
 
 /* ── Modal CSS ── */
