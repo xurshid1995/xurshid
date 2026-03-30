@@ -794,11 +794,6 @@
         </div>
     </div>
 
-    <!-- Table Info (jadval tepasida) -->
-    <div class="table-info" id="tableInfo" style="display: none;">
-        <span id="resultsInfo"></span>
-    </div>
-
     <!-- Products Table -->
     <div class="table-responsive">
         <div class="products-table-container" style="border-radius: 12px;">
@@ -1153,13 +1148,11 @@
     function showLoading(show) {
         const loadingState = document.getElementById('loadingState');
         const productsTable = document.getElementById('productsTable');
-        const tableInfo = document.getElementById('tableInfo');
         const pagination = document.getElementById('pagination');
         
         if (show) {
             loadingState.style.display = 'block';
             productsTable.style.display = 'none';
-            tableInfo.style.display = 'none';
             pagination.style.display = 'none';
         } else {
             loadingState.style.display = 'none';
@@ -1178,18 +1171,15 @@
     function displayProducts() {
         const emptyState = document.getElementById('emptyState');
         const productsTable = document.getElementById('productsTable');
-        const tableInfo = document.getElementById('tableInfo');
         const tableBody = document.getElementById('productsTableBody');
 
         if (filteredProducts.length === 0) {
             emptyState.style.display = 'block';
             productsTable.style.display = 'none';
-            tableInfo.style.display = 'none';
             document.getElementById('pagination').style.display = 'none';
         } else {
             emptyState.style.display = 'none';
             productsTable.style.display = 'table';
-            tableInfo.style.display = 'flex';
             document.getElementById('pagination').style.display = 'flex';
 
             // Jadval ma'lumotlarini yaratish
@@ -1237,24 +1227,6 @@
             });
 
             tableBody.innerHTML = tableHtml;
-            
-            // Sahifa ma'lumotlarini yangilash
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalProducts);
-            const displayedItems = Math.min(filteredProducts.length, itemsPerPage);
-            
-            let infoText = PLANG.resultsInfo.replace('{start}', startItem).replace('{end}', startItem + displayedItems - 1).replace('{total}', totalProducts);
-            
-            // Location filter ko'rsatish
-            if (currentLocation !== 'all') {
-                const activeLocationButton = document.querySelector('.location-button.active');
-                const locationName = activeLocationButton ? activeLocationButton.textContent.trim() : '';
-                if (locationName) {
-                    infoText += ` - ${locationName}`;
-                }
-            }
-            
-            document.getElementById('resultsInfo').textContent = infoText;
             
             // Pagination tugmalarini yangilash
             updatePaginationButtons();
