@@ -6,7 +6,10 @@
 <style>
 /* ===== TRANSFER1 PAGE - SALES HISTORY STYLE ===== */
 .transfer1-page {
-    padding: 20px;
+    padding: 28px 28px 40px;
+    background: #f5f6fa;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     width: 100%;
     max-width: none;
 }
@@ -16,69 +19,68 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1.5px solid #ebebf5;
+    margin-bottom: 20px;
 }
 .transfer1-page .page-header h1 {
-    color: #0f172a;
-    font-size: 24px;
+    color: #1e293b;
+    font-size: 18px;
     margin: 0;
     font-weight: 700;
-    letter-spacing: -0.3px;
 }
 .transfer1-page .page-header h1 i {
-    color: #4338ca;
-    margin-right: 10px;
+    color: #1a6eff;
+    margin-right: 8px;
 }
 .btn-new-transfer {
-    background: #4338ca;
+    background: linear-gradient(135deg, #1a6eff, #1558d6);
     color: white;
-    padding: 10px 20px;
+    padding: 9px 18px;
     border-radius: 10px;
     border: none;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(26,110,255,0.3);
 }
 .btn-new-transfer:hover {
-    background: #3730a3;
+    background: linear-gradient(135deg, #1558d6, #1246b5);
     color: white;
     text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(26,110,255,0.4);
 }
 
 /* Section cards */
 .transfer1-section {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    border: 1px solid #eef0f7;
-    margin-bottom: 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
     overflow: hidden;
 }
 .transfer1-section-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f0f2f5;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 .transfer1-section-header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e293b;
 }
 
 /* Search panel */
 .transfer1-search-panel {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f0f2f5;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
 }
 .transfer1-search-wrap {
     position: relative;
@@ -89,64 +91,70 @@
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: #94a3b8;
     font-size: 14px;
 }
 .transfer1-search-input {
     width: 100%;
-    padding: 10px 14px 10px 38px;
-    border: 1.5px solid #e5e7eb;
+    padding: 9px 14px 9px 38px;
+    border: 1.5px solid #e2e8f0;
     border-radius: 10px;
-    font-size: 14px;
-    background: #f9fafb;
-    color: #1a1f36;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
     transition: all 0.2s;
+    outline: none;
 }
 .transfer1-search-input:focus {
-    outline: none;
-    border-color: #4338ca;
-    box-shadow: 0 0 0 3px rgba(67,56,202,0.1);
+    border-color: #1a6eff;
+    box-shadow: 0 0 0 3px rgba(26,110,255,0.1);
     background: white;
 }
 
 /* Table */
 .transfer1-table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 .transfer1-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
 }
+.transfer1-table thead tr { background: #1a6eff; }
 .transfer1-table th {
-    background: #6366f1;
-    color: #ffffff;
-    padding: 12px 10px;
+    background: #1a6eff !important;
+    color: #ffffff !important;
+    padding: 11px 10px;
     text-align: center;
-    font-weight: 600;
-    font-size: 13px;
-    border-bottom: 2px solid #3730a3;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none !important;
+    border-bottom: 1px solid #1558d6 !important;
     white-space: nowrap;
 }
 .transfer1-table .pending-thead th {
-    background: #fef3c7;
-    color: #92400e;
-    border-bottom: 2px solid #f59e0b;
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-bottom: 1px solid #f59e0b !important;
 }
-.transfer1-table th:first-child { border-radius: 0; }
-.transfer1-table th:last-child  { border-radius: 0; }
 .transfer1-table td {
     padding: 10px 10px;
-    border-bottom: 1px solid #f0f2f5;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
     font-size: 13px;
     vertical-align: middle;
     text-align: center;
+    color: #374151;
 }
-.transfer1-table tbody tr:hover { background: #f8f9ff; }
+.transfer1-table tbody tr:hover { background: #f8faff; }
+.transfer1-table tbody tr:last-child td { border-bottom: none !important; }
 
 /* Badges */
 .badge-count {
-    background: #4338ca;
+    background: #1a6eff;
     color: white;
     padding: 3px 12px;
     border-radius: 12px;
@@ -166,29 +174,29 @@
 .btn-sm {
     padding: 5px 12px;
     font-size: 12px;
-    border-radius: 6px;
+    border-radius: 7px;
     border: none;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.2s;
+    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }
 .btn-success-sm {
-    background: #10b981;
-    color: white;
+    background: rgba(16,185,129,0.1);
+    color: #059669;
 }
-.btn-success-sm:hover { background: #059669; }
+.btn-success-sm:hover { background: #10b981; color: white; }
 .btn-danger-sm {
-    background: #ef4444;
-    color: white;
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
     margin-left: 4px;
 }
-.btn-danger-sm:hover { background: #dc2626; }
+.btn-danger-sm:hover { background: #ef4444; color: white; }
 
 @media (max-width: 768px) {
-    .transfer1-page { padding: 10px; }
+    .transfer1-page { padding: 12px; }
     .transfer1-table { font-size: 12px; }
     .transfer1-table th,
     .transfer1-table td { padding: 8px 6px; }
