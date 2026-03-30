@@ -494,20 +494,39 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 @media (max-width: 480px) {
     .ps-page { padding: 8px; }
     .ps-filter-panel { padding: 10px; }
+
+    /* Header — sarlavha va toggle bir qatorda */
+    .ps-header { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: nowrap; }
+    .ps-title { font-size: 14px; white-space: nowrap; }
+    .ps-title i { font-size: 13px; margin-right: 5px; }
+    .ps-toggle-label { font-size: 11px; }
+    .ps-toggle-slider { width: 36px; height: 19px; }
+    .ps-toggle-slider:before { width: 15px; height: 15px; }
+    .ps-toggle input:checked + .ps-toggle-slider:before { transform: translateX(17px); }
+
+    /* Filter layout: 2 ustun grid */
     .ps-filter-row {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
     }
-    .ps-search-box,
-    .ps-filter-row > .ps-filter-group:nth-child(4),
-    .ps-filter-location, .ps-filter-id {
+    /* 1: Qidiruv — to'liq kenglik */
+    .ps-search-box {
         grid-column: 1 / -1;
     }
-    /* Sana filtrlari ham alohida qatorga */
+    /* 2: Sana (dan) — 50%, 3: Sana (gacha) — 50% (default) */
     .ps-filter-row > .ps-filter-group:nth-child(2),
     .ps-filter-row > .ps-filter-group:nth-child(3) {
+        grid-column: auto;
+    }
+    /* 4: Mijoz — to'liq kenglik */
+    .ps-filter-row > .ps-filter-group:nth-child(4) {
         grid-column: 1 / -1;
     }
-    .ps-title { font-size: 15px; }
+    /* 5: Joylashuv — 50%, 6: Savdo ID — 50% */
+    .ps-filter-location, .ps-filter-id { grid-column: auto; }
+    .ps-filter-group { min-width: 0; }
+
     .ps-stat-number { font-size: 1.2rem; }
     .ps-pagination { padding: 8px; }
     .pagination-btn { padding: 4px 7px; font-size: 11px; min-width: 26px; }
