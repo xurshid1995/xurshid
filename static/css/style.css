@@ -1903,7 +1903,7 @@ footer {
     }
     
     .top-header .header-right {
-        justify-content: flex-start !important;
+        justify-content: flex-end !important;
         gap: 0.25rem !important;
     }
     
@@ -1914,7 +1914,18 @@ footer {
     
     /* Foydalanuvchi ismini kengroq ko'rsatish */
     .top-header .user-name {
-        max-width: 100px !important;
+        max-width: 70px !important;
+    }
+    
+    /* Rol ko'rinsin */
+    .top-header .user-role {
+        display: inline !important;
+        max-width: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.6rem !important;
+        color: rgba(255,255,255,0.75) !important;
     }
     
     /* Valyuta kursi kompakt */
