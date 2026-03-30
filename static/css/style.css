@@ -51,11 +51,11 @@ body {
 /* Sidebar Navigation */
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: #1a6eff;
+    background: #0f172a;
     border-right: none;
     height: calc(100vh - 70px);
     padding: 0;
-    box-shadow: 2px 0 12px rgba(26,110,255,0.2);
+    box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
     left: 0;
     top: 70px;
