@@ -10,11 +10,7 @@
         <div class="ps-header-left">
             <h1 class="ps-title"><i class="fas fa-history"></i> {{ t('operations_history') }}</h1>
         </div>
-        <div class="ps-header-right">
-            <button onclick="exportHistory()" style="padding: 11px 22px; background: transparent; color: #059669; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 16px;">
-                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 22px; height: 22px;"> Excel
-            </button>
-        </div>
+        <div class="ps-header-right"></div>
     </div>
 
     <!-- Stat Cards -->
@@ -87,6 +83,11 @@
                 <select id="userFilter" class="ps-input" onchange="onFilterChange()">
                     <option value="">{{ t('all_users') }}</option>
                 </select>
+            </div>
+            <div class="ps-filter-group" style="display:flex; align-items:flex-end;">
+                <button onclick="exportHistory()" style="padding: 11px 22px; background: transparent; color: #059669; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 16px;">
+                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 22px; height: 22px;"> Excel
+                </button>
             </div>
         </div>
     </div>
