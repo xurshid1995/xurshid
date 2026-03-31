@@ -45,7 +45,7 @@
         padding: 3px 10px; border-radius: 7px;
     }
     .cs-qty-badge {
-        background: #3b82f6; color: white;
+        background: #38bdf8; color: white;
         font-size: 12px; font-weight: 700;
         padding: 2px 9px; border-radius: 7px;
     }
@@ -102,13 +102,13 @@
     }
     .cs-btn-back:hover { background: #475569; color: white; }
     .cs-btn-action {
-        width: 30px; height: 28px; background: #38bdf8; color: white;
+        width: 30px; height: 28px; background: #3b82f6; color: white;
         border: none; border-radius: 7px; font-size: 18px; font-weight: 400;
         cursor: pointer; transition: background 0.2s;
         display: inline-flex; align-items: center; justify-content: center;
         line-height: 1; padding: 0;
     }
-    .cs-btn-action:hover { background: #0ea5e9; }
+    .cs-btn-action:hover { background: #2563eb; }
     .cs-btn-del {
         padding: 5px 8px; background: #ef4444; color: white;
         border: none; border-radius: 7px; font-size: 12px;
@@ -178,8 +178,8 @@
                         <tr>
                             <th style="width:46%; text-align:left;">{{ t('css_th_product') }}</th>
                             <th style="width:18%; text-align:center;">{{ t('css_th_price') }}</th>
-                            <th style="width:18%; text-align:center;">{{ t('css_th_action') }}</th>
                             <th style="width:18%; text-align:center;">{{ t('css_th_available') }}</th>
+                            <th style="width:18%; text-align:center;">{{ t('css_th_action') }}</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
@@ -662,8 +662,8 @@ function renderProductsPage() {
         row.innerHTML = `
             <td><strong>${product.name}</strong></td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
-            <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
             <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
+            <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
         `;
         
         // Button uchun alohida click handler
