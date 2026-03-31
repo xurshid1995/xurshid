@@ -101,12 +101,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
 }
 .ap-btn-excel-import:hover { background: #f0fff4; }
 .ap-btn-excel-template {
-    flex: 1; padding: 7px 8px;
-    background: white; border: 1.5px solid #2563eb; color: #2563eb;
-    border-radius: 8px; font-size: 11px; font-weight: 600;
+    flex: 1; padding: 7px 10px;
+    background: transparent; border: none; color: #2563eb;
+    border-radius: 8px; font-size: 13px; font-weight: 600;
     cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px; justify-content: center;
 }
-.ap-btn-excel-template:hover { background: #2563eb; color: white; }
+.ap-btn-excel-template:hover { background: #eff6ff; }
 .ap-btn-barcode-auto {
     padding: 7px 9px; background: #059669; color: white;
     border: none; border-radius: 8px; cursor: pointer;
@@ -245,7 +246,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                     <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 22px; height: 22px;"> {{ t('ap_excel_import_btn') }}
                                 </button>
                                 <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
-                                    📋 {{ t('ap_excel_template_btn') }}
+                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 22px; height: 22px;"> {{ t('ap_excel_template_btn') }}
                                 </button>
                             </div>
                         </div>
