@@ -4,324 +4,232 @@
 
 {% block extra_css %}
 <style>
-    .check-stock-grid {
+    .cs-page {
+        padding: 24px 24px 40px;
+        background: #f5f6fa;
+        min-height: 100vh;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    .cs-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    }
+    .cs-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
+    .cs-title i { color: #4338ca; margin-right: 8px; }
+    .cs-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .cs-grid {
         display: grid;
         grid-template-columns: minmax(300px, 1fr) minmax(340px, 1.15fr);
         gap: 20px;
-        padding: 20px;
         align-items: start;
     }
-    
-    .check-stock-grid > div:first-child {
-        width: 100%;
-        min-width: 0;
-    }
-    
-    .check-stock-grid > div:nth-child(2) {
-        width: 100%;
-        min-width: 0;
-    }
-    
-    .check-stock-box {
+    .cs-box {
         background: white;
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        border: 1px solid #eef0f7;
-        box-sizing: border-box;
-        max-width: 100%;
-    }
-
-    .layout-header {
-        font-size: 17px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #0f172a;
-        border-bottom: 1.5px solid #ebebf5;
-        padding-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .layout-header .count-badge {
-        background: #eef0f7;
-        color: #4338ca;
-        font-size: 13px;
-        font-weight: 700;
-        padding: 2px 10px;
-        border-radius: 20px;
-    }
-    
-    .table-wrapper-check {
-        border: 1px solid #eef0f7;
-        border-radius: 10px;
-        margin-top: 10px;
-        overflow-x: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .table-wrapper-check table {
-        width: 100%;
-        min-width: 0 !important;
-        table-layout: fixed;
-        border-collapse: collapse;
-    }
-    .table-wrapper-check th,
-    .table-wrapper-check td {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding: 8px 6px;
-        font-size: 13px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         box-sizing: border-box;
     }
-    .table-wrapper-check td:first-child {
-        white-space: normal;
-        word-break: break-word;
+    .cs-box-header {
+        font-size: 14px; font-weight: 700; color: #1e293b;
+        margin-bottom: 14px; padding-bottom: 10px;
+        border-bottom: 1.5px solid #f1f5f9;
+        display: flex; justify-content: space-between; align-items: center;
     }
-    
+    .cs-count-badge {
+        background: #eef0f7; color: #4338ca;
+        font-size: 12px; font-weight: 700;
+        padding: 2px 10px; border-radius: 20px;
+    }
+    .cs-table-wrap {
+        border: 1px solid #e2e8f0; border-radius: 10px;
+        margin-top: 10px; overflow-x: hidden;
+    }
+    .cs-table {
+        width: 100%; border-collapse: collapse;
+        table-layout: fixed; font-size: 13px;
+    }
+    .cs-table th {
+        padding: 9px 8px; font-size: 11px; font-weight: 700;
+        color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1.5px solid #e2e8f0; background: #f8fafc;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cs-table td {
+        padding: 9px 8px; border-bottom: 1px solid #f1f5f9;
+        color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cs-table td:first-child { white-space: normal; word-break: break-word; }
+    .cs-table tbody tr:last-child td { border-bottom: none; }
+    .cs-table tbody tr:hover td { background: #f8fafc; }
+
+    .cs-search {
+        width: 100%; padding: 9px 14px;
+        border: 1.5px solid #e2e8f0; border-radius: 10px;
+        font-size: 13px; background: #f8fafc; outline: none;
+        box-sizing: border-box; transition: all 0.2s;
+    }
+    .cs-search:focus { border-color: #4338ca; background: white; }
+
+    .cs-filter-btn {
+        border: none; padding: 6px 12px; border-radius: 20px;
+        cursor: pointer; font-size: 12px; font-weight: 600;
+        transition: opacity 0.2s;
+    }
+    .cs-btn-finish {
+        padding: 9px 20px; background: #059669; color: white;
+        border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; gap: 6px;
+        transition: background 0.2s;
+    }
+    .cs-btn-finish:hover { background: #047857; }
+    .cs-btn-back {
+        padding: 9px 18px; background: #64748b; color: white;
+        border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+        text-decoration: none; display: flex; align-items: center; gap: 6px;
+        transition: background 0.2s;
+    }
+    .cs-btn-back:hover { background: #475569; color: white; }
+    .cs-btn-action {
+        padding: 5px 10px; background: #4338ca; color: white;
+        border: none; border-radius: 7px; font-size: 12px; font-weight: 600;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .cs-btn-action:hover { background: #3730a3; }
+    .cs-btn-del {
+        padding: 5px 8px; background: #ef4444; color: white;
+        border: none; border-radius: 7px; font-size: 12px;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .cs-btn-del:hover { background: #dc2626; }
+
+    .cs-pagination {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 4px 4px; border-top: 1px solid #f1f5f9; margin-top: 8px;
+    }
+    .cs-page-btn {
+        padding: 6px 12px; border: 1.5px solid #e2e8f0; background: white;
+        color: #475569; border-radius: 8px; font-size: 12px; font-weight: 500;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .cs-page-btn:hover:not(:disabled) { background: #4338ca; color: white; border-color: #4338ca; }
+    .cs-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
     @media (max-width: 1200px) {
-        .check-stock-grid {
-            grid-template-columns: 1fr !important;
-            max-width: 580px;
-            margin: 0 auto;
-        }
-        
-        .check-stock-box,
-        .check-stock-grid > div:first-child,
-        .check-stock-grid > div:nth-child(2) {
-            width: 100% !important;
-            min-width: auto !important;
-        }
+        .cs-grid { grid-template-columns: 1fr; max-width: 620px; margin: 0 auto; }
     }
-    
     @media (max-width: 768px) {
-        .check-stock-grid {
-            padding: 10px !important;
-            gap: 15px !important;
-        }
-        
-        .check-stock-box {
-            padding: 15px !important;
-        }
+        .cs-page { padding: 12px; }
+        .cs-grid { gap: 14px; }
+        .cs-box { padding: 14px; }
     }
-
-    /* 480px mobil moslashtirish */
     @media (max-width: 480px) {
-        .check-stock-grid {
-            padding: 6px !important;
-            gap: 10px !important;
-        }
-        .check-stock-box {
-            padding: 10px !important;
-        }
-
-        /* Header */
-        .page-header {
-            padding: 0.5rem 0.75rem !important;
-        }
-        .page-header h2 {
-            font-size: 1rem !important;
-        }
-        .session-header-wrapper {
-            flex-direction: column !important;
-            gap: 0.5rem !important;
-            align-items: stretch !important;
-        }
-        .session-header-buttons {
-            flex-direction: row !important;
-            gap: 0.5rem !important;
-            width: 100% !important;
-        }
-        .session-header-buttons button,
-        .session-header-buttons a {
-            flex: 1 !important;
-            text-align: center !important;
-            font-size: 0.85rem !important;
-            padding: 0.45rem 0.5rem !important;
-            box-sizing: border-box !important;
-            white-space: nowrap !important;
-        }
-        .row.mb-4 {
-            margin-bottom: 0.5rem !important;
-        }
-
-        /* Mahsulotlar jadvali - min-width olib tashlash */
-        .table-wrapper-check table {
-            min-width: unset !important;
-            width: 100% !important;
-        }
-        .table-wrapper-check th,
-        .table-wrapper-check td {
-            padding: 6px 4px !important;
-            font-size: 12px !important;
-        }
-        .table-wrapper-check th:first-child,
-        .table-wrapper-check td:first-child {
-            width: auto !important;
-            max-width: 120px !important;
-            word-break: break-word !important;
-        }
-        .table-wrapper-check th,
-        .table-wrapper-check td {
-            width: auto !important;
-        }
-
-        /* Filtr tugmalar */
-        .check-stock-box > div:nth-child(2) {
-            flex-direction: column !important;
-        }
-        .check-stock-box > div:nth-child(2) > div {
-            flex-wrap: wrap !important;
-            justify-content: center !important;
-        }
-        .check-stock-box > div:nth-child(2) > div button {
-            padding: 6px 10px !important;
-            font-size: 11px !important;
-        }
-
-        /* Sarlavha bar */
-        .layout-header {
-            font-size: 14px !important;
-            padding-bottom: 8px !important;
-        }
-
-        /* Modal oyna */
-        #quantityModal > div {
-            width: 90% !important;
-            max-width: 350px !important;
-            padding: 20px !important;
-        }
-
-        /* Pagination */
-        #productsPagination button {
-            padding: 6px 12px !important;
-            font-size: 12px !important;
-        }
+        .cs-page { padding: 8px; }
+        .cs-header { flex-direction: column; align-items: stretch; }
+        .cs-header-right { justify-content: flex-end; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Sahifa sarlavhasi -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="page-header">
-                <h2><i class="fas fa-clipboard-check"></i> {{ location_name }} - {{ t('css_check_stock') }}</h2>
-                <div class="session-header-buttons" style="display: flex; gap: 10px; align-items: center;">
-                    <button type="button" onclick="finishCheck()" style="background: #dc3545; color: white; border: none; padding: 9px 20px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-check"></i> {{ t('css_finish_check') }}
-                    </button>
-                    <a href="/check_stock" style="background: #6c757d; color: white; border: none; padding: 9px 20px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-arrow-left"></i> {{ t('css_back') }}
-                    </a>
-                </div>
-            </div>
+<div class="cs-page">
+
+    <!-- Header -->
+    <div class="cs-header">
+        <h1 class="cs-title"><i class="fas fa-clipboard-check"></i> {{ location_name }} - {{ t('css_check_stock') }}</h1>
+        <div class="cs-header-right">
+            <button type="button" onclick="finishCheck()" class="cs-btn-finish">
+                <i class="fas fa-check"></i> {{ t('css_finish_check') }}
+            </button>
+            <a href="/check_stock" class="cs-btn-back">
+                <i class="fas fa-arrow-left"></i> {{ t('css_back') }}
+            </a>
         </div>
-    </div>  
+    </div>
 
-    <!-- Ikkita jadval - Transfer kabi -->
-    <div class="check-stock-grid">
-        <!-- Chap jadval - Mahsulotlar ro'yxati -->
-        <div class="check-stock-box">
-            <div class="layout-header">
+    <!-- Ikkita jadval -->
+    <div class="cs-grid">
+        <!-- Chap: Mahsulotlar ro'yxati -->
+        <div class="cs-box">
+            <div class="cs-box-header">
                 <span>📦 {{ t('css_products_list') }}</span>
-                <span class="count-badge"><span id="productsCount">0</span> {{ t('css_count_suffix') }}</span>
+                <span class="cs-count-badge"><span id="productsCount">0</span> {{ t('css_count_suffix') }}</span>
             </div>
-
             <div style="margin-bottom: 12px;">
-                <input type="text" 
-                       id="productSearch" 
-                       placeholder="🔍 {{ t('css_search_product') }}" 
-                       style="width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; background: #f9fafb; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
-                       onfocus="this.style.borderColor='#4338ca'; this.style.background='white';"
-                       onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';"
-                       autofocus>
+                <input type="text" id="productSearch" placeholder="🔍 {{ t('css_search_product') }}"
+                       class="cs-search" autofocus>
             </div>
-
-            <div class="table-wrapper-check">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+            <div class="cs-table-wrap">
+                <table class="cs-table">
+                    <thead>
                         <tr>
-                            <th style="width: 48%; color: #333; padding: 8px 6px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 13px;">{{ t('css_th_product') }}</th>
-                            <th style="width: 18%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 13px;">{{ t('css_th_price') }}</th>
-                            <th style="width: 18%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 13px;">{{ t('css_th_available') }}</th>
-                            <th style="width: 16%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 13px;">{{ t('css_th_action') }}</th>
+                            <th style="width:46%;">{{ t('css_th_product') }}</th>
+                            <th style="width:18%; text-align:center;">{{ t('css_th_price') }}</th>
+                            <th style="width:18%; text-align:center;">{{ t('css_th_available') }}</th>
+                            <th style="width:18%; text-align:center;">{{ t('css_th_action') }}</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 40px 20px; color: #999;">
-                                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">📦</div>
+                            <td colspan="4" style="text-align:center; padding:36px; color:#94a3b8;">
+                                <div style="font-size:36px; margin-bottom:8px;">📦</div>
                                 <div>{{ t('css_select_product') }}</div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Pagination -->
-            <div id="productsPagination" style="display: none; margin-top: 12px; display: none; justify-content: space-between; align-items: center; padding: 8px 4px; border-top: 1px solid #f0f2f5;">
-                <span id="pageInfo" style="font-size: 13px; color: #666; font-weight: 500;"></span>
-                <div style="display: flex; gap: 5px;">
-                    <button id="prevPageBtn" onclick="prevProductsPage()" style="padding: 6px 12px; border: 1px solid #e5e7eb; background: white; color: #333; cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;"
-                            onmouseover="this.style.background='#4338ca'; this.style.color='white'; this.style.borderColor='#4338ca';"
-                            onmouseout="this.style.background='white'; this.style.color='#333'; this.style.borderColor='#e5e7eb';">← {{ t('css_prev') }}</button>
-                    <button id="nextPageBtn" onclick="nextProductsPage()" style="padding: 6px 12px; border: 1px solid #e5e7eb; background: white; color: #333; cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;"
-                            onmouseover="this.style.background='#4338ca'; this.style.color='white'; this.style.borderColor='#4338ca';"
-                            onmouseout="this.style.background='white'; this.style.color='#333'; this.style.borderColor='#e5e7eb';">{{ t('css_next') }} →</button>
+            <div id="productsPagination" class="cs-pagination" style="display:none;">
+                <span id="pageInfo" style="font-size:12px; color:#64748b; font-weight:500;"></span>
+                <div style="display:flex; gap:6px;">
+                    <button id="prevPageBtn" onclick="prevProductsPage()" class="cs-page-btn">← {{ t('css_prev') }}</button>
+                    <button id="nextPageBtn" onclick="nextProductsPage()" class="cs-page-btn">{{ t('css_next') }} →</button>
                 </div>
             </div>
         </div>
 
-        <!-- O'ng jadval - Tekshirilgan mahsulotlar -->
-        <div class="check-stock-box">
-            <div class="layout-header">
+        <!-- O'ng: Tekshirilgan mahsulotlar -->
+        <div class="cs-box">
+            <div class="cs-box-header">
                 <span>✅ {{ t('css_checked_products') }}</span>
-                <span class="count-badge"><span id="checkedCount">0</span> {{ t('css_count_suffix') }}</span>
+                <span class="cs-count-badge"><span id="checkedCount">0</span> {{ t('css_count_suffix') }}</span>
             </div>
-
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center;">
-                <input type="text" 
-                       id="checkedSearch" 
-                       placeholder="🔍 {{ t('css_search_checked') }}" 
-                       style="flex: 1; min-width: 120px; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 13px; background: #f9fafb; outline: none;"
-                       onfocus="this.style.borderColor='#4338ca'; this.style.background='white';"
-                       onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
-                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <button onclick="filterChecked('all')" id="filterAll" 
-                            style="background: #4338ca; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        📊 {{ t('css_filter_checked') }} <span id="allCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center;">
+                <input type="text" id="checkedSearch" placeholder="🔍 {{ t('css_search_checked') }}"
+                       class="cs-search" style="flex:1; min-width:120px;">
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button onclick="filterChecked('all')" id="filterAll" class="cs-filter-btn"
+                            style="background:#4338ca; color:white;">
+                        📊 {{ t('css_filter_checked') }} <span id="allCount" style="background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:50px; margin-left:3px;">0</span>
                     </button>
-                    <button onclick="filterChecked('error')" id="filterError" 
-                            style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        ⚠️ {{ t('css_filter_error') }} <span id="errorCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+                    <button onclick="filterChecked('error')" id="filterError" class="cs-filter-btn"
+                            style="background:#ef4444; color:white;">
+                        ⚠️ {{ t('css_filter_error') }} <span id="errorCount" style="background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:50px; margin-left:3px;">0</span>
                     </button>
-                    <button onclick="filterChecked('correct')" id="filterCorrect" 
-                            style="background: #28a745; color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                        ✅ {{ t('css_filter_correct') }} <span id="correctCount" style="background: rgba(255,255,255,0.25); padding: 1px 6px; border-radius: 50px; margin-left: 3px;">0</span>
+                    <button onclick="filterChecked('correct')" id="filterCorrect" class="cs-filter-btn"
+                            style="background:#059669; color:white;">
+                        ✅ {{ t('css_filter_correct') }} <span id="correctCount" style="background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:50px; margin-left:3px;">0</span>
                     </button>
                 </div>
             </div>
-
-            <div class="table-wrapper-check">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+            <div class="cs-table-wrap">
+                <table class="cs-table">
+                    <thead>
                         <tr>
-                            <th style="width: 28%; color: #333; padding: 8px 6px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_product_name') }}</th>
-                            <th style="width: 13%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_price2') }}</th>
-                            <th style="width: 12%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_system') }}</th>
-                            <th style="width: 12%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_actual') }}</th>
-                            <th style="width: 12%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_error') }}</th>
-                            <th style="width: 12%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_status') }}</th>
-                            <th style="width: 11%; text-align: center; color: #333; padding: 8px 4px; border-bottom: 2px solid #dee2e6; font-weight: 600; font-size: 12px;">{{ t('css_th_action') }}</th>
+                            <th style="width:27%;">{{ t('css_th_product_name') }}</th>
+                            <th style="width:12%; text-align:center;">{{ t('css_th_price2') }}</th>
+                            <th style="width:12%; text-align:center;">{{ t('css_th_system') }}</th>
+                            <th style="width:12%; text-align:center;">{{ t('css_th_actual') }}</th>
+                            <th style="width:12%; text-align:center;">{{ t('css_th_error') }}</th>
+                            <th style="width:13%; text-align:center;">{{ t('css_th_status') }}</th>
+                            <th style="width:12%; text-align:center;">{{ t('css_th_action') }}</th>
                         </tr>
                     </thead>
                     <tbody id="checkedTableBody">
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px 20px; color: #999;">
-                                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">📋</div>
+                            <td colspan="7" style="text-align:center; padding:36px; color:#94a3b8;">
+                                <div style="font-size:36px; margin-bottom:8px;">📋</div>
                                 <div>{{ t('css_not_checked_yet') }}</div>
                             </td>
                         </tr>
@@ -334,110 +242,34 @@
 
 <!-- Modal oyna - Haqiqiy miqdorni kiritish -->
 <div id="quantityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-    <div style="background: white; border-radius: 12px; padding: 30px; width: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h4 style="margin: 0; color: #333; font-weight: 600;">📦 {{ t('css_enter_actual') }}</h4>
-            <button onclick="closeModal()" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #999; line-height: 1;">&times;</button>
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 440px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h4 style="margin: 0; color: #1e293b; font-weight: 700; font-size: 16px;">📦 {{ t('css_enter_actual') }}</h4>
+            <button onclick="closeModal()" style="background: #f1f5f9; border: none; font-size: 18px; cursor: pointer; color: #64748b; width: 32px; height: 32px; border-radius: 8px; line-height: 1;">&times;</button>
         </div>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <div style="color: #666; font-size: 14px; margin-bottom: 5px;">{{ t('css_product_label') }}</div>
-            <div id="modalProductName" style="font-weight: 600; font-size: 16px; color: #333;"></div>
-            <div style="color: #666; font-size: 14px; margin-top: 10px;">{{ t('css_system_quantity') }}</div>
-            <div id="modalSystemQuantity" style="font-weight: 600; font-size: 18px; color: #17a2b8;"></div>
+        <div style="background: #f8fafc; padding: 14px; border-radius: 10px; margin-bottom: 18px; border: 1px solid #e2e8f0;">
+            <div style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">{{ t('css_product_label') }}</div>
+            <div id="modalProductName" style="font-weight: 700; font-size: 15px; color: #1e293b;"></div>
+            <div style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; margin-bottom: 4px;">{{ t('css_system_quantity') }}</div>
+            <div id="modalSystemQuantity" style="font-weight: 700; font-size: 18px; color: #0891b2;"></div>
         </div>
-        
-        <div style="margin-bottom: 25px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">{{ t('css_actual_quantity') }}</label>
-            <input type="number" 
-                   id="actualQuantityInput" 
-                   placeholder="{{ t('css_enter_quantity') }}"
-                   min="0"
-                   step="0.01"
-                   style="width: 100%; padding: 12px; border: 2px solid #28a745; border-radius: 8px; font-size: 16px; box-sizing: border-box;"
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 13px;">{{ t('css_actual_quantity') }}</label>
+            <input type="number" id="actualQuantityInput" placeholder="{{ t('css_enter_quantity') }}"
+                   min="0" step="0.01"
+                   style="width: 100%; padding: 11px 14px; border: 1.5px solid #059669; border-radius: 10px; font-size: 15px; box-sizing: border-box; outline: none;"
                    onkeypress="if(event.key === 'Enter') saveQuantity()">
         </div>
-        
         <div style="display: flex; gap: 10px;">
-            <button onclick="saveQuantity()" 
-                    style="flex: 1; background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+            <button onclick="saveQuantity()" style="flex: 1; background: #059669; color: white; border: none; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                 <i class="fas fa-check"></i> {{ t('css_save') }}
             </button>
-            <button onclick="closeModal()" 
-                    style="flex: 1; background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+            <button onclick="closeModal()" style="flex: 1; background: #64748b; color: white; border: none; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                 <i class="fas fa-times"></i> {{ t('css_cancel') }}
             </button>
         </div>
     </div>
 </div>
-
-<style>
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0;
-    padding-bottom: 15px;
-    border-bottom: 1.5px solid #ebebf5;
-    padding: 20px 20px 15px;
-}
-
-.page-header h2 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
-
-.page-header h2 i {
-    color: #4338ca;
-    margin-right: 8px;
-}
-
-.card {
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 10px;
-}
-
-.card-header {
-    border-radius: 10px 10px 0 0 !important;
-}
-
-.table-responsive {
-    max-height: 600px;
-    overflow-y: auto;
-}
-
-.table thead th {
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
-}
-
-.quantity-input {
-    width: 100px;
-    text-align: center;
-}
-
-.diff-positive {
-    color: #28a745;
-    font-weight: 600;
-}
-
-.diff-negative {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-.diff-zero {
-    color: #6c757d;
-}
-</style>
 
 <script>
 const CSSLANG = {
@@ -816,22 +648,10 @@ function renderProductsPage() {
         });
         
         row.innerHTML = `
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
-                <strong>${product.name}</strong>
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                ${product.price ? product.price.toLocaleString() + '$' : '-'}
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                <span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
-                    ${product.system_quantity}
-                </span>
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                <button style="background: transparent; color: #28a745; border: none; padding: 4px 8px; cursor: pointer; font-size: 24px;">
-                    ➡️
-                </button>
-            </td>
+            <td><strong>${product.name}</strong></td>
+            <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
+            <td style="text-align:center;"><span class="cs-count-badge">${product.system_quantity}</span></td>
+            <td style="text-align:center;"><button class="cs-btn-action">➡️</button></td>
         `;
         
         // Button uchun alohida click handler
@@ -1034,42 +854,30 @@ function displayCheckedTable(products) {
         const row = document.createElement('tr');
         
         // Xatolik rangini aniqlash
-        let errorColor = '#6c757d';
-        if (product.difference > 0) errorColor = '#28a745';
-        if (product.difference < 0) errorColor = '#dc3545';
+        let errorColor = '#64748b';
+        if (product.difference > 0) errorColor = '#059669';
+        if (product.difference < 0) errorColor = '#ef4444';
         
         // Holat badge
-        let statusBadge = '<span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">' + CSSLANG.status_normal + '</span>';
-        if (product.difference > 0) statusBadge = '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">' + CSSLANG.status_excess + '</span>';
-        if (product.difference < 0) statusBadge = '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">' + CSSLANG.status_deficit + '</span>';
+        let statusBadge = `<span style="background:#64748b;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_normal}</span>`;
+        if (product.difference > 0) statusBadge = `<span style="background:#059669;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_excess}</span>`;
+        if (product.difference < 0) statusBadge = `<span style="background:#ef4444;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_deficit}</span>`;
         
         row.innerHTML = `
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;">
-                ${product.name}
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                ${product.price ? product.price.toLocaleString() + '$' : '-'}
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                ${product.system_quantity}
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                <input type="number" 
-                       value="${product.actual_quantity}" 
+            <td>${product.name}</td>
+            <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
+            <td style="text-align:center;">${product.system_quantity}</td>
+            <td style="text-align:center;">
+                <input type="number" value="${product.actual_quantity}" 
                        onchange="updateActualQuantity(${product.id}, this.value)"
-                       style="width: 60px; text-align: center; padding: 4px; border: 1px solid #ced4da; border-radius: 4px;">
+                       style="width:60px;text-align:center;padding:4px 6px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;">
             </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center; color: ${errorColor}; font-weight: 600;">
+            <td style="text-align:center;font-weight:700;color:${errorColor};">
                 ${product.difference > 0 ? '+' : ''}${product.difference}
             </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                ${statusBadge}
-            </td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; text-align: center;">
-                <button onclick="removeFromChecked(${product.id})" 
-                        style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                    🗑️
-                </button>
+            <td style="text-align:center;">${statusBadge}</td>
+            <td style="text-align:center;">
+                <button class="cs-btn-del" onclick="removeFromChecked(${product.id})">🗑️</button>
             </td>
         `;
         
