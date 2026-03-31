@@ -192,6 +192,115 @@
 .btn-action-delete { background: #ef4444; color: white; }
 .actions { white-space: nowrap; }
 
+/* ── Edit Modal ── */
+.edit-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 9999;
+    align-items: center; justify-content: center;
+}
+.edit-modal-overlay.active { display: flex; }
+.edit-modal {
+    background: white; border-radius: 14px;
+    padding: 28px 28px 24px; width: 480px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+}
+.edit-modal-title {
+    font-size: 16px; font-weight: 700; color: #1e293b;
+    margin: 0 0 20px; display: flex; align-items: center; gap: 8px;
+}
+.edit-modal-close {
+    position: absolute; top: 16px; right: 18px;
+    background: none; border: none; font-size: 20px;
+    cursor: pointer; color: #94a3b8; line-height: 1;
+}
+.edit-modal-close:hover { color: #ef4444; }
+.em-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.em-group { display: flex; flex-direction: column; gap: 5px; }
+.em-group.full { grid-column: 1 / -1; }
+.em-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
+.em-input {
+    padding: 8px 12px; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; font-size: 13px; color: #1e293b;
+    outline: none; transition: border-color 0.15s;
+}
+.em-input:focus { border-color: #1a6eff; }
+.em-profit {
+    padding: 8px 12px; background: #f0f9ff; border: 1.5px solid #bae6fd;
+    border-radius: 8px; font-size: 13px; color: #0284c7; font-weight: 600;
+}
+.em-error {
+    color: #ef4444; font-size: 12px; margin-top: 10px;
+    padding: 8px 12px; background: #fef2f2; border-radius: 8px;
+    display: none;
+}
+.em-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.em-btn-cancel {
+    padding: 8px 20px; border-radius: 8px; border: 1.5px solid #e2e8f0;
+    background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+}
+.em-btn-save {
+    padding: 8px 22px; border-radius: 8px; border: none;
+    background: #1a6eff; color: white; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.15s;
+}
+.em-btn-save:hover { opacity: 0.85; }
+.em-btn-save:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Edit Modal ── */
+.edit-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 9999;
+    align-items: center; justify-content: center;
+}
+.edit-modal-overlay.active { display: flex; }
+.edit-modal {
+    background: white; border-radius: 14px;
+    padding: 28px 28px 24px; width: 480px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+}
+.edit-modal-title {
+    font-size: 16px; font-weight: 700; color: #1e293b;
+    margin: 0 0 20px; display: flex; align-items: center; gap: 8px;
+}
+.edit-modal-close {
+    position: absolute; top: 16px; right: 18px;
+    background: none; border: none; font-size: 20px;
+    cursor: pointer; color: #94a3b8; line-height: 1;
+}
+.edit-modal-close:hover { color: #ef4444; }
+.em-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.em-group { display: flex; flex-direction: column; gap: 5px; }
+.em-group.full { grid-column: 1 / -1; }
+.em-label { font-size: 12px; font-weight: 600; color: #64748b; }
+.em-input {
+    padding: 8px 12px; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; font-size: 13px; color: #1e293b;
+    outline: none; transition: border-color 0.15s;
+}
+.em-input:focus { border-color: #1a6eff; }
+.em-input.error { border-color: #ef4444; background: #fef2f2; }
+.em-profit {
+    padding: 8px 12px; background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; font-size: 13px; color: #059669; font-weight: 600;
+}
+.em-error { color: #ef4444; font-size: 12px; margin-top: 10px; display: none; }
+.em-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.em-btn-cancel {
+    padding: 8px 20px; border-radius: 8px; border: 1.5px solid #e2e8f0;
+    background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+}
+.em-btn-save {
+    padding: 8px 22px; border-radius: 8px; border: none;
+    background: #1a6eff; color: white; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.15s;
+}
+.em-btn-save:hover { opacity: 0.85; }
+.em-btn-save:disabled { opacity: 0.5; cursor: default; }
+
 /* ── Pagination ── */
 .ps-pagination {
     display: flex; justify-content: space-between; align-items: center;
@@ -347,6 +456,54 @@
 </div>
 
 </div><!-- /.ps-page -->
+
+<!-- Edit Modal -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+    <div class="edit-modal">
+        <button class="edit-modal-close" onclick="closeEditModal()">&#x2715;</button>
+        <div class="edit-modal-title"><i class="fas fa-edit" style="color:#1a6eff"></i> {{ t('sd_edit') }}</div>
+        <form id="editStockForm" onsubmit="submitEditModal(event)">
+            <input type="hidden" id="em-store-id">
+            <input type="hidden" id="em-product-id">
+            <div class="em-grid">
+                <div class="em-group full">
+                    <label class="em-label">{{ t('sd_th_product') }}</label>
+                    <input type="text" class="em-input" id="em-productName" required>
+                </div>
+                <div class="em-group">
+                    <label class="em-label">{{ t('sd_th_barcode') }}</label>
+                    <input type="text" class="em-input" id="em-barcode">
+                </div>
+                <div class="em-group">
+                    <label class="em-label">{{ t('sd_th_quantity') }}</label>
+                    <input type="number" class="em-input" id="em-quantity" min="0" step="1" required>
+                </div>
+                <div class="em-group">
+                    <label class="em-label">{{ t('sd_th_cost') }}</label>
+                    <input type="number" class="em-input" id="em-costPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                </div>
+                <div class="em-group">
+                    <label class="em-label">{{ t('sd_th_sell') }}</label>
+                    <input type="number" class="em-input" id="em-sellPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                </div>
+                <div class="em-group">
+                    <label class="em-label">Min. zaxira</label>
+                    <input type="number" class="em-input" id="em-minStock" min="0" step="1">
+                </div>
+                <div class="em-group full">
+                    <label class="em-label">{{ t('sd_th_unit_profit') }}</label>
+                    <div class="em-profit" id="em-profitDisplay">$0.00 (0.0%)</div>
+                </div>
+            </div>
+            <div class="em-error" id="em-error"></div>
+            <div class="em-footer">
+                <button type="button" class="em-btn-cancel" onclick="closeEditModal()">Bekor qilish</button>
+                <button type="submit" class="em-btn-save" id="em-save-btn">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 {% block extra_js %}
 <!-- SheetJS kutubxonasi Excel eksport uchun -->
@@ -507,7 +664,7 @@
                       `<span style="color: #27ae60; font-weight: bold;">✓ ${SDLANG.status_enough}</span>`}
                 </td>
                 <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
-                    <a href="/edit_store_stock/${storeId}/${item.stock.product.id}" 
+                    <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}, ${JSON.stringify(item.stock.product.name)}, ${JSON.stringify(item.stock.product.barcode||'')}, ${item.stock.quantity}, ${item.stock.product.min_stock||0}, ${item.stock.product.cost_price}, ${item.stock.product.sell_price}); return false;"
                        class="btn-action btn-action-edit">✏️ ${SDLANG.edit}</a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
                             data-product-name="${item.stock.product.name}"
@@ -623,6 +780,91 @@
                 console.error('Error:', error);
                 alert('❌ ' + SDLANG.delete_error + '\n\n' + error.message);
             });
+        }
+    }
+
+    // ── Edit Modal funksiyalari ──
+    function openEditModal(storeId, productId, name, barcode, qty, minStock, costPrice, sellPrice) {
+        document.getElementById('em-store-id').value = storeId;
+        document.getElementById('em-product-id').value = productId;
+        document.getElementById('em-productName').value = name;
+        document.getElementById('em-barcode').value = barcode;
+        document.getElementById('em-quantity').value = qty;
+        document.getElementById('em-minStock').value = minStock;
+        document.getElementById('em-costPrice').value = parseFloat(costPrice).toFixed(2);
+        document.getElementById('em-sellPrice').value = parseFloat(sellPrice).toFixed(2);
+        document.getElementById('em-error').style.display = 'none';
+        emUpdateProfit();
+        document.getElementById('editModalOverlay').classList.add('active');
+        setTimeout(() => document.getElementById('em-productName').focus(), 100);
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModalOverlay').classList.remove('active');
+    }
+
+    function emUpdateProfit() {
+        const cost = parseFloat(document.getElementById('em-costPrice').value) || 0;
+        const sell = parseFloat(document.getElementById('em-sellPrice').value) || 0;
+        const profit = sell - cost;
+        const pct = cost > 0 ? (profit / cost * 100).toFixed(1) : '0.0';
+        const el = document.getElementById('em-profitDisplay');
+        el.textContent = `$${profit.toFixed(2)} (${pct}%)`;
+        el.style.color = profit >= 0 ? '#0284c7' : '#ef4444';
+    }
+
+    // Overlay click yopish
+    document.getElementById('editModalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
+    });
+
+    // Escape tugmasi
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeEditModal();
+    });
+
+    async function submitEditModal(e) {
+        e.preventDefault();
+        const storeId = document.getElementById('em-store-id').value;
+        const productId = document.getElementById('em-product-id').value;
+        const errorEl = document.getElementById('em-error');
+        const saveBtn = document.getElementById('em-save-btn');
+
+        const payload = {
+            productName: document.getElementById('em-productName').value.trim(),
+            barcode: document.getElementById('em-barcode').value.trim(),
+            quantity: document.getElementById('em-quantity').value,
+            minStock: document.getElementById('em-minStock').value,
+            costPrice: document.getElementById('em-costPrice').value,
+            sellPrice: document.getElementById('em-sellPrice').value,
+        };
+
+        errorEl.style.display = 'none';
+        saveBtn.disabled = true;
+        saveBtn.textContent = '...';
+
+        try {
+            const res = await fetch(`/api/edit_store_stock/${storeId}/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeEditModal();
+                const searchValue = document.querySelector('#search-input').value;
+                const statusValue = document.querySelector('#status-filter').value;
+                loadStockData(currentPage, searchValue, statusValue);
+            } else {
+                errorEl.textContent = '❌ ' + data.error;
+                errorEl.style.display = 'block';
+            }
+        } catch (err) {
+            errorEl.textContent = '❌ Xatolik: ' + err.message;
+            errorEl.style.display = 'block';
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Saqlash';
         }
     }
 </script>

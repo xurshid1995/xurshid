@@ -7319,6 +7319,81 @@ def edit_store_stock(store_id, product_id):
                            calculations=calculations, store=stock.store)
 
 
+@app.route('/api/edit_store_stock/<int:store_id>/<int:product_id>', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
+@location_permission_required('store_id')
+def api_edit_store_stock(store_id, product_id):
+    """Modal orqali do'kon stokini tahrirlash (JSON API)"""
+    try:
+        stock = StoreStock.query.filter_by(
+            store_id=store_id, product_id=product_id).first_or_404()
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'Ma\'lumot topilmadi'}), 400
+
+        new_product_name = data.get('productName', '').strip()
+        new_barcode = data.get('barcode', '').strip()
+        new_quantity = int(float(data.get('quantity', 0)))
+        new_min_stock = int(float(data.get('minStock', 0)))
+        new_cost_price = float(data.get('costPrice', 0))
+        new_sell_price = float(data.get('sellPrice', 0))
+
+        if not new_product_name:
+            return jsonify({'success': False, 'error': 'Mahsulot nomi bo\'sh bo\'lishi mumkin emas'}), 400
+        if new_quantity < 0:
+            return jsonify({'success': False, 'error': 'Miqdor manfiy bo\'lishi mumkin emas'}), 400
+        if new_cost_price < 0 or new_sell_price < 0:
+            return jsonify({'success': False, 'error': 'Narxlar manfiy bo\'lishi mumkin emas'}), 400
+        if new_sell_price < new_cost_price:
+            return jsonify({'success': False, 'error': 'Sotish narxi tan narxidan past bo\'lishi mumkin emas'}), 400
+
+        if new_barcode:
+            existing = Product.query.filter(
+                Product.barcode == new_barcode,
+                Product.id != product_id
+            ).first()
+            if existing:
+                return jsonify({'success': False, 'error': f'{new_barcode} barcode allaqachon "{existing.name}" mahsulotida mavjud'}), 400
+
+        old_quantity = stock.quantity
+        cost_price = stock.product.cost_price
+        sell_price = stock.product.sell_price
+
+        stock.product.name = new_product_name
+        stock.product.barcode = new_barcode if new_barcode else None
+        stock.product.min_stock = new_min_stock
+        stock.product.cost_price = Decimal(str(new_cost_price))
+        stock.product.sell_price = Decimal(str(new_sell_price))
+        stock.quantity = new_quantity
+        db.session.commit()
+
+        try:
+            store = Store.query.get(store_id)
+            _diff = float(new_quantity) - float(old_quantity)
+            qty_str = f"{float(new_quantity):.0f} ({float(old_quantity):.0f}{'+' if _diff >= 0 else ''}{_diff:.0f}={float(new_quantity):.0f})"
+            history = OperationHistory(
+                operation_type='edit_stock', table_name='store_stock',
+                record_id=stock.id, user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f"{new_product_name} tahrirlandi: miqdor {qty_str} ${new_sell_price:.2f}",
+                old_data={'quantity': str(old_quantity), 'cost_price': str(cost_price), 'sell_price': str(sell_price)},
+                new_data={'quantity': str(new_quantity), 'cost_price': str(new_cost_price), 'sell_price': str(new_sell_price)},
+                ip_address=request.remote_addr, location_id=store_id,
+                location_type='store', location_name=store.name if store else 'Unknown', amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_err:
+            logger.error(f"OperationHistory log xatoligi: {log_err}")
+
+        return jsonify({'success': True, 'message': f'{new_product_name} muvaffaqiyatli yangilandi'})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # Faqat store stock miqdorini yangilash (stock checking uchun)
 @app.route('/api/update_store_stock/<int:store_id>/<int:product_id>',
            methods=['POST'])
