@@ -44,6 +44,11 @@
         font-size: 12px; font-weight: 700;
         padding: 3px 10px; border-radius: 7px;
     }
+    .cs-qty-badge {
+        background: #dbeafe; color: #1e40af;
+        font-size: 12px; font-weight: 700;
+        padding: 2px 9px; border-radius: 7px;
+    }
     .cs-table-wrap {
         border: 1px solid #e2e8f0; border-radius: 10px;
         margin-top: 10px; overflow-x: hidden; width: 100%;
@@ -655,7 +660,7 @@ function renderProductsPage() {
         row.innerHTML = `
             <td><strong>${product.name}</strong></td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
-            <td style="text-align:center;"><span class="cs-count-badge">${product.system_quantity}</span></td>
+            <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
             <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
         `;
         
