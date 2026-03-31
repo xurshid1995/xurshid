@@ -788,6 +788,7 @@
 
     function emGenerateBarcode() {
         const barcodeInput = document.getElementById('em-barcode');
+        if (barcodeInput.value.trim() !== '') return;
         barcodeInput.value = '...';
         barcodeInput.disabled = true;
         fetch('/api/next-barcode', {
