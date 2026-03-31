@@ -51,6 +51,8 @@ body {
 /* Til nomi - katta ekranlar uchun to'liq nom, qisqa nom yashirilgan */
 .lang-short { display: none; }
 .lang-full  { display: inline; }
+
+.sidebar {
     width: 70px; /* Oddiy holatda tor */
     background: #0f172a;
     border-right: none;
