@@ -218,7 +218,8 @@
 .em-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 14px; }
         .em-grid .em-group { grid-column: span 5; }
         .em-grid .em-group.col-7 { grid-column: span 7; }
-        .em-grid .em-group.col-3 { grid-column: span 3; }
+        .em-grid .em-group.col-2 { grid-column: span 2; }
+        .em-grid .em-group.col-1 { grid-column: span 1; }
         .em-grid .em-group.full { grid-column: span 10; }
 .em-group { display: flex; flex-direction: column; gap: 5px; }
 .em-group.full { grid-column: 1 / -1; }
@@ -421,16 +422,17 @@
                     <label class="em-label">{{ t('sd_th_product') }}</label>
                     <input type="text" class="em-input" id="em-productName" required>
                 </div>
-                <div class="em-group col-3">
+                <div class="em-group col-2">
                     <label class="em-label">{{ t('sd_th_barcode') }}</label>
-                    <div style="position:relative;">
-                        <input type="text" class="em-input" id="em-barcode" style="padding-right:36px;">
-                        <button type="button" onclick="emPrintBarcode()" title="Chop etish"
-                                style="position:absolute; right:4px; top:50%; transform:translateY(-50%); padding:3px; background:transparent; border:none; border-radius:6px; cursor:pointer; display:flex; align-items:center; transition:all 0.2s;"
-                                onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='transparent'">
-                            <img src="https://img.icons8.com/color/48/print.png" alt="Print" style="width:22px;height:22px;">
-                        </button>
-                    </div>
+                    <input type="text" class="em-input" id="em-barcode">
+                </div>
+                <div class="em-group col-1" style="justify-content:flex-end;">
+                    <label class="em-label" style="visibility:hidden;">.</label>
+                    <button type="button" onclick="emPrintBarcode()" title="Chop etish"
+                            style="width:100%; height:38px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;"
+                            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                        <img src="https://img.icons8.com/color/48/print.png" alt="Print" style="width:22px;height:22px;">
+                    </button>
                 </div>
                 <div class="em-group">
                     <label class="em-label">{{ t('sd_th_quantity') }}</label>
