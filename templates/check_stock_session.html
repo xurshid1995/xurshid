@@ -178,8 +178,8 @@
                         <tr>
                             <th style="width:46%; text-align:left;">{{ t('css_th_product') }}</th>
                             <th style="width:18%; text-align:center;">{{ t('css_th_price') }}</th>
-                            <th style="width:18%; text-align:center;">{{ t('css_th_available') }}</th>
                             <th style="width:18%; text-align:center;">{{ t('css_th_action') }}</th>
+                            <th style="width:18%; text-align:center;">{{ t('css_th_available') }}</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
@@ -662,8 +662,8 @@ function renderProductsPage() {
         row.innerHTML = `
             <td><strong>${product.name}</strong></td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
-            <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
             <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
+            <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
         `;
         
         // Button uchun alohida click handler
