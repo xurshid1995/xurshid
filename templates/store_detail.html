@@ -1,303 +1,352 @@
-{% extends "base.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ store.name }} - {{ t('sd_title_suffix') }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #e9ecef;
-    }
+/* ====================================================
+   NESTDRAX CRM - DO'KON BATAFSIL DIZAYNI
+   ==================================================== */
 
-    .page-header h1 {
-        color: #0f172a;
-        font-size: 24px;
-        margin: 0 0 6px 0;
-        font-weight: 700;
-        letter-spacing: -0.3px;
-    }
+.ps-page {
+    padding: 28px 28px 40px;
+    background: #f5f6fa;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
 
-    .page-header h1 span.ph-icon {
-        color: #4338ca;
-        margin-right: 8px;
-    }
+/* ── Header ── */
+.ps-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.ps-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.ps-title i { color: #4338ca; margin-right: 8px; }
+.ps-store-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 5px;
+    font-size: 13px;
+    color: #64748b;
+}
+.ps-store-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 
-    .store-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        font-size: 14px;
-        color: #555;
-        margin-top: 4px;
-    }
+/* ── Stat Cards ── */
+.ps-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.ps-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.ps-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.ps-stat-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.ps-icon-purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7c3aed; }
+.ps-icon-slate  { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #475569; }
+.ps-icon-amber  { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
+.ps-icon-green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
+.ps-icon-blue   { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+.ps-icon-cyan   { background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891b2; }
+.ps-stat-label  { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+.ps-stat-number { font-size: 1.4rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
 
-    .store-meta span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+/* ── Filter Panel ── */
+.ps-filter-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.ps-filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.ps-search-box {
+    position: relative;
+    flex: 1 1 260px;
+}
+.ps-search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #94a3b8; font-size: 14px; pointer-events: none;
+}
+.ps-search-input { padding-left: 40px !important; }
+.ps-input {
+    padding: 9px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.ps-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+.ps-select {
+    padding: 9px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ps-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+.ps-excel-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px;
+    background: #f0fdf4;
+    color: #059669;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.ps-excel-btn:hover { background: #dcfce7; border-color: #059669; }
 
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 16px;
-        margin-bottom: 20px;
-    }
+/* ── Table Card ── */
+.ps-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-    .info-card {
-        background: white;
-        padding: 16px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        border: 1px solid #eef0f7;
-        text-align: center;
-    }
+.ps-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.ps-table thead tr { background: #1a6eff; }
+.ps-table th {
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1a6eff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    border-bottom: 1px solid #1558d6;
+    white-space: nowrap;
+}
+.ps-table td {
+    padding: 10px 10px;
+    font-size: 13px;
+    color: #374151;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    text-align: center;
+}
+.ps-table tbody tr:hover { background: #f8faff; }
+.ps-table tbody tr:last-child td { border-bottom: none; }
+.ps-table td.td-left { text-align: left; }
 
-    .info-card h3 {
-        margin: 0 0 8px 0;
-        font-size: 0.82rem;
-        color: #6b7280;
-        font-weight: 500;
-    }
+/* Status badges */
+.badge-ok   { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #d1fae5; color: #059669; }
+.badge-low  { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #d97706; }
+.badge-out  { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #fee2e2; color: #ef4444; }
 
-    .info-card .value {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin: 0;
-        color: #0f172a;
-    }
+/* Action buttons */
+.btn-action {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; text-decoration: none; margin: 2px;
+    transition: opacity 0.15s;
+}
+.btn-action:hover { opacity: 0.85; }
+.btn-action-edit   { background: #2563eb; color: white; }
+.btn-action-delete { background: #ef4444; color: white; }
 
-    .card-1 .value { color: #4338ca; }
-    .card-2 .value { color: #0f172a; }
-    .card-3 .value { color: #d97706; }
-    .card-4 .value { color: #059669; }
-    .card-5 .value { color: #7c3aed; }
-    .card-6 .value { color: #0891b2; }
+/* ── Pagination ── */
+.ps-pagination {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 10px;
+}
+.ps-pagination-info { font-size: 13px; color: #64748b; font-weight: 500; }
+.ps-pagination-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.pagination-btn {
+    padding: 6px 12px; border: 1.5px solid #e2e8f0;
+    background: white; color: #374151; border-radius: 8px;
+    cursor: pointer; font-size: 13px; min-width: 36px; text-align: center;
+    font-weight: 500; transition: all 0.2s;
+}
+.pagination-btn:hover:not(.active) { background: #f1f5f9; border-color: #94a3b8; }
+.pagination-btn.active { background: #2563eb; color: white; border-color: #2563eb; font-weight: 700; }
 
-    /* Responsive grid */
-    @media (max-width: 1200px) {
-        .info-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
+/* search highlight */
+.search-highlight { background: #fef08a; padding: 1px 2px; border-radius: 2px; font-weight: bold; }
 
-    @media (max-width: 768px) {
-        .info-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+/* Loading spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-    @media (max-width: 480px) {
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+    .ps-stats { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .ps-page { padding: 14px; }
+    .ps-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .ps-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .ps-stat-card { padding: 14px 12px; }
+    .ps-stat-number { font-size: 1.2rem; }
+}
+@media (max-width: 480px) {
+    .ps-page { padding: 10px; }
+    .ps-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
 
-    /* Pagination styles */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 1.5rem 1rem;
-        background: white;
-        border-top: 1px solid #e9ecef;
-        margin-top: 0;
-    }
-
-    #paginationButtons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .pagination-btn {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
-        min-width: 40px;
-        text-align: center;
-    }
-
-    .pagination-btn:hover:not(.active) {
-        background: #f8f9fa;
-        border-color: #adb5bd;
-    }
-
-    .pagination-btn.active {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
-        font-weight: 600;
-    }
-
-    .pagination-dots {
-        padding: 0.5rem 0.25rem;
-        color: #6c757d;
-        font-weight: bold;
-    }
-
-    /* Table responsive */
-    @media (max-width: 768px) {
-        .info-card .value {
-            font-size: 1.5rem;
-        }
-        
-        .info-card h3 {
-            font-size: 0.8rem;
-        }
-
-        /* Mobile pagination */
-        .pagination {
-            padding: 1rem 0.5rem;
-        }
-
-        #paginationButtons {
-            gap: 0.25rem;
-        }
-
-        .pagination-btn {
-            padding: 0.4rem 0.6rem;
-            font-size: 0.8rem;
-            min-width: 35px;
-        }
-
-        .pagination-dots {
-            padding: 0.4rem 0.15rem;
-        }
-    }
-
-    /* Spinner animation */
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Search highlight styles */
-    .search-highlight {
-        background-color: #ffeb3b;
-        padding: 1px 2px;
-        border-radius: 2px;
-        font-weight: bold;
-    }
+* { box-sizing: border-box; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="ps-page">
+
 <!-- Page Header -->
-<div class="page-header">
-    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 16px; flex: 1;">
-        <h1 style="margin: 0; white-space: nowrap;"><span class="ph-icon">🏬</span> {{ store.name }}</h1>
-        <div class="store-meta" style="margin-top: 0;">
-            <span><span style="color:#4338ca">📍</span>{{ store.address or t('sd_address_empty') }}</span>
-            <span><span style="color:#4338ca">👤</span>{{ store.manager_name or t('sd_manager_empty') }}</span>
-            <span><span style="color:#4338ca">📞</span>{{ store.phone or t('sd_phone_empty') }}</span>
+<div class="ps-header">
+    <div>
+        <h1 class="ps-title"><i class="fas fa-store"></i> {{ store.name }}</h1>
+        <div class="ps-store-meta">
+            <span><i class="fas fa-map-marker-alt" style="color:#4338ca"></i> {{ store.address or t('sd_address_empty') }}</span>
+            <span><i class="fas fa-user" style="color:#4338ca"></i> {{ store.manager_name or t('sd_manager_empty') }}</span>
+            <span><i class="fas fa-phone" style="color:#4338ca"></i> {{ store.phone or t('sd_phone_empty') }}</span>
         </div>
     </div>
-    <a href="{{ url_for('stores') }}" 
-       style="background: #95a5a6; color: #ffffff; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; white-space: nowrap; border: 1px solid #7f8c8d; transition: all 0.2s ease;"
-       onmouseover="this.style.background='#7f8c8d';this.style.borderColor='#707b7c'"
-       onmouseout="this.style.background='#95a5a6';this.style.borderColor='#7f8c8d'">
+    <a href="{{ url_for('stores') }}"
+       style="background: #f1f5f9; color: #475569; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; white-space: nowrap; border: 1.5px solid #e2e8f0;">
         <i class="fas fa-arrow-left"></i> {{ t('sd_back') }}
     </a>
 </div>
 
-<!-- Statistika kartalari -->
-<div class="info-grid">
-    <div class="info-card card-1">
-        <h3>📦 {{ t('sd_product_types') }}</h3>
-        <div class="value">{{ total_products }}</div>
+<!-- Stat Cards -->
+<div class="ps-stats">
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-purple"><i class="fas fa-boxes"></i></div>
+        <span class="ps-stat-label">{{ t('sd_product_types') }}</span>
+        <span class="ps-stat-number">{{ total_products }}</span>
     </div>
-    <div class="info-card card-2">
-        <h3>📊 {{ t('sd_total_quantity') }}</h3>
-        <div class="value">{{ total_quantity }}</div>
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-slate"><i class="fas fa-layer-group"></i></div>
+        <span class="ps-stat-label">{{ t('sd_total_quantity') }}</span>
+        <span class="ps-stat-number">{{ total_quantity }}</span>
     </div>
-    <div class="info-card card-3">
-        <h3>💰 {{ t('sd_total_cost') }}</h3>
-        <div class="value">${{ "%.2f"|format(total_cost_value) }}</div>
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-amber"><i class="fas fa-dollar-sign"></i></div>
+        <span class="ps-stat-label">{{ t('sd_total_cost') }}</span>
+        <span class="ps-stat-number">${{ "%.2f"|format(total_cost_value) }}</span>
     </div>
-    <div class="info-card card-4">
-        <h3>💵 {{ t('sd_total_sell') }}</h3>
-        <div class="value">${{ "%.2f"|format(total_value) }}</div>
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-green"><i class="fas fa-money-bill-wave"></i></div>
+        <span class="ps-stat-label">{{ t('sd_total_sell') }}</span>
+        <span class="ps-stat-number">${{ "%.2f"|format(total_value) }}</span>
     </div>
-    <div class="info-card card-5">
-        <h3>💎 {{ t('sd_total_profit') }}</h3>
-        <div class="value">${{ "%.2f"|format(total_profit) }}</div>
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-blue"><i class="fas fa-chart-pie"></i></div>
+        <span class="ps-stat-label">{{ t('sd_total_profit') }}</span>
+        <span class="ps-stat-number">${{ "%.2f"|format(total_profit) }}</span>
     </div>
-    <div class="info-card card-6">
-        <h3>📊 {{ t('sd_profit_percent') }}</h3>
-        <div class="value">{{ "%.1f"|format(profit_percentage) }}%</div>
+    <div class="ps-stat-card">
+        <div class="ps-stat-icon ps-icon-cyan"><i class="fas fa-percent"></i></div>
+        <span class="ps-stat-label">{{ t('sd_profit_percent') }}</span>
+        <span class="ps-stat-number">{{ "%.1f"|format(profit_percentage) }}%</span>
     </div>
 </div>
 
-<!-- Mahsulotlar jadvali -->
-<div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #eef0f7; overflow: hidden;">
-    <div style="overflow-x: auto;">
-        <div class="search-container" style="padding: 14px 16px; border-bottom: 1px solid #eef0f7; display: flex; justify-content: flex-start; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="search-input" class="search-box" placeholder="{{ t('sd_search') }}" onkeyup="filterTable()" style="width: 400px; max-width: 100%; border-radius: 10px; padding: 9px 16px; border: 1.5px solid #e5e7eb; font-size: 14px; background: #f9fafb; outline: none;"
-                   onfocus="this.style.borderColor='#4338ca'; this.style.background='white';"
-                   onblur="this.style.borderColor='#e5e7eb'; this.style.background='#f9fafb';">
-            <select id="status-filter" class="filter-select" onchange="handleFilterChange()" style="border-radius: 10px; padding: 9px 14px; border: 1.5px solid #e5e7eb; font-size: 14px; background: #f9fafb; outline: none;">
-                <option value="">{{ t('sd_all_statuses') }}</option>
-                <option value="normal">{{ t('sd_status_enough') }}</option>
-                <option value="low">{{ t('sd_status_low') }}</option>
-                <option value="critical">{{ t('sd_status_out') }}</option>
-            </select>
-            <button onclick="exportToExcel()" style="padding: 11px 22px; background: transparent; color: #059669; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 16px;">
-                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 22px; height: 22px;"> Excel
-            </button>
+<!-- Filter Panel -->
+<div class="ps-filter-panel">
+    <div class="ps-filter-row">
+        <div class="ps-search-box">
+            <i class="fas fa-search ps-search-icon"></i>
+            <input type="text" id="search-input" class="ps-input ps-search-input"
+                   placeholder="{{ t('sd_search') }}" onkeyup="filterTable()">
         </div>
-        
-        <table id="stock-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <select id="status-filter" class="ps-select" onchange="handleFilterChange()">
+            <option value="">{{ t('sd_all_statuses') }}</option>
+            <option value="normal">{{ t('sd_status_enough') }}</option>
+            <option value="low">{{ t('sd_status_low') }}</option>
+            <option value="critical">{{ t('sd_status_out') }}</option>
+        </select>
+        <button onclick="exportToExcel()" class="ps-excel-btn">
+            <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width:18px;height:18px;"> Excel
+        </button>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="ps-table-card">
+    <div class="ps-table-wrap">
+        <table id="stock-table" class="ps-table">
             <thead>
-                <tr style="background-color: #f8f9fa;">
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 90px;">{{ t('sd_th_barcode') }}</th>
-                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">{{ t('sd_th_product') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 80px;">{{ t('sd_th_quantity') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 110px;">{{ t('sd_th_orig_cost') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 100px;">{{ t('sd_th_cost') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 100px;">{{ t('sd_th_sell') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 100px;">{{ t('sd_th_unit_profit') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 90px;">{{ t('sd_th_profit_pct') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 110px;">{{ t('sd_th_status') }}</th>
-                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; width: 230px;">{{ t('sd_th_actions') }}</th>
+                <tr>
+                    <th>{{ t('sd_th_barcode') }}</th>
+                    <th style="text-align:left;">{{ t('sd_th_product') }}</th>
+                    <th>{{ t('sd_th_quantity') }}</th>
+                    <th>{{ t('sd_th_orig_cost') }}</th>
+                    <th>{{ t('sd_th_cost') }}</th>
+                    <th>{{ t('sd_th_sell') }}</th>
+                    <th>{{ t('sd_th_unit_profit') }}</th>
+                    <th>{{ t('sd_th_profit_pct') }}</th>
+                    <th>{{ t('sd_th_status') }}</th>
+                    <th>{{ t('sd_th_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="10" style="text-align: center; color: #666; padding: 2rem;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <td colspan="10" style="text-align:center;color:#94a3b8;padding:2rem;font-style:italic;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+                            <div style="width:20px;height:20px;border:2px solid #f3f3f3;border-top:2px solid #2563eb;border-radius:50%;animation:spin 1s linear infinite;"></div>
                             {{ t('sd_loading') }}
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-
-        <!-- Pagination -->
-        <div id="pagination-container" style="padding: 12px 16px; border-top: 1px solid #eef0f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div id="pagination-info" style="font-weight: 500; color: #6b7280; font-size: 14px;">
-                <!-- Pagination ma'lumotlari bu yerga yuklanadi -->
-            </div>
-            <div id="pagination-buttons" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <!-- Pagination tugmalari bu yerda bo'ladi -->
-            </div>
-        </div>
+    </div>
+    <div class="ps-pagination">
+        <div class="ps-pagination-info" id="pagination-info"></div>
+        <div class="ps-pagination-btns" id="pagination-buttons"></div>
     </div>
 </div>
-{% endblock %}
 
+</div><!-- /.ps-page -->
+{% endblock %}
 {% block extra_js %}
 <!-- SheetJS kutubxonasi Excel eksport uchun -->
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
