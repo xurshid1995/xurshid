@@ -499,10 +499,12 @@
 
     /* Filter row - ikki qatorga bo'linadi */
     .rp-filter-row { flex-direction: column; align-items: stretch; gap: 6px; }
+    /* 1-qator: mijoz 70% + savdo ID 30% */
     .rp-filter-row-top { width: 100%; flex-wrap: nowrap; }
-    .rp-filter-row-top > div { flex: 1; min-width: 0; }
+    .rp-filter-row-top > div { flex: 7; min-width: 0; }
     .rp-filter-row-top > div .rp-filter-input { width: 100% !important; }
-    #saleIdFilterReturn { width: 80px !important; flex: 0 0 80px; }
+    #saleIdFilterReturn { flex: 3 !important; width: auto !important; min-width: 0; }
+    /* 2-qator: dan + gacha teng */
     .rp-filter-row-bottom { width: 100%; flex-wrap: nowrap; }
     #saleDateFrom, #saleDateTo { flex: 1; min-width: 0; width: auto !important; }
     .rp-filter-input { height: 30px; padding: 4px 8px; font-size: 12px; }
