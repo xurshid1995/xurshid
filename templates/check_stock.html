@@ -2,227 +2,158 @@
 
 {% block title %}{{ t('cs_title') }}{% endblock %}
 
-{% block extra_css %}
-<style>
-.page-header {
-    background: #ffffff;
-    color: #000000;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.page-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #000000;
-}
-
-.start-btn {
-    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%) !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 600 !important;
-}
-
-.start-btn:hover {
-    background: linear-gradient(135deg, #ffed4e 0%, #ff9500 100%) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
-}
-
-.card {
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 10px;
-}
-
-.card-header {
-    border-radius: 10px 10px 0 0 !important;
-}
-
-.table-responsive {
-    max-height: 600px;
-    overflow-y: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table tbody td {
-    padding: 15px !important;
-    border-bottom: 1px solid #dee2e6 !important;
-    font-size: 14px !important;
-    color: #333 !important;
-}
-
-.table tbody tr:hover {
-    background: #f8f9fa !important;
-}
-
-/* Header mobilga moslashtirish */
-@media (max-width: 480px) {
-    .page-header {
-        padding: 0.75rem 1rem;
-    }
-    .page-header h2 {
-        font-size: 1.1rem;
-    }
-    .page-header .header-wrapper {
-        flex-direction: column !important;
-        gap: 0.75rem !important;
-    }
-    .page-header .header-controls {
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 0.5rem !important;
-    }
-    .page-header .header-controls select,
-    .page-header .header-controls button {
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    .row.mb-5 {
-        margin-bottom: 1rem !important;
-    }
-}
-</style>
-{% endblock %}
+{% block extra_css %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Sahifa sarlavhasi -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="page-header">
-                <div class="header-wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="margin: 0;"><i class="fas fa-clipboard-check"></i> {{ t('cs_title') }}</h2>
-                    <div class="header-controls" style="display: flex; gap: 1rem; align-items: center;">
-                        <select id="locationSelect" class="form-select" style="background-color: white; border: 1px solid #ced4da; border-radius: 50px; font-size: 1rem; padding: 0.75rem 1rem;">
-                            <option value="">{{ t('cs_select_location') }}</option>
-                        </select>
-                        <button type="button" class="btn btn-light btn-lg start-btn" onclick="startCheck()" style="padding: 0.75rem 2rem; font-weight: 600; white-space: nowrap; border-radius: 50px;">
-                            <i class="fas fa-play me-2"></i>{{ t('cs_start_check') }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="ps-page">
 
-<!-- Joriy tekshiruvlar jadvali -->
-<div class="container-fluid" style="margin-top: 3rem;">
-    <div class="row">
-        <div class="col-12">
-            <h5 style="display: inline-block; margin: 0; font-weight: 600; font-size: 16px; background: #ffffff; color: #000000; padding: 10px 16px; border-radius: 8px 8px 0 0;">{{ t('cs_active_checks') }}</h5>
-            <div class="card" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
-                <div class="card-body" style="padding: 0;">
-                    <div class="table-responsive">
-                        <table class="table table-hover" style="margin-bottom: 0;">
-                            <thead style="background: #8ecfa5; color: white;">
-                                <tr>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_num') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_location') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_user') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_started') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_updated') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_status') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody id="activeSessionsTable">
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">📋</div>
-                                        <div>{{ t('cs_no_active') }}</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Page Header -->
+    <div class="ps-header">
+        <div class="ps-header-left">
+            <h1 class="ps-title"><i class="fas fa-clipboard-check"></i> {{ t('cs_title') }}</h1>
+        </div>
+        <div class="ps-header-right">
+            <select id="locationSelect" style="padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 13px; background: #f8fafc; color: #1e293b; outline: none; min-width: 200px;">
+                <option value="">{{ t('cs_select_location') }}</option>
+            </select>
+            <button type="button" onclick="startCheck()" style="padding: 9px 20px; background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                <i class="fas fa-play"></i> {{ t('cs_start_check') }}
+            </button>
         </div>
     </div>
-</div>
 
-<!-- Tugatilgan tekshiruvlar jadvali -->
-<div class="container-fluid" style="margin-top: 3rem;">
-    <div class="row">
-        <div class="col-12">
-            <h5 style="display: inline-block; margin: 0; font-weight: 600; font-size: 16px; background: #ffffff; color: #000000; padding: 10px 16px; border-radius: 8px 8px 0 0;">{{ t('cs_completed_checks') }}</h5>
-            <div class="card" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
-                <div class="card-body" style="padding: 0;">
-                    <div class="table-responsive">
-                        <table class="table table-hover" style="margin-bottom: 0;">
-                            <thead style="background: #8ac0f5; color: white;">
-                                <tr>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_num') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_location') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_started_user') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_completed_user') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_started_time') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_completed_time') }}</th>
-                                    <th style="text-align: center; padding: 10px 10px;">{{ t('cs_th_actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody id="completedSessionsTable">
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">✅</div>
-                                        <div>{{ t('cs_no_completed') }}</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Pagination -->
-                    <div id="completedPagination" style="display: none; margin-top: 15px; text-align: center;">
-                        <div id="completedPaginationButtons" style="display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center;">
-                            <!-- Pagination tugmalari bu yerga yuklanadi -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Faol tekshiruvlar -->
+    <div class="ps-section-title">{{ t('cs_active_checks') }}</div>
+    <div class="ps-table-card" style="margin-bottom: 24px;">
+        <div class="ps-table-wrap">
+            <table class="ps-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:center; width:50px;">{{ t('cs_th_num') }}</th>
+                        <th>{{ t('cs_th_location') }}</th>
+                        <th>{{ t('cs_th_user') }}</th>
+                        <th>{{ t('cs_th_started') }}</th>
+                        <th>{{ t('cs_th_updated') }}</th>
+                        <th>{{ t('cs_th_status') }}</th>
+                        <th style="text-align:center;">{{ t('cs_th_actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="activeSessionsTable">
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">
+                            <div style="font-size: 40px; margin-bottom: 8px;">📋</div>
+                            <div>{{ t('cs_no_active') }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+
+    <!-- Tugatilgan tekshiruvlar -->
+    <div class="ps-section-title">{{ t('cs_completed_checks') }}</div>
+    <div class="ps-table-card">
+        <div class="ps-table-wrap">
+            <table class="ps-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:center; width:50px;">{{ t('cs_th_num') }}</th>
+                        <th>{{ t('cs_th_location') }}</th>
+                        <th>{{ t('cs_th_started_user') }}</th>
+                        <th>{{ t('cs_th_completed_user') }}</th>
+                        <th>{{ t('cs_th_started_time') }}</th>
+                        <th>{{ t('cs_th_completed_time') }}</th>
+                        <th style="text-align:center;">{{ t('cs_th_actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="completedSessionsTable">
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">
+                            <div style="font-size: 40px; margin-bottom: 8px;">✅</div>
+                            <div>{{ t('cs_no_completed') }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="completedPagination" style="display: none; padding: 16px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <div id="completedPaginationButtons" style="display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center;"></div>
+        </div>
+    </div>
+
 </div>
 
 <style>
+.ps-page {
+    padding: 28px 28px 40px;
+    background: #f5f6fa;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+.ps-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.ps-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
+.ps-title i { color: #4338ca; margin-right: 8px; }
+.ps-header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ps-section-title {
+    font-size: 14px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 10px; margin-top: 4px;
+}
+.ps-table-card {
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
+}
+.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ps-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.ps-table thead tr { background: #f8fafc; }
+.ps-table th {
+    padding: 12px 14px; text-align: left; font-size: 11px;
+    font-weight: 700; color: #64748b; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1.5px solid #e2e8f0; white-space: nowrap;
+}
+.ps-table td {
+    padding: 13px 14px; border-bottom: 1px solid #f1f5f9;
+    color: #334155; vertical-align: middle;
+}
+.ps-table tbody tr:last-child td { border-bottom: none; }
+.ps-table tbody tr:hover td { background: #f8fafc; }
+
+.cs-btn-continue {
+    padding: 6px 14px; background: #2563eb; color: white;
+    border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: background 0.2s;
+}
+.cs-btn-continue:hover { background: #1d4ed8; }
+.cs-btn-view {
+    padding: 6px 14px; background: #0891b2; color: white;
+    border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: background 0.2s; margin-right: 5px;
+}
+.cs-btn-view:hover { background: #0e7490; }
+.cs-btn-delete {
+    padding: 6px 14px; background: #ef4444; color: white;
+    border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: background 0.2s;
+}
+.cs-btn-delete:hover { background: #dc2626; }
+
 .pagination-btn {
-    padding: 8px 12px;
-    border: 1px solid #dee2e6;
-    background: white;
-    color: #333;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: all 0.3s;
+    padding: 7px 12px; border: 1.5px solid #e2e8f0; background: white;
+    color: #475569; cursor: pointer; border-radius: 8px; font-size: 13px;
+    font-weight: 500; transition: all 0.2s;
 }
-
-.pagination-btn:hover:not(.active):not(:disabled) {
-    background: #e9ecef;
-    border-color: #adb5bd;
-}
-
-.pagination-btn.active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.pagination-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.pagination-dots {
-    padding: 8px 12px;
-    color: #6c757d;
-}
+.pagination-btn:hover:not(.active):not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
+.pagination-btn.active { background: #2563eb; color: white; border-color: #2563eb; font-weight: 700; }
+.pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination-dots { padding: 7px 6px; color: #94a3b8; }
 </style>
 
 <script>
@@ -398,7 +329,7 @@ async function loadActiveSessions() {
                     </div>
                 </td>
                 <td style="text-align: center;">
-                    <button class="btn btn-sm btn-primary" onclick="continueSession(${session.id})">
+                    <button class="cs-btn-continue" onclick="continueSession(${session.id})">
                         <i class="fas fa-play"></i> ${CSLANG.continue_btn}
                     </button>
                 </td>
@@ -466,11 +397,11 @@ async function loadCompletedSessions(page = 1) {
                     </div>
                 </td>
                 <td style="text-align: center;">
-                    <button class="btn btn-sm btn-primary" onclick="viewSession(${session.id})" style="margin-right: 5px; padding: 4px 10px; font-size: 12px;">
+                    <button class="cs-btn-view" onclick="viewSession(${session.id})">
                         <i class="fas fa-eye"></i> ${CSLANG.view}
                     </button>
                     ${userRole !== 'sotuvchi' ? `
-                    <button class="btn btn-sm btn-danger" onclick="deleteSession(${session.id})" style="padding: 4px 10px; font-size: 12px;">
+                    <button class="cs-btn-delete" onclick="deleteSession(${session.id})">
                         <i class="fas fa-trash"></i> ${CSLANG.delete_btn}
                     </button>
                     ` : ''}
