@@ -182,14 +182,15 @@
 
 /* Action buttons */
 .btn-action {
-    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-    padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    border: none; cursor: pointer; text-decoration: none; margin: 2px;
-    transition: opacity 0.15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+    padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    border: none; cursor: pointer; text-decoration: none; margin: 1px;
+    transition: opacity 0.15s; white-space: nowrap;
 }
 .btn-action:hover { opacity: 0.85; }
 .btn-action-edit   { background: #2563eb; color: white; }
 .btn-action-delete { background: #ef4444; color: white; }
+.actions { white-space: nowrap; }
 
 /* ── Pagination ── */
 .ps-pagination {
@@ -505,7 +506,7 @@
                       item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ ${SDLANG.status_low}</span>` :
                       `<span style="color: #27ae60; font-weight: bold;">✓ ${SDLANG.status_enough}</span>`}
                 </td>
-                <td class="actions" style="padding: 5px; text-align: center; width: 200px;">
+                <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
                     <a href="/edit_store_stock/${storeId}/${item.stock.product.id}" 
                        class="btn-action btn-action-edit">✏️ ${SDLANG.edit}</a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
