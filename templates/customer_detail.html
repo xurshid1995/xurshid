@@ -227,13 +227,21 @@
 /* Table row group styles */
 .sale-group-start { border-top: 1px solid #e2e8f0; }
 tbody tr.sale-group-start:first-child { border-top: none; }
+.sale-group-start, .sale-group-item { position: relative; }
 .sale-group-start td, .sale-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
 .sale-group-end { border-bottom: 2px solid #cbd5e1 !important; }
-.group-cell { vertical-align: middle !important; text-align: center !important; background: white !important; font-size: 13px !important; font-weight: 400 !important; }
+.group-cell { vertical-align: middle !important; text-align: center !important; background: white !important; font-weight: 600; }
+.group-cell.col-product  { text-align: left !important; }
+.group-cell.col-quantity { text-align: center !important; }
+.group-cell.col-price    { text-align: right !important; }
+.group-cell.col-subtotal { text-align: right !important; }
 .product-cell { font-size: 13px !important; font-weight: 400 !important; }
 .group-location, .group-total, .group-profit, .group-datetime { background: white !important; }
+.group-location { font-size: 12px; color: #374151; text-align: center; }
 .group-actions { background: white !important; padding: 8px 4px !important; }
-.group-actions .btn-action { display: block; width: 100%; margin-bottom: 4px; }
+.group-actions .btn-action { display: block; width: 100%; margin-bottom: 4px; text-align: center; }
+.group-actions .btn-action:last-child { margin-bottom: 0; }
+.warehouse-location { background: transparent !important; padding: 2px 6px !important; border-radius: 4px !important; }
 
 /* Date/Time cells */
 .datetime-info { text-align: center; }
@@ -257,12 +265,16 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Compact mode */
 .compact-mode .compact-hide { display: none !important; }
+.compact-mode .col-product { display: table-cell !important; }
 .compact-mode .ps-table { min-width: auto !important; }
 .compact-mode .ps-table th, .compact-mode .ps-table td {
     white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding: 8px !important;
 }
-.compact-mode .ps-table td.group-datetime {
+.compact-mode .ps-table td.col-datetime {
     white-space: normal !important; overflow: visible !important; text-overflow: unset !important;
+}
+.compact-mode .sale-id-badge, .compact-mode .sale-time {
+    display: inline-block !important; visibility: visible !important; opacity: 1 !important;
 }
 
 /* Responsive */
