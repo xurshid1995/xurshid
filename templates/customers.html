@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block head %}
 {{ super() }}
@@ -11,544 +11,214 @@
 
 {% block extra_css %}
 <style>
-    .customers-container {
-        padding: 20px;
-        min-height: auto;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1.5px solid #ebebf5;
-    }
-
-    .page-header h1 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #0f172a;
-        letter-spacing: -0.3px;
-    }
-
-    .page-header h1 i, .page-header h1 span {
-        color: #4338ca;
-        font-size: 1.3rem;
-    }
-
-    .page-header p {
-        margin: 0.5rem 0 0 0;
-        font-size: 1rem;
-        color: #6b7280;
-    }
-
-    .controls-section {
-        background: white;
-        padding: 20px 24px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        border: 1px solid #eef0f7;
-        display: flex !important;
-        align-items: center !important;
-        flex-wrap: nowrap !important;
-        gap: 0.75rem;
-        justify-content: space-between !important;
-        min-height: 70px;
-        overflow: visible;
-    }
-
-    .search-box {
-        flex: 1 1 auto !important;
-        max-width: 450px !important;
-        min-width: 250px !important;
-        position: relative;
-    }
-
-    .search-box input {
-        width: 100%;
-        padding: 10px 2.5rem 10px 2.5rem;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 14px;
-        background: #f9fafb;
-        color: #1a1f36;
-        transition: all 0.2s ease;
-    }
-
-    .search-box input:focus {
-        border-color: #4338ca;
-        box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
-        outline: none;
-        background: white;
-    }
-
-    .search-box .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        font-size: 1rem;
-    }
-    
-    .search-box .clear-search-btn {
-        position: absolute;
-        right: 0.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        color: #dc3545;
-        border: none;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        cursor: pointer;
-        font-size: 1.1rem;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-    
-    .search-box .clear-search-btn:hover {
-        background: #dc3545;
-        color: white;
-        transform: translateY(-50%) scale(1.15);
-    }
-
-    .add-customer-btn {
-        background: #4338ca;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        display: flex !important;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(67,56,202,0.2);
-        white-space: nowrap !important;
-        border: none;
-        min-width: 140px !important;
-        justify-content: center;
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-    }
-
-    .add-customer-btn:hover {
-        background: #3730a3;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(67,56,202,0.3);
-        text-decoration: none;
-        color: white;
-    }
-
-    /* Inline filtrlari */
-    .inline-filters {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.2rem;
-        flex: 1 1 auto !important;
-        justify-content: flex-start !important;
-        min-width: 0 !important;
-        flex-wrap: nowrap !important;
-    }
-
-    .store-filter-buttons {
-        display: flex !important;
-        gap: 0.6rem;
-        flex-wrap: nowrap !important;
-        align-items: center;
-        justify-content: flex-start;
-        min-width: 0;
-        overflow-x: auto;
-        overflow-y: hidden;
-        max-width: 100%;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .store-filter-buttons::-webkit-scrollbar {
-        display: none;
-    }
-
-    .store-filter-btn {
-        padding: 7px 14px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 20px;
-        background: white;
-        color: #374151;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-
-    .store-filter-btn:hover {
-        border-color: #4338ca;
-        color: #4338ca;
-        background: #eef0fd;
-    }
-
-    .store-filter-btn.active {
-        background: #4338ca;
-        color: white;
-        border-color: #4338ca;
-    }
-
-    .store-filter-btn.active:hover {
-        background: #3730a3;
-        border-color: #3730a3;
-    }
-
-    .customers-table-container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid #eef0f7;
-    }
-
-    .table-info {
-        padding: 16px 20px;
-        background: white;
-        border-bottom: 1px solid #f0f2f5;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .analysis-dropdown {
-        position: relative;
-        display: inline-block;
-    }
-
-    .analysis-btn {
-        background: #4338ca;
-        color: white;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-    }
-
-    .analysis-btn:hover {
-        background: #3730a3;
-    }
-
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        background: white;
-        min-width: 200px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border-radius: 8px;
-        z-index: 1000;
-        margin-top: 0.5rem;
-    }
-
-    .dropdown-content.show {
-        display: block;
-    }
-
-    .dropdown-item {
-        padding: 0.75rem 1rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .dropdown-item:last-child {
-        border-bottom: none;
-    }
-
-    .dropdown-item:hover {
-        background: #f8f9fa;
-    }
-
-    .dropdown-item.active {
-        background: #eef0fd;
-        color: #4338ca;
-        font-weight: 600;
-    }
-
-    .time-filter-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: nowrap;
-    }
-
-    .time-filter-btn {
-        background: white;
-        color: #4338ca;
-        padding: 6px 12px;
-        border: 1.5px solid #4338ca;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .time-filter-btn:hover {
-        background: #eef0fd;
-    }
-
-    .time-filter-btn.active {
-        background: #4338ca;
-        color: white;
-        border-color: #4338ca;
-    }
-
-    .analysis-filter-btn {
-        background: white;
-        color: #f59e0b;
-        padding: 6px 12px;
-        border: 1.5px solid #f59e0b;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .analysis-filter-btn:hover {
-        background: #fffbeb;
-    }
-
-    .analysis-filter-btn.active {
-        background: #f59e0b;
-        color: white;
-        border-color: #f59e0b;
-    }
-
-    .customers-table {
-        width: 100%;
-        min-width: 800px; /* Mijozlar jadvali uchun minimal kenglik */
-        border-collapse: collapse;
-    }
-
-    .customers-table th {
-        background: #546e7a;
-        color: white;
-        padding: 12px 10px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 13px;
-        border: none;
-        border-bottom: 2px solid #455a64;
-        vertical-align: middle;
-    }
-
-    .customers-table th:first-child { border-radius: 8px 0 0 0; }
-    .customers-table th:last-child { border-radius: 0 8px 0 0; }
-
-    .customers-table td {
-        padding: 10px;
-        border: none;
-        border-bottom: 1px solid #f0f2f5;
-        vertical-align: middle;
-        font-size: 14px;
-    }
-
-    .customers-table tr:hover {
-        background-color: #f8f9ff;
-    }
-
-    .store-name {
-        font-weight: 600;
-        color: #4338ca;
-    }
-
-    .customer-name {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .customer-phone {
-        font-family: inherit;
-        color: #495057;
-    }
-
-    .customer-email {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .actions {
-        display: flex;
-        flex-direction: row;
-        gap: 0.3rem;
-        align-items: center;
-        justify-content: center;
-        min-width: 105px;
-    }
-
-    .btn-view, .btn-edit, .btn-delete {
-        padding: 0;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 13px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.18s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 28px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    .btn-view {
-        color: #059669;
-        background: rgba(5,150,105,0.08);
-    }
-
-    .btn-view:hover {
-        background: #059669;
-        color: white;
-        transform: scale(1.1);
-        text-decoration: none;
-    }
-
-    .btn-edit {
-        color: #4338ca;
-        background: rgba(67,56,202,0.08);
-    }
-
-    .btn-edit:hover {
-        background: #4338ca;
-        color: white;
-        transform: scale(1.1);
-        text-decoration: none;
-    }
-
-    .btn-delete {
-        color: #ef4444;
-        background: rgba(239,68,68,0.08);
-    }
-
-    .btn-delete:hover {
-        background: #ef4444;
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .loading-state, .empty-state {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: #6c757d;
-    }
-
-    .loading-state h3, .empty-state h3 {
-        color: #6c757d;
-        margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-        color: #6c757d;
-    }
-
-    /* Responsive - soddalashtirilgan */
-    @media (max-width: 500px) {
-        .controls-section {
-            flex-wrap: wrap;
-            padding: 1rem;
-        }
-        
-        .search-box, 
-        .inline-filters, 
-        .add-customer-btn {
-            flex-basis: 100%;
-        }
-        
-        .customers-table {
-            font-size: 0.9rem;
-        }
-        
-        .actions {
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-    }
-    
-    /* Desktop kichik ekranlar uchun horizontal scroll */
-    @media (min-width: 769px) and (max-width: 1400px) {
-        .customers-table-container {
-            border: 1px solid #dee2e6;
-        }
-        
-        .customers-table {
-            min-width: 1000px; /* Desktop uchun kengrok minimal kenglik */
-        }
-        
-        /* Scroll indicator */
-        .customers-table-container::before {
-            content: "💡 Mijozlar jadvalida ko'proq ma'lumot uchun gorizontal scroll qiling ← →";
-            display: block;
-            text-align: center;
-            font-size: 11px;
-            color: #495057;
-            padding: 6px;
-            background: linear-gradient(90deg, #e3f2fd 0%, #f3e5f5 50%, #e8f5e8 100%);
-            border-bottom: 1px solid #dee2e6;
-            font-weight: 500;
-        }
-    }
-    
-    /* 480px dan kichik ekranlar uchun */
-    @media (max-width: 480px) {
-        .customers-container {
-            padding: 0.5rem;
-        }
-        
-        .page-header {
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.8rem;
-        }
-        
-        .customers-table {
-            min-width: 600px; /* Mobile uchun minimal kenglik */
-            font-size: 0.8rem;
-        }
-        
-        .customers-table th,
-        .customers-table td {
-            padding: 0.5rem 0.3rem;
-            white-space: nowrap;
-        }
-    }
+/* ====================================================
+   MIJOZLAR SAHIFASI - PS DIZAYN
+   ==================================================== */
+.ps-page {
+    padding: 28px 28px 40px;
+    background: #f5f6fa;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+.ps-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.ps-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.ps-title i { color: #4338ca; margin-right: 8px; }
+.ps-header-right { display: flex; align-items: center; gap: 12px; }
+.ps-add-btn {
+    background: #4338ca;
+    color: white;
+    padding: 9px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(67,56,202,0.2);
+    white-space: nowrap;
+}
+.ps-add-btn:hover {
+    background: #3730a3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(67,56,202,0.3);
+    text-decoration: none;
+    color: white;
+}
+.ps-filter-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.ps-filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ps-filter-row + .ps-filter-row { margin-top: 12px; }
+.ps-search-box { position: relative; flex: 0 0 300px; }
+.ps-search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #94a3b8; font-size: 14px; pointer-events: none;
+}
+.ps-input {
+    padding: 9px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.ps-input:focus { border-color: #4338ca; box-shadow: 0 0 0 3px rgba(67,56,202,0.1); background: white; }
+.ps-search-input { padding-left: 40px !important; padding-right: 36px !important; }
+.ps-clear-btn {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #94a3b8; cursor: pointer;
+    padding: 4px; border-radius: 50%; transition: all 0.15s;
+}
+.ps-clear-btn:hover { background: #f1f5f9; color: #475569; }
+.ps-count-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #6aa3ff;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+.store-filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.store-filter-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.store-filter-btn:hover { border-color: #4338ca; color: #4338ca; background: #eef0fd; }
+.store-filter-btn.active { background: #4338ca; color: white; border-color: #4338ca; }
+.store-filter-btn.active:hover { background: #3730a3; border-color: #3730a3; }
+.time-filter-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    color: #4338ca;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.time-filter-btn:hover { background: #eef0fd; border-color: #4338ca; }
+.time-filter-btn.active { background: #4338ca; color: white; border-color: #4338ca; }
+.analysis-filter-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #fde68a;
+    border-radius: 10px;
+    background: white;
+    color: #d97706;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.analysis-filter-btn:hover { background: #fffbeb; border-color: #d97706; }
+.analysis-filter-btn.active { background: #d97706; color: white; border-color: #d97706; }
+.ps-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.customers-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.customers-table thead tr { background: #1a6eff; }
+.customers-table th {
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1a6eff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    border-bottom: 1px solid #1558d6;
+    white-space: nowrap;
+}
+.customers-table td {
+    padding: 11px 10px;
+    font-size: 13px;
+    color: #374151;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    text-align: center;
+}
+.customers-table tbody tr:hover { background: #f8faff; }
+.customers-table tbody tr:last-child td { border-bottom: none; }
+.store-name { font-weight: 600; color: #4338ca; }
+.customer-name { font-weight: 600; color: #1e293b; }
+.customer-phone { color: #495057; }
+.actions {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+.btn-view, .btn-edit, .btn-delete {
+    padding: 0;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 28px;
+}
+.btn-view   { color: #059669; background: rgba(5,150,105,0.08); }
+.btn-view:hover   { background: #059669; color: white; transform: scale(1.1); text-decoration: none; }
+.btn-edit   { color: #2563eb; background: rgba(37,99,235,0.08); }
+.btn-edit:hover   { background: #2563eb; color: white; transform: scale(1.1); text-decoration: none; }
+.btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+.btn-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
+.ps-state-msg {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+    font-size: 15px;
+}
 
     /* Modal Styles */
     .delete-modal {
@@ -704,7 +374,7 @@
 
 {% block content %}
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="delete-modal">
+<div id="deleteModal" class="delete-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
     <div class="modal-content">
         <div class="modal-header">
             <i class="fas fa-exclamation-triangle"></i>
@@ -713,7 +383,7 @@
         <div class="modal-body">
             <p><strong>{{ t('delete') }}:</strong></p>
             <div class="customer-name-highlight" id="modalCustomerName"></div>
-            <p style="color: #e74c3c; font-weight: bold;">⚠️ Bu amal qaytarib bo'lmaydi!</p>
+            <p style="color: #e74c3c; font-weight: bold;">âš ï¸ Bu amal qaytarib bo'lmaydi!</p>
             <p>{{ t('header_customer_name') }}:</p>
             
             <div class="modal-input-group">
@@ -729,104 +399,89 @@
         </div>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
-                ❌ {{ t('btn_cancel_payment') }}
+                âŒ {{ t('btn_cancel_payment') }}
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn" disabled>
-                🗑️ {{ t('btn_delete_item') }}
+                ğŸ—‘ï¸ {{ t('btn_delete_item') }}
             </button>
         </div>
     </div>
 </div>
 
-<div class="customers-container">
-    <!-- Sahifa sarlavhasi -->
-    <!-- Boshqaruv paneli -->
-    <div class="controls-section">
-        <div class="inline-filters">
+<div class="ps-page">
+
+    <!-- Header -->
+    <div class="ps-header">
+        <div class="ps-header-left">
+            <h1 class="ps-title"><i class="fas fa-users"></i> {{ t('customers') }}</h1>
+        </div>
+        <div class="ps-header-right">
+            <a href="/add-customer" class="ps-add-btn">
+                <i class="fas fa-plus"></i> {{ t('add_customer') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="ps-filter-panel">
+        <!-- 1-qator: Dokon filtrlari -->
+        <div class="ps-filter-row">
             <div class="store-filter-buttons">
                 <button class="store-filter-btn active" onclick="filterByStore('')" id="allStoresBtn">
-                    📊 {{ t('btn_all_stores') }}
+                    <i class="fas fa-store"></i> {{ t('btn_all_stores') }}
                 </button>
-                <div id="storeFilterButtons">
-                    <!-- Dokon tugmalari bu yerga yuklanadi -->
-                </div>
+                <div id="storeFilterButtons" style="display:contents;"></div>
             </div>
         </div>
-        
-        <a href="/add-customer" class="add-customer-btn">
-            <span>➕</span>
-            {{ t('add_customer') }}
-        </a>
-    </div>
-
-    <!-- Jadval container -->
-    <div class="table-responsive">
-        <div class="customers-table-container">
-        <!-- Ma'lumot ko'rsatuvchisi -->
-        <div class="table-info">
-            <div style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap;">
-                <div class="search-box" style="flex: 1 1 auto; max-width: 450px; min-width: 250px;">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="customerSearch" placeholder="{{ t('customer_search') }}" oninput="searchCustomers()">
-                    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">❌</button>
-                </div>
-                <span id="resultsInfo">{{ t('loading') }}</span>
-                <div class="time-filter-buttons">
-                    <button class="time-filter-btn" onclick="filterByTime('today')">{{ t('today') }}</button>
-                    <button class="time-filter-btn" onclick="filterByTime('week')">{{ t('this_week') }}</button>
-                    <button class="time-filter-btn" onclick="filterByTime('month')">{{ t('this_month') }}</button>
-                    <button class="time-filter-btn" onclick="filterByTime('year')">{{ t('this_year') }}</button>
-                </div>
-                <div class="time-filter-buttons">
-                    <button class="analysis-filter-btn" onclick="filterByAnalysis('count')">{{ t('sales_count_label') }}</button>
-                    <button class="analysis-filter-btn" onclick="filterByAnalysis('sum')">{{ t('sales_amount_label') }}</button>
-                    {% if session.role != 'sotuvchi' %}
-                    <button class="analysis-filter-btn" onclick="filterByAnalysis('profit')">{{ t('total_profit_label') }}</button>
-                    {% endif %}
-                </div>
+        <!-- 2-qator: Qidiruv + filtrlar -->
+        <div class="ps-filter-row">
+            <div class="ps-search-box">
+                <i class="fas fa-search ps-search-icon"></i>
+                <input type="text" id="customerSearch" placeholder="{{ t('customer_search') }}"
+                       oninput="searchCustomers()" class="ps-input ps-search-input">
+                <button class="ps-clear-btn" id="clearSearchBtn" onclick="clearSearch()" style="display:none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <span id="resultsInfo"></span>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="time-filter-btn" onclick="filterByTime('today')">{{ t('today') }}</button>
+                <button class="time-filter-btn" onclick="filterByTime('week')">{{ t('this_week') }}</button>
+                <button class="time-filter-btn" onclick="filterByTime('month')">{{ t('this_month') }}</button>
+                <button class="time-filter-btn" onclick="filterByTime('year')">{{ t('this_year') }}</button>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="analysis-filter-btn" onclick="filterByAnalysis('count')">{{ t('sales_count_label') }}</button>
+                <button class="analysis-filter-btn" onclick="filterByAnalysis('sum')">{{ t('sales_amount_label') }}</button>
+                {% if session.role != 'sotuvchi' %}
+                <button class="analysis-filter-btn" onclick="filterByAnalysis('profit')">{{ t('total_profit_label') }}</button>
+                {% endif %}
             </div>
         </div>
+    </div>
 
-        <!-- Loading holati -->
-        <div id="loadingState" class="loading-state">
-            <h3>⏳ {{ t('loading') }}...</h3>
-            <p>{{ t('customers_loading_msg') }}</p>
-        </div>
-
-        <!-- Bo'sh holat -->
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <h3>📭 {{ t('no_customers_found') }}</h3>
-            <p>{{ t('no_customer_data') }}</p>
-        </div>
-
-        <!-- Mijozlar jadvali -->
-        <table class="customers-table" id="customersTable" style="display: none;">
-            <colgroup>
-                <col>
-                <col>
-                <col style="width: 85px;">
-                <col style="width: 140px;">
-                <col style="min-width: 260px;">
-                <col>
-                <col style="width: 105px;">
-            </colgroup>
-            <thead>
-                <tr>
-                    <th><span class="emoji">🏪</span>{{ t('header_store') }}</th>
-                    <th><span class="emoji">👤</span>{{ t('header_customer_name') }}</th>
-                    <th><span class="emoji">📅</span>{{ t('header_added_date') }}</th>
-                    <th><span class="emoji">📞</span>{{ t('header_phone') }}</th>
-                    <th><span class="emoji">📊</span>{{ t('sales_history') }}</th>
-                    <th><span class="emoji">📅</span>{{ t('header_last_sale') }}</th>
-                    <th><span class="emoji">⚙️</span>{{ t('actions') }}</th>
-                </tr>
-            </thead>
-            <tbody id="customersTableBody">
-                <!-- Mijozlar ma'lumotlari bu yerga yuklanadi -->
-            </tbody>
-        </table>
+    <!-- Table Card -->
+    <div class="ps-table-card">
+        <div id="loadingState" class="ps-state-msg"><i class="fas fa-spinner fa-spin"></i> {{ t('loading') }}...</div>
+        <div id="emptyState" class="ps-state-msg" style="display: none;"><i class="fas fa-inbox"></i> {{ t('no_customers_found') }}</div>
+        <div class="ps-table-wrap">
+            <table class="customers-table" id="customersTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>{{ t('header_store') }}</th>
+                        <th>{{ t('header_customer_name') }}</th>
+                        <th>{{ t('header_added_date') }}</th>
+                        <th>{{ t('header_phone') }}</th>
+                        <th>{{ t('sales_history') }}</th>
+                        <th>{{ t('header_last_sale') }}</th>
+                        <th>{{ t('actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="customersTableBody"></tbody>
+            </table>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -866,9 +521,9 @@
     // Mijozlarni yuklash
     async function loadCustomers() {
         try {
-            console.log('🔍 Mijozlarni yuklayapti... currentTimeFilter:', currentTimeFilter);
+            console.log('ğŸ” Mijozlarni yuklayapti... currentTimeFilter:', currentTimeFilter);
             const url = `/api/customers?time_filter=${currentTimeFilter}`;
-            console.log('📡 API URL:', url);
+            console.log('ğŸ“¡ API URL:', url);
             const response = await fetch(url);
             
             if (!response.ok) {
@@ -942,9 +597,9 @@
                         <td class="customer-phone">${customer.phone || '-'}</td>
                         <td class="customer-email">
                             <div style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 4px; align-items: center;">
-                                <span style="font-size: 0.82rem; background: #eef0fd; color: #4338ca; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">🔢 ${CSLANG.count}: <strong>${customer.total_sales || 0}</strong></span>
-                                <span style="font-size: 0.82rem; background: #fff7ed; color: #d97706; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">💰 ${CSLANG.amount}: <strong>$${customer.total_amount ? parseFloat(customer.total_amount).toFixed(2) : '0.00'}</strong></span>
-                                ${userRole !== 'sotuvchi' ? `<span style="font-size: 0.82rem; background: #f0fdf4; color: #059669; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">📊 ${CSLANG.profit}: <strong>$${customer.total_profit ? parseFloat(customer.total_profit).toFixed(2) : '0.00'}</strong></span>` : ''}
+                                <span style="font-size: 0.82rem; background: #eef0fd; color: #4338ca; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">ğŸ”¢ ${CSLANG.count}: <strong>${customer.total_sales || 0}</strong></span>
+                                <span style="font-size: 0.82rem; background: #fff7ed; color: #d97706; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">ğŸ’° ${CSLANG.amount}: <strong>$${customer.total_amount ? parseFloat(customer.total_amount).toFixed(2) : '0.00'}</strong></span>
+                                ${userRole !== 'sotuvchi' ? `<span style="font-size: 0.82rem; background: #f0fdf4; color: #059669; border-radius: 6px; padding: 2px 7px; white-space: nowrap;">ğŸ“Š ${CSLANG.profit}: <strong>$${customer.total_profit ? parseFloat(customer.total_profit).toFixed(2) : '0.00'}</strong></span>` : ''}
                             </div>
                         </td>
                         <td>${customer.last_sale_date || '-'}</td>
@@ -959,7 +614,7 @@
 
             tableBody.innerHTML = tableHtml;
             document.getElementById('resultsInfo').innerHTML = 
-                `<span class="badge" style="background-color: #4CAF50; color: white; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 500;">${filteredCustomers.length} ${CSLANG.customers_count}</span>`;
+                `<span class="ps-count-badge">${filteredCustomers.length} ${CSLANG.customers_count}</span>`;
         }
     }
 
@@ -1060,7 +715,7 @@
             button.className = 'store-filter-btn';
             button.setAttribute('data-store-id', store.id.toString());
             button.onclick = () => filterByStore(store.id.toString());
-            button.innerHTML = `🏪 ${store.name}`;
+            button.innerHTML = `ğŸª ${store.name}`;
             storeButtonsContainer.appendChild(button);
         });
     }
@@ -1083,11 +738,11 @@
     function deleteCustomer(customerId, customerName) {
         // Faqat admin o'chira oladi
         if (userRole !== 'admin') {
-            alert('⚠️ Mijozni o\'chirish uchun admin huquqi kerak!');
+            alert('âš ï¸ Mijozni o\'chirish uchun admin huquqi kerak!');
             return;
         }
         
-        console.log('🎯 YANGI deleteCustomer FUNKSIYASI CHAQIRILDI!');
+        console.log('ğŸ¯ YANGI deleteCustomer FUNKSIYASI CHAQIRILDI!');
         console.log('O\'chirish funksiyasi chaqirildi:', customerId, customerName);
         
         currentCustomerId = customerId;
@@ -1100,7 +755,7 @@
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         
         if (!modal) {
-            console.error('❌ Modal topilmadi!');
+            console.error('âŒ Modal topilmadi!');
             alert('Xatolik: Modal oyna topilmadi!');
             return;
         }
@@ -1111,8 +766,8 @@
         confirmBtn.classList.remove('enabled');
         confirmInput.classList.remove('error');
         
-        modal.classList.add('active');
-        console.log('✅ Modal ochildi, active class qo\'shildi');
+        modal.style.display = 'flex';
+        console.log('✅ Modal ochildi');
         
         // Input'ga fokus - darhol va qaytadan
         confirmInput.focus();
@@ -1125,7 +780,7 @@
     // Close delete modal
     function closeDeleteModal() {
         const modal = document.getElementById('deleteModal');
-        modal.classList.remove('active');
+        modal.style.display = 'none';
         currentCustomerId = null;
         currentCustomerName = null;
     }
@@ -1185,7 +840,7 @@
         // Tugmani o'chirish
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '⏳ O\'chirilmoqda...';
+        confirmBtn.textContent = 'â³ O\'chirilmoqda...';
         
         fetch(`/api/customers/${currentCustomerId}`, {
             method: 'DELETE',
@@ -1205,14 +860,14 @@
             } else {
                 alert('Xatolik yuz berdi! Mijozni o\'chirib bo\'lmadi.');
                 confirmBtn.disabled = false;
-                confirmBtn.textContent = '🗑️ O\'chirish';
+                confirmBtn.textContent = 'ğŸ—‘ï¸ O\'chirish';
             }
         })
         .catch(error => {
             console.error('Fetch xatosi:', error);
             alert('Aloqa xatosi! Qaytadan urinib ko\'ring.');
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '🗑️ O\'chirish';
+            confirmBtn.textContent = 'ğŸ—‘ï¸ O\'chirish';
         });
     }
 
@@ -1220,7 +875,7 @@
     function showError(message) {
         const loadingState = document.getElementById('loadingState');
         loadingState.innerHTML = `
-            <h3 style="color: #e74c3c;">❌ Xatolik</h3>
+            <h3 style="color: #e74c3c;">âŒ Xatolik</h3>
             <p>${message}</p>
         `;
     }
