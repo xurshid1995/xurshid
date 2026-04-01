@@ -408,6 +408,59 @@
     </div>
 </div>
 
+<!-- Add Customer Modal -->
+<div id="addCustomerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:9998; align-items:center; justify-content:center; backdrop-filter:blur(2px);">
+    <div style="background:white; border-radius:16px; padding:30px; width:90%; max-width:520px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:slideDown 0.25s ease;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; padding-bottom:14px; border-bottom:1px solid #e9ecef;">
+            <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;"><i class="fas fa-user-plus" style="color:#1a6eff; margin-right:8px;"></i> {{ t('heading_add_customer') }}</h3>
+            <button onclick="closeAddCustomerModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94a3b8; line-height:1; padding:4px;">&times;</button>
+        </div>
+
+        <div id="acModalError" style="display:none; background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:13px;"></div>
+        <div id="acModalSuccess" style="display:none; background:#d4edda; border:1px solid #c3e6cb; color:#155724; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:13px;"></div>
+
+        <form id="addCustomerModalForm" onsubmit="submitAddCustomerModal(event)">
+            <div style="margin-bottom:16px;">
+                <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">{{ t('customer_name_label') }} <span style="color:#e74c3c;">*</span></label>
+                <input type="text" id="acm_name" name="name" required
+                    style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; transition:border 0.2s;"
+                    onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">{{ t('phone_number_label') }}</label>
+                <input type="tel" id="acm_phone" name="phone" placeholder="+998(99) 406-47-49" maxlength="18"
+                    style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; transition:border 0.2s;"
+                    onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'"
+                    oninput="formatAcmPhone(this)">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">{{ t('email_label') }}</label>
+                <input type="email" id="acm_email" name="email" placeholder="{{ t('placeholder_email') }}"
+                    style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; transition:border 0.2s;"
+                    onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">{{ t('address_label') }}</label>
+                <textarea id="acm_address" name="address" rows="2" placeholder="{{ t('placeholder_address') }}"
+                    style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; resize:vertical; transition:border 0.2s;"
+                    onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+            </div>
+            <div style="margin-bottom:22px;">
+                <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">{{ t('label_store_required') }} <span style="color:#e74c3c;">*</span></label>
+                <select id="acm_store_id" name="store_id" required
+                    style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; background:#f8fafc; transition:border 0.2s;"
+                    onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'">
+                    <option value="">{{ t('placeholder_select_store') }}</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" onclick="closeAddCustomerModal()" style="flex:1; padding:11px; background:#f1f5f9; color:#374151; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">❌ {{ t('btn_cancel') }}</button>
+                <button type="submit" id="acmSubmitBtn" style="flex:2; padding:11px; background:linear-gradient(135deg,#1a6eff,#4f46e5); color:white; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;"><i class="fas fa-user-plus"></i> {{ t('btn_add_customer') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="ps-page">
 
     <!-- Header -->
@@ -416,9 +469,9 @@
             <h1 class="ps-title"><i class="fas fa-users"></i> {{ t('customers') }}</h1>
         </div>
         <div class="ps-header-right">
-            <a href="/add-customer" class="ps-add-btn">
+            <button onclick="openAddCustomerModal()" class="ps-add-btn">
                 <i class="fas fa-plus"></i> {{ t('add_customer') }}
-            </a>
+            </button>
         </div>
     </div>
 
@@ -954,6 +1007,98 @@
 
     // Vaqt oralig'ini hisoblash - ENDI BACKEND'DA ISHLATILADI
 
+    // ==================== ADD CUSTOMER MODAL ====================
+    function openAddCustomerModal() {
+        const modal = document.getElementById('addCustomerModal');
+        document.getElementById('addCustomerModalForm').reset();
+        document.getElementById('acModalError').style.display = 'none';
+        document.getElementById('acModalSuccess').style.display = 'none';
+        // Do'konlarni yuklash
+        const sel = document.getElementById('acm_store_id');
+        sel.innerHTML = '<option value="">{{ t("placeholder_select_store") }}</option>';
+        allStores.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s.id; o.textContent = s.name;
+            sel.appendChild(o);
+        });
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('acm_name').focus(), 100);
+    }
 
+    function closeAddCustomerModal() {
+        document.getElementById('addCustomerModal').style.display = 'none';
+    }
+
+    document.getElementById('addCustomerModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAddCustomerModal();
+    });
+
+    function formatAcmPhone(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 12) value = value.substring(0, 12);
+        if (value.length > 0 && !value.startsWith('998')) {
+            if (value.startsWith('9')) value = '998' + value;
+            else if (value.length >= 9) value = '998' + value.substring(0, 9);
+        }
+        if (value.length >= 3) {
+            let f = '+' + value.substring(0, 3);
+            if (value.length > 3) {
+                f += '(' + value.substring(3, 5);
+                if (value.length > 5) {
+                    f += ') ' + value.substring(5, 8);
+                    if (value.length > 8) {
+                        f += '-' + value.substring(8, 10);
+                        if (value.length > 10) f += '-' + value.substring(10, 12);
+                    }
+                }
+            }
+            input.value = f;
+        }
+    }
+
+    async function submitAddCustomerModal(event) {
+        event.preventDefault();
+        const phone = document.getElementById('acm_phone').value;
+        if (phone && phone.trim() !== '' && phone.length !== 18) {
+            document.getElementById('acModalError').textContent = '{{ t("phone_format_error") }}';
+            document.getElementById('acModalError').style.display = 'block';
+            return;
+        }
+        const btn = document.getElementById('acmSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '⏳ {{ t("adding") }}';
+        document.getElementById('acModalError').style.display = 'none';
+        try {
+            const res = await fetch('/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('acm_name').value,
+                    phone: document.getElementById('acm_phone').value,
+                    email: document.getElementById('acm_email').value,
+                    address: document.getElementById('acm_address').value,
+                    store_id: document.getElementById('acm_store_id').value
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('acModalSuccess').textContent = '✅ {{ t("customer_added_success") }}';
+                document.getElementById('acModalSuccess').style.display = 'block';
+                setTimeout(() => {
+                    closeAddCustomerModal();
+                    loadCustomers();
+                }, 1200);
+            } else {
+                document.getElementById('acModalError').textContent = (data.error || '{{ t("error_prefix") }}');
+                document.getElementById('acModalError').style.display = 'block';
+            }
+        } catch(e) {
+            document.getElementById('acModalError').textContent = e.message;
+            document.getElementById('acModalError').style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> {{ t("btn_add_customer") }}';
+        }
+    }
 </script>
 {% endblock %}
