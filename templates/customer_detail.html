@@ -736,6 +736,7 @@ let userRole = '';
 let currentSaleData = null;
 let allCustomerOrders = [];
 let allSalesOrders = [];
+let originalSalesOrders = [];
 
 // SaleItem dan joylashuv nomini olish funksiyasi
 function getLocationName(item) {
@@ -771,6 +772,7 @@ function loadCustomerOrders(customerId) {
             document.getElementById('loadingSales').style.display = 'none';
             
             if (data.success && data.orders && data.orders.length > 0) {
+                originalSalesOrders = data.orders;
                 displayOrders(data.orders);
                 updateStats(data.orders);
                 document.getElementById('noSalesMessage').style.display = 'none';
@@ -1555,24 +1557,26 @@ function filterCustomerOrders() {
     const searchTerm = document.getElementById('customerSearchInput').value.toLowerCase();
     const dateFrom = document.getElementById('customerDateFromFilter').value;
     const dateTo = document.getElementById('customerDateToFilter').value;
-    
-    let filteredOrders = allCustomerOrders.filter(order => {
-        // Qidiruv filtri
-        const matchesSearch = !searchTerm || 
-            order.product_name.toLowerCase().includes(searchTerm) ||
-            order.location_name.toLowerCase().includes(searchTerm) ||
-            order.created_at.toLowerCase().includes(searchTerm);
-        
-        // Sana filtri
-        const orderDate = new Date(order.created_at).toISOString().split('T')[0];
-        const matchesDateFrom = !dateFrom || orderDate >= dateFrom;
-        const matchesDateTo = !dateTo || orderDate <= dateTo;
-        
-        return matchesSearch && matchesDateFrom && matchesDateTo;
+
+    let filteredOrders = originalSalesOrders.filter(sale => {
+        // Sana filtri (YYYY-MM-DD formatida solishtirish)
+        const saleDate = new Date(sale.sale_date).toISOString().split('T')[0];
+        const matchesDateFrom = !dateFrom || saleDate >= dateFrom;
+        const matchesDateTo = !dateTo || saleDate <= dateTo;
+
+        // Qidiruv filtri — mahsulot nomi, joylashuv, sana
+        const matchesSearch = !searchTerm ||
+            (sale.location_name || '').toLowerCase().includes(searchTerm) ||
+            new Date(sale.sale_date).toLocaleString('uz-UZ').toLowerCase().includes(searchTerm) ||
+            (sale.items || []).some(item =>
+                (item.product_name || '').toLowerCase().includes(searchTerm)
+            );
+
+        return matchesDateFrom && matchesDateTo && matchesSearch;
     });
-    
-    displayCustomerOrders(filteredOrders);
-    updateCustomerResultsInfo(filteredOrders.length, allCustomerOrders.length);
+
+    displayOrders(filteredOrders);
+    updateCustomerResultsInfo(filteredOrders.length, originalSalesOrders.length);
 }
 
 function updateCustomerResultsInfo(filteredCount, totalCount) {
