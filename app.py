@@ -9232,16 +9232,6 @@ def delete_customer(customer_id):
         return jsonify({'error': f'Xatolik: {str(e)}'}), 500
 
 
-@app.route('/add_customer')
-def add_customer_page():
-    return render_template('add_customer.html')
-
-
-@app.route('/edit-customer/<int:customer_id>')
-def edit_customer_page(customer_id):
-    return render_template('edit_customer.html')
-
-
 @app.route('/api/customers/<int:customer_id>', methods=['PUT'])
 def update_customer(customer_id):
     try:
