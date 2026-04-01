@@ -127,12 +127,17 @@
 
         #hosting-widget .hw-panel {
             display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 10px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             padding: 20px;
-            min-width: 280px;
-            margin-bottom: 10px;
+            width: 300px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 99998;
             animation: hw-fadeIn 0.3s ease;
         }
         #hosting-widget .hw-panel.show { display: block; }
@@ -268,8 +273,11 @@
 
         @media (max-width: 480px) {
             #hosting-widget .hw-panel {
-                min-width: 250px;
+                right: 5px;
+                left: 5px;
+                width: auto;
                 padding: 15px;
+                bottom: 75px;
             }
             #hosting-widget .hw-toggle {
                 cursor: grab;
