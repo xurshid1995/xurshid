@@ -9038,6 +9038,13 @@ def get_customers():
         logger.debug(f" Returning {len(result)} customers with sales data")
         print(f"📊 Jami {len(result)} ta mijoz qaytarilmoqda")
 
+        # Oxirgi savdo sanasiga ko'ra tartiblash (yangi savdo tepada, savdosizlar pastda)
+        from datetime import datetime as _dt
+        result.sort(
+            key=lambda x: _dt.strptime(x['last_sale_date'], '%d.%m.%Y') if x.get('last_sale_date') else _dt.min,
+            reverse=True
+        )
+
         return jsonify(result)
     except Exception as e:
         app.logger.error(f"Error fetching customers: {str(e)}")
