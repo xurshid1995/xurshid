@@ -90,6 +90,16 @@
 }
 .ps-clear-btn:hover { background: #f1f5f9; color: #475569; }
 
+/* Excel button */
+.ps-excel-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px; background: transparent;
+    color: #059669; border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.ps-excel-btn:hover { background: #f0fdf4; }
+
 /* Filter toggle buttons */
 .filter-tab-group { display: flex; gap: 6px; flex-wrap: wrap; }
 .filter-tab {
@@ -268,6 +278,9 @@
                 <input type="text" id="searchInput" placeholder="{{ t('csv_search') }}" class="ps-input ps-search-input">
                 <button id="clearSearchBtn" class="ps-clear-btn" style="display:none;"><i class="fas fa-times"></i></button>
             </div>
+            <button onclick="exportToExcel()" class="ps-excel-btn">
+                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width:18px;height:18px;"> Excel
+            </button>
             <div class="filter-tab-group">
                 <button onclick="filterProducts('all')" id="filterAll" class="filter-tab active-all">
                     <i class="fas fa-th-list"></i> {{ t('csv_filter_all') }} <span id="allCount" class="tab-count">0</span>
@@ -313,6 +326,9 @@
     </div>
 
 </div>
+
+<!-- SheetJS kutubxonasi Excel eksport uchun -->
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
 const CSVLANG = {
@@ -429,6 +445,39 @@ function filterAndDisplay() {
     document.getElementById('errorCount').textContent = allProducts.filter(p => p.difference !== 0 && p.difference !== null).length;
 
     displayTable(filtered);
+}
+
+function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        alert('❌ Excel kutubxonasi yuklanmadi');
+        return;
+    }
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const words = q ? q.split(/\s+/) : [];
+    let data = [...allProducts];
+    if (currentFilter === 'checked')        data = data.filter(p => p.status !== 'unchecked');
+    else if (currentFilter === 'unchecked') data = data.filter(p => p.status === 'unchecked');
+    else if (currentFilter === 'error')     data = data.filter(p => p.difference !== 0 && p.difference !== null);
+    if (words.length) data = data.filter(p => words.every(w => (p.name + ' ' + (p.barcode || '')).toLowerCase().includes(w)));
+
+    const rows = data.map((p, i) => ({
+        '№': i + 1,
+        'Mahsulot nomi': p.name,
+        'Narx ($)': p.price ? parseFloat(p.price).toFixed(2) : '',
+        'Tizimda': p.system_quantity ?? 0,
+        'Haqiqiy': p.actual_quantity !== null ? p.actual_quantity : '',
+        'Farq': p.difference !== null ? p.difference : '',
+        'Holat': p.status === 'unchecked' ? CSVLANG.status_unchecked :
+                 p.difference > 0 ? CSVLANG.status_excess :
+                 p.difference < 0 ? CSVLANG.status_deficit : CSVLANG.status_normal
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [5, 35, 12, 12, 12, 10, 16].map(w => ({wch: w}));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tekshiruv');
+    const date = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `tekshiruv_{{ check_session.id }}_${date}.xlsx`);
 }
 
 function displayTable(products) {
