@@ -261,7 +261,7 @@
     <div class="ps-stat-card">
         <div class="ps-stat-icon ps-icon-purple"><i class="fas fa-boxes"></i></div>
         <span class="ps-stat-label">{{ t('sd_product_types') }}</span>
-        <span class="ps-stat-number">{{ total_products }}</span>
+        <span class="ps-stat-number">{{ "{:,}".format(total_products)|replace(",", " ") }}</span>
     </div>
     <div class="ps-stat-card">
         <div class="ps-stat-icon ps-icon-slate"><i class="fas fa-layer-group"></i></div>
