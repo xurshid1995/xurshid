@@ -167,43 +167,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
 }
 .profit-display { display: none; }
 
-/* History */
-.ap-history {
-    background: white; border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
-}
-.ap-history-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px; border-bottom: 1px solid #f1f5f9; background: #fafbfc;
-}
-.ap-history-title { font-size: 14px; font-weight: 700; color: #1e293b; }
-.ap-history-title i { color: #2563eb; margin-right: 8px; }
-.ap-btn-refresh {
-    padding: 7px 13px; background: #2563eb; color: white;
-    border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
-}
-.ap-btn-refresh:hover { background: #1d4ed8; }
-.ap-btn-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.history-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.history-table {
-    width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13px;
-}
-.history-table thead tr { background: #1a6eff; }
-.history-table th {
-    padding: 11px 10px; color: white;
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    text-align: left; white-space: nowrap;
-}
-.history-table td {
-    padding: 9px 10px; border-bottom: 1px solid #f1f5f9;
-    color: #374151; font-size: 13px; vertical-align: middle;
-}
-.history-table tbody tr:hover td { background: #f8faff; }
-.history-table tbody tr:last-child td { border-bottom: none; }
-
 @media (max-width: 1100px) { .ap-grid { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
     .ap-page { padding: 12px; }
@@ -393,35 +356,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
         </div>
     </div>
 
-    <!-- Mahsulotlar Tarixi -->
-    <div class="ap-history">
-        <div class="ap-history-header">
-            <span class="ap-history-title"><i class="fas fa-history"></i> {{ t('ap_history_title') }}</span>
-            <button type="button" onclick="refreshHistory()" class="ap-btn-refresh" id="refreshHistoryBtn">
-                🔄 {{ t('ap_refresh') }}
-            </button>
-        </div>
-        <div id="historyLoading" style="text-align:center; padding:24px; color:#94a3b8;">
-            <p>{{ t('ap_history_loading') }}</p>
-        </div>
-        <div class="history-table-container" id="historyTableContainer" style="display:none;">
-            <table class="history-table" id="productHistoryTable">
-                <thead>
-                    <tr>
-                        <th>{{ t('ap_th_date') }}</th>
-                        <th>{{ t('ap_th_location') }}</th>
-                        <th>{{ t('ap_th_product') }}</th>
-                        <th style="text-align:center;">{{ t('ap_th_quantity') }}</th>
-                        <th style="text-align:right;">{{ t('ap_th_cost_price') }}</th>
-                        <th style="text-align:right;">{{ t('ap_th_sell_price') }}</th>
-                        <th style="text-align:right;">{{ t('ap_th_total_value') }}</th>
-                        <th style="text-align:center;">{{ t('ap_th_added_by') }}</th>
-                    </tr>
-                </thead>
-                <tbody id="productHistoryBody"></tbody>
-            </table>
-        </div>
-    </div>
 </div>
     <!-- SheetJS kutubxonasi Excel fayllarni o'qish uchun -->
     <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js" 
@@ -2125,8 +2059,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     deletePendingBatch();
                     tempProducts = [];
                     updateTempList();
-                    // Tarixni avtomatik yangilash
-                    refreshHistory();
                 } else {
                     alert(data.error || APLANG.save_error);
                 }
@@ -2399,101 +2331,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 });
         }
 
-        // Mahsulot tarixini yuklash
-        async function loadProductHistory() {
-            try {
-                const response = await fetch('/api/products/history?limit=50');
-                const data = await response.json();
-                
-                if (data.success && data.history) {
-                    displayProductHistory(data.history);
-                    document.getElementById('historyLoading').style.display = 'none';
-                    document.getElementById('historyTableContainer').style.display = 'block';
-                } else {
-                    document.getElementById('historyLoading').innerHTML = '<p style="color: #6c757d;">📝 Hech qanday tarix mavjud emas</p>';
-                }
-            } catch (error) {
-                console.error('Tarix yuklashda xatolik:', error);
-                document.getElementById('historyLoading').innerHTML = '<p style="color: #dc3545;">❌ Tarix yuklashda xatolik yuz berdi</p>';
-            }
-        }
-
-        // Tarixni ko'rsatish
-        function displayProductHistory(history) {
-            const tbody = document.getElementById('productHistoryBody');
-            tbody.innerHTML = '';
-            
-            if (!history || history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #6c757d; padding: 2rem;">📝 Hech qanday mahsulot qo\'shilmagan</td></tr>';
-                return;
-            }
-            
-            history.forEach(product => {
-                const row = document.createElement('tr');
-                
-                // Sanani formatlash
-                const date = product.created_date ? new Date(product.created_date) : new Date();
-                const formattedDate = date.toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
-                
-                // Joylashuvlarni formatlash
-                const locations = product.locations.map(loc => 
-                    `${loc.name} (${loc.quantity} ta)`
-                ).join(', ') || 'Hech qayerda';
-                
-                // Narxlarni formatlash
-                const formattedCostPrice = product.cost_price.toLocaleString('uz-UZ');
-                const formattedSellPrice = product.sell_price.toLocaleString('uz-UZ');
-                const formattedTotalValue = product.total_value.toLocaleString('uz-UZ');
-                
-                // Kim qo'shdi
-                const addedBy = product.added_by || 'Noma\'lum';
-                
-                row.innerHTML = `
-                    <td style="font-size: 0.85rem;">${formattedDate}</td>
-                    <td style="font-size: 0.85rem; color: #6c757d;">${locations}</td>
-                    <td style="font-weight: 600; color: #2c3e50;">${product.name}</td>
-                    <td style="text-align: center; font-weight: 600;">${product.total_quantity} ta</td>
-                    <td style="text-align: right; color: #dc3545;">$${formattedCostPrice}</td>
-                    <td style="text-align: right; color: #28a745;">$${formattedSellPrice}</td>
-                    <td style="text-align: right; font-weight: 600; color: #007bff;">$${formattedTotalValue}</td>
-                    <td style="text-align: center; color: #6c757d; font-size: 0.85rem;">👤 ${addedBy}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        // Tarixni yangilash
-        async function refreshHistory() {
-            const refreshBtn = document.getElementById('refreshHistoryBtn');
-            const originalText = refreshBtn.innerHTML;
-            
-            try {
-                refreshBtn.innerHTML = '⏳ Yangilanmoqda...';
-                refreshBtn.disabled = true;
-                
-                document.getElementById('historyLoading').style.display = 'block';
-                document.getElementById('historyTableContainer').style.display = 'none';
-                document.getElementById('historyLoading').innerHTML = '<p style="color: #6c757d;">🔄 Yangilanmoqda...</p>';
-                
-                await loadProductHistory();
-                
-            } catch (error) {
-                console.error('Tarix yangilashda xatolik:', error);
-            } finally {
-                refreshBtn.innerHTML = originalText;
-                refreshBtn.disabled = false;
-            }
-        }
-
         // Sahifa yuklanganda
         document.addEventListener('DOMContentLoaded', function() {
-            // Pending batch ni URL dan yuklash
             loadPendingBatchFromUrl();
-            // Biroz kechiktirib tarixni yuklash (asosiy content yuklangandan keyin)
-            setTimeout(() => {
-                loadProductHistory();
-            }, 1000);
         });
     </script>
 {% endblock %}
