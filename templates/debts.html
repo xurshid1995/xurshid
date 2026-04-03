@@ -187,8 +187,8 @@
     z-index: 1000; justify-content: center; align-items: center;
 }
 .modal-content {
-    background: white; border-radius: 16px;
-    width: 95%; max-width: 1200px; max-height: 90vh;
+    background: #f5f6fa; border-radius: 16px;
+    width: 95%; max-width: 700px; max-height: 90vh;
     overflow-y: auto; overflow-x: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
@@ -207,87 +207,71 @@
     justify-content: center; transition: all 0.2s;
 }
 .modal-close:hover { background: rgba(239,68,68,0.8); }
-.modal-body { padding: 20px; }
+.modal-body { padding: 16px; }
 
-/* Modal customer info */
+/* Modal customer bar */
 .mdl-customer-bar {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
-    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    border-radius: 14px; padding: 14px 20px; margin-bottom: 14px;
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.3);
 }
-.mdl-customer-bar .mdl-cinfo {
-    color: white; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;
-}
-.mdl-customer-bar .mdl-cname {
-    color: white; font-size: 16px; font-weight: 700; width: 100%; margin-bottom: 4px;
-}
+.mdl-cname { color: white; font-size: 16px; font-weight: 700; width: 100%; }
+.mdl-cinfo { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
 
-/* Modal debt amount badge */
-.mdl-amount-badge {
-    background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px;
-    padding: 12px 18px; margin-bottom: 16px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+/* Payment card inside modal */
+.mdl-payment-card {
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 18px 20px; margin-bottom: 14px;
 }
-.mdl-amount-label { font-size: 13px; color: #64748b; font-weight: 500; }
-.mdl-amount-value { font-size: 22px; font-weight: 800; color: #dc2626; }
-
-/* Modal payment rows */
-.mdl-pay-section { margin-bottom: 16px; }
-.mdl-pay-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
-.mdl-pay-row {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 12px; background: #f8fafc; border-radius: 12px;
-    border: 1.5px solid #e2e8f0; margin-bottom: 8px;
+.mdl-payment-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
 }
+.mdl-payment-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; }
+.mdl-payment-title i { color: #1a6eff; margin-right: 6px; }
+.mdl-debt-badge {
+    background: #eff6ff; border: 1.5px solid #bfdbfe;
+    border-left: 4px solid #1a6eff; border-radius: 10px;
+    padding: 7px 14px; display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #475569;
+}
+.mdl-debt-badge strong { color: #dc2626; font-size: 17px; font-weight: 700; }
+.mdl-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.mdl-payment-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .mdl-pay-label {
-    font-size: 13px; font-weight: 600; color: #374151;
-    min-width: 90px; flex-shrink: 0;
+    font-weight: 600; color: #374151; font-size: 13px;
+    min-width: 76px; max-width: 76px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
 }
-.mdl-input-wrap {
-    flex: 1; display: flex; align-items: center; gap: 4px;
-    background: white; border: 1.5px solid #e2e8f0; border-radius: 8px;
-    padding: 0 8px; min-width: 0;
+.mdl-pay-field { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; }
+.mdl-currency-sign { font-weight: 700; color: #64748b; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+.mdl-pay-input {
+    flex: 1; padding: 6px 7px; border: 1.5px solid #e2e8f0; border-radius: 7px;
+    font-size: 13px; background: #f8fafc; color: #1e293b; outline: none;
+    transition: all 0.2s; min-width: 0; width: 100%; box-sizing: border-box;
 }
-.mdl-input-wrap:focus-within { border-color: #1a6eff; }
-.mdl-currency { font-size: 12px; font-weight: 700; color: #94a3b8; white-space: nowrap; }
-.mdl-currency.usd { color: #16a34a; }
-.mdl-input-wrap input {
-    border: none; outline: none; background: transparent;
-    padding: 7px 4px; font-size: 13px; width: 100%; min-width: 0;
-}
+.mdl-pay-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
 .mdl-btn-plus {
-    flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px;
-    background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1a6eff;
-    font-size: 16px; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    padding: 5px 9px; background: #1a6eff; color: white; border: none;
+    border-radius: 7px; cursor: pointer; font-size: 14px; font-weight: 700;
+    line-height: 1; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
 }
-.mdl-btn-plus:hover { background: #1a6eff; color: white; border-color: #1a6eff; }
+.mdl-btn-plus:hover { background: #1558d6; }
+.mdl-btn-submit {
+    width: 100%; padding: 10px; background: #16a34a; color: white;
+    border: none; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 700; transition: background 0.2s;
+}
+.mdl-btn-submit:hover { background: #15803d; }
 
-.customer-info {
-    background: #f8fafc; padding: 16px; border-radius: 12px;
-    margin-bottom: 0; border: 1px solid #f1f5f9;
-}
-.customer-info h3 { margin: 0 0 12px 0; font-size: 15px; color: #1e293b; }
-.customer-info p { margin: 4px 0; font-size: 13px; color: #64748b; }
-.payment-section {
-    background: #f8fafc; padding: 16px; border-radius: 12px;
-    margin-bottom: 0; border: 1px solid #f1f5f9; display: flex; flex-direction: column;
-}
-.payment-section h3 { margin: 0 0 12px 0; font-size: 15px; color: #1e293b; }
-.payment-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 .btn-cancel {
     padding: 10px 20px; background: #f1f5f9; color: #64748b;
     border: none; border-radius: 8px; cursor: pointer;
     font-size: 14px; font-weight: 500; transition: all 0.2s;
 }
 .btn-cancel:hover { background: #e2e8f0; }
-.btn-confirm {
-    padding: 10px 20px; background: #059669; color: white;
-    border: none; border-radius: 8px; cursor: pointer;
-    font-size: 14px; font-weight: 600; transition: background 0.2s;
-}
-.btn-confirm:hover { background: #047857; }
 
 /* Reminder modal */
 .reminder-modal-overlay {
@@ -496,7 +480,7 @@
 <div id="debtModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>📋 {{ t('debt_info') }}</h2>
+            <h2><i class="fas fa-credit-card"></i> {{ t('debt_info') }}</h2>
             <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -507,80 +491,78 @@
                 <div class="mdl-cinfo"><i class="fas fa-map-marker-alt"></i> <span id="modalCustomerAddress">-</span></div>
             </div>
 
-            <!-- Qarz miqdori -->
-            <div class="mdl-amount-badge">
-                <span class="mdl-amount-label">💰 {{ t('debt_amount_label') }}</span>
-                <span class="mdl-amount-value" id="paymentAmount">$0.00</span>
-            </div>
-
-            <!-- To'lov bo'limi -->
-            <div class="mdl-pay-section">
-                <div class="mdl-pay-title">💳 {{ t('payment_types_title') }}</div>
-
-                <div class="mdl-pay-row">
-                    <span class="mdl-pay-label">💵 {{ t('label_cash') }}</span>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency usd">$</span>
-                        <input type="number" id="modalPaymentCashUSD" step="0.01" placeholder="0.00">
+            <!-- To'lov qilish -->
+            <div class="mdl-payment-card">
+                <div class="mdl-payment-header">
+                    <h2 class="mdl-payment-title"><i class="fas fa-credit-card"></i> {{ t('debt_payment_make') }}</h2>
+                    <div class="mdl-debt-badge">
+                        <span>{{ t('debt_amount_label') }}</span>
+                        <strong id="paymentAmount">$0.00</strong>
                     </div>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency">UZS</span>
-                        <input type="number" id="modalPaymentCashUZS" step="1" placeholder="0">
-                    </div>
-                    <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentCashUSD')" title="{{ t('btn_remaining') }}">+</button>
                 </div>
-
-                <div class="mdl-pay-row">
-                    <span class="mdl-pay-label">📱 {{ t('label_click') }}</span>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency usd">$</span>
-                        <input type="number" id="modalPaymentClickUSD" step="0.01" placeholder="0.00">
+                <div class="mdl-payment-rows">
+                    <div class="mdl-payment-row">
+                        <span class="mdl-pay-label">💵 {{ t('label_cash') }}</span>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">$</span>
+                            <input type="number" id="modalPaymentCashUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
+                        </div>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">UZS</span>
+                            <input type="number" id="modalPaymentCashUZS" step="1" placeholder="0" class="mdl-pay-input">
+                        </div>
+                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentCashUSD')" title="+ {{ t('btn_remaining') }}">+</button>
                     </div>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency">UZS</span>
-                        <input type="number" id="modalPaymentClickUZS" step="1" placeholder="0">
+                    <div class="mdl-payment-row">
+                        <span class="mdl-pay-label">📱 {{ t('label_click') }}</span>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">$</span>
+                            <input type="number" id="modalPaymentClickUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
+                        </div>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">UZS</span>
+                            <input type="number" id="modalPaymentClickUZS" step="1" placeholder="0" class="mdl-pay-input">
+                        </div>
+                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentClickUSD')" title="+ {{ t('btn_remaining') }}">+</button>
                     </div>
-                    <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentClickUSD')" title="{{ t('btn_remaining') }}">+</button>
+                    <div class="mdl-payment-row">
+                        <span class="mdl-pay-label">🏧 {{ t('label_terminal') }}</span>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">$</span>
+                            <input type="number" id="modalPaymentTerminalUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
+                        </div>
+                        <div class="mdl-pay-field">
+                            <span class="mdl-currency-sign">UZS</span>
+                            <input type="number" id="modalPaymentTerminalUZS" step="1" placeholder="0" class="mdl-pay-input">
+                        </div>
+                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentTerminalUSD')" title="+ {{ t('btn_remaining') }}">+</button>
+                    </div>
                 </div>
-
-                <div class="mdl-pay-row">
-                    <span class="mdl-pay-label">🏧 {{ t('label_terminal') }}</span>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency usd">$</span>
-                        <input type="number" id="modalPaymentTerminalUSD" step="0.01" placeholder="0.00">
-                    </div>
-                    <div class="mdl-input-wrap">
-                        <span class="mdl-currency">UZS</span>
-                        <input type="number" id="modalPaymentTerminalUZS" step="1" placeholder="0">
-                    </div>
-                    <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentTerminalUSD')" title="{{ t('btn_remaining') }}">+</button>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn-cancel" onclick="closeModal()" style="flex:1;">❌ {{ t('btn_cancel_payment') }}</button>
+                    <button class="mdl-btn-submit" onclick="confirmPayment()" style="flex:2;">✅ {{ t('btn_confirm_payment') }}</button>
                 </div>
-            </div>
-
-            <div class="payment-actions">
-                <button class="btn-cancel" onclick="closeModal()">❌ {{ t('btn_cancel_payment') }}</button>
-                <button class="btn-confirm" onclick="confirmPayment()">✅ {{ t('btn_confirm_payment') }}</button>
             </div>
 
             <!-- Qarzlar tarixi -->
-            <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:20px 0 10px;">📜 {{ t('debt_history_title') }}</h3>
-            <table class="debt-history-table">
-                <thead>
-                    <tr>
-                        <th>📅 {{ t('header_date') }}</th>
-                        <th>🛒 {{ t('header_sale_no') }}</th>
-                        <th>💵 {{ t('header_amount') }}</th>
-                        <th>✅ {{ t('header_paid') }}</th>
-                        <th>📊 {{ t('header_remaining') }}</th>
-                        <th>🏷️ {{ t('header_status') }}</th>
-                    </tr>
-                </thead>
-                <tbody id="debtHistoryBody">
-                    <tr>
-                        <td colspan="6" class="no-data">{{ t('no_data_short') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="mdl-payment-card">
+                <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:0 0 12px;">📜 {{ t('debt_history_title') }}</h3>
+                <table class="debt-history-table">
+                    <thead>
+                        <tr>
+                            <th>📅 {{ t('header_date') }}</th>
+                            <th>🛒 {{ t('header_sale_no') }}</th>
+                            <th>💵 {{ t('header_amount') }}</th>
+                            <th>✅ {{ t('header_paid') }}</th>
+                            <th>📊 {{ t('header_remaining') }}</th>
+                            <th>🏷️ {{ t('header_status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debtHistoryBody">
+                        <tr><td colspan="6" class="no-data">{{ t('no_data_short') }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
