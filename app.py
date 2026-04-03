@@ -3365,13 +3365,13 @@ def print_barcode():
 @app.route('/transfer')
 @role_required('admin', 'kassir', 'sotuvchi')
 def transfer():
-    return render_template('transfer1.html')
-
-
-@app.route('/transfer_old')
-@role_required('admin', 'kassir', 'sotuvchi')
-def transfer_old():
     return render_template('transfer.html')
+
+
+@app.route('/transfer_session')
+@role_required('admin', 'kassir', 'sotuvchi')
+def transfer_session():
+    return render_template('transfer_session.html')
 
 
 @app.route('/return-product')
