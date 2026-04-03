@@ -19,9 +19,9 @@
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
                     <div id="timeFilters" class="db-time-filters">
-                        <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
-                        <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
-                        <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
+                        <button class="db-tf-btn db-tf-btn-wide {% if dashboard_default_period == 'today' %}active{% endif %}" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
+                        <button class="db-tf-btn {% if dashboard_default_period == 'week' %}active{% endif %}" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
+                        <button class="db-tf-btn {% if dashboard_default_period == 'month' %}active{% endif %}" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
                     </div>
                 </div>
                 <div class="db-location-row">

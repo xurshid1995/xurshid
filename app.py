@@ -13412,10 +13412,11 @@ def get_settings():
     try:
         # Standart sozlamalar
         default_settings = {
-            'stock_check_visible': True,  # Sotuvchi uchun qoldiq tekshirish sahifasi ko'rinadimi
+            'stock_check_visible': True,
             'auto_currency_update': False,
             'auto_backup': False,
-            'default_reminder_time': '10:00'  # Qarz eslatma default vaqti
+            'default_reminder_time': '10:00',
+            'dashboard_default_period': 'today'
         }
 
         # Bazadan sozlamalarni olish
@@ -13554,7 +13555,12 @@ def dashboard():
     # Current user ma'lumotlarini olish
     current_user = get_current_user()
 
-    return render_template('dashboard.html', current_user=current_user)
+    # Dashboard default period sozlamasini olish
+    period_setting = Settings.query.filter_by(key='dashboard_default_period').first()
+    dashboard_default_period = period_setting.value if period_setting else 'today'
+
+    return render_template('dashboard.html', current_user=current_user,
+                           dashboard_default_period=dashboard_default_period)
 
 
 # =======================================================

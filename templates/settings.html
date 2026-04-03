@@ -234,6 +234,30 @@
         margin-top: 8px;
     }
 
+    /* Period selector */
+    .period-options {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .period-option {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+        padding: 9px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        background: #f8fafc;
+        transition: all 0.18s;
+        user-select: none;
+    }
+    .period-option:hover { border-color: #1a6eff; color: #1a6eff; background: #eff6ff; }
+    .period-option.selected { border-color: #1a6eff; color: #fff; background: #1a6eff; }
+
     /* Warning note */
     .note-box {
         background: #fffbeb;
@@ -378,6 +402,25 @@
             </div>
         </div>
 
+        <!-- Dashboard default davri -->
+        <div class="setting-card">
+            <div class="setting-card-header">
+                <div class="setting-icon green"><i class="fas fa-chart-bar"></i></div>
+                <div class="setting-card-meta">
+                    <p class="card-title">Dashboard default davri</p>
+                    <p class="card-desc">Dashboard ochilganda standart ko'rinuvchi vaqt oralig'i</p>
+                </div>
+            </div>
+            <div class="setting-card-body">
+                <div class="period-options">
+                    <div class="period-option" data-period="today" onclick="selectPeriod(this)">Bugun</div>
+                    <div class="period-option" data-period="week" onclick="selectPeriod(this)">Bu hafta</div>
+                    <div class="period-option" data-period="month" onclick="selectPeriod(this)">Bu oy</div>
+                </div>
+                <p style="font-size:12px; color:#94a3b8; margin-top:10px;">Tanlangan: <strong id="selectedPeriodLabel">Bugun</strong></p>
+            </div>
+        </div>
+
     </div><!-- /settings-grid -->
 </div><!-- /ps-page -->
 
@@ -503,7 +546,8 @@
         let settings = {
             stock_check_visible: false,
             auto_backup: false,
-            default_reminder_time: '10:00'
+            default_reminder_time: '10:00',
+            dashboard_default_period: 'today'
         };
 
         // Sozlamalarni serverdan olish
@@ -568,6 +612,25 @@
             const reminderCurrent = document.getElementById('reminderTimeCurrent');
             if (reminderInput) reminderInput.value = reminderTime;
             if (reminderCurrent) reminderCurrent.textContent = reminderTime;
+
+            // Dashboard default period
+            const period = settings.dashboard_default_period || 'today';
+            const periodLabels = { today: 'Bugun', week: 'Bu hafta', month: 'Bu oy' };
+            document.querySelectorAll('.period-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.period === period);
+            });
+            const lbl = document.getElementById('selectedPeriodLabel');
+            if (lbl) lbl.textContent = periodLabels[period] || period;
+        }
+
+        // Period tanlash
+        function selectPeriod(el) {
+            document.querySelectorAll('.period-option').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            settings.dashboard_default_period = el.dataset.period;
+            const labels = { today: 'Bugun', week: 'Bu hafta', month: 'Bu oy' };
+            const lbl = document.getElementById('selectedPeriodLabel');
+            if (lbl) lbl.textContent = labels[el.dataset.period] || el.dataset.period;
         }
 
         // Toggle funksiyasi
@@ -604,6 +667,12 @@
                 const reminderInput = document.getElementById('defaultReminderTime');
                 if (reminderInput && reminderInput.value) {
                     settings.default_reminder_time = reminderInput.value;
+                }
+
+                // dashboard_default_period ni olish
+                const activePeriodEl = document.querySelector('.period-option.selected');
+                if (activePeriodEl) {
+                    settings.dashboard_default_period = activePeriodEl.dataset.period;
                 }
 
                 // Keyin boshqa sozlamalarni saqlash (language kalitisiz!)
