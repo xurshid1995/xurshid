@@ -367,6 +367,8 @@
                 </div>
                 <button class="dbt-sort-btn" id="sortHighDebt" onclick="sortDebtsByAmount('desc')">📈 Ko'p qarzli</button>
                 <button class="dbt-sort-btn" id="sortLowDebt" onclick="sortDebtsByAmount('asc')">📉 Kam qarzli</button>
+                <button class="dbt-sort-btn dbt-due-btn" id="filterDueSoon" onclick="filterByDueDate('soon')">⏰ Muddati kelgan</button>
+                <button class="dbt-sort-btn dbt-due-btn" id="filterOverdue" onclick="filterByDueDate('overdue')">🔴 Muddati o'tgan</button>
             </div>
             <div class="dbt-table-container">
                 <table class="debts-table">
@@ -680,6 +682,7 @@
     let debts = [];
     let allDebts = [];
     let debtSortOrder = null;
+    let debtDueFilter = null;
     let allPaidDebts = [];
     let currentCustomerId = null;
     let exchangeRate = 13000;
@@ -770,10 +773,22 @@
     // Qarzlarni qidirish
     function applyDebtFilters() {
         const searchTerm = document.getElementById('debtSearchInput').value.toLowerCase().trim();
+        const today = new Date(); today.setHours(0,0,0,0);
+        const in3Days = new Date(today); in3Days.setDate(today.getDate() + 3);
+
         let filtered = allDebts.filter(debt => {
             const name = (debt.customer_name || '').toLowerCase();
             const phone = (debt.customer_phone || '').toLowerCase();
-            return name.includes(searchTerm) || phone.includes(searchTerm);
+            if (searchTerm && !name.includes(searchTerm) && !phone.includes(searchTerm)) return false;
+            if (debtDueFilter && debt.remaining_debt > 0) {
+                if (!debt.nearest_due_date) return false;
+                const due = new Date(debt.nearest_due_date); due.setHours(0,0,0,0);
+                if (debtDueFilter === 'overdue') return due < today;
+                if (debtDueFilter === 'soon') return due >= today && due <= in3Days;
+            } else if (debtDueFilter) {
+                return false;
+            }
+            return true;
         });
         if (debtSortOrder === 'desc') {
             filtered.sort((a, b) => (b.remaining_debt || 0) - (a.remaining_debt || 0));
@@ -797,6 +812,19 @@
             debtSortOrder = order;
             document.getElementById('sortHighDebt').classList.toggle('active', order === 'desc');
             document.getElementById('sortLowDebt').classList.toggle('active', order === 'asc');
+        }
+        applyDebtFilters();
+    }
+
+    function filterByDueDate(type) {
+        if (debtDueFilter === type) {
+            debtDueFilter = null;
+            document.getElementById('filterDueSoon').classList.remove('active');
+            document.getElementById('filterOverdue').classList.remove('active');
+        } else {
+            debtDueFilter = type;
+            document.getElementById('filterDueSoon').classList.toggle('active', type === 'soon');
+            document.getElementById('filterOverdue').classList.toggle('active', type === 'overdue');
         }
         applyDebtFilters();
     }
