@@ -314,28 +314,6 @@
             </div>
         </div>
 
-        <!-- Valyuta sozlamalari -->
-        <div class="setting-card">
-            <div class="setting-card-header">
-                <div class="setting-icon amber"><i class="fas fa-dollar-sign"></i></div>
-                <div class="setting-card-meta">
-                    <p class="card-title">{{ t('label_currency_settings') }}</p>
-                    <p class="card-desc">{{ t('description_auto_currency') }}</p>
-                </div>
-            </div>
-            <div class="setting-card-body">
-                <div class="toggle-row">
-                    <span class="toggle-label-text">{{ t('label_currency_settings') }}</span>
-                    <div class="toggle-wrap">
-                        <div class="toggle-switch" id="currencyToggle" onclick="toggleSetting('auto_currency_update')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                        <span class="toggle-status" id="currencyLabel">{{ t('status_off') }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Avtomatik zaxira -->
         <div class="setting-card">
             <div class="setting-card-header">
@@ -524,7 +502,6 @@
         // Sozlamalar obyekti
         let settings = {
             stock_check_visible: false,
-            auto_currency_update: false,
             auto_backup: false,
             default_reminder_time: '10:00'
         };
@@ -572,17 +549,6 @@
             } else {
                 stockToggle.classList.remove('active');
                 stockLabel.textContent = SLANG.status_hidden;
-            }
-
-            // Currency toggle
-            const currencyToggle = document.getElementById('currencyToggle');
-            const currencyLabel = document.getElementById('currencyLabel');
-            if (settings.auto_currency_update) {
-                currencyToggle.classList.add('active');
-                currencyLabel.textContent = SLANG.status_enabled;
-            } else {
-                currencyToggle.classList.remove('active');
-                currencyLabel.textContent = SLANG.status_off;
             }
 
             // Backup toggle
