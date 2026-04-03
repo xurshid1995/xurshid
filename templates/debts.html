@@ -219,52 +219,48 @@
 .mdl-cname { color: white; font-size: 16px; font-weight: 700; width: 100%; }
 .mdl-cinfo { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
 
-/* Payment card inside modal */
-.mdl-payment-card {
-    background: white; border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 18px 20px; margin-bottom: 14px;
-}
-.mdl-payment-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
-}
-.mdl-payment-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; }
-.mdl-payment-title i { color: #1a6eff; margin-right: 6px; }
-.mdl-debt-badge {
-    background: #eff6ff; border: 1.5px solid #bfdbfe;
-    border-left: 4px solid #1a6eff; border-radius: 10px;
-    padding: 7px 14px; display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: #475569;
-}
-.mdl-debt-badge strong { color: #dc2626; font-size: 17px; font-weight: 700; }
-.mdl-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.mdl-payment-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
-.mdl-pay-label {
-    font-weight: 600; color: #374151; font-size: 13px;
-    min-width: 76px; max-width: 76px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
-}
-.mdl-pay-field { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; }
-.mdl-currency-sign { font-weight: 700; color: #64748b; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
-.mdl-pay-input {
-    flex: 1; padding: 6px 7px; border: 1.5px solid #e2e8f0; border-radius: 7px;
-    font-size: 13px; background: #f8fafc; color: #1e293b; outline: none;
-    transition: all 0.2s; min-width: 0; width: 100%; box-sizing: border-box;
-}
-.mdl-pay-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
-.mdl-btn-plus {
-    padding: 5px 9px; background: #1a6eff; color: white; border: none;
-    border-radius: 7px; cursor: pointer; font-size: 14px; font-weight: 700;
-    line-height: 1; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
-}
-.mdl-btn-plus:hover { background: #1558d6; }
-.mdl-btn-submit {
-    width: 100%; padding: 10px; background: #16a34a; color: white;
-    border: none; border-radius: 10px; cursor: pointer;
-    font-size: 14px; font-weight: 700; transition: background 0.2s;
-}
-.mdl-btn-submit:hover { background: #15803d; }
+/* Stat cards (modal) */
+.ps-stats { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.ps-stat-card { background: white; border-radius: 16px; padding: 20px 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+.ps-stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.ps-stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.ps-icon-blue { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+.ps-icon-red  { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
+.ps-stat-body { display: flex; flex-direction: column; gap: 4px; }
+.ps-stat-number { font-size: 1.6rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
+.ps-stat-label  { font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Payment card */
+.ps-payment-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 20px 22px; }
+.ps-payment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.ps-payment-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; }
+.ps-payment-title i { color: #1a6eff; margin-right: 6px; }
+.ps-debt-badge { background: #eff6ff; border: 1.5px solid #bfdbfe; border-left: 4px solid #1a6eff; border-radius: 10px; padding: 7px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; }
+.ps-debt-badge strong { color: #dc2626; font-size: 17px; font-weight: 700; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ps-payment-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.ps-pay-label { font-weight: 600; color: #374151; font-size: 13px; min-width: 76px; max-width: 76px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.ps-pay-field { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; }
+.ps-currency-sign { font-weight: 700; color: #64748b; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+.ps-pay-input { flex: 1; padding: 5px 6px; border: 1.5px solid #e2e8f0; border-radius: 7px; font-size: 13px; background: #f8fafc; color: #1e293b; outline: none; transition: all 0.2s; min-width: 0; width: 100%; box-sizing: border-box; }
+.ps-pay-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
+.ps-btn-remaining { padding: 5px 9px; background: #1a6eff; color: white; border: none; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 700; line-height: 1; white-space: nowrap; transition: background 0.2s; flex-shrink: 0; }
+.ps-btn-remaining:hover { background: #1558d6; }
+.ps-btn-submit { width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 700; transition: background 0.2s; }
+.ps-btn-submit:hover { background: #15803d; }
+
+/* History table card */
+.ps-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; margin-top: 14px; }
+.ps-table-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; }
+.ps-table-card-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: #1e293b; }
+.ps-table-card-header h3 i { color: #1a6eff; margin-right: 6px; }
+.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ps-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ps-table thead tr { background: #1a6eff; }
+.ps-table th { padding: 11px 12px; text-align: center; font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px; border: none; white-space: nowrap; }
+.ps-table td { padding: 9px 12px; font-size: 13px; color: #374151; border: none; border-bottom: 1px solid #f1f5f9; vertical-align: middle; text-align: center; }
+.ps-table tbody tr:hover { background: #f8faff; }
+.ps-table tbody tr:last-child td { border-bottom: none; }
 
 .btn-cancel {
     padding: 10px 20px; background: #f1f5f9; color: #64748b;
@@ -342,10 +338,11 @@
     .modal-content { width: 100%; max-width: 100%; height: 100%; max-height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column; }
     .modal-header { position: sticky; top: 0; flex-shrink: 0; }
     .modal-body { overflow-y: auto; flex: 1; }
-    .modal-body > div[style*="display: flex"] { flex-direction: column !important; gap: 12px !important; }
-    .modal-body > div[style*="display: flex"] > div { flex: 1 1 100% !important; max-width: 100% !important; min-width: 100% !important; }
-    .payment-actions { flex-direction: column; position: sticky; bottom: 0; background: white; padding: 12px 0 0; border-top: 1px solid #f1f5f9; }
-    .btn-cancel, .btn-confirm { width: 100%; padding: 14px; font-size: 15px; border-radius: 8px; }
+    .ps-stats { grid-template-columns: 1fr 1fr; }
+    .ps-payment-row { flex-wrap: wrap; }
+    .ps-pay-label { min-width: 62px; max-width: 62px; font-size: 12px; }
+    .ps-payment-header { flex-direction: column; align-items: flex-start; }
+    .btn-cancel, .ps-btn-submit { font-size: 14px; }
     .debts-table { min-width: 700px; font-size: 12px; }
     .action-buttons { gap: 4px; }
     .btn-view, .btn-pay, .btn-sms { width: 28px; height: 28px; font-size: 13px; }
@@ -484,84 +481,111 @@
             <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <!-- Mijoz ma'lumotlari -->
+            <!-- Mijoz ma'lumotlari (purple bar) -->
             <div class="mdl-customer-bar">
                 <div class="mdl-cname" id="modalCustomerName">-</div>
                 <div class="mdl-cinfo"><i class="fas fa-phone"></i> <span id="modalCustomerPhone">-</span></div>
                 <div class="mdl-cinfo"><i class="fas fa-map-marker-alt"></i> <span id="modalCustomerAddress">-</span></div>
             </div>
 
-            <!-- To'lov qilish -->
-            <div class="mdl-payment-card">
-                <div class="mdl-payment-header">
-                    <h2 class="mdl-payment-title"><i class="fas fa-credit-card"></i> {{ t('debt_payment_make') }}</h2>
-                    <div class="mdl-debt-badge">
-                        <span>{{ t('debt_amount_label') }}</span>
-                        <strong id="paymentAmount">$0.00</strong>
+            <!-- Statistika + To'lov yonma-yon -->
+            <div style="display:flex;gap:16px;margin-bottom:14px;align-items:flex-start;flex-wrap:wrap;">
+
+                <!-- Statistika kartolari -->
+                <div class="ps-stats" style="flex:1 1 0;min-width:180px;">
+                    <div class="ps-stat-card">
+                        <div class="ps-stat-icon ps-icon-blue"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="ps-stat-body">
+                            <span class="ps-stat-number" id="modalSalesCount">0</span>
+                            <span class="ps-stat-label">{{ t('cdd_sales_count') }}</span>
+                        </div>
+                    </div>
+                    <div class="ps-stat-card">
+                        <div class="ps-stat-icon ps-icon-red"><i class="fas fa-fire"></i></div>
+                        <div class="ps-stat-body">
+                            <span class="ps-stat-number" id="modalTotalDebtDisplay">$0.00</span>
+                            <span class="ps-stat-label">{{ t('cdd_total_debt') }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="mdl-payment-rows">
-                    <div class="mdl-payment-row">
-                        <span class="mdl-pay-label">💵 {{ t('label_cash') }}</span>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">$</span>
-                            <input type="number" id="modalPaymentCashUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
+
+                <!-- To'lov qilish -->
+                <div class="ps-payment-card" style="flex:2 1 0;min-width:300px;">
+                    <div class="ps-payment-header">
+                        <h2 class="ps-payment-title"><i class="fas fa-credit-card"></i> {{ t('debt_payment_make') }}</h2>
+                        <div class="ps-debt-badge">
+                            <span>{{ t('debt_amount_label') }}</span>
+                            <strong id="paymentAmount">$0.00</strong>
                         </div>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">UZS</span>
-                            <input type="number" id="modalPaymentCashUZS" step="1" placeholder="0" class="mdl-pay-input">
-                        </div>
-                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentCashUSD')" title="+ {{ t('btn_remaining') }}">+</button>
                     </div>
-                    <div class="mdl-payment-row">
-                        <span class="mdl-pay-label">📱 {{ t('label_click') }}</span>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">$</span>
-                            <input type="number" id="modalPaymentClickUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
+                    <div class="ps-payment-rows">
+                        <div class="ps-payment-row">
+                            <span class="ps-pay-label">💵 {{ t('label_cash') }}</span>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">$</span>
+                                <input type="number" id="modalPaymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                            </div>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">UZS</span>
+                                <input type="number" id="modalPaymentCashUZS" step="1" placeholder="0" class="ps-pay-input">
+                            </div>
+                            <button class="ps-btn-remaining" onclick="addModalRemainingToField('modalPaymentCashUSD')" title="+ {{ t('btn_remaining') }}">+</button>
                         </div>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">UZS</span>
-                            <input type="number" id="modalPaymentClickUZS" step="1" placeholder="0" class="mdl-pay-input">
+                        <div class="ps-payment-row">
+                            <span class="ps-pay-label">📱 {{ t('label_click') }}</span>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">$</span>
+                                <input type="number" id="modalPaymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                            </div>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">UZS</span>
+                                <input type="number" id="modalPaymentClickUZS" step="1" placeholder="0" class="ps-pay-input">
+                            </div>
+                            <button class="ps-btn-remaining" onclick="addModalRemainingToField('modalPaymentClickUSD')" title="+ {{ t('btn_remaining') }}">+</button>
                         </div>
-                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentClickUSD')" title="+ {{ t('btn_remaining') }}">+</button>
+                        <div class="ps-payment-row">
+                            <span class="ps-pay-label">🏧 {{ t('label_terminal') }}</span>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">$</span>
+                                <input type="number" id="modalPaymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                            </div>
+                            <div class="ps-pay-field">
+                                <span class="ps-currency-sign">UZS</span>
+                                <input type="number" id="modalPaymentTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
+                            </div>
+                            <button class="ps-btn-remaining" onclick="addModalRemainingToField('modalPaymentTerminalUSD')" title="+ {{ t('btn_remaining') }}">+</button>
+                        </div>
                     </div>
-                    <div class="mdl-payment-row">
-                        <span class="mdl-pay-label">🏧 {{ t('label_terminal') }}</span>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">$</span>
-                            <input type="number" id="modalPaymentTerminalUSD" step="0.01" placeholder="0.00" class="mdl-pay-input">
-                        </div>
-                        <div class="mdl-pay-field">
-                            <span class="mdl-currency-sign">UZS</span>
-                            <input type="number" id="modalPaymentTerminalUZS" step="1" placeholder="0" class="mdl-pay-input">
-                        </div>
-                        <button class="mdl-btn-plus" onclick="addModalRemainingToField('modalPaymentTerminalUSD')" title="+ {{ t('btn_remaining') }}">+</button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-cancel" onclick="closeModal()" style="flex:1;">❌ {{ t('btn_cancel_payment') }}</button>
+                        <button class="ps-btn-submit" onclick="confirmPayment()" style="flex:2;">✅ {{ t('btn_confirm_payment') }}</button>
                     </div>
                 </div>
-                <div style="display:flex;gap:10px;">
-                    <button class="btn-cancel" onclick="closeModal()" style="flex:1;">❌ {{ t('btn_cancel_payment') }}</button>
-                    <button class="mdl-btn-submit" onclick="confirmPayment()" style="flex:2;">✅ {{ t('btn_confirm_payment') }}</button>
-                </div>
+
             </div>
 
             <!-- Qarzlar tarixi -->
-            <div class="mdl-payment-card">
-                <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:0 0 12px;">📜 {{ t('debt_history_title') }}</h3>
-                <table class="debt-history-table">
-                    <thead>
-                        <tr>
-                            <th>📅 {{ t('header_date') }}</th>
-                            <th>🛒 {{ t('header_sale_no') }}</th>
-                            <th>💵 {{ t('header_amount') }}</th>
-                            <th>✅ {{ t('header_paid') }}</th>
-                            <th>📊 {{ t('header_remaining') }}</th>
-                            <th>🏷️ {{ t('header_status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="debtHistoryBody">
-                        <tr><td colspan="6" class="no-data">{{ t('no_data_short') }}</td></tr>
-                    </tbody>
-                </table>
+            <div class="ps-table-card">
+                <div class="ps-table-card-header">
+                    <h3><i class="fas fa-history"></i> {{ t('debt_history_title') }}</h3>
+                </div>
+                <div class="ps-table-wrap">
+                    <table class="ps-table">
+                        <thead>
+                            <tr>
+                                <th>📅 {{ t('header_date') }}</th>
+                                <th>🛒 {{ t('header_sale_no') }}</th>
+                                <th>💵 {{ t('header_amount') }}</th>
+                                <th>✅ {{ t('header_paid') }}</th>
+                                <th>📊 {{ t('header_remaining') }}</th>
+                                <th>🏷️ {{ t('header_status') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="debtHistoryBody">
+                            <tr><td colspan="6" class="no-data">{{ t('no_data_short') }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -1170,7 +1194,10 @@
             document.getElementById('modalCustomerName').textContent = data.customer.name;
             document.getElementById('modalCustomerPhone').textContent = data.customer.phone || '-';
             document.getElementById('modalCustomerAddress').textContent = data.customer.address || '-';
-            document.getElementById('paymentAmount').textContent = `$${parseFloat(data.remaining_debt).toFixed(2)}`;
+            const debtAmt = parseFloat(data.remaining_debt).toFixed(2);
+            document.getElementById('paymentAmount').textContent = `$${debtAmt}`;
+            document.getElementById('modalTotalDebtDisplay').textContent = `$${debtAmt}`;
+            document.getElementById('modalSalesCount').textContent = data.history ? data.history.length : 0;
             
             // Qarzlar tarixi
             const historyBody = document.getElementById('debtHistoryBody');
