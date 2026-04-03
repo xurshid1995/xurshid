@@ -131,57 +131,63 @@
     font-size: 17px;
     font-weight: 700;
 }
-.ps-payment-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .ps-payment-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
 }
 .ps-pay-label {
     font-weight: 600;
     color: #374151;
-    font-size: 14px;
-    min-width: 90px;
+    font-size: 13px;
+    min-width: 76px;
+    max-width: 76px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 .ps-pay-field {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     flex: 1;
-    min-width: 120px;
+    min-width: 0;
 }
 .ps-currency-sign {
     font-weight: 700;
     color: #64748b;
-    font-size: 14px;
+    font-size: 12px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .ps-pay-input {
     flex: 1;
-    padding: 6px 8px;
+    padding: 5px 6px;
     border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 7px;
     font-size: 13px;
     background: #f8fafc;
     color: #1e293b;
     outline: none;
     transition: all 0.2s;
     min-width: 0;
-    width: 80px;
+    width: 100%;
     box-sizing: border-box;
 }
-.ps-pay-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+.ps-pay-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
 .ps-btn-remaining {
-    padding: 6px 10px;
+    padding: 5px 8px;
     background: #1a6eff;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 7px;
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
     white-space: nowrap;
     transition: background 0.2s;
     flex-shrink: 0;
@@ -299,8 +305,7 @@
     .ps-payment-header { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 576px) {
-    #paymentCashUSD, #paymentClickUSD, #paymentTerminalUSD { max-width: 100px; }
-    #paymentCashUZS, #paymentClickUZS, #paymentTerminalUZS { max-width: 130px; }
+    .ps-pay-label { min-width: 62px; max-width: 62px; font-size: 12px; }
 }
 
 </style>
@@ -361,7 +366,7 @@
                         <span class="ps-currency-sign">UZS</span>
                         <input type="number" id="paymentCashUZS" step="1" placeholder="0" class="ps-pay-input">
                     </div>
-                    <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining">+ {{ t('cdd_remaining') }}</button>
+                    <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ {{ t('cdd_remaining') }}">+</button>
                 </div>
                 <div class="ps-payment-row">
                     <span class="ps-pay-label">📱 {{ t('cdd_click') }}</span>
@@ -373,7 +378,7 @@
                         <span class="ps-currency-sign">UZS</span>
                         <input type="number" id="paymentClickUZS" step="1" placeholder="0" class="ps-pay-input">
                     </div>
-                    <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining">+ {{ t('cdd_remaining') }}</button>
+                    <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ {{ t('cdd_remaining') }}">+</button>
                 </div>
                 <div class="ps-payment-row">
                     <span class="ps-pay-label">🏧 {{ t('cdd_terminal') }}</span>
@@ -385,7 +390,7 @@
                         <span class="ps-currency-sign">UZS</span>
                         <input type="number" id="paymentTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
                     </div>
-                    <button onclick="addRemainingToField('paymentTerminalUSD')" class="ps-btn-remaining">+ {{ t('cdd_remaining') }}</button>
+                    <button onclick="addRemainingToField('paymentTerminalUSD')" class="ps-btn-remaining" title="+ {{ t('cdd_remaining') }}">+</button>
                 </div>
             </div>
             <div>
