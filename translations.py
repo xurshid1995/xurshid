@@ -1485,7 +1485,7 @@ TRANSLATIONS = {
 
         # ==================== USERS PAGE ====================
         'heading_users': '👤 Foydalanuvchilar',
-        'btn_add_user': '➕ Yangi foydalanuvchi',
+        'btn_add_user': 'Yangi foydalanuvchi',
         'loading_users': 'Foydalanuvchilar yuklanmoqda...',
         'empty_users': '📭 Foydalanuvchilar topilmadi',
         'th_store': 'Do\'kon',
@@ -3515,7 +3515,7 @@ TRANSLATIONS = {
 
         # ==================== USERS PAGE ====================
         'heading_users': '👤 Фойдаланувчилар',
-        'btn_add_user': '➕ Янги фойдаланувчи',
+        'btn_add_user': 'Янги фойдаланувчи',
         'loading_users': 'Фойдаланувчилар юкланмоқда...',
         'empty_users': '📭 Фойдаланувчилар топилмади',
         'th_store': 'Дўкон',
@@ -5545,7 +5545,7 @@ TRANSLATIONS = {
 
         # ==================== USERS PAGE ====================
         'heading_users': '👤 Пользователи',
-        'btn_add_user': '➕ Новый пользователь',
+        'btn_add_user': 'Новый пользователь',
         'loading_users': 'Загрузка пользователей...',
         'empty_users': '📭 Пользователи не найдены',
         'th_store': 'Магазин',
