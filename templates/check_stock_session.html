@@ -252,6 +252,80 @@
     </div>
 </div>
 
+<!-- Modal oyna - Ikki bosqichli tasdiqlash -->
+<div id="finishConfirmModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:18px; padding:30px; width:460px; max-width:92vw; box-shadow:0 12px 40px rgba(0,0,0,0.22);">
+
+        <!-- Bosqich 1: Xulosa -->
+        <div id="finishStep1">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;">📋 Tekshiruv xulosasi</h4>
+                <button onclick="closeFinishModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px; line-height:1;">&times;</button>
+            </div>
+            <div style="background:#f8fafc; border-radius:12px; padding:18px; margin-bottom:20px; border:1px solid #e2e8f0;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center;">
+                    <div style="background:white; border-radius:10px; padding:12px; border:1.5px solid #e2e8f0;">
+                        <div style="font-size:22px; font-weight:800; color:#2563eb;" id="fcTotalCount">0</div>
+                        <div style="font-size:11px; color:#64748b; margin-top:2px; font-weight:600;">TEKSHIRILDI</div>
+                    </div>
+                    <div style="background:white; border-radius:10px; padding:12px; border:1.5px solid #fee2e2;">
+                        <div style="font-size:22px; font-weight:800; color:#ef4444;" id="fcErrorCount">0</div>
+                        <div style="font-size:11px; color:#64748b; margin-top:2px; font-weight:600;">XATOLIK</div>
+                    </div>
+                    <div style="background:white; border-radius:10px; padding:12px; border:1.5px solid #d1fae5;">
+                        <div style="font-size:22px; font-weight:800; color:#059669;" id="fcCorrectCount">0</div>
+                        <div style="font-size:11px; color:#64748b; margin-top:2px; font-weight:600;">TO'G'RI</div>
+                    </div>
+                </div>
+            </div>
+            <div id="fcWarning" style="display:none; background:#fef3c7; border:1.5px solid #fde68a; border-radius:10px; padding:12px; margin-bottom:16px; font-size:13px; color:#92400e;">
+                ⚠️ <strong>Diqqat:</strong> Hech qanday mahsulot tekshirilmagan! Davom etsangiz ma'lumotlar hisobotda bo'lmaydi.
+            </div>
+            <p style="font-size:13px; color:#475569; margin:0 0 20px; line-height:1.6;">
+                Tekshiruvni yakunlash tizim miqdorlarini haqiqiy miqdorlar bilan yangilaydi. Davom etishni tasdiqlang.
+            </p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="finishStep2()" style="flex:1; background:#2563eb; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                    Davom etish →
+                </button>
+                <button onclick="closeFinishModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                    ✕ Bekor qilish
+                </button>
+            </div>
+        </div>
+
+        <!-- Bosqich 2: Joylashuv nomini kiritish -->
+        <div id="finishStep2" style="display:none;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                <button onclick="backToStep1()" style="background:#f1f5f9; border:none; cursor:pointer; color:#475569; width:34px; height:34px; border-radius:8px; font-size:16px; display:flex; align-items:center; justify-content:center;">←</button>
+                <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;">🔒 Tasdiqlash</h4>
+            </div>
+            <div style="background:#fef3c7; border:1.5px solid #fde68a; border-radius:10px; padding:14px; margin-bottom:18px; font-size:13px; color:#92400e; line-height:1.6;">
+                ⚠️ Bu amal qaytarib bo'lmaydi. Davom etish uchun joylashuv nomini to'g'ri kiriting.
+            </div>
+            <div style="margin-bottom:8px; font-size:13px; color:#475569;">
+                Quyidagi nomni aynan yozing:
+            </div>
+            <div style="background:#f1f5f9; border-radius:8px; padding:10px 14px; font-weight:700; color:#1e293b; font-size:15px; margin-bottom:14px; letter-spacing:0.3px;" id="fcLocationHint"></div>
+            <input type="text" id="fcLocationInput"
+                   placeholder="Joylashuv nomini kiriting..."
+                   oninput="checkLocationInput()"
+                   style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box; outline:none; margin-bottom:16px; transition:border-color 0.2s;"
+                   onkeypress="if(event.key==='Enter') doFinish()">
+            <div style="display:flex; gap:10px;">
+                <button id="fcConfirmBtn" onclick="doFinish()" disabled
+                        style="flex:1; background:#94a3b8; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:not-allowed; transition:all 0.2s;">
+                    ✓ Yakunlash
+                </button>
+                <button onclick="closeFinishModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                    ✕ Bekor qilish
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <!-- Modal oyna - Haqiqiy miqdorni kiritish -->
 <div id="quantityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: white; border-radius: 16px; padding: 28px; width: 440px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
@@ -318,6 +392,7 @@ const CSSLANG = {
 const sessionId = '{{ session_id }}';
 const locationType = '{{ location_type }}';
 const locationId = {{ location_id }};
+const locationName = {{ location_name|tojson }};
 let checkedProducts = [];
 let allProducts = [];
 let currentFilter = 'all'; // Filtr holati: 'all', 'error', 'correct'
@@ -1007,48 +1082,93 @@ function updateFilterCounts() {
     document.getElementById('correctCount').textContent = correctCount;
 }
 
-// Tekshiruvni yakunlash
-async function finishCheck() {
-    // Ogohlantirish xabari
-    let confirmMessage;
-    if (checkedProducts.length === 0) {
-        confirmMessage = CSSLANG.confirm_finish_empty;
-    } else {
-        confirmMessage = `${checkedProducts.length} ${CSSLANG.confirm_finish}`;
-    }
-    
-    if (!confirm(confirmMessage)) {
-        return;
-    }
-    
+// Tekshiruvni yakunlash - ikki bosqichli modal
+function finishCheck() {
+    // Bosqich 1 ma'lumotlarini to'ldirish
+    const total = checkedProducts.length;
+    const errors = checkedProducts.filter(p => p.difference !== 0).length;
+    const correct = checkedProducts.filter(p => p.difference === 0).length;
+
+    document.getElementById('fcTotalCount').textContent = total;
+    document.getElementById('fcErrorCount').textContent = errors;
+    document.getElementById('fcCorrectCount').textContent = correct;
+    document.getElementById('fcWarning').style.display = total === 0 ? 'block' : 'none';
+
+    // Bosqich 1 ni ko'rsatish
+    document.getElementById('finishStep1').style.display = 'block';
+    document.getElementById('finishStep2').style.display = 'none';
+
+    // Modalni ochish
+    const modal = document.getElementById('finishConfirmModal');
+    modal.style.display = 'flex';
+}
+
+function finishStep2() {
+    document.getElementById('finishStep1').style.display = 'none';
+    document.getElementById('finishStep2').style.display = 'block';
+    document.getElementById('fcLocationHint').textContent = locationName;
+    document.getElementById('fcLocationInput').value = '';
+    const btn = document.getElementById('fcConfirmBtn');
+    btn.disabled = true;
+    btn.style.background = '#94a3b8';
+    btn.style.cursor = 'not-allowed';
+    setTimeout(() => document.getElementById('fcLocationInput').focus(), 100);
+}
+
+function backToStep1() {
+    document.getElementById('finishStep2').style.display = 'none';
+    document.getElementById('finishStep1').style.display = 'block';
+}
+
+function checkLocationInput() {
+    const input = document.getElementById('fcLocationInput');
+    const btn = document.getElementById('fcConfirmBtn');
+    const matches = input.value.trim() === locationName.trim();
+    input.style.borderColor = input.value.length === 0 ? '#e2e8f0' : (matches ? '#059669' : '#ef4444');
+    btn.disabled = !matches;
+    btn.style.background = matches ? '#059669' : '#94a3b8';
+    btn.style.cursor = matches ? 'pointer' : 'not-allowed';
+}
+
+function closeFinishModal() {
+    document.getElementById('finishConfirmModal').style.display = 'none';
+}
+
+async function doFinish() {
+    const btn = document.getElementById('fcConfirmBtn');
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Yakunlanmoqda...';
+
     try {
         const response = await fetch('/api/check_stock/finish', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                session_id: sessionId
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId })
         });
-        
+
         const data = await response.json();
-        
+
+        closeFinishModal();
+
         if (data.success) {
-            if (checkedProducts.length === 0) {
-                alert(CSSLANG.finished_empty);
-            } else {
-                alert(CSSLANG.finished_success);
-            }
+            alert(checkedProducts.length === 0 ? CSSLANG.finished_empty : CSSLANG.finished_success);
             window.location.href = '/check_stock';
         } else {
             alert(CSSLANG.finish_error + ': ' + (data.message || ''));
         }
     } catch (error) {
         console.error('Tekshiruvni yakunlashda xatolik:', error);
+        closeFinishModal();
         alert(CSSLANG.finish_fetch_error);
     }
 }
+
+// Modal tashqarisiga bosganda yopish
+document.getElementById('finishConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFinishModal();
+});
 </script>
 
 {% endblock %}
