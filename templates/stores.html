@@ -448,7 +448,13 @@
             <a href="/store/{{ store.id }}" class="btn-small btn-view">
                 <i class="fas fa-eye"></i> {{ t('btn_view') }}
             </a>
-            <button onclick="openEditStoreModal({{ store.id }}, {{ store.name|tojson }}, {{ store.address|tojson }}, {{ store.manager_name|tojson }}, {{ (store.phone or '')|tojson }})" class="btn-small btn-edit">
+            <button onclick="openEditStoreModal(this)" 
+                    data-id="{{ store.id }}"
+                    data-name="{{ store.name|e }}"
+                    data-address="{{ store.address|e }}"
+                    data-manager="{{ store.manager_name|e }}"
+                    data-phone="{{ (store.phone or '')|e }}"
+                    class="btn-small btn-edit">
                 <i class="fas fa-pen"></i> {{ t('btn_edit') }}
             </button>
             <button data-store-id="{{ store.id }}" 
@@ -799,7 +805,12 @@
     });
 
     // ── Do'kon tahrirlash modal ──
-    function openEditStoreModal(id, name, address, manager, phone) {
+    function openEditStoreModal(btn) {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const address = btn.dataset.address;
+        const manager = btn.dataset.manager;
+        const phone = btn.dataset.phone || '';
         document.getElementById('esId').value = id;
         document.getElementById('esName').value = name;
         document.getElementById('esAddress').value = address;
