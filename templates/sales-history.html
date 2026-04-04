@@ -919,35 +919,35 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Modal header — ko'k uslub */
+/* Modal header — oq uslub */
 .sale-details-content .modal-header {
-    background: linear-gradient(135deg, #1a6eff 0%, #1558d6 100%);
+    background: #ffffff;
     border-radius: 16px 16px 0 0;
-    padding: 18px 24px;
-    border-bottom: none;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
 }
 .sale-details-content .modal-header h3 {
-    color: #ffffff;
+    color: #1e293b;
     font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.3px;
 }
 .sale-details-content .modal-header h3 i {
     margin-right: 8px;
-    opacity: 0.9;
+    color: #1a6eff;
 }
 .sale-details-content .close-btn {
-    color: rgba(255,255,255,0.85);
+    color: #94a3b8;
     font-size: 22px;
     width: 34px;
     height: 34px;
     border-radius: 8px;
     transition: all 0.15s;
-    background: rgba(255,255,255,0.12);
+    background: #f1f5f9;
 }
 .sale-details-content .close-btn:hover {
-    color: #ffffff;
-    background: rgba(255,255,255,0.22);
+    color: #ef4444;
+    background: #fee2e2;
 }
 
 /* Modal body */
@@ -1067,8 +1067,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 }
 
 /* Print / Excel tugmalari */
-.sale-details-content .btn-print,
-.sale-details-content .btn-excel {
+.sale-details-content .btn-print {
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
@@ -1077,8 +1076,23 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
 .sale-details-content .btn-print:hover { filter: brightness(1.1); }
-.sale-details-content .btn-excel { margin-left: 0; }
-.sale-details-content .btn-excel:hover { filter: brightness(1.1); }
+.sale-details-content .btn-excel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    color: #059669;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 0;
+    box-shadow: none;
+}
+.sale-details-content .btn-excel:hover { background: #f0fdf4; }
 
 @keyframes modalFadeIn {
     from {
@@ -2093,7 +2107,7 @@ function showSaleDetailsModal(sale) {
                             <i class="fas fa-print"></i> ${SHLANG.print_usd}
                         </button>
                         <button class="btn-excel" onclick="exportSaleToExcel()" title="${SHLANG.export_excel}">
-                            <i class="fas fa-file-excel"></i> Excel
+                            <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width:18px;height:18px;"> Excel
                         </button>
                         <button class="close-btn" onclick="closeSaleDetailsModal()">&times;</button>
                     </div>
