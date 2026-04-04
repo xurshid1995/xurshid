@@ -2115,6 +2115,7 @@ function showSaleDetailsModal(sale) {
                 <div class="modal-body">
                     <!-- Asosiy ma'lumotlar bir qatorda -->
                     <div class="sale-main-info">
+                        ${sale.store_name ? `<span class="date-label">${SHLANG.location || 'Joylashuv'}:</span><span class="customer-name">${sale.store_name}</span><span class="date-separator">•</span>` : ''}
                         <span class="customer-label">${SHLANG.customer}:</span>
                         <span class="customer-name">${sale.customer_name || ''}</span>
                         ${sale.customer_phone ? `<span class="customer-phone">(${sale.customer_phone})</span>` : ''}
