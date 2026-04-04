@@ -897,30 +897,193 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(15, 23, 42, 0.65);
     display: flex !important;
     justify-content: center;
     align-items: center;
     z-index: 9999;
     padding: 20px;
     box-sizing: border-box;
+    backdrop-filter: blur(2px);
 }
 
 .sale-details-content {
-    max-width: 1200px;
+    max-width: 1100px;
     width: 95%;
     max-height: 90vh;
     overflow-y: auto;
+    background: #f5f6fa;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    animation: modalFadeIn 0.25s ease-out;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Modal header — ko'k uslub */
+.sale-details-content .modal-header {
+    background: linear-gradient(135deg, #1a6eff 0%, #1558d6 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 18px 24px;
+    border-bottom: none;
+}
+.sale-details-content .modal-header h3 {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.sale-details-content .modal-header h3 i {
+    margin-right: 8px;
+    opacity: 0.9;
+}
+.sale-details-content .close-btn {
+    color: rgba(255,255,255,0.85);
+    font-size: 22px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    background: rgba(255,255,255,0.12);
+}
+.sale-details-content .close-btn:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.22);
+}
+
+/* Modal body */
+.sale-details-content .modal-body {
+    padding: 20px 24px;
+    background: #f5f6fa;
+}
+
+/* Sale main info — info card */
+.sale-details-content .sale-main-info {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: modalFadeIn 0.3s ease-out;
+    border-left: 4px solid #1a6eff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 14px 20px;
+    margin-bottom: 18px;
 }
+.sale-details-content .customer-label,
+.sale-details-content .date-label { color: #94a3b8; font-size: 13px; }
+.sale-details-content .customer-name { color: #1e293b; font-size: 14px; font-weight: 700; }
+.sale-details-content .customer-phone { color: #64748b; font-size: 13px; }
+.sale-details-content .date-separator { color: #cbd5e1; margin: 0 8px; }
+.sale-details-content .date-value { color: #1a6eff; font-size: 13px; font-weight: 600; }
+
+/* Section title */
+.sale-details-content h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 10px 2px;
+}
+
+/* Products table card */
+.sale-details-content .products-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+}
+.sale-details-content .modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+    font-size: 13px;
+}
+.sale-details-content .modal-table thead tr {
+    background: #1a6eff;
+}
+.sale-details-content .modal-table th {
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1a6eff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+.sale-details-content .modal-table td {
+    padding: 10px 14px;
+    color: #374151;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 13px;
+}
+.sale-details-content .modal-table tbody tr:hover { background: #f8faff; }
+.sale-details-content .modal-table tbody tr:last-child td { border-bottom: none; }
+
+/* Total info card */
+.sale-details-content .total-info {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 20px;
+    margin-top: 0;
+}
+.sale-details-content .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+.sale-details-content .total-row:last-child { border-bottom: none; }
+.sale-details-content .total-label { font-weight: 600; color: #475569; }
+.sale-details-content .total-value { font-weight: 700; font-size: 14px; color: #1e293b; }
+.sale-details-content .total-value.positive { color: #059669; }
+.sale-details-content .total-value.negative { color: #ef4444; }
+
+/* Modal footer */
+.sale-details-content .modal-footer {
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 16px 16px;
+    padding: 14px 24px;
+    justify-content: flex-end;
+}
+.sale-details-content .modal-footer .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 20px;
+    transition: all 0.15s;
+}
+.sale-details-content .modal-footer .btn-secondary:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* Print / Excel tugmalari */
+.sale-details-content .btn-print,
+.sale-details-content .btn-excel {
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    transition: all 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.sale-details-content .btn-print:hover { filter: brightness(1.1); }
+.sale-details-content .btn-excel { margin-left: 0; }
+.sale-details-content .btn-excel:hover { filter: brightness(1.1); }
 
 @keyframes modalFadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9) translateY(-20px);
+        transform: scale(0.96) translateY(-16px);
     }
     to {
         opacity: 1;
