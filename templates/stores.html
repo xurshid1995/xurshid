@@ -406,9 +406,9 @@
 <!-- Page Header -->
 <div class="ps-header">
     <h1 class="ps-title"><i class="fas fa-store"></i> {{ t('heading_stores') }}</h1>
-    <a href="/add_store" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+    <button onclick="openAddStoreModal()" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
         <span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_add_store') }}
-    </a>
+    </button>
 </div>
 
 <!-- Stores Grid -->
@@ -464,14 +464,63 @@
         <i class="fas fa-store"></i>
         <h3>{{ t('empty_stores') }}</h3>
         <p>{{ t('empty_stores_msg') }}</p>
-        <a href="/add_store" style="background: #2563eb; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <button onclick="openAddStoreModal()" style="background: #2563eb; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fas fa-plus"></i> {{ t('btn_add_first_store') }}
-        </a>
+        </button>
     </div>
     {% endfor %}
 </div>
 
 </div><!-- /.ps-page -->
+
+<!-- Add Store Modal -->
+<div id="addStoreModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:16px; padding:28px; width:480px; max-width:92vw; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
+            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-store" style="color:#2563eb; margin-right:8px;"></i>{{ t('heading_add_store') }}</h4>
+            <button onclick="closeAddStoreModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px;">&times;</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">🏬 {{ t('label_store_name_required') if t('label_store_name_required') != 'label_store_name_required' else 'Do\'kon nomi' }} <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="asName" placeholder="{{ t('placeholder_store_name') }}"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateAddStore()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 {{ t('label_address_required') if t('label_address_required') != 'label_address_required' else 'Manzil' }} <span style="color:#ef4444;">*</span></label>
+                <textarea id="asAddress" rows="2" placeholder="{{ t('placeholder_address') if t('placeholder_address') != 'placeholder_address' else 'Manzilni kiriting' }}"
+                          style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
+                          oninput="validateAddStore()"></textarea>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 {{ t('label_manager_name_required') if t('label_manager_name_required') != 'label_manager_name_required' else 'Menejer ismi' }} <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="asManager" placeholder="{{ t('placeholder_manager_full_name') if t('placeholder_manager_full_name') != 'placeholder_manager_full_name' else 'To\'liq ism familiya' }}"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateAddStore()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 {{ t('phone_number_label') if t('phone_number_label') != 'phone_number_label' else 'Telefon' }}</label>
+                <input type="text" id="asPhone" placeholder="{{ t('placeholder_phone_format') if t('placeholder_phone_format') != 'placeholder_phone_format' else '+998 90 000 00 00' }}"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
+            </div>
+        </div>
+
+        <div id="asError" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; color:#dc2626; font-size:13px; margin-top:14px;"></div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button id="asSaveBtn" onclick="saveNewStore()" disabled
+                    style="flex:1; background:#94a3b8; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:not-allowed; transition:all 0.2s;">
+                <i class="fas fa-plus"></i> {{ t('btn_add_store') }}
+            </button>
+            <button onclick="closeAddStoreModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                ✕ {{ t('btn_cancel') if t('btn_cancel') != 'btn_cancel' else 'Bekor qilish' }}
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -617,6 +666,88 @@
             confirmBtn.textContent = '🗑️ ' + STLANG.modal_delete;
         });
     }
+
+    // ── Do'kon qo'shish modal ──
+    function openAddStoreModal() {
+        document.getElementById('asName').value = '';
+        document.getElementById('asAddress').value = '';
+        document.getElementById('asManager').value = '';
+        document.getElementById('asPhone').value = '';
+        document.getElementById('asError').style.display = 'none';
+        const btn = document.getElementById('asSaveBtn');
+        btn.disabled = true;
+        btn.style.background = '#94a3b8';
+        btn.style.cursor = 'not-allowed';
+        const modal = document.getElementById('addStoreModal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('asName').focus(), 100);
+    }
+
+    function closeAddStoreModal() {
+        document.getElementById('addStoreModal').style.display = 'none';
+    }
+
+    function validateAddStore() {
+        const name = document.getElementById('asName').value.trim();
+        const address = document.getElementById('asAddress').value.trim();
+        const manager = document.getElementById('asManager').value.trim();
+        const btn = document.getElementById('asSaveBtn');
+        const ok = name.length > 0 && address.length > 0 && manager.length > 0;
+        btn.disabled = !ok;
+        btn.style.background = ok ? '#2563eb' : '#94a3b8';
+        btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+    }
+
+    async function saveNewStore() {
+        const btn = document.getElementById('asSaveBtn');
+        if (btn.disabled) return;
+
+        const name = document.getElementById('asName').value.trim();
+        const address = document.getElementById('asAddress').value.trim();
+        const manager = document.getElementById('asManager').value.trim();
+        const phone = document.getElementById('asPhone').value.trim();
+
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Saqlanmoqda...';
+
+        try {
+            const resp = await fetch('/api/stores/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, address, manager_name: manager, phone })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                closeAddStoreModal();
+                window.location.reload();
+            } else {
+                const errEl = document.getElementById('asError');
+                errEl.textContent = '❌ ' + (data.error || 'Xatolik yuz berdi');
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
+                btn.style.background = '#2563eb';
+                btn.style.cursor = 'pointer';
+            }
+        } catch (e) {
+            const errEl = document.getElementById('asError');
+            errEl.textContent = '❌ Server bilan ulanishda xatolik';
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
+            btn.style.background = '#2563eb';
+            btn.style.cursor = 'pointer';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('addStoreModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddStoreModal();
+        });
+        document.getElementById('asName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('asAddress').focus();
+        });
+    });
 
     function toggleStore(storeId, isActive) {
         // API ga so'rov yuborish

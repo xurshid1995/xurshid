@@ -5069,6 +5069,53 @@ def debug_stores():
     return render_template('debug_stores.html')
 
 
+@app.route('/api/stores/create', methods=['POST'])
+@role_required('admin')
+def api_create_store():
+    """Do'kon qo'shish (JSON API - modal uchun)"""
+    try:
+        data = request.get_json()
+        name = (data.get('name') or '').strip()
+        address = (data.get('address') or '').strip()
+        manager_name = (data.get('manager_name') or '').strip()
+        phone = (data.get('phone') or '').strip()
+
+        if not name or not address or not manager_name:
+            return jsonify({'success': False, 'error': 'Nom, manzil va menejer ismi majburiy'}), 400
+
+        new_store = Store(name=name, address=address, manager_name=manager_name, phone=phone)
+        db.session.add(new_store)
+        db.session.commit()
+
+        try:
+            history = OperationHistory(
+                operation_type='create_store',
+                table_name='stores',
+                record_id=new_store.id,
+                user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f"Yangi dokon yaratildi: {name}",
+                old_data=None,
+                new_data={'name': name, 'address': address, 'manager': manager_name, 'phone': phone},
+                ip_address=request.remote_addr,
+                location_id=new_store.id,
+                location_type='store',
+                location_name=name,
+                amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_error:
+            logger.error(f"OperationHistory log xatoligi: {log_error}")
+
+        return jsonify({'success': True, 'store_id': new_store.id})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Do'kon yaratish xatosi: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/add_store', methods=['GET', 'POST'])
 def add_store():
     if request.method == 'POST':
@@ -5116,7 +5163,7 @@ def add_store():
             db.session.rollback()
             return f"Xatolik: {str(e)}", 400
 
-    return render_template('add_store.html')
+    return redirect(url_for('stores'))
 
 
 @app.route('/store/<int:store_id>')
