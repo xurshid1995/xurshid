@@ -629,10 +629,171 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box;
 }
 .sale-details-content {
-    max-width: 1200px; width: 95%; max-height: 90vh; overflow-y: auto;
-    background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    max-width: 1100px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #f5f6fa;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     animation: psFadeIn 0.25s ease-out;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
+/* Modal header */
+.sale-details-content .modal-header {
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.sale-details-content .modal-header h3 {
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.sale-details-content .modal-header h3 i { margin-right: 8px; color: #1a6eff; }
+.sale-details-content .close-btn {
+    color: #94a3b8;
+    font-size: 22px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    background: #f1f5f9;
+}
+.sale-details-content .close-btn:hover { color: #ef4444; background: #fee2e2; }
+.sale-details-content .modal-body { padding: 20px 24px; background: #f5f6fa; }
+.sale-details-content .sale-main-info {
+    background: white;
+    border-radius: 12px;
+    border-left: 4px solid #1a6eff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 14px 20px;
+    margin-bottom: 18px;
+}
+.sale-details-content .customer-label,
+.sale-details-content .date-label { color: #94a3b8; font-size: 13px; }
+.sale-details-content .customer-name { color: #1e293b; font-size: 14px; font-weight: 700; }
+.sale-details-content .customer-phone { color: #64748b; font-size: 13px; }
+.sale-details-content .date-separator { color: #cbd5e1; margin: 0 8px; }
+.sale-details-content .date-value { color: #1a6eff; font-size: 13px; font-weight: 600; }
+.sale-details-content h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 10px 2px;
+}
+.sale-details-content .products-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+}
+.sale-details-content .modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none !important;
+    font-size: 13px;
+    table-layout: fixed !important;
+}
+.sale-details-content .modal-table th:nth-child(1),
+.sale-details-content .modal-table td:nth-child(1) { width: 45% !important; }
+.sale-details-content .modal-table th:nth-child(2),
+.sale-details-content .modal-table td:nth-child(2) { width: 10% !important; text-align: center; }
+.sale-details-content .modal-table th:nth-child(3),
+.sale-details-content .modal-table td:nth-child(3) { width: 25% !important; }
+.sale-details-content .modal-table th:nth-child(4),
+.sale-details-content .modal-table td:nth-child(4) { width: 20% !important; }
+.sale-details-content .modal-table thead tr { background: #64748b; }
+.sale-details-content .modal-table th {
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none !important;
+}
+.sale-details-content .modal-table td {
+    padding: 5px 14px;
+    color: #374151;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle;
+    font-size: 13px;
+}
+.sale-details-content .modal-table tbody tr:hover { background: #f8faff; }
+.sale-details-content .modal-table tbody tr:last-child td { border-bottom: none; }
+.sale-details-content .total-info {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 20px;
+    margin-top: 0;
+}
+.sale-details-content .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+.sale-details-content .total-row:last-child { border-bottom: none; }
+.sale-details-content .total-label { font-weight: 600; color: #475569; }
+.sale-details-content .total-value { font-weight: 700; font-size: 14px; color: #1e293b; }
+.sale-details-content .total-value.positive { color: #059669; }
+.sale-details-content .total-value.negative { color: #ef4444; }
+.sale-details-content .modal-footer {
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 16px 16px;
+    padding: 14px 24px;
+    justify-content: flex-end;
+}
+.sale-details-content .modal-footer .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 20px;
+    transition: all 0.15s;
+}
+.sale-details-content .modal-footer .btn-secondary:hover { background: #e2e8f0; color: #1e293b; }
+.sale-details-content .btn-print {
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    transition: all 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.sale-details-content .btn-print:hover { filter: brightness(1.1); }
+.sale-details-content .btn-excel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    color: #059669;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 0;
+    box-shadow: none;
+}
+.sale-details-content .btn-excel:hover { background: #f0fdf4; }
 @keyframes psFadeIn {
     from { opacity: 0; transform: scale(0.95) translateY(-15px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -1556,97 +1717,127 @@ function viewSaleDetails(saleId) {
 function showSaleDetailsModal(sale) {
     // Global o'zgaruvchiga saqlash
     currentSaleData = sale;
-    
+
+    if (!sale.items || !Array.isArray(sale.items)) sale.items = [];
+    if (!sale.returned_products || !Array.isArray(sale.returned_products)) sale.returned_products = [];
+
     const modalHtml = `
         <div id="saleDetailsModal" class="modal sale-details-modal">
             <div class="modal-content sale-details-content">
                 <div class="modal-header">
-                    <h3><i class="fas fa-eye"></i> Savdo Tafsilotlari</h3>
+                    <h3><i class="fas fa-eye"></i> ${PSLANG.sale_details}</h3>
                     <div class="modal-header-actions">
-                        <button class="btn-print" onclick="printSaleReceipt('uzs')" title="UZS chop etish" style="background: #28a745;">
-                            <i class="fas fa-print"></i> UZS chop etish
+                        <button class="btn-print" onclick="printSaleReceipt('uzs')" title="${PSLANG.print_uzs}" style="background: #28a745;">
+                            <i class="fas fa-print"></i> ${PSLANG.print_uzs}
                         </button>
-                        <button class="btn-print" onclick="printSaleReceipt('usd')" title="USD chop etish" style="background: #17a2b8;">
-                            <i class="fas fa-print"></i> USD chop etish
+                        <button class="btn-print" onclick="printSaleReceipt('usd')" title="${PSLANG.print_usd}" style="background: #17a2b8;">
+                            <i class="fas fa-print"></i> ${PSLANG.print_usd}
                         </button>
-                        <button class="btn-excel" onclick="exportSaleToExcel()" title="Excel ga export">
-                            <i class="fas fa-file-excel"></i> Excel
+                        <button class="btn-excel" onclick="exportSaleToExcel()" title="Excel">
+                            <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width:18px;height:18px;"> Excel
                         </button>
                         <button class="close-btn" onclick="closeSaleDetailsModal()">&times;</button>
                     </div>
                 </div>
                 <div class="modal-body">
-                    <!-- Asosiy ma'lumotlar bir qatorda -->
                     <div class="sale-main-info">
-                        <span class="customer-label">Mijoz:</span>
-                        <span class="customer-name">${sale.customer_name || '� Noma\'lum'}</span>
+                        ${sale.store_name ? `<span class="date-label">${PSLANG.location}:</span><span class="customer-name">${sale.store_name}</span><span class="date-separator">\u2022</span>` : ''}
+                        <span class="customer-label">${PSLANG.customer}:</span>
+                        <span class="customer-name">${sale.customer_name || ''}</span>
                         ${sale.customer_phone ? `<span class="customer-phone">(${sale.customer_phone})</span>` : ''}
-                        <span class="date-separator">•</span>
-                        <span class="date-label">Savdo sanasi:</span>
-                        <span class="date-value">${new Date(sale.sale_date).toLocaleString('uz-UZ', { 
+                        <span class="date-separator">\u2022</span>
+                        <span class="date-label">${PSLANG.sale_date}:</span>
+                        <span class="date-value">${new Date(sale.sale_date).toLocaleString('uz-UZ', {
                             timeZone: 'Asia/Tashkent',
-                            year: 'numeric', 
-                            month: '2-digit', 
+                            year: 'numeric',
+                            month: '2-digit',
                             day: '2-digit',
                             hour: '2-digit',
                             minute: '2-digit'
                         })}</span>
+                        ${sale.seller_name ? `<span class="date-separator">\u2022</span><span class="date-label">Sotuvchi:</span><span class="customer-name">${sale.seller_name}</span>${sale.seller_phone ? `<span class="customer-phone">(${sale.seller_phone})</span>` : ''}` : ''}
                     </div>
-                    
-                    <h4>Mahsulotlar:</h4>
+
+                    <h4>${PSLANG.products}:</h4>
                     <div class="products-table">
                         <table class="modal-table">
                             <thead>
                                 <tr>
-                                    <th>Mahsulot</th>
-                                    <th>Joylashuv</th>
-                                    <th>Miqdori</th>
-                                    <th>Narx</th>
-                                    <th>Yig'indi</th>
+                                    <th>${PSLANG.product}</th>
+                                    <th>${PSLANG.quantity}</th>
+                                    <th>${PSLANG.price}</th>
+                                    <th>${PSLANG.subtotal}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${sale.items.map(item => {
+                                    const exchangeRate = sale.currency_rate || 12700;
                                     const unitPriceUSD = parseFloat(item.unit_price || 0);
                                     const totalPriceUSD = parseFloat(item.total_price || 0);
-                                    const exchangeRate = 12700; // Default kurs
                                     const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
                                     const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
-                                    
+                                    const isReturned = item.quantity <= 0;
+                                    const rowStyle = isReturned ? 'background: #ffebee; color: #c62828; text-decoration: line-through;' : '';
+                                    const quantityBadge = isReturned ? '\u274c ' : '';
                                     return `
-                                    <tr>
-                                        <td>${item.product_name}</td>
-                                        <td>${item.location_name}</td>
-                                        <td>${item.quantity}</td>
+                                    <tr style="${rowStyle}">
+                                        <td style="font-weight: ${isReturned ? '600' : 'normal'};">${quantityBadge}${item.product_name}${isReturned ? ' (' + PSLANG.returned + ')' : ''}</td>
+                                        <td style="font-weight: ${isReturned ? '600' : 'normal'};">${item.quantity}</td>
                                         <td>
                                             <div>$${unitPriceUSD.toFixed(2)}</div>
-                                            <div style="font-size: 11px; color: #666;">${unitPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                                            <div style="font-size: 11px; color: ${isReturned ? '#c62828' : '#666'};">${unitPriceUZS.toLocaleString('uz-UZ')} ${PSLANG.sum}</div>
                                         </td>
                                         <td>
                                             <div>$${totalPriceUSD.toFixed(2)}</div>
-                                            <div style="font-size: 11px; color: #666;">${totalPriceUZS.toLocaleString('uz-UZ')} so'm</div>
+                                            <div style="font-size: 11px; color: ${isReturned ? '#c62828' : '#666'};">${totalPriceUZS.toLocaleString('uz-UZ')} ${PSLANG.sum}</div>
                                         </td>
                                     </tr>
                                 `}).join('')}
+                                ${sale.returned_products && sale.returned_products.length > 0 ? `
+                                    <tr style="background: #fff3cd; border-top: 2px solid #ffc107;">
+                                        <td colspan="4" style="text-align: center; font-weight: 600; padding: 10px; color: #856404;">
+                                            \u26a0\ufe0f ${PSLANG.returned_products}
+                                        </td>
+                                    </tr>
+                                    ${sale.returned_products.map(item => {
+                                        const exchangeRate = sale.currency_rate || 12700;
+                                        const unitPriceUSD = parseFloat(item.unit_price || 0);
+                                        const totalPriceUSD = parseFloat(item.total_price || 0);
+                                        const unitPriceUZS = Math.round(unitPriceUSD * exchangeRate);
+                                        const totalPriceUZS = Math.round(totalPriceUSD * exchangeRate);
+                                        return `
+                                        <tr style="background: #ffebee; color: #c62828;">
+                                            <td style="font-weight: 600;">\u274c ${item.product_name} (${PSLANG.returned})</td>
+                                            <td style="font-weight: 600;">-${item.returned_quantity}</td>
+                                            <td>
+                                                <div>$${unitPriceUSD.toFixed(2)}</div>
+                                                <div style="font-size: 11px; color: #c62828;">${unitPriceUZS.toLocaleString('uz-UZ')} ${PSLANG.sum}</div>
+                                            </td>
+                                            <td>
+                                                <div>-$${totalPriceUSD.toFixed(2)}</div>
+                                                <div style="font-size: 11px; color: #c62828;">-${totalPriceUZS.toLocaleString('uz-UZ')} ${PSLANG.sum}</div>
+                                                <div style="font-size: 11px; font-style: italic; margin-top: 4px;">
+                                                    ${item.return_date ? new Date(item.return_date).toLocaleString('uz-UZ', {timeZone: 'Asia/Tashkent', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `}).join('')}
+                                ` : ''}
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="total-info">
                         ${generatePaymentDetailsHTML(sale)}
-                        <div class="total-row" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold;">
-                            <span class="total-label">Jami summa:</span>
-                            <span class="total-value">$${parseFloat(sale.total_amount || 0).toFixed(2)}</span>
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeSaleDetailsModal()">Yopish</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeSaleDetailsModal()">${PSLANG.close}</button>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
