@@ -2114,7 +2114,7 @@ function showSaleDetailsModal(sale) {
                             hour: '2-digit',
                             minute: '2-digit'
                         })}</span>
-                        ${sale.seller_name ? `<span class="date-separator">•</span><span class="date-label">${SHLANG.seller || 'Sotuvchi'}:</span><span class="customer-name">${sale.seller_name}</span>` : ''}
+                        ${sale.seller_name ? `<span class="date-separator">•</span><span class="date-label">${SHLANG.seller || 'Sotuvchi'}:</span><span class="customer-name">${sale.seller_name}</span>${sale.seller_phone ? `<span class="customer-phone">(${sale.seller_phone})</span>` : ''}` : ''}
                     </div>
                     
                     <h4>${SHLANG.products}:</h4>
