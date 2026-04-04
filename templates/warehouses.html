@@ -329,9 +329,9 @@
 <!-- Page Header -->
 <div class="ps-header">
     <h1 class="ps-title"><i class="fas fa-warehouse"></i> {{ t('heading_warehouses') }}</h1>
-    <a href="/add_warehouse" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+    <button onclick="openAddWarehouseModal()" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
         <span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_add_warehouse') }}
-    </a>
+    </button>
 </div>
 
 <!-- Warehouses Grid -->
@@ -371,9 +371,15 @@
             <a href="/warehouse/{{ warehouse.id }}" class="btn-small btn-view">
                 <i class="fas fa-eye"></i> {{ t('btn_view') }}
             </a>
-            <a href="/edit_warehouse/{{ warehouse.id }}" class="btn-small btn-edit">
+            <button onclick="openEditWarehouseModal(this)"
+                    data-id="{{ warehouse.id }}"
+                    data-name="{{ warehouse.name|e }}"
+                    data-address="{{ warehouse.address|e }}"
+                    data-manager="{{ warehouse.manager_name|e }}"
+                    data-phone="{{ (warehouse.phone or '')|e }}"
+                    class="btn-small btn-edit">
                 <i class="fas fa-pen"></i> {{ t('btn_edit') }}
-            </a>
+            </button>
             <button data-warehouse-id="{{ warehouse.id }}" 
                     data-warehouse-name="{{ warehouse.name }}"
                     onclick="deleteWarehouse('{{ warehouse.id }}', '{{ warehouse.name }}')" 
@@ -387,14 +393,108 @@
         <i class="fas fa-warehouse"></i>
         <h3>{{ t('empty_warehouses') }}</h3>
         <p>{{ t('empty_warehouses_msg') }}</p>
-        <a href="/add_warehouse" style="background: #059669; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <button onclick="openAddWarehouseModal()" style="background: #059669; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fas fa-plus"></i> {{ t('btn_add_first_warehouse') }}
-        </a>
+        </button>
     </div>
     {% endfor %}
 </div>
 
 </div><!-- /.ps-page -->
+
+<!-- Add Warehouse Modal -->
+<div id="addWarehouseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:16px; padding:28px; width:480px; max-width:92vw; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
+            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-warehouse" style="color:#2563eb; margin-right:8px;"></i>{{ t('heading_add_warehouse') }}</h4>
+            <button onclick="closeAddWarehouseModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px;">&times;</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">🏭 Ombor nomi <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="awName" placeholder="Masalan: Asosiy ombor"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateAddWarehouse()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 Manzil <span style="color:#ef4444;">*</span></label>
+                <textarea id="awAddress" rows="2" placeholder="Manzilni kiriting"
+                          style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
+                          oninput="validateAddWarehouse()"></textarea>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="awManager" placeholder="To'liq ism familiya"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateAddWarehouse()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 Telefon</label>
+                <input type="text" id="awPhone" placeholder="+998(90) 123-45-67" maxlength="18"
+                       oninput="formatPhoneWh(this)"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
+            </div>
+        </div>
+        <div id="awError" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; color:#dc2626; font-size:13px; margin-top:14px;"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button id="awSaveBtn" onclick="saveNewWarehouse()" disabled
+                    style="flex:1; background:#94a3b8; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:not-allowed; transition:all 0.2s;">
+                <i class="fas fa-plus"></i> {{ t('btn_add_warehouse') }}
+            </button>
+            <button onclick="closeAddWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                ✕ Bekor qilish
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Warehouse Modal -->
+<div id="editWarehouseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:16px; padding:28px; width:480px; max-width:92vw; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
+            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-pen" style="color:#f59e0b; margin-right:8px;"></i>Omborni tahrirlash</h4>
+            <button onclick="closeEditWarehouseModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px;">&times;</button>
+        </div>
+        <input type="hidden" id="ewId">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">🏭 Ombor nomi <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="ewName"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateEditWarehouse()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 Manzil <span style="color:#ef4444;">*</span></label>
+                <textarea id="ewAddress" rows="2"
+                          style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
+                          oninput="validateEditWarehouse()"></textarea>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="ewManager"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
+                       oninput="validateEditWarehouse()">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 Telefon</label>
+                <input type="text" id="ewPhone" placeholder="+998(90) 123-45-67" maxlength="18"
+                       oninput="formatPhoneWh(this)"
+                       style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
+            </div>
+        </div>
+        <div id="ewError" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; color:#dc2626; font-size:13px; margin-top:14px;"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button id="ewSaveBtn" onclick="saveEditWarehouse()"
+                    style="flex:1; background:#f59e0b; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s;">
+                <i class="fas fa-save"></i> Saqlash
+            </button>
+            <button onclick="closeEditWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                ✕ Bekor qilish
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -540,5 +640,167 @@
             confirmBtn.textContent = '🗑️ ' + WHLANG.modal_delete;
         });
     }
+
+    // ─── Phone formatting ───────────────────────────────────────────────
+    function formatPhoneWh(input) {
+        let digits = input.value.replace(/\D/g, '');
+        if (digits.startsWith('998')) digits = digits.slice(3);
+        digits = digits.slice(0, 9);
+        let val = '+998';
+        if (digits.length > 0) val += '(' + digits.slice(0, 2);
+        if (digits.length >= 2) val += ') ' + digits.slice(2, 5);
+        if (digits.length >= 5) val += '-' + digits.slice(5, 7);
+        if (digits.length >= 7) val += '-' + digits.slice(7, 9);
+        input.value = val;
+    }
+    function parsePhoneWh(val) {
+        return val ? val.replace(/\D/g, '') : '';
+    }
+
+    // ─── Add Warehouse Modal ─────────────────────────────────────────────
+    function openAddWarehouseModal() {
+        document.getElementById('awName').value = '';
+        document.getElementById('awAddress').value = '';
+        document.getElementById('awManager').value = '';
+        document.getElementById('awPhone').value = '';
+        document.getElementById('awError').style.display = 'none';
+        const btn = document.getElementById('awSaveBtn');
+        btn.disabled = true;
+        btn.style.background = '#94a3b8';
+        btn.style.cursor = 'not-allowed';
+        const modal = document.getElementById('addWarehouseModal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('awName').focus(), 100);
+    }
+    function closeAddWarehouseModal() {
+        document.getElementById('addWarehouseModal').style.display = 'none';
+    }
+    function validateAddWarehouse() {
+        const name = document.getElementById('awName').value.trim();
+        const addr = document.getElementById('awAddress').value.trim();
+        const mgr  = document.getElementById('awManager').value.trim();
+        const btn  = document.getElementById('awSaveBtn');
+        const ok   = name.length > 0 && addr.length > 0 && mgr.length > 0;
+        btn.disabled = !ok;
+        btn.style.background = ok ? '#2563eb' : '#94a3b8';
+        btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+    }
+    function saveNewWarehouse() {
+        const name  = document.getElementById('awName').value.trim();
+        const addr  = document.getElementById('awAddress').value.trim();
+        const mgr   = document.getElementById('awManager').value.trim();
+        const phone = parsePhoneWh(document.getElementById('awPhone').value.trim());
+        const errEl = document.getElementById('awError');
+        const btn   = document.getElementById('awSaveBtn');
+        if (!name || !addr || !mgr) {
+            errEl.textContent = 'Iltimos, barcha majburiy maydonlarni to\'ldiring.';
+            errEl.style.display = 'block';
+            return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'Saqlanmoqda...';
+        fetch('/api/warehouses/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, address: addr, manager_name: mgr, phone})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { location.reload(); }
+            else {
+                errEl.textContent = data.error || 'Xatolik yuz berdi.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '+ Qo\'shish';
+            }
+        })
+        .catch(() => {
+            errEl.textContent = 'Tarmoq xatosi. Qaytadan urinib ko\'ring.';
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '+ Qo\'shish';
+        });
+    }
+    document.getElementById('addWarehouseModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAddWarehouseModal();
+    });
+
+    // ─── Edit Warehouse Modal ─────────────────────────────────────────────
+    function openEditWarehouseModal(btn) {
+        const id      = btn.dataset.id;
+        const name    = btn.dataset.name;
+        const address = btn.dataset.address;
+        const manager = btn.dataset.manager;
+        const phone   = btn.dataset.phone;
+        document.getElementById('ewId').value      = id;
+        document.getElementById('ewName').value    = name;
+        document.getElementById('ewAddress').value = address;
+        document.getElementById('ewManager').value = manager;
+        const ewPhone = document.getElementById('ewPhone');
+        ewPhone.value = phone;
+        if (phone) formatPhoneWh(ewPhone);
+        document.getElementById('ewError').style.display = 'none';
+        const saveBtn = document.getElementById('ewSaveBtn');
+        saveBtn.disabled = false;
+        saveBtn.style.background = '#f59e0b';
+        saveBtn.style.cursor = 'pointer';
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
+        const modal = document.getElementById('editWarehouseModal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('ewName').focus(), 100);
+    }
+    function closeEditWarehouseModal() {
+        document.getElementById('editWarehouseModal').style.display = 'none';
+    }
+    function validateEditWarehouse() {
+        const name = document.getElementById('ewName').value.trim();
+        const addr = document.getElementById('ewAddress').value.trim();
+        const mgr  = document.getElementById('ewManager').value.trim();
+        const btn  = document.getElementById('ewSaveBtn');
+        const ok   = name.length > 0 && addr.length > 0 && mgr.length > 0;
+        btn.disabled = !ok;
+        btn.style.background = ok ? '#f59e0b' : '#94a3b8';
+        btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+    }
+    function saveEditWarehouse() {
+        const id    = document.getElementById('ewId').value;
+        const name  = document.getElementById('ewName').value.trim();
+        const addr  = document.getElementById('ewAddress').value.trim();
+        const mgr   = document.getElementById('ewManager').value.trim();
+        const phone = parsePhoneWh(document.getElementById('ewPhone').value.trim());
+        const errEl = document.getElementById('ewError');
+        const btn   = document.getElementById('ewSaveBtn');
+        if (!name || !addr || !mgr) {
+            errEl.textContent = 'Iltimos, barcha majburiy maydonlarni to\'ldiring.';
+            errEl.style.display = 'block';
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saqlanmoqda...';
+        fetch('/api/warehouses/' + id + '/edit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, address: addr, manager_name: mgr, phone})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { location.reload(); }
+            else {
+                errEl.textContent = data.error || 'Xatolik yuz berdi.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
+            }
+        })
+        .catch(() => {
+            errEl.textContent = 'Tarmoq xatosi. Qaytadan urinib ko\'ring.';
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
+        });
+    }
+    document.getElementById('editWarehouseModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditWarehouseModal();
+    });
 </script>
 {% endblock %}

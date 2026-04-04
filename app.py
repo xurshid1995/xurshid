@@ -5757,6 +5757,82 @@ def warehouses():
     return render_template('warehouses.html', warehouses=warehouses_list)
 
 
+@app.route('/api/warehouses/create', methods=['POST'])
+@role_required('admin')
+def api_create_warehouse():
+    try:
+        data = request.get_json()
+        name = (data.get('name') or '').strip()
+        address = (data.get('address') or '').strip()
+        manager_name = (data.get('manager_name') or '').strip()
+        phone = (data.get('phone') or '').strip()
+        if not name or not address or not manager_name:
+            return jsonify({'success': False, 'error': 'Barcha majburiy maydonlarni to\'ldiring'}), 400
+        new_warehouse = Warehouse(name=name, address=address, manager_name=manager_name, phone=phone)
+        db.session.add(new_warehouse)
+        db.session.commit()
+        try:
+            history = OperationHistory(
+                operation_type='create_warehouse', table_name='warehouses',
+                record_id=new_warehouse.id, user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f'Yangi ombor yaratildi: {name}',
+                old_data=None,
+                new_data={'name': name, 'address': address, 'manager': manager_name, 'phone': phone},
+                ip_address=request.remote_addr,
+                location_id=new_warehouse.id, location_type='warehouse', location_name=name, amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_error:
+            logger.error(f'OperationHistory log xatoligi: {log_error}')
+        return jsonify({'success': True, 'warehouse_id': new_warehouse.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/warehouses/<int:warehouse_id>/edit', methods=['POST'])
+@role_required('admin')
+def api_edit_warehouse(warehouse_id):
+    warehouse = Warehouse.query.get_or_404(warehouse_id)
+    try:
+        data = request.get_json()
+        name = (data.get('name') or '').strip()
+        address = (data.get('address') or '').strip()
+        manager_name = (data.get('manager_name') or '').strip()
+        phone = (data.get('phone') or '').strip()
+        if not name or not address or not manager_name:
+            return jsonify({'success': False, 'error': 'Barcha majburiy maydonlarni to\'ldiring'}), 400
+        old_data = {'name': warehouse.name, 'address': warehouse.address,
+                    'manager': warehouse.manager_name, 'phone': warehouse.phone}
+        warehouse.name = name
+        warehouse.address = address
+        warehouse.manager_name = manager_name
+        warehouse.phone = phone
+        db.session.commit()
+        try:
+            history = OperationHistory(
+                operation_type='edit_warehouse', table_name='warehouses',
+                record_id=warehouse.id, user_id=session.get('user_id'),
+                username=session.get('username', 'Unknown'),
+                description=f'Ombor tahrirlandi: {warehouse.name}',
+                old_data=old_data,
+                new_data={'name': warehouse.name, 'address': warehouse.address,
+                          'manager': warehouse.manager_name, 'phone': warehouse.phone},
+                ip_address=request.remote_addr,
+                location_id=warehouse.id, location_type='warehouse', location_name=warehouse.name, amount=None
+            )
+            db.session.add(history)
+            db.session.commit()
+        except Exception as log_error:
+            logger.error(f'OperationHistory log xatoligi: {log_error}')
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/add_warehouse', methods=['GET', 'POST'])
 def add_warehouse():
     if request.method == 'POST':
@@ -5804,7 +5880,7 @@ def add_warehouse():
             db.session.rollback()
             return f"Xatolik: {str(e)}", 400
 
-    return render_template('add_warehouse.html')
+    return redirect(url_for('warehouses'))
 
 
 @app.route('/edit_warehouse/<int:warehouse_id>', methods=['GET', 'POST'])
@@ -5855,7 +5931,7 @@ def edit_warehouse(warehouse_id):
             db.session.rollback()
             return f"Xatolik: {str(e)}", 400
 
-    return render_template('edit_warehouse.html', warehouse=warehouse)
+    return redirect(url_for('warehouses'))
 
 
 @app.route('/api/warehouses')
