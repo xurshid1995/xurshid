@@ -16,370 +16,389 @@
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
         height: 100%;
         font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-        overflow: hidden;
-    }
-
-    /* ── Animated mesh background ── */
-    .login-bg {
-        position: fixed; inset: 0; z-index: 0;
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
-    }
-    .blob {
-        position: absolute; border-radius: 50%;
-        filter: blur(80px); opacity: 0.5;
-        animation: blobMove 10s ease-in-out infinite alternate;
-    }
-    .blob-1 { width: 500px; height: 500px; top: -120px; left: -100px; background: #4f46e5; animation-duration: 12s; }
-    .blob-2 { width: 400px; height: 400px; bottom: -100px; right: -80px; background: #7c3aed; animation-duration: 9s; }
-    .blob-3 { width: 300px; height: 300px; top: 40%; left: 35%; background: #1d4ed8; animation-duration: 14s; opacity: 0.3; }
-    .blob-4 { width: 200px; height: 200px; top: 10%; right: 20%; background: #0ea5e9; animation-duration: 7s; opacity: 0.25; }
-
-    @keyframes blobMove {
-        0%   { transform: translate(0, 0) scale(1); }
-        50%  { transform: translate(30px, -20px) scale(1.05); }
-        100% { transform: translate(-20px, 30px) scale(0.95); }
-    }
-
-    /* ── Grid overlay ── */
-    .login-bg::after {
-        content: '';
-        position: absolute; inset: 0;
-        background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 60px 60px;
-    }
-
-    /* ── Page center ── */
-    .login-page {
-        position: relative; z-index: 1;
-        min-height: 100vh;
+        background: #eef2f7;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px 20px;
+        overflow: hidden;
     }
 
-    /* ── Main card (glass) ── */
-    .login-glass {
+    /* ── Language selector ── */
+    .login-lang-selector {
+        position: fixed;
+        top: 18px;
+        right: 22px;
+        z-index: 100;
+    }
+    .login-lang-btn {
         display: flex;
-        width: 860px;
-        max-width: 100%;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255,255,255,0.92);
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: box-shadow .2s, background .2s;
+        font-family: inherit;
+    }
+    .login-lang-btn:hover { background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+    .login-lang-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 6px;
+        min-width: 148px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .login-lang-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+        cursor: pointer;
+        transition: background .15s;
+    }
+    .login-lang-option:hover { background: #f3f4f6; }
+    .login-lang-option.active { background: #eff6ff; color: #2563eb; }
+
+    /* ── Main card ── */
+    .login-card {
+        display: flex;
+        width: 880px;
+        max-width: 98vw;
         min-height: 520px;
         border-radius: 28px;
         overflow: hidden;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
-        animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
-    }
-    @keyframes cardIn {
-        from { opacity: 0; transform: translateY(28px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
+        box-shadow: 0 24px 64px rgba(30,58,138,0.18), 0 4px 16px rgba(0,0,0,0.08);
+        position: relative;
     }
 
-    /* ── Left panel ── */
-    .login-left {
+    /* ── LEFT: Form side ── */
+    .lc-form {
         flex: 1;
-        background: linear-gradient(160deg, rgba(79,70,229,0.9) 0%, rgba(109,40,217,0.85) 100%);
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255,255,255,0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 44px 40px;
-        position: relative;
-        overflow: hidden;
-    }
-    .login-left::before {
-        content: '';
-        position: absolute; top: -60px; right: -60px;
-        width: 220px; height: 220px;
-        border: 1.5px solid rgba(255,255,255,0.12);
-        border-radius: 50%;
-    }
-    .login-left::after {
-        content: '';
-        position: absolute; bottom: -80px; left: -40px;
-        width: 280px; height: 280px;
-        border: 1.5px solid rgba(255,255,255,0.08);
-        border-radius: 50%;
-    }
-    .left-top { position: relative; z-index: 1; }
-    .brand-mark {
-        width: 52px; height: 52px;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 22px; color: white; margin-bottom: 22px;
-        backdrop-filter: blur(10px);
-    }
-    .left-top h2 {
-        font-size: 26px; font-weight: 800; color: white;
-        letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 10px;
-    }
-    .left-top p { font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.6; }
-
-    .feature-list { list-style: none; position: relative; z-index: 1; }
-    .feature-list li {
-        display: flex; align-items: center; gap: 10px;
-        font-size: 13px; color: rgba(255,255,255,0.8);
-        padding: 9px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .feature-list li:last-child { border-bottom: none; }
-    .feat-icon {
-        width: 30px; height: 30px;
-        background: rgba(255,255,255,0.12);
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 11px; color: rgba(255,255,255,0.9); flex-shrink: 0;
-    }
-    .left-footer { font-size: 11px; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
-
-    /* ── Right panel ── */
-    .login-right {
-        width: 400px;
-        background: rgba(248,250,252,0.97);
-        backdrop-filter: blur(30px);
+        background: #fff;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 44px 38px;
-    }
-
-    .login-right-header { margin-bottom: 28px; }
-    .login-right-header .greeting {
-        font-size: 12px; font-weight: 600; color: #6366f1;
-        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
-        display: flex; align-items: center; gap: 6px;
-    }
-    .greeting-dot {
-        width: 6px; height: 6px; background: #6366f1; border-radius: 50%;
-        animation: pulse 1.8s ease-in-out infinite;
-    }
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(0.8); }
-    }
-    .login-right-header h1 {
-        font-size: 26px; font-weight: 800; color: #0f172a;
-        letter-spacing: -0.5px; margin-bottom: 5px;
-    }
-    .login-right-header p { font-size: 13px; color: #94a3b8; font-weight: 500; }
-
-    /* ── Alerts ── */
-    .alert {
-        padding: 10px 13px; border-radius: 10px; margin-bottom: 18px;
-        font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500;
-    }
-    .alert-error  { background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626; }
-    .alert-warning { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; }
-
-    /* ── Form ── */
-    .form-group { margin-bottom: 14px; }
-    .form-group label {
-        display: flex; align-items: center; gap: 6px;
-        margin-bottom: 6px; color: #374151; font-weight: 600; font-size: 12.5px;
-    }
-    .form-group label i { color: #a5b4fc; font-size: 11px; }
-
-    .ps-input {
-        width: 100%; padding: 11px 14px;
-        border: 1.5px solid #e2e8f0; border-radius: 11px;
-        font-size: 14px; background: white; color: #0f172a;
-        transition: all 0.2s; outline: none; box-sizing: border-box;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .ps-input::placeholder { color: #cbd5e1; }
-    .ps-input:focus {
-        border-color: #818cf8;
-        box-shadow: 0 0 0 3px rgba(129,140,248,0.15);
-        background: white;
-    }
-    .ps-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
-
-    .password-wrapper { position: relative; }
-    .password-toggle {
-        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; cursor: pointer;
-        font-size: 13px; color: #94a3b8; padding: 4px;
-        display: flex; align-items: center; transition: color 0.2s;
-    }
-    .password-toggle:hover { color: #6366f1; }
-
-    .error-message { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; font-weight: 500; }
-
-    /* ── Remember / Forgot ── */
-    .remember-forgot {
-        display: flex; justify-content: space-between;
-        align-items: center; margin: 4px 0 18px; font-size: 12.5px;
-    }
-    .remember-me {
-        display: flex; align-items: center; gap: 7px;
-        color: #475569; font-weight: 500; cursor: pointer;
-    }
-    .remember-me input[type="checkbox"] {
-        width: 14px; height: 14px; accent-color: #6366f1; cursor: pointer;
-    }
-    .forgot-password {
-        color: #6366f1; text-decoration: none; font-weight: 600; transition: color 0.2s;
-    }
-    .forgot-password:hover { color: #4f46e5; }
-
-    /* ── Login Button ── */
-    .btn-login {
-        width: 100%; padding: 13px;
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        color: white; border: none; border-radius: 11px;
-        font-size: 14px; font-weight: 700; cursor: pointer;
-        transition: all 0.25s;
-        box-shadow: 0 6px 20px rgba(99,102,241,0.4);
-        letter-spacing: 0.2px;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        position: relative; overflow: hidden;
-    }
-    .btn-login::before {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
-        opacity: 0; transition: opacity 0.2s;
-    }
-    .btn-login:hover::before { opacity: 1; }
-    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,0.5); }
-    .btn-login:active { transform: translateY(0); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    .loading { opacity: 0.7; pointer-events: none; }
-
-    /* ── Language Selector ── */
-    .login-lang-selector { position: fixed; top: 18px; right: 20px; z-index: 100; }
-    .login-lang-btn {
-        display: flex; align-items: center; gap: 6px;
-        padding: 7px 13px;
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 10px;
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        color: white; font-size: 13px; font-weight: 500;
-        cursor: pointer; outline: none;
-        transition: all 0.2s;
-    }
-    .login-lang-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); }
-    .login-lang-menu {
-        display: none; position: absolute; top: 110%; right: 0;
-        background: white; border: 1.5px solid #e2e8f0; border-radius: 12px;
-        box-shadow: 0 8px 28px rgba(0,0,0,0.15); min-width: 170px; overflow: hidden; z-index: 9999;
-    }
-    .login-lang-option {
-        display: flex; align-items: center; gap: 8px;
-        padding: 10px 14px; cursor: pointer; font-size: 13px; color: #374151; transition: background 0.15s;
-    }
-    .login-lang-option:hover { background: #f5f3ff; color: #6366f1; }
-    .login-lang-option.active { background: #f5f3ff; font-weight: 600; color: #6366f1; }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-        html, body { overflow: auto; }
-        .login-bg { position: fixed; }
-        .login-glass { flex-direction: column; width: 100%; max-width: 420px; min-height: unset; border-radius: 24px; }
-        .login-left { padding: 28px 28px 24px; }
-        .left-top h2 { font-size: 20px; }
-        .feature-list { display: none; }
-        .login-right { width: 100%; padding: 28px; }
-        .login-left::before, .login-left::after { display: none; }
-    }
-    </style>
-    }
-
-    /* ── Left Panel ── */
-    .login-left {
-        flex: 1;
-        background: linear-gradient(145deg, #1e3a8a 0%, #1d4ed8 40%, #7c3aed 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 60px 50px;
+        padding: 52px 48px;
         position: relative;
-        overflow: hidden;
+        z-index: 2;
     }
-    .login-left::before {
-        content: '';
-        position: absolute;
-        top: -80px; right: -80px;
-        width: 320px; height: 320px;
-        background: rgba(255,255,255,0.07);
-        border-radius: 50%;
-    }
-    .login-left::after {
-        content: '';
-        position: absolute;
-        bottom: -60px; left: -60px;
-        width: 260px; height: 260px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 50%;
-    }
-    .login-left-blob {
-        position: absolute;
-        top: 40%; left: 10%;
-        width: 140px; height: 140px;
-        background: rgba(124,58,237,0.35);
-        border-radius: 50%;
-        filter: blur(40px);
-    }
-    .login-left-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        color: white;
-        max-width: 340px;
-    }
-    .brand-logo-wrap {
-        width: 80px; height: 80px;
-        background: rgba(255,255,255,0.15);
-        border: 1.5px solid rgba(255,255,255,0.25);
-        border-radius: 22px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 28px;
-        font-size: 34px;
-        backdrop-filter: blur(8px);
-    }
-    .brand-logo-wrap i { color: #fff; }
-    .login-left-content h2 {
-        font-size: 28px;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 10px;
-    }
-    .login-left-content p {
-        font-size: 14px;
-        color: rgba(255,255,255,0.7);
-        line-height: 1.6;
-        margin-bottom: 40px;
-    }
-    .feature-list {
-        list-style: none;
-        text-align: left;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    .feature-list li {
+
+    .lc-logo {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 13.5px;
-        color: rgba(255,255,255,0.85);
+        margin-bottom: 32px;
     }
-    .feature-list li i {
-        width: 28px; height: 28px;
+    .lc-logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 18px;
+    }
+    .lc-logo-text {
+        font-weight: 700;
+        font-size: 15px;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+    .lc-logo-text span {
+        display: block;
+        font-weight: 400;
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    .lc-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 6px;
+        letter-spacing: -0.5px;
+    }
+    .lc-subtitle {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-bottom: 28px;
+    }
+
+    /* Alerts */
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+    .alert-warning { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .alert-error   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    /* Form */
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+    .form-group label i { color: #2563eb; font-size: 11px; }
+
+    .ps-input {
+        width: 100%;
+        height: 46px;
+        padding: 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 14px;
+        color: #1e293b;
+        background: #f8fafc;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+        font-family: inherit;
+    }
+    .ps-input:focus {
+        border-color: #2563eb;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+    .ps-input.error { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.12); }
+    .ps-input::placeholder { color: #cbd5e1; }
+
+    .password-wrapper { position: relative; }
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 4px;
+        font-size: 14px;
+        transition: color .2s;
+    }
+    .password-toggle:hover { color: #2563eb; }
+
+    .error-message {
+        display: none;
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    .remember-forgot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+    }
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+    }
+    .remember-me input[type="checkbox"] {
+        width: 16px; height: 16px;
+        accent-color: #2563eb;
+        cursor: pointer;
+    }
+    .forgot-password {
+        font-size: 13px;
+        color: #2563eb;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color .2s;
+    }
+    .forgot-password:hover { color: #1d4ed8; text-decoration: underline; }
+
+    .btn-login {
+        width: 100%;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        letter-spacing: .3px;
+        transition: transform .15s, box-shadow .2s, background .2s;
+        font-family: inherit;
+        box-shadow: 0 4px 16px rgba(37,99,235,0.30);
+    }
+    .btn-login:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(37,99,235,0.38);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+
+    /* ── RIGHT: Info side ── */
+    .lc-info {
+        width: 340px;
+        flex-shrink: 0;
+        background: linear-gradient(145deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 36px;
+        overflow: hidden;
+        color: #fff;
+    }
+
+    /* Large organic blob on left edge */
+    .info-blob-main {
+        position: absolute;
+        left: -90px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        pointer-events: none;
+    }
+    .info-blob-top {
+        position: absolute;
+        top: -70px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        pointer-events: none;
+    }
+    .info-blob-bottom {
+        position: absolute;
+        bottom: -60px;
+        left: 10px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.07);
+        pointer-events: none;
+    }
+
+    .info-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .info-icon-ring {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
         background: rgba(255,255,255,0.15);
+        border: 2px solid rgba(255,255,255,0.30);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 22px;
+        font-size: 28px;
+    }
+
+    .info-greeting {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .5px;
+        margin-bottom: 16px;
+    }
+    .info-greeting-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #86efac;
+        box-shadow: 0 0 6px #86efac;
+    }
+
+    .info-title {
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+    .info-desc {
+        font-size: 13px;
+        color: rgba(255,255,255,0.75);
+        line-height: 1.6;
+        margin-bottom: 28px;
+    }
+
+    .info-features {
+        list-style: none;
+        text-align: left;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 28px;
+    }
+    .info-features li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.88);
+        font-weight: 500;
+    }
+    .info-feat-icon {
+        width: 28px;
+        height: 28px;
         border-radius: 8px;
+        background: rgba(255,255,255,0.18);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -387,215 +406,28 @@
         flex-shrink: 0;
     }
 
-    /* ── Right Panel ── */
-    .login-right {
-        width: 480px;
-        background: #f8fafc;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 60px 48px;
+    .info-footer {
+        font-size: 11px;
+        color: rgba(255,255,255,0.45);
+        margin-top: auto;
         position: relative;
+        z-index: 2;
     }
-    .login-wrap {
-        width: 100%;
-        max-width: 360px;
-    }
-
-    /* ── Brand small top ── */
-    .login-right-header {
-        margin-bottom: 32px;
-    }
-    .login-right-header h1 {
-        font-size: 24px;
-        font-weight: 800;
-        color: #0f172a;
-        letter-spacing: -0.4px;
-        margin-bottom: 6px;
-    }
-    .login-right-header p {
-        font-size: 13.5px;
-        color: #94a3b8;
-        font-weight: 500;
-    }
-
-    /* ── Card ── */
-    .login-card {
-        background: white;
-        border-radius: 18px;
-        padding: 28px 26px;
-        box-shadow: 0 4px 24px rgba(15,23,42,0.08);
-        border: 1px solid #e2e8f0;
-    }
-
-    /* ── Alerts ── */
-    .alert {
-        padding: 11px 13px;
-        border-radius: 10px;
-        margin-bottom: 18px;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 500;
-    }
-    .alert-error  { background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626; }
-    .alert-warning { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; }
-
-    /* ── Form ── */
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 7px;
-        color: #374151;
-        font-weight: 600;
-        font-size: 13px;
-    }
-    .form-group label i { color: #94a3b8; font-size: 12px; }
-
-    .ps-input {
-        width: 100%;
-        padding: 11px 14px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 14px;
-        background: #f8fafc;
-        color: #0f172a;
-        transition: all 0.2s;
-        outline: none;
-        box-sizing: border-box;
-    }
-    .ps-input::placeholder { color: #cbd5e1; }
-    .ps-input:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-        background: white;
-    }
-    .ps-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
-
-    .password-wrapper { position: relative; }
-    .password-toggle {
-        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; cursor: pointer;
-        font-size: 14px; color: #94a3b8; padding: 4px;
-        display: flex; align-items: center; transition: color 0.2s;
-    }
-    .password-toggle:hover { color: #6366f1; }
-
-    .error-message {
-        color: #ef4444; font-size: 12px; margin-top: 5px;
-        display: none; font-weight: 500;
-    }
-
-    /* ── Divider ── */
-    .form-divider {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 6px 0 18px;
-        font-size: 12px;
-        color: #94a3b8;
-    }
-    .form-divider::before, .form-divider::after {
-        content: ''; flex: 1; height: 1px; background: #e2e8f0;
-    }
-
-    /* ── Remember / Forgot ── */
-    .remember-forgot {
-        display: flex; justify-content: space-between;
-        align-items: center; margin: 0 0 20px; font-size: 13px;
-    }
-    .remember-me {
-        display: flex; align-items: center; gap: 7px;
-        color: #475569; font-weight: 500; cursor: pointer;
-    }
-    .remember-me input[type="checkbox"] {
-        width: 15px; height: 15px; accent-color: #6366f1; cursor: pointer;
-    }
-    .forgot-password {
-        color: #6366f1; text-decoration: none; font-weight: 600; font-size: 13px; transition: color 0.2s;
-    }
-    .forgot-password:hover { color: #4f46e5; }
-
-    /* ── Login Button ── */
-    .btn-login {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 14.5px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 4px 16px rgba(99,102,241,0.35);
-        letter-spacing: 0.3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(99,102,241,0.45);
-    }
-    .btn-login:active { transform: translateY(0); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    /* ── Footer ── */
-    .login-footer {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 12px;
-        color: #94a3b8;
-    }
-
-    .loading { opacity: 0.7; pointer-events: none; }
-
-    /* ── Language Selector ── */
-    .login-lang-selector { position: fixed; top: 16px; right: 20px; z-index: 100; }
-    .login-lang-btn {
-        display: flex; align-items: center; gap: 6px;
-        padding: 7px 13px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-        background: white; color: #1e293b; font-size: 13px; font-weight: 500;
-        cursor: pointer; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: all 0.2s;
-    }
-    .login-lang-btn:hover { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-    .login-lang-menu {
-        display: none; position: absolute; top: 110%; right: 0;
-        background: white; border: 1.5px solid #e2e8f0; border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 170px; overflow: hidden; z-index: 9999;
-    }
-    .login-lang-option {
-        display: flex; align-items: center; gap: 8px;
-        padding: 10px 14px; cursor: pointer; font-size: 13px; color: #374151; transition: background 0.15s;
-    }
-    .login-lang-option:hover { background: #f5f3ff; color: #6366f1; }
-    .login-lang-option.active { background: #f5f3ff; font-weight: 600; color: #6366f1; }
 
     /* ── Responsive ── */
-    @media (max-width: 900px) {
-        .login-left { display: none; }
-        .login-right { width: 100%; padding: 40px 24px; background: #f8fafc; }
+    @media (max-width: 860px) {
+        .lc-info { display: none; }
+        .lc-form { padding: 40px 32px; }
+        .login-card { width: 420px; border-radius: 22px; }
     }
     @media (max-width: 480px) {
-        .login-right { padding: 28px 16px; }
-        .login-card { padding: 22px 18px; }
+        .lc-form { padding: 32px 22px; }
+        .login-card { width: 100vw; min-height: 100vh; border-radius: 0; }
+        body { align-items: flex-start; }
     }
     </style>
 </head>
 <body>
-    <!-- Animated background -->
-    <div class="login-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-        <div class="blob blob-4"></div>
-    </div>
 
     <!-- Language selector -->
     <div class="login-lang-selector">
@@ -622,120 +454,130 @@
         </div>
     </div>
 
-    <div class="login-page">
-        <div class="login-glass">
+    <!-- Main card -->
+    <div class="login-card">
 
-            <!-- Left Panel -->
-            <div class="login-left">
-                <div class="left-top">
-                    <div class="brand-mark"><i class="fas fa-car"></i></div>
-                    <h2>DiamondCar<br>Accessories</h2>
-                    <p>Savdo, ombor va mijozlarni<br>boshqarish tizimi</p>
-                </div>
-                <ul class="feature-list">
-                    <li><span class="feat-icon"><i class="fas fa-chart-line"></i></span> Savdo tarixini kuzatish</li>
-                    <li><span class="feat-icon"><i class="fas fa-warehouse"></i></span> Ombor boshqaruvi</li>
-                    <li><span class="feat-icon"><i class="fas fa-users"></i></span> Mijozlar va qarzlar</li>
-                    <li><span class="feat-icon"><i class="fas fa-shield-alt"></i></span> Xavfsiz va ishonchli</li>
-                </ul>
-                <div class="left-footer">© 2026 DiamondCar Accessories</div>
+        <!-- LEFT: Form -->
+        <div class="lc-form">
+            <div class="lc-logo">
+                <div class="lc-logo-icon"><i class="fas fa-car"></i></div>
+                <div class="lc-logo-text">DiamondCar <span>Accessories</span></div>
             </div>
 
-            <!-- Right Panel -->
-            <div class="login-right">
+            <h1 class="lc-title">{{ t('login_title') }}</h1>
+            <p class="lc-subtitle">Hisobingizga kiring davom etish uchun</p>
 
-                <div class="login-right-header">
-                    <div class="greeting"><span class="greeting-dot"></span> Xush kelibsiz</div>
-                    <h1>{{ t('login_title') }}</h1>
-                    <p>Hisobingizga kiring davom etish uchun</p>
-                </div>
-
-                <!-- Session tugash xabari -->
-                <div id="sessionExpiredAlert" class="alert alert-warning" style="display: none;">
-                    <i class="fas fa-clock"></i> <span>{{ t('session_expired') }}</span>
-                </div>
-                <!-- Xatolik xabari -->
-                <div id="errorAlert" class="alert alert-error" style="display: none;">
-                    <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
-                </div>
-                {% if error_message %}
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i> <span>{{ error_message }}</span>
-                </div>
-                {% endif %}
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">
-                            <i class="fas fa-user"></i> {{ t('username') }}
-                        </label>
-                        <input type="text" id="username" name="username" class="ps-input"
-                               placeholder="{{ t('username') }}" autocomplete="username" required>
-                        <div class="error-message" id="usernameError"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">
-                            <i class="fas fa-lock"></i> {{ t('password') }}
-                        </label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="ps-input"
-                                   placeholder="{{ t('password') }}" autocomplete="current-password"
-                                   style="padding-right: 42px;" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword()">
-                                <i class="fas fa-eye" id="eyeIcon"></i>
-                            </button>
-                        </div>
-                        <div class="error-message" id="passwordError"></div>
-                    </div>
-
-                    <div class="remember-forgot">
-                        <label class="remember-me">
-                            <input type="checkbox" id="rememberMe" name="remember">
-                            <span>{{ t('remember_me') }}</span>
-                        </label>
-                        <a href="#" class="forgot-password">{{ t('forgot_password') }}</a>
-                    </div>
-
-                    <button type="submit" class="btn-login" id="loginBtn">
-                        <i class="fas fa-arrow-right-to-bracket"></i> {{ t('login_button') }}
-                    </button>
-                </form>
-
+            <!-- Alerts -->
+            <div id="sessionExpiredAlert" class="alert alert-warning" style="display:none;">
+                <i class="fas fa-clock"></i> <span>{{ t('session_expired') }}</span>
             </div>
+            <div id="errorAlert" class="alert alert-error" style="display:none;">
+                <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
+            </div>
+            {% if error_message %}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ error_message }}</span>
+            </div>
+            {% endif %}
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i> {{ t('username') }}
+                    </label>
+                    <input type="text" id="username" name="username" class="ps-input"
+                           placeholder="{{ t('username') }}" autocomplete="username" required>
+                    <div class="error-message" id="usernameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> {{ t('password') }}
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" class="ps-input"
+                               placeholder="{{ t('password') }}" autocomplete="current-password"
+                               style="padding-right:44px;" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="remember">
+                        <span>{{ t('remember_me') }}</span>
+                    </label>
+                    <a href="#" class="forgot-password">{{ t('forgot_password') }}</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fas fa-arrow-right-to-bracket"></i> {{ t('login_button') }}
+                </button>
+            </form>
         </div>
-    </div>
+
+        <!-- RIGHT: Info panel -->
+        <div class="lc-info">
+            <div class="info-blob-main"></div>
+            <div class="info-blob-top"></div>
+            <div class="info-blob-bottom"></div>
+
+            <div class="info-content">
+                <div class="info-icon-ring">
+                    <i class="fas fa-car"></i>
+                </div>
+
+                <div class="info-greeting">
+                    <span class="info-greeting-dot"></span>
+                    Xush kelibsiz!
+                </div>
+
+                <h2 class="info-title">DiamondCar<br>Accessories</h2>
+                <p class="info-desc">Savdo, ombor va mijozlarni<br>boshqarish tizimi</p>
+
+                <ul class="info-features">
+                    <li>
+                        <span class="info-feat-icon"><i class="fas fa-chart-line"></i></span>
+                        Savdo tarixini kuzatish
+                    </li>
+                    <li>
+                        <span class="info-feat-icon"><i class="fas fa-warehouse"></i></span>
+                        Ombor boshqaruvi
+                    </li>
+                    <li>
+                        <span class="info-feat-icon"><i class="fas fa-users"></i></span>
+                        Mijozlar va qarzlar
+                    </li>
+                    <li>
+                        <span class="info-feat-icon"><i class="fas fa-shield-alt"></i></span>
+                        Xavfsiz va ishonchli
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-footer">© 2026 DiamondCar Accessories</div>
+        </div>
+
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
         const sessionExpiredAlert = document.getElementById('sessionExpiredAlert');
 
-        // Session tugash parametrini tekshirish
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('session_expired') === 'true') {
-            sessionExpiredAlert.style.display = 'block';
-            
-            // Saqlangan sahifa ma'lumotlarini localStorage'dan olish
+            sessionExpiredAlert.style.display = 'flex';
             const savedData = localStorage.getItem('session_backup');
             if (savedData) {
                 try {
                     const pageData = JSON.parse(savedData);
-                    console.log('💾 Saqlangan ma\'lumotlar:', pageData);
-                    
-                    // URL'dan return_url parametrini olish
                     const returnUrl = urlParams.get('return_url');
-                    if (returnUrl) {
-                        // Login muvaffaqiyatli bo'lgandan keyin qaytish uchun saqlash
-                        sessionStorage.setItem('return_url', returnUrl);
-                    }
-                } catch (e) {
-                    console.error('Ma\'lumotlarni o\'qishda xatolik:', e);
-                }
+                    if (returnUrl) sessionStorage.setItem('return_url', returnUrl);
+                } catch (e) { console.error(e); }
             }
         }
 
@@ -744,10 +586,8 @@
 
     async function handleLogin(e) {
         e.preventDefault();
-        
-        // Xatoliklarni tozalash
         clearErrors();
-        
+
         const formData = new FormData(e.target);
         const loginData = {
             username: formData.get('username').trim(),
@@ -755,33 +595,23 @@
             remember: formData.get('remember') === 'on'
         };
 
-        // Validatsiya
-        if (!validateLogin(loginData)) {
-            return;
-        }
-
-        // Loading holatini ko'rsatish
+        if (!validateLogin(loginData)) return;
         setLoading(true);
 
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(loginData)
             });
-
             const data = await response.json();
 
             if (data.success) {
-                loginBtn.innerHTML = '✓ {{ t("success") }}';
-                loginBtn.style.background = '#059669';
-                setTimeout(() => {
-                    window.location.href = data.redirect || '/dashboard';
-                }, 1000);
+                const loginBtn = document.getElementById('loginBtn');
+                loginBtn.innerHTML = '<i class="fas fa-check"></i> {{ t("success") }}';
+                loginBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                setTimeout(() => { window.location.href = data.redirect || '/dashboard'; }, 900);
             } else {
-                // Xatolik
                 showError(data.message || {{ t("login_error")|tojson }});
             }
         } catch (error) {
@@ -793,88 +623,58 @@
     }
 
     function validateLogin(data) {
-        let isValid = true;
-
-        if (!data.username) {
-            showFieldError('username', {{ t("required_field")|tojson }});
-            isValid = false;
-        }
-
-        if (!data.password) {
-            showFieldError('password', {{ t("required_field")|tojson }});
-            isValid = false;
-        }
-
-        return isValid;
+        let ok = true;
+        if (!data.username) { showFieldError('username', {{ t("required_field")|tojson }}); ok = false; }
+        if (!data.password) { showFieldError('password', {{ t("required_field")|tojson }}); ok = false; }
+        return ok;
     }
 
-    function showError(message) {
-        errorMessage.textContent = message;
-        errorAlert.style.display = 'block';
+    function showError(msg) {
+        const el = document.getElementById('errorMessage');
+        const alert = document.getElementById('errorAlert');
+        el.textContent = msg;
+        alert.style.display = 'flex';
     }
 
-    function showFieldError(field, message) {
+    function showFieldError(field, msg) {
         const input = document.getElementById(field);
-        const errorDiv = document.getElementById(field + 'Error');
-        
+        const err = document.getElementById(field + 'Error');
         input.classList.add('error');
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
+        err.textContent = msg;
+        err.style.display = 'block';
     }
 
-    // Parolni ko'rsatish/yashirish
     function togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const eyeIcon = document.getElementById('eyeIcon');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            eyeIcon.className = 'fas fa-eye-slash';
-        } else {
-            passwordInput.type = 'password';
-            eyeIcon.className = 'fas fa-eye';
-        }
+        const inp = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+        if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+        else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
     }
 
     function clearErrors() {
-        errorAlert.style.display = 'none';
-        
-        const inputs = document.querySelectorAll('.ps-input');
-        const errors = document.querySelectorAll('.error-message');
-        
-        inputs.forEach(input => input.classList.remove('error'));
-        errors.forEach(error => {
-            error.style.display = 'none';
-            error.textContent = '';
-        });
+        document.getElementById('errorAlert').style.display = 'none';
+        document.querySelectorAll('.ps-input').forEach(i => i.classList.remove('error'));
+        document.querySelectorAll('.error-message').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
     }
 
     function setLoading(loading) {
-        const form = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        
+        const btn = document.getElementById('loginBtn');
         if (loading) {
-            form.classList.add('loading');
-            loginBtn.innerHTML = '{{ t("loading") }}';
-            loginBtn.disabled = true;
+            btn.innerHTML = '{{ t("loading") }}';
+            btn.disabled = true;
         } else {
-            form.classList.remove('loading');
-            loginBtn.innerHTML = '{{ t("login_button") }}';
-            loginBtn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> {{ t("login_button") }}';
+            btn.disabled = false;
         }
     }
 
-    // Til o'zgartirish (login sahifasi)
     function changeLoginLang(lang) {
         fetch('/api/settings/language', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({language: lang})
-        }).then(res => res.json()).then(data => {
-            if (data.success) {
-                window.location.reload();
-            }
-        }).catch(err => console.error('Til xato:', err));
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ language: lang })
+        }).then(r => r.json()).then(d => { if (d.success) window.location.reload(); })
+          .catch(err => console.error('Til xato:', err));
     }
 
     function toggleLoginLang() {
@@ -890,7 +690,7 @@
         }
     });
 
-    // CSRF himoya - POST fetch so'rovlariga X-CSRFToken header qo'shish
+    // CSRF protection for POST requests
     (function () {
         const _origFetch = window.fetch;
         window.fetch = function (url, options) {
