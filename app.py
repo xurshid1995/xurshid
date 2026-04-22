@@ -3289,6 +3289,74 @@ def debts():
         allowed_locations=user.allowed_locations if user else [])
 
 
+@app.route('/customer-balances')
+@role_required('admin', 'kassir', 'sotuvchi')
+def customer_balances():
+    """Mijozlar balansi sahifasi"""
+    user = get_current_user()
+    return render_template(
+        'customer_balances.html',
+        page_title='Mijozlar balansi',
+        icon='💰',
+        current_user=user,
+        user_role=user.role if user else 'guest')
+
+
+@app.route('/api/customer-balances')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_customer_balances():
+    """Barcha mijozlar balansi (qarz + to'langan) API"""
+    try:
+        current_user = get_current_user()
+        exchange_rate = get_current_currency_rate()
+
+        from sqlalchemy import text as sa_text
+
+        query = sa_text("""
+            SELECT
+                c.id,
+                c.name,
+                c.phone,
+                c.store_id,
+                COALESCE(SUM(s.debt_usd), 0) AS debt_usd,
+                COALESCE(c.last_debt_payment_usd, 0) AS last_payment_amount,
+                c.last_debt_payment_date AS last_payment_date,
+                COALESCE(
+                    (SELECT SUM(dp.amount_usd)
+                     FROM debt_payments dp
+                     WHERE dp.customer_id = c.id), 0
+                ) AS paid_usd
+            FROM customers c
+            LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
+            GROUP BY c.id, c.name, c.phone, c.store_id,
+                     c.last_debt_payment_usd, c.last_debt_payment_date
+            ORDER BY debt_usd DESC, c.name ASC
+        """)
+
+        result = db.session.execute(query)
+
+        customers = []
+        for row in result:
+            customers.append({
+                'id': row.id,
+                'name': row.name,
+                'phone': row.phone or '',
+                'debt_usd': float(row.debt_usd),
+                'paid_usd': float(row.paid_usd),
+                'last_payment_amount': float(row.last_payment_amount),
+                'last_payment_date': row.last_payment_date.strftime('%d.%m.%Y %H:%M') if row.last_payment_date else None,
+            })
+
+        return jsonify({
+            'success': True,
+            'customers': customers,
+            'exchange_rate': float(exchange_rate)
+        })
+    except Exception as e:
+        logger.error(f"Customer balances API xatosi: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/paid-debts-history')
 @role_required('admin', 'kassir', 'sotuvchi')
 def paid_debts_history():
