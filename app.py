@@ -980,6 +980,7 @@ class Customer(db.Model):
     last_debt_payment_usd = db.Column(db.Numeric(10, 2), default=0)
     last_debt_payment_date = db.Column(db.DateTime, nullable=True)
     last_debt_payment_rate = db.Column(db.Numeric(10, 2), default=13000)
+    balance = db.Column(db.DECIMAL(precision=15, scale=4), nullable=False, default=0)  # Mijoz balansi (ortiqcha to'lov)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(
         db.DateTime,
@@ -3318,6 +3319,7 @@ def api_customer_balances():
                 c.name,
                 c.phone,
                 c.store_id,
+                COALESCE(c.balance, 0) AS balance,
                 COALESCE(SUM(s.debt_usd), 0) AS debt_usd,
                 COALESCE(c.last_debt_payment_usd, 0) AS last_payment_amount,
                 c.last_debt_payment_date AS last_payment_date,
@@ -3328,7 +3330,7 @@ def api_customer_balances():
                 ) AS paid_usd
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-            GROUP BY c.id, c.name, c.phone, c.store_id,
+            GROUP BY c.id, c.name, c.phone, c.store_id, c.balance,
                      c.last_debt_payment_usd, c.last_debt_payment_date
             ORDER BY debt_usd DESC, c.name ASC
         """)
@@ -3343,6 +3345,7 @@ def api_customer_balances():
                 'phone': row.phone or '',
                 'debt_usd': float(row.debt_usd),
                 'paid_usd': float(row.paid_usd),
+                'balance': float(row.balance),
                 'last_payment_amount': float(row.last_payment_amount),
                 'last_payment_date': row.last_payment_date.strftime('%d.%m.%Y %H:%M') if row.last_payment_date else None,
             })
@@ -7081,7 +7084,14 @@ def api_debt_payment():
                 customer.last_debt_payment_date = db.func.current_timestamp()
                 customer.last_debt_payment_rate = get_current_currency_rate()
 
+            # Ortiqcha to'lov balansga qo'shiladi
+            if remaining_payment > 0:
+                old_balance = Decimal(str(customer.balance or 0))
+                customer.balance = old_balance + remaining_payment
+                logger.info(f"💳 Mijoz #{customer_id} balansiga ${remaining_payment} qo'shildi (yangi balans: ${customer.balance})")
+
         # Qarz to'lovi tarixiga yozuv qo'shish
+        actual_paid = payment_usd - remaining_payment
         debt_payment = DebtPayment(
             customer_id=customer_id,
             sale_id=updated_sales[0] if updated_sales else None,  # Birinchi to'langan savdo
@@ -7089,10 +7099,10 @@ def api_debt_payment():
             cash_usd=cash_usd,
             click_usd=click_usd,
             terminal_usd=terminal_usd,
-            total_usd=payment_usd - remaining_payment,
+            total_usd=actual_paid,
             currency_rate=get_current_currency_rate(),
             received_by=session.get('user_name', 'Unknown'),
-            notes=f"{len(updated_sales)} ta savdoning qarziga to'lov qilindi"
+            notes=f"{len(updated_sales)} ta savdoning qarziga to'lov qilindi" + (f", ${remaining_payment} balansga o'tkazildi" if remaining_payment > 0 else "")
         )
         db.session.add(debt_payment)
 
@@ -7161,7 +7171,9 @@ def api_debt_payment():
             'success': True,
             'message': 'To\'lov muvaffaqiyatli amalga oshirildi',
             'updated_sales': updated_sales,
-            'paid_amount': float(payment_usd - remaining_payment)
+            'paid_amount': float(payment_usd - remaining_payment),
+            'balance_added': float(remaining_payment),
+            'new_balance': float(customer.balance) if customer else 0
         })
 
     except Exception as e:

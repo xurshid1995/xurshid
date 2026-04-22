@@ -359,12 +359,13 @@
                         <th>{{ t('cb_th_debt') }}</th>
                         <th>{{ t('cb_th_last_payment') }}</th>
                         <th>{{ t('cb_th_paid_total') }}</th>
+                        <th>{{ t('cb_th_balance') }}</th>
                         <th>{{ t('cb_th_status') }}</th>
                         <th>{{ t('cb_th_actions') }}</th>
                     </tr>
                 </thead>
                 <tbody id="cb-tbody">
-                    <tr><td colspan="7" class="cb-loading"><i class="fas fa-spinner fa-spin"></i> {{ t('cb_loading') }}</td></tr>
+                    <tr><td colspan="8" class="cb-loading"><i class="fas fa-spinner fa-spin"></i> {{ t('cb_loading') }}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -422,7 +423,7 @@ function renderTable(list) {
     document.getElementById('cb-count').textContent = list.length + ' ' + CB_LANG.customers_count;
     if (!list.length) {
         document.getElementById('cb-tbody').innerHTML =
-            `<tr><td colspan="7" class="cb-empty"><i class="fas fa-users-slash"></i>${CB_LANG.no_data}</td></tr>`;
+            `<tr><td colspan="8" class="cb-empty"><i class="fas fa-users-slash"></i>${CB_LANG.no_data}</td></tr>`;
         return;
     }
 
@@ -466,6 +467,11 @@ function renderTable(list) {
             <td>${lastPayment}</td>
             <td>
                 <span class="cb-amount-paid">$${paidUsd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+            </td>
+            <td>
+                ${(c.balance && c.balance > 0)
+                    ? `<span class="cb-badge" style="background:#d1fae5;color:#065f46;font-weight:700;">$${parseFloat(c.balance).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
+                    : `<span style="color:#94a3b8;font-size:13px;">—</span>`}
             </td>
             <td>${statusBadge}</td>
             <td>

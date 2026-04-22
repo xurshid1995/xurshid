@@ -630,10 +630,13 @@
             return;
         }
 
-        if (totalPayment > debtData.remaining_debt) {
-            if (!confirm(`${CDDLANG.amount_exceeds} (${formatUSD(debtData.remaining_debt)}) ${CDDLANG.amount_exceeds2}`)) {
-                return;
-            }
+        const remainingDebt = debtData.remaining_debt || 0;
+
+        // Ortiqcha to'lov ogohlantirilishi
+        if (totalPayment > remainingDebt) {
+            const excess = (totalPayment - remainingDebt).toFixed(2);
+            const confirmMsg = `⚠️ Diqqat!\n\nQarz: $${remainingDebt.toFixed(2)}\nTo'lov: $${totalPayment.toFixed(2)}\nOrtiqcha: $${excess}\n\nOrtiqcha $${excess} mijoz balansiga o'tkaziladi.\n\nDavom etasizmi?`;
+            if (!confirm(confirmMsg)) return;
         }
 
         // Joriy sanani olish
@@ -660,7 +663,11 @@
             const result = await response.json();
 
             if (response.ok && result.success) {
-                alert('✅ ' + CDDLANG.payment_success);
+                if (result.balance_added && result.balance_added > 0) {
+                    alert(`✅ To'lov amalga oshirildi!\n\n💳 Ortiqcha $${result.balance_added.toFixed(2)} mijoz balansiga o'tkazildi.\nYangi balans: $${result.new_balance.toFixed(2)}`);
+                } else {
+                    alert('✅ ' + CDDLANG.payment_success);
+                }
                 // Sahifani yangilash
                 location.reload();
             } else {
