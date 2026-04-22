@@ -3322,7 +3322,7 @@ def api_customer_balances():
                 COALESCE(c.last_debt_payment_usd, 0) AS last_payment_amount,
                 c.last_debt_payment_date AS last_payment_date,
                 COALESCE(
-                    (SELECT SUM(dp.amount_usd)
+                    (SELECT SUM(dp.total_usd)
                      FROM debt_payments dp
                      WHERE dp.customer_id = c.id), 0
                 ) AS paid_usd
