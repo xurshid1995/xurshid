@@ -948,6 +948,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <input type="number" id="paymentBalanceUSD" step="0.01" min="0" placeholder="$0.00"
+                        oninput="updateDebtFieldState()"
                         style="width: 110px; padding: 8px; border: 2px solid #34d399; border-radius: 6px; font-size: 14px; font-weight: 700; background: #ecfdf5; color: #065f46; text-align: right;">
                     <span style="color: #065f46; font-size: 13px; font-weight: 600;">USD</span>
                 </div>
@@ -977,7 +978,7 @@
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_debt') }}</label>
                 <input type="number" id="paymentDebtUSD" step="0.01" placeholder="$" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                 <input type="number" id="paymentDebtUZS" step="1" placeholder="UZS" style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
-                <button onclick="addRemainingToField('paymentDebtUSD')" style="padding: 8px 12px; background: #1a6eff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
+                <button id="debtQolganBtn" onclick="addRemainingToField('paymentDebtUSD')" style="padding: 8px 12px; background: #1a6eff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 11px; white-space: nowrap;">{{ t('btn_add_remaining') }}</button>
             </div>
             
             <!-- Qarz to'lash muddati -->
@@ -5759,7 +5760,34 @@
             });
         });
         
+        // Balans qiymatiga qarab qarz maydonini bloklash/ochish
+        updateDebtFieldState();
+        
         console.log('💳 To\'lov modali ochildi');
+    }
+    
+    // Balans kiritilsa qarz maydonini disable/enable qilish
+    function updateDebtFieldState() {
+        const balanceInput = document.getElementById('paymentBalanceUSD');
+        const debtUSD = document.getElementById('paymentDebtUSD');
+        const debtUZS = document.getElementById('paymentDebtUZS');
+        const debtBtn = document.getElementById('debtQolganBtn');
+        const balanceVal = balanceInput ? parseFloat(balanceInput.value) || 0 : 0;
+        
+        if (balanceVal > 0) {
+            // Balans ishlatilmoqda → qarz maydonini bloklash
+            if (debtUSD) { debtUSD.disabled = true; debtUSD.value = ''; debtUSD.style.background = '#f1f1f1'; debtUSD.style.cursor = 'not-allowed'; }
+            if (debtUZS) { debtUZS.disabled = true; debtUZS.value = ''; debtUZS.style.background = '#f1f1f1'; debtUZS.style.cursor = 'not-allowed'; }
+            if (debtBtn) { debtBtn.disabled = true; debtBtn.style.background = '#aaa'; debtBtn.style.cursor = 'not-allowed'; }
+            // Qarz muddat seksiyasini yashirish
+            const dueDateSection = document.getElementById('paymentDueDateSection');
+            if (dueDateSection) dueDateSection.style.display = 'none';
+        } else {
+            // Balans ishlatilmayapti → qarz maydonini ochish
+            if (debtUSD) { debtUSD.disabled = false; debtUSD.style.background = ''; debtUSD.style.cursor = ''; }
+            if (debtUZS) { debtUZS.disabled = false; debtUZS.style.background = ''; debtUZS.style.cursor = ''; }
+            if (debtBtn) { debtBtn.disabled = false; debtBtn.style.background = '#1a6eff'; debtBtn.style.cursor = 'pointer'; }
+        }
     }
     
     // To'lov modal oynasini yopish
