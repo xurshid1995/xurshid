@@ -733,6 +733,7 @@
         <div id="stockQueueBadge" style="display:none; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:4px 12px; font-size:13px; color:#856404; cursor:default;">
             <span style="animation: spin 1.5s linear infinite; display:inline-block;">⏳</span>
             <span id="stockQueueCount"></span> ta amal kutmoqda...
+            <span onclick="offlineQueue.clearAll()" title="Navbatni tozalash" style="margin-left:4px; cursor:pointer; font-weight:700; color:#dc3545; font-size:15px; line-height:1;">×</span>
         </div>
     </div>
     
@@ -1295,9 +1296,16 @@
         init() {
             this._updateBadge();
             window.addEventListener('online', () => {
-                console.log('\ud83d\udfe2 Internet tiklandi - navbat tekshirilmoqda...');
+                console.log('🟢 Internet tiklandi - navbat tekshirilmoqda...');
                 setTimeout(() => this.processAll(), 1000);
             });
+        },
+
+        clearAll() {
+            if (confirm('Kutayotgan ' + this.get().length + ' ta amal o\'chirilsinmi? (Ular serverga yuborilmaydi)')) {
+                this._save([]);
+                console.log('🗑️ Navbat tozalandi');
+            }
         }
     };
 
