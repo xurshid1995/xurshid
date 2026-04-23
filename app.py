@@ -3468,13 +3468,20 @@ def api_customer_timeline(customer_id):
         # Sanaga ko'ra tartiblash (yangirog'i birinchi)
         events.sort(key=lambda x: x['date'] or '', reverse=True)
 
+        # Haqiqiy qarz = savdolardagi joriy qolgan debt_usd yig'indisi
+        # (debt_usd har to'lovda kamaytiriladi, shuning uchun to'g'ridan-to'g'ri yig'ish kifoya)
+        current_debt = sum(float(s.debt_usd or 0) for s in sales if float(s.debt_usd or 0) > 0)
+        total_paid_usd = sum(float(p.total_usd or 0) for p in payments)
+
         return jsonify({
             'success': True,
             'customer': {
                 'id': customer.id,
                 'name': customer.name,
                 'phone': customer.phone or '',
-                'balance': float(customer.balance or 0)
+                'balance': float(customer.balance or 0),
+                'current_debt': current_debt,
+                'total_paid_usd': total_paid_usd
             },
             'events': events
         })

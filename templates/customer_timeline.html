@@ -145,7 +145,8 @@ async function loadTimeline() {
         const payments = allEvents.filter(e => e.type === 'payment');
         const totalBought = sales.reduce((s, e) => s + e.total_amount, 0);
         const totalPaid = payments.reduce((s, e) => s + e.total_usd, 0);
-        const currentDebt = sales.reduce((s,e) => s + (e.debt_usd||0), 0) - totalPaid;
+        // current_debt serverdan olinadi (sale.debt_usd har to'lovda yangilanadi)
+        const currentDebt = c.current_debt || 0;
 
         document.getElementById('statSales').textContent = sales.length + ' ta';
         document.getElementById('statTotalBought').textContent = '$' + totalBought.toFixed(2);
