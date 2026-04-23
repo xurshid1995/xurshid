@@ -230,15 +230,14 @@ function statusBadge(status) {
 }
 
 function afterRow(e) {
-    const debt = e.debt_after || 0;
-    const bal = e.balance_after || 0;
-    const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
-    let html = `<div class="tl-after-row">
-        <span class="tl-after-label">Amaldan keyin:</span>
-        <span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span>`;
-    if (bal > 0) html += `<span class="tl-after-balance">Balans: $${bal.toFixed(2)}</span>`;
-    html += `</div>`;
-    return html;
+    if (!e.delta_label) return '';
+    let color = '#16a34a', bg = '#dcfce7';
+    if (e.delta_type === 'debt') { color = '#dc2626'; bg = '#fee2e2'; }
+    else if (e.delta_type === 'return') { color = '#92400e'; bg = '#fef3c7'; }
+    return `<div class="tl-after-row">
+        <span class="tl-after-label">Bu amal:</span>
+        <span style="background:${bg};color:${color};border-radius:5px;padding:2px 8px;font-weight:600;font-size:12px;">${e.delta_label}</span>
+    </div>`;
 }
 
 function renderReturn(e) {

@@ -3493,34 +3493,23 @@ def api_customer_timeline(customer_id):
         current_debt = sum(float(s.debt_usd or 0) for s in sales if float(s.debt_usd or 0) > 0)
         total_paid_usd = sum(float(p.total_usd or 0) for p in payments)
 
-        # --- Har bir amaldan keyin qarz va balans holati ---
-        # Har bir savdo uchun asl qarz: joriy debt_usd + o'sha savdoga bog'liq to'lovlar
-        sale_payments_map = {}  # sale_id -> jami to'langan
-        for p in payments:
-            if p.sale_id:
-                sale_payments_map[p.sale_id] = sale_payments_map.get(p.sale_id, 0.0) + float(p.total_usd or 0)
-        original_debt_map = {}  # sale_id -> asl qarz
-        for s in sales:
-            tied = sale_payments_map.get(s.id, 0.0)
-            original_debt_map[s.id] = float(s.debt_usd or 0) + tied
-
-        # Vaqt bo'yicha o'sish tartibida (eski → yangi) ishlaymiz
-        chrono = sorted(events, key=lambda x: x['date'] or '')
-        running_debt = 0.0
-        running_balance = 0.0
-        for ev in chrono:
+        # Har bir amal uchun delta (o'zgarish) qo'shish
+        for ev in events:
             if ev['type'] == 'sale':
-                orig = original_debt_map.get(ev['id'], ev['debt_usd'])
-                running_debt += orig
-            elif ev['type'] == 'payment':
-                paid = ev['total_usd']
-                if paid >= running_debt:
-                    running_balance += paid - running_debt
-                    running_debt = 0.0
+                d = ev.get('debt_usd', 0)
+                paid_now = ev.get('total_amount', 0) - d
+                if d > 0:
+                    ev['delta_label'] = f"Qarz +${d:.2f}"
+                    ev['delta_type'] = 'debt'
                 else:
-                    running_debt -= paid
-            ev['debt_after'] = round(running_debt, 2)
-            ev['balance_after'] = round(running_balance, 2)
+                    ev['delta_label'] = f"To'liq to'langan"
+                    ev['delta_type'] = 'paid'
+            elif ev['type'] == 'payment':
+                ev['delta_label'] = f"To'lov +${ev.get('total_usd',0):.2f}"
+                ev['delta_type'] = 'payment'
+            elif ev['type'] == 'return':
+                ev['delta_label'] = f"Qaytarildi -${ev.get('amount_usd',0):.2f}"
+                ev['delta_type'] = 'return'
 
         return jsonify({
             'success': True,
