@@ -3493,43 +3493,45 @@ def api_customer_timeline(customer_id):
         current_debt = sum(float(s.debt_usd or 0) for s in sales if float(s.debt_usd or 0) > 0)
         total_paid_usd = sum(float(p.total_usd or 0) for p in payments)
 
-        # --- Har bir amaldan keyin qarz va balans ---
-        # Asl qarz = joriy debt_usd + o'sha savdoga bog'liq to'lovlar yig'indisi
+        # Har bir savdo uchun asl qarz = joriy debt_usd + o'sha savdoga bog'liq to'lovlar
         sale_linked_payments = {}
         for p in payments:
             if p.sale_id:
                 sale_linked_payments[p.sale_id] = sale_linked_payments.get(p.sale_id, 0.0) + float(p.total_usd or 0)
-
         original_debt_map = {}
         for s in sales:
             orig = float(s.debt_usd or 0) + sale_linked_payments.get(s.id, 0.0)
             original_debt_map[s.id] = orig
 
-        # Vaqt bo'yicha eski → yangi tartibda yuramiz
-        chrono = sorted(events, key=lambda x: x['date'] or '')
-        running_debt = 0.0
-        running_balance = 0.0
+        # --- Orqaga ishlash: oxirgi to'g'ri holatdan (DB) vaqt bo'yicha orqaga ---
+        # Bu yondashuv har doim DB dagi joriy qarz/balans bilan mos keladi
+        final_debt = current_debt
+        final_balance = float(customer.balance or 0)
 
-        for ev in chrono:
+        chrono_rev = sorted(events, key=lambda x: x['date'] or '', reverse=True)
+        rd = final_debt
+        rb = final_balance
+
+        for ev in chrono_rev:
+            ev['debt_after'] = round(max(0.0, rd), 2)
+            ev['balance_after'] = round(max(0.0, rb), 2)
+
             if ev['type'] == 'sale':
+                # Bu savdoni bekor qilish: qarz + orqaga
                 orig = original_debt_map.get(ev['id'], 0.0)
-                running_debt += orig
+                rd = max(0.0, rd - orig)
             elif ev['type'] == 'payment':
-                paid = ev['total_usd']
-                if paid > running_debt:
-                    running_balance += paid - running_debt
-                    running_debt = 0.0
-                else:
-                    running_debt -= paid
+                amt = ev.get('total_usd', 0)
+                rb -= amt
+                if rb < 0:
+                    rd += abs(rb)
+                    rb = 0.0
             elif ev['type'] == 'return':
-                amt = ev['amount_usd']
-                if running_debt >= amt:
-                    running_debt -= amt
-                else:
-                    running_balance += amt - running_debt
-                    running_debt = 0.0
-            ev['debt_after'] = round(max(0.0, running_debt), 2)
-            ev['balance_after'] = round(max(0.0, running_balance), 2)
+                amt = ev.get('amount_usd', 0)
+                rb -= amt
+                if rb < 0:
+                    rd += abs(rb)
+                    rb = 0.0
 
         return jsonify({
             'success': True,
