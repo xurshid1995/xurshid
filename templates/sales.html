@@ -943,7 +943,7 @@
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 22px;">💳</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; color: #065f46; font-size: 14px;">Mijoz balansi mavjud</div>
+                    <div style="font-weight: 700; color: #065f46; font-size: 14px;">Mijoz balansi mavjud: <span id="paymentBalanceTotal">$0.00</span></div>
                     <div style="font-size: 13px; color: #047857;">Balansdan foydalanish: <strong id="paymentBalanceAvailable">$0.00</strong></div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -5604,10 +5604,12 @@
         const balanceAvailableEl = document.getElementById('paymentBalanceAvailable');
         const balanceInput = document.getElementById('paymentBalanceUSD');
         
+        const balanceTotalEl = document.getElementById('paymentBalanceTotal');
         if (currentCustomerBalance > 0 && balanceSection && balanceAvailableEl && balanceInput) {
             balanceSection.style.display = 'block';
-            balanceAvailableEl.textContent = `$${currentCustomerBalance.toFixed(2)}`;
+            if (balanceTotalEl) balanceTotalEl.textContent = `$${currentCustomerBalance.toFixed(2)}`;
             const balanceToUse = Math.min(currentCustomerBalance, totalUSD);
+            balanceAvailableEl.textContent = `$${balanceToUse.toFixed(2)}`;
             balanceInput.value = balanceToUse.toFixed(2);
             balanceInput.max = currentCustomerBalance.toFixed(2);
             // Cash ni kamaytirish (balans qoplagandan qolganini naqd qilish)
