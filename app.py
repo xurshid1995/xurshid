@@ -3554,6 +3554,7 @@ def api_return_product():
         items = data.get('items', [])
         location_id = data.get('location_id')
         location_type = data.get('location_type')
+        refund_type = data.get('refund_type', 'cash')  # 'cash' yoki 'balance'
 
         logger.info(f"sale_id={sale_id}, items count={len(items)}, location_id={location_id}, location_type={location_type}")
 
@@ -3734,70 +3735,104 @@ def api_return_product():
             logger.info(f"  - Xarajat: -${total_returned_cost}")
             logger.info(f"  - Foyda: -${total_returned_profit}")
 
-            # To'lovlarni avtomatik qaytarish (Smart Logic: avval qarz, keyin naqd, click, terminal)
-            remaining_refund = total_returned_usd
-            refunded_payments = []
+            # To'lovlarni qaytarish turi bo'yicha
+            if refund_type == 'balance':
+                # Mijoz balansiga qo'shish
+                customer = Customer.query.get(sale.customer_id) if sale.customer_id else None
+                if customer:
+                    old_balance = Decimal(str(customer.balance or 0))
+                    customer.balance = old_balance + total_returned_usd
+                    logger.info(f"🏦 Mijoz #{customer.id} balansiga ${total_returned_usd} qo'shildi (yangi balans: ${customer.balance})")
+                    refund_operation = OperationHistory(
+                        operation_type='payment_refund',
+                        table_name='sales',
+                        record_id=sale_id,
+                        user_id=session.get('user_id'),
+                        username=session.get('username'),
+                        description=f"Qaytarilgan summa mijoz balansiga qo'shildi: ${total_returned_usd:.2f}",
+                        old_data={'balance': float(old_balance)},
+                        new_data={
+                            'sale_id': sale_id,
+                            'payment_type': 'balance',
+                            'refund_amount_usd': float(total_returned_usd),
+                            'new_balance': float(customer.balance)
+                        },
+                        ip_address=request.remote_addr,
+                        location_id=location_id,
+                        location_type=location_type,
+                        location_name=location_name,
+                        amount=float(total_returned_usd * sale.currency_rate)
+                    )
+                    db.session.add(refund_operation)
+                else:
+                    logger.warning("⚠️ Savdoda mijoz yo'q, balans o'rniga naqd qaytarish amalga oshiriladi")
+                    refund_type = 'cash'  # Fallback to cash
 
-            # 1. AVVAL qarzdan qaytarish (agar qarz mavjud bo'lsa)
-            if sale.debt_usd and sale.debt_usd > 0 and remaining_refund > 0:
-                debt_refund = min(Decimal(str(sale.debt_usd)), remaining_refund)
-                sale.debt_usd = Decimal(str(sale.debt_usd)) - debt_refund
-                remaining_refund -= debt_refund
-                refunded_payments.append(('debt', float(debt_refund)))
-                logger.info(f"  📝 Qarzdan kamaytirildi: ${debt_refund} (Qolgan qarz: ${sale.debt_usd})")
+            if refund_type == 'cash':
+                # Smart Logic: avval qarz, keyin naqd, click, terminal
+                remaining_refund = total_returned_usd
+                refunded_payments = []
 
-            # 2. Naqddan qaytarish
-            if sale.cash_usd and sale.cash_usd > 0 and remaining_refund > 0:
-                cash_refund = min(Decimal(str(sale.cash_usd)), remaining_refund)
-                sale.cash_usd = Decimal(str(sale.cash_usd)) - cash_refund
-                remaining_refund -= cash_refund
-                refunded_payments.append(('cash', float(cash_refund)))
-                logger.info(f"  💵 Naqd puldan qaytarildi: ${cash_refund}")
+                # 1. AVVAL qarzdan qaytarish (agar qarz mavjud bo'lsa)
+                if sale.debt_usd and sale.debt_usd > 0 and remaining_refund > 0:
+                    debt_refund = min(Decimal(str(sale.debt_usd)), remaining_refund)
+                    sale.debt_usd = Decimal(str(sale.debt_usd)) - debt_refund
+                    remaining_refund -= debt_refund
+                    refunded_payments.append(('debt', float(debt_refund)))
+                    logger.info(f"  📝 Qarzdan kamaytirildi: ${debt_refund} (Qolgan qarz: ${sale.debt_usd})")
 
-            # 3. Click dan qaytarish
-            if sale.click_usd and sale.click_usd > 0 and remaining_refund > 0:
-                click_refund = min(Decimal(str(sale.click_usd)), remaining_refund)
-                sale.click_usd = Decimal(str(sale.click_usd)) - click_refund
-                remaining_refund -= click_refund
-                refunded_payments.append(('click', float(click_refund)))
-                logger.info(f"  📱 Click dan qaytarildi: ${click_refund}")
+                # 2. Naqddan qaytarish
+                if sale.cash_usd and sale.cash_usd > 0 and remaining_refund > 0:
+                    cash_refund = min(Decimal(str(sale.cash_usd)), remaining_refund)
+                    sale.cash_usd = Decimal(str(sale.cash_usd)) - cash_refund
+                    remaining_refund -= cash_refund
+                    refunded_payments.append(('cash', float(cash_refund)))
+                    logger.info(f"  💵 Naqd puldan qaytarildi: ${cash_refund}")
 
-            # 4. Terminal dan qaytarish
-            if sale.terminal_usd and sale.terminal_usd > 0 and remaining_refund > 0:
-                terminal_refund = min(Decimal(str(sale.terminal_usd)), remaining_refund)
-                sale.terminal_usd = Decimal(str(sale.terminal_usd)) - terminal_refund
-                remaining_refund -= terminal_refund
-                refunded_payments.append(('terminal', float(terminal_refund)))
-                logger.info(f"  💳 Terminal dan qaytarildi: ${terminal_refund}")
+                # 3. Click dan qaytarish
+                if sale.click_usd and sale.click_usd > 0 and remaining_refund > 0:
+                    click_refund = min(Decimal(str(sale.click_usd)), remaining_refund)
+                    sale.click_usd = Decimal(str(sale.click_usd)) - click_refund
+                    remaining_refund -= click_refund
+                    refunded_payments.append(('click', float(click_refund)))
+                    logger.info(f"  📱 Click dan qaytarildi: ${click_refund}")
 
-            # 5. Agar hali ham qolsa, qarzga qo'shish (manfiy qarz - endi do'kon mijozga qarzdor)
-            if remaining_refund > 0:
-                sale.debt_usd = Decimal(str(sale.debt_usd or 0)) + remaining_refund
-                logger.info(f"  📝 Qarzga qo'shildi: ${remaining_refund} (Jami qarz: ${sale.debt_usd})")
+                # 4. Terminal dan qaytarish
+                if sale.terminal_usd and sale.terminal_usd > 0 and remaining_refund > 0:
+                    terminal_refund = min(Decimal(str(sale.terminal_usd)), remaining_refund)
+                    sale.terminal_usd = Decimal(str(sale.terminal_usd)) - terminal_refund
+                    remaining_refund -= terminal_refund
+                    refunded_payments.append(('terminal', float(terminal_refund)))
+                    logger.info(f"  💳 Terminal dan qaytarildi: ${terminal_refund}")
 
-            # Qaytarilgan to'lovlarni operation_history ga yozish
-            for payment_type, refund_amount in refunded_payments:
-                refund_operation = OperationHistory(
-                    operation_type='payment_refund',
-                    table_name='sales',
-                    record_id=sale_id,
-                    user_id=session.get('user_id'),
-                    username=session.get('username'),
-                    description=f"To'lov qaytarildi: {payment_type.upper()} - ${refund_amount:.2f}",
-                    old_data=None,
-                    new_data={
-                        'sale_id': sale_id,
-                        'payment_type': payment_type,
-                        'refund_amount_usd': refund_amount,
-                        'refund_amount_uzs': float(Decimal(str(refund_amount)) * sale.currency_rate)
-                    },
-                    ip_address=request.remote_addr,
-                    location_id=location_id,
-                    location_type=location_type,
-                    location_name=location_name,
-                    amount=-float(Decimal(str(refund_amount)) * sale.currency_rate)
-                )
-                db.session.add(refund_operation)
+                # 5. Agar hali ham qolsa, qarzga qo'shish (manfiy qarz - endi do'kon mijozga qarzdor)
+                if remaining_refund > 0:
+                    sale.debt_usd = Decimal(str(sale.debt_usd or 0)) + remaining_refund
+                    logger.info(f"  📝 Qarzga qo'shildi: ${remaining_refund} (Jami qarz: ${sale.debt_usd})")
+
+                # Qaytarilgan to'lovlarni operation_history ga yozish
+                for payment_type, refund_amount in refunded_payments:
+                    refund_operation = OperationHistory(
+                        operation_type='payment_refund',
+                        table_name='sales',
+                        record_id=sale_id,
+                        user_id=session.get('user_id'),
+                        username=session.get('username'),
+                        description=f"To'lov qaytarildi: {payment_type.upper()} - ${refund_amount:.2f}",
+                        old_data=None,
+                        new_data={
+                            'sale_id': sale_id,
+                            'payment_type': payment_type,
+                            'refund_amount_usd': refund_amount,
+                            'refund_amount_uzs': float(Decimal(str(refund_amount)) * sale.currency_rate)
+                        },
+                        ip_address=request.remote_addr,
+                        location_id=location_id,
+                        location_type=location_type,
+                        location_name=location_name,
+                        amount=-float(Decimal(str(refund_amount)) * sale.currency_rate)
+                    )
+                    db.session.add(refund_operation)
 
             logger.info(f"Mahsulot qaytarildi: {len(returned_items)} ta")
 
@@ -3819,7 +3854,8 @@ def api_return_product():
         return jsonify({
             'success': True,
             'message': f'{len(returned_items)} ta mahsulot qaytarildi',
-            'returned_items': returned_items
+            'returned_items': returned_items,
+            'refund_type': refund_type
         })
 
     except Exception as e:

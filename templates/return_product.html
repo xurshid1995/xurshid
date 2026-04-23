@@ -163,6 +163,28 @@
     <div id="messageDiv" style="margin-top: 16px;"></div>
 </div>
 
+<!-- Qaytarish turi tanlash modali -->
+<div id="refundTypeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:14px; padding:32px 28px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.25);">
+        <h3 style="margin:0 0 8px 0; color:#1e293b; font-size:17px; font-weight:700;">💸 Qaytarish turi</h3>
+        <p style="margin:0 0 24px 0; color:#64748b; font-size:14px;">Qaytarilgan pul qanday qaytarilsin?</p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <button id="refundCashBtn" onclick="resolveRefundType('cash')"
+                style="padding:14px 20px; background:#10b981; color:white; border:none; border-radius:10px; cursor:pointer; font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                💵 Naxt pul qaytarish
+            </button>
+            <button id="refundBalanceBtn" onclick="resolveRefundType('balance')"
+                style="padding:14px 20px; background:#3b82f6; color:white; border:none; border-radius:10px; cursor:pointer; font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                🏦 Mijoz balansiga qo'shish
+            </button>
+            <button onclick="resolveRefundType(null)"
+                style="padding:10px 20px; background:#f1f5f9; color:#64748b; border:none; border-radius:10px; cursor:pointer; font-size:14px;">
+                ❌ Bekor qilish
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
 /* ===== RETURN PRODUCT PAGE - SALES HISTORY STYLE ===== */
 .return-page {
@@ -1095,16 +1117,16 @@
             return;
         }
 
-        if (!confirm(`${productName} mahsulotidan ${returnQty} dona qaytarilsinmi?`)) {
-            return;
-        }
+        const refundType = await askRefundType();
+        if (!refundType) return; // Bekor qilindi
 
         console.log('Qaytarish ma\'lumotlari:', {
             saleId,
             productId,
             returnQty,
             returnLocationId,
-            returnLocationType
+            returnLocationType,
+            refundType
         });
 
         try {
@@ -1120,14 +1142,18 @@
                         quantity: returnQty
                     }],
                     location_id: returnLocationId,
-                    location_type: returnLocationType
+                    location_type: returnLocationType,
+                    refund_type: refundType
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                showMessage('✅ Mahsulot muvaffaqiyatli qaytarildi!', 'success');
+                const msg = refundType === 'balance'
+                    ? '✅ Mahsulot qaytarildi! Pul mijoz balansiga qo\'shildi.'
+                    : '✅ Mahsulot muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
+                showMessage(msg, 'success');
                 closeReturnModal();
                 
                 // Savdolarni qayta yuklash
@@ -1371,6 +1397,24 @@
         returnItems[index].return_quantity = maxQty;
     }
 
+    // Qaytarish turini so'rash (promise-based)
+    let _refundTypeResolve = null;
+    function askRefundType() {
+        return new Promise((resolve) => {
+            _refundTypeResolve = resolve;
+            const modal = document.getElementById('refundTypeModal');
+            modal.style.display = 'flex';
+        });
+    }
+    function resolveRefundType(type) {
+        const modal = document.getElementById('refundTypeModal');
+        modal.style.display = 'none';
+        if (_refundTypeResolve) {
+            _refundTypeResolve(type);
+            _refundTypeResolve = null;
+        }
+    }
+
     // ESKI FUNKSIYA - ishlatilmaydi, lekin kodda qoldirilgan
     async function confirmReturnOld() {
         // Joylashuvni tekshirish
@@ -1387,10 +1431,8 @@
             return;
         }
 
-        const confirmMsg = `${itemsToReturn.length} ta mahsulotni qaytarishni tasdiqlaysizmi?`;
-        if (!confirm(confirmMsg)) {
-            return;
-        }
+        const refundType = await askRefundType();
+        if (!refundType) return; // Bekor qilindi
 
         try {
             const response = await fetch('/api/return-product', {
@@ -1402,14 +1444,18 @@
                     sale_id: currentSale.id,
                     items: itemsToReturn,
                     location_id: returnLocationId,
-                    location_type: returnLocationType
+                    location_type: returnLocationType,
+                    refund_type: refundType
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                showMessage('✅ Mahsulotlar muvaffaqiyatli qaytarildi!', 'success');
+                const msg = refundType === 'balance'
+                    ? '✅ Mahsulotlar qaytarildi! Pul mijoz balansiga qo\'shildi.'
+                    : '✅ Mahsulotlar muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
+                showMessage(msg, 'success');
                 // Formani tozalash
                 setTimeout(() => {
                     clearProductSelection();
