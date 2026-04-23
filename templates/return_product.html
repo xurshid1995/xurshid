@@ -163,8 +163,8 @@
     <div id="messageDiv" style="margin-top: 16px;"></div>
 </div>
 
-<!-- Qaytarish turi tanlash modali -->
-<div id="refundTypeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+<!-- Qaytarish turi tanlash modali (confirmReturnOld uchun) -->
+<div id="refundTypeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:14px; padding:32px 28px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.25);">
         <h3 style="margin:0 0 8px 0; color:#1e293b; font-size:17px; font-weight:700;">💸 Qaytarish turi</h3>
         <p style="margin:0 0 24px 0; color:#64748b; font-size:14px;">Qaytarilgan pul qanday qaytarilsin?</p>
@@ -1069,9 +1069,16 @@
                             </table>
                         </div>
 
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107;">
-                            <div style="font-weight: 600; color: #856404; margin-bottom: 5px;">⚠️ Diqqat:</div>
-                            <div style="color: #856404; font-size: 14px;">Mahsulot qaytarilganda to'lovlar avtomatik qaytariladi: Avval qarzdan, keyin naqd, click, terminal.</div>
+                        <div style="margin-top: 16px; background: #f8faff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px;">
+                            <div style="font-weight: 600; color: #1e40af; margin-bottom: 12px; font-size: 14px;">💸 Qaytarish turi:</div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #10b981; background: #ecfdf5; font-weight: 600; color: #065f46; font-size: 14px;">
+                                    <input type="radio" name="refundType_${sale.id}" value="cash" checked style="accent-color: #10b981; width:16px; height:16px;"> 💵 Naxt pul
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #3b82f6; background: #eff6ff; font-weight: 600; color: #1e40af; font-size: 14px;">
+                                    <input type="radio" name="refundType_${sale.id}" value="balance" style="accent-color: #3b82f6; width:16px; height:16px;"> 🏦 Mijoz balansiga
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -1117,8 +1124,9 @@
             return;
         }
 
-        const refundType = await askRefundType();
-        if (!refundType) return; // Bekor qilindi
+        // Qaytarish turini modalning ichidagi radio buttondan olish
+        const refundRadio = document.querySelector(`input[name="refundType_${saleId}"]:checked`);
+        const refundType = refundRadio ? refundRadio.value : 'cash';
 
         console.log('Qaytarish ma\'lumotlari:', {
             saleId,
@@ -1431,6 +1439,7 @@
             return;
         }
 
+        // Qaytarish turi — alohida modal o'rniga askRefundType ishlatiladi (bu funksiya sahifa formasidan chaqiriladi)
         const refundType = await askRefundType();
         if (!refundType) return; // Bekor qilindi
 
