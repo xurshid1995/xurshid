@@ -1061,8 +1061,9 @@
                         <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
                             <input type="number" id="returnQty_${item.product_id}" min="1" max="${item.quantity}" value="${item.quantity}" 
                                    style="width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                            <button onclick="confirmReturn(${sale.id}, ${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}', ${item.quantity})" 
-                                    style="padding: 5px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                            <button id="returnBtn_${item.product_id}" onclick="confirmReturn(${sale.id}, ${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}', ${item.quantity})" 
+                                    disabled
+                                    style="padding: 5px 12px; background: #9ca3af; color: white; border: none; border-radius: 4px; cursor: not-allowed; font-size: 13px; opacity: 0.6;">
                                 ↩️ Qaytarish
                             </button>
                         </div>`;
