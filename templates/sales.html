@@ -951,6 +951,7 @@
                         oninput="updateDebtFieldState()"
                         style="width: 110px; padding: 8px; border: 2px solid #34d399; border-radius: 6px; font-size: 14px; font-weight: 700; background: #ecfdf5; color: #065f46; text-align: right;">
                     <span style="color: #065f46; font-size: 13px; font-weight: 600;">USD</span>
+                    <button onclick="fillFullBalance()" style="padding: 6px 10px; background: #065f46; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; white-space: nowrap; font-weight: 600;">+Jami</button>
                 </div>
             </div>
         </div>
@@ -5764,6 +5765,15 @@
         updateDebtFieldState();
         
         console.log('💳 To\'lov modali ochildi');
+    }
+    
+    // Mijoz balansini to'liq to'ldirish tugmasi
+    function fillFullBalance() {
+        const balanceInput = document.getElementById('paymentBalanceUSD');
+        if (!balanceInput) return;
+        const maxBalance = Math.min(currentCustomerBalance, parseFloat(balanceInput.max) || currentCustomerBalance);
+        balanceInput.value = maxBalance.toFixed(2);
+        updateDebtFieldState();
     }
     
     // Balans kiritilsa qarz maydonini disable/enable qilish
