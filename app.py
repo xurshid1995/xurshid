@@ -13791,7 +13791,7 @@ def api_forgot_password():
         # 6 raqamli OTP yaratish va DBga saqlash
         import random as _random
         code = str(_random.randint(100000, 999999))
-        expires_at = datetime.now() + timedelta(minutes=5)
+        expires_at = datetime.now() + timedelta(minutes=1)
 
         user.reset_code = code
         user.reset_code_expires_at = expires_at
@@ -13805,7 +13805,7 @@ def api_forgot_password():
                 f"🔐 <b>PAROL TIKLASH KODI</b>\n"
                 f"━━━━━━━━━━━━━━━━━━━━\n\n"
                 f"Tasdiqlash kodi: <b>{code}</b>\n\n"
-                f"⏱ Amal qilish muddati: 5 daqiqa\n\n"
+                f"⏱ Amal qilish muddati: 1 daqiqa\n\n"
                 f"<i>Agar siz so'ramagan bo'lsangiz, ushbu xabarni e'tiborsiz qoldiring.</i>"
             )
             _req.post(
