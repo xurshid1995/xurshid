@@ -642,9 +642,110 @@ class DebtScheduler:
                     logger.info(f"📊 Muddatli eslatmalar: {sent_count} ta yuborildi")
                 else:
                     logger.info("📊 Muddatli eslatma yuborish kerak emas")
-                
+
+                # Adminlarga yig'ma xabar yuborish
+                self._send_admin_due_date_summary(debt_sales, today, exchange_rate)
+
             except Exception as e:
                 logger.error(f"❌ Muddatli eslatmalarni tekshirishda xatolik: {e}")
+
+    def _send_admin_due_date_summary(self, debt_sales, today, exchange_rate):
+        """Adminlarga bugungi va muddati o'tgan qarzlar haqida yig'ma xabar yuborish"""
+        if not self.bot or not self.bot.admin_chat_ids:
+            return
+
+        try:
+            from app import Customer, Store, Warehouse
+
+            due_today_list = []
+            overdue_list = []
+            tomorrow = today + timedelta(days=1)
+            pre_reminder_list = []
+
+            for sale in debt_sales:
+                customer = Customer.query.get(sale.customer_id)
+                if not customer:
+                    continue
+
+                due_date = sale.payment_due_date
+                debt_usd = float(sale.debt_usd or 0)
+
+                location_name = "Do'kon"
+                if sale.location_type == 'store' and sale.location_id:
+                    store = Store.query.get(sale.location_id)
+                    if store:
+                        location_name = store.name
+                elif sale.location_type == 'warehouse' and sale.location_id:
+                    warehouse = Warehouse.query.get(sale.location_id)
+                    if warehouse:
+                        location_name = warehouse.name
+
+                entry = {
+                    'name': customer.name,
+                    'phone': customer.phone or '—',
+                    'debt_usd': debt_usd,
+                    'location': location_name,
+                    'due_date': due_date,
+                }
+
+                if due_date == today:
+                    due_today_list.append(entry)
+                elif due_date < today:
+                    entry['days_overdue'] = (today - due_date).days
+                    overdue_list.append(entry)
+                elif due_date == tomorrow:
+                    pre_reminder_list.append(entry)
+
+            import requests
+
+            def send_to_admins(text):
+                url = f"https://api.telegram.org/bot{self.bot.token}/sendMessage"
+                for chat_id in self.bot.admin_chat_ids:
+                    try:
+                        requests.post(url, json={
+                            'chat_id': chat_id,
+                            'text': text,
+                            'parse_mode': 'HTML'
+                        }, timeout=10)
+                        time_module.sleep(0.3)
+                    except Exception as e:
+                        logger.error(f"❌ Admin xabar yuborishda xatolik: {e}")
+
+            # Bugun to'lash muddati kelgan mijozlar
+            if due_today_list:
+                lines = [f"💰 <b>BUGUN TO'LOV MUDDATI KELGAN MIJOZLAR</b>\n<b>Sana: {today.strftime('%d.%m.%Y')}</b>\n{'━'*22}"]
+                total = 0
+                for i, e in enumerate(due_today_list, 1):
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
+                    total += e['debt_usd']
+                lines.append(f"\n{'━'*22}\nJami: <b>{len(due_today_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                send_to_admins("\n".join(lines))
+
+            # Ertaga muddati keluvchi mijozlar
+            if pre_reminder_list:
+                lines = [f"⚠️ <b>ERTAGA TO'LOV MUDDATI KELADI</b>\n<b>Sana: {tomorrow.strftime('%d.%m.%Y')}</b>\n{'━'*22}"]
+                total = 0
+                for i, e in enumerate(pre_reminder_list, 1):
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
+                    total += e['debt_usd']
+                lines.append(f"\n{'━'*22}\nJami: <b>{len(pre_reminder_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                send_to_admins("\n".join(lines))
+
+            # Muddati o'tgan mijozlar
+            if overdue_list:
+                overdue_list.sort(key=lambda x: x['days_overdue'], reverse=True)
+                lines = [f"🔴 <b>MUDDATI O'TGAN QARZLAR</b>\n{'━'*22}"]
+                total = 0
+                for i, e in enumerate(overdue_list, 1):
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}\n   ❗ {e['days_overdue']} kun o'tgan ({e['due_date'].strftime('%d.%m.%Y')})")
+                    total += e['debt_usd']
+                lines.append(f"\n{'━'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                send_to_admins("\n".join(lines))
+
+            logger.info("✅ Adminlarga yig'ma qarz xabari yuborildi")
+
+        except Exception as e:
+            logger.error(f"❌ Admin yig'ma xabar yuborishda xatolik: {e}")
     
     def stop(self):
         """Schedulerni to'xtatish"""
