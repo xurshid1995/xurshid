@@ -30,7 +30,7 @@ def main():
     try:
         # Flask app va db ni import qilish
         from app import app, db
-        from telegram_bot import create_telegram_app
+        from telegram_bot import create_telegram_app, create_reset_bot_app
         from debt_scheduler import init_debt_scheduler
         
         logger.info("🤖 Telegram Bot ishga tushirilmoqda...")
@@ -39,22 +39,48 @@ def main():
         logger.info("📅 Scheduler ishga tushirilmoqda...")
         scheduler = init_debt_scheduler(app, db)
         
-        # Telegram application yaratish
+        # Asosiy bot (@Sergeli143_bot)
         logger.info("📱 Telegram application yaratilmoqda...")
         application = create_telegram_app()
         
         if not application:
             logger.error("❌ Telegram application yaratilmadi!")
             return
-        
+
+        # @Paroltiklash_bot
+        reset_app = create_reset_bot_app()
+
         logger.info("✅ Telegram Bot tayyor!")
-        logger.info("📞 Bot manzili: https://t.me/Ravonqorakolbot")
         logger.info("🔄 Bot polling rejimida ishlamoqda...")
-        
-        # Bot polling rejimida ishga tushirish
-        application.run_polling(
-            allowed_updates=["message", "callback_query", "inline_query"]
-        )
+
+        if reset_app:
+            # Ikki botni parallel ishlatish
+            async def run_both():
+                async with application, reset_app:
+                    await application.initialize()
+                    await reset_app.initialize()
+                    await application.start()
+                    await reset_app.start()
+                    await application.updater.start_polling(allowed_updates=["message", "callback_query", "inline_query"])
+                    await reset_app.updater.start_polling(allowed_updates=["message"])
+                    logger.info("✅ Ikkala bot ham ishlamoqda")
+                    # To'xtatish signalini kutish
+                    import signal
+                    stop_event = asyncio.Event()
+                    loop = asyncio.get_running_loop()
+                    for sig in (signal.SIGINT, signal.SIGTERM):
+                        loop.add_signal_handler(sig, stop_event.set)
+                    await stop_event.wait()
+                    await application.updater.stop()
+                    await reset_app.updater.stop()
+                    await application.stop()
+                    await reset_app.stop()
+            asyncio.run(run_both())
+        else:
+            # Faqat asosiy bot
+            application.run_polling(
+                allowed_updates=["message", "callback_query", "inline_query"]
+            )
         
     except KeyboardInterrupt:
         logger.info("\n⛔ Bot to'xtatildi (Ctrl+C)")

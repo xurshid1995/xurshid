@@ -1599,6 +1599,74 @@ def create_telegram_app():
 # Singleton instance
 _bot_instance = None
 
+
+# ========== @Paroltiklash_bot — PAROL TIKLASH BOTI ==========
+
+async def reset_bot_start(update, context):
+    """@Paroltiklash_bot /start komandasi — telefon raqam so'rash"""
+    keyboard = [[KeyboardButton("📱 Telefon raqamni yuborish", request_contact=True)]]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+    await update.message.reply_text(
+        "Assalomu alaykum! 👋\n\n"
+        "Parolni tiklash uchun telefon raqamingizni yuboring.\n\n"
+        "Pastdagi tugmani bosing:",
+        reply_markup=reply_markup
+    )
+
+async def reset_bot_contact(update, context):
+    """@Paroltiklash_bot kontakt qabul qilish — users jadvaliga chat_id yozish"""
+    from app import app, db, User
+    contact = update.message.contact
+    chat_id = update.effective_chat.id
+    phone = ''.join(filter(str.isdigit, contact.phone_number))
+
+    with app.app_context():
+        try:
+            user = None
+            for u in User.query.filter_by(is_active=True).all():
+                if u.phone:
+                    clean_db = ''.join(filter(str.isdigit, u.phone))
+                    if len(phone) >= 9 and len(clean_db) >= 9 and clean_db[-9:] == phone[-9:]:
+                        user = u
+                        break
+
+            if user:
+                user.telegram_chat_id = chat_id
+                db.session.commit()
+                await update.message.reply_text(
+                    f"✅ Muvaffaqiyatli! Hisobingiz Telegram bilan bog'landi.\n\n"
+                    f"Endi sergeli0606.uz saytida parolni tiklashingiz mumkin.",
+                    reply_markup=ReplyKeyboardRemove()
+                )
+                logger.info(f"✅ Paroltiklash_bot: user {user.username} chat_id={chat_id} saqlandi")
+            else:
+                await update.message.reply_text(
+                    "❌ Bu telefon raqam tizimda topilmadi.\n\n"
+                    "Iltimos, tizimda ro'yxatdan o'tgan raqamingizni yuboring.",
+                    reply_markup=ReplyKeyboardRemove()
+                )
+        except Exception as e:
+            logger.error(f"❌ reset_bot_contact xatolik: {e}")
+            await update.message.reply_text("Xatolik yuz berdi. Qayta urinib ko'ring.")
+
+
+def create_reset_bot_app():
+    """@Paroltiklash_bot uchun alohida Application yaratish"""
+    from telegram.ext import Application as TGApp
+    token = os.getenv('TELEGRAM_RESET_BOT_TOKEN')
+    if not token:
+        logger.warning("⚠️ TELEGRAM_RESET_BOT_TOKEN topilmadi — @Paroltiklash_bot ishlamaydi")
+        return None
+    try:
+        app = TGApp.builder().token(token).build()
+        app.add_handler(CommandHandler("start", reset_bot_start))
+        app.add_handler(MessageHandler(filters.CONTACT, reset_bot_contact))
+        logger.info("✅ @Paroltiklash_bot application yaratildi")
+        return app
+    except Exception as e:
+        logger.error(f"❌ @Paroltiklash_bot yaratishda xatolik: {e}")
+        return None
+
 def get_bot_instance(db=None) -> DebtTelegramBot:
     """Bot instanceni olish (singleton pattern)"""
     global _bot_instance
