@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}Savdo - Dokon Boshqaruv Tizimi{% endblock %}
 
@@ -728,7 +728,7 @@
 <div class="sales-container">
     <!-- Page Header (yuqorida) -->
     <div class="page-header" style="margin-bottom: 15px;">
-        <h1>🛒 {{ t('page_sales') }}</h1>
+        <h1>+ {{ t('page_sales') }}</h1>
         <!-- Offline buyruqlar badge -->
         <div id="stockQueueBadge" style="display:none; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:4px 12px; font-size:13px; color:#856404; cursor:default;">
             <span style="animation: spin 1.5s linear infinite; display:inline-block;">?</span>
@@ -838,7 +838,7 @@
         <div class="sales-layout-box" style="background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div id="cartCustomerInfo">
-                    <h3 style="margin: 0; color: #333;">🛒 {{ t('label_shopping_cart') }}</h3>
+                    <h3 style="margin: 0; color: #333;">+ {{ t('label_shopping_cart') }}</h3>
                 </div>
                 <div id="cartTotalHeader" style="text-align: right;"></div>
             </div>
@@ -3088,7 +3088,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '⛔' : '🛒';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '+';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -3133,7 +3133,7 @@
                 
                 // Oldingi tugma
                 if (currentPage > 1) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">� Oldingi</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">&#8592; Oldingi</button>`;
                 }
                 
                 // Sahifa raqamlari (faqat yaqin sahifalarni ko'rsatish)
@@ -3163,7 +3163,7 @@
                 
                 // Keyingi tugma
                 if (currentPage < totalPages) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi �</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi &#8594;</button>`;
                 }
                 
                 paginationDiv.innerHTML = paginationHTML;
@@ -4653,7 +4653,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '⛔' : '🛒';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '+';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -6124,7 +6124,7 @@
             
             // To'lov va cart jami tekshiruvi - aniq moslik
             if (Math.abs(totalPayment - totalUSD) > 0.01) {
-                const errorMsg = `⚠️ ${SLANG.payment_mismatch}\n\n🛒 ${SLANG.cart_total}: $${fmtUSD5(totalUSD)}\n💰 ${SLANG.payment_total}: $${fmtUSD5(totalPayment)}\n❗ ${SLANG.difference}: $${fmtUSD5(Math.abs(totalPayment - totalUSD))}\n\n${SLANG.fix_payment}`;
+                const errorMsg = `⚠️ ${SLANG.payment_mismatch}\n\n+ ${SLANG.cart_total}: $${fmtUSD5(totalUSD)}\n💰 ${SLANG.payment_total}: $${fmtUSD5(totalPayment)}\n❗ ${SLANG.difference}: $${fmtUSD5(Math.abs(totalPayment - totalUSD))}\n\n${SLANG.fix_payment}`;
                 
                 alert(errorMsg);
                 
