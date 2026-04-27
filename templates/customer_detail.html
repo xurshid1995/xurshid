@@ -959,13 +959,17 @@ function convertToUZS(usdAmount, saleRate = null) {
     return (parseFloat(usdAmount) * saleRate).toFixed(0);
 }
 
-// Narxni formatlash (USD va som) - savdo-tarixi uslubida
-function formatPrice(usdAmount, saleRate = null) {
-    const uzsFormatted = convertToUZS(usdAmount, saleRate);
-    if (uzsFormatted) {
-        return `${formatUSD(usdAmount)}<br><small style="color: #007bff; font-size: 13px;">${parseInt(uzsFormatted).toLocaleString('uz-UZ')}</small>`;
+// Narxni formatlash (USD va som) - saqlangan UZS qiymatidan foydalanish (agar mavjud bo'lsa)
+function formatPrice(usdAmount, saleRate = null, storedUzs = null) {
+    let uzsValue;
+    if (storedUzs !== null && storedUzs !== undefined && parseFloat(storedUzs) > 0) {
+        uzsValue = Math.round(parseFloat(storedUzs));
+    } else if (saleRate) {
+        uzsValue = parseInt(convertToUZS(usdAmount, saleRate));
+    } else {
+        return formatUSD(usdAmount);
     }
-    return formatUSD(usdAmount);
+    return `${formatUSD(usdAmount)}<br><small style="color: #007bff; font-size: 13px;">${uzsValue.toLocaleString('uz-UZ')}</small>`;
 }
 
 function displayOrders(orders) {
@@ -1002,6 +1006,8 @@ function displayOrders(orders) {
         
         const totalAmount = parseFloat(sale.total_amount) || 0;
         const totalProfit = parseFloat(sale.total_profit) || 0;
+        // Items dan saqlangan UZS qiymatlarini yig'ish (JAMI YIG'INDI uchun)
+        const totalAmountUZS = items.reduce((sum, it) => sum + parseFloat(it.total_price_uzs || 0), 0);
         const profitClass = totalProfit > 0 ? 'profit-positive' : totalProfit < 0 ? 'profit-negative' : '';
         
         // Sana va vaqtni formatlash
@@ -1041,10 +1047,10 @@ function displayOrders(orders) {
         html += '<td rowspan="' + items.length + '" class="group-cell group-location col-location">' + getLocationName(firstItem) + '</td>';
         html += '<td class="product-cell col-product">' + (firstItem.product_name || 'Noma\'lum') + '</td>';
         html += '<td class="col-quantity">' + firstItem.quantity + '</td>';
-        html += '<td class="col-price">' + formatPrice(firstItem.unit_price || 0, sale.currency_rate) + '</td>';
-        html += '<td class="col-subtotal">' + formatPrice(firstItem.total_price || 0, sale.currency_rate) + '</td>';
+        html += '<td class="col-price">' + formatPrice(firstItem.unit_price || 0, sale.currency_rate, firstItem.unit_price_uzs) + '</td>';
+        html += '<td class="col-subtotal">' + formatPrice(firstItem.total_price || 0, sale.currency_rate, firstItem.total_price_uzs) + '</td>';
         
-        html += '<td rowspan="' + items.length + '" class="group-cell group-total col-total">' + formatPrice(totalAmount, sale.currency_rate) + '</td>';
+        html += '<td rowspan="' + items.length + '" class="group-cell group-total col-total">' + formatPrice(totalAmount, sale.currency_rate, totalAmountUZS > 0 ? totalAmountUZS : null) + '</td>';
         
         if (userRole === 'admin' || userRole === 'manager') {
             html += '<td rowspan="' + items.length + '" class="group-cell group-profit col-profit ' + profitClass + '">' + formatPrice(totalProfit, sale.currency_rate) + '</td>';
@@ -1076,8 +1082,8 @@ function displayOrders(orders) {
             html += '<tr class="' + rowClasses.join(' ') + '">';
             html += '<td class="product-cell col-product">' + (item.product_name || 'Noma\'lum') + '</td>';
             html += '<td class="col-quantity">' + item.quantity + '</td>';
-            html += '<td class="col-price">' + formatPrice(item.unit_price || 0, sale.currency_rate) + '</td>';
-            html += '<td class="col-subtotal">' + formatPrice(item.total_price || 0, sale.currency_rate) + '</td>';
+            html += '<td class="col-price">' + formatPrice(item.unit_price || 0, sale.currency_rate, item.unit_price_uzs) + '</td>';
+            html += '<td class="col-subtotal">' + formatPrice(item.total_price || 0, sale.currency_rate, item.total_price_uzs) + '</td>';
             html += '</tr>';
         }
     });
@@ -1103,6 +1109,7 @@ function updateTableForCompactView() {
         const firstItem = items[0] || {};
         const totalAmount = parseFloat(sale.total_amount) || 0;
         const totalProfit = parseFloat(sale.total_profit) || 0;
+        const totalAmountUZS = items.reduce((sum, it) => sum + parseFloat(it.total_price_uzs || 0), 0);
         const profitClass = totalProfit > 0 ? 'profit-positive' : totalProfit < 0 ? 'profit-negative' : '';
 
         const saleDate = new Date(sale.sale_date);
@@ -1127,7 +1134,7 @@ function updateTableForCompactView() {
         html += '<td class="group-cell col-location">' + getLocationName(firstItem) + '</td>';
         html += '<td class="group-cell col-product">' + items.length + ' ta mahsulot</td>';
 
-        html += '<td class="group-cell group-total col-total">' + formatPrice(totalAmount, sale.currency_rate) + '</td>';
+        html += '<td class="group-cell group-total col-total">' + formatPrice(totalAmount, sale.currency_rate, totalAmountUZS > 0 ? totalAmountUZS : null) + '</td>';
 
         if (userRole === 'admin' || userRole === 'manager') {
             html += '<td class="group-cell group-profit col-profit ' + profitClass + '">' + formatPrice(totalProfit, sale.currency_rate) + '</td>';
