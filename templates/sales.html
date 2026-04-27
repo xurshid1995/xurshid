@@ -3088,7 +3088,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '?' : '??';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '🛒';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -4005,8 +4005,8 @@
                         </div>
                     </td>
                     <td style="padding: 8px 5px; text-align: center; width: 40px;">
-                        <button onclick="editCartItem(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; margin-right: 2px;">??</button>
-                        <button onclick="removeFromCart(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; font-weight: bold;">?</button>
+                        <button onclick="editCartItem(${index})" style="background: transparent; color: #555; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; margin-right: 2px;">✏️</button>
+                        <button onclick="removeFromCart(${index})" style="background: transparent; color: #e53e3e; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; font-weight: bold;">✕</button>
                     </td>
                 </tr>
             `;
@@ -4653,7 +4653,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '?' : '??';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '🛒';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
