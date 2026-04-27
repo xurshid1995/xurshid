@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}Savdo - Dokon Boshqaruv Tizimi{% endblock %}
 
@@ -723,17 +723,17 @@
 {% block content %}
 <!-- Offline banner -->
 <div id="offlineBanner" style="display:none; position:sticky; top:0; z-index:10000; background:#dc3545; color:white; text-align:center; padding:10px 20px; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    ⚠️ Internet aloqasi yo'q — savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
+    ?? Internet aloqasi yo'q � savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
 </div>
 <div class="sales-container">
     <!-- Page Header (yuqorida) -->
     <div class="page-header" style="margin-bottom: 15px;">
-        <h1>🛒 {{ t('page_sales') }}</h1>
+        <h1>?? {{ t('page_sales') }}</h1>
         <!-- Offline buyruqlar badge -->
         <div id="stockQueueBadge" style="display:none; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:4px 12px; font-size:13px; color:#856404; cursor:default;">
-            <span style="animation: spin 1.5s linear infinite; display:inline-block;">⏳</span>
+            <span style="animation: spin 1.5s linear infinite; display:inline-block;">?</span>
             <span id="stockQueueCount"></span> ta amal kutmoqda...
-            <span onclick="StockQueue.clearAll()" title="Navbatni tozalash" style="margin-left:4px; cursor:pointer; font-weight:700; color:#dc3545; font-size:15px; line-height:1;">×</span>
+            <span onclick="StockQueue.clearAll()" title="Navbatni tozalash" style="margin-left:4px; cursor:pointer; font-weight:700; color:#dc3545; font-size:15px; line-height:1;">�</span>
         </div>
     </div>
     
@@ -774,7 +774,7 @@
                 </div>
                 <div style="position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <label style="font-size: 14px; font-weight: 500; color: #495057;">👤 {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
+                        <label style="font-size: 14px; font-weight: 500; color: #495057;">?? {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
                         <button id="addCustomerBtn" class="add-customer-btn" onclick="openAddCustomerModal()" style="padding: 3px 8px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 8px rgba(59, 130, 246,0.3);">
                             <span style="color: white; font-size: 14px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_new') }}
                         </button>
@@ -803,7 +803,7 @@
                         <img src="https://img.icons8.com/fluency/48/camera.png" alt="camera" style="width: 28px; height: 28px; vertical-align: middle;">
                     </button>
                     <div id="searchStatus" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; padding: 8px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; font-size: 12px; color: #155724; z-index: 100;">
-                        ✓ {{ t('no_products_found') }}!
+                        ? {{ t('no_products_found') }}!
                     </div>
                 </div>
             </div>
@@ -838,7 +838,7 @@
         <div class="sales-layout-box" style="background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div id="cartCustomerInfo">
-                    <h3 style="margin: 0; color: #333;">🛒 {{ t('label_shopping_cart') }}</h3>
+                    <h3 style="margin: 0; color: #333;">?? {{ t('label_shopping_cart') }}</h3>
                 </div>
                 <div id="cartTotalHeader" style="text-align: right;"></div>
             </div>
@@ -905,7 +905,7 @@
             </div>
             <!-- Narx validatsiya xabari -->
             <div id="priceWarning" style="display: none; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; margin-bottom: 15px; color: #856404;">
-                <strong>⚠️ Ogohlantirish:</strong> <span id="priceWarningText">Narx juda past, bu narxda sotib bo'lmaydi!</span>
+                <strong>?? Ogohlantirish:</strong> <span id="priceWarningText">Narx juda past, bu narxda sotib bo'lmaydi!</span>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">{{ t('btn_cancel') }}</button>
@@ -942,7 +942,7 @@
         <!-- Mijoz balansi info banneri (faqat balans > 0 bo'lsa ko'rinadi) -->
         <div id="paymentBalanceSection" style="display:none; margin-bottom: 12px; padding: 10px 14px; background: #d1fae5; border: 1px solid #34d399; border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 22px;">💳</span>
+                <span style="font-size: 22px;">??</span>
                 <div style="flex: 1;">
                     <div style="font-weight: 700; color: #065f46; font-size: 14px;">Mijoz balansi mavjud: <span id="paymentBalanceTotal">$0.00</span></div>
                     <div style="font-size: 13px; color: #047857;">Balansdan foydalanish: <strong id="paymentBalanceAvailable">$0.00</strong></div>
@@ -1010,7 +1010,7 @@
 <!-- Barcode Scanner Modal - Global (barcha tablar uchun bitta modal) -->
 <div id="barcodeScannerModal" class="modal-overlay-fullscreen">
     <!-- Yopish tugmasi -->
-    <button id="closeScannerBtn" type="button" style="position: fixed; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 28px; cursor: pointer; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(5px);" title="Yopish">×</button>
+    <button id="closeScannerBtn" type="button" style="position: fixed; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 28px; cursor: pointer; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(5px);" title="Yopish">�</button>
     
     <!-- Kamera video - TO'LIQ EKRAN -->
     <div id="barcodeScannerContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000;">
@@ -1090,7 +1090,7 @@
             </div>
             
             <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
-                <button onclick="closeAddCustomerModal()" style="flex: 1; padding: 0.65rem 1.25rem; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.3s ease;">❌ {{ t('btn_cancel') }}</button>
+                <button onclick="closeAddCustomerModal()" style="flex: 1; padding: 0.65rem 1.25rem; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.3s ease;">? {{ t('btn_cancel') }}</button>
                 <button onclick="submitNewCustomer()" style="flex: 1; padding: 0.65rem 1.25rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.3s ease;">{{ t('btn_add_customer') }}</button>
             </div>
         </div>
@@ -1296,7 +1296,7 @@
         init() {
             this._updateBadge();
             window.addEventListener('online', () => {
-                console.log('🟢 Internet tiklandi - navbat tekshirilmoqda...');
+                console.log('?? Internet tiklandi - navbat tekshirilmoqda...');
                 setTimeout(() => this.processAll(), 1000);
             });
         },
@@ -1304,7 +1304,7 @@
         clearAll() {
             if (confirm('Kutayotgan ' + this.get().length + ' ta amal o\'chirilsinmi? (Ular serverga yuborilmaydi)')) {
                 this._save([]);
-                console.log('🗑️ Navbat tozalandi');
+                console.log('??? Navbat tozalandi');
             }
         }
     };
@@ -1375,13 +1375,13 @@
     
     // Sahifa yuklanganda tablarni tiklash
     function initializeTabs() {
-        console.log('🚀 Tab sistemasi ishga tushirilmoqda...');
+        console.log('?? Tab sistemasi ishga tushirilmoqda...');
         
         // Saqlangan tablarni yuklash
         const savedTabs = TabStorage.loadTabs();
         
         if (savedTabs.length > 0) {
-            console.log('📂 Saqlangan tablar topildi:', savedTabs.length);
+            console.log('?? Saqlangan tablar topildi:', savedTabs.length);
             
             // Tab raqamlarini qayta hisoblash (1, 2, 3, ...)
             savedTabs.forEach((tab, index) => {
@@ -1399,7 +1399,7 @@
             tabCounter = Math.max(...savedTabs.map(t => t.id));
         } else {
             // Birinchi tabni yaratish
-            console.log('➕ Birinchi tab yaratilmoqda...');
+            console.log('? Birinchi tab yaratilmoqda...');
             addNewSaleTab();
         }
     }
@@ -1411,7 +1411,7 @@
         const tabNumber = salesTabs.length + 1;
         const tabTitle = `${SLANG.savdo} ${tabNumber}`;
         
-        console.log(`➕ Yangi tab yaratilmoqda: ${tabTitle} (ID: ${tabId})`);
+        console.log(`? Yangi tab yaratilmoqda: ${tabTitle} (ID: ${tabId})`);
         
         // Tab strukturasini saqlash
         salesTabs.push({
@@ -1449,7 +1449,7 @@
         
         const closeBtn = document.createElement('button');
         closeBtn.className = 'tab-close';
-        closeBtn.innerHTML = '×';
+        closeBtn.innerHTML = '�';
         closeBtn.onclick = (e) => {
             e.stopPropagation();
             closeSaleTab(tabId);
@@ -1506,7 +1506,7 @@
     
     // Tab uchun event listener'larni o'rnatish
     function setupTabEventListeners(tabId) {
-        console.log(`🎧 Tab ${tabId} uchun event listener'lar o'rnatilmoqda...`);
+        console.log(`?? Tab ${tabId} uchun event listener'lar o'rnatilmoqda...`);
         
         // Universal qidiruv (barcode + mahsulot)
         const universalSearch = document.getElementById(`universalSearch_tab${tabId}`);
@@ -1561,7 +1561,7 @@
                 this.placeholder = 'Mahsulot yoki barcode kiriting...';
             });
             
-            console.log('✅ universalSearch event listenerlar qo\'shildi');
+            console.log('? universalSearch event listenerlar qo\'shildi');
         }
         
         // Mijoz qidiruv input
@@ -1569,7 +1569,7 @@
         if (customerSearchInput) {
             // Input event
             customerSearchInput.addEventListener('input', function() {
-                console.log('⌨️ Tab', tabId, 'input event:', this.value);
+                console.log('?? Tab', tabId, 'input event:', this.value);
                 searchCustomers(this.value);
             });
             
@@ -1600,19 +1600,19 @@
                 }
             });
             
-            console.log('✅ customerSearch event listenerlar qo\'shildi');
+            console.log('? customerSearch event listenerlar qo\'shildi');
         }
         
         // Camera scan button
         const cameraScanBtn = document.getElementById(`cameraScanBtn_tab${tabId}`);
         if (cameraScanBtn) {
             cameraScanBtn.addEventListener('click', function() {
-                console.log('📷 Tab', tabId, 'camera scan button bosildi');
+                console.log('?? Tab', tabId, 'camera scan button bosildi');
                 startBarcodeScanner();
             });
-            console.log('✅ cameraScanBtn event listener qo\'shildi');
+            console.log('? cameraScanBtn event listener qo\'shildi');
         } else {
-            console.warn('⚠️ cameraScanBtn topilmadi tab', tabId);
+            console.warn('?? cameraScanBtn topilmadi tab', tabId);
         }
         
         // Dropdown tashqarisiga bosish
@@ -1627,7 +1627,7 @@
     
     // Tabga o'tish
     function switchToTab(tabId) {
-        console.log(`🔄 Tabga o'tilmoqda: ${tabId}`);
+        console.log(`?? Tabga o'tilmoqda: ${tabId}`);
         
         // Eski tabning state'ini saqlash (global o'zgaruvchilardan)
         if (activeTabId && tabStates[activeTabId]) {
@@ -1640,7 +1640,7 @@
             oldState.editingSaleId = editingSaleId;
             oldState.currentPendingSaleId = currentPendingSaleId;
             
-            console.log(`💾 Tab ${activeTabId} state saqlandi:`, oldState);
+            console.log(`?? Tab ${activeTabId} state saqlandi:`, oldState);
         }
         
         // Barcha tablarni deactivate qilish
@@ -1673,7 +1673,7 @@
             editingSaleId = newState.editingSaleId || null;
             currentPendingSaleId = newState.currentPendingSaleId || null;
             
-            console.log(`📂 Tab ${tabId} state yuklandi:`, newState);
+            console.log(`?? Tab ${tabId} state yuklandi:`, newState);
             
             // Tablar strukturasini yangilash
             salesTabs.forEach(tab => {
@@ -1690,11 +1690,11 @@
     
     // Tabni yopish
     function closeSaleTab(tabId, skipConfirmation = false) {
-        console.log(`❌ Tab yopilmoqda: ${tabId}`);
+        console.log(`? Tab yopilmoqda: ${tabId}`);
         
         // Agar faqat bitta tab qolgan bo'lsa, yopishga ruxsat bermaslik
         if (salesTabs.length <= 1) {
-            alert('❌ ' + SLANG.last_tab_warn);
+            alert('? ' + SLANG.last_tab_warn);
             return;
         }
         
@@ -1704,9 +1704,9 @@
             const cart = (tabState && tabState.cart) || [];
             
             // Tasdiqlash xabari
-            let confirmMessage = '⚠️ Bu tabni yopmoqchimisiz?\n\n';
+            let confirmMessage = '?? Bu tabni yopmoqchimisiz?\n\n';
             if (cart.length > 0) {
-                confirmMessage = `⚠️ Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
+                confirmMessage = `?? Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
                     'Tabni yopsangiz, barcha ma\'lumotlar o\'chadi.\n\n';
             }
             confirmMessage += 'Davom etasizmi?';
@@ -1743,7 +1743,7 @@
     
     // Tab ma'lumotlarini yuklash
     function loadTabData(tabId) {
-        console.log(`📂 Tab ${tabId} uchun ma'lumotlar yuklanmoqda...`);
+        console.log(`?? Tab ${tabId} uchun ma'lumotlar yuklanmoqda...`);
         
         // Joylashuvlarni yuklash (har bir tab uchun)
         loadLocations();
@@ -1755,7 +1755,7 @@
         const customerId = TabStorage.get(tabId, 'customerId');
         const customerName = TabStorage.get(tabId, 'customerName');
         
-        console.log('📦 Yuklangan ma\'lumotlar:', {cart, locationId, locationType, customerId, customerName});
+        console.log('?? Yuklangan ma\'lumotlar:', {cart, locationId, locationType, customerId, customerName});
         
         // Ma'lumotlarni UI'ga yuklash
         if (cart && cart.length > 0) {
@@ -1777,7 +1777,7 @@
     function saveTabData(tabId) {
         if (!activeTabId) return;
         
-        console.log(`💾 Tab ${tabId} ma'lumotlari saqlanmoqda...`);
+        console.log(`?? Tab ${tabId} ma'lumotlari saqlanmoqda...`);
         
         // Hozirgi UI state'ni olish va saqlash
         const tabData = {
@@ -1827,23 +1827,23 @@
         try {
             // Agar cache mavjud bo'lsa, uni ishlatish
             if (locationsCache) {
-                console.log('📦 Joylashuvlar cache\'dan olinmoqda...');
+                console.log('?? Joylashuvlar cache\'dan olinmoqda...');
                 populateLocationSelect(locationsCache);
                 return;
             }
             
-            console.log('🔄 Joylashuvlarni yuklash boshlandi...');
+            console.log('?? Joylashuvlarni yuklash boshlandi...');
             const response = await fetch('/api/locations');
             const locations = await response.json();
             
             // Cache'ga saqlash
             locationsCache = locations;
             
-            console.log(`📍 API'dan ${locations.length} ta joylashuv olinadi:`, locations);
+            console.log(`?? API'dan ${locations.length} ta joylashuv olinadi:`, locations);
             populateLocationSelect(locations);
             
         } catch (error) {
-            console.error('❌ Joylashuvlarni yuklashda xatolik:', error);
+            console.error('? Joylashuvlarni yuklashda xatolik:', error);
         }
     }
     
@@ -1852,16 +1852,16 @@
         // Faol tabdagi locationSelect'ni topish
         const activeTab = document.querySelector('.sales-tab.active');
         if (!activeTab) {
-            console.warn('⚠️ Faol tab topilmadi');
+            console.warn('?? Faol tab topilmadi');
             return;
         }
         const tabId = activeTab.dataset.tabId;
         const locationSelect = document.getElementById(`locationSelect_tab${tabId}`);
         if (!locationSelect) {
-            console.warn('⚠️ locationSelect elementi topilmadi tab', tabId);
+            console.warn('?? locationSelect elementi topilmadi tab', tabId);
             return;
         }
-        console.log(`📍 Tab ${tabId} uchun joylashuvlar yuklanmoqda`);
+        console.log(`?? Tab ${tabId} uchun joylashuvlar yuklanmoqda`);
         locationSelect.innerHTML = '<option value="">' + SLANG.select_option + '</option>';
         
         // Foydalanuvchining default store_id'sini olish
@@ -1870,7 +1870,7 @@
         locations.forEach(location => {
             const option = document.createElement('option');
             option.value = `${location.type}_${location.id}`;
-            const locationType = location.type === 'warehouse' ? '🏭 ' + SLANG.warehouse_label : '🏪 ' + SLANG.store_label;
+            const locationType = location.type === 'warehouse' ? '?? ' + SLANG.warehouse_label : '?? ' + SLANG.store_label;
             option.textContent = `${locationType}: ${location.name}`;
             
             // Agar user'ning default store'i bo'lsa va bu location mos kelsa, avtomatik tanlash
@@ -1883,7 +1883,7 @@
             locationSelect.appendChild(option);
         });
         
-        console.log(`✅ ${locations.length} ta joylashuv select'ga qo'shildi`);
+        console.log(`? ${locations.length} ta joylashuv select'ga qo'shildi`);
         
         // Agar joylashuv avtomatik tanlangan bo'lsa, mahsulotlarni yuklash
         if (userStoreId && selectedLocationId) {
@@ -1903,7 +1903,7 @@
         const successDiv = document.getElementById('addCustomerSuccess');
         
         if (!modal) {
-            console.error('❌ addCustomerModal element topilmadi!');
+            console.error('? addCustomerModal element topilmadi!');
             return;
         }
         
@@ -2000,20 +2000,20 @@
         
         // Validatsiya
         if (!name) {
-            errorDiv.textContent = '⚠️ ' + SLANG.customer_name_required;
+            errorDiv.textContent = '?? ' + SLANG.customer_name_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         if (!storeId) {
-            errorDiv.textContent = '⚠️ ' + SLANG.store_required;
+            errorDiv.textContent = '?? ' + SLANG.store_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         // Telefon validatsiyasi
         if (phone && phone.length !== 18) {
-            errorDiv.textContent = '❌ ' + SLANG.phone_format_error;
+            errorDiv.textContent = '? ' + SLANG.phone_format_error;
             errorDiv.style.display = 'block';
             return;
         }
@@ -2034,15 +2034,15 @@
             const result = await response.json();
             
             if (!response.ok) {
-                errorDiv.textContent = '❌ ' + (result.error || SLANG.customer_add_error);
+                errorDiv.textContent = '? ' + (result.error || SLANG.customer_add_error);
                 errorDiv.style.display = 'block';
                 return;
             }
             
-            console.log('✅ Yangi mijoz qo\'shildi:', result);
+            console.log('? Yangi mijoz qo\'shildi:', result);
             
             // Muvaffaqiyat xabari
-            successDiv.textContent = '✅ ' + SLANG.customer_added_success;
+            successDiv.textContent = '? ' + SLANG.customer_added_success;
             successDiv.style.display = 'block';
             
             // Mijozlar ro'yxatini yangilash
@@ -2070,7 +2070,7 @@
                 // Korzina sarlavhasida mijoz ma'lumotini ko'rsatish
                 const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
                 if (cartCustomerInfo) {
-                    const customerDisplay = customerPhone ? `👤 ${customerName} ${customerPhone}` : `👤 ${customerName}`;
+                    const customerDisplay = customerPhone ? `?? ${customerName} ${customerPhone}` : `?? ${customerName}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                 }
                 
@@ -2083,7 +2083,7 @@
                 }
             }
             
-            console.log(`✅ Mijoz avtomatik tanlandi: ${customerName} (ID: ${result.customer.id})`);
+            console.log(`? Mijoz avtomatik tanlandi: ${customerName} (ID: ${result.customer.id})`);
             
             // 1.5 soniyadan keyin modal yopish
             setTimeout(() => {
@@ -2092,7 +2092,7 @@
             
         } catch (error) {
             console.error('Mijoz qo\'shish xatosi:', error);
-            errorDiv.textContent = '❌ ' + SLANG.server_connection_error;
+            errorDiv.textContent = '? ' + SLANG.server_connection_error;
             errorDiv.style.display = 'block';
         }
     }
@@ -2148,15 +2148,15 @@
     let barcodeTimeout = null;
     
     async function searchProductByBarcode(barcode) {
-        console.log('🔍 Barcode qidiruvi:', barcode);
+        console.log('?? Barcode qidiruvi:', barcode);
         
         // Joylashuv tanlanganligini tekshirish
         if (!selectedLocationId || !selectedLocationType) {
-            showBarcodeStatus('⚠️ ' + SLANG.select_location_first, 'error');
+            showBarcodeStatus('?? ' + SLANG.select_location_first, 'error');
             return;
         }
         
-        showBarcodeStatus('⏳ Qidirilmoqda...', 'loading');
+        showBarcodeStatus('? Qidirilmoqda...', 'loading');
         
         try {
             const response = await fetch('/api/search-product-by-barcode', {
@@ -2174,13 +2174,13 @@
             // Yangi API format: { success: true, data: {...} } yoki { success: false, error: '...' }
             if (!response.ok || !result.success) {
                 const errorMsg = result.error || 'Mahsulot topilmadi';
-                showBarcodeStatus(`❌ ${errorMsg}`, 'error');
+                showBarcodeStatus(`? ${errorMsg}`, 'error');
                 return;
             }
             
             // Mahsulot ma'lumotlarini olish (yangi formatda data ichida)
             const product = result.data || result;
-            console.log('✅ Mahsulot topildi:', product);
+            console.log('? Mahsulot topildi:', product);
             
             // sell_price va cost_price string bo'lishi mumkin (to_dict() str() qaytaradi)
             const sellPrice = parseFloat(product.sell_price || product.price || 0);
@@ -2191,15 +2191,15 @@
             addToCart(product.id, product.name, availableQty, sellPrice, costPrice);
             
             // Statusni ko'rsatish
-            showBarcodeStatus(`✓ ${product.name} savatga qo'shildi!`, 'success');
+            showBarcodeStatus(`? ${product.name} savatga qo'shildi!`, 'success');
             
             // Universal qidiruv inputiga fokus va matnni belgilash
             const universalSearch = getActiveTabElement('universalSearch');
             if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
             
         } catch (error) {
-            console.error('❌ Barcode qidiruv xatosi:', error);
-            showBarcodeStatus('❌ Server xatosi', 'error');
+            console.error('? Barcode qidiruv xatosi:', error);
+            showBarcodeStatus('? Server xatosi', 'error');
             const universalSearch = getActiveTabElement('universalSearch');
             if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
         }
@@ -2246,10 +2246,10 @@
     }
 
     function startBarcodeScanner() {
-        console.log('📷 Camera scan funksiyasi boshlandi');
+        console.log('?? Camera scan funksiyasi boshlandi');
         
         // Barcha qurilmalarda web camera modal ishlatish (facingMode: environment bilan)
-        console.log('📷 Web camera modal ochilmoqda (orqa kamera)...');
+        console.log('?? Web camera modal ochilmoqda (orqa kamera)...');
         startWebCameraScanner();
     }
     
@@ -2257,7 +2257,7 @@
     function startNativeCameraScanner() {
         const nativeCameraInput = getActiveTabElement('nativeCameraInput');
         if (!nativeCameraInput) {
-            console.error('❌ nativeCameraInput topilmadi!');
+            console.error('? nativeCameraInput topilmadi!');
             alert(SLANG.camera_failed);
             return;
         }
@@ -2286,11 +2286,11 @@
         const file = event.target.files[0];
         if (!file) return;
         
-        console.log('📷 Rasm olindi:', file.name);
+        console.log('?? Rasm olindi:', file.name);
         
         const reader = new FileReader();
         reader.onload = function(e) {
-            console.log('🖼️ Barcode qidirilmoqda...');
+            console.log('??? Barcode qidirilmoqda...');
             
             Quagga.decodeSingle({
                 src: e.target.result,
@@ -2302,7 +2302,7 @@
             }, function(result) {
                 if (result && result.codeResult) {
                     const code = result.codeResult.code;
-                    console.log('✅ Barcode topildi:', code);
+                    console.log('? Barcode topildi:', code);
                     
                     if (navigator.vibrate) navigator.vibrate(200);
                     
@@ -2315,7 +2315,7 @@
                         }, 100);
                     }
                 } else {
-                    console.warn('⚠️ Barcode topilmadi');
+                    console.warn('?? Barcode topilmadi');
                     alert(SLANG.camera_not_supported);
                 }
             });
@@ -2340,18 +2340,18 @@
         
         // getUserMedia tekshiruvi
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('❌ Brauzer kamerani qo\'llab-quvvatlamaydi');
+            console.error('? Brauzer kamerani qo\'llab-quvvatlamaydi');
             alert(SLANG.camera_not_supported);
             return;
         }
         
         if (!isHTTPS && !isLocalhost && !isServerIP) {
-            console.warn('⚠️ HTTPS yo\'q - kamera ishlamaydi');
+            console.warn('?? HTTPS yo\'q - kamera ishlamaydi');
             alert(SLANG.camera_https_required);
             return;
         }
         
-        console.log('✅ Kamera ochilmoqda...');
+        console.log('? Kamera ochilmoqda...');
         modal.style.display = 'block';
         scannerActive = true;
         statusDiv.innerHTML = SLANG.camera_opening;
@@ -2393,19 +2393,19 @@
             }
         }, function(err) {
             if (err) {
-                console.error('❌ Scanner xatosi:', err);
+                console.error('? Scanner xatosi:', err);
                 console.error('Xato tafsilotlari:', err.name, err.message);
-                let errorMsg = '❌ ';
+                let errorMsg = '? ';
                 
                 if (err.name === 'NotAllowedError') {
-                    errorMsg += 'Kameraga ruxsat berilmadi!\n\n✅ Yechim:\n1. Brauzer sozlamalarida kameraga ruxsat bering\n2. Sahifani yangilang va "Allow" bosing';
+                    errorMsg += 'Kameraga ruxsat berilmadi!\n\n? Yechim:\n1. Brauzer sozlamalarida kameraga ruxsat bering\n2. Sahifani yangilang va "Allow" bosing';
                     alert(errorMsg);
                 } else if (err.name === 'NotFoundError') {
-                    errorMsg += 'Kamera topilmadi!\n\n✅ Yechim:\n1. Qurilmangizda kamera borligini tekshiring\n2. Boshqa brauzerda sinab ko\'ring';
+                    errorMsg += 'Kamera topilmadi!\n\n? Yechim:\n1. Qurilmangizda kamera borligini tekshiring\n2. Boshqa brauzerda sinab ko\'ring';
                     alert(errorMsg);
                 } else if (err.name === 'OverconstrainedError') {
                     // Orqa kamera topilmasa, standart kamerani ishlatish
-                    console.log('⚠️ Orqa kamera topilmadi, standart kamera ishlatilmoqda...');
+                    console.log('?? Orqa kamera topilmadi, standart kamera ishlatilmoqda...');
                     startBarcodeScannerWithFallback();
                     return;
                 } else {
@@ -2417,7 +2417,7 @@
                 stopBarcodeScanner();
                 return;
             }
-            console.log('✅ Scanner ishga tushdi');
+            console.log('? Scanner ishga tushdi');
             statusDiv.innerHTML = SLANG.barcode_frame_hint;
             Quagga.start();
         });
@@ -2426,7 +2426,7 @@
             if (!scannerActive) return;
             
             const code = result.codeResult.code;
-            console.log('📷 Barcode topildi:', code);
+            console.log('?? Barcode topildi:', code);
             
             // Vibration feedback (telefon uchun)
             if (navigator.vibrate) {
@@ -2516,7 +2516,7 @@
         }
         
         modal.style.display = 'none';
-        console.log('🛑 Scanner to\'xtatildi');
+        console.log('?? Scanner to\'xtatildi');
     }
 
     // Yopish tugmasi - global (barcha tablar uchun bitta modal)
@@ -2665,52 +2665,52 @@
         try {
             // Agar cache mavjud bo'lsa, uni ishlatish
             if (customersCache) {
-                console.log('📦 Mijozlar cache\'dan olinmoqda...');
+                console.log('?? Mijozlar cache\'dan olinmoqda...');
                 allCustomers = customersCache;
-                console.log(`✅ ${allCustomers.length} ta mijoz cache'dan yuklandi`);
+                console.log(`? ${allCustomers.length} ta mijoz cache'dan yuklandi`);
                 return;
             }
             
-            console.log('🔄 Mijozlarni yuklash boshlandi...');
+            console.log('?? Mijozlarni yuklash boshlandi...');
             const response = await fetch('/api/customers');
-            console.log('📡 API response status:', response.status);
+            console.log('?? API response status:', response.status);
             if (!response.ok) {
-                console.error('❌ Mijozlarni yuklashda xatolik: HTTP', response.status);
+                console.error('? Mijozlarni yuklashda xatolik: HTTP', response.status);
                 return;
             }
             const data = await response.json();
-            console.log('📦 API response data:', data);
+            console.log('?? API response data:', data);
             // API to'g'ridan-to'g'ri array qaytaradi
             allCustomers = Array.isArray(data) ? data : (data.customers || []);
             
             // Cache'ga saqlash
             customersCache = allCustomers;
             
-            console.log(`✅ ${allCustomers.length} ta mijoz yuklandi`, allCustomers);
+            console.log(`? ${allCustomers.length} ta mijoz yuklandi`, allCustomers);
         } catch (error) {
-            console.error('❌ Mijozlarni yuklashda xatolik:', error);
+            console.error('? Mijozlarni yuklashda xatolik:', error);
         }
     }
     
     function searchCustomers(searchText) {
-        console.log('🔍 searchCustomers chaqirildi:', searchText, 'Jami mijozlar:', allCustomers.length);
+        console.log('?? searchCustomers chaqirildi:', searchText, 'Jami mijozlar:', allCustomers.length);
         
         // Faol tabdagi dropdown'ni topish
         const activeTab = document.querySelector('.sales-tab.active');
         if (!activeTab) {
-            console.warn('⚠️ Faol tab topilmadi');
+            console.warn('?? Faol tab topilmadi');
             return;
         }
         const tabId = activeTab.dataset.tabId;
         const dropdown = document.getElementById(`customerDropdown_tab${tabId}`);
         if (!dropdown) {
-            console.warn('⚠️ customerDropdown topilmadi tab', tabId);
+            console.warn('?? customerDropdown topilmadi tab', tabId);
             return;
         }
         selectedCustomerIndex = -1;
         
         if (!searchText || searchText.length < 2) {
-            console.log('⚠️ Qidiruv matni 2 ta belgidan kam');
+            console.log('?? Qidiruv matni 2 ta belgidan kam');
             dropdown.style.display = 'none';
             filteredCustomers = [];
             return;
@@ -2728,7 +2728,7 @@
             return name.includes(search) || cleanPhone.includes(cleanSearch);
         });
         
-        console.log('📋 Filterlangan mijozlar soni:', filteredCustomers.length);
+        console.log('?? Filterlangan mijozlar soni:', filteredCustomers.length);
         
         if (filteredCustomers.length === 0) {
             dropdown.innerHTML = '<div style="padding: 10px; color: #999; text-align: center;">' + SLANG.customer_not_found + '</div>';
@@ -2836,7 +2836,7 @@
         // Savdo korzinasi sarlavhasida mijoz ma'lumotlarini ko'rsatish
         const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
         if (cartCustomerInfo) {
-            const customerDisplay = phone ? `👤 ${name} ${phone}` : `👤 ${name}`;
+            const customerDisplay = phone ? `?? ${name} ${phone}` : `?? ${name}`;
             cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
         }
         
@@ -2848,7 +2848,7 @@
             tabTitle.title = displayText; // Tooltip uchun to'liq ma'lumot
         }
         
-        console.log(`✅ Mijoz tanlandi: ${name} (ID: ${id})`);
+        console.log(`? Mijoz tanlandi: ${name} (ID: ${id})`);
         
         // Fokusni mahsulot qidirish maydoniga o'tkazish
         const universalSearch = document.getElementById(`universalSearch_tab${tabId}`);
@@ -2886,7 +2886,7 @@
                 universalSearch.select();
             }
             
-            console.log(`🔄 Mahsulotlar jadvali yangilandi`);
+            console.log(`?? Mahsulotlar jadvali yangilandi`);
         } catch (error) {
             console.error('Jadvalni yangilashda xatolik:', error);
         }
@@ -2962,7 +2962,7 @@
         // Faol tabdagi elementlarni topish
         const activeTab = document.querySelector('.sales-tab.active');
         if (!activeTab) {
-            console.warn('⚠️ Faol tab topilmadi');
+            console.warn('?? Faol tab topilmadi');
             return;
         }
         const tabId = activeTab.dataset.tabId;
@@ -2970,7 +2970,7 @@
         const tbody = document.getElementById(`productsTable_tab${tabId}`);
         
         if (!locationSelect || !tbody) {
-            console.warn('⚠️ locationSelect yoki productsTable topilmadi tab', tabId);
+            console.warn('?? locationSelect yoki productsTable topilmadi tab', tabId);
             return;
         }
         
@@ -2995,7 +2995,7 @@
         if (tabState) {
             tabState.selectedLocationType = type;
             tabState.selectedLocationId = parseInt(id);
-            console.log(`💾 Tab ${tabId} location saqlandi:`, type, parseInt(id));
+            console.log(`?? Tab ${tabId} location saqlandi:`, type, parseInt(id));
         }
         
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">' + SLANG.searching + '</td></tr>';
@@ -3010,23 +3010,23 @@
                 const cached = productsCache.get(cacheKey);
                 products = cached.products;
                 totalProducts = cached.total;
-                console.log("✅ Cache'dan yuklandi:", products.length, "ta mahsulot");
+                console.log("? Cache'dan yuklandi:", products.length, "ta mahsulot");
             } else {
                 // Backend'dan sahifa-sahifa yuklash
                 const response = await fetch(`/api/products?location=${locationValue}&page=${page}&per_page=${itemsPerPage}`);
                 data = await response.json();
                 
-                console.log('🌐 API response:', data);
+                console.log('?? API response:', data);
                 
                 // API dan kelgan ma'lumotni to'g'ri parse qilish
                 products = data.products || [];
                 totalProducts = (data.pagination && data.pagination.total) ? data.pagination.total : products.length;
                 
-                console.log('📊 Parsed:', products.length, 'ta mahsulot, jami:', totalProducts);
+                console.log('?? Parsed:', products.length, 'ta mahsulot, jami:', totalProducts);
                 
                 // Cache'ga saqlash
                 productsCache.set(cacheKey, { products, total: totalProducts });
-                console.log('🌐 Serverdan yuklandi:', products.length, 'ta mahsulot');
+                console.log('?? Serverdan yuklandi:', products.length, 'ta mahsulot');
             }
             
             if (products.length === 0) {
@@ -3083,12 +3083,12 @@
                 
                 // Mahsulot nomlarini console ga chiqarish (faqat birinchi marta)
                 if (!window.productsLogged) {
-                    console.log(`📦 Mahsulot: "${productName}"`);
+                    console.log(`?? Mahsulot: "${productName}"`);
                 }
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
+                const buttonEmoji = quantity <= 0 ? '?' : '??';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -3133,7 +3133,7 @@
                 
                 // Oldingi tugma
                 if (currentPage > 1) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">← Oldingi</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">� Oldingi</button>`;
                 }
                 
                 // Sahifa raqamlari (faqat yaqin sahifalarni ko'rsatish)
@@ -3163,7 +3163,7 @@
                 
                 // Keyingi tugma
                 if (currentPage < totalPages) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi →</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi �</button>`;
                 }
                 
                 paginationDiv.innerHTML = paginationHTML;
@@ -3171,7 +3171,7 @@
                 paginationDiv.innerHTML = `<span style="color: #666; font-size: 14px;">${totalProducts} ta mahsulot</span>`;
             }
             
-            console.log(`✅ ${products.length} ta mahsulot ko'rsatildi (${currentPage}-bet / ${totalPages} bet)`);
+            console.log(`? ${products.length} ta mahsulot ko'rsatildi (${currentPage}-bet / ${totalPages} bet)`);
         } catch (error) {
             console.error('Mahsulotlarni yuklashda xatolik:', error);
             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;">' + SLANG.error_prefix + '</td></tr>';
@@ -3192,7 +3192,7 @@
             // Agar cache mavjud bo'lsa, uni ishlatish
             if (currencyRateCache) {
                 exchangeRate = currencyRateCache;
-                console.log('📦 Valyuta kursi cache\'dan olinmoqda:', exchangeRate);
+                console.log('?? Valyuta kursi cache\'dan olinmoqda:', exchangeRate);
                 return;
             }
             
@@ -3203,15 +3203,15 @@
                 if (!isNaN(newRate) && newRate > 0) {
                     exchangeRate = newRate;
                     currencyRateCache = newRate; // Cache'ga saqlash
-                    console.log('✅ Valyuta kursi yuklandi:', exchangeRate);
+                    console.log('? Valyuta kursi yuklandi:', exchangeRate);
                 } else {
-                    console.warn('⚠️ Noto\'g\'ri kurs qiymati, default ishlatiladi:', exchangeRate);
+                    console.warn('?? Noto\'g\'ri kurs qiymati, default ishlatiladi:', exchangeRate);
                 }
             } else {
-                console.warn('⚠️ Kurs ma\'lumoti topilmadi, default ishlatiladi:', exchangeRate);
+                console.warn('?? Kurs ma\'lumoti topilmadi, default ishlatiladi:', exchangeRate);
             }
         } catch (error) {
-            console.error('❌ Kursni yuklashda xatolik, default ishlatiladi:', exchangeRate, error);
+            console.error('? Kursni yuklashda xatolik, default ishlatiladi:', exchangeRate, error);
         }
     }
     
@@ -3221,7 +3221,7 @@
         const uzsInput = getActiveTabElement('modalPriceUZS');
         
         if (!usdInput || !uzsInput) {
-            console.error('❌ Modal input elementlari topilmadi');
+            console.error('? Modal input elementlari topilmadi');
             return;
         }
         
@@ -3229,7 +3229,7 @@
         const uzsPrice = usdPrice * exchangeRate;
         uzsInput.value = Math.round(uzsPrice);
         
-        console.log('💱 Konversiya (USD→UZS):', usdPrice, 'USD ×', exchangeRate, '=', Math.round(uzsPrice), 'UZS');
+        console.log('?? Konversiya (USD�UZS):', usdPrice, 'USD �', exchangeRate, '=', Math.round(uzsPrice), 'UZS');
         
         // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
         if (currentProduct) {
@@ -3244,7 +3244,7 @@
                         priceUZS: Math.round(uzsPrice),
                         timestamp: Date.now()
                     };
-                    console.log('🔒 Narx saqlandi:', currentProduct.id, '=', usdPrice, 'USD');
+                    console.log('?? Narx saqlandi:', currentProduct.id, '=', usdPrice, 'USD');
                 }
             }, 500); // 500ms kutadi
         }
@@ -3256,15 +3256,15 @@
         const uzsInput = getActiveTabElement('modalPriceUZS');
         
         if (!usdInput || !uzsInput) {
-            console.error('❌ Modal input elementlari topilmadi');
+            console.error('? Modal input elementlari topilmadi');
             return;
         }
         
         const uzsPrice = parseFloat(uzsInput.value) || 0;
         const usdPrice = uzsPrice / exchangeRate;
-        usdInput.value = usdPrice.toFixed(4);
+        usdInput.value = usdPrice.toFixed(5);
         
-        console.log('💱 Konversiya (UZS→USD):', uzsPrice, 'UZS ÷', exchangeRate, '=', usdPrice.toFixed(4), 'USD');
+        console.log('?? Konversiya (UZS�USD):', uzsPrice, 'UZS �', exchangeRate, '=', usdPrice.toFixed(5), 'USD');
         
         // Narx validatsiyasini ishga tushirish (faqat modal ochiq bo'lsa)
         if (currentProduct) {
@@ -3279,7 +3279,7 @@
                         priceUZS: Math.round(uzsPrice),
                         timestamp: Date.now()
                     };
-                    console.log('🔒 Narx saqlandi:', currentProduct.id, '=', usdPrice, 'USD');
+                    console.log('?? Narx saqlandi:', currentProduct.id, '=', usdPrice, 'USD');
                 }
             }, 500); // 500ms kutadi
         }
@@ -3287,7 +3287,7 @@
     
     // Modal ochish
     function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona') {
-        console.log('🛒 addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
+        console.log('?? addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
         
         // Miqdori 0 bo'lsa xabar chiqarish
         if (quantity <= 0) {
@@ -3295,9 +3295,9 @@
             return;
         }
         
-        // 🔒 Mahsulot ID'sini lock qilish
+        // ?? Mahsulot ID'sini lock qilish
         lockedProductId = productId;
-        console.log('🔒 Product locked:', lockedProductId);
+        console.log('?? Product locked:', lockedProductId);
         
         // Agar avval saqlangan narx bo'lsa, uni ishlatish
         if (lastPriceUpdate[productId]) {
@@ -3305,13 +3305,13 @@
             const timeDiff = Date.now() - savedPrice.timestamp;
             // Agar 30 soniyadan kam bo'lsa, saqlangan narxni ishlatish
             if (timeDiff < 30000) {
-                console.log('♻️ Saqlangan narx ishlatilmoqda:', savedPrice.priceUSD, 'USD');
+                console.log('?? Saqlangan narx ishlatilmoqda:', savedPrice.priceUSD, 'USD');
                 price = savedPrice.priceUSD;
             }
         }
         
         currentProduct = { id: productId, name: productName, available: quantity, price: price, costPrice: costPrice, unitType: unitType };
-        console.log('📦 currentProduct:', currentProduct);
+        console.log('?? currentProduct:', currentProduct);
         
         // Tab-aware modal elementlarini topish
         const modalProductName = getActiveTabElement('modalProductName');
@@ -3321,7 +3321,7 @@
         const quantityModal = getActiveTabElement('quantityModal');
         
         if (!modalProductName || !modalAvailable || !modalQuantity || !modalPriceUSD || !quantityModal) {
-            console.error('❌ Modal elementlari topilmadi');
+            console.error('? Modal elementlari topilmadi');
             return;
         }
         
@@ -3346,8 +3346,8 @@
             modalQuantity.min = '0.01';
         }
         
-        modalPriceUSD.value = price.toFixed(4);
-        console.log('💵 modalPriceUSD.value o\'rnatildi:', modalPriceUSD.value);
+        modalPriceUSD.value = price.toFixed(5);
+        console.log('?? modalPriceUSD.value o\'rnatildi:', modalPriceUSD.value);
         updateUZSPrice();
         
         // Validatsiyalarni o'rnatish
@@ -3366,7 +3366,7 @@
                 quantityInput.focus();
                 quantityInput.select(); // Matnni belgilash
                 
-                // Enter event listener - miqdor → korzinaga qo'shish
+                // Enter event listener - miqdor � korzinaga qo'shish
                 quantityInput.addEventListener('keydown', function handleQuantityEnter(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -3377,7 +3377,7 @@
                 }, { once: false });
             }
             
-            // Narx USD → Savatga qo'shish
+            // Narx USD � Savatga qo'shish
             const priceUSDInput = getActiveTabElement('modalPriceUSD');
             if (priceUSDInput) {
                 priceUSDInput.addEventListener('keydown', function handlePriceUSDEnter(e) {
@@ -3390,7 +3390,7 @@
                 }, { once: false });
             }
             
-            // Narx UZS → Savatga qo'shish
+            // Narx UZS � Savatga qo'shish
             const priceUZSInput = getActiveTabElement('modalPriceUZS');
             if (priceUZSInput) {
                 priceUZSInput.addEventListener('keydown', function handlePriceUZSEnter(e) {
@@ -3406,7 +3406,7 @@
     
     // To'g'ridan-to'g'ri savatga qo'shish (modal ochmasdan) - savdo tahrirlash uchun
     function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId) {
-        console.log(`➕ To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
+        console.log(`? To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
         console.log(`   Location: ${sourceType}_${sourceId}`);
         
         // Korzinada allaqachon bor-yo'qligini tekshirish
@@ -3415,7 +3415,7 @@
         if (existingIndex !== -1) {
             // Mavjud bo'lsa, miqdorni oshirish
             cart[existingIndex].quantity += quantity;
-            console.log(`  ✅ Miqdor oshirildi: ${cart[existingIndex].quantity}`);
+            console.log(`  ? Miqdor oshirildi: ${cart[existingIndex].quantity}`);
         } else {
             // Yangi element qo'shish
             const priceUZS = priceUSD * exchangeRate;
@@ -3428,7 +3428,7 @@
                 sourceType: sourceType,     // Mahsulot qaysi joylashuvdan olingan
                 sourceId: sourceId          // Joylashuv ID'si
             });
-            console.log(`  ✅ Yangi element qo'shildi: ${productName} (${sourceType}_${sourceId})`);
+            console.log(`  ? Yangi element qo'shildi: ${productName} (${sourceType}_${sourceId})`);
         }
         
         // Korzinani yangilash
@@ -3444,7 +3444,7 @@
         const qtyInput = getActiveTabElement('modalQuantity');
         
         if (!usdInput || !uzsInput || !qtyInput) {
-            console.error('❌ Modal validation elementlari topilmadi');
+            console.error('? Modal validation elementlari topilmadi');
             return;
         }
         
@@ -3494,7 +3494,7 @@
         const warningText = getActiveTabElement('priceWarningText');
         
         if (!modalQuantity || !warningDiv || !warningText) {
-            console.error('❌ Validation elementlari topilmadi');
+            console.error('? Validation elementlari topilmadi');
             return;
         }
         
@@ -3547,7 +3547,7 @@
         const warningText = getActiveTabElement('priceWarningText');
         
         if (!modalPriceUSD || !modalPriceUZS || !warningDiv || !warningText) {
-            console.error('❌ Price validation elementlari topilmadi');
+            console.error('? Price validation elementlari topilmadi');
             return;
         }
         
@@ -3587,10 +3587,10 @@
     
     // Modal yopish
     async function closeModal() {
-        // ⚠️ Agar tahrirlash bekor qilinsa, hech narsa qilmaslik
+        // ?? Agar tahrirlash bekor qilinsa, hech narsa qilmaslik
         // Chunki stok o'zgartirilmagan
         if (typeof window.editingCartIndex !== 'undefined') {
-            console.log('❌ Tahrirlash bekor qilindi (stok o\'zgartirilmagan)');
+            console.log('? Tahrirlash bekor qilindi (stok o\'zgartirilmagan)');
             delete window.editingCartIndex;
             delete window.editingOriginalQuantity;
         }
@@ -3600,9 +3600,9 @@
             quantityModal.style.display = 'none';
         }
         
-        // 🔓 Lock'ni tozalash
+        // ?? Lock'ni tozalash
         lockedProductId = null;
-        console.log('🔓 Product unlocked');
+        console.log('?? Product unlocked');
         
         currentProduct = null;
         delete window.editingCartIndex; // Tahrirlash rejimini tozalash
@@ -3643,7 +3643,7 @@
     
     // Savatga qo'shish
     async function confirmAddToCart() {
-        // ⚠️ XAVFSIZLIK: Operatsiya boshidagi tabId ni saqlash
+        // ?? XAVFSIZLIK: Operatsiya boshidagi tabId ni saqlash
         const operationTabId = activeTabId;
         
         const modalQuantity = getActiveTabElement('modalQuantity');
@@ -3651,7 +3651,7 @@
         const modalPriceUZS = getActiveTabElement('modalPriceUZS');
         
         if (!modalQuantity || !modalPriceUSD || !modalPriceUZS) {
-            console.error('❌ Modal input elementlari topilmadi');
+            console.error('? Modal input elementlari topilmadi');
             return;
         }
         
@@ -3659,9 +3659,9 @@
         const priceUSD = parseFloat(modalPriceUSD.value);
         const priceUZS = parseFloat(modalPriceUZS.value);
         
-        // ⚠️ XAVFSIZLIK: Tab almashganini tekshirish
+        // ?? XAVFSIZLIK: Tab almashganini tekshirish
         if (operationTabId !== activeTabId) {
-            console.warn('⚠️ Tab almashgan, operatsiya bekor qilindi');
+            console.warn('?? Tab almashgan, operatsiya bekor qilindi');
             closeModal();
             return;
         }
@@ -3671,7 +3671,7 @@
             const costPrice = parseFloat(currentProduct.costPrice) || 0;
             if (priceUSD <= costPrice && priceUSD > 0) {
                 const confirmation = confirm(
-                    `⚠️ ${SLANG.price_too_low_warning}\n\n` +
+                    `?? ${SLANG.price_too_low_warning}\n\n` +
                     `${SLANG.price_low_continue}`
                 );
                 
@@ -3705,7 +3705,7 @@
             const oldQuantity = window.editingOriginalQuantity || 0;
             const quantityDifference = quantity - oldQuantity;
             
-            console.log('📊 Miqdor farqi: eski =', oldQuantity, ', yangi =', quantity, ', farq =', quantityDifference);
+            console.log('?? Miqdor farqi: eski =', oldQuantity, ', yangi =', quantity, ', farq =', quantityDifference);
             
             // Agar farq > 0: qo'shimcha stokdan olish kerak
             if (quantityDifference > 0) {
@@ -3717,7 +3717,7 @@
                 
                 // Internet tekshiruvi (1-qatlam)
                 if (!navigator.onLine) {
-                    alert('⚠️ Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+                    alert('?? Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
                     return;
                 }
                 
@@ -3733,10 +3733,10 @@
                         alert(result.error || SLANG.stock_update_error);
                         return;
                     }
-                    console.log('➕ Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
+                    console.log('? Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
                 } catch (error) {
                     console.error('Stok ayirish xatosi (network):', error);
-                    alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+                    alert('?? Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
                     return;
                 }
             }
@@ -3753,7 +3753,7 @@
                         console.error('Stokka qaytarishda xatolik:', result.error);
                         // Bu xatolik critical emas, davom etamiz
                     } else {
-                        console.log('➖ Ortiqcha stokka qaytarildi:', Math.abs(quantityDifference), 'dona');
+                        console.log('? Ortiqcha stokka qaytarildi:', Math.abs(quantityDifference), 'dona');
                     }
                 } catch (error) {
                     console.error('Stok qaytarish xatosi (navbatga qo\'shildi):', error);
@@ -3784,25 +3784,25 @@
                     const cacheKey = `${locationSelect.value}_${currentPage}`;
                     productsCache.delete(cacheKey);
                     await loadProducts(currentPage);
-                    console.log('🔄 Tahrirlash: mahsulotlar jadvali yangilandi');
+                    console.log('?? Tahrirlash: mahsulotlar jadvali yangilandi');
                 }
             }
             
-            console.log('✏️ Savat elementi tahrirlandi');
+            console.log('?? Savat elementi tahrirlandi');
             return;
         }
         
         // Yangi mahsulot qo'shish - currentProduct tekshiruvi
         if (!currentProduct) {
             alert(SLANG.product_info_not_found);
-            console.error('❌ currentProduct null holatda');
+            console.error('? currentProduct null holatda');
             return;
         }
         
         // Mahsulot allaqachon savatda borligini tekshirish
         const existingItem = cart.find(item => item.id === currentProduct.id);
         if (existingItem) {
-            alert('⚠️ ' + SLANG.already_in_cart + '\n\n' + SLANG.already_in_cart_hint);
+            alert('?? ' + SLANG.already_in_cart + '\n\n' + SLANG.already_in_cart_hint);
             closeModal();
             return;
         }
@@ -3819,7 +3819,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('⚠️ Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
+            alert('?? Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
             return;
         }
         
@@ -3835,10 +3835,10 @@
                 alert(result.error || SLANG.stock_update_error);
                 return;
             }
-            console.log('✅ Stokdan ayirildi:', quantity, 'dona');
+            console.log('? Stokdan ayirildi:', quantity, 'dona');
         } catch (error) {
             console.error('Stok ayirish xatosi (network):', error);
-            alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+            alert('?? Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
             return;
         }
         
@@ -3850,13 +3850,13 @@
             priceUZS: priceUZS,
             quantity: quantity
         });
-        console.log(`➕ Yangi mahsulot qo'shildi: ${quantity} dona`);
+        console.log(`? Yangi mahsulot qo'shildi: ${quantity} dona`);
         
         // Tab state'ni yangilash
         const tabState = getTabState();
         if (tabState) {
             tabState.cart = [...cart]; // Deep copy
-            console.log(`💾 Tab cart saqlandi (${cart.length} items)`);
+            console.log(`?? Tab cart saqlandi (${cart.length} items)`);
         }
         
         // currentProduct ma'lumotlarini saqlab qo'yish (closeModal() uni null qiladi)
@@ -3887,7 +3887,7 @@
             }
         }, 200);
         
-        console.log('✅ Savatga qo\'shildi:', addedProduct.name, quantity, 'dona, $' + priceUSD);
+        console.log('? Savatga qo\'shildi:', addedProduct.name, quantity, 'dona, $' + priceUSD);
     }
     
     // Savatni yangilash
@@ -3911,7 +3911,7 @@
         if (cartCustomerInfo && customerSearch && selectedCustomerId && selectedCustomerId.value) {
             const customerName = customerSearch.value;
             if (customerName) {
-                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">👤 ${customerName}</h3>`;
+                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">?? ${customerName}</h3>`;
                 
                 // Tab sarlavhasida ham mijoz ko'rsatish
                 const tabTitle = activeTab.querySelector('.tab-title');
@@ -3993,20 +3993,20 @@
                                style="width: 60px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; font-size: 15px; font-weight: 500;">
                     </td>
                     <td style="padding: 8px 5px; text-align: right; font-size: 15px; color: #333; width: 90px;">
-                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${item.priceUSD.toFixed(4)}</div>
+                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${fmtUSD5(item.priceUSD)}</div>
                         <div>
                             <span style="background: #5b9bd5; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 14px;">${formatPrice(item.priceUZS)}</span>
                         </div>
                     </td>
                     <td style="padding: 8px 5px; text-align: right; font-size: 15px; color: #333; width: 94px;">
-                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${subtotalUSD.toFixed(4)}</div>
+                        <div style="margin-bottom: 2px; font-weight: 600; color: #333; font-size: 15px;">$${fmtUSD5(subtotalUSD)}</div>
                         <div>
                             <span style="background: #5b9bd5; color: white; padding: 2px 4px; border-radius: 2px; font-weight: 500; font-size: 14px;">${formatPrice(subtotalUZS)}</span>
                         </div>
                     </td>
                     <td style="padding: 8px 5px; text-align: center; width: 40px;">
-                        <button onclick="editCartItem(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; margin-right: 2px;">✏️</button>
-                        <button onclick="removeFromCart(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; font-weight: bold;">❌</button>
+                        <button onclick="editCartItem(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; margin-right: 2px;">??</button>
+                        <button onclick="removeFromCart(${index})" style="background: transparent; color: #333; border: none; padding: 4px 6px; cursor: pointer; font-size: 14px; font-weight: bold;">?</button>
                     </td>
                 </tr>
             `;
@@ -4023,7 +4023,7 @@
                         ${cart.length}
                     </div>
                     <div>
-                        Jami: <span style="color: #e53935; font-size: 15px; font-weight: 700;">$${totalUSD.toFixed(4)}</span>
+                        Jami: <span style="color: #e53935; font-size: 15px; font-weight: 700;">$${fmtUSD5(totalUSD)}</span>
                         <span style="margin-left: 10px; color: #455a64; font-size: 14px;">${formatPrice(totalUZS)} so'm</span>
                     </div>
                 </div>
@@ -4033,7 +4033,7 @@
     
     // Savatdan o'chirish
     async function removeFromCart(index) {
-        // ⚠️ XAVFSIZLIK: Operatsiya boshidagi tabId va ma'lumotlarni saqlash
+        // ?? XAVFSIZLIK: Operatsiya boshidagi tabId va ma'lumotlarni saqlash
         const operationTabId = activeTabId;
         const operationLocationId = selectedLocationId;
         const operationLocationType = selectedLocationType;
@@ -4041,28 +4041,28 @@
         const item = cart[index];
         
         // Tasdiqlash so'rovi
-        const confirmMessage = `"${item.name}" ${SLANG.remove_confirm}\n\n${SLANG.quantity_label}: ${item.quantity} ${SLANG.unit_pcs}\n${SLANG.price_label}: $${item.priceUSD.toFixed(4)}`;
+        const confirmMessage = `"${item.name}" ${SLANG.remove_confirm}\n\n${SLANG.quantity_label}: ${item.quantity} ${SLANG.unit_pcs}\n${SLANG.price_label}: $${fmtUSD5(item.priceUSD)}`;
         if (!confirm(confirmMessage)) {
-            console.log('❌ Foydalanuvchi o\'chirishni bekor qildi');
+            console.log('? Foydalanuvchi o\'chirishni bekor qildi');
             return;
         }
         
-        // ⚠️ XAVFSIZLIK: Tab almashganini tekshirish
+        // ?? XAVFSIZLIK: Tab almashganini tekshirish
         if (operationTabId !== activeTabId) {
-            console.warn('⚠️ Tab almashgan, o\'chirish bekor qilindi');
+            console.warn('?? Tab almashgan, o\'chirish bekor qilindi');
             return;
         }
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('⚠️ Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
+            alert('?? Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
             return;
         }
         
         // Debug: funksiya chaqirilgan vaqtni log qilish
         const timestamp = new Date().toISOString();
         console.log(`\n${'='.repeat(80)}`);
-        console.log(`🗑️ removeFromCart() CHAQIRILDI - ${timestamp}`);
+        console.log(`??? removeFromCart() CHAQIRILDI - ${timestamp}`);
         console.log(`   Index: ${index}`);
         console.log(`   Product: ${item.name} (ID: ${item.id})`);
         console.log(`   Quantity: ${item.quantity}`);
@@ -4072,7 +4072,7 @@
         
         // FAQAT BIR MARTA stokka qaytarish
         if (!item._stockReturned) {
-            console.log('🔄 Stokka qaytarish jarayoni boshlanmoqda...');
+            console.log('?? Stokka qaytarish jarayoni boshlanmoqda...');
             try {
                 const requestData = {
                     product_id: item.id,
@@ -4080,29 +4080,29 @@
                     location_id: selectedLocationId,
                     location_type: selectedLocationType
                 };
-                console.log('📤 API ga yuborilayotgan ma\'lumot:', JSON.stringify(requestData, null, 2));
+                console.log('?? API ga yuborilayotgan ma\'lumot:', JSON.stringify(requestData, null, 2));
                 
                 const result = await StockQueue.send('/api/return-stock', requestData);
-                console.log('📦 API response:', JSON.stringify(result, null, 2));
+                console.log('?? API response:', JSON.stringify(result, null, 2));
                 
                 if (!result.success && !result.already_processed) {
-                    console.error('❌ Stokka qaytarishda xatolik:', result.error);
+                    console.error('? Stokka qaytarishda xatolik:', result.error);
                     alert(SLANG.stock_return_error + ': ' + result.error);
                     console.log(`${'='.repeat(80)}\n`);
                     return; // Xatolik bo'lsa savatdan o'chirmaymiz
                 } else {
-                    console.log('✅ Stokka qaytarildi:', item.quantity, 'dona');
+                    console.log('? Stokka qaytarildi:', item.quantity, 'dona');
                     item._stockReturned = true; // Belgi qo'yamiz
-                    console.log('🔒 _stockReturned flag = true');
+                    console.log('?? _stockReturned flag = true');
                 }
             } catch (error) {
-                console.error('❌ Stok qaytarish xatosi (navbatga qo\'shildi):', error);
+                console.error('? Stok qaytarish xatosi (navbatga qo\'shildi):', error);
                 // Navbatga qo'shildi, savatdan o'chirishni davom ettiramiz
                 item._stockReturned = true;
             }
         } else {
-            console.log('⚠️ Stock allaqachon qaytarilgan, qayta qaytarmaymiz');
-            console.log('🔒 _stockReturned flag allaqachon = true');
+            console.log('?? Stock allaqachon qaytarilgan, qayta qaytarmaymiz');
+            console.log('?? _stockReturned flag allaqachon = true');
         }
         
         cart.splice(index, 1);
@@ -4111,7 +4111,7 @@
         const tabState = getTabState();
         if (tabState) {
             tabState.cart = [...cart]; // Deep copy
-            console.log(`💾 Tab cart saqlandi (${cart.length} items after remove)`);
+            console.log(`?? Tab cart saqlandi (${cart.length} items after remove)`);
         }
         
         updateCart();
@@ -4128,11 +4128,11 @@
                 const cacheKey = `${locationSelect.value}_${currentPage}`;
                 productsCache.delete(cacheKey);
                 await loadProducts(currentPage);
-                console.log('🔄 O\'chirish: mahsulotlar jadvali yangilandi');
+                console.log('?? O\'chirish: mahsulotlar jadvali yangilandi');
             }
         }
         
-        console.log('✅ Savatdan o\'chirish tugadi');
+        console.log('? Savatdan o\'chirish tugadi');
     }
     
     // Savat miqdorini yangilash
@@ -4165,7 +4165,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('⚠️ Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+            alert('?? Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
             updateCart(); // Eski qiymatni qaytarish
             return;
         }
@@ -4188,7 +4188,7 @@
                     updateCart(); // Eski qiymatni qaytarish
                     return;
                 }
-                console.log('✅ Stokdan qo\'shimcha ayirildi:', quantityDiff, 'dona');
+                console.log('? Stokdan qo\'shimcha ayirildi:', quantityDiff, 'dona');
             } catch (error) {
                 console.error('Stok ayirish xatosi (navbatga qo\'shildi):', error);
                 // Navbatga qo'shildi, davom etamiz
@@ -4212,7 +4212,7 @@
                     updateCart();
                     return;
                 }
-                console.log('✅ Stokka qaytarildi:', Math.abs(quantityDiff), 'dona');
+                console.log('? Stokka qaytarildi:', Math.abs(quantityDiff), 'dona');
             } catch (error) {
                 console.error('Stok qaytarish xatosi (navbatga qo\'shildi):', error);
                 // Navbatga qo'shildi, davom etamiz
@@ -4234,11 +4234,11 @@
                 const cacheKey = `${locationSelect.value}_${currentPage}`;
                 productsCache.delete(cacheKey);
                 await loadProducts(currentPage);
-                console.log('🔄 Miqdor o\'zgartirildi: mahsulotlar jadvali yangilandi');
+                console.log('?? Miqdor o\'zgartirildi: mahsulotlar jadvali yangilandi');
             }
         }
         
-        console.log('📝 Miqdor yangilandi:', quantity);
+        console.log('?? Miqdor yangilandi:', quantity);
     }
     
     // Korzinka miqdor inputini real-time validatsiya qilish
@@ -4282,10 +4282,10 @@
     async function editCartItem(index) {
         const item = cart[index];
         
-        console.log('✏️ Mahsulot tahrirlash boshlandi:', item.name, '(', item.quantity, 'dona )');
-        console.log('📋 Korzina elementi:', JSON.stringify(item, null, 2));
+        console.log('?? Mahsulot tahrirlash boshlandi:', item.name, '(', item.quantity, 'dona )');
+        console.log('?? Korzina elementi:', JSON.stringify(item, null, 2));
         
-        // ⚠️ MUHIM: Tahrirlashda stokni o'zgartirmaslik (refresh xavfini oldini olish)
+        // ?? MUHIM: Tahrirlashda stokni o'zgartirmaslik (refresh xavfini oldini olish)
         // Faqat Save bosilganda farqni hisoblash va stokni yangilash
         
         // Tab-aware modal elementlarini topish
@@ -4298,7 +4298,7 @@
         const modalPriceUZS = getActiveTabElement('modalPriceUZS');
         
         if (!quantityModal || !modalProductName || !locationSelect) {
-            console.error('❌ Modal elementlari topilmadi');
+            console.error('? Modal elementlari topilmadi');
             return;
         }
         
@@ -4306,34 +4306,34 @@
         quantityModal.style.display = 'flex';
         modalProductName.textContent = item.name;
         
-        // ⭐ MUHIM: Korzina elementidagi source'dan qidirish (global location emas!)
+        // ? MUHIM: Korzina elementidagi source'dan qidirish (global location emas!)
         const locationValue = item.sourceType && item.sourceId 
             ? `${item.sourceType}_${item.sourceId}` 
             : locationSelect.value;  // Fallback: agar source yo'q bo'lsa
         
         const [type, id] = locationValue.split('_');
         
-        console.log('═══════════════════════════════════════');
-        console.log('✏️ TAHRIRLASH BOSHLANDI');
-        console.log('═══════════════════════════════════════');
-        console.log('📝 Mahsulot nomi:', item.name);
-        console.log('🆔 Mahsulot ID:', item.id, '(type:', typeof item.id, ')');
-        console.log('📊 Korzina miqdori:', item.quantity);
-        console.log('📍 Korzina sourceType:', item.sourceType);
-        console.log('📍 Korzina sourceId:', item.sourceId);
-        console.log('🎯 Qidirilayotgan location:', locationValue);
-        console.log('🏪 Location type:', type);
-        console.log('🆔 Location ID:', id);
-        console.log('═══════════════════════════════════════');
+        console.log('=======================================');
+        console.log('?? TAHRIRLASH BOSHLANDI');
+        console.log('=======================================');
+        console.log('?? Mahsulot nomi:', item.name);
+        console.log('?? Mahsulot ID:', item.id, '(type:', typeof item.id, ')');
+        console.log('?? Korzina miqdori:', item.quantity);
+        console.log('?? Korzina sourceType:', item.sourceType);
+        console.log('?? Korzina sourceId:', item.sourceId);
+        console.log('?? Qidirilayotgan location:', locationValue);
+        console.log('?? Location type:', type);
+        console.log('?? Location ID:', id);
+        console.log('=======================================');
         
         // Default qiymatlar
-        let totalAvailable = 0;  // ⚠️ Default 0 - agar mahsulot topilmasa xatolik ko'rsatish uchun
+        let totalAvailable = 0;  // ?? Default 0 - agar mahsulot topilmasa xatolik ko'rsatish uchun
         let costPrice = 0;
         let productFound = false;
         let stockQuantity = 0;  // Stokdagi sof miqdor
         
         try {
-            console.log('🌐 API so\'rov: GET /api/products?location=' + locationValue + '&per_page=9999');
+            console.log('?? API so\'rov: GET /api/products?location=' + locationValue + '&per_page=9999');
             const response = await fetch(`/api/products?location=${locationValue}&per_page=9999`);
             
             if (!response.ok) {
@@ -4343,14 +4343,14 @@
             const data = await response.json();
             const products = Array.isArray(data) ? data : (data.products || []);
             
-            console.log('✅ API javob olindi');
-            console.log('📦 Jami mahsulotlar:', products.length);
-            console.log('📋 Barcha mahsulotlar:', products.map(p => `ID:${p.id} - ${p.name}`).join('\n   '));
-            console.log('═══════════════════════════════════════');
+            console.log('? API javob olindi');
+            console.log('?? Jami mahsulotlar:', products.length);
+            console.log('?? Barcha mahsulotlar:', products.map(p => `ID:${p.id} - ${p.name}`).join('\n   '));
+            console.log('=======================================');
             
             // ID turini to'g'irlash - har ikkala holatni ham tekshirish
             const itemId = parseInt(item.id);
-            console.log('🔍 MAHSULOT QIDIRISH:');
+            console.log('?? MAHSULOT QIDIRISH:');
             console.log('   Qidirilayotgan ID:', itemId);
             console.log('   Qidirilayotgan nom:', item.name);
             
@@ -4358,15 +4358,15 @@
                 const productId = parseInt(p.id);
                 const isMatch = productId === itemId;
                 if (isMatch) {
-                    console.log('✅ TOPILDI! ID:', productId, '- Nom:', p.name);
+                    console.log('? TOPILDI! ID:', productId, '- Nom:', p.name);
                 }
                 return isMatch;
             });
             
-            // ⭐ FALLBACK: Agar mahsulot list'da topilmasa, alohida so'rov yuborish
+            // ? FALLBACK: Agar mahsulot list'da topilmasa, alohida so'rov yuborish
             if (!product) {
-                console.warn('⚠️ Mahsulot location list\'ida topilmadi, alohida so\'rov yuborilmoqda...');
-                console.log('🌐 FALLBACK API so\'rov: GET /api/product/' + itemId);
+                console.warn('?? Mahsulot location list\'ida topilmadi, alohida so\'rov yuborilmoqda...');
+                console.log('?? FALLBACK API so\'rov: GET /api/product/' + itemId);
                 
                 try {
                     const fallbackResponse = await fetch(`/api/product/${itemId}`);
@@ -4374,33 +4374,33 @@
                         const fallbackData = await fallbackResponse.json();
                         if (fallbackData.success && fallbackData.product) {
                             product = fallbackData.product;
-                            console.log('✅ FALLBACK API: Mahsulot topildi!');
+                            console.log('? FALLBACK API: Mahsulot topildi!');
                         }
                     }
                 } catch (fallbackError) {
-                    console.error('❌ Fallback API xatolik:', fallbackError);
+                    console.error('? Fallback API xatolik:', fallbackError);
                 }
             }
             
             if (product) {
                 productFound = true;
-                console.log('═══════════════════════════════════════');
-                console.log('✅ MAHSULOT TOPILDI');
-                console.log('═══════════════════════════════════════');
-                console.log('📝 Nomi:', product.name);
-                console.log('🆔 ID:', product.id);
-                console.log('💰 Tan narx:', product.cost_price);
-                console.log('💰 Sotish narx:', product.sell_price);
-                console.log('📦 Stocks mavjudmi?', !!product.stocks);
-                console.log('📦 Stocks soni:', product.stocks ? product.stocks.length : 0);
+                console.log('=======================================');
+                console.log('? MAHSULOT TOPILDI');
+                console.log('=======================================');
+                console.log('?? Nomi:', product.name);
+                console.log('?? ID:', product.id);
+                console.log('?? Tan narx:', product.cost_price);
+                console.log('?? Sotish narx:', product.sell_price);
+                console.log('?? Stocks mavjudmi?', !!product.stocks);
+                console.log('?? Stocks soni:', product.stocks ? product.stocks.length : 0);
                 
                 if (product.stocks && product.stocks.length > 0) {
-                    console.log('📋 BARCHA STOCKS:');
+                    console.log('?? BARCHA STOCKS:');
                     product.stocks.forEach((stock, idx) => {
                         console.log(`   ${idx + 1}. ${stock.warehouse_id ? 'Warehouse' : 'Store'} ID:${stock.warehouse_id || stock.store_id} - Miqdor: ${stock.quantity}`);
                     });
                 }
-                console.log('═══════════════════════════════════════');
+                console.log('=======================================');
                 
                 // Tan narxni olish
                 if (product.cost_price) {
@@ -4410,106 +4410,106 @@
                 // Stok ma'lumotlarini olish
                 if (product.stocks && product.stocks.length > 0) {
                     const locationId = parseInt(id);
-                    console.log('═══════════════════════════════════════');
-                    console.log('🔍 STOK QIDIRISH:');
-                    console.log('═══════════════════════════════════════');
-                    console.log('🎯 Qidirilayotgan type:', type);
-                    console.log('🆔 Qidirilayotgan ID:', locationId);
-                    console.log('📦 Barcha stocks:', product.stocks.length, 'ta');
+                    console.log('=======================================');
+                    console.log('?? STOK QIDIRISH:');
+                    console.log('=======================================');
+                    console.log('?? Qidirilayotgan type:', type);
+                    console.log('?? Qidirilayotgan ID:', locationId);
+                    console.log('?? Barcha stocks:', product.stocks.length, 'ta');
                     
                     const matchingStock = product.stocks.find(stock => {
                         let match = false;
                         if (type === 'warehouse') {
                             match = stock.warehouse_id === locationId;
-                            console.log(`   Tekshirilmoqda: warehouse_id ${stock.warehouse_id} === ${locationId}? ${match ? '✅ YES' : '❌ NO'}`);
+                            console.log(`   Tekshirilmoqda: warehouse_id ${stock.warehouse_id} === ${locationId}? ${match ? '? YES' : '? NO'}`);
                         } else if (type === 'store') {
                             match = stock.store_id === locationId;
-                            console.log(`   Tekshirilmoqda: store_id ${stock.store_id} === ${locationId}? ${match ? '✅ YES' : '❌ NO'}`);
+                            console.log(`   Tekshirilmoqda: store_id ${stock.store_id} === ${locationId}? ${match ? '? YES' : '? NO'}`);
                         }
                         return match;
                     });
-                    console.log('═══════════════════════════════════════');
+                    console.log('=======================================');
                     
                     if (matchingStock) {
-                        console.log('✅✅✅ STOK TOPILDI! ✅✅✅');
-                        console.log('📊 Stock miqdori:', matchingStock.quantity);
+                        console.log('??? STOK TOPILDI! ???');
+                        console.log('?? Stock miqdori:', matchingStock.quantity);
                         stockQuantity = matchingStock.quantity || 0;
-                        // ⭐ MUHIM: Stokdagi miqdor + korzinada band qilingan miqdor
+                        // ? MUHIM: Stokdagi miqdor + korzinada band qilingan miqdor
                         totalAvailable = stockQuantity + item.quantity;
-                        console.log('📊 HISOBLASH:');
+                        console.log('?? HISOBLASH:');
                         console.log('   Stokda:', stockQuantity);
                         console.log('   Korzinada:', item.quantity);
                         console.log('   JAMI MAVJUD:', totalAvailable);
-                        console.log('═══════════════════════════════════════');
+                        console.log('=======================================');
                     } else {
-                        // ⚠️ NORMAL holat: Mahsulot boshqalar tomonidan sotilgan, stok 0
-                        console.warn('⚠️⚠️⚠️ STOK TOPILMADI ⚠️⚠️⚠️');
+                        // ?? NORMAL holat: Mahsulot boshqalar tomonidan sotilgan, stok 0
+                        console.warn('?????? STOK TOPILMADI ??????');
                         console.warn('Sabab: Bu joylashuv uchun stock mavjud emas (sotilgan yoki boshqa joylashuvda)');
                         console.warn('Qidirilgan:', type, locationId);
                         stockQuantity = 0;
                         totalAvailable = item.quantity; // Faqat korzinada band qilingan miqdor
-                        console.log('📊 Faqat korzina miqdori ishlatiladi:', totalAvailable);
-                        console.log('═══════════════════════════════════════');
+                        console.log('?? Faqat korzina miqdori ishlatiladi:', totalAvailable);
+                        console.log('=======================================');
                     }
                 } else {
-                    // ⚠️ NORMAL holat: Mahsulotda stok array bo'sh (butunlay sotilgan)
-                    console.warn('⚠️⚠️⚠️ STOCKS ARRAY BO\'SH ⚠️⚠️⚠️');
+                    // ?? NORMAL holat: Mahsulotda stok array bo'sh (butunlay sotilgan)
+                    console.warn('?????? STOCKS ARRAY BO\'SH ??????');
                     console.warn('Mahsulotda stok ma\'lumotlari yo\'q (butunlay sotilgan)');
                     console.warn('product.stocks:', product.stocks);
                     stockQuantity = 0;
                     totalAvailable = item.quantity; // Faqat korzinada band qilingan miqdor
-                    console.log('📊 Stocks array bo\'sh - faqat korzina miqdori:', totalAvailable);
-                    console.log('═══════════════════════════════════════');
+                    console.log('?? Stocks array bo\'sh - faqat korzina miqdori:', totalAvailable);
+                    console.log('=======================================');
                 }
             } else {
-                // ❌ BU HAQIQIY XATOLIK: Mahsulot database'dan o'chirilgan yoki ma'lumotlar buzilgan
-                console.error('═══════════════════════════════════════');
-                console.error('❌❌❌ MAHSULOT TOPILMADI ❌❌❌');
-                console.error('═══════════════════════════════════════');
-                console.error('🔍 Qidirilgan ID:', itemId);
-                console.error('📝 Qidirilgan nom:', item.name);
-                console.error('📋 API javobidagi mahsulotlar:', products.length, 'ta');
-                console.error('📋 Mavjud ID\'lar:', products.map(p => p.id).join(', '));
-                console.error('═══════════════════════════════════════');
+                // ? BU HAQIQIY XATOLIK: Mahsulot database'dan o'chirilgan yoki ma'lumotlar buzilgan
+                console.error('=======================================');
+                console.error('??? MAHSULOT TOPILMADI ???');
+                console.error('=======================================');
+                console.error('?? Qidirilgan ID:', itemId);
+                console.error('?? Qidirilgan nom:', item.name);
+                console.error('?? API javobidagi mahsulotlar:', products.length, 'ta');
+                console.error('?? Mavjud ID\'lar:', products.map(p => p.id).join(', '));
+                console.error('=======================================');
                 alert(SLANG.product_error_hint);
                 quantityModal.style.display = 'none';
                 return;
             }
         } catch (error) {
-            console.error('═══════════════════════════════════════');
-            console.error('❌❌❌ API XATOLIGI ❌❌❌');
-            console.error('═══════════════════════════════════════');
+            console.error('=======================================');
+            console.error('??? API XATOLIGI ???');
+            console.error('=======================================');
             console.error('Xatolik:', error);
             console.error('Xabar:', error.message);
             console.error('Stack:', error.stack);
-            console.error('═══════════════════════════════════════');
+            console.error('=======================================');
             alert(SLANG.internet_check);
             // API xatoligi bo'lsa, tahrirlashni davom ettirishga ruxsat bermaymiz
             quantityModal.style.display = 'none';
             return;
         }
         
-        // ✅ Modal maydonlarini to'ldirish - FAQAT mahsulot to'g'ri topilgan bo'lsa
+        // ? Modal maydonlarini to'ldirish - FAQAT mahsulot to'g'ri topilgan bo'lsa
         if (modalAvailable) {
             modalAvailable.value = totalAvailable;
-            console.log('📝 modalAvailable o\'rnatildi:', totalAvailable);
+            console.log('?? modalAvailable o\'rnatildi:', totalAvailable);
         }
         
         if (modalQuantity) {
             modalQuantity.value = item.quantity;
             modalQuantity.max = totalAvailable;
-            console.log('📝 modalQuantity o\'rnatildi:', item.quantity, '(max:', totalAvailable, ')');
+            console.log('?? modalQuantity o\'rnatildi:', item.quantity, '(max:', totalAvailable, ')');
         }
         
         // Korzinada qancha bo'lsa o'sha miqdorni ko'rsatish
         if (modalPriceUSD) {
-            modalPriceUSD.value = item.priceUSD.toFixed(4);
-            console.log('💵 modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(4));
+            modalPriceUSD.value = item.priceUSD.toFixed(5);
+            console.log('?? modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(5));
         }
         
         if (modalPriceUZS) {
             modalPriceUZS.value = item.priceUZS;
-            console.log('💵 modalPriceUZS o\'rnatildi:', item.priceUZS);
+            console.log('?? modalPriceUZS o\'rnatildi:', item.priceUZS);
         }
         
         // Miqdor maydonini avtomatik select qilish
@@ -4530,8 +4530,8 @@
             costPrice: costPrice
         };
         
-        console.log('✅ currentProduct o\'rnatildi:', JSON.stringify(currentProduct, null, 2));
-        console.log('✅ Modal muvaffaqiyatli ochildi - Stok:', stockQuantity, '+ Korzina:', item.quantity, '= Jami:', totalAvailable);
+        console.log('? currentProduct o\'rnatildi:', JSON.stringify(currentProduct, null, 2));
+        console.log('? Modal muvaffaqiyatli ochildi - Stok:', stockQuantity, '+ Korzina:', item.quantity, '= Jami:', totalAvailable);
         
         // Validatsiyalarni o'rnatish
         setupValidation();
@@ -4544,13 +4544,13 @@
         window.editingCartIndex = index;
         window.editingOriginalQuantity = item.quantity; // Eski miqdorni saqlash (farqni hisoblash uchun)
         
-        console.log('💾 Tahrirlash rejimi: index =', index, ', eski miqdor =', item.quantity);
+        console.log('?? Tahrirlash rejimi: index =', index, ', eski miqdor =', item.quantity);
     }
     
     // Mahsulotni savatga qo'shish (eski)
     /*
     function addToCart(productId, productName, quantity, price) {
-        console.log(`➕ Savatga qo'shildi: ${productName} (ID: ${productId})`);
+        console.log(`? Savatga qo'shildi: ${productName} (ID: ${productId})`);
         // Bu yerda savat logikasini qo'shish kerak
     }
     */
@@ -4568,7 +4568,7 @@
         
         if (!locationSelect || !tbody) return;
         
-        console.log('🔍 Qidiruv matni:', searchText);
+        console.log('?? Qidiruv matni:', searchText);
         
         // Bo'sh qidiruv - barcha mahsulotlarni qayta yuklash
         if (!searchText) {
@@ -4589,13 +4589,13 @@
             const response = await fetch(`/api/products?location=${locationValue}&search=${encodeURIComponent(searchText)}&per_page=9999`);
             const data = await response.json();
             
-            console.log('🔍 Qidiruv natijasi:', data);
+            console.log('?? Qidiruv natijasi:', data);
             
             const products = Array.isArray(data) ? data : (data.products || []);
             
             if (products.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">' + SLANG.search_no_results + '</td></tr>';
-                console.log(`❌ "${searchText}" bo'yicha mahsulot topilmadi`);
+                console.log(`? "${searchText}" bo'yicha mahsulot topilmadi`);
                 return;
             }
             
@@ -4653,7 +4653,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
-                const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
+                const buttonEmoji = quantity <= 0 ? '?' : '??';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -4681,7 +4681,7 @@
             tbody.removeEventListener('click', handleProductClick);
             tbody.addEventListener('click', handleProductClick);
             
-            console.log(`✅ Topildi: ${products.length} ta mahsulot`);
+            console.log(`? Topildi: ${products.length} ta mahsulot`);
             
             // Ko'rinadigan qatorlarni yangilash
             updateVisibleProductRows();
@@ -4770,7 +4770,7 @@
         const priceButton = cells[3].querySelector('.add-to-cart-btn');
         const price = priceButton ? parseFloat(priceButton.getAttribute('data-price')) || 0 : 0;
         
-        console.log('🔍 Tanlangan mahsulot:', { productId, productName, quantity, price, costPrice });
+        console.log('?? Tanlangan mahsulot:', { productId, productName, quantity, price, costPrice });
         
         if (productId && quantity > 0 && price > 0) {
             addToCart(parseInt(productId), productName, quantity, price, costPrice);
@@ -4780,10 +4780,10 @@
             if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
             clearProductSelection();
         } else if (productId && quantity <= 0) {
-            console.log('⛔ Mahsulot miqdori 0:', { productId, productName });
+            console.log('? Mahsulot miqdori 0:', { productId, productName });
             alert(SLANG.product_out_of_stock_msg);
         } else {
-            console.error('❌ Mahsulot ma\'lumotlari noto\'g\'ri:', { productId, quantity, price });
+            console.error('? Mahsulot ma\'lumotlari noto\'g\'ri:', { productId, quantity, price });
             alert(SLANG.get_product_error);
         }
     }
@@ -4802,6 +4802,12 @@
         return Number(price).toLocaleString('uz-UZ');
     }
     
+    // USD 5 xonagacha, oxiridagi 0 lar ko'rsatilmaydi (masalan: 9.9174, 258, 99.12345)
+    function fmtUSD5(n) {
+        const num = parseFloat(n) || 0;
+        return num.toFixed(5).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+    
     // URL parametrlarini tekshirish va savdo ma'lumotlarini yuklash
     async function checkURLParametersAndLoadSale() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -4809,11 +4815,11 @@
         const editId = urlParams.get('edit');
         
         if (editGroupId) {
-            console.log(`✏️ Savdo guruhi ${editGroupId} yuklanmoqda...`);
+            console.log(`?? Savdo guruhi ${editGroupId} yuklanmoqda...`);
             editingSaleId = editGroupId;  // Global o'zgaruvchiga saqlash
             await loadSaleGroup(editGroupId);
         } else if (editId) {
-            console.log(`✏️ Savdo ${editId} yuklanmoqda...`);
+            console.log(`?? Savdo ${editId} yuklanmoqda...`);
             editingSaleId = editId;  // Global o'zgaruvchiga saqlash
             await loadSingleSale(editId);
         }
@@ -4822,50 +4828,50 @@
     // Savdo guruhini yuklash (bir xil sale_date, customer, location)
     async function loadSaleGroup(saleId) {
         try {
-            console.log(`📥 Savdo ${saleId} yuklanmoqda...`);
+            console.log(`?? Savdo ${saleId} yuklanmoqda...`);
             
             // Avval korzinani tozalash (agar biror narsa bo'lsa)
             if (cart.length > 0) {
-                console.log('🗑️ Korzinani tozalash...');
+                console.log('??? Korzinani tozalash...');
                 cart = [];
                 updateCart();
             }
             
             const response = await fetch(`/api/sales/${saleId}`);
-            console.log('📡 API response status:', response.status);
+            console.log('?? API response status:', response.status);
             
             if (!response.ok) {
                 throw new Error('Savdoni yuklashda xatolik');
             }
             
             const data = await response.json();
-            console.log('📦 API javob (to\'liq):', JSON.stringify(data, null, 2));
-            console.log('📦 data.success:', data.success);
-            console.log('📦 data.sale:', data.sale);
+            console.log('?? API javob (to\'liq):', JSON.stringify(data, null, 2));
+            console.log('?? data.success:', data.success);
+            console.log('?? data.sale:', data.sale);
             
             if (data.success && data.sale) {
                 const sale = data.sale;
-                console.log('📦 Sale obyekti:', sale);
-                console.log('📍 location_type:', sale.location_type);
-                console.log('📍 location_id:', sale.location_id);
-                console.log('👤 customer_name:', sale.customer_name);
-                console.log('👤 customer_id:', sale.customer_id);
-                console.log('📦 items:', sale.items);
-                console.log('📦 items.length:', sale.items?.length);
+                console.log('?? Sale obyekti:', sale);
+                console.log('?? location_type:', sale.location_type);
+                console.log('?? location_id:', sale.location_id);
+                console.log('?? customer_name:', sale.customer_name);
+                console.log('?? customer_id:', sale.customer_id);
+                console.log('?? items:', sale.items);
+                console.log('?? items.length:', sale.items?.length);
                 
                 // 1. JOYLASHUVNI TANLASH
                 const locationSelect = getActiveTabElement('locationSelect');
-                console.log('📍 locationSelect element:', locationSelect);
-                console.log('📍 locationSelect.options.length:', locationSelect?.options?.length);
+                console.log('?? locationSelect element:', locationSelect);
+                console.log('?? locationSelect.options.length:', locationSelect?.options?.length);
                 
                 if (!locationSelect) {
-                    console.error('❌ locationSelect elementi topilmadi');
+                    console.error('? locationSelect elementi topilmadi');
                     alert(SLANG.location_select_missing);
                     return;
                 }
                 
                 const locationValue = sale.location_type === 'store' ? `store_${sale.location_id}` : `warehouse_${sale.location_id}`;
-                console.log(`📍 Joylashuv qiymati o'rnatilmoqda: ${locationValue}`);
+                console.log(`?? Joylashuv qiymati o'rnatilmoqda: ${locationValue}`);
                 
                 // Joylashuvni topish va o'rnatish
                 let locationFound = false;
@@ -4873,13 +4879,13 @@
                     if (locationSelect.options[i].value === locationValue) {
                         locationSelect.selectedIndex = i;
                         locationFound = true;
-                        console.log(`✅ Joylashuv topildi va tanlandi: ${locationSelect.options[i].text}`);
+                        console.log(`? Joylashuv topildi va tanlandi: ${locationSelect.options[i].text}`);
                         break;
                     }
                 }
                 
                 if (!locationFound) {
-                    console.error(`❌ Joylashuv topilmadi: ${locationValue}`);
+                    console.error(`? Joylashuv topilmadi: ${locationValue}`);
                     alert(SLANG.location_select_missing);
                     return;
                 }
@@ -4887,22 +4893,22 @@
                 // Global o'zgaruvchilarni yangilash
                 selectedLocationType = sale.location_type;
                 selectedLocationId = sale.location_id;
-                console.log(`📍 Global o'zgaruvchilar o'rnatildi: type=${selectedLocationType}, id=${selectedLocationId}`);
+                console.log(`?? Global o'zgaruvchilar o'rnatildi: type=${selectedLocationType}, id=${selectedLocationId}`);
                 
                 // Location change event'ni trigger qilish
                 const changeEvent = new Event('change', { bubbles: true });
                 locationSelect.dispatchEvent(changeEvent);
                 
                 // 2. MAHSULOTLARNI YUKLASH
-                console.log('📦 Mahsulotlar yuklanmoqda...');
+                console.log('?? Mahsulotlar yuklanmoqda...');
                 await loadProducts();
-                console.log('✅ Mahsulotlar yuklandi');
+                console.log('? Mahsulotlar yuklandi');
                 
                 // 3. MIJOZNI TO'LDIRISH
                 const customerSearchInput = getActiveTabElement('customerSearch');
                 const selectedCustomerIdInput = getActiveTabElement('selectedCustomerId');
-                console.log('👤 customerSearch element:', customerSearchInput);
-                console.log('👤 selectedCustomerId element:', selectedCustomerIdInput);
+                console.log('?? customerSearch element:', customerSearchInput);
+                console.log('?? selectedCustomerId element:', selectedCustomerIdInput);
                 
                 // Mijoz ma'lumotlarini o'rnatish
                 if (sale.customer_id && sale.customer_name) {
@@ -4912,7 +4918,7 @@
                     
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
-                    const customerDisplay = sale.customer_phone ? `👤 ${sale.customer_name} ${sale.customer_phone}` : `👤 ${sale.customer_name}`;
+                    const customerDisplay = sale.customer_phone ? `?? ${sale.customer_name} ${sale.customer_phone}` : `?? ${sale.customer_name}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     
                     // Tab sarlavhasida mijoz ma'lumotlarini ko'rsatish
@@ -4923,25 +4929,25 @@
                             const tabText = sale.customer_phone ? `${sale.customer_name} - ${sale.customer_phone}` : sale.customer_name;
                             tabTitle.textContent = tabText;
                             tabTitle.title = displayText; // Tooltip uchun to'liq ma'lumot
-                            console.log(`✅ Tab sarlavhasi yangilandi: ${tabText}`);
+                            console.log(`? Tab sarlavhasi yangilandi: ${tabText}`);
                         }
                     }
                     
-                    console.log(`✅ Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
+                    console.log(`? Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
                 } else {
-                    console.warn('⚠️ Mijoz ma\'lumotlari topilmadi');
+                    console.warn('?? Mijoz ma\'lumotlari topilmadi');
                 }
                 
                 // 4. MAHSULOTLARNI KORZINAGA QO'SHISH
-                console.log('⏳ 800ms kutilmoqda (DOM yangilanishi uchun)...');
+                console.log('? 800ms kutilmoqda (DOM yangilanishi uchun)...');
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
                 if (sale.items && sale.items.length > 0) {
-                    console.log(`\n🛒 ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
+                    console.log(`\n?? ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
                     console.log('==================================================');
                     
                     for (const item of sale.items) {
-                        console.log(`\n📦 Mahsulot #${item.product_id}:`);
+                        console.log(`\n?? Mahsulot #${item.product_id}:`);
                         console.log(`   Nomi: ${item.product_name}`);
                         console.log(`   Miqdor: ${item.quantity}`);
                         console.log(`   Narx: $${item.unit_price}`);
@@ -4954,29 +4960,29 @@
                             item.product_name,
                             item.quantity,
                             item.unit_price,
-                            item.source_type,  // ⭐ Muhim: Mahsulot qayerdan olingan
-                            item.source_id     // ⭐ Muhim: Joylashuv ID'si
+                            item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
+                            item.source_id     // ? Muhim: Joylashuv ID'si
                         );
                     }
                     
                     console.log('==================================================');
-                    console.log(`✅ ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
-                    console.log(`📊 Korzina holati: ${cart.length} ta element`);
+                    console.log(`? ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
+                    console.log(`?? Korzina holati: ${cart.length} ta element`);
                     
                     // Korzinani ko'rsatish uchun
                     cart.forEach((item, index) => {
-                        console.log(`   ${index + 1}. ${item.name} x${item.quantity} = $${(item.priceUSD * item.quantity).toFixed(4)}`);
+                        console.log(`   ${index + 1}. ${item.name} x${item.quantity} = $${fmtUSD5((item.priceUSD * item.quantity))}`);
                     });
                 } else {
-                    console.warn('⚠️ Savdoda mahsulotlar topilmadi');
+                    console.warn('?? Savdoda mahsulotlar topilmadi');
                 }
             } else {
-                console.error('❌ API javobida xatolik:', data);
+                console.error('? API javobida xatolik:', data);
                 alert(SLANG.sale_data_format_error);
             }
         } catch (error) {
-            console.error('❌ Savdo guruhini yuklashda xatolik:', error);
-            console.error('❌ Error stack:', error.stack);
+            console.error('? Savdo guruhini yuklashda xatolik:', error);
+            console.error('? Error stack:', error.stack);
             alert(SLANG.load_sale_error + ': ' + error.message);
         }
     }
@@ -4984,11 +4990,11 @@
     // Bitta savdoni yuklash
     async function loadSingleSale(saleId) {
         try {
-            console.log(`📥 Savdo ${saleId} yuklanmoqda...`);
+            console.log(`?? Savdo ${saleId} yuklanmoqda...`);
             
             // Avval korzinani tozalash
             if (cart.length > 0) {
-                console.log('🗑️ Korzinani tozalash...');
+                console.log('??? Korzinani tozalash...');
                 cart = [];
                 updateCart();
             }
@@ -4999,7 +5005,7 @@
             }
             
             const data = await response.json();
-            console.log('📦 Savdo ma\'lumotlari:', data);
+            console.log('?? Savdo ma\'lumotlari:', data);
             
             if (data.success && data.sale) {
                 const sale = data.sale;
@@ -5007,7 +5013,7 @@
                 // Joylashuvni tanlash
                 const locationSelect = document.getElementById('locationSelect');
                 const locationValue = sale.location_type === 'store' ? `store_${sale.location_id}` : `warehouse_${sale.location_id}`;
-                console.log(`📍 Joylashuv tanlanmoqda: ${locationValue}`);
+                console.log(`?? Joylashuv tanlanmoqda: ${locationValue}`);
                 locationSelect.value = locationValue;
                 
                 // Global o'zgaruvchilarni yangilash
@@ -5015,9 +5021,9 @@
                 selectedLocationId = sale.location_id;
                 
                 // Mahsulotlarni yuklash
-                console.log('📦 Mahsulotlar yuklanmoqda...');
+                console.log('?? Mahsulotlar yuklanmoqda...');
                 await loadProducts();
-                console.log('✅ Mahsulotlar yuklandi');
+                console.log('? Mahsulotlar yuklandi');
                 
                 // Mijozni to'ldirish (ID bilan)
                 if (sale.customer_id && sale.customer_name) {
@@ -5031,7 +5037,7 @@
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
                     if (cartCustomerInfo) {
-                        const customerDisplay = sale.customer_phone ? `👤 ${sale.customer_name} ${sale.customer_phone}` : `👤 ${sale.customer_name}`;
+                        const customerDisplay = sale.customer_phone ? `?? ${sale.customer_name} ${sale.customer_phone}` : `?? ${sale.customer_name}`;
                         cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     }
                     
@@ -5043,25 +5049,25 @@
                             const tabText = sale.customer_phone ? `${sale.customer_name} - ${sale.customer_phone}` : sale.customer_name;
                             tabTitle.textContent = tabText;
                             tabTitle.title = displayText; // Tooltip uchun to'liq ma'lumot
-                            console.log(`✅ Tab sarlavhasi yangilandi: ${tabText}`);
+                            console.log(`? Tab sarlavhasi yangilandi: ${tabText}`);
                         }
                     }
                     
-                    console.log(`✅ Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
+                    console.log(`? Mijoz to'ldirildi: ${sale.customer_name} (ID: ${sale.customer_id})`);
                 } else {
-                    console.warn('⚠️ Mijoz ma\'lumotlari topilmadi');
+                    console.warn('?? Mijoz ma\'lumotlari topilmadi');
                 }
                 
                 // Kichik kutish - mahsulotlar DOM'ga qo'shilishi uchun
-                console.log('⏳ 800ms kutilmoqda...');
+                console.log('? 800ms kutilmoqda...');
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
                 // Savdo elementini savatga qo'shish
                 if (sale.items && sale.items.length > 0) {
-                    console.log(`🛒 ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
+                    console.log(`?? ${sale.items.length} ta mahsulot savatga qo'shilmoqda...`);
                     
                     for (const item of sale.items) {
-                        console.log(`  📦 ${item.product_name}: ${item.quantity} ta × $${item.unit_price}`);
+                        console.log(`  ?? ${item.product_name}: ${item.quantity} ta � $${item.unit_price}`);
                         console.log(`     Source: ${item.source_type}_${item.source_id}`);
                         
                         // Modal ochmasdan to'g'ridan-to'g'ri qo'shish - SOURCE MA'LUMOTLARI BILAN!
@@ -5070,22 +5076,22 @@
                             item.product_name,
                             item.quantity,
                             item.unit_price,
-                            item.source_type,  // ⭐ Muhim: Mahsulot qayerdan olingan
-                            item.source_id     // ⭐ Muhim: Joylashuv ID'si
+                            item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
+                            item.source_id     // ? Muhim: Joylashuv ID'si
                         );
                     }
                     
-                    console.log(`✅ ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
-                    console.log(`📊 Korzina holati: ${cart.length} ta element`);
+                    console.log(`? ${sale.items.length} ta mahsulot korzinaga qo'shildi`);
+                    console.log(`?? Korzina holati: ${cart.length} ta element`);
                 } else {
-                    console.warn('⚠️ Savdoda mahsulotlar topilmadi');
+                    console.warn('?? Savdoda mahsulotlar topilmadi');
                 }
             } else {
-                console.error('❌ API javobida xatolik:', data);
+                console.error('? API javobida xatolik:', data);
                 alert(SLANG.sale_data_format_error);
             }
         } catch (error) {
-            console.error('❌ Savdoni yuklashda xatolik:', error);
+            console.error('? Savdoni yuklashda xatolik:', error);
             alert(SLANG.load_sale_error + ': ' + error.message);
         }
     }
@@ -5161,7 +5167,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentCashUSD_elem = document.getElementById('paymentCashUSD');
                 if (paymentCashUSD_elem) {
-                    paymentCashUSD_elem.value = (uzs / exchangeRate).toFixed(4);
+                    paymentCashUSD_elem.value = (uzs / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5172,7 +5178,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentClickUSD_elem = document.getElementById('paymentClickUSD');
                 if (paymentClickUSD_elem) {
-                    paymentClickUSD_elem.value = (uzs / exchangeRate).toFixed(4);
+                    paymentClickUSD_elem.value = (uzs / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5183,7 +5189,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentTerminalUSD_elem = document.getElementById('paymentTerminalUSD');
                 if (paymentTerminalUSD_elem) {
-                    paymentTerminalUSD_elem.value = (uzs / exchangeRate).toFixed(4);
+                    paymentTerminalUSD_elem.value = (uzs / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5194,7 +5200,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentDebtUSD_elem = document.getElementById('paymentDebtUSD');
                 if (paymentDebtUSD_elem) {
-                    paymentDebtUSD_elem.value = (uzs / exchangeRate).toFixed(4);
+                    paymentDebtUSD_elem.value = (uzs / exchangeRate).toFixed(5);
                 }
                 showHideDueDateSection();
             });
@@ -5238,7 +5244,7 @@
         // Event listener'lar har bir tab uchun setupTabEventListeners'da o'rnatiladi
         
         // Session ma'lumotlarini tekshirish
-        console.log('🔐 Session ma\'lumotlari:', {
+        console.log('?? Session ma\'lumotlari:', {
             username: '{{ session.get("username", "None") }}',
             user_name: '{{ session.get("user_name", "None") }}',
             user_phone: '{{ session.get("user_phone", "None") }}',
@@ -5246,7 +5252,7 @@
             role: '{{ session.get("role", "None") }}'
         });
         
-        console.log('✅ Sales sahifasi tayyor');
+        console.log('? Sales sahifasi tayyor');
     });
     
     // Savatni tozalash
@@ -5261,7 +5267,7 @@
         }
         
         // Barcha mahsulotlarni stokga qaytarish
-        console.log('🔄 Barcha mahsulotlarni stokga qaytarish...');
+        console.log('?? Barcha mahsulotlarni stokga qaytarish...');
         
         for (const item of cart) {
             try {
@@ -5272,12 +5278,12 @@
                     location_type: selectedLocationType
                 });
                 if (result.success || result.already_processed) {
-                    console.log(`✅ ${item.name}: ${item.quantity} dona stokga qaytarildi`);
+                    console.log(`? ${item.name}: ${item.quantity} dona stokga qaytarildi`);
                 } else {
-                    console.error(`❌ ${item.name}: Stokga qaytarishda xatolik - ${result.error}`);
+                    console.error(`? ${item.name}: Stokga qaytarishda xatolik - ${result.error}`);
                 }
             } catch (error) {
-                console.error(`❌ ${item.name}: Stok qaytarish navbatga qo'shildi:`, error);
+                console.error(`? ${item.name}: Stok qaytarish navbatga qo'shildi:`, error);
             }
         }
         
@@ -5290,10 +5296,10 @@
                 await fetch(`/api/sales/${currentPendingSaleId}?return_stock=false`, {
                     method: 'DELETE'
                 });
-                console.log('🗑️ Pending savdo o\'chirildi (stok qaytarilmadi):', currentPendingSaleId);
+                console.log('??? Pending savdo o\'chirildi (stok qaytarilmadi):', currentPendingSaleId);
                 currentPendingSaleId = null;
             } catch (error) {
-                console.error('❌ Pending savdoni o\'chirishda xatolik:', error);
+                console.error('? Pending savdoni o\'chirishda xatolik:', error);
             }
         }
         
@@ -5322,8 +5328,8 @@
         // Mahsulotlar jadvalini yangilash
         await loadProducts();
         
-        console.log('🗑️ Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
-        alert('✅ ' + SLANG.cart_cleared);
+        console.log('??? Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
+        alert('? ' + SLANG.cart_cleared);
     }
     
     // Avtomatik pending savdo yaratish/yangilash
@@ -5336,10 +5342,10 @@
                     await fetch(`/api/sales/${currentPendingSaleId}?return_stock=false`, {
                         method: 'DELETE'
                     });
-                    console.log('🗑️ Bo\'sh pending savdo o\'chirildi (stok qaytarilmadi):', currentPendingSaleId);
+                    console.log('??? Bo\'sh pending savdo o\'chirildi (stok qaytarilmadi):', currentPendingSaleId);
                     currentPendingSaleId = null;
                 } catch (error) {
-                    console.error('❌ Pending savdoni o\'chirishda xatolik:', error);
+                    console.error('? Pending savdoni o\'chirishda xatolik:', error);
                 }
             }
             return;
@@ -5347,14 +5353,14 @@
         
         // Location tanlanmagan bo'lsa, saqlamaymiz
         if (!selectedLocationId || !selectedLocationType) {
-            console.log('⚠️ Location tanlanmagan, pending savdo saqlanmaydi');
+            console.log('?? Location tanlanmagan, pending savdo saqlanmaydi');
             return;
         }
         
-        // 🔍 VALIDATION: Cart itemlarini tekshirish
-        console.log('🔍 AUTO-SAVE VALIDATION:');
-        console.log('  ├─ Cart length:', cart.length);
-        console.log('  ├─ Cart items:', cart.map(i => `${i.name} x${i.quantity}`).join(', '));
+        // ?? VALIDATION: Cart itemlarini tekshirish
+        console.log('?? AUTO-SAVE VALIDATION:');
+        console.log('  +� Cart length:', cart.length);
+        console.log('  +� Cart items:', cart.map(i => `${i.name} x${i.quantity}`).join(', '));
         
         // Savdo ma'lumotlarini tayyorlash
         const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
@@ -5403,7 +5409,7 @@
             // Tahrirlash rejimida bo'lsa yoki mavjud pending savdo bo'lsa - yangilash
             if (editingSaleId || currentPendingSaleId) {
                 const saleIdToUpdate = editingSaleId || currentPendingSaleId;
-                console.log('📝 Pending savdoni yangilash:', saleIdToUpdate, editingSaleId ? '(tahrirlash rejimi)' : '(avtosave)');
+                console.log('?? Pending savdoni yangilash:', saleIdToUpdate, editingSaleId ? '(tahrirlash rejimi)' : '(avtosave)');
                 response = await fetch(`/api/sales/${saleIdToUpdate}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -5416,7 +5422,7 @@
                 }
             } else {
                 // Yangi pending savdo yaratish
-                console.log('➕ Yangi pending savdo yaratish');
+                console.log('? Yangi pending savdo yaratish');
                 response = await fetch('/api/pending-sales', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -5429,18 +5435,18 @@
             if (result.success) {
                 if (!currentPendingSaleId) {
                     currentPendingSaleId = result.sale_id;
-                    console.log('✅ Yangi pending savdo yaratildi, ID:', currentPendingSaleId);
+                    console.log('? Yangi pending savdo yaratildi, ID:', currentPendingSaleId);
                 } else {
-                    console.log('✅ Pending savdo yangilandi, ID:', currentPendingSaleId);
+                    console.log('? Pending savdo yangilandi, ID:', currentPendingSaleId);
                 }
             } else {
-                console.error('❌ Pending savdoni saqlashda xatolik:', result.error);
-                // 🔍 DEBUG: Xatolik tafsilotlari
+                console.error('? Pending savdoni saqlashda xatolik:', result.error);
+                // ?? DEBUG: Xatolik tafsilotlari
                 console.error('   Server xabari:', result.error);
                 console.error('   Request data:', JSON.stringify(saleData, null, 2));
             }
         } catch (error) {
-            console.error('❌ Pending savdoni saqlashda xatolik (catch):', error);
+            console.error('? Pending savdoni saqlashda xatolik (catch):', error);
             console.error('   Error type:', error.name);
             console.error('   Error message:', error.message);
         }
@@ -5501,7 +5507,7 @@
             payment_status: 'pending'
         };
         
-        console.log('⏸️ Pending savdo ma\'lumotlari:', saleData);
+        console.log('?? Pending savdo ma\'lumotlari:', saleData);
         
         try {
             let response, result;
@@ -5509,7 +5515,7 @@
             // Agar tahrirlash rejimida bo'lsa yoki avtomatik yaratilgan pending savdo bo'lsa, yangilash
             if (editingSaleId || currentPendingSaleId) {
                 const saleIdToUpdate = editingSaleId || currentPendingSaleId;
-                console.log('📝 Mavjud savdoni pending holatga o\'zgartirish, ID:', saleIdToUpdate);
+                console.log('?? Mavjud savdoni pending holatga o\'zgartirish, ID:', saleIdToUpdate);
                 response = await fetch(`/api/sales/${saleIdToUpdate}`, {
                     method: 'PUT',
                     headers: {
@@ -5522,7 +5528,7 @@
                 });
             } else {
                 // Yangi savdo yaratish
-                console.log('➕ Yangi savdoni pending holatda yaratish');
+                console.log('? Yangi savdoni pending holatda yaratish');
                 response = await fetch('/api/pending-sales', {
                     method: 'POST',
                     headers: {
@@ -5541,7 +5547,7 @@
                 } else {
                     alert(SLANG.sale_saved_pending);
                 }
-                console.log('⏸️ Savdo pending holatga o\'tkazildi, ID:', result.sale_id || editingSaleId || currentPendingSaleId);
+                console.log('?? Savdo pending holatga o\'tkazildi, ID:', result.sale_id || editingSaleId || currentPendingSaleId);
                 
                 // Tahrirlash rejimidan chiqish
                 editingSaleId = null;
@@ -5603,12 +5609,12 @@
         // Tugmani to'liq reset qilish
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '✅ Tasdiqlash';
+            confirmBtn.textContent = '? Tasdiqlash';
             confirmBtn.style.opacity = '1';
             confirmBtn.style.cursor = 'pointer';
         }
         
-        if (paymentModalTotalUSD) paymentModalTotalUSD.textContent = `$${totalUSD.toFixed(4)}`;
+        if (paymentModalTotalUSD) paymentModalTotalUSD.textContent = `$${fmtUSD5(totalUSD)}`;
         if (paymentModalTotalUZS) paymentModalTotalUZS.textContent = `${Math.round(totalUZS).toLocaleString('uz-UZ')} so'm`;
         
         // Mijoz balansi - boshlang'ich to'ldirish
@@ -5619,19 +5625,19 @@
         const balanceTotalEl = document.getElementById('paymentBalanceTotal');
         if (currentCustomerBalance > 0 && balanceSection && balanceAvailableEl && balanceInput) {
             balanceSection.style.display = 'block';
-            if (balanceTotalEl) balanceTotalEl.textContent = `$${currentCustomerBalance.toFixed(4)}`;
+            if (balanceTotalEl) balanceTotalEl.textContent = `$${fmtUSD5(currentCustomerBalance)}`;
             const balanceToUse = Math.min(currentCustomerBalance, totalUSD);
-            balanceAvailableEl.textContent = `$${balanceToUse.toFixed(4)}`;
-            balanceInput.value = balanceToUse.toFixed(4);
-            balanceInput.max = currentCustomerBalance.toFixed(4);
+            balanceAvailableEl.textContent = `$${fmtUSD5(balanceToUse)}`;
+            balanceInput.value = balanceToUse.toFixed(5);
+            balanceInput.max = currentCustomerBalance.toFixed(5);
             // Cash ni kamaytirish (balans qoplagandan qolganini naqd qilish)
             const remainAfterBalance = Math.max(0, totalUSD - balanceToUse);
-            if (paymentCashUSD) paymentCashUSD.value = remainAfterBalance.toFixed(4);
+            if (paymentCashUSD) paymentCashUSD.value = remainAfterBalance.toFixed(5);
             if (paymentCashUZS) paymentCashUZS.value = Math.round(remainAfterBalance * exchangeRate);
         } else {
             if (balanceSection) balanceSection.style.display = 'none';
             if (balanceInput) balanceInput.value = '';
-            if (paymentCashUSD) paymentCashUSD.value = totalUSD.toFixed(4);
+            if (paymentCashUSD) paymentCashUSD.value = totalUSD.toFixed(5);
             if (paymentCashUZS) paymentCashUZS.value = Math.round(totalUZS);
         }
         
@@ -5674,7 +5680,7 @@
                     if (cashUSD) cashUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (cashUSD) cashUSD.value = (uzsValue / exchangeRate).toFixed(4);
+                    if (cashUSD) cashUSD.value = (uzsValue / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5696,7 +5702,7 @@
                     if (clickUSD) clickUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (clickUSD) clickUSD.value = (uzsValue / exchangeRate).toFixed(4);
+                    if (clickUSD) clickUSD.value = (uzsValue / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5718,7 +5724,7 @@
                     if (terminalUSD) terminalUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (terminalUSD) terminalUSD.value = (uzsValue / exchangeRate).toFixed(4);
+                    if (terminalUSD) terminalUSD.value = (uzsValue / exchangeRate).toFixed(5);
                 }
             });
         }
@@ -5742,7 +5748,7 @@
                     if (debtUSD) debtUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (debtUSD) debtUSD.value = (uzsValue / exchangeRate).toFixed(4);
+                    if (debtUSD) debtUSD.value = (uzsValue / exchangeRate).toFixed(5);
                 }
                 // Qarz tozalansa muddat seksiyasini yashirish, yozilsa ko'rsatish
                 showHideDueDateSection();
@@ -5778,7 +5784,7 @@
         // Balans qiymatiga qarab qarz maydonini bloklash/ochish
         updateDebtFieldState();
         
-        console.log('💳 To\'lov modali ochildi');
+        console.log('?? To\'lov modali ochildi');
     }
     
     // Mijoz balansini to'liq to'ldirish tugmasi
@@ -5786,7 +5792,7 @@
         const balanceInput = document.getElementById('paymentBalanceUSD');
         if (!balanceInput) return;
         const maxBalance = Math.min(currentCustomerBalance, parseFloat(balanceInput.max) || currentCustomerBalance);
-        balanceInput.value = maxBalance.toFixed(4);
+        balanceInput.value = maxBalance.toFixed(5);
         updateDebtFieldState();
     }
     
@@ -5798,11 +5804,11 @@
         const debtBtn = document.getElementById('debtQolganBtn');
         const balanceVal = balanceInput ? parseFloat(balanceInput.value) || 0 : 0;
         
-        // Mijoz balansida pul bor, lekin to'liq ishlatilmagan (0 ham kiradi) → qarz disable
+        // Mijoz balansida pul bor, lekin to'liq ishlatilmagan (0 ham kiradi) � qarz disable
         const isPartialBalance = currentCustomerBalance > 0 && balanceVal < currentCustomerBalance;
         
         if (isPartialBalance) {
-            // Qisman balans → qarz maydonini bloklash
+            // Qisman balans � qarz maydonini bloklash
             if (debtUSD) { debtUSD.disabled = true; debtUSD.value = ''; debtUSD.style.background = '#f1f1f1'; debtUSD.style.cursor = 'not-allowed'; }
             if (debtUZS) { debtUZS.disabled = true; debtUZS.value = ''; debtUZS.style.background = '#f1f1f1'; debtUZS.style.cursor = 'not-allowed'; }
             if (debtBtn) { debtBtn.disabled = true; debtBtn.style.background = '#aaa'; debtBtn.style.cursor = 'not-allowed'; }
@@ -5810,7 +5816,7 @@
             const dueDateSection = document.getElementById('paymentDueDateSection');
             if (dueDateSection) dueDateSection.style.display = 'none';
         } else {
-            // To'liq balans yoki balans ishlatilmayapti → qarz maydonini ochish
+            // To'liq balans yoki balans ishlatilmayapti � qarz maydonini ochish
             if (debtUSD) { debtUSD.disabled = false; debtUSD.style.background = ''; debtUSD.style.cursor = ''; }
             if (debtUZS) { debtUZS.disabled = false; debtUZS.style.background = ''; debtUZS.style.cursor = ''; }
             if (debtBtn) { debtBtn.disabled = false; debtBtn.style.background = '#1a6eff'; debtBtn.style.cursor = 'pointer'; }
@@ -5839,7 +5845,7 @@
         const confirmBtn = document.getElementById('confirmPaymentBtn');
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '✅ Tasdiqlash';
+            confirmBtn.textContent = '? Tasdiqlash';
             confirmBtn.style.opacity = '1';
             confirmBtn.style.cursor = 'pointer';
         }
@@ -5852,13 +5858,13 @@
     function addRemainingToField(fieldId) {
         // Double-click himoyasi
         if (isAddingRemaining) {
-            console.log('⚠️ Qolgan summa allaqachon qo\'shilmoqda');
+            console.log('?? Qolgan summa allaqachon qo\'shilmoqda');
             return;
         }
         
         isAddingRemaining = true;
         
-        console.log('🔧 addRemainingToField chaqirildi:', fieldId);
+        console.log('?? addRemainingToField chaqirildi:', fieldId);
         
         // Jami summani hisoblash
         let totalUSD = 0;
@@ -5866,8 +5872,8 @@
             totalUSD += item.priceUSD * item.quantity;
         });
         
-        console.log('💰 Jami summa (USD):', totalUSD);
-        console.log('💱 Exchange rate:', exchangeRate);
+        console.log('?? Jami summa (USD):', totalUSD);
+        console.log('?? Exchange rate:', exchangeRate);
         
         // Hozirgi to'lovlarni hisoblash (faqat USD qiymatlardan, UZS dan emas)
         const paymentCashUSD = document.getElementById('paymentCashUSD');
@@ -5890,18 +5896,18 @@
                         : fieldId === 'paymentDebtUSD' ? debtUSD
                         : 0;
         
-        console.log('💵 Hozirgi to\'lovlar (faqat USD):', { cashUSD, clickUSD, terminalUSD, debtUSD, balanceUsedAmt, selfValue });
+        console.log('?? Hozirgi to\'lovlar (faqat USD):', { cashUSD, clickUSD, terminalUSD, debtUSD, balanceUsedAmt, selfValue });
         
         const currentTotal = cashUSD + clickUSD + terminalUSD + debtUSD + balanceUsedAmt - selfValue;
         const remaining = totalUSD - currentTotal;
         
-        console.log('📊 Hozirgi jami:', currentTotal);
-        console.log('📊 Qolgan:', remaining);
+        console.log('?? Hozirgi jami:', currentTotal);
+        console.log('?? Qolgan:', remaining);
         
         // Aqlli mantiq: kam to'langan yoki ortiq to'langan bo'lsa ham to'g'ri ishlaydi
         const fieldElement = document.getElementById(fieldId);
         if (!fieldElement) {
-            console.error('❌ Field element topilmadi:', fieldId);
+            console.error('? Field element topilmadi:', fieldId);
             isAddingRemaining = false;
             return;
         }
@@ -5910,33 +5916,33 @@
         let newUSDValue;
         
         if (remaining === 0) {
-            console.log('✅ To\'lov to\'liq to\'langan, o\'zgartirish shart emas');
+            console.log('? To\'lov to\'liq to\'langan, o\'zgartirish shart emas');
             isAddingRemaining = false;
             return;
         } else if (remaining > 0) {
             // Kam to'langan: qolgan summani o'rnatish (replace)
             newUSDValue = remaining;
-            console.log(`➕ Kam to'langan: ${fieldId} ga qolgan summa o'rnatildi: ${remaining.toFixed(4)}`);
+            console.log(`? Kam to'langan: ${fieldId} ga qolgan summa o'rnatildi: ${remaining.toFixed(5)}`);
         } else {
             // Ortiq to'langan: o'sha maydondan ortiqcha summani ayirish
             newUSDValue = Math.max(0, currentFieldValue + remaining); // remaining manfiy, shuning uchun ayiriladi
-            console.log(`➖ Ortiq to'langan: ${fieldId} dan ortiqcha summa ayirildi: ${currentFieldValue.toFixed(4)} + (${remaining.toFixed(4)}) = ${newUSDValue.toFixed(4)}`);
+            console.log(`? Ortiq to'langan: ${fieldId} dan ortiqcha summa ayirildi: ${currentFieldValue.toFixed(5)} + (${remaining.toFixed(5)}) = ${newUSDValue.toFixed(5)}`);
         }
         
         // USD maydonini yangilash
-        fieldElement.value = newUSDValue.toFixed(4);
+        fieldElement.value = newUSDValue.toFixed(5);
         
         // UZS maydonini ham yangilash
         const uzsFieldId = fieldId.replace('USD', 'UZS');
-        console.log('🔄 UZS maydon ID:', uzsFieldId);
+        console.log('?? UZS maydon ID:', uzsFieldId);
         
         const uzsFieldElement = document.getElementById(uzsFieldId);
         if (uzsFieldElement) {
             const newUZSValue = Math.round(newUSDValue * exchangeRate);
             uzsFieldElement.value = newUZSValue;
-            console.log(`✅ ${fieldId}: $${newUSDValue.toFixed(4)} (${newUZSValue.toLocaleString()} so'm)`);
+            console.log(`? ${fieldId}: $${fmtUSD5(newUSDValue)} (${newUZSValue.toLocaleString()} so'm)`);
         } else {
-            console.error('❌ UZS maydoni topilmadi:', uzsFieldId);
+            console.error('? UZS maydoni topilmadi:', uzsFieldId);
         }
         
         // Qarz maydoniga qiymat qo'shilganda muddat seksiyasini ko'rsatish
@@ -5997,7 +6003,7 @@
     async function confirmPayment() {
         // Double-click oldini olish
         if (isProcessingPayment) {
-            console.log('⚠️ To\'lov allaqachon jarayonda');
+            console.log('?? To\'lov allaqachon jarayonda');
             return;
         }
         
@@ -6008,7 +6014,7 @@
         const originalText = confirmBtn ? confirmBtn.textContent : '';
         if (confirmBtn) {
             confirmBtn.disabled = true;
-            confirmBtn.textContent = '⏳ Saqlanmoqda...';
+            confirmBtn.textContent = '? Saqlanmoqda...';
             confirmBtn.style.opacity = '0.6';
             confirmBtn.style.cursor = 'not-allowed';
         }
@@ -6059,7 +6065,7 @@
             const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
             const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value : null;
             
-            console.log('💰 Qarz tekshiruvi:', {debtUSD, customerId, hasCustomer: !!customerId});
+            console.log('?? Qarz tekshiruvi:', {debtUSD, customerId, hasCustomer: !!customerId});
             
             if (debtUSD > 0 && !customerId) {
                 alert(SLANG.debt_customer_required);
@@ -6089,12 +6095,12 @@
                 return;
             }
             
-            // 🔍 CART VA TO'LOV VALIDATSIYASI (Sale 126 muammosini oldini olish)
-            console.log('🔍 VALIDATION CHECK:');
-            console.log('  ├─ Cart items:', cart.length);
-            console.log('  ├─ Cart total USD:', totalUSD.toFixed(4));
-            console.log('  ├─ Payment total USD:', totalPayment.toFixed(4));
-            console.log('  └─ Difference:', Math.abs(totalPayment - totalUSD).toFixed(4), 'USD');
+            // ?? CART VA TO'LOV VALIDATSIYASI (Sale 126 muammosini oldini olish)
+            console.log('?? VALIDATION CHECK:');
+            console.log('  +� Cart items:', cart.length);
+            console.log('  +� Cart total USD:', totalUSD.toFixed(5));
+            console.log('  +� Payment total USD:', totalPayment.toFixed(5));
+            console.log('  L� Difference:', Math.abs(totalPayment - totalUSD).toFixed(5), 'USD');
             
             // Cart bo'shligini tekshirish
             if (cart.length === 0) {
@@ -6115,16 +6121,16 @@
             
             // To'lov va cart jami tekshiruvi - aniq moslik
             if (Math.abs(totalPayment - totalUSD) > 0.01) {
-                const errorMsg = `⚠️ ${SLANG.payment_mismatch}\n\n🛒 ${SLANG.cart_total}: $${totalUSD.toFixed(4)}\n💰 ${SLANG.payment_total}: $${totalPayment.toFixed(4)}\n❗ ${SLANG.difference}: $${Math.abs(totalPayment - totalUSD).toFixed(4)}\n\n${SLANG.fix_payment}`;
+                const errorMsg = `⚠️ ${SLANG.payment_mismatch}\n\n🛒 ${SLANG.cart_total}: $${fmtUSD5(totalUSD)}\n💰 ${SLANG.payment_total}: $${fmtUSD5(totalPayment)}\n❗ ${SLANG.difference}: $${fmtUSD5(Math.abs(totalPayment - totalUSD))}\n\n${SLANG.fix_payment}`;
                 
                 alert(errorMsg);
                 
                 if (paymentWarning) {
-                    paymentWarning.textContent = `⚠️ ${SLANG.payment_mismatch}`;
+                    paymentWarning.textContent = `?? ${SLANG.payment_mismatch}`;
                     paymentWarning.style.display = 'block';
                 }
                 
-                console.error('❌ PAYMENT VALIDATION FAILED:', {
+                console.error('? PAYMENT VALIDATION FAILED:', {
                     cartTotal: totalUSD,
                     paymentTotal: totalPayment,
                     difference: Math.abs(totalPayment - totalUSD),
@@ -6141,8 +6147,8 @@
                 return;
             }
             
-            // ✅ VALIDATION PASSED
-            console.log('✅ VALIDATION PASSED: Cart and payment match');
+            // ? VALIDATION PASSED
+            console.log('? VALIDATION PASSED: Cart and payment match');
             
             
             // Idempotency key yaratish
@@ -6188,9 +6194,9 @@
                         const d = new Date();
                         d.setDate(d.getDate() + 7);
                         val = d.toISOString().split('T')[0];
-                        console.log('📅 Muddat avtomatik belgilandi (7 kun):', val);
+                        console.log('?? Muddat avtomatik belgilandi (7 kun):', val);
                     }
-                    console.log('📅 DEBUG payment_due_date:', val, 'debtUSD:', debtUSD);
+                    console.log('?? DEBUG payment_due_date:', val, 'debtUSD:', debtUSD);
                     return val;
                 })(),
                 // Agar tahrirlash rejimida bo'lsa
@@ -6208,7 +6214,7 @@
                 })()
             };
             
-            console.log('📤 Savdoni backend ga yuborish:');
+            console.log('?? Savdoni backend ga yuborish:');
             console.log('   - Idempotency Key:', idempotencyKey);
             console.log('   - Tahrirlash rejimi:', editingSaleId !== null);
             console.log('   - Original Sale ID:', editingSaleId);
@@ -6224,7 +6230,7 @@
             
             // YANGI MANTIQ: Agar pending savdo mavjud bo'lsa, faqat statusni o'zgartirish
             if (currentPendingSaleId && !editingSaleId) {
-                console.log('🔄 Pending savdo statusini o\'zgartirish:', currentPendingSaleId);
+                console.log('?? Pending savdo statusini o\'zgartirish:', currentPendingSaleId);
                 
                 // Printer checkbox'laridan chek formatini aniqlash
                 const printUSD = document.getElementById('printReceiptUSD');
@@ -6239,7 +6245,7 @@
                     receiptFormat = 'uzs';
                 }
                 
-                console.log('📄 Telegram PDF formati:', receiptFormat);
+                console.log('?? Telegram PDF formati:', receiptFormat);
                 
                 // Pending savdoni yakunlash - faqat status o'zgartirish
                 response = await fetch(`/api/finalize-sale/${currentPendingSaleId}`, {
@@ -6261,14 +6267,14 @@
                 
                 // Session expire yoki authentication muammosini tekshirish (finalize uchun)
                 if (response.status === 401) {
-                    console.error('❌ Session muddati tugagan (finalize)');
+                    console.error('? Session muddati tugagan (finalize)');
                     alert(SLANG.session_expired_warning);
                     window.location.href = '/login';
                     return;
                 }
                 
                 if (response.status === 403) {
-                    console.error('❌ Ruxsat yo\'q (finalize)');
+                    console.error('? Ruxsat yo\'q (finalize)');
                     alert(SLANG.access_denied);
                     if (confirmBtn) {
                         confirmBtn.disabled = false;
@@ -6280,7 +6286,7 @@
                 }
             } else {
                 // Tahrirlash rejimida yoki pending yo'q bo'lsa - yangi savdo yaratish
-                console.log('➕ Yangi savdo yaratish (tahrirlash yoki pending yo\'q)');
+                console.log('? Yangi savdo yaratish (tahrirlash yoki pending yo\'q)');
                 response = await fetch('/api/create-sale', {
                     method: 'POST',
                     headers: {
@@ -6293,14 +6299,14 @@
             
             // Session expire yoki authentication muammosini tekshirish
             if (response.status === 401) {
-                console.error('❌ Session muddati tugagan yoki login talab qilinadi');
+                console.error('? Session muddati tugagan yoki login talab qilinadi');
                 alert(SLANG.session_expired_warning);
                 window.location.href = '/login';
                 return;
             }
             
             if (response.status === 403) {
-                console.error('❌ Ruxsat yo\'q (Forbidden)');
+                console.error('? Ruxsat yo\'q (Forbidden)');
                 alert(SLANG.access_denied);
                 if (confirmBtn) {
                     confirmBtn.disabled = false;
@@ -6315,7 +6321,7 @@
             
             if (!result.success) {
                 alert(SLANG.create_sale_error + ': ' + (result.error || SLANG.unknown_error));
-                console.error('❌ Savdo xatosi:', result);
+                console.error('? Savdo xatosi:', result);
                 // Tugmani qayta faollashtirish xatolik bo'lganda
                 if (confirmBtn) {
                     confirmBtn.disabled = false;
@@ -6328,10 +6334,10 @@
             
             // Agar bu takroriy so'rov bo'lsa
             if (result.already_processed) {
-                console.log('⚠️ Bu savdo allaqachon qayd qilingan');
+                console.log('?? Bu savdo allaqachon qayd qilingan');
             }
             
-            console.log('✅ Savdo muvaffaqiyatli saqlandi:', result);
+            console.log('? Savdo muvaffaqiyatli saqlandi:', result);
             
             // Chek chiqarish ma'lumotlarini global o'zgaruvchida saqlash
             let pendingReceiptData = null;
@@ -6340,14 +6346,14 @@
             const printUSD = document.getElementById('printReceiptUSD');
             const printUZS = document.getElementById('printReceiptUZS');
             
-            console.log('🖨️ Chek chiqarish tekshiruvi:');
+            console.log('??? Chek chiqarish tekshiruvi:');
             console.log('   - printUSD element:', printUSD);
             console.log('   - printUSD.checked:', printUSD ? printUSD.checked : 'element topilmadi');
             console.log('   - printUZS element:', printUZS);
             console.log('   - printUZS.checked:', printUZS ? printUZS.checked : 'element topilmadi');
             
             if ((printUSD && printUSD.checked) || (printUZS && printUZS.checked)) {
-                console.log('✅ Chek chiqarish belgilangan, modal yopilgandan keyin chiqariladi');
+                console.log('? Chek chiqarish belgilangan, modal yopilgandan keyin chiqariladi');
                 
                 // Mijoz ma'lumotlarini olish - result yoki input'dan
                 let customerName = 'Naqd mijoz';
@@ -6388,9 +6394,9 @@
                     if (currency === 'uzs') {
                         paymentDetails.push(`<strong>${label}:</strong> ${amountUZS}`);
                     } else if (currency === 'both') {
-                        paymentDetails.push(`<strong>${label}:</strong> $${amountUSD.toFixed(4)} : ${amountUZS}`);
+                        paymentDetails.push(`<strong>${label}:</strong> $${fmtUSD5(amountUSD)} : ${amountUZS}`);
                     } else {
-                        paymentDetails.push(`<strong>${label}:</strong> $${amountUSD.toFixed(4)}`);
+                        paymentDetails.push(`<strong>${label}:</strong> $${fmtUSD5(amountUSD)}`);
                     }
                 }
                 
@@ -6445,7 +6451,7 @@
                     currency: selectedCurrency
                 };
             } else {
-                console.log('ℹ️ Chek chiqarish belgilanmagan');
+                console.log('?? Chek chiqarish belgilanmagan');
             }
             
             // Modalni yopish
@@ -6457,25 +6463,25 @@
                 
                 // Chek chiqarish (tahrirlash rejimida ham)
                 if (pendingReceiptData) {
-                    console.log('🖨️ Chek chiqarish boshlandi (tahrirlash rejimi)...');
+                    console.log('??? Chek chiqarish boshlandi (tahrirlash rejimi)...');
                     const receiptWindow = window.open('', '_blank', 'width=400,height=600');
                     
                     if (!receiptWindow) {
                         alert(SLANG.popup_blocked_warning);
-                        console.error('❌ window.open() null qaytardi - popup blocker faol');
+                        console.error('? window.open() null qaytardi - popup blocker faol');
                     } else {
                         generatePrintableReceiptToWindow(receiptWindow, pendingReceiptData.sale, pendingReceiptData.currency);
                     }
                 }
                 
-                console.log('🔄 Sales history sahifasiga qaytish...');
+                console.log('?? Sales history sahifasiga qaytish...');
                 window.location.href = '/sales-history';
                 return;
             }
             
             // Pending savdo ID ni tozalash (chunki yakunlandi)
             if (currentPendingSaleId) {
-                console.log('✅ Pending savdo yakunlandi va paid/partial statusga o\'tdi:', currentPendingSaleId);
+                console.log('? Pending savdo yakunlandi va paid/partial statusga o\'tdi:', currentPendingSaleId);
                 currentPendingSaleId = null;
             }
             
@@ -6484,12 +6490,12 @@
             
             // Chek chiqarish (agar belgilangan bo'lsa)
             if (pendingReceiptData) {
-                console.log('🖨️ Chek chiqarish boshlandi...');
+                console.log('??? Chek chiqarish boshlandi...');
                 const receiptWindow = window.open('', '_blank', 'width=400,height=600');
                 
                 if (!receiptWindow) {
                     alert(SLANG.popup_blocked_warning);
-                    console.error('❌ window.open() null qaytardi - popup blocker faol');
+                    console.error('? window.open() null qaytardi - popup blocker faol');
                 } else {
                     generatePrintableReceiptToWindow(receiptWindow, pendingReceiptData.sale, pendingReceiptData.currency);
                 }
@@ -6498,7 +6504,7 @@
             // Tab strategiyasi: 1 ta tab bo'lsa yangilash, ko'p bo'lsa yopish
             if (salesTabs.length === 1) {
                 // Faqat 1 ta tab ochiq - to'liq yangilash
-                console.log('🔄 Yagona tab - ma\'lumotlarni tozalash');
+                console.log('?? Yagona tab - ma\'lumotlarni tozalash');
                 
                 // Global o'zgaruvchilarni tozalash
                 cart = [];
@@ -6554,11 +6560,11 @@
                 // Savatni yangilash
                 updateCart();
                 
-                console.log('✅ Tab to\'liq tozalandi');
+                console.log('? Tab to\'liq tozalandi');
                 
             } else {
                 // Ko'p tab ochiq - hozirgi tabni yopish
-                console.log('❌ Ko\'p tab - hozirgi tabni yopish');
+                console.log('? Ko\'p tab - hozirgi tabni yopish');
                 
                 // Aktiv tabni yopish (tasdiqlashsiz)
                 if (activeTabId) {
@@ -6567,7 +6573,7 @@
             }
             
         } catch (error) {
-            console.error('❌ Savdoni yuborishda xatolik:', error);
+            console.error('? Savdoni yuborishda xatolik:', error);
             alert(SLANG.save_sale_error);
             // Tugmani qayta faollashtirish xatolik bo'lganda
             if (confirmBtn) {
@@ -6579,7 +6585,7 @@
         } finally {
             // Flag'ni darhol tozalash
             isProcessingPayment = false;
-            console.log('✅ Payment processing flag cleared');
+            console.log('? Payment processing flag cleared');
         }
     }
     
@@ -6589,7 +6595,7 @@
     
     // Sahifa to'liq yuklanganda tab sistemani ishga tushirish
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🎯 DOM yuklandi, tab sistemani ishga tushirish...');
+        console.log('?? DOM yuklandi, tab sistemani ishga tushirish...');
         initializeTabs();
         // Sahifa yuklanganda internet yo'q bo'lsa bannerni ko'rsat
         if (!navigator.onLine) {
@@ -6600,13 +6606,13 @@
     // Internet uzilganda banner ko'rsat
     window.addEventListener('offline', function() {
         document.getElementById('offlineBanner').style.display = 'block';
-        console.warn('📡 Internet uzildi!');
+        console.warn('?? Internet uzildi!');
     });
     
     // Internet qaytganda bannerni yashir
     window.addEventListener('online', function() {
         document.getElementById('offlineBanner').style.display = 'none';
-        console.log('✅ Internet qaytdi!');
+        console.log('? Internet qaytdi!');
     });
     
     // Sahifa yopilganda yoki refresh qilinganda ma'lumotlarni saqlash
@@ -6885,11 +6891,11 @@
                                 
                                 let priceDisplay;
                                 if (currency === 'both') {
-                                    priceDisplay = '$' + priceUSD.toFixed(4) + '<br><span class="uzs-value">' + priceUZS.toLocaleString('uz-UZ') + '</span>';
+                                    priceDisplay = '$' + priceUSD.toFixed(5) + '<br><span class="uzs-value">' + priceUZS.toLocaleString('uz-UZ') + '</span>';
                                 } else if (currency === 'uzs') {
                                     priceDisplay = priceUZS.toLocaleString('uz-UZ');
                                 } else {
-                                    priceDisplay = '$' + priceUSD.toFixed(4);
+                                    priceDisplay = '$' + priceUSD.toFixed(5);
                                 }
                                 
                                 return `
@@ -6908,13 +6914,13 @@
                         <span>Jami summa:</span>
                         <span>${(() => {
                             if (currency === 'both') {
-                                const totalUSD = parseFloat(sale.total_amount).toFixed(4);
+                                const totalUSD = parseFloat(sale.total_amount).toFixed(5);
                                 const totalUZS = Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ');
                                 return '$' + totalUSD + '<br><span class="uzs-value">' + totalUZS + '</span>';
                             } else if (currency === 'uzs') {
                                 return Math.round(parseFloat(sale.total_amount) * exchangeRate).toLocaleString('uz-UZ');
                             } else {
-                                return '$' + parseFloat(sale.total_amount).toFixed(4);
+                                return '$' + parseFloat(sale.total_amount).toFixed(5);
                             }
                         })()}</span>
                     </div>
