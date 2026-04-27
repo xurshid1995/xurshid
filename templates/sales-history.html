@@ -2281,7 +2281,6 @@ function generatePaymentDetailsHTML(sale) {
     const clickUZS = parseFloat(sale.click_amount || 0);
     const terminalUZS = parseFloat(sale.terminal_amount || 0);
     const debtUZS = parseFloat(sale.debt_amount || 0);
-    const rate = parseFloat(sale.currency_rate || 12000);
     const balanceUZS = balanceUSD * rate;
     
     const payments = [
