@@ -1272,6 +1272,8 @@ function displaySalesData(data) {
         
         const totalProfit = parseFloat(sale.total_profit || 0);
         const totalAmount = parseFloat(sale.total_amount || 0);
+        // Items dan saqlangan UZS qiymatlarini yig'ish (JAMI YIG'INDI uchun)
+        const totalAmountUZS = items.reduce((sum, it) => sum + parseFloat(it.total_price_uzs || 0), 0);
         const profitClass = totalProfit > 0 ? 'profit-positive' : totalProfit < 0 ? 'profit-negative' : '';
         
         // Sana va vaqtni formatlash
@@ -1321,7 +1323,7 @@ function displaySalesData(data) {
                 <td class="col-quantity">${firstItem.quantity}</td>
                 <td class="col-price">${formatPrice(firstItem.unit_price || 0, sale.currency_rate, firstItem.unit_price_uzs)}</td>
                 <td class="col-subtotal">${formatPrice(firstItem.total_price || 0, sale.currency_rate, firstItem.total_price_uzs)}</td>
-                <td rowspan="${items.length}" class="group-cell group-total col-total">${formatPrice(totalAmount, sale.currency_rate)}</td>
+                <td rowspan="${items.length}" class="group-cell group-total col-total">${formatPrice(totalAmount, sale.currency_rate, totalAmountUZS > 0 ? totalAmountUZS : null)}</td>
                 ${userRole === 'sotuvchi' ? '' : `<td rowspan="${items.length}" class="group-cell group-profit col-profit ${profitClass}">${formatPrice(totalProfit, sale.currency_rate)}</td>`}
                 <td rowspan="${items.length}" class="group-cell group-actions col-actions">
                     <button class="btn-action btn-view" onclick="viewSaleDetails(${sale.id})" title="Ko'rish">
