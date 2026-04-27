@@ -3405,7 +3405,7 @@
     }
     
     // To'g'ridan-to'g'ri savatga qo'shish (modal ochmasdan) - savdo tahrirlash uchun
-    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId) {
+    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId, storedPriceUZS = null) {
         console.log(`? To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
         console.log(`   Location: ${sourceType}_${sourceId}`);
         
@@ -3417,8 +3417,10 @@
             cart[existingIndex].quantity += quantity;
             console.log(`  ? Miqdor oshirildi: ${cart[existingIndex].quantity}`);
         } else {
-            // Yangi element qo'shish
-            const priceUZS = priceUSD * exchangeRate;
+            // Yangi element qo'shish - saqlangan UZS bo'lsa undan, aks holda yaxlitlash
+            const priceUZS = (storedPriceUZS && parseFloat(storedPriceUZS) > 0)
+                ? Math.round(parseFloat(storedPriceUZS))
+                : Math.round(priceUSD * exchangeRate);
             cart.push({
                 id: productId,              // 'id' maydon nomi (removeFromCart uchun)
                 name: productName,          // 'name' maydon nomi (updateCart uchun)
@@ -4964,7 +4966,8 @@
                             item.quantity,
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
-                            item.source_id     // ? Muhim: Joylashuv ID'si
+                            item.source_id,    // ? Muhim: Joylashuv ID'si
+                            item.unit_price_uzs // ? Saqlangan UZS narx
                         );
                     }
                     
@@ -5080,7 +5083,8 @@
                             item.quantity,
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
-                            item.source_id     // ? Muhim: Joylashuv ID'si
+                            item.source_id,    // ? Muhim: Joylashuv ID'si
+                            item.unit_price_uzs // ? Saqlangan UZS narx
                         );
                     }
                     
