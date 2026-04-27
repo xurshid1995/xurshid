@@ -1875,7 +1875,8 @@ function generatePaymentDetailsHTML(sale) {
         { name: '💵 ' + PSLANG.cash_payment, amount: details.cash || 0, isDebt: false },
         { name: '📱 ' + PSLANG.click_payment, amount: details.click || 0, isDebt: false },
         { name: '💳 ' + PSLANG.terminal_payment, amount: details.terminal || 0, isDebt: false },
-        { name: '📝 ' + PSLANG.debt_payment, amount: details.debt || 0, isDebt: true }
+        { name: '📝 ' + PSLANG.debt_payment, amount: details.debt || 0, isDebt: true },
+        { name: '🏦 Balans', amount: details.balance || 0, isDebt: false }
     ];
     
     // Jami hisoblash uchun barcha 0 dan katta to'lovlar (qarz ham)
@@ -2048,6 +2049,7 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 1
         const clickUSD = paymentDetails.click || 0;
         const terminalUSD = paymentDetails.terminal || 0;
         const debtUSD = paymentDetails.debt || 0;
+        const balanceUSD = paymentDetails.balance || 0;
         
         if (currency === 'uzs') {
             // Faqat UZS qiymat ko'rsatish
@@ -2055,18 +2057,21 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 1
             if (clickUSD > 0) formatted.push('Click: ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (terminalUSD > 0) formatted.push('Terminal: ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (debtUSD > 0) formatted.push('Qarz: ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (balanceUSD > 0) formatted.push('Balans: ' + Math.round(balanceUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
         } else if (currency === 'both') {
             // Ikkala valyutani ham ko'rsatish
             if (cashUSD > 0) formatted.push('Naqd: $' + cashUSD.toFixed(2) + ' / ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (clickUSD > 0) formatted.push('Click: $' + clickUSD.toFixed(2) + ' / ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (terminalUSD > 0) formatted.push('Terminal: $' + terminalUSD.toFixed(2) + ' / ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (debtUSD > 0) formatted.push('Qarz: $' + debtUSD.toFixed(2) + ' / ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (balanceUSD > 0) formatted.push('Balans: $' + balanceUSD.toFixed(2) + ' / ' + Math.round(balanceUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
         } else {
             // Faqat USD qiymat ko'rsatish
             if (cashUSD > 0) formatted.push('Naqd: $' + cashUSD.toFixed(2));
             if (clickUSD > 0) formatted.push('Click: $' + clickUSD.toFixed(2));
             if (terminalUSD > 0) formatted.push('Terminal: $' + terminalUSD.toFixed(2));
             if (debtUSD > 0) formatted.push('Qarz: $' + debtUSD.toFixed(2));
+            if (balanceUSD > 0) formatted.push('Balans: $' + balanceUSD.toFixed(2));
         }
         
         return formatted.join('<br>');

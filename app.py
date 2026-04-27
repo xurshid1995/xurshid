@@ -1440,6 +1440,7 @@ class Sale(db.Model):
     cash_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
     click_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
     terminal_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
+    balance_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)  # Mijoz balansidan to'langan
     notes = db.Column(db.Text)
     currency_rate = db.Column(
         db.DECIMAL(
@@ -1581,7 +1582,8 @@ class Sale(db.Model):
                 'cash': float(self.cash_usd) if self.cash_usd is not None else 0.0,
                 'click': float(self.click_usd) if self.click_usd is not None else 0.0,
                 'terminal': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
-                'debt': float(self.debt_usd) if self.debt_usd is not None else 0.0
+                'debt': float(self.debt_usd) if self.debt_usd is not None else 0.0,
+                'balance': float(self.balance_usd) if self.balance_usd is not None else 0.0
             },
             'notes': self.notes if self.notes else '',
             'currency_rate': float(
@@ -10978,8 +10980,8 @@ def finalize_sale(sale_id):
         # To'lov ma'lumotlarini yangilash
         balance_used_fin = float(payment.get('balance_used', 0))
         
-        # Balansdan foydalanilgan qism naqd pul sifatida savdoga kiritiladi
-        cash_usd_fin = float(payment.get('cash_usd', 0)) + balance_used_fin
+        # Balansdan foydalanilgan qism alohida saqlanadi (naqd ga qo'shilmaydi)
+        cash_usd_fin = float(payment.get('cash_usd', 0))
         
         sale.cash_usd = Decimal(str(cash_usd_fin))
         sale.cash_amount = Decimal(str(payment.get('cash_uzs', 0)))
@@ -10989,6 +10991,7 @@ def finalize_sale(sale_id):
         sale.terminal_amount = Decimal(str(payment.get('terminal_uzs', 0)))
         sale.debt_usd = Decimal(str(payment.get('debt_usd', 0)))
         sale.debt_amount = Decimal(str(payment.get('debt_uzs', 0)))
+        sale.balance_usd = Decimal(str(balance_used_fin))
 
         # Status va boshqa ma'lumotlarni yangilash
         sale.payment_status = payment_status
@@ -11493,9 +11496,8 @@ def create_sale():
         debt_usd = float(payment_info.get('debt_usd', 0))
         balance_used = float(payment_info.get('balance_used', 0))
         
-        # Balansdan foydalanilgan summa naqd pul sifatida hisoblanadi
-        if balance_used > 0:
-            cash_usd += balance_used
+        # Balansdan foydalanilgan summa alohida saqlanadi (cash_usd ga qo'shilmaydi)
+        # cash_usd faqat haqiqiy naqd to'lovni ko'rsatadi
 
         # UZS qiymatlarni olish
         cash_uzs = float(payment_info.get('cash_uzs', 0))
@@ -11517,7 +11519,7 @@ def create_sale():
             float(item.get('quantity', 0))
             for item in items
         )
-        payment_total_check = cash_usd + click_usd + terminal_usd + debt_usd
+        payment_total_check = cash_usd + click_usd + terminal_usd + debt_usd + balance_used
         if items_total_check > 0 and abs(payment_total_check - items_total_check) > 0.05:
             logger.warning(f"⚠️ To'lov farqi: to'lov=${payment_total_check:.4f}, mahsulot=${items_total_check:.4f}")
             return jsonify({
@@ -11651,6 +11653,7 @@ def create_sale():
                 click_usd=Decimal(str(click_usd)),
                 terminal_usd=Decimal(str(terminal_usd)),
                 debt_usd=Decimal(str(debt_usd)),
+                balance_usd=Decimal(str(balance_used)),
                 notes=f'Multi-location savdo - {len(items)} ta mahsulot' if multi_location else None,
                 currency_rate=current_rate,
                 created_by=f'{current_user.first_name} {current_user.last_name}',
