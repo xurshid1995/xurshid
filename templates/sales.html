@@ -2836,7 +2836,7 @@
         // Savdo korzinasi sarlavhasida mijoz ma'lumotlarini ko'rsatish
         const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
         if (cartCustomerInfo) {
-            const customerDisplay = phone ? `?? ${name} ${phone}` : `?? ${name}`;
+            const customerDisplay = phone ? `🛒 ${name} ${phone}` : `🛒 ${name}`;
             cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
         }
         
@@ -3911,7 +3911,7 @@
         if (cartCustomerInfo && customerSearch && selectedCustomerId && selectedCustomerId.value) {
             const customerName = customerSearch.value;
             if (customerName) {
-                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">?? ${customerName}</h3>`;
+                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 ${customerName}</h3>`;
                 
                 // Tab sarlavhasida ham mijoz ko'rsatish
                 const tabTitle = activeTab.querySelector('.tab-title');
