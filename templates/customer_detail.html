@@ -1336,17 +1336,20 @@ function formatPaymentDetailsForPrint(paymentDetails, currency = 'uzs', exchange
         const clickUSD = paymentDetails.click || 0;
         const terminalUSD = paymentDetails.terminal || 0;
         const debtUSD = paymentDetails.debt || 0;
+        const balanceUSD = paymentDetails.balance || 0;
         
         if (currency === 'uzs') {
             if (cashUSD > 0) formatted.push('Naqd: ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (clickUSD > 0) formatted.push('Click: ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (terminalUSD > 0) formatted.push('Terminal: ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
             if (debtUSD > 0) formatted.push('Qarz: ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
+            if (balanceUSD > 0) formatted.push('Balans: ' + Math.round(balanceUSD * exchangeRate).toLocaleString('uz-UZ') + ' som');
         } else {
             if (cashUSD > 0) formatted.push('Naqd: ' + formatUSD(cashUSD));
             if (clickUSD > 0) formatted.push('Click: ' + formatUSD(clickUSD));
             if (terminalUSD > 0) formatted.push('Terminal: ' + formatUSD(terminalUSD));
             if (debtUSD > 0) formatted.push('Qarz: ' + formatUSD(debtUSD));
+            if (balanceUSD > 0) formatted.push('Balans: ' + formatUSD(balanceUSD));
         }
         
         return formatted.join('<br>');

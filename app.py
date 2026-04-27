@@ -11545,6 +11545,8 @@ def create_sale():
             payment_method = 'terminal'
         elif debt_usd > 0:
             payment_method = 'debt'
+        elif balance_used > 0 and cash_usd == 0:
+            payment_method = 'balance'
         elif cash_usd > 0:
             payment_method = 'cash'
 

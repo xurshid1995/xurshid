@@ -2393,6 +2393,7 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 1
         const clickUSD = paymentDetails.click || 0;
         const terminalUSD = paymentDetails.terminal || 0;
         const debtUSD = paymentDetails.debt || 0;
+        const balanceUSD = paymentDetails.balance || 0;
         
         if (currency === 'uzs') {
             // Faqat UZS qiymat ko'rsatish
@@ -2400,18 +2401,21 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 1
             if (clickUSD > 0) formatted.push(DSLANG.click_payment + ': ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
             if (terminalUSD > 0) formatted.push(DSLANG.terminal_payment + ': ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
             if (debtUSD > 0) formatted.push(DSLANG.debt_payment + ': ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
+            if (balanceUSD > 0) formatted.push('Balans: ' + Math.round(balanceUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
         } else if (currency === 'both') {
             // Ikkala valyutani ham ko'rsatish
             if (cashUSD > 0) formatted.push(DSLANG.cash + ': $' + cashUSD.toFixed(2) + ' / ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
             if (clickUSD > 0) formatted.push(DSLANG.click_payment + ': $' + clickUSD.toFixed(2) + ' / ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
             if (terminalUSD > 0) formatted.push(DSLANG.terminal_payment + ': $' + terminalUSD.toFixed(2) + ' / ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
             if (debtUSD > 0) formatted.push(DSLANG.debt_payment + ': $' + debtUSD.toFixed(2) + ' / ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
+            if (balanceUSD > 0) formatted.push('Balans: $' + balanceUSD.toFixed(2) + ' / ' + Math.round(balanceUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + DSLANG.sum);
         } else {
             // Faqat USD qiymat ko'rsatish
             if (cashUSD > 0) formatted.push(DSLANG.cash + ': $' + cashUSD.toFixed(2));
             if (clickUSD > 0) formatted.push(DSLANG.click_payment + ': $' + clickUSD.toFixed(2));
             if (terminalUSD > 0) formatted.push(DSLANG.terminal_payment + ': $' + terminalUSD.toFixed(2));
             if (debtUSD > 0) formatted.push(DSLANG.debt_payment + ': $' + debtUSD.toFixed(2));
+            if (balanceUSD > 0) formatted.push('Balans: $' + balanceUSD.toFixed(2));
         }
         
         return formatted.join('<br>');
