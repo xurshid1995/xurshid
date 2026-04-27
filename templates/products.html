@@ -600,7 +600,8 @@
             // Sarlavhani yangilash
             updateQuantityHeader(location);
             
-            displayProducts();
+            // Status filtri aktiv bo'lsa uni saqlab qolish, aks holda displayProducts chaqirish
+            applyStatusFilter();
             
         } catch (error) {
             console.error('Products load error:', error);
