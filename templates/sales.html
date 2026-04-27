@@ -1013,40 +1013,32 @@
     <button id="closeScannerBtn" type="button" style="position: fixed; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 28px; cursor: pointer; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(5px);" title="Yopish">�</button>
     
     <!-- Kamera video - TO'LIQ EKRAN -->
-    <div id="barcodeScannerContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000;">
-        <div id="barcodeScanner" style="width: 100%; height: 100%; object-fit: cover;"></div>
-        
-        <!-- Skaner overlay -->
-        <div id="scannerOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
-            <!-- KATTA ramka - butun ekran 90% -->
-            <div style="position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; border: 4px solid #28a745; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);"></div>
-            <!-- Markaziy chiziq -->
-            <div style="position: absolute; top: 50%; left: 5%; width: 90%; height: 3px; background: linear-gradient(90deg, transparent, #28a745, transparent); animation: scanLine 2s ease-in-out infinite;"></div>
-        </div>
+    <div id="barcodeScannerContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;">
+        <!-- html5-qrcode shu divga video va scanning box yaratadi -->
+        <div id="barcodeScanner" style="width: 100%; max-width: 640px;"></div>
         
         <!-- Status pastda -->
-        <div id="scannerStatus" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; text-align: center; font-size: 16px; font-weight: 600; color: white; padding: 15px 20px; background: rgba(40, 167, 69, 0.9); border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+        <div id="scannerStatus" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; text-align: center; font-size: 16px; font-weight: 600; color: white; padding: 15px 20px; background: rgba(40, 167, 69, 0.9); border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 10000;">
             {{ t('scanner_instruction') }}
         </div>
     </div>
 </div>
 
-<!-- Scan animatsiyasi -->
+<!-- Scanner uslublari -->
 <style>
-    @keyframes scanLine {
-        0%, 100% { top: 40%; opacity: 0.3; }
-        50% { top: 60%; opacity: 1; }
-    }
-    
-    /* Video element to'liq ekran */
+    /* html5-qrcode video to'liq ekran */
     #barcodeScanner video {
         width: 100% !important;
-        height: 100% !important;
+        height: auto !important;
         object-fit: cover !important;
     }
-    
-    #barcodeScanner canvas {
-        display: none !important;
+    /* html5-qrcode ichidagi yordamchi elementlar */
+    #barcodeScanner > div:first-child {
+        position: relative !important;
+    }
+    /* Scan box border rangini yashilga o'zgartirish */
+    #qr-shaded-region {
+        border: 5px solid #28a745 !important;
     }
 </style>
 
@@ -1100,8 +1092,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Quagga2 Barcode Scanner - Local copy (CDN tracking issues) -->
-<script src="{{ url_for('static', filename='js/quagga.min.js') }}"></script>
+<!-- html5-qrcode - Mobile uchun optimallashtirilgan barcode scanner -->
+<script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
 
 <script>
     // ============================================
@@ -2235,288 +2227,105 @@
         }
     }
     
-    // ==================== BARCODE SCANNER ====================
+    // ==================== BARCODE SCANNER (html5-qrcode) ====================
+    let html5QrCode = null;
     let scannerActive = false;
-    
-    // Mobile qurilma tekshirish
-    function isMobileDevice() {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-        return mobileRegex.test(userAgent);
-    }
 
-    function startBarcodeScanner() {
-        console.log('?? Camera scan funksiyasi boshlandi');
-        
-        // Barcha qurilmalarda web camera modal ishlatish (facingMode: environment bilan)
-        console.log('?? Web camera modal ochilmoqda (orqa kamera)...');
-        startWebCameraScanner();
-    }
-    
-    // Native camera scanner (mobile uchun - to'liq ekran native app)
-    function startNativeCameraScanner() {
-        const nativeCameraInput = getActiveTabElement('nativeCameraInput');
-        if (!nativeCameraInput) {
-            console.error('? nativeCameraInput topilmadi!');
-            alert(SLANG.camera_failed);
-            return;
-        }
-        
-        // Orqa kamerani majburlash (ba'zi brauzerlarda ishlaydi)
-        // Har safar yangi input yaratish - ba'zi telefonlarda cache muammosi yechiladi
-        const newInput = document.createElement('input');
-        newInput.type = 'file';
-        newInput.accept = 'image/*';
-        newInput.capture = 'environment'; // Orqa kamera
-        newInput.style.display = 'none';
-        
-        // Event listener qo'shish
-        newInput.addEventListener('change', handleNativeCameraImage);
-        
-        // Eski inputni almashtirish
-        nativeCameraInput.parentNode.replaceChild(newInput, nativeCameraInput);
-        newInput.id = nativeCameraInput.id;
-        
-        // Kamerani ochish
-        newInput.click();
-    }
-    
-    // Native camera'dan olingan rasmni decode qilish
-    async function handleNativeCameraImage(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        console.log('?? Rasm olindi:', file.name);
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            console.log('??? Barcode qidirilmoqda...');
-            
-            Quagga.decodeSingle({
-                src: e.target.result,
-                numOfWorkers: 0,
-                decoder: {
-                    readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"]
-                },
-                locate: true
-            }, function(result) {
-                if (result && result.codeResult) {
-                    const code = result.codeResult.code;
-                    console.log('? Barcode topildi:', code);
-                    
-                    if (navigator.vibrate) navigator.vibrate(200);
-                    
-                    const universalSearch = getActiveTabElement('universalSearch');
-                    if (universalSearch) {
-                        universalSearch.value = code;
-                        setTimeout(() => {
-                            const event = new Event('input', { bubbles: true });
-                            universalSearch.dispatchEvent(event);
-                        }, 100);
-                    }
-                } else {
-                    console.warn('?? Barcode topilmadi');
-                    alert(SLANG.camera_not_supported);
-                }
-            });
-        };
-        reader.readAsDataURL(file);
-        event.target.value = '';
-    }
-    
-    // Web camera scanner (desktop uchun - KATTA SCAN AREA)
-    function startWebCameraScanner() {
+    async function startBarcodeScanner() {
         const modal = document.getElementById('barcodeScannerModal');
         const statusDiv = document.getElementById('scannerStatus');
-        
-        console.log('   Protocol:', window.location.protocol);
-        console.log('   Hostname:', window.location.hostname);
-        console.log('   getUserMedia support:', !!navigator.mediaDevices?.getUserMedia);
-        
-        // HTTPS tekshiruvi - localhost va server IP uchun istisno
+
+        // HTTPS / localhost tekshiruvi
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const isServerIP = window.location.hostname === '139.59.154.185'; // Server IP
+        const isServerIP = window.location.hostname === '139.59.154.185';
         const isHTTPS = window.location.protocol === 'https:';
-        
-        // getUserMedia tekshiruvi
+
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('? Brauzer kamerani qo\'llab-quvvatlamaydi');
             alert(SLANG.camera_not_supported);
             return;
         }
-        
         if (!isHTTPS && !isLocalhost && !isServerIP) {
-            console.warn('?? HTTPS yo\'q - kamera ishlamaydi');
             alert(SLANG.camera_https_required);
             return;
         }
-        
-        console.log('? Kamera ochilmoqda...');
+
+        // Eski scannerni tozalash
+        if (html5QrCode) {
+            try { await html5QrCode.stop(); } catch(e) {}
+            html5QrCode.clear();
+            html5QrCode = null;
+        }
+
         modal.style.display = 'block';
         scannerActive = true;
         statusDiv.innerHTML = SLANG.camera_opening;
-        
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector('#barcodeScanner'),
-                constraints: {
-                    width: { min: 640, ideal: 1920, max: 1920 },
-                    height: { min: 480, ideal: 1080, max: 1080 },
-                    facingMode: "environment", // Orqa kamera
-                    aspectRatio: { ideal: 16/9 }
-                },
-                area: { // KATTA scan area - butun ekran
-                    top: "5%",
-                    right: "5%",
-                    left: "5%",
-                    bottom: "5%"
-                }
-            },
-            locate: true,
-            numOfWorkers: 0, // Web Worker o'chirish - TEZROQ
-            frequency: 20, // 20 fps - TEZROQ
-            decoder: {
-                readers: [
-                    "ean_reader",
-                    "ean_8_reader",
-                    "code_128_reader",
-                    "upc_reader",
-                    "upc_e_reader"
-                ],
-                multiple: false
-            },
-            locator: {
-                patchSize: "medium",
-                halfSample: true // Yarmi resolution - TEZROQ
-            }
-        }, function(err) {
-            if (err) {
-                console.error('? Scanner xatosi:', err);
-                console.error('Xato tafsilotlari:', err.name, err.message);
-                let errorMsg = '? ';
-                
-                if (err.name === 'NotAllowedError') {
-                    errorMsg += 'Kameraga ruxsat berilmadi!\n\n? Yechim:\n1. Brauzer sozlamalarida kameraga ruxsat bering\n2. Sahifani yangilang va "Allow" bosing';
-                    alert(errorMsg);
-                } else if (err.name === 'NotFoundError') {
-                    errorMsg += 'Kamera topilmadi!\n\n? Yechim:\n1. Qurilmangizda kamera borligini tekshiring\n2. Boshqa brauzerda sinab ko\'ring';
-                    alert(errorMsg);
-                } else if (err.name === 'OverconstrainedError') {
-                    // Orqa kamera topilmasa, standart kamerani ishlatish
-                    console.log('?? Orqa kamera topilmadi, standart kamera ishlatilmoqda...');
-                    startBarcodeScannerWithFallback();
-                    return;
-                } else {
-                    errorMsg += 'Kamera ochilmadi: ' + err.message;
-                    alert(errorMsg);
-                }
-                
-                statusDiv.innerHTML = errorMsg;
-                stopBarcodeScanner();
-                return;
-            }
-            console.log('? Scanner ishga tushdi');
-            statusDiv.innerHTML = SLANG.barcode_frame_hint;
-            Quagga.start();
-        });
 
-        Quagga.onDetected(function(result) {
-            if (!scannerActive) return;
-            
-            const code = result.codeResult.code;
-            console.log('?? Barcode topildi:', code);
-            
-            // Vibration feedback (telefon uchun)
-            if (navigator.vibrate) {
-                navigator.vibrate(200);
-            }
-            
-            // Input maydoniga yozish
-            const universalSearch = getActiveTabElement('universalSearch');
-            if (universalSearch) universalSearch.value = code;
-            
-            // Scanner yopish
-            stopBarcodeScanner();
-            
-            // Qidiruvni avtomatik ishga tushirish
-            setTimeout(() => {
-                const universalSearch = getActiveTabElement('universalSearch');
-                if (universalSearch) {
-                    const event = new Event('input', { bubbles: true });
-                    universalSearch.dispatchEvent(event);
-                }
-            }, 100);
-        });
-    }
-    
-    // Fallback: standart kamera bilan
-    function startBarcodeScannerWithFallback() {
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector('#barcodeScanner'),
-                constraints: {
-                    width: { min: 640, ideal: 1920 },
-                    height: { min: 480, ideal: 1080 }
+        html5QrCode = new Html5Qrcode("barcodeScanner");
+
+        // Scan box o'lchamini ekranga qarab hisoblash (barcode uchun keng quticha)
+        const qrboxFn = function(viewW, viewH) {
+            const w = Math.min(Math.floor(viewW * 0.85), 380);
+            const h = Math.floor(w * 0.4); // barcode uchun keng nisbat
+            return { width: w, height: h };
+        };
+
+        try {
+            await html5QrCode.start(
+                { facingMode: "environment" }, // Orqa kamera (to'g'ridan-to'g'ri)
+                {
+                    fps: 15,
+                    qrbox: qrboxFn,
+                    aspectRatio: 1.7778, // 16:9
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.CODE_39,
+                        Html5QrcodeSupportedFormats.ITF
+                    ]
                 },
-                area: { // KATTA scan area
-                    top: "5%",
-                    right: "5%",
-                    left: "5%",
-                    bottom: "5%"
-                }
-            },
-            locate: true,
-            numOfWorkers: 0,
-            frequency: 20,
-            decoder: {
-                readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"],
-                multiple: false
-            },
-            locator: {
-                patchSize: "medium",
-                halfSample: true
+                function(decodedText) {
+                    if (!scannerActive) return;
+                    console.log('Barcode topildi:', decodedText);
+                    if (navigator.vibrate) navigator.vibrate(200);
+                    const universalSearch = getActiveTabElement('universalSearch');
+                    if (universalSearch) universalSearch.value = decodedText;
+                    stopBarcodeScanner();
+                    setTimeout(() => {
+                        const us = getActiveTabElement('universalSearch');
+                        if (us) us.dispatchEvent(new Event('input', { bubbles: true }));
+                    }, 100);
+                },
+                function() { /* scan xatolarini e'tiborsiz qoldiramiz */ }
+            );
+            statusDiv.innerHTML = SLANG.barcode_frame_hint;
+        } catch (err) {
+            console.error('Kamera xatosi:', err);
+            let msg = '';
+            const errStr = String(err.message || err);
+            if (errStr.includes('NotAllowed') || errStr.includes('Permission')) {
+                msg = 'Kameraga ruxsat berilmadi!\n\nBrauzer sozlamalarida kameraga ruxsat bering va sahifani yangilang.';
+            } else if (errStr.includes('NotFound')) {
+                msg = 'Kamera topilmadi!\n\nQurilmangizda kamera borligini tekshiring.';
+            } else {
+                msg = 'Kamera ochilmadi: ' + errStr;
             }
-        }, function(err) {
-            if (err) {
-                document.getElementById('scannerStatus').innerHTML = SLANG.camera_init_failed;
-                stopBarcodeScanner();
-                return;
-            }
-            document.getElementById('scannerStatus').innerHTML = SLANG.barcode_frame_hint;
-            Quagga.start();
-        });
-        
-        Quagga.onDetected(function(result) {
-            if (!scannerActive) return;
-            const code = result.codeResult.code;
-            if (navigator.vibrate) navigator.vibrate(200);
-            const universalSearch = getActiveTabElement('universalSearch');
-            if (universalSearch) universalSearch.value = code;
+            alert(msg);
             stopBarcodeScanner();
-            setTimeout(() => {
-                const universalSearch = getActiveTabElement('universalSearch');
-                if (universalSearch) {
-                    const event = new Event('input', { bubbles: true });
-                    universalSearch.dispatchEvent(event);
-                }
-            }, 100);
-        });
+        }
     }
 
     function stopBarcodeScanner() {
         scannerActive = false;
         const modal = document.getElementById('barcodeScannerModal');
-        
-        if (Quagga) {
-            Quagga.stop();
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                if (html5QrCode) { html5QrCode.clear(); html5QrCode = null; }
+            }).catch(() => { html5QrCode = null; });
         }
-        
         modal.style.display = 'none';
-        console.log('?? Scanner to\'xtatildi');
     }
 
     // Yopish tugmasi - global (barcha tablar uchun bitta modal)
