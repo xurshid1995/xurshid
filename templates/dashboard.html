@@ -929,6 +929,9 @@ function updateStatistics(data) {
     // Jami savdo summasi  
     const totalAmount = data.amounts.reduce((sum, amount) => sum + amount, 0);
     
+    // Jami savdo summasi UZS (DB dan saqlangan, aniq qiymat)
+    const totalAmountUZS = data.amounts_uzs ? data.amounts_uzs.reduce((sum, v) => sum + v, 0) : 0;
+    
     // Jami foyda
     const totalProfit = data.profits.reduce((sum, profit) => sum + profit, 0);
 
@@ -944,9 +947,11 @@ function updateStatistics(data) {
     
 
     
-    // UZS qiymatni faqat kurs mavjud bo'lsagina ko'rsatish
-    if (exchangeRate) {
-        document.getElementById('totalAmountUZS').textContent = formatUZS(totalAmount * exchangeRate);
+    // UZS qiymat: DB dan saqlangan bo'lsa undan, aks holda hisoblash
+    if (totalAmountUZS > 0) {
+        document.getElementById('totalAmountUZS').textContent = formatUZS(Math.round(totalAmountUZS));
+    } else if (exchangeRate) {
+        document.getElementById('totalAmountUZS').textContent = formatUZS(Math.round(totalAmount * exchangeRate));
     } else {
         document.getElementById('totalAmountUZS').textContent = DLANG.dl_rate_loading;
     }

@@ -14180,7 +14180,8 @@ def api_sales_chart():
                     COALESCE(SUM(s.cash_usd), 0) as cash_total,
                     COALESCE(SUM(s.click_usd), 0) as click_total,
                     COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
-                    COALESCE(SUM(s.debt_usd), 0) as debt_total
+                    COALESCE(SUM(s.debt_usd), 0) as debt_total,
+                    COALESCE((SELECT SUM(si.total_price_uzs) FROM sale_items si WHERE si.sale_id = s.id), 0) as period_total_uzs
                 FROM sales s
                 WHERE (s.cash_usd > 0 OR s.click_usd > 0 OR s.terminal_usd > 0 OR s.debt_usd > 0)
             """
@@ -14194,7 +14195,8 @@ def api_sales_chart():
                     COALESCE(SUM(s.cash_usd), 0) as cash_total,
                     COALESCE(SUM(s.click_usd), 0) as click_total,
                     COALESCE(SUM(s.terminal_usd), 0) as terminal_total,
-                    COALESCE(SUM(s.debt_usd), 0) as debt_total
+                    COALESCE(SUM(s.debt_usd), 0) as debt_total,
+                    COALESCE((SELECT SUM(si.total_price_uzs) FROM sale_items si WHERE si.sale_id = s.id), 0) as period_total_uzs
                 FROM sales s
                 WHERE (s.cash_usd > 0 OR s.click_usd > 0 OR s.terminal_usd > 0 OR s.debt_usd > 0)
             """
@@ -14248,6 +14250,7 @@ def api_sales_chart():
         labels = []
         values = []
         amounts = []
+        amounts_uzs = []  # DB dan saqlangan UZS qiymatlar
         profits = []
         debts = []  # Qarzlar ro'yxati
         cash_list = []  # Naqd pul
@@ -14267,7 +14270,8 @@ def api_sales_chart():
                     'cash': float(row[4]) if row[4] else 0.0,
                     'click': float(row[5]) if row[5] else 0.0,
                     'terminal': float(row[6]) if row[6] else 0.0,
-                    'debt': float(row[7]) if row[7] else 0.0
+                    'debt': float(row[7]) if row[7] else 0.0,
+                    'amount_uzs': float(row[8]) if len(row) > 8 and row[8] else 0.0
                 }
 
             # 0 dan 23 gacha barcha soatlarni qo'shamiz
@@ -14276,6 +14280,7 @@ def api_sales_chart():
                 if hour in hourly_data:
                     values.append(hourly_data[hour]['sales'])
                     amounts.append(hourly_data[hour]['amount'])
+                    amounts_uzs.append(hourly_data[hour]['amount_uzs'])
                     profits.append(hourly_data[hour]['profit'])
                     debts.append(hourly_data[hour]['debt'])
                     cash_list.append(hourly_data[hour]['cash'])
@@ -14284,6 +14289,7 @@ def api_sales_chart():
                 else:
                     values.append(0)
                     amounts.append(0.0)
+                    amounts_uzs.append(0.0)
                     profits.append(0.0)
                     debts.append(0.0)
                     cash_list.append(0.0)
@@ -14306,6 +14312,8 @@ def api_sales_chart():
                                      else 0.0)  # terminal
                 debts.append(float(row[7]) if len(row) > 7 and row[7]
                              else 0.0)  # qarz summasi
+                amounts_uzs.append(float(row[8]) if len(row) > 8 and row[8]
+                                   else 0.0)  # UZS summa (saqlangan)
 
         # To'lov turlarini hisoblash
         payment_totals = {
@@ -14319,6 +14327,7 @@ def api_sales_chart():
             'labels': labels,
             'values': values,
             'amounts': amounts,
+            'amounts_uzs': amounts_uzs,
             'profits': profits,
             'debts': debts,
             'cash_list': cash_list,
