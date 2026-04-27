@@ -287,6 +287,14 @@ def generate_sale_receipt_pdf(
             else:
                 c.drawRightString(table_right, y, f"{sale_data[terminal_key]:,.0f} {currency_symbol}")
             y -= 4*mm
+        balance_key = 'balance_usd' if currency == 'usd' else 'balance_uzs'
+        if sale_data.get(balance_key, 0) > 0:
+            c.drawString(table_left + 3*mm, y, "Balans:")
+            if currency == 'usd':
+                c.drawRightString(table_right, y, f"${sale_data[balance_key]:,.2f}")
+            else:
+                c.drawRightString(table_right, y, f"{sale_data[balance_key]:,.0f} {currency_symbol}")
+            y -= 4*mm
 
     # Qarz (valyutaga qarab)
     debt_key = 'debt_usd' if currency == 'usd' else 'debt_uzs'
