@@ -917,9 +917,12 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
 function updateStatistics(data) {
     if (!data || !data.values || !data.amounts || !data.profits) {
         // Ma'lumot yo'q bo'lsa, 0 ko'rsatamiz
-        document.getElementById('totalSales').textContent = '0';
-        document.getElementById('totalAmount').textContent = '$0';
-        document.getElementById('totalProfit').textContent = '$0';
+        const _s = document.getElementById('totalSales');
+        const _a = document.getElementById('totalAmount');
+        const _p = document.getElementById('totalProfit');
+        if (_s) _s.textContent = '0';
+        if (_a) _a.textContent = '$0';
+        if (_p) _p.textContent = '$0';
         return;
     }
     
