@@ -7332,9 +7332,14 @@ def api_debt_payment():
             # Jami to'langan summa
             total_paid = cash_for_this + click_for_this + terminal_for_this
 
-            # Qarzni kamaytirish
-            sale.debt_usd = sale.debt_usd - total_paid
-            sale.debt_amount = sale.debt_usd * sale_rate  # UZS da saqlaymiz
+            # Qarzni kamaytirish — agar to'liq to'langan bo'lsa, float xatosini oldini olish uchun
+            # ayirish o'rniga to'g'ridan-to'g'ri 0 qo'yamiz
+            if total_paid >= current_debt:
+                sale.debt_usd = Decimal('0')
+                sale.debt_amount = Decimal('0')
+            else:
+                sale.debt_usd = sale.debt_usd - total_paid
+                sale.debt_amount = sale.debt_usd * sale_rate  # UZS da saqlaymiz
 
             # Payment statusni yangilash
             if sale.debt_usd == 0:
