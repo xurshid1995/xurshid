@@ -860,7 +860,12 @@
         }
         function formatUSD(n) {
             const num = parseFloat(n) || 0;
-            return '$' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}).replace(/,/g, ' ');
+            // 5 xonaga qadar ko'rsatish, oxiridagi 0 larni olib tashlash (min 2 xona)
+            let formatted = num.toFixed(5).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+            // Butun qism minglik ajratgichi bilan
+            const parts = formatted.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            return '$' + parts.join('.');
         }
         function formatUZS(n) {
             const num = Math.round(parseFloat(n) || 0);

@@ -1321,6 +1321,11 @@ function highlightSearchTerms(text, searchTerm) {
 }
 
 // Narxni formatlash (USD va som) - savdo kursidan foydalanish
+// 5 xonagacha, oxiridagi 0 lar ko'rsatilmaydi
+function fmtUSD5(n) {
+    const num = parseFloat(n) || 0;
+    return num.toFixed(5).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
 function formatPrice(usdAmount, saleRate = null) {
     const uzsFormatted = convertToUZS(usdAmount, saleRate);
     return `${formatUSD(usdAmount)}<br><small style="color: #007bff; font-size: 13px;">${parseInt(uzsFormatted).toLocaleString('uz-UZ')}</small>`;
@@ -1707,7 +1712,7 @@ function displaySalesData(data) {
                 <td class="col-quantity">${firstItem.quantity}</td>
                 <td class="col-price">${formatItemPrice(firstItem.unit_price || 0, firstItem.unit_price_uzs, sale.currency_rate)}</td>
                 <td class="col-subtotal">${formatItemPrice(firstItem.total_price || 0, firstItem.total_price_uzs, sale.currency_rate)}</td>
-                <td rowspan="${items.length}" class="group-cell group-total col-total">${(() => { const totalUZS = parseFloat(sale.cash_amount||0) + parseFloat(sale.click_amount||0) + parseFloat(sale.terminal_amount||0) + parseFloat(sale.debt_amount||0); return `$${totalAmount.toFixed(4)}<br><small style="color: #007bff; font-size: 13px;">${Math.round(totalUZS).toLocaleString('uz-UZ')}</small>`; })()}</td>
+                <td rowspan="${items.length}" class="group-cell group-total col-total">${(() => { const totalUZS = parseFloat(sale.cash_amount||0) + parseFloat(sale.click_amount||0) + parseFloat(sale.terminal_amount||0) + parseFloat(sale.debt_amount||0); return `${formatUSD(totalAmount)}<br><small style="color: #007bff; font-size: 13px;">${Math.round(totalUZS).toLocaleString('uz-UZ')}</small>`; })()}</td>
                 ${userRole === 'sotuvchi' ? '' : `<td rowspan="${items.length}" class="group-cell group-profit col-profit ${profitClass}">${formatPrice(totalProfit, sale.currency_rate)}</td>`}
                 <td rowspan="${items.length}" class="group-cell group-actions col-actions">
                     <button class="btn-action btn-view" onclick="viewSaleDetails(${sale.id})" title="Ko'rish">
@@ -1872,7 +1877,7 @@ function showEditModal(saleData) {
                         </div>
                         
                         <div class="total-display">
-                            <strong>${SHLANG.total_sum}: $<span id="editTotalAmount">${(saleData.quantity * saleData.unit_price).toFixed(2)}</span></strong>
+                            <strong>${SHLANG.total_sum}: <span id="editTotalAmount">${formatUSD(saleData.quantity * saleData.unit_price)}</span></strong>
                         </div>
                     </form>
                 </div>
@@ -1896,7 +1901,7 @@ function showEditModal(saleData) {
         const quantity = parseFloat(quantityInput.value) || 0;
         const price = parseFloat(priceInput.value) || 0;
         const total = quantity * price;
-        totalSpan.textContent = total.toFixed(2);
+        totalSpan.textContent = formatUSD(total).replace('$', '');
     }
     
     quantityInput.addEventListener('input', updateTotal);
@@ -2176,11 +2181,11 @@ function showSaleDetailsModal(sale) {
                                         <td style="font-weight: ${isReturned ? '600' : 'normal'};">${quantityBadge}${item.product_name}${isReturned ? ' (' + SHLANG.returned + ')' : ''}</td>
                                         <td style="font-weight: ${isReturned ? '600' : 'normal'};">${item.quantity}</td>
                                         <td>
-                                            <div>$${unitPriceUSD.toFixed(2)}</div>
+                                            <div>${formatUSD(unitPriceUSD)}</div>
                                             <div style="font-size: 11px; color: ${isReturned ? '#c62828' : '#666'};">${unitPriceUZS.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
                                         </td>
                                         <td>
-                                            <div>$${totalPriceUSD.toFixed(2)}</div>
+                                            <div>${formatUSD(totalPriceUSD)}</div>
                                             <div style="font-size: 11px; color: ${isReturned ? '#c62828' : '#666'};">${totalPriceUZS.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
                                         </td>
                                     </tr>
@@ -2203,11 +2208,11 @@ function showSaleDetailsModal(sale) {
                                             <td style="font-weight: 600;">❌ ${item.product_name} (${SHLANG.returned})</td>
                                             <td style="font-weight: 600;">-${item.returned_quantity}</td>
                                             <td>
-                                                <div>$${unitPriceUSD.toFixed(2)}</div>
+                                                <div>${formatUSD(unitPriceUSD)}</div>
                                                 <div style="font-size: 11px; color: #c62828;">${unitPriceUZS.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
                                             </td>
                                             <td>
-                                                <div>-$${totalPriceUSD.toFixed(2)}</div>
+                                                <div>-${formatUSD(totalPriceUSD)}</div>
                                                 <div style="font-size: 11px; color: #c62828;">-${totalPriceUZS.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
                                                 <div style="font-size: 11px; font-style: italic; margin-top: 4px;">
                                                     ${item.return_date ? new Date(item.return_date).toLocaleString('uz-UZ', {timeZone: 'Asia/Tashkent', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}
@@ -2295,7 +2300,7 @@ function generatePaymentDetailsHTML(sale) {
         .map(p => `
             <div style="display: inline-block; background: #f8f9fa; padding: 8px 14px; margin: 4px ${p.isDebt ? '40px' : '8px'} 4px 0; border-radius: 6px; border-left: 4px solid #007bff;">
                 <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">${p.name}</div>
-                <div style="font-size: 15px; font-weight: 700; color: #28a745;">$${p.usd.toFixed(2)}</div>
+                <div style="font-size: 15px; font-weight: 700; color: #28a745;">${formatUSD(p.usd)}</div>
                 <div style="font-size: 12px; color: #6c757d;">${p.uzs.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
             </div>
         `)
@@ -2307,7 +2312,7 @@ function generatePaymentDetailsHTML(sale) {
     const totalHTML = `
         <div style="display: inline-block; background: #007bff; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid #0056b3;">
             <div style="font-weight: 600; color: #ffffff; margin-bottom: 2px;">${SHLANG.total_payment}</div>
-            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">$${totalUSD.toFixed(2)}</div>
+            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${formatUSD(totalUSD)}</div>
             <div style="font-size: 12px; color: #ffffff;">${totalUZS.toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
         </div>
     `;
@@ -2346,7 +2351,7 @@ function generatePaymentDetailsHTML(sale) {
             refundsHTML += `
                 <div style="background: white; padding: 10px 15px; border-radius: 4px; border-left: 3px solid #dc3545;">
                     <div style="font-weight: 600; color: #c62828; margin-bottom: 4px;">${icon} ${typeName}</div>
-                    <div style="color: #c62828; font-weight: 600;">-$${amountUSD.toFixed(2)}</div>
+                    <div style="color: #c62828; font-weight: 600;">-${formatUSD(amountUSD)}</div>
                     <div style="font-size: 11px; color: #c62828;">-${Math.round(amountUZS).toLocaleString('uz-UZ')} ${SHLANG.sum}</div>
                 </div>`;
         });
@@ -2393,8 +2398,8 @@ function exportSaleToExcel() {
             '<td colspan="1" style="mso-number-format:\'\\@\'">' + String(index+1).padStart(2,'0') + '</td>' +
             '<td colspan="10">' + (item.product_name||'') + '</td>' +
             '<td colspan="1" style="text-align:center;">' + item.quantity + '</td>' +
-            '<td colspan="1">' + parseFloat(item.unit_price).toFixed(2) + '$</td>' +
-            '<td colspan="1">' + parseFloat(item.total_price).toFixed(2) + '$</td>' +
+            '<td colspan="1">' + formatUSD(item.unit_price) + '</td>' +
+            '<td colspan="1">' + formatUSD(item.total_price) + '</td>' +
             '</tr>';
     });
 
@@ -2440,7 +2445,7 @@ function exportSaleToExcel() {
         '<td colspan="10"></td>' +
         '<td colspan="1"></td>' +
         '<td colspan="1" style="font-weight:bold;">' + SHLANG.total_label + ':</td>' +
-        '<td colspan="1" style="font-weight:bold;">' + parseFloat(sale.total_amount).toFixed(2) + '$</td>' +
+        '<td colspan="1" style="font-weight:bold;">' + formatUSD(sale.total_amount) + '</td>' +
     '</tr>' +
     '</table></body></html>';
 
@@ -2491,16 +2496,16 @@ function formatPaymentDetails(paymentDetails, currency = 'uzs', exchangeRate = 1
             if (debtUSD > 0) formatted.push(SHLANG.debt_payment + ': ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
         } else if (currency === 'both') {
             // Ikkala valyutani ham ko'rsatish
-            if (cashUSD > 0) formatted.push(SHLANG.cash + ': $' + cashUSD.toFixed(2) + ' / ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
-            if (clickUSD > 0) formatted.push('Click: $' + clickUSD.toFixed(2) + ' / ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
-            if (terminalUSD > 0) formatted.push('Terminal: $' + terminalUSD.toFixed(2) + ' / ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
-            if (debtUSD > 0) formatted.push(SHLANG.debt_payment + ': $' + debtUSD.toFixed(2) + ' / ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
+            if (cashUSD > 0) formatted.push(SHLANG.cash + ': $' + fmtUSD5(cashUSD) + ' / ' + Math.round(cashUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
+            if (clickUSD > 0) formatted.push('Click: $' + fmtUSD5(clickUSD) + ' / ' + Math.round(clickUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
+            if (terminalUSD > 0) formatted.push('Terminal: $' + fmtUSD5(terminalUSD) + ' / ' + Math.round(terminalUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
+            if (debtUSD > 0) formatted.push(SHLANG.debt_payment + ': $' + fmtUSD5(debtUSD) + ' / ' + Math.round(debtUSD * exchangeRate).toLocaleString('uz-UZ') + ' ' + SHLANG.sum);
         } else {
             // Faqat USD qiymat ko'rsatish
-            if (cashUSD > 0) formatted.push(SHLANG.cash + ': $' + cashUSD.toFixed(2));
-            if (clickUSD > 0) formatted.push('Click: $' + clickUSD.toFixed(2));
-            if (terminalUSD > 0) formatted.push('Terminal: $' + terminalUSD.toFixed(2));
-            if (debtUSD > 0) formatted.push(SHLANG.debt_payment + ': $' + debtUSD.toFixed(2));
+            if (cashUSD > 0) formatted.push(SHLANG.cash + ': $' + fmtUSD5(cashUSD));
+            if (clickUSD > 0) formatted.push('Click: $' + fmtUSD5(clickUSD));
+            if (terminalUSD > 0) formatted.push('Terminal: $' + fmtUSD5(terminalUSD));
+            if (debtUSD > 0) formatted.push(SHLANG.debt_payment + ': $' + fmtUSD5(debtUSD));
         }
         
         return formatted.join('<br>');
@@ -2780,11 +2785,11 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                             
                             let priceDisplay;
                             if (currency === 'both') {
-                                priceDisplay = '$' + priceUSD.toFixed(2) + '<br><span class="uzs-value">' + priceUZS.toLocaleString('uz-UZ') + '</span>';
+                                priceDisplay = '$' + fmtUSD5(priceUSD) + '<br><span class="uzs-value">' + priceUZS.toLocaleString('uz-UZ') + '</span>';
                             } else if (currency === 'uzs') {
                                 priceDisplay = priceUZS.toLocaleString('uz-UZ');
                             } else {
-                                priceDisplay = '$' + priceUSD.toFixed(2);
+                                priceDisplay = '$' + fmtUSD5(priceUSD);
                             }
                             
                             return '<tr><td style="max-width: 25mm;">' + item.product_name + '</td><td>' + item.quantity + '</td><td>' + priceDisplay + '</td></tr>';
@@ -2796,7 +2801,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
             <div class="totals">
                 <div style="display: flex; justify-content: space-between;">
                     <span>${SHLANG.total_sum}:</span>
-                    <span>${(() => { const totalUZS = parseFloat(sale.cash_amount||0) + parseFloat(sale.click_amount||0) + parseFloat(sale.terminal_amount||0) + parseFloat(sale.debt_amount||0); return currency === 'both' ? '$' + parseFloat(sale.total_amount).toFixed(2) + '<br><span class="uzs-value">' + Math.round(totalUZS).toLocaleString('uz-UZ') + '</span>' : currency === 'uzs' ? Math.round(totalUZS).toLocaleString('uz-UZ') : '$' + parseFloat(sale.total_amount).toFixed(2); })()}</span>
+                    <span>${(() => { const totalUZS = parseFloat(sale.cash_amount||0) + parseFloat(sale.click_amount||0) + parseFloat(sale.terminal_amount||0) + parseFloat(sale.debt_amount||0); return currency === 'both' ? '$' + fmtUSD5(parseFloat(sale.total_amount)) + '<br><span class="uzs-value">' + Math.round(totalUZS).toLocaleString('uz-UZ') + '</span>' : currency === 'uzs' ? Math.round(totalUZS).toLocaleString('uz-UZ') : '$' + fmtUSD5(parseFloat(sale.total_amount)); })()}</span>
                 </div>
             </div>
             
