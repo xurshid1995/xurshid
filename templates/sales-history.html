@@ -1324,7 +1324,10 @@ function highlightSearchTerms(text, searchTerm) {
 // 5 xonagacha, oxiridagi 0 lar ko'rsatilmaydi
 function fmtUSD5(n) {
     const num = parseFloat(n) || 0;
-    return num.toFixed(5).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    let formatted = num.toFixed(5).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+    const parts = formatted.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return parts.join('.');
 }
 function formatPrice(usdAmount, saleRate = null) {
     const uzsFormatted = convertToUZS(usdAmount, saleRate);
