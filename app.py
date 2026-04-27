@@ -7338,8 +7338,12 @@ def api_debt_payment():
                 sale.debt_usd = Decimal('0')
                 sale.debt_amount = Decimal('0')
             else:
-                sale.debt_usd = sale.debt_usd - total_paid
-                sale.debt_amount = sale.debt_usd * sale_rate  # UZS da saqlaymiz
+                new_debt = sale.debt_usd - total_paid
+                # Mikro-qoldiqni nolga tenglashtirish (0.001 dan kichik bo'lsa)
+                if new_debt < Decimal('0.001'):
+                    new_debt = Decimal('0')
+                sale.debt_usd = new_debt
+                sale.debt_amount = new_debt * sale_rate  # UZS da saqlaymiz
 
             # Payment statusni yangilash
             if sale.debt_usd == 0:
