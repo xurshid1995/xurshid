@@ -4921,7 +4921,7 @@
                     
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
-                    const customerDisplay = sale.customer_phone ? `?? ${sale.customer_name} ${sale.customer_phone}` : `?? ${sale.customer_name}`;
+                    const customerDisplay = sale.customer_phone ? `🛒 ${sale.customer_name} ${sale.customer_phone}` : `🛒 ${sale.customer_name}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     
                     // Tab sarlavhasida mijoz ma'lumotlarini ko'rsatish
@@ -5040,7 +5040,7 @@
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
                     if (cartCustomerInfo) {
-                        const customerDisplay = sale.customer_phone ? `?? ${sale.customer_name} ${sale.customer_phone}` : `?? ${sale.customer_name}`;
+                        const customerDisplay = sale.customer_phone ? `🛒 ${sale.customer_name} ${sale.customer_phone}` : `🛒 ${sale.customer_name}`;
                         cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     }
                     
@@ -5612,7 +5612,7 @@
         // Tugmani to'liq reset qilish
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '? Tasdiqlash';
+            confirmBtn.textContent = '\u2705 Tasdiqlash';
             confirmBtn.style.opacity = '1';
             confirmBtn.style.cursor = 'pointer';
         }
@@ -5848,7 +5848,7 @@
         const confirmBtn = document.getElementById('confirmPaymentBtn');
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '? Tasdiqlash';
+            confirmBtn.textContent = '\u2705 Tasdiqlash';
             confirmBtn.style.opacity = '1';
             confirmBtn.style.cursor = 'pointer';
         }
@@ -6017,7 +6017,7 @@
         const originalText = confirmBtn ? confirmBtn.textContent : '';
         if (confirmBtn) {
             confirmBtn.disabled = true;
-            confirmBtn.textContent = '? Saqlanmoqda...';
+            confirmBtn.textContent = '\u23f3 Saqlanmoqda...';
             confirmBtn.style.opacity = '0.6';
             confirmBtn.style.cursor = 'not-allowed';
         }
