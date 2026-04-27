@@ -1343,12 +1343,12 @@ class SaleItem(db.Model):
         db.ForeignKey('products.id'),
         nullable=False)
     quantity = db.Column(db.DECIMAL(precision=10, scale=2), nullable=False)
-    unit_price = db.Column(db.DECIMAL(precision=10, scale=4), nullable=False)
-    total_price = db.Column(db.DECIMAL(precision=12, scale=4), nullable=False)
+    unit_price = db.Column(db.DECIMAL(precision=10, scale=5), nullable=False)
+    total_price = db.Column(db.DECIMAL(precision=12, scale=5), nullable=False)
     unit_price_uzs = db.Column(db.DECIMAL(precision=15, scale=2), default=0)  # UZS narx
     total_price_uzs = db.Column(db.DECIMAL(precision=15, scale=2), default=0)  # UZS jami
-    cost_price = db.Column(db.DECIMAL(precision=10, scale=4), nullable=False)
-    profit = db.Column(db.DECIMAL(precision=12, scale=4), nullable=False)
+    cost_price = db.Column(db.DECIMAL(precision=10, scale=5), nullable=False)
+    profit = db.Column(db.DECIMAL(precision=12, scale=5), nullable=False)
     source_type = db.Column(db.String(20))  # 'store' yoki 'warehouse'
     source_id = db.Column(db.Integer)  # Store yoki Warehouse ID
     notes = db.Column(db.Text)
