@@ -3805,8 +3805,9 @@ def api_return_product():
                 logger.info(f"SaleItem #{sale_item.id} o'chirildi (miqdor 0 bo'ldi)")
                 db.session.delete(sale_item)
             else:
-                # Total price ni yangilash
+                # Total price va profit ni yangilash (qisman qaytarishdan keyin)
                 sale_item.total_price = sale_item.unit_price * Decimal(str(sale_item.quantity))
+                sale_item.profit = Decimal(str(sale_item.profit or 0)) - returned_profit
 
             # Stock ga qaytarish
             if location_type == 'store':
