@@ -474,6 +474,19 @@
     let debtData = null;
     let currentRate = 12000; // Default kurs
 
+    // USD input'ga to'liq qiymat saqlash (data-full-value), display uchun 5 kasr
+    function fvSet(input, val) {
+        if (!input) return;
+        const num = parseFloat(val) || 0;
+        input.dataset.fullValue = String(num);
+        input.value = parseFloat(num.toFixed(5));
+    }
+    // USD input'dan to'liq qiymat olish (data-full-value ustunlik qiladi)
+    function fvGet(input) {
+        if (!input) return 0;
+        return parseFloat(input.dataset.fullValue || input.value) || 0;
+    }
+
     // Ma'lumotlarni yuklash
     async function loadDebtData() {
         try {
@@ -600,15 +613,15 @@
         const remainingDebt = debtData.remaining_debt;
         
         // Hozirgi to'lovlarni hisoblash
-        const cashUSD = parseFloat(document.getElementById('paymentCashUSD').value) || 0;
-        const clickUSD = parseFloat(document.getElementById('paymentClickUSD').value) || 0;
-        const terminalUSD = parseFloat(document.getElementById('paymentTerminalUSD').value) || 0;
+        const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+        const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+        const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
         
         const totalPaid = cashUSD + clickUSD + terminalUSD;
         const remaining = remainingDebt - totalPaid + currentValue;
         
         if (remaining > 0) {
-            field.value = remaining.toFixed(2);
+            fvSet(field, remaining);
             // USD yozilganda UZS ham yangilanadi (avtomatik konvertatsiya)
             field.dispatchEvent(new Event('input'));
         } else {
@@ -618,10 +631,10 @@
 
     // To'lovni tasdiqlash
     async function submitPayment() {
-        // Har bir to'lov turini olish
-        const cashUSD = parseFloat(document.getElementById('paymentCashUSD').value) || 0;
-        const clickUSD = parseFloat(document.getElementById('paymentClickUSD').value) || 0;
-        const terminalUSD = parseFloat(document.getElementById('paymentTerminalUSD').value) || 0;
+        // Har bir to'lov turini olish (to'liq 10 kasrli qiymat)
+        const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+        const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+        const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
         
         const totalPayment = cashUSD + clickUSD + terminalUSD;
         
@@ -634,8 +647,9 @@
 
         // Ortiqcha to'lov ogohlantirilishi
         if (totalPayment > remainingDebt) {
-            const excess = (totalPayment - remainingDebt).toFixed(2);
-            const confirmMsg = `⚠️ Diqqat!\n\nQarz: $${remainingDebt.toFixed(2)}\nTo'lov: $${totalPayment.toFixed(2)}\nOrtiqcha: $${excess}\n\nOrtiqcha $${excess} mijoz balansiga o'tkaziladi.\n\nDavom etasizmi?`;
+            const fmt = n => parseFloat(n.toFixed(5)).toString().replace(/\.?0+$/, '');
+            const excess = fmt(totalPayment - remainingDebt);
+            const confirmMsg = `⚠️ Diqqat!\n\nQarz: $${fmt(remainingDebt)}\nTo'lov: $${fmt(totalPayment)}\nOrtiqcha: $${excess}\n\nOrtiqcha $${excess} mijoz balansiga o'tkaziladi.\n\nDavom etasizmi?`;
             if (!confirm(confirmMsg)) return;
         }
 
@@ -664,7 +678,8 @@
 
             if (response.ok && result.success) {
                 if (result.balance_added && result.balance_added > 0) {
-                    alert(`✅ To'lov amalga oshirildi!\n\n💳 Ortiqcha $${result.balance_added.toFixed(2)} mijoz balansiga o'tkazildi.\nYangi balans: $${result.new_balance.toFixed(2)}`);
+                    const fmt = n => parseFloat(n.toFixed(5)).toString().replace(/\.?0+$/, '');
+                    alert(`✅ To'lov amalga oshirildi!\n\n💳 Ortiqcha $${fmt(result.balance_added)} mijoz balansiga o'tkazildi.\nYangi balans: $${fmt(result.new_balance)}`);
                 } else {
                     alert('✅ ' + CDDLANG.payment_success);
                 }
@@ -685,32 +700,31 @@
         
         // Cash USD -> UZS
         document.getElementById('paymentCashUSD').addEventListener('input', function() {
-            console.log('Cash USD input:', this.value);
+            // Foydalanuvchi o'zi yozsa, data-full-value ni yangilaymiz
+            this.dataset.fullValue = this.value;
             const usd = parseFloat(this.value);
             if (!isNaN(usd) && this.value !== '') {
-                const uzs = Math.round(usd * currentRate);
-                console.log('Cash USD->UZS:', usd, '->', uzs);
-                document.getElementById('paymentCashUZS').value = uzs;
+                document.getElementById('paymentCashUZS').value = Math.round(usd * currentRate);
             } else {
                 document.getElementById('paymentCashUZS').value = '';
             }
         });
         
-        // Cash UZS -> USD
+        // Cash UZS -> USD (to'liq aniqlik bilan)
         document.getElementById('paymentCashUZS').addEventListener('input', function() {
-            console.log('Cash UZS input:', this.value);
             const uzs = parseFloat(this.value);
+            const cashEl = document.getElementById('paymentCashUSD');
             if (!isNaN(uzs) && this.value !== '') {
-                const usdValue = (uzs / currentRate).toFixed(2);
-                console.log('Cash UZS->USD:', uzs, '->', usdValue);
-                document.getElementById('paymentCashUSD').value = usdValue;
+                fvSet(cashEl, uzs / currentRate);
             } else {
-                document.getElementById('paymentCashUSD').value = '';
+                cashEl.value = '';
+                delete cashEl.dataset.fullValue;
             }
         });
         
         // Click USD -> UZS
         document.getElementById('paymentClickUSD').addEventListener('input', function() {
+            this.dataset.fullValue = this.value;
             const usd = parseFloat(this.value);
             if (!isNaN(usd) && this.value !== '') {
                 document.getElementById('paymentClickUZS').value = Math.round(usd * currentRate);
@@ -719,18 +733,21 @@
             }
         });
         
-        // Click UZS -> USD
+        // Click UZS -> USD (to'liq aniqlik bilan)
         document.getElementById('paymentClickUZS').addEventListener('input', function() {
             const uzs = parseFloat(this.value);
+            const clickEl = document.getElementById('paymentClickUSD');
             if (!isNaN(uzs) && this.value !== '') {
-                document.getElementById('paymentClickUSD').value = (uzs / currentRate).toFixed(2);
+                fvSet(clickEl, uzs / currentRate);
             } else {
-                document.getElementById('paymentClickUSD').value = '';
+                clickEl.value = '';
+                delete clickEl.dataset.fullValue;
             }
         });
         
         // Terminal USD -> UZS
         document.getElementById('paymentTerminalUSD').addEventListener('input', function() {
+            this.dataset.fullValue = this.value;
             const usd = parseFloat(this.value);
             if (!isNaN(usd) && this.value !== '') {
                 document.getElementById('paymentTerminalUZS').value = Math.round(usd * currentRate);
@@ -739,13 +756,15 @@
             }
         });
         
-        // Terminal UZS -> USD
+        // Terminal UZS -> USD (to'liq aniqlik bilan)
         document.getElementById('paymentTerminalUZS').addEventListener('input', function() {
             const uzs = parseFloat(this.value);
+            const termEl = document.getElementById('paymentTerminalUSD');
             if (!isNaN(uzs) && this.value !== '') {
-                document.getElementById('paymentTerminalUSD').value = (uzs / currentRate).toFixed(2);
+                fvSet(termEl, uzs / currentRate);
             } else {
-                document.getElementById('paymentTerminalUSD').value = '';
+                termEl.value = '';
+                delete termEl.dataset.fullValue;
             }
         });
     }
