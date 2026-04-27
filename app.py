@@ -11050,15 +11050,13 @@ def finalize_sale(sale_id):
                         store_obj = Store.query.get(sale.location_id)
                         location_name = store_obj.name if store_obj else "Do'kon"
 
-                    # To'lov summalari (UZS)
-                    balance_uzs_fin = float(sale.balance_usd) * float(sale.currency_rate) if sale.balance_usd else 0
-                    total_uzs = float(sale.cash_amount) + float(sale.click_amount) + float(sale.terminal_amount) + float(sale.debt_amount)
-                    paid_uzs = float(sale.cash_amount) + float(sale.click_amount) + float(sale.terminal_amount) + balance_uzs_fin
-
-                    # To'lov summalari (USD)
+                    # To'lov summalari (USD) — total = savdoning haqiqiy jami (balance ham kiritilgan)
                     balance_usd_fin = float(sale.balance_usd) if sale.balance_usd else 0
-                    total_usd = float(sale.cash_usd) + float(sale.click_usd) + float(sale.terminal_usd) + float(sale.debt_usd)
+                    balance_uzs_fin = balance_usd_fin * float(sale.currency_rate) if sale.currency_rate else 0
+                    total_usd = float(sale.total_amount) if sale.total_amount else 0
+                    total_uzs = total_usd * float(sale.currency_rate) if sale.currency_rate else 0
                     paid_usd = float(sale.cash_usd) + float(sale.click_usd) + float(sale.terminal_usd) + balance_usd_fin
+                    paid_uzs = float(sale.cash_amount) + float(sale.click_amount) + float(sale.terminal_amount) + balance_uzs_fin
 
                     # Savdo mahsulotlarini PDF uchun tayyorlash
                     seller_name = f"{sale.seller.first_name} {sale.seller.last_name}" if sale.seller else session.get('username', 'Sotuvchi')
