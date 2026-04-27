@@ -6523,8 +6523,10 @@
             
             // Tab strategiyasi: 1 ta tab bo'lsa yangilash, ko'p bo'lsa yopish
             if (salesTabs.length === 1) {
-                // Faqat 1 ta tab ochiq - to'liq yangilash
-                console.log('?? Yagona tab - ma\'lumotlarni tozalash');
+                // Faqat 1 ta tab ochiq - sahifani to'liq yangilash
+                console.log('?? Yagona tab - sahifani yangilash');
+                window.location.reload();
+                return;
                 
                 // Global o'zgaruvchilarni tozalash
                 cart = [];
