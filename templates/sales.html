@@ -3262,7 +3262,7 @@
         
         const uzsPrice = parseFloat(uzsInput.value) || 0;
         const usdPrice = uzsPrice / exchangeRate;
-        usdInput.value = parseFloat((usdPrice).toFixed(5));
+        usdInput.value = parseFloat((usdPrice).toFixed(10));
         
         console.log('?? Konversiya (UZS�USD):', uzsPrice, 'UZS �', exchangeRate, '=', usdPrice.toFixed(5), 'USD');
         
@@ -3346,7 +3346,7 @@
             modalQuantity.min = '0.01';
         }
         
-        modalPriceUSD.value = parseFloat((price).toFixed(5));
+        modalPriceUSD.value = parseFloat((price).toFixed(10));
         console.log('?? modalPriceUSD.value o\'rnatildi:', modalPriceUSD.value);
         updateUZSPrice();
         
@@ -4505,8 +4505,8 @@
         
         // Korzinada qancha bo'lsa o'sha miqdorni ko'rsatish
         if (modalPriceUSD) {
-            modalPriceUSD.value = parseFloat((item.priceUSD).toFixed(5));
-            console.log('?? modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(5));
+            modalPriceUSD.value = parseFloat((item.priceUSD).toFixed(10));
+            console.log('?? modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(10));
         }
         
         if (modalPriceUZS) {
@@ -5174,7 +5174,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentCashUSD_elem = document.getElementById('paymentCashUSD');
                 if (paymentCashUSD_elem) {
-                    paymentCashUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(5));
+                    paymentCashUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5185,7 +5185,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentClickUSD_elem = document.getElementById('paymentClickUSD');
                 if (paymentClickUSD_elem) {
-                    paymentClickUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(5));
+                    paymentClickUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5196,7 +5196,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentTerminalUSD_elem = document.getElementById('paymentTerminalUSD');
                 if (paymentTerminalUSD_elem) {
-                    paymentTerminalUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(5));
+                    paymentTerminalUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5207,7 +5207,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentDebtUSD_elem = document.getElementById('paymentDebtUSD');
                 if (paymentDebtUSD_elem) {
-                    paymentDebtUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(5));
+                    paymentDebtUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
                 }
                 showHideDueDateSection();
             });
@@ -5635,16 +5635,16 @@
             if (balanceTotalEl) balanceTotalEl.textContent = `$${fmtUSD5(currentCustomerBalance)}`;
             const balanceToUse = Math.min(currentCustomerBalance, totalUSD);
             balanceAvailableEl.textContent = `$${fmtUSD5(balanceToUse)}`;
-            balanceInput.value = parseFloat((balanceToUse).toFixed(5));
-            balanceInput.max = parseFloat((currentCustomerBalance).toFixed(5));
+            balanceInput.value = parseFloat((balanceToUse).toFixed(10));
+            balanceInput.max = parseFloat((currentCustomerBalance).toFixed(10));
             // Cash ni kamaytirish (balans qoplagandan qolganini naqd qilish)
             const remainAfterBalance = Math.max(0, totalUSD - balanceToUse);
-            if (paymentCashUSD) paymentCashUSD.value = parseFloat((remainAfterBalance).toFixed(5));
+            if (paymentCashUSD) paymentCashUSD.value = parseFloat((remainAfterBalance).toFixed(10));
             if (paymentCashUZS) paymentCashUZS.value = Math.round(remainAfterBalance * exchangeRate);
         } else {
             if (balanceSection) balanceSection.style.display = 'none';
             if (balanceInput) balanceInput.value = '';
-            if (paymentCashUSD) paymentCashUSD.value = parseFloat((totalUSD).toFixed(5));
+            if (paymentCashUSD) paymentCashUSD.value = parseFloat((totalUSD).toFixed(10));
             if (paymentCashUZS) paymentCashUZS.value = Math.round(totalUZS);
         }
         
@@ -5687,7 +5687,7 @@
                     if (cashUSD) cashUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (cashUSD) cashUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(5));
+                    if (cashUSD) cashUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5709,7 +5709,7 @@
                     if (clickUSD) clickUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (clickUSD) clickUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(5));
+                    if (clickUSD) clickUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5731,7 +5731,7 @@
                     if (terminalUSD) terminalUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (terminalUSD) terminalUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(5));
+                    if (terminalUSD) terminalUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
                 }
             });
         }
@@ -5755,7 +5755,7 @@
                     if (debtUSD) debtUSD.value = '';
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (debtUSD) debtUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(5));
+                    if (debtUSD) debtUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
                 }
                 // Qarz tozalansa muddat seksiyasini yashirish, yozilsa ko'rsatish
                 showHideDueDateSection();
@@ -5799,7 +5799,7 @@
         const balanceInput = document.getElementById('paymentBalanceUSD');
         if (!balanceInput) return;
         const maxBalance = Math.min(currentCustomerBalance, parseFloat(balanceInput.max) || currentCustomerBalance);
-        balanceInput.value = parseFloat((maxBalance).toFixed(5));
+        balanceInput.value = parseFloat((maxBalance).toFixed(10));
         updateDebtFieldState();
     }
     
