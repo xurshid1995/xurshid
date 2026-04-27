@@ -6827,11 +6827,11 @@ def api_debts():
                         MAX(s.sale_date) as last_sale_date
                     FROM customers c
                     LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
-                GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate, c.last_debt_payment_uzs
-                HAVING COALESCE(SUM(s.debt_usd), 0) > 0
-                ORDER BY GREATEST(COALESCE(MAX(s.sale_date), '1970-01-01'), COALESCE(c.last_debt_payment_date, '1970-01-01')) DESC
-            """)
-            result = db.session.execute(query)
+                    GROUP BY c.id, c.name, c.phone, c.address, c.last_debt_payment_date, c.last_debt_payment_usd, c.last_debt_payment_rate, c.last_debt_payment_uzs
+                    HAVING COALESCE(SUM(s.debt_usd), 0) > 0
+                    ORDER BY GREATEST(COALESCE(MAX(s.sale_date), '1970-01-01'), COALESCE(c.last_debt_payment_date, '1970-01-01')) DESC
+                """)
+                result = db.session.execute(query)
 
         debts = []
 
