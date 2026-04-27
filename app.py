@@ -1578,6 +1578,7 @@ class Sale(db.Model):
             'click_usd': float(self.click_usd) if self.click_usd is not None else 0.0,
             'terminal_usd': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
             'debt_usd': float(self.debt_usd) if self.debt_usd is not None else 0.0,
+            'balance_usd': float(self.balance_usd) if self.balance_usd is not None else 0.0,
             'payment_details': {
                 'cash': float(self.cash_usd) if self.cash_usd is not None else 0.0,
                 'click': float(self.click_usd) if self.click_usd is not None else 0.0,
