@@ -3226,6 +3226,7 @@
         }
         
         const usdPrice = parseFloat(usdInput.value) || 0;
+        usdInput.dataset.fullValue = usdInput.value; // Foydalanuvchi qo'lda yozdi
         const uzsPrice = usdPrice * exchangeRate;
         uzsInput.value = Math.round(uzsPrice);
         
@@ -3262,7 +3263,7 @@
         
         const uzsPrice = parseFloat(uzsInput.value) || 0;
         const usdPrice = uzsPrice / exchangeRate;
-        usdInput.value = parseFloat((usdPrice).toFixed(10));
+        fvSet(usdInput, usdPrice);
         
         console.log('?? Konversiya (UZS�USD):', uzsPrice, 'UZS �', exchangeRate, '=', usdPrice.toFixed(5), 'USD');
         
@@ -3346,8 +3347,8 @@
             modalQuantity.min = '0.01';
         }
         
-        modalPriceUSD.value = parseFloat((price).toFixed(10));
-        console.log('?? modalPriceUSD.value o\'rnatildi:', modalPriceUSD.value);
+        fvSet(modalPriceUSD, price);
+        console.log('?? modalPriceUSD o\'rnatildi (display):', modalPriceUSD.value, 'fullValue:', modalPriceUSD.dataset.fullValue);
         updateUZSPrice();
         
         // Validatsiyalarni o'rnatish
@@ -3525,7 +3526,7 @@
         } else {
             // Agar narx validatsiyasi bo'lmasa, warningni yashirish
             const modalPriceUSD = getActiveTabElement('modalPriceUSD');
-            const priceUSD = modalPriceUSD ? parseFloat(modalPriceUSD.value) || 0 : 0;
+            const priceUSD = fvGet(modalPriceUSD);
             const costPrice = parseFloat(currentProduct.costPrice) || 0;
             
             if (priceUSD > costPrice || priceUSD <= 0) {
@@ -3553,7 +3554,7 @@
             return;
         }
         
-        const priceUSD = parseFloat(modalPriceUSD.value) || 0;
+        const priceUSD = fvGet(modalPriceUSD);
         const costPrice = parseFloat(currentProduct.costPrice) || 0;
         
         // Narx tan narxdan past yoki teng bo'lsa
@@ -3658,7 +3659,7 @@
         }
         
         const quantity = parseFloat(modalQuantity.value);
-        const priceUSD = parseFloat(modalPriceUSD.value);
+        const priceUSD = fvGet(modalPriceUSD);
         const priceUZS = parseFloat(modalPriceUZS.value);
         
         // ?? XAVFSIZLIK: Tab almashganini tekshirish
@@ -4505,8 +4506,8 @@
         
         // Korzinada qancha bo'lsa o'sha miqdorni ko'rsatish
         if (modalPriceUSD) {
-            modalPriceUSD.value = parseFloat((item.priceUSD).toFixed(10));
-            console.log('?? modalPriceUSD o\'rnatildi:', item.priceUSD.toFixed(10));
+            fvSet(modalPriceUSD, item.priceUSD);
+            console.log('?? modalPriceUSD o\'rnatildi (display):', modalPriceUSD.value, 'fullValue:', modalPriceUSD.dataset.fullValue);
         }
         
         if (modalPriceUZS) {
@@ -4812,7 +4813,20 @@
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         return parts.join('.');
     }
-    
+
+    // USD input'ga to'liq qiymat saqlash (data-full-value), display uchun 5 kasr ko'rsatish
+    function fvSet(input, val) {
+        if (!input) return;
+        const num = parseFloat(val) || 0;
+        input.dataset.fullValue = String(num);
+        input.value = parseFloat(num.toFixed(5));
+    }
+    // USD input'dan to'liq qiymat olish (data-full-value ustunlik qiladi)
+    function fvGet(input) {
+        if (!input) return 0;
+        return parseFloat(input.dataset.fullValue || input.value) || 0;
+    }
+
     // URL parametrlarini tekshirish va savdo ma'lumotlarini yuklash
     async function checkURLParametersAndLoadSale() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -5174,7 +5188,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentCashUSD_elem = document.getElementById('paymentCashUSD');
                 if (paymentCashUSD_elem) {
-                    paymentCashUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
+                    fvSet(paymentCashUSD_elem, uzs / exchangeRate);
                 }
             });
         }
@@ -5185,7 +5199,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentClickUSD_elem = document.getElementById('paymentClickUSD');
                 if (paymentClickUSD_elem) {
-                    paymentClickUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
+                    fvSet(paymentClickUSD_elem, uzs / exchangeRate);
                 }
             });
         }
@@ -5196,7 +5210,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentTerminalUSD_elem = document.getElementById('paymentTerminalUSD');
                 if (paymentTerminalUSD_elem) {
-                    paymentTerminalUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
+                    fvSet(paymentTerminalUSD_elem, uzs / exchangeRate);
                 }
             });
         }
@@ -5207,7 +5221,7 @@
                 const uzs = parseFloat(this.value) || 0;
                 const paymentDebtUSD_elem = document.getElementById('paymentDebtUSD');
                 if (paymentDebtUSD_elem) {
-                    paymentDebtUSD_elem.value = parseFloat((uzs / exchangeRate).toFixed(10));
+                    fvSet(paymentDebtUSD_elem, uzs / exchangeRate);
                 }
                 showHideDueDateSection();
             });
@@ -5635,16 +5649,16 @@
             if (balanceTotalEl) balanceTotalEl.textContent = `$${fmtUSD5(currentCustomerBalance)}`;
             const balanceToUse = Math.min(currentCustomerBalance, totalUSD);
             balanceAvailableEl.textContent = `$${fmtUSD5(balanceToUse)}`;
-            balanceInput.value = parseFloat((balanceToUse).toFixed(10));
+            fvSet(balanceInput, balanceToUse);
             balanceInput.max = parseFloat((currentCustomerBalance).toFixed(10));
             // Cash ni kamaytirish (balans qoplagandan qolganini naqd qilish)
             const remainAfterBalance = Math.max(0, totalUSD - balanceToUse);
-            if (paymentCashUSD) paymentCashUSD.value = parseFloat((remainAfterBalance).toFixed(10));
+            if (paymentCashUSD) fvSet(paymentCashUSD, remainAfterBalance);
             if (paymentCashUZS) paymentCashUZS.value = Math.round(remainAfterBalance * exchangeRate);
         } else {
             if (balanceSection) balanceSection.style.display = 'none';
             if (balanceInput) balanceInput.value = '';
-            if (paymentCashUSD) paymentCashUSD.value = parseFloat((totalUSD).toFixed(10));
+            if (paymentCashUSD) fvSet(paymentCashUSD, totalUSD);
             if (paymentCashUZS) paymentCashUZS.value = Math.round(totalUZS);
         }
         
@@ -5677,6 +5691,7 @@
             
             // Yangi listener'lar
             newCashUSD.addEventListener('input', function() {
+                this.dataset.fullValue = this.value; // Foydalanuvchi qo'lda yozdi
                 const usdValue = parseFloat(this.value) || 0;
                 const cashUZS = document.getElementById('paymentCashUZS');
                 if (cashUZS) cashUZS.value = Math.round(usdValue * exchangeRate);
@@ -5684,10 +5699,10 @@
             newCashUZS.addEventListener('input', function() {
                 const cashUSD = document.getElementById('paymentCashUSD');
                 if (this.value.trim() === '') {
-                    if (cashUSD) cashUSD.value = '';
+                    if (cashUSD) { cashUSD.value = ''; cashUSD.dataset.fullValue = ''; }
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (cashUSD) cashUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
+                    if (cashUSD) fvSet(cashUSD, uzsValue / exchangeRate);
                 }
             });
         }
@@ -5699,6 +5714,7 @@
             paymentClickUZS.parentNode.replaceChild(newClickUZS, paymentClickUZS);
             
             newClickUSD.addEventListener('input', function() {
+                this.dataset.fullValue = this.value; // Foydalanuvchi qo'lda yozdi
                 const usdValue = parseFloat(this.value) || 0;
                 const clickUZS = document.getElementById('paymentClickUZS');
                 if (clickUZS) clickUZS.value = Math.round(usdValue * exchangeRate);
@@ -5706,10 +5722,10 @@
             newClickUZS.addEventListener('input', function() {
                 const clickUSD = document.getElementById('paymentClickUSD');
                 if (this.value.trim() === '') {
-                    if (clickUSD) clickUSD.value = '';
+                    if (clickUSD) { clickUSD.value = ''; clickUSD.dataset.fullValue = ''; }
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (clickUSD) clickUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
+                    if (clickUSD) fvSet(clickUSD, uzsValue / exchangeRate);
                 }
             });
         }
@@ -5721,6 +5737,7 @@
             paymentTerminalUZS.parentNode.replaceChild(newTerminalUZS, paymentTerminalUZS);
             
             newTerminalUSD.addEventListener('input', function() {
+                this.dataset.fullValue = this.value; // Foydalanuvchi qo'lda yozdi
                 const usdValue = parseFloat(this.value) || 0;
                 const terminalUZS = document.getElementById('paymentTerminalUZS');
                 if (terminalUZS) terminalUZS.value = Math.round(usdValue * exchangeRate);
@@ -5728,10 +5745,10 @@
             newTerminalUZS.addEventListener('input', function() {
                 const terminalUSD = document.getElementById('paymentTerminalUSD');
                 if (this.value.trim() === '') {
-                    if (terminalUSD) terminalUSD.value = '';
+                    if (terminalUSD) { terminalUSD.value = ''; terminalUSD.dataset.fullValue = ''; }
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (terminalUSD) terminalUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
+                    if (terminalUSD) fvSet(terminalUSD, uzsValue / exchangeRate);
                 }
             });
         }
@@ -5743,6 +5760,7 @@
             paymentDebtUZS.parentNode.replaceChild(newDebtUZS, paymentDebtUZS);
             
             newDebtUSD.addEventListener('input', function() {
+                this.dataset.fullValue = this.value; // Foydalanuvchi qo'lda yozdi
                 const usdValue = parseFloat(this.value) || 0;
                 const debtUZS = document.getElementById('paymentDebtUZS');
                 if (debtUZS) debtUZS.value = Math.round(usdValue * exchangeRate);
@@ -5752,10 +5770,10 @@
             newDebtUZS.addEventListener('input', function() {
                 const debtUSD = document.getElementById('paymentDebtUSD');
                 if (this.value.trim() === '') {
-                    if (debtUSD) debtUSD.value = '';
+                    if (debtUSD) { debtUSD.value = ''; debtUSD.dataset.fullValue = ''; }
                 } else {
                     const uzsValue = parseFloat(this.value) || 0;
-                    if (debtUSD) debtUSD.value = parseFloat((uzsValue / exchangeRate).toFixed(10));
+                    if (debtUSD) fvSet(debtUSD, uzsValue / exchangeRate);
                 }
                 // Qarz tozalansa muddat seksiyasini yashirish, yozilsa ko'rsatish
                 showHideDueDateSection();
@@ -5799,7 +5817,7 @@
         const balanceInput = document.getElementById('paymentBalanceUSD');
         if (!balanceInput) return;
         const maxBalance = Math.min(currentCustomerBalance, parseFloat(balanceInput.max) || currentCustomerBalance);
-        balanceInput.value = parseFloat((maxBalance).toFixed(10));
+        fvSet(balanceInput, maxBalance);
         updateDebtFieldState();
     }
     
@@ -5888,13 +5906,13 @@
         const paymentTerminalUSD = document.getElementById('paymentTerminalUSD');
         const paymentDebtUSD = document.getElementById('paymentDebtUSD');
         
-        const cashUSD = paymentCashUSD ? parseFloat(paymentCashUSD.value) || 0 : 0;
-        const clickUSD = paymentClickUSD ? parseFloat(paymentClickUSD.value) || 0 : 0;
-        const terminalUSD = paymentTerminalUSD ? parseFloat(paymentTerminalUSD.value) || 0 : 0;
-        const debtUSD = paymentDebtUSD ? parseFloat(paymentDebtUSD.value) || 0 : 0;
+        const cashUSD = fvGet(paymentCashUSD);
+        const clickUSD = fvGet(paymentClickUSD);
+        const terminalUSD = fvGet(paymentTerminalUSD);
+        const debtUSD = fvGet(paymentDebtUSD);
         
         const balanceInputEl = document.getElementById('paymentBalanceUSD');
-        const balanceUsedAmt = balanceInputEl ? parseFloat(balanceInputEl.value) || 0 : 0;
+        const balanceUsedAmt = fvGet(balanceInputEl);
         
         // O'zini (bosayotgan maydoni) currentTotal dan chiqarib tashlash - aks holda oscillatsiya bo'ladi
         const selfValue = fieldId === 'paymentCashUSD' ? cashUSD
@@ -6043,10 +6061,10 @@
             const paymentTerminalUZS = document.getElementById('paymentTerminalUZS');
             const paymentDebtUZS = document.getElementById('paymentDebtUZS');
             
-            const cashUSD = paymentCashUSD ? parseFloat(paymentCashUSD.value) || 0 : 0;
-            const clickUSD = paymentClickUSD ? parseFloat(paymentClickUSD.value) || 0 : 0;
-            const terminalUSD = paymentTerminalUSD ? parseFloat(paymentTerminalUSD.value) || 0 : 0;
-            const debtUSD = paymentDebtUSD ? parseFloat(paymentDebtUSD.value) || 0 : 0;
+            const cashUSD = fvGet(paymentCashUSD);
+            const clickUSD = fvGet(paymentClickUSD);
+            const terminalUSD = fvGet(paymentTerminalUSD);
+            const debtUSD = fvGet(paymentDebtUSD);
             
             const cashUZS = paymentCashUZS ? parseFloat(paymentCashUZS.value) || 0 : 0;
             const clickUZS = paymentClickUZS ? parseFloat(paymentClickUZS.value) || 0 : 0;
@@ -6055,7 +6073,7 @@
             
             // Mijoz balansi
             const paymentBalanceEl = document.getElementById('paymentBalanceUSD');
-            const balanceUsed = paymentBalanceEl ? parseFloat(paymentBalanceEl.value) || 0 : 0;
+            const balanceUsed = fvGet(paymentBalanceEl);
             
             // Faqat USD qiymatlardan foydalanish (UZS avtomatik sinxronlashgan)
             const totalPayment = cashUSD + clickUSD + terminalUSD + debtUSD + balanceUsed;
