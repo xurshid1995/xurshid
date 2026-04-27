@@ -6049,8 +6049,10 @@
             
             // Jami summani hisoblash
             let totalUSD = 0;
+            let totalUZS = 0;
             cart.forEach(item => {
                 totalUSD += item.priceUSD * item.quantity;
+                totalUZS += item.priceUZS * item.quantity;
             });
             
             // Mijoz tanlanganligini tekshirish (agar qarz bo'lsa)
