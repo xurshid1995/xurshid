@@ -5360,8 +5360,10 @@
         const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
         const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value || null : null;
         let totalUSD = 0;
+        let totalUZS = 0;
         cart.forEach(item => {
             totalUSD += item.priceUSD * item.quantity;
+            totalUZS += item.priceUZS * item.quantity;
         });
         
         const saleData = {
@@ -5387,10 +5389,10 @@
                 terminal_usd: 0,
                 terminal_uzs: 0,
                 debt_usd: totalUSD,
-                debt_uzs: Math.round(totalUSD * exchangeRate)
+                debt_uzs: Math.round(totalUZS)
             },
             total_usd: totalUSD,
-            total_uzs: totalUSD * exchangeRate,
+            total_uzs: totalUZS,
             exchange_rate: exchangeRate,
             payment_status: 'pending'
         };
@@ -5461,8 +5463,10 @@
         
         // Jami summani hisoblash
         let totalUSD = 0;
+        let totalUZS = 0;
         cart.forEach(item => {
             totalUSD += item.priceUSD * item.quantity;
+            totalUZS += item.priceUZS * item.quantity;
         });
         
         // Savdoni pending status bilan saqlash
@@ -5489,10 +5493,10 @@
                 terminal_usd: 0,
                 terminal_uzs: 0,
                 debt_usd: totalUSD,
-                debt_uzs: Math.round(totalUSD * exchangeRate)
+                debt_uzs: Math.round(totalUZS)
             },
             total_usd: totalUSD,
-            total_uzs: totalUSD * exchangeRate,
+            total_uzs: totalUZS,
             exchange_rate: exchangeRate,
             payment_status: 'pending'
         };
@@ -5574,13 +5578,13 @@
         const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
         const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value || null : null;
         
-        // Jami summani hisoblash
+        // Jami summani hisoblash (UZS - manba, USD - konvertatsiya)
         let totalUSD = 0;
+        let totalUZS = 0;
         cart.forEach(item => {
             totalUSD += item.priceUSD * item.quantity;
+            totalUZS += item.priceUZS * item.quantity;  // to'g'ridan-to'g'ri UZS narxdan
         });
-        
-        const totalUZS = totalUSD * exchangeRate;
         
         // To'lov modal oynasini ochish - GLOBAL modal
         const paymentModalTotalUSD = document.getElementById('paymentModalTotalUSD');
@@ -6168,7 +6172,7 @@
                     balance_used: balanceUsed
                 },
                 total_usd: totalUSD,
-                total_uzs: totalUSD * exchangeRate,
+                total_uzs: totalUZS,
                 exchange_rate: exchangeRate,
                 // Payment status ni avtomatik aniqlash
                 payment_status: debtUSD > 0 ? 'partial' : 'paid',
