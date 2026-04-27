@@ -819,7 +819,7 @@
             <div style="display: inline-block; background: #f8f9fa; padding: 8px 14px; margin: 4px ${p.isDebt ? '40px' : '8px'} 4px 0; border-radius: 6px; border-left: 4px solid #007bff;">
                 <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">${p.name}</div>
                 <div style="font-size: 15px; font-weight: 700; color: #28a745;">$${p.usd.toFixed(2)}</div>
-                <div style="font-size: 12px; color: #6c757d;">${p.uzs.toLocaleString('uz-UZ')} ${CDDLANG.sum}</div>
+                <div style="font-size: 12px; color: #6c757d;">${Math.round(p.uzs).toLocaleString('uz-UZ')} ${CDDLANG.sum}</div>
             </div>
         `).join('');
         
@@ -830,7 +830,7 @@
             <div style="display: inline-block; background: #007bff; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid #0056b3;">
                 <div style="font-weight: 600; color: #ffffff; margin-bottom: 2px;">${CDDLANG.total_payment}</div>
                 <div style="font-size: 15px; font-weight: 700; color: #ffffff;">$${totalUSD.toFixed(2)}</div>
-                <div style="font-size: 12px; color: #ffffff;">${totalUZS.toLocaleString('uz-UZ')} ${CDDLANG.sum}</div>
+                <div style="font-size: 12px; color: #ffffff;">${Math.round(totalUZS).toLocaleString('uz-UZ')} ${CDDLANG.sum}</div>
             </div>
         `;
         
