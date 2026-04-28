@@ -291,12 +291,12 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 /* Responsive */
 @media (max-width: 768px) {
     /* === STICKY COLUMN UCHUN MUHIM ===
-       style.css da body va .main-content overflow-x:hidden bor.
-       Bu CSS sticky ni bloklaydi. Shu sahifa uchun override qilamiz. */
-    body { overflow-x: auto !important; }
-    .main-content { overflow-x: auto !important; }
-    /* Sahifa o'zi kengayib ketmasligi uchun */
-    .ps-page { max-width: 100%; overflow-x: hidden; }
+       position:sticky faqat overflow:visible bo'lgan ota elementlar
+       zanjirida ishlaydi. Faqat .ps-table-wrap scroll container bo'lishi kerak.
+       style.css dagi body/main-content overflow:hidden/auto ni bekor qilamiz. */
+    body { overflow-x: visible !important; }
+    .main-content { overflow-x: visible !important; }
+    .ps-page { overflow-x: visible !important; max-width: 100%; }
     .ps-page { padding: 10px; }
     .ps-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .ps-header-left { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
