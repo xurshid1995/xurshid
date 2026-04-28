@@ -291,12 +291,15 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 /* Responsive */
 @media (max-width: 768px) {
     /* === STICKY COLUMN UCHUN MUHIM ===
-       position:sticky faqat overflow:visible bo'lgan ota elementlar
-       zanjirida ishlaydi. Faqat .ps-table-wrap scroll container bo'lishi kerak.
-       style.css dagi body/main-content overflow:hidden/auto ni bekor qilamiz. */
-    body { overflow-x: visible !important; }
-    .main-content { overflow-x: visible !important; }
-    .ps-page { overflow-x: visible !important; max-width: 100%; }
+       CSS spec qoidasi: overflow-x:visible + overflow-y:auto bo'lsa
+       brauzer overflow-x ni avtomatik 'auto' ga o'zgartiradi.
+       Yechim: 'overflow: clip' — vizual kesadi, lekin scroll container
+       YARATMAYDI, shuning uchun position:sticky to'g'ri ishlaydi.
+       html { overflow-y:auto } — sahifa vertikal scrollini saqlaydi. */
+    html { overflow-y: auto; overflow-x: clip; }
+    body { overflow: clip !important; }
+    .main-content { overflow: clip !important; }
+    .ps-page { overflow: visible; max-width: 100%; }
     .ps-page { padding: 10px; }
     .ps-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .ps-header-left { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
