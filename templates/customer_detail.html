@@ -85,7 +85,7 @@
 /* Stat Cards */
 .ps-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
     margin-bottom: 12px;
 }
@@ -288,16 +288,43 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .ps-page { padding: 12px; }
-    .ps-header { flex-direction: column; }
-    .ps-stats { grid-template-columns: 1fr; gap: 10px; }
-    .ps-filter-panel { padding: 14px; }
-    .ps-filter-row { flex-direction: column; }
+    .ps-page { padding: 10px; }
+    .ps-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .ps-header-left { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .ps-header-right { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .ps-title { font-size: 16px; white-space: normal !important; }
+    .ps-back-btn { font-size: 12px; padding: 8px 14px; }
+    .ps-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .ps-stat-card { padding: 12px 10px; gap: 8px; border-radius: 12px; flex-direction: column; align-items: center; text-align: center; }
+    .ps-stat-icon { width: 40px; height: 40px; font-size: 16px; border-radius: 10px; }
+    .ps-stat-number { font-size: 1.1rem; }
+    .ps-stat-label { font-size: 10px; }
+    .ps-filter-panel { padding: 12px; border-radius: 12px; }
+    .ps-filter-row { flex-direction: column; gap: 10px; }
     .ps-search-box { max-width: 100%; }
+    .ps-filter-group { flex-direction: row; align-items: center; gap: 8px; }
+    .ps-filter-group label { min-width: 80px; margin-bottom: 0; }
+    .ps-filter-group .ps-input { flex: 1; }
+    .ps-table-card { border-radius: 12px; }
+    .ps-table-wrap { -webkit-overflow-scrolling: touch; }
+    .ps-pagination { padding: 12px 10px; flex-wrap: wrap; gap: 4px; }
 }
 @media (max-width: 480px) {
     .ps-page { padding: 8px; }
+    .ps-stats { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .ps-stat-card { padding: 10px 6px; gap: 6px; }
+    .ps-stat-icon { width: 34px; height: 34px; font-size: 14px; }
+    .ps-stat-number { font-size: 0.95rem; }
+    .ps-stat-label { font-size: 9px; letter-spacing: 0; }
     .ps-title { font-size: 14px; }
+    .ps-back-btn { padding: 7px 10px; font-size: 11px; }
+    .ps-back-btn i { margin-right: 3px; }
+    .cd-info-badge { font-size: 11px; padding: 2px 8px; }
+    .ps-filter-panel { padding: 10px; }
 }
 
 
@@ -767,7 +794,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     <!-- Page Header -->
     <div class="ps-header">
         <div class="ps-header-left">
-            <h1 class="ps-title" style="white-space:nowrap;"><i class="fas fa-user"></i> {{ customer.name }}</h1>
+            <h1 class="ps-title"><i class="fas fa-user"></i> {{ customer.name }}</h1>
             <div class="cd-quick-info">
                 {% if customer.phone %}<span class="cd-info-badge"><i class="fas fa-phone"></i> {{ customer.phone }}</span>{% endif %}
                 {% if customer.email %}<span class="cd-info-badge"><i class="fas fa-envelope"></i> {{ customer.email }}</span>{% endif %}
@@ -2019,9 +2046,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const compactToggle = document.getElementById('compactViewToggle');
     const tableContainer = document.querySelector('.ps-table-wrap');
     if (compactToggle && tableContainer) {
-        const saved = localStorage.getItem('customerCompactView') === 'true';
-        compactToggle.checked = saved;
-        if (saved) tableContainer.classList.add('compact-mode');
+        // Mobilda avtomatik compact mode
+        const isMobile = window.innerWidth <= 768;
+        const saved = localStorage.getItem('customerCompactView');
+        const useCompact = isMobile ? (saved !== 'false') : (saved === 'true');
+        compactToggle.checked = useCompact;
+        if (useCompact) tableContainer.classList.add('compact-mode');
 
         compactToggle.addEventListener('change', function() {
             localStorage.setItem('customerCompactView', this.checked.toString());
