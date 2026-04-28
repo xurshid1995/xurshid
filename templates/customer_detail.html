@@ -169,14 +169,8 @@
     width: 100%; min-width: 1000px;
     border-collapse: separate; border-spacing: 0; font-size: 14px; table-layout: auto;
 }
-.ps-table .col-datetime { width: 8%; z-index: 2; background: white; box-shadow: 2px 0 4px rgba(0,0,0,0.08); will-change: transform; }
-.ps-table thead th.col-datetime { z-index: 3; background: #1a6eff !important; box-shadow: 2px 0 6px rgba(0,0,0,0.15); will-change: transform; }
-/* Desktop: CSS sticky (ishlaydi) */
-@media (min-width: 769px) {
-    .ps-table .col-datetime { position: sticky; left: 0; }
-    .ps-table thead th.col-datetime { position: sticky; left: 0; }
-    .group-datetime { position: sticky; left: 0; }
-}
+.ps-table .col-datetime { width: 8%; position: sticky; left: 0; z-index: 2; background: white; box-shadow: 2px 0 4px rgba(0,0,0,0.08); }
+.ps-table thead th.col-datetime { position: sticky; left: 0; z-index: 3; background: #1a6eff !important; box-shadow: 2px 0 6px rgba(0,0,0,0.15); }
 .ps-table .col-seller   { width: 9%; }
 .ps-table .col-location { width: 9%; text-align: left; }
 .ps-table .col-product  { width: 32%; text-align: left; }
@@ -247,7 +241,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 .group-cell.col-subtotal { text-align: center !important; }
 .product-cell { font-size: 13px !important; font-weight: 600 !important; text-align: left !important; }
 .group-location, .group-total, .group-profit, .group-datetime { background: white !important; }
-.group-datetime { z-index: 2; background: white !important; box-shadow: 2px 0 4px rgba(0,0,0,0.08); will-change: transform; }
+.group-datetime { position: sticky; left: 0; z-index: 2; background: white !important; box-shadow: 2px 0 4px rgba(0,0,0,0.08); }
 .group-location { font-size: 12px; color: #374151; text-align: center; }
 .group-actions { background: white !important; padding: 8px 4px !important; }
 .group-actions .btn-action { display: block; width: 100%; margin-bottom: 4px; text-align: center; }
@@ -296,6 +290,13 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Responsive */
 @media (max-width: 768px) {
+    /* === STICKY COLUMN UCHUN MUHIM ===
+       style.css da body va .main-content overflow-x:hidden bor.
+       Bu CSS sticky ni bloklaydi. Shu sahifa uchun override qilamiz. */
+    body { overflow-x: auto !important; }
+    .main-content { overflow-x: auto !important; }
+    /* Sahifa o'zi kengayib ketmasligi uchun */
+    .ps-page { max-width: 100%; overflow-x: hidden; }
     .ps-page { padding: 10px; }
     .ps-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .ps-header-left { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -2024,29 +2025,8 @@ function exportSaleToExcel() {
 }
 
 // Event listenerlar
-// ===== MOBIL STICKY COLUMN (JS) =====
-function initStickyColumn() {
-    const tableWrap = document.querySelector('.ps-table-wrap');
-    if (!tableWrap) return;
-    if (window.innerWidth >= 769) return; // Desktopda CSS sticky ishlaydi
-
-    let ticking = false;
-    tableWrap.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(function() {
-                const scrollLeft = tableWrap.scrollLeft;
-                tableWrap.querySelectorAll('.col-datetime').forEach(function(cell) {
-                    cell.style.transform = 'translateX(' + scrollLeft + 'px)';
-                });
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }, { passive: true });
-}
 
 document.addEventListener('DOMContentLoaded', function() {
-    initStickyColumn();
 
     // Qidiruv input
     const searchInput = document.getElementById('customerSearchInput');
