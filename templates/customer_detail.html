@@ -171,6 +171,7 @@
 }
 .ps-table .col-datetime { width: 8%; position: sticky; left: 0; z-index: 2; background: white; box-shadow: 2px 0 4px rgba(0,0,0,0.08); }
 .ps-table thead th.col-datetime { position: sticky; left: 0; z-index: 3; background: #1a6eff !important; box-shadow: 2px 0 6px rgba(0,0,0,0.15); }
+/* DESKTOP STICKY above. Mobile sticky is handled by JS translateX (see initMobileStickyCol) */
 .ps-table .col-seller   { width: 9%; }
 .ps-table .col-location { width: 9%; text-align: left; }
 .ps-table .col-product  { width: 32%; text-align: left; }
@@ -242,6 +243,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 .product-cell { font-size: 13px !important; font-weight: 600 !important; text-align: left !important; }
 .group-location, .group-total, .group-profit, .group-datetime { background: white !important; }
 .group-datetime { position: sticky; left: 0; z-index: 2; background: white !important; box-shadow: 2px 0 4px rgba(0,0,0,0.08); }
+/* Mobile: sticky overridden by JS translateX */
 .group-location { font-size: 12px; color: #374151; text-align: center; }
 .group-actions { background: white !important; padding: 8px 4px !important; }
 .group-actions .btn-action { display: block; width: 100%; margin-bottom: 4px; text-align: center; }
@@ -290,15 +292,16 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Responsive */
 @media (max-width: 768px) {
-    /* === STICKY COLUMN UCHUN MUHIM ===
-       CSS spec qoidasi: overflow-x:visible + overflow-y:auto bo'lsa
-       brauzer overflow-x ni avtomatik 'auto' ga o'zgartiradi.
-       Yechim: 'overflow: clip' — vizual kesadi, lekin scroll container
-       YARATMAYDI, shuning uchun position:sticky to'g'ri ishlaydi.
-       html { overflow-y:auto } — sahifa vertikal scrollini saqlaydi. */
-    html { overflow-y: auto; overflow-x: clip; }
-    body { overflow: clip !important; }
-    .main-content { overflow: clip !important; }
+    /* Mobilda CSS sticky ishlamaydi (overflow:hidden ota elementlar tufayli).
+       JS translateX (initMobileStickyCol) col-datetime ni muzlatadi. */
+    .ps-table .col-datetime,
+    .ps-table thead th.col-datetime,
+    .group-datetime {
+        position: relative !important;
+        z-index: 5;
+        background: white;
+    }
+    .ps-table thead th.col-datetime { background: #1a6eff !important; }
     .ps-page { overflow: visible; max-width: 100%; }
     .ps-page { padding: 10px; }
     .ps-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -942,9 +945,35 @@ function getLocationName(item) {
     return item.location_name || CDLANG.unknown_location;
 }
 
+// === MOBIL STICKY COLUMN: JS translateX ===
+// CSS sticky ishlamaydi chunki body/main-content overflow:hidden ota elementlar bor.
+// Bu funksiya overflow ga bog'liq emas — har qanday brauzerda ishlaydi.
+function initMobileStickyCol() {
+    if (window.innerWidth >= 769) return; // Desktop: CSS sticky ishlaydi
+
+    var tableWrap = document.querySelector('.ps-table-wrap');
+    if (!tableWrap) return;
+
+    function freezeCol() {
+        var sl = tableWrap.scrollLeft;
+        var cells = tableWrap.querySelectorAll('td.col-datetime, th.col-datetime');
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].style.transform = 'translateX(' + sl + 'px)';
+        }
+    }
+
+    tableWrap.addEventListener('scroll', function() {
+        requestAnimationFrame(freezeCol);
+    }, { passive: true });
+
+    // displayOrders/updateTableForCompactView tomonidan chaqiriladi
+    window._freezeCol = freezeCol;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const customerId = {{ customer.id }};
     userRole = document.querySelector('.ps-page').dataset.userRole;
+    initMobileStickyCol();
     loadCustomerOrders(customerId);
 });
 
@@ -1133,6 +1162,9 @@ function displayOrders(orders) {
     
     tbody.innerHTML = html;
 
+    // Mobil: translateX sticky ni yangilash (yangi cells render bo'lgandan keyin)
+    if (window._freezeCol) window._freezeCol();
+
     // Compact mode holatini tekshirish va qo'llash
     const compactToggle = document.getElementById('compactViewToggle');
     if (compactToggle && compactToggle.checked) {
@@ -1193,6 +1225,8 @@ function updateTableForCompactView() {
     });
 
     tbody.innerHTML = html;
+    // Mobil: translateX sticky ni yangilash
+    if (window._freezeCol) window._freezeCol();
 }
 
 // Modal functions - sales-history.html dan 100% nusxa
