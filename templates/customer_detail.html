@@ -169,7 +169,8 @@
     width: 100%; min-width: 1000px;
     border-collapse: collapse; font-size: 14px; table-layout: auto;
 }
-.ps-table .col-datetime { width: 8%; }
+.ps-table .col-datetime { width: 8%; position: sticky; left: 0; z-index: 2; background: white; }
+.ps-table thead th.col-datetime { position: sticky; left: 0; z-index: 3; background: #1a6eff !important; }
 .ps-table .col-seller   { width: 9%; }
 .ps-table .col-location { width: 9%; text-align: left; }
 .ps-table .col-product  { width: 32%; text-align: left; }
@@ -240,6 +241,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 .group-cell.col-subtotal { text-align: center !important; }
 .product-cell { font-size: 13px !important; font-weight: 600 !important; text-align: left !important; }
 .group-location, .group-total, .group-profit, .group-datetime { background: white !important; }
+.group-datetime { position: sticky; left: 0; z-index: 2; background: white !important; }
 .group-location { font-size: 12px; color: #374151; text-align: center; }
 .group-actions { background: white !important; padding: 8px 4px !important; }
 .group-actions .btn-action { display: block; width: 100%; margin-bottom: 4px; text-align: center; }
