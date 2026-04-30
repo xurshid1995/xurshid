@@ -1816,6 +1816,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (product) {
                 // Formaga ma'lumotlarni yuklash
                 document.getElementById('product_name').value = product.name;
+                document.getElementById('barcode').value = product.barcode || '';
                 document.getElementById('cost_price').value = product.cost_price;
                 document.getElementById('sell_price').value = product.sell_price;
                 document.getElementById('min_stock').value = product.min_stock;
