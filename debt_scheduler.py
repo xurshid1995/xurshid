@@ -61,6 +61,8 @@ class DebtScheduler:
                 from app import Customer, Sale, Store, Warehouse
                 
                 # Qarzli savdolarni olish
+                # FAQAT payment_due_date belgilanmagan qarzlar.
+                # Muddati belgilangan qarzlar (ertaga, bugun, o'tgan) check_due_date_reminders tomonidan alohida boshqariladi.
                 debts = self.db.session.query(
                     Sale.customer_id,
                     Sale.location_id,
@@ -70,7 +72,8 @@ class DebtScheduler:
                     self.db.func.sum(Sale.debt_amount).label('total_debt_uzs')
                 ).filter(
                     Sale.payment_status == 'partial',
-                    Sale.debt_usd > self.minimum_debt_amount
+                    Sale.debt_usd > self.minimum_debt_amount,
+                    Sale.payment_due_date.is_(None)
                 ).group_by(
                     Sale.customer_id,
                     Sale.location_id,
@@ -162,25 +165,11 @@ class DebtScheduler:
             f"✅ Kunlik eslatmalar: {success_count} yuborildi, "
             f"{failed_count} xatolik"
         )
-        
-        # Adminlarga hisobot
-        try:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(
-                    self.bot.send_daily_summary(
-                        total_debts=len(debts),
-                        total_amount_usd=sum(d['debt_usd'] for d in debts),
-                        total_amount_uzs=sum(d['debt_uzs'] for d in debts),
-                        new_debts=0,
-                        paid_today=0
-                    )
-                )
-            finally:
-                loop.close()
-        except Exception as e:
-            logger.error(f"❌ Adminlarga hisobot yuborishda xatolik: {e}")
+
+        # Muddatli qarzlarni ham shu yerda yuborish (bugun va o'tgan)
+        # Mijozlarga xabar + adminlarga yig'ma hisobot
+        logger.info("📅 Muddatli qarzlar tekshirilmoqda (bugun + o'tgan)...")
+        self.check_due_date_reminders()
     
     def send_weekly_report(self):
         """Haftalik hisobot yuborish (sinxron)"""
@@ -370,16 +359,7 @@ class DebtScheduler:
                 replace_existing=True
             )
             logger.info("✅ Belgilangan eslatmalar: har 5 daqiqada tekshiriladi")
-            
-            # Muddatli qarz eslatmalari (har kuni soat 09:20 da)
-            self.scheduler.add_job(
-                self.check_due_date_reminders,
-                CronTrigger(hour=9, minute=20),
-                id='due_date_reminders',
-                name='Muddatli qarz eslatmalari',
-                replace_existing=True
-            )
-            logger.info("✅ Muddatli qarz eslatmalari: har kuni 09:20 da")
+            # 09:20 muddatli eslatmalar olib tashlandi — endi 10:00 da send_daily_reminders ichida ishlaydi
             
             # Schedulerni boshlash
             self.scheduler.start()

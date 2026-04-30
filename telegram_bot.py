@@ -190,14 +190,16 @@ class DebtTelegramBot:
             from datetime import datetime as dt
             today_str = dt.now().strftime('%d.%m.%Y')
 
-            # Xabar matni
+            # Xabar matni (umumiy eslatma - due_date belgilanmagan qarzlar uchun)
             message = (
-                f"💰 <b>QARZ ESLATMASI</b>\n\n"
-                f"Hurmatli: {customer_name}!\n\n"
+                f"💰 <b>QARZ ESLATMASI</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"Hurmatli <b>{customer_name}</b>!\n\n"
                 f"📍 {location_name} dokonidan\n\n"
-                f"💸 Qarzingiz: {debt_usd_str}\n\n"
-                f"Qarzingizni to'lash muddati bugun ({today_str}) iltimos qarzingizni bugunoq to'lang\n"
-                "Qarz bu sizga omonat\n"
+                f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
+                f"Iltimos, qarzingizni to'lang!\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                "Qarz bu sizga omonat 🤝\n"
                 "Rahmat! 🙏"
             )
 
