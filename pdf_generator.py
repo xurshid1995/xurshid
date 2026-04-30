@@ -14,6 +14,12 @@ from reportlab.lib import colors
 import qrcode
 from reportlab.lib.utils import ImageReader
 
+def fmt_usd(amount) -> str:
+    """USD summani ortiqcha nolsiz formatlash: 9.50000->9.5, 95.00->95, 9.12345->9.12345"""
+    formatted = f"{float(amount):.5f}".rstrip('0').rstrip('.')
+    return f"${formatted}"
+
+
 def generate_sale_receipt_pdf(
     sale_data: dict,
     output_path: str = None,
@@ -163,7 +169,7 @@ def generate_sale_receipt_pdf(
 
         if currency == 'usd':
             unit_price = item.get('unit_price_usd', item.get('unit_price', 0))
-            price_str = f"${unit_price:.2f}"
+            price_str = fmt_usd(unit_price)
         else:
             unit_price = item.get('unit_price_uzs', item.get('unit_price', 0))
             price_str = f"{unit_price:,.0f}"
@@ -244,7 +250,7 @@ def generate_sale_receipt_pdf(
     c.drawString(table_left, y, "Jami summa:")
     if currency == 'usd':
         total_amount = sale_data.get('total_amount_usd', sale_data.get('total_amount', 0))
-        c.drawRightString(table_right, y, f"${total_amount:.2f}")
+        c.drawRightString(table_right, y, fmt_usd(total_amount))
     else:
         total_amount = sale_data.get('total_amount_uzs', sale_data.get('total_amount', 0))
         c.drawRightString(table_right, y, f"{total_amount:,.0f} {currency_symbol}")
@@ -269,21 +275,21 @@ def generate_sale_receipt_pdf(
         if sale_data.get(cash_key, 0) > 0:
             c.drawString(table_left + 3*mm, y, "Naqd:")
             if currency == 'usd':
-                c.drawRightString(table_right, y, f"${sale_data[cash_key]:,.2f}")
+                c.drawRightString(table_right, y, fmt_usd(sale_data[cash_key]))
             else:
                 c.drawRightString(table_right, y, f"{sale_data[cash_key]:,.0f} {currency_symbol}")
             y -= 4*mm
         if sale_data.get(click_key, 0) > 0:
             c.drawString(table_left + 3*mm, y, "Click:")
             if currency == 'usd':
-                c.drawRightString(table_right, y, f"${sale_data[click_key]:,.2f}")
+                c.drawRightString(table_right, y, fmt_usd(sale_data[click_key]))
             else:
                 c.drawRightString(table_right, y, f"{sale_data[click_key]:,.0f} {currency_symbol}")
             y -= 4*mm
         if sale_data.get(terminal_key, 0) > 0:
             c.drawString(table_left + 3*mm, y, "Terminal:")
             if currency == 'usd':
-                c.drawRightString(table_right, y, f"${sale_data[terminal_key]:,.2f}")
+                c.drawRightString(table_right, y, fmt_usd(sale_data[terminal_key]))
             else:
                 c.drawRightString(table_right, y, f"{sale_data[terminal_key]:,.0f} {currency_symbol}")
             y -= 4*mm
@@ -291,7 +297,7 @@ def generate_sale_receipt_pdf(
         if sale_data.get(balance_key, 0) > 0:
             c.drawString(table_left + 3*mm, y, "Balans:")
             if currency == 'usd':
-                c.drawRightString(table_right, y, f"${sale_data[balance_key]:,.2f}")
+                c.drawRightString(table_right, y, fmt_usd(sale_data[balance_key]))
             else:
                 c.drawRightString(table_right, y, f"{sale_data[balance_key]:,.0f} {currency_symbol}")
             y -= 4*mm
@@ -306,7 +312,7 @@ def generate_sale_receipt_pdf(
         c.setFillColor(colors.red)
         c.drawString(table_left, y, "QARZ:")
         if currency == 'usd':
-            c.drawRightString(table_right, y, f"${debt_amount:,.2f}")
+            c.drawRightString(table_right, y, fmt_usd(debt_amount))
         else:
             c.drawRightString(table_right, y, f"{debt_amount:,.0f} {currency_symbol}")
         c.setFillColor(colors.black)
