@@ -379,6 +379,24 @@
     overflow: visible !important; text-overflow: unset !important;
     font-weight: 600 !important; min-width: 120px !important;
 }
+/* Compact modeda amallar tugmalari horizontal */
+.compact-mode .ps-table .col-actions { width: 9% !important; min-width: 90px !important; }
+.compact-mode td.col-actions {
+    overflow: visible !important; text-overflow: unset !important;
+    white-space: nowrap !important; text-align: center !important;
+    vertical-align: middle !important; padding: 4px 2px !important;
+}
+.compact-mode .group-actions {
+    display: flex !important; flex-direction: row !important;
+    flex-wrap: nowrap !important; align-items: center !important;
+    justify-content: center !important; padding: 4px 2px !important;
+}
+.compact-mode td.col-actions .btn-action,
+.compact-mode .group-actions .btn-action {
+    display: inline-flex !important; width: 28px !important; height: 26px !important;
+    margin: 0 1px !important; flex-shrink: 0 !important;
+    vertical-align: middle !important;
+}
 
 /* ── Pagination ── */
 .ps-pagination {
