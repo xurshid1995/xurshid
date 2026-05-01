@@ -349,7 +349,10 @@
 .compact-mode .compact-hide { display: none !important; }
 .compact-mode .col-product { display: table-cell !important; }
 .compact-mode .ps-table { min-width: auto !important; }
-.compact-mode .ps-table th, .compact-mode .ps-table td {
+.compact-mode .ps-table th {
+    white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding: 12px 10px !important;
+}
+.compact-mode .ps-table td {
     white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding: 8px !important;
 }
 .compact-mode .ps-table td.col-datetime {
