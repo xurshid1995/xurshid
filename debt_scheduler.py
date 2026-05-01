@@ -119,56 +119,7 @@ class DebtScheduler:
     
     def send_daily_reminders(self):
         """Kunlik qarz eslatmalarini yuborish (sinxron)"""
-        logger.info("📅 Kunlik qarz eslatmalari yuborilmoqda...")
-        
-        debts = self._get_customers_with_debt()
-        
-        if not debts:
-            logger.info("✅ Qarzli mijozlar yo'q")
-            return
-        
-        success_count = 0
-        failed_count = 0
-        
-        for debt in debts:
-            try:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    success = loop.run_until_complete(
-                        self.bot.send_debt_reminder(
-                            chat_id=debt['telegram_chat_id'],
-                            customer_name=debt['customer_name'],
-                            debt_usd=debt['debt_usd'],
-                            debt_uzs=debt['debt_uzs'],
-                            location_name=debt['location_name'],
-                            sale_date=debt.get('sale_date'),
-                            customer_id=debt.get('customer_id')
-                        )
-                    )
-                finally:
-                    loop.close()
-                
-                if success:
-                    success_count += 1
-                else:
-                    failed_count += 1
-                
-                # Rate limiting (sekundiga 1 ta xabar)
-                time_module.sleep(1)
-                
-            except Exception as e:
-                logger.error(f"❌ {debt['customer_name']} ga xabar yuborishda xatolik: {e}")
-                failed_count += 1
-        
-        logger.info(
-            f"✅ Kunlik eslatmalar: {success_count} yuborildi, "
-            f"{failed_count} xatolik"
-        )
-
-        # Muddatli qarzlarni ham shu yerda yuborish (bugun va o'tgan)
-        # Mijozlarga xabar + adminlarga yig'ma hisobot
-        logger.info("📅 Muddatli qarzlar tekshirilmoqda (bugun + o'tgan)...")
+        logger.info("📅 Kunlik qarz eslatmalari — muddatli qarzlar tekshirilmoqda...")
         self.check_due_date_reminders()
     
     def send_weekly_report(self):
