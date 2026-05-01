@@ -1777,15 +1777,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             <td style="text-align: center; color: #007bff; font-weight: 600;">$${product.sell_price.toFixed(2)}</td>
                             <td style="text-align: center;">
                                 <button onclick="editTempProduct(${product.id})" 
-                                        style="background: #28a745; color: white; border: none; border-radius: 3px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 3px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;"
-                                        onmouseover="this.style.background='#218838'" 
-                                        onmouseout="this.style.background='#28a745'" 
+                                        style="background: transparent; color: #555; border: none; padding: 4px 6px; cursor: pointer; font-size: 16px; margin-right: 2px;"
                                         title="Tahrirlash">✏️</button>
                                 <button onclick="removeFromTempList(${product.id})" 
-                                        style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;"
-                                        onmouseover="this.style.background='#c82333'" 
-                                        onmouseout="this.style.background='#dc3545'" 
-                                        title="O'chirish">🗑️</button>
+                                        style="background: transparent; color: #e53e3e; border: none; padding: 4px 6px; cursor: pointer; font-size: 16px; font-weight: bold;"
+                                        title="O'chirish">✕</button>
                             </td>
                         </tr>
                     `;
