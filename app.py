@@ -864,7 +864,7 @@ class PendingProductBatch(db.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'user_name': self.user.username if self.user else 'N/A',
+            'user_name': f"{self.user.first_name} {self.user.last_name}".strip() if self.user else 'N/A',
             'items': items,
             'items_count': len(items),
             'first_location': first_location,
