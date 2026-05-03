@@ -14965,13 +14965,24 @@ def inject_settings():
         except Exception:
             debt_sales_count = 0
 
+        # Tasdiqlanmagan savdolar soni
+        pending_sales_count = 0
+        try:
+            if session.get('user_id'):
+                pending_sales_count = Sale.query.filter(
+                    Sale.payment_status == 'pending'
+                ).count()
+        except Exception:
+            pending_sales_count = 0
+
         return {
             'stock_check_visible': stock_check_visible,
             'config': app.config,
             'current_language': current_language,
             't': t,  # Tarjima funksiyasi
             'translations': current_translations,
-            'debt_sales_count': debt_sales_count
+            'debt_sales_count': debt_sales_count,
+            'pending_sales_count': pending_sales_count
         }
     except Exception as e:
         logger.error(f"Context processor error: {e}")
