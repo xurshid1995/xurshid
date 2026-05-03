@@ -1,268 +1,138 @@
-{% extends "base_with_sidebar.html" %}
+{%% extends "base_with_sidebar.html" %%}
 
-{% block title %}{{ t('currency_management') }} - {{ t('app_title') }}{% endblock %}
+{%% block title %%}{{ t('currency_management') }} - {{ t('app_title') }}{%% endblock %%}
 
-{% block extra_css %}
+{%% block extra_css %%}
 <style>
-    .currency-container {
-        padding: 2rem;
-        background: #f8f9fa;
-        min-height: auto;
+    .cr-page {
+        padding: 28px 28px 40px;
+        background: #f5f6fa;
+        min-height: 100vh;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     }
+    .cr-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .cr-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .cr-title i { color: #1a6eff; }
 
-    .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+    .cr-alert { padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; font-weight: 500; display: none; }
+    .cr-alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .cr-alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
-    .page-header h1 {
-        margin: 0;
-        font-size: 1.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+    .cr-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .cr-stat-card {
+        background: white; border-radius: 16px; padding: 22px 24px;
+        display: flex; align-items: center; gap: 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
     }
+    .cr-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .cr-stat-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .cr-icon-green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
+    .cr-stat-body { display: flex; flex-direction: column; gap: 4px; }
+    .cr-stat-number { font-size: 1.7rem; font-weight: 700; color: #1e293b; line-height: 1; }
+    .cr-stat-label  { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cr-stat-info   { font-size: 12px; color: #64748b; margin-top: 2px; }
 
-    .currency-form {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
+    .cr-form-card { background: white; border-radius: 16px; padding: 22px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .cr-form-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 0 0 16px 0; display: flex; align-items: center; gap: 6px; }
+    .cr-form-row { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+    .cr-form-group { display: flex; flex-direction: column; gap: 5px; flex: 1 1 200px; }
+    .cr-form-group label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cr-input {
+        padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        font-size: 13px; background: #f8fafc; color: #1e293b;
+        transition: all 0.2s; outline: none; width: 100%; box-sizing: border-box;
     }
+    .cr-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+    .cr-btn-update {
+        background: #1a6eff; color: white; border: none; padding: 10px 24px;
+        border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .cr-btn-update:hover { background: #1558d6; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,110,255,0.3); }
 
-    .current-rate {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+    .cr-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .cr-table-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+    .cr-table-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 0; }
+    .cr-btn-clear { background: #fee2e2; color: #dc2626; border: none; padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: none; }
+    .cr-btn-clear:hover { background: #dc2626; color: white; }
+    .cr-table-wrap { overflow-x: auto; }
+    .cr-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .cr-table thead tr { background: #1a6eff; }
+    .cr-table th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; border: none; white-space: nowrap; }
+    .cr-table td { padding: 12px 16px; color: #374151; border: none; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .cr-table tbody tr:hover { background: #f8faff; }
+    .cr-table tbody tr:last-child td { border-bottom: none; }
+    .cr-badge-active   { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+    .cr-badge-inactive { background: #f1f5f9; color: #64748b; padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+    .cr-loading { text-align: center; padding: 32px; color: #94a3b8; font-size: 14px; }
+    .loading { opacity: 0.6; pointer-events: none; }
 
-    .current-rate h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-    }
-
-    .current-rate .rate-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0;
-    }
-
-    .current-rate .rate-info {
-        opacity: 0.9;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn-update {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-
-    .btn-update:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .history-section {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .history-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-
-    .history-table th,
-    .history-table td {
-        padding: 0.75rem;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .history-table th {
-        background: #f8f9fa;
-        font-weight: 600;
-        color: #495057;
-    }
-
-    .history-table tr:hover {
-        background: #f8f9fa;
-    }
-
-    .status-active {
-        background: #28a745;
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-    }
-
-    .status-inactive {
-        background: #6c757d;
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-    }
-
-    .btn-clear-history {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-    }
-
-    .btn-clear-history:hover {
-        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-    }
-
-    .btn-clear-history:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
-    }
-
-    .alert {
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        display: none;
-    }
-
-    .alert-success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .alert-error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .loading {
-        opacity: 0.6;
-        pointer-events: none;
-    }
+    @media (max-width: 768px) { .cr-page { padding: 14px; } .cr-stats { grid-template-columns: 1fr 1fr; gap: 12px; } .cr-form-row { flex-direction: column; } }
+    @media (max-width: 480px) { .cr-stats { grid-template-columns: 1fr; } }
 </style>
-{% endblock %}
+{%% endblock %%}
 
-{% block content %}
-<div class="currency-container">
-    <div class="page-header">
-        <h1>
-            <span>💱</span>
-            {{ t('currency_management') }}
-        </h1>
+{%% block content %%}
+<div class="cr-page">
+
+    <div class="cr-header">
+        <h1 class="cr-title"><i class="fas fa-exchange-alt"></i> {{ t('currency_management') }}</h1>
     </div>
 
-    <!-- Alert messages -->
-    <div id="alertSuccess" class="alert alert-success"></div>
-    <div id="alertError" class="alert alert-error"></div>
+    <div id="alertSuccess" class="cr-alert cr-alert-success"></div>
+    <div id="alertError"   class="cr-alert cr-alert-error"></div>
 
-    <!-- Current Rate Display -->
-    <div class="current-rate" id="currentRateDisplay">
-        <h2>{{ t('current_rate') }}</h2>
-        <p class="rate-value" id="currentRateValue">12,500 UZS</p>
-        <p class="rate-info">
-            <span id="currentRateInfo">{{ t('last_updated') }} {{ t('loading_text') }}</span>
-        </p>
+    <div class="cr-stats">
+        <div class="cr-stat-card">
+            <div class="cr-stat-icon cr-icon-green">💵</div>
+            <div class="cr-stat-body">
+                <span class="cr-stat-number" id="currentRateValue">—</span>
+                <span class="cr-stat-label">{{ t('current_rate') }}</span>
+                <span class="cr-stat-info" id="currentRateInfo">{{ t('loading_text') }}</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Update Rate Form -->
-    <div class="currency-form">
-        <h3>📝 {{ t('update_rate') }}</h3>
+    <div class="cr-form-card">
+        <p class="cr-form-title"><i class="fas fa-edit" style="color:#1a6eff;"></i> {{ t('update_rate') }}</p>
         <form id="updateRateForm">
-            <div class="form-group">
-                <label for="newRate">💵 {{ t('new_rate_label') }}</label>
-                <input type="number" id="newRate" name="newRate" step="0.01" min="1" placeholder="{{ t('rate_example') }}" required>
+            <div class="cr-form-row">
+                <div class="cr-form-group">
+                    <label>💵 {{ t('new_rate_label') }}</label>
+                    <input type="number" id="newRate" name="newRate" class="cr-input"
+                           step="0.01" min="1" placeholder="{{ t('rate_example') }}" required>
+                </div>
+                <div class="cr-form-group">
+                    <label>👤 {{ t('updated_by_label') }}</label>
+                    <input type="text" id="updatedBy" name="updatedBy" class="cr-input"
+                           placeholder="{{ t('admin_name') }}" value="admin">
+                </div>
+                <button type="submit" class="cr-btn-update">🔄 {{ t('update_rate') }}</button>
             </div>
-            <div class="form-group">
-                <label for="updatedBy">👤 {{ t('updated_by_label') }}:</label>
-                <input type="text" id="updatedBy" name="updatedBy" placeholder="{{ t('admin_name') }}" value="admin">
-            </div>
-            <button type="submit" class="btn-update">
-                🔄 {{ t('update_rate') }}
-            </button>
         </form>
     </div>
 
-    <!-- Rate History -->
-    <div class="history-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3>📊 {{ t('rate_history') }}</h3>
-            <button type="button" onclick="clearCurrencyHistory()" class="btn-clear-history" id="clearHistoryBtn" style="display: none;">
+    <div class="cr-table-card">
+        <div class="cr-table-header">
+            <p class="cr-table-title">📊 {{ t('rate_history') }}</p>
+            <button type="button" onclick="clearCurrencyHistory()" class="cr-btn-clear" id="clearHistoryBtn">
                 🗑️ {{ t('btn_clear_history') }}
             </button>
         </div>
-        <div id="historyLoading" style="text-align: center; padding: 2rem;">
-            <p>📥 {{ t('loading_text') }}</p>
+        <div id="historyLoading" class="cr-loading">📥 {{ t('loading_text') }}</div>
+        <div class="cr-table-wrap">
+            <table class="cr-table" id="historyTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>📅 {{ t('header_date') }}</th>
+                        <th>💱 {{ t('header_rate') }}</th>
+                        <th>👤 {{ t('updated_by_label') }}</th>
+                        <th>📊 {{ t('header_status') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
         </div>
-        <table class="history-table" id="historyTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>📅 {{ t('header_date') }}</th>
-                    <th>💱 {{ t('header_rate') }}</th>
-                    <th>👤 {{ t('updated_by_label') }}</th>
-                    <th>📊 {{ t('header_status') }}</th>
-                </tr>
-            </thead>
-            <tbody id="historyTableBody">
-                <!-- History data will be loaded here -->
-            </tbody>
-        </table>
     </div>
 </div>
 
@@ -369,7 +239,7 @@
             const formattedRate = parseFloat(rate.rate).toLocaleString('uz-UZ');
             
             // Holatni aniqlash
-            const statusClass = rate.is_active ? 'status-active' : 'status-inactive';
+            const statusClass = rate.is_active ? 'cr-badge-active' : 'cr-badge-inactive';
             const statusText = rate.is_active ? CLANG.status_active : CLANG.status_inactive;
             
             row.innerHTML = `
@@ -520,4 +390,5 @@
         }, 5000);
     }
 </script>
+{% endblock %}
 {% endblock %}
