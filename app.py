@@ -14954,12 +14954,24 @@ def inject_settings():
             """Kalit bo'yicha tarjimani qaytaradi"""
             return current_translations.get(key, key)
 
+        # Qarz savdolar soni
+        debt_sales_count = 0
+        try:
+            if session.get('user_id'):
+                debt_sales_count = Sale.query.filter(
+                    Sale.payment_status == 'partial',
+                    Sale.debt_usd > 0
+                ).count()
+        except Exception:
+            debt_sales_count = 0
+
         return {
             'stock_check_visible': stock_check_visible,
             'config': app.config,
             'current_language': current_language,
             't': t,  # Tarjima funksiyasi
-            'translations': current_translations
+            'translations': current_translations,
+            'debt_sales_count': debt_sales_count
         }
     except Exception as e:
         logger.error(f"Context processor error: {e}")

@@ -66,6 +66,9 @@
                 <a href="/debt-sales" {% if request.endpoint == 'debt_sales' %}class="active"{% endif %}>
                     <span class="icon">💳</span>
                     <span>{{ t('debt_sales') }}</span>
+                    {% if debt_sales_count > 0 %}
+                    <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ debt_sales_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             <li>
