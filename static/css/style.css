@@ -153,44 +153,11 @@ body {
     }
 }
 
-/* Yuqoridan chiziq animatsiyasi */
-.sidebar-menu a::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #1a6eff, #60a5fa);
-    transform: translateX(-100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Pastdan chiziq animatsiyasi */
-.sidebar-menu a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #60a5fa, #1a6eff);
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 .sidebar-menu a:hover {
     background: rgba(255,255,255,0.15);
     color: #ffffff;
     transform: translateX(2px);
-}
-
-.sidebar-menu a:hover::before {
-    transform: translateX(0);
-}
-
-.sidebar-menu a:hover::after {
-    transform: translateX(0);
 }
 
 .sidebar-menu a.active {
@@ -200,16 +167,6 @@ body {
     border-radius: 10px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.15);
     margin: 2px 4px;
-}
-
-.sidebar-menu a.active::before {
-    transform: translateX(0);
-    background: linear-gradient(90deg, rgba(255,255,255,0.35), transparent);
-}
-
-.sidebar-menu a.active::after {
-    transform: translateX(0);
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35));
 }
 
 /* Aktiv icon animatsiya */
