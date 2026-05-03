@@ -14983,6 +14983,24 @@ def inject_settings():
         except Exception:
             pending_transfer_count = 0
 
+        # Aktiv qoldiq tekshirish sessiyalari soni
+        stock_check_count = 0
+        try:
+            if session.get('user_id'):
+                stock_check_count = StockCheckSession.query.filter(
+                    StockCheckSession.status == 'active'
+                ).count()
+        except Exception:
+            stock_check_count = 0
+
+        # Jarayondagi mahsulot qo'shish sessiyalari soni
+        pending_product_count = 0
+        try:
+            if session.get('user_id'):
+                pending_product_count = PendingProductBatch.query.count()
+        except Exception:
+            pending_product_count = 0
+
         return {
             'stock_check_visible': stock_check_visible,
             'config': app.config,
@@ -14991,7 +15009,9 @@ def inject_settings():
             'translations': current_translations,
             'debt_sales_count': debt_sales_count,
             'pending_sales_count': pending_sales_count,
-            'pending_transfer_count': pending_transfer_count
+            'pending_transfer_count': pending_transfer_count,
+            'stock_check_count': stock_check_count,
+            'pending_product_count': pending_product_count
         }
     except Exception as e:
         logger.error(f"Context processor error: {e}")

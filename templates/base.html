@@ -106,6 +106,9 @@
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
                     <span class="icon">📋</span>
                     <span>{{ t('check_stock') }}</span>
+                    {% if stock_check_count > 0 %}
+                    <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ stock_check_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             {% endif %}
@@ -114,6 +117,9 @@
                 <a href="/add_product" {% if request.endpoint in ('add_product', 'add_product_session') %}class="active"{% endif %}>
                     <span class="icon">➕</span>
                     <span>{{ t('add_product') }}</span>
+                    {% if pending_product_count > 0 %}
+                    <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_product_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             <li>
