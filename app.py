@@ -14975,6 +14975,14 @@ def inject_settings():
         except Exception:
             pending_sales_count = 0
 
+        # Jarayondagi transferlar soni
+        pending_transfer_count = 0
+        try:
+            if session.get('user_id'):
+                pending_transfer_count = PendingTransfer.query.count()
+        except Exception:
+            pending_transfer_count = 0
+
         return {
             'stock_check_visible': stock_check_visible,
             'config': app.config,
@@ -14982,7 +14990,8 @@ def inject_settings():
             't': t,  # Tarjima funksiyasi
             'translations': current_translations,
             'debt_sales_count': debt_sales_count,
-            'pending_sales_count': pending_sales_count
+            'pending_sales_count': pending_sales_count,
+            'pending_transfer_count': pending_transfer_count
         }
     except Exception as e:
         logger.error(f"Context processor error: {e}")

@@ -84,6 +84,9 @@
                 <a href="/transfer" {% if request.endpoint == 'transfer' %}class="active"{% endif %}>
                     <span class="icon"><img src="{{ url_for('static', filename='images/icons8-transfer-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('transfer') }}</span>
+                    {% if pending_transfer_count > 0 %}
+                    <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_transfer_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             <li>
