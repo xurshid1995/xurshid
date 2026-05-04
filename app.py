@@ -16307,7 +16307,7 @@ except Exception as e:
 
 # ─── AI Chat endpoint ───────────────────────────────────────────────────────
 @app.route('/api/ai-chat', methods=['POST'])
-@login_required
+@role_required('admin', 'kassir', 'sotuvchi')
 def ai_chat():
     """Google Gemini AI bilan savdo maslahatchi suhbati"""
     import os
