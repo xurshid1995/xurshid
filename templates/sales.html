@@ -2886,7 +2886,7 @@
                 
                 // Fuzzy match belgisi
                 const fuzzyBadge = product.fuzzy_match
-                    ? `<span title="O'xshash natija (${product.fuzzy_score}%)" style="background:#f0ad4e;color:white;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:middle;">~fuzzy</span>`
+                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">✨ AI</span>`
                     : '';
                 
                 const row = document.createElement('tr');
@@ -4461,7 +4461,7 @@
                 
                 // Highlight qilish o'chirilgan - qidiruv so'zlarini sariq bilan ajratmaslik
                 const fuzzyBadge = product.fuzzy_match
-                    ? `<span title="O'xshash natija (${product.fuzzy_score}%)" style="background:#f0ad4e;color:white;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:middle;">~fuzzy</span>`
+                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">✨ AI</span>`
                     : '';
                 let highlightedName = htmlSafeProductName;
                 
