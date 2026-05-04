@@ -17,6 +17,10 @@ Pillow==10.1.0
 # Fuzzy Search
 rapidfuzz==3.14.5
 
+# AI Photo Processing (background removal)
+rembg>=2.0.50
+onnxruntime>=1.16.0
+
 # AI Chat (Gemini)
 google-generativeai==0.8.3
 

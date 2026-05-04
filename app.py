@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import base64
 import bcrypt
+import io
 import json
 import logging
 import os
@@ -10480,6 +10482,108 @@ def api_add_user():
     except Exception as e:
         db.session.rollback()
         app.logger.error(f"Error adding user: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+def _apply_suit_stability(img, api_key):
+    """Stability AI orqali kastyum kiydir"""
+    from PIL import Image, ImageDraw
+
+    w, h = img.size
+    # Stability AI 1024x1024 talab qiladi, nisbatni saqlagan holda kvadrat qilish
+    size = 1024
+    ratio = size / max(w, h)
+    nw = max(64, (int(w * ratio) // 64) * 64)
+    nh = max(64, (int(h * ratio) // 64) * 64)
+    img_resized = img.resize((nw, nh), Image.LANCZOS)
+
+    # Oq kvadrat fonga joylashtirish
+    canvas = Image.new("RGB", (size, size), (255, 255, 255))
+    x_off = (size - nw) // 2
+    y_off = (size - nh) // 2
+    canvas.paste(img_resized, (x_off, y_off))
+
+    # Kiyim maskasi: yuzdan pastki qism (28%–92%)
+    mask = Image.new("L", (size, size), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rectangle([0, int(size * 0.28), size, int(size * 0.92)], fill=255)
+
+    img_buf = io.BytesIO()
+    canvas.save(img_buf, format='PNG')
+    img_buf.seek(0)
+
+    mask_buf = io.BytesIO()
+    mask.save(mask_buf, format='PNG')
+    mask_buf.seek(0)
+
+    resp = requests.post(
+        "https://api.stability.ai/v2beta/stable-image/edit/inpaint",
+        headers={"authorization": f"Bearer {api_key}", "accept": "image/*"},
+        files={
+            "image": ("image.png", img_buf, "image/png"),
+            "mask": ("mask.png", mask_buf, "image/png"),
+        },
+        data={
+            "prompt": "professional business suit jacket, white dress shirt, dark necktie, formal attire, photorealistic, high quality",
+            "negative_prompt": "casual clothes, t-shirt, naked, deformed, blurry, bad quality",
+            "output_format": "jpeg",
+            "strength": 0.88,
+        },
+        timeout=60
+    )
+
+    if resp.status_code == 200:
+        result_img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+        # Crop back to original proportions
+        result_img = result_img.crop((x_off, y_off, x_off + nw, y_off + nh))
+        result_img = result_img.resize((w, h), Image.LANCZOS)
+        return result_img
+
+    app.logger.warning(f"Stability AI {resp.status_code}: {resp.text[:200]}")
+    return img
+
+
+@app.route('/api/process-user-photo', methods=['POST'])
+@role_required('admin', 'kassir')
+def process_user_photo():
+    """Foydalanuvchi rasmini AI bilan qayta ishlash: fon olib tashlash + oq fon + kastyum"""
+    if 'photo' not in request.files:
+        return jsonify({'error': 'Photo required'}), 400
+
+    file = request.files['photo']
+    img_bytes = file.read()
+
+    try:
+        from rembg import remove
+        from PIL import Image
+
+        # 1. Fonni olib tashlash
+        output_bytes = remove(img_bytes)
+
+        # 2. Oq fon qo'shish
+        fg = Image.open(io.BytesIO(output_bytes)).convert("RGBA")
+        bg = Image.new("RGBA", fg.size, (255, 255, 255, 255))
+        composite = Image.alpha_composite(bg, fg).convert("RGB")
+
+        # 3. Kastyum kiydir (agar STABILITY_API_KEY mavjud bo'lsa)
+        stability_key = os.getenv('STABILITY_API_KEY')
+        if stability_key:
+            try:
+                composite = _apply_suit_stability(composite, stability_key)
+            except Exception as e:
+                app.logger.warning(f"Suit addition failed: {e}")
+
+        # 4. Base64 ga aylantirish
+        buf = io.BytesIO()
+        composite.save(buf, format='JPEG', quality=92)
+        b64 = base64.b64encode(buf.getvalue()).decode()
+
+        return jsonify({'success': True, 'image': f'data:image/jpeg;base64,{b64}'})
+
+    except ImportError:
+        return jsonify({'error': 'rembg not installed', 'fallback': True}), 503
+    except Exception as e:
+        app.logger.error(f"Photo processing error: {e}")
         return jsonify({'error': str(e)}), 500
 
 

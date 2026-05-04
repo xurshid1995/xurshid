@@ -355,6 +355,7 @@
     background: #fff; border: 1px solid #1a6eff; color: #1a6eff;
     border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 {% endblock %}
 
@@ -1091,10 +1092,11 @@
         })
         .then(data => {
             // Rasm yuklash (agar tanlangan bo'lsa)
-            const photoFile = document.getElementById('cameraInput').files[0] || document.getElementById('galleryInput').files[0];
-            if (photoFile) {
+            const rawFile = document.getElementById('cameraInput').files[0] || document.getElementById('galleryInput').files[0];
+            const uploadBlob = processedPhotoBlob || rawFile;
+            if (uploadBlob) {
                 const photoData = new FormData();
-                photoData.append('photo', photoFile);
+                photoData.append('photo', uploadBlob, 'photo.jpg');
                 fetch(`/api/users/${userId}/photo`, { method: 'POST', body: photoData })
                     .catch(e => {});
             }
@@ -1141,6 +1143,8 @@
         }
     }
 
+    let processedPhotoBlob = null;
+
     function openPhotoModal() {
         document.getElementById('photoSourceModal').style.display = 'block';
     }
@@ -1156,15 +1160,56 @@
         document.getElementById('galleryInput').click();
     }
 
-    // Rasm preview
-    function previewPhoto(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('photoPreview').src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
+    // Rasm preview + AI qayta ishlash
+    async function previewPhoto(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        processedPhotoBlob = null;
+
+        // Darhol original rasmni ko'rsatish
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('photoPreview').src = e.target.result; };
+        reader.readAsDataURL(file);
+
+        // AI loading overlay ko'rsatish
+        showPhotoProcessing(true);
+
+        try {
+            const fd = new FormData();
+            fd.append('photo', file);
+            const resp = await fetch('/api/process-user-photo', { method: 'POST', body: fd });
+            const data = await resp.json();
+            if (data.success && data.image) {
+                document.getElementById('photoPreview').src = data.image;
+                processedPhotoBlob = dataURLtoBlob(data.image);
+            }
+        } catch(e) {
+            console.warn('AI photo processing failed:', e);
+        } finally {
+            showPhotoProcessing(false);
         }
+    }
+
+    function showPhotoProcessing(show) {
+        let overlay = document.getElementById('photoAiOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'photoAiOverlay';
+            overlay.style.cssText = 'position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;';
+            overlay.innerHTML = '<div style="width:22px;height:22px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div><span style="color:#fff;font-size:9px;font-weight:600;">AI</span>';
+            document.querySelector('.photo-avatar-wrap').appendChild(overlay);
+        }
+        overlay.style.display = show ? 'flex' : 'none';
+    }
+
+    function dataURLtoBlob(dataURL) {
+        const arr = dataURL.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8 = new Uint8Array(n);
+        while (n--) u8[n] = bstr.charCodeAt(n);
+        return new Blob([u8], { type: mime });
     }
 
     // Orqaga qaytish
