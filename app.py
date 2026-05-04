@@ -2022,18 +2022,17 @@ def api_products():
 
     # Search filter - nom yoki barcode bo'yicha qidirish
     if search:
-        # Qidiruv so'zlarini bo'laklarga ajratish
-        search_words = search.lower().split()
-
-        # Har bir so'z uchun filter qo'shish (nom YOKI barcode)
-        for word in search_words:
-            if word:  # Bo'sh so'zlarni o'tkazib yuborish
-                query = query.filter(
-                    db.or_(
-                        Product.name.ilike(f'%{word}%'),
-                        Product.barcode.ilike(f'%{word}%')
-                    )
+        search_words = [w for w in search.lower().split() if w]
+        if search_words:
+            # Har bir so'z uchun OR sharti: har qanday so'z bo'lsa topadi (AND emas)
+            word_conditions = [
+                db.or_(
+                    Product.name.ilike(f'%{word}%'),
+                    Product.barcode.ilike(f'%{word}%')
                 )
+                for word in search_words
+            ]
+            query = query.filter(db.or_(*word_conditions))
 
     # Saralash uchun location ma'lumotlarini saqlash
     final_loc_type = None
@@ -2108,16 +2107,19 @@ def api_products():
         error_out=False
     )
 
+    db_product_ids = set()
     products_list = []
     for product in paginated.items:
         product_dict = product.to_dict()
         products_list.append(product_dict)
+        db_product_ids.add(product.id)
 
-    # Fuzzy fallback: qidiruv bo'sh natija bersa, yozuv xatosiga chidamli qidiruv
+    # Fuzzy: har doim parallel ishlaydi (DB natijalarini to'ldiradi)
+    # partial_ratio  → "kran" → "kranomer" (qisman so'z)
+    # token_set_ratio → "truba pp" → "pp 40 truba" (tartib farq qilmaydi)
     total_count = paginated.total
-    if search and len(search) >= 2 and len(products_list) == 0:
-        logger.debug(f"🔍 Fuzzy fallback (api_products): '{search}'")
-        # Joylashuv bo'yicha mahsulotlarni yuklash (filter yo'q, faqat location)
+    if search and len(search) >= 2:
+        logger.debug(f"🔍 Fuzzy parallel (api_products): '{search}'")
         base_query = Product.query.options(
             db.joinedload(Product.warehouse_stocks),
             db.joinedload(Product.store_stocks)
@@ -2139,21 +2141,32 @@ def api_products():
         name_to_product = {p.name: p for p in all_products if p.name}
 
         if name_to_product:
-            matches = fuzz_process.extract(
-                search,
-                list(name_to_product.keys()),
-                scorer=rfuzz.WRatio,
-                limit=20,
-                score_cutoff=50
-            )
-            for match_name, score, _ in matches:
-                product = name_to_product[match_name]
-                pd = product.to_dict()
-                pd['fuzzy_match'] = True
-                pd['fuzzy_score'] = round(score)
-                products_list.append(pd)
+            all_names = list(name_to_product.keys())
+            # Ikki scorer bilan o'lchash: partial (qisman so'z) va token_set (tartib)
+            scores = {}
+            for name in all_names:
+                s1 = rfuzz.partial_ratio(search.lower(), name.lower())
+                s2 = rfuzz.token_set_ratio(search.lower(), name.lower())
+                scores[name] = max(s1, s2)
+
+            CUTOFF = 45
+            fuzzy_added = 0
+            for name, score in sorted(scores.items(), key=lambda x: -x[1]):
+                if score < CUTOFF:
+                    break
+                product = name_to_product[name]
+                if product.id not in db_product_ids:
+                    pd = product.to_dict()
+                    pd['fuzzy_match'] = True
+                    pd['fuzzy_score'] = round(score)
+                    products_list.append(pd)
+                    db_product_ids.add(product.id)
+                    fuzzy_added += 1
+                    if fuzzy_added >= 10:
+                        break
+
             total_count = len(products_list)
-            logger.debug(f"✅ Fuzzy (api_products): {total_count} ta natija")
+            logger.debug(f"✅ Fuzzy parallel: {fuzzy_added} ta yangi natija qo'shildi")
 
     # Return with pagination metadata
     return jsonify({
@@ -2331,17 +2344,14 @@ def api_search_products_by_location(location_type, location_id):
             ).filter(WarehouseStock.warehouse_id == location_id)
 
             if search_term:
-                # Qidiruv so'zlarini bo'laklarga ajratish
-                search_words = search_term.lower().split()
-                # Har bir so'z uchun filter qo'shish
-                for word in search_words:
-                    if word:
-                        query = query.filter(Product.name.ilike(f'%{word}%'))
+                search_words = [w for w in search_term.lower().split() if w]
+                if search_words:
+                    query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
             stocks = query.limit(limit).all()
 
             for stock, product in stocks:
-                if product:  # Mahsulot mavjudligini tekshirish
+                if product:
                     product_dict = product.to_dict()
                     product_dict['available_quantity'] = stock.quantity
                     product_dict['location_type'] = 'warehouse'
@@ -2356,12 +2366,9 @@ def api_search_products_by_location(location_type, location_id):
             ).filter(StoreStock.store_id == location_id)
 
             if search_term:
-                # Qidiruv so'zlarini bo'laklarga ajratish
-                search_words = search_term.lower().split()
-                # Har bir so'z uchun filter qo'shish
-                for word in search_words:
-                    if word:
-                        query = query.filter(Product.name.ilike(f'%{word}%'))
+                search_words = [w for w in search_term.lower().split() if w]
+                if search_words:
+                    query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
             stocks = query.limit(limit).all()
 
@@ -2377,10 +2384,9 @@ def api_search_products_by_location(location_type, location_id):
                     product_dict['location_name'] = store_name
                     products_list.append(product_dict)
 
-        # Fuzzy fallback: agar oddiy qidiruv hech narsa topmasa, yozuv xatosi bo'lsa ham topadi
-        if search_term and len(search_term) >= 2 and len(products_list) == 0:
-            logger.debug(f"🔍 Fuzzy fallback ishga tushdi: '{search_term}'")
-            # Barcha mahsulotlarni joylashuvdan yuklash (filter yo'q)
+        # Fuzzy: har doim parallel ishlaydi (DB natijalarini to'ldiradi)
+        if search_term and len(search_term) >= 2:
+            db_ids = {p['id'] for p in products_list}
             if location_type == 'warehouse':
                 all_stocks = db.session.query(WarehouseStock, Product).join(
                     Product, WarehouseStock.product_id == Product.id
@@ -2390,37 +2396,38 @@ def api_search_products_by_location(location_type, location_id):
                     Product, StoreStock.product_id == Product.id
                 ).filter(StoreStock.store_id == location_id).all()
 
-            # Mahsulot nomi → (stock, product) lug'at
-            name_to_data = {}
-            for stock, product in all_stocks:
-                if product:
-                    name_to_data[product.name] = (stock, product)
+            name_to_data = {product.name: (stock, product) for stock, product in all_stocks if product and product.name}
 
             if name_to_data:
-                # rapidfuzz bilan o'xshash nomlarni topish (score >= 50)
-                matches = fuzz_process.extract(
-                    search_term,
-                    list(name_to_data.keys()),
-                    scorer=rfuzz.WRatio,
-                    limit=limit,
-                    score_cutoff=50
-                )
-                for match_name, score, _ in matches:
-                    stock, product = name_to_data[match_name]
-                    product_dict = product.to_dict()
-                    product_dict['available_quantity'] = stock.quantity
-                    product_dict['fuzzy_match'] = True
-                    product_dict['fuzzy_score'] = round(score)
-                    if location_type == 'warehouse':
-                        product_dict['location_type'] = 'warehouse'
-                        product_dict['location_id'] = location_id
-                        product_dict['location_name'] = stock.warehouse.name if stock.warehouse else "Noma'lum ombor"
-                    else:
-                        product_dict['location_type'] = 'store'
-                        product_dict['location_id'] = location_id
-                        product_dict['location_name'] = stock.store.name if stock.store else "Noma'lum do'kon"
-                    products_list.append(product_dict)
-                logger.debug(f"✅ Fuzzy: {len(products_list)} ta o'xshash natija topildi")
+                CUTOFF = 45
+                scores = {}
+                for name in name_to_data:
+                    s1 = rfuzz.partial_ratio(search_term.lower(), name.lower())
+                    s2 = rfuzz.token_set_ratio(search_term.lower(), name.lower())
+                    scores[name] = max(s1, s2)
+
+                fuzzy_added = 0
+                for name, score in sorted(scores.items(), key=lambda x: -x[1]):
+                    if score < CUTOFF or fuzzy_added >= 10:
+                        break
+                    stock, product = name_to_data[name]
+                    if product.id not in db_ids:
+                        pd = product.to_dict()
+                        pd['available_quantity'] = stock.quantity
+                        pd['fuzzy_match'] = True
+                        pd['fuzzy_score'] = round(score)
+                        if location_type == 'warehouse':
+                            pd['location_type'] = 'warehouse'
+                            pd['location_id'] = location_id
+                            pd['location_name'] = stock.warehouse.name if stock.warehouse else "Noma'lum ombor"
+                        else:
+                            pd['location_type'] = 'store'
+                            pd['location_id'] = location_id
+                            pd['location_name'] = stock.store.name if stock.store else "Noma'lum do'kon"
+                        products_list.append(pd)
+                        db_ids.add(product.id)
+                        fuzzy_added += 1
+                logger.debug(f"✅ Fuzzy parallel: {fuzzy_added} ta yangi natija qo'shildi")
 
         return jsonify({
             'products': products_list,
