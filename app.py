@@ -45,18 +45,25 @@ def normalize_search(text):
 
 def fuzzy_score(query, name):
     """
-    Ikkita matn orasidagi maksimal o'xshashlik balli.
-    Normalizatsiyadan keyin 3 scorer ishlatadi:
-    - partial_ratio: qisman so'z ("kran" → "kranomer")
-    - token_set_ratio: tartib farq qilmaydi ("e8 zimmer" = "Zimmer E8 pro")
-    - partial_token_set_ratio: ikkalasi birga (eng kuchli)
+    So'z qamrovi (60%) + fuzzy o'xshashlik (40%) = max 100.
+    - coverage: query so'zlarining qanchasi mahsulot nomida bor (partial)
+    - fuzzy: partial_ratio + token_set_ratio + partial_token_set_ratio max
+    Ko'p so'z mos kelganda aniq natija yuqorida ko'rinadi.
     """
     q = normalize_search(query)
     n = normalize_search(name)
+    q_words = q.split()
+    n_words = n.split()
+    # Har bir query so'zi uchun partial moslik: "h" → "pro-h" ✓, "e" → "e8" ✓
+    if q_words:
+        hits = sum(1 for qw in q_words if any(qw in nw or nw in qw for nw in n_words))
+        coverage = hits / len(q_words)
+    else:
+        coverage = 0
     s1 = rfuzz.partial_ratio(q, n)
     s2 = rfuzz.token_set_ratio(q, n)
     s3 = rfuzz.partial_token_set_ratio(q, n)
-    return max(s1, s2, s3)
+    return coverage * 60 + max(s1, s2, s3) * 0.4
 from flask_wtf.csrf import CSRFProtect
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
