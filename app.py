@@ -16311,10 +16311,7 @@ except Exception as e:
 def ai_chat():
     """Google Gemini AI bilan savdo maslahatchi suhbati"""
     import os
-    try:
-        import google.generativeai as genai
-    except ImportError:
-        return jsonify({'success': False, 'error': "google-generativeai o'rnatilmagan"}), 500
+    import requests as http_requests
 
     api_key = os.environ.get('GEMINI_API_KEY', '')
     if not api_key:
@@ -16328,14 +16325,11 @@ def ai_chat():
     # Biznes ma'lumotlarini yig'ish
     try:
         today = get_tashkent_time().date()
-        # Bugungi savdolar
         today_sales = Sale.query.filter(
             db.func.date(Sale.sale_date) == today
         ).all()
 
-        total_revenue_uzs = sum(
-            float(s.total_amount or 0) for s in today_sales
-        )
+        total_revenue_uzs = sum(float(s.total_amount or 0) for s in today_sales)
         total_revenue_usd = sum(
             float(s.cash_usd or 0) + float(s.click_usd or 0) +
             float(s.terminal_usd or 0) + float(s.debt_usd or 0)
@@ -16343,7 +16337,6 @@ def ai_chat():
         )
         total_profit_uzs = sum(float(s.total_profit or 0) for s in today_sales)
 
-        # Eng ko'p sotilgan mahsulotlar (oxirgi 7 kun)
         from datetime import timedelta
         week_ago = today - timedelta(days=7)
         top_items = db.session.query(
@@ -16356,11 +16349,9 @@ def ai_chat():
          .order_by(db.desc('qty'))\
          .limit(5).all()
 
-        # Kam qolgan mahsulotlar (qty <= 10)
         low_stock = Product.query.filter(Product.quantity <= 10, Product.quantity > 0).limit(8).all()
         out_of_stock = Product.query.filter(Product.quantity <= 0).count()
 
-        # Qarzlar
         debt_sales = Sale.query.filter(Sale.payment_status == 'debt').count()
         total_debt_uzs = db.session.query(db.func.sum(Sale.debt_amount))\
             .filter(Sale.payment_status == 'debt').scalar() or 0
@@ -16372,11 +16363,11 @@ def ai_chat():
 - Foyda (UZS): {total_profit_uzs:,.0f} so'm
 
 OXIRGI 7 KUNNING ENG KO'P SOTILGAN MAHSULOTLARI:
-{chr(10).join(f'- {r.name}: {int(r.qty)} dona' for r in top_items) or '- Ma\'lumot yo\'q'}
+{chr(10).join(f"- {r.name}: {int(r.qty)} dona" for r in top_items) or "- Ma'lumot yo'q"}
 
 OMBOR HOLATI:
 - Kam qolgan mahsulotlar (≤10): {len(low_stock)} ta
-{chr(10).join(f'  * {p.name}: {p.quantity} dona' for p in low_stock) if low_stock else '  * Hammasi yetarli'}
+{chr(10).join(f"  * {p.name}: {p.quantity} dona" for p in low_stock) if low_stock else "  * Hammasi yetarli"}
 - Tugagan mahsulotlar: {out_of_stock} ta
 
 QARZLAR:
@@ -16398,21 +16389,28 @@ Qoidalar:
 - Agar savol biznesga aloqador bo'lmasa, muloyimlik bilan yo'naltir"""
 
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
-            system_instruction=system_prompt
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/"
+            f"gemini-2.0-flash:generateContent?key={api_key}"
         )
-        response = model.generate_content(user_message)
-        return jsonify({'success': True, 'reply': response.text})
+        payload = {
+            "system_instruction": {"parts": [{"text": system_prompt}]},
+            "contents": [{"parts": [{"text": user_message}]}],
+            "generationConfig": {"maxOutputTokens": 512, "temperature": 0.7}
+        }
+        resp = http_requests.post(url, json=payload, timeout=30)
+        resp_data = resp.json()
+        if resp.status_code != 200:
+            err_msg = resp_data.get('error', {}).get('message', str(resp_data))
+            logger.error(f"Gemini API xatosi {resp.status_code}: {err_msg}")
+            if resp.status_code == 429:
+                return jsonify({'success': False, 'error': "AI so'rovlar limiti to'lib qoldi. Biroz kutib qayta urinib ko'ring."}), 429
+            return jsonify({'success': False, 'error': "AI bilan bog'lanishda xatolik. Qayta urinib ko'ring."}), 500
+        reply = resp_data['candidates'][0]['content']['parts'][0]['text']
+        return jsonify({'success': True, 'reply': reply})
     except Exception as e:
-        err_str = str(e)
-        logger.error(f"Gemini API xatosi: {err_str}")
-        if '429' in err_str or 'quota' in err_str.lower():
-            msg = "AI so'rovlar limiti to'lib qoldi. Biroz kutib qayta urinib ko'ring."
-        else:
-            msg = "AI bilan bog'lanishda xatolik yuz berdi. Qayta urinib ko'ring."
-        return jsonify({'success': False, 'error': msg}), 500
+        logger.error(f"Gemini API xatosi: {e}")
+        return jsonify({'success': False, 'error': "AI bilan bog'lanishda xatolik yuz berdi. Qayta urinib ko'ring."}), 500
 
 
 if __name__ == '__main__':
