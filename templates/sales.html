@@ -2258,6 +2258,31 @@
 
         modal.style.display = 'block';
         scannerActive = true;
+        statusDiv.innerHTML = '📷 Kameraga ruxsat so\'ralmoqda...';
+
+        // Avval eksplitsit ruxsat so'rash (browser dialog ko'rsatadi)
+        let permStream = null;
+        try {
+            permStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        } catch(permErr) {
+            const errStr = String(permErr.message || permErr);
+            let msg = '';
+            if (errStr.includes('NotAllowed') || errStr.includes('Permission') || errStr.includes('denied')) {
+                msg = 'Kameraga ruxsat berilmadi!\n\nBrauzer manzil qatoridagi kamera ikonasi → "Har doim ruxsat berish" ni tanlang va sahifani yangilang.';
+            } else if (errStr.includes('NotFound')) {
+                msg = 'Kamera topilmadi! Qurilmangizda kamera borligini tekshiring.';
+            } else {
+                msg = 'Kamera ochilmadi: ' + errStr;
+            }
+            alert(msg);
+            stopBarcodeScanner();
+            return;
+        }
+        // Ruxsat olindi — permStream ni to'xtatamiz, html5QrCode o'zi ochadi
+        if (permStream) {
+            permStream.getTracks().forEach(t => t.stop());
+        }
+
         statusDiv.innerHTML = SLANG.camera_opening;
 
         html5QrCode = new Html5Qrcode("barcodeScanner");
@@ -2306,7 +2331,7 @@
             let msg = '';
             const errStr = String(err.message || err);
             if (errStr.includes('NotAllowed') || errStr.includes('Permission')) {
-                msg = 'Kameraga ruxsat berilmadi!\n\nBrauzer sozlamalarida kameraga ruxsat bering va sahifani yangilang.';
+                msg = 'Kameraga ruxsat berilmadi!\n\nBrauzer manzil qatoridagi kamera ikonasi → "Har doim ruxsat berish" ni tanlang va sahifani yangilang.';
             } else if (errStr.includes('NotFound')) {
                 msg = 'Kamera topilmadi!\n\nQurilmangizda kamera borligini tekshiring.';
             } else {
