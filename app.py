@@ -2144,12 +2144,10 @@ def api_products():
         products_list.append(product_dict)
         db_product_ids.add(product.id)
 
-    # Fuzzy: har doim parallel ishlaydi (DB natijalarini to'ldiradi)
-    # partial_ratio  → "kran" → "kranomer" (qisman so'z)
-    # token_set_ratio → "truba pp" → "pp 40 truba" (tartib farq qilmaydi)
+    # Qidiruv bo'lganda: DB + fuzzy natijalarni birgalikda relevantlik bo'yicha saralash
     total_count = paginated.total
     if search and len(search) >= 2:
-        logger.debug(f"🔍 Fuzzy parallel (api_products): '{search}'")
+        logger.debug(f"🔍 Smart sort+fuzzy (api_products): '{search}'")
         base_query = Product.query.options(
             db.joinedload(Product.warehouse_stocks),
             db.joinedload(Product.store_stocks)
@@ -2171,10 +2169,14 @@ def api_products():
         name_to_product = {p.name: p for p in all_products if p.name}
 
         if name_to_product:
-            # normalize_search: harf/raqam chegarasida ajratib, 3 scorer bilan o'lchash
+            CUTOFF = 45
             scores = {name: fuzzy_score(search, name) for name in name_to_product}
 
-            CUTOFF = 45
+            # DB natijalariga score qo'shish (ular allaqachon products_list da)
+            for pd in products_list:
+                pd['_score'] = scores.get(pd.get('name', ''), 0)
+
+            # Fuzzy orqali topilgan yangi natijalar qo'shish (DB da yo'qlar)
             fuzzy_added = 0
             for name, score in sorted(scores.items(), key=lambda x: -x[1]):
                 if score < CUTOFF:
@@ -2184,14 +2186,21 @@ def api_products():
                     pd = product.to_dict()
                     pd['fuzzy_match'] = True
                     pd['fuzzy_score'] = round(score)
+                    pd['_score'] = score
                     products_list.append(pd)
                     db_product_ids.add(product.id)
                     fuzzy_added += 1
                     if fuzzy_added >= 10:
                         break
 
+            # Barcha natijalarni relevantlik bo'yicha saralash (eng to'g'ri tepada)
+            products_list.sort(key=lambda x: x.get('_score', 0), reverse=True)
+            # Yordamchi maydonni tozalash
+            for pd in products_list:
+                pd.pop('_score', None)
+
             total_count = len(products_list)
-            logger.debug(f"✅ Fuzzy parallel: {fuzzy_added} ta yangi natija qo'shildi")
+            logger.debug(f"✅ Smart sort: {len(products_list)} ta natija saralandi ({fuzzy_added} fuzzy)")
 
     # Return with pagination metadata
     return jsonify({
@@ -2409,7 +2418,7 @@ def api_search_products_by_location(location_type, location_id):
                     product_dict['location_name'] = store_name
                     products_list.append(product_dict)
 
-        # Fuzzy: har doim parallel ishlaydi (DB natijalarini to'ldiradi)
+        # Smart sort: DB + fuzzy natijalarni birgalikda relevantlik bo'yicha saralash
         if search_term and len(search_term) >= 2:
             db_ids = {p['id'] for p in products_list}
             if location_type == 'warehouse':
@@ -2427,6 +2436,11 @@ def api_search_products_by_location(location_type, location_id):
                 CUTOFF = 45
                 scores = {name: fuzzy_score(search_term, name) for name in name_to_data}
 
+                # DB natijalariga score qo'shish
+                for pd in products_list:
+                    pd['_score'] = scores.get(pd.get('name', ''), 0)
+
+                # Fuzzy orqali yangi natijalar qo'shish
                 fuzzy_added = 0
                 for name, score in sorted(scores.items(), key=lambda x: -x[1]):
                     if score < CUTOFF or fuzzy_added >= 10:
@@ -2437,6 +2451,7 @@ def api_search_products_by_location(location_type, location_id):
                         pd['available_quantity'] = stock.quantity
                         pd['fuzzy_match'] = True
                         pd['fuzzy_score'] = round(score)
+                        pd['_score'] = score
                         if location_type == 'warehouse':
                             pd['location_type'] = 'warehouse'
                             pd['location_id'] = location_id
@@ -2448,7 +2463,12 @@ def api_search_products_by_location(location_type, location_id):
                         products_list.append(pd)
                         db_ids.add(product.id)
                         fuzzy_added += 1
-                logger.debug(f"✅ Fuzzy parallel: {fuzzy_added} ta yangi natija qo'shildi")
+
+                # Hammani relevantlik bo'yicha saralash
+                products_list.sort(key=lambda x: x.get('_score', 0), reverse=True)
+                for pd in products_list:
+                    pd.pop('_score', None)
+                logger.debug(f"✅ Smart sort: {len(products_list)} ta natija ({fuzzy_added} fuzzy)")
 
         return jsonify({
             'products': products_list,
