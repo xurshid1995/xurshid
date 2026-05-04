@@ -16338,6 +16338,25 @@ def ai_chat():
         total_profit_uzs = sum(float(s.total_profit or 0) for s in today_sales)
 
         from datetime import timedelta
+
+        # Oxirgi 7 kunlik kunlik statistika
+        daily_stats = []
+        for i in range(1, 8):
+            day = today - timedelta(days=i)
+            day_sales = Sale.query.filter(db.func.date(Sale.sale_date) == day).all()
+            if day_sales:
+                day_uzs = sum(float(s.total_amount or 0) for s in day_sales)
+                day_usd = sum(
+                    float(s.cash_usd or 0) + float(s.click_usd or 0) +
+                    float(s.terminal_usd or 0) + float(s.debt_usd or 0)
+                    for s in day_sales
+                )
+                day_profit = sum(float(s.total_profit or 0) for s in day_sales)
+                daily_stats.append(
+                    f"- {day.strftime('%Y-%m-%d')} ({['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'][day.weekday()]}): "
+                    f"{len(day_sales)} savdo, {day_uzs:,.0f} so'm, ${day_usd:,.2f}, foyda: {day_profit:,.0f} so'm"
+                )
+
         week_ago = today - timedelta(days=7)
         top_items = db.session.query(
             Product.name,
@@ -16371,11 +16390,14 @@ def ai_chat():
         total_debt_uzs = db.session.query(db.func.sum(Sale.debt_amount))\
             .filter(Sale.payment_status == 'debt').scalar() or 0
 
-        context_text = f"""BUGUNGI SAVDO HISOBOTI ({today}):
+        context_text = f"""BUGUNGI SAVDO HISOBOTI ({today}, {['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'][today.weekday()]}):
 - Savdolar soni: {len(today_sales)} ta
 - Daromad (UZS): {total_revenue_uzs:,.0f} so'm
 - Daromad (USD): ${total_revenue_usd:,.2f}
 - Foyda (UZS): {total_profit_uzs:,.0f} so'm
+
+OXIRGI 7 KUN STATISTIKASI:
+{chr(10).join(daily_stats) if daily_stats else "- Ma'lumot yo'q"}
 
 OXIRGI 7 KUNNING ENG KO'P SOTILGAN MAHSULOTLARI:
 {chr(10).join(f"- {r.name}: {int(r.qty)} dona" for r in top_items) or "- Ma'lumot yo'q"}
