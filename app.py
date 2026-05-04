@@ -16400,14 +16400,19 @@ Qoidalar:
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(
-            model_name='gemini-2.0-flash',
+            model_name='gemini-1.5-flash',
             system_instruction=system_prompt
         )
         response = model.generate_content(user_message)
         return jsonify({'success': True, 'reply': response.text})
     except Exception as e:
-        logger.error(f"Gemini API xatosi: {e}")
-        return jsonify({'success': False, 'error': f'AI xatosi: {str(e)}'}), 500
+        err_str = str(e)
+        logger.error(f"Gemini API xatosi: {err_str}")
+        if '429' in err_str or 'quota' in err_str.lower():
+            msg = "AI so'rovlar limiti to'lib qoldi. Biroz kutib qayta urinib ko'ring."
+        else:
+            msg = "AI bilan bog'lanishda xatolik yuz berdi. Qayta urinib ko'ring."
+        return jsonify({'success': False, 'error': msg}), 500
 
 
 if __name__ == '__main__':
