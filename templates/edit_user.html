@@ -1106,9 +1106,10 @@
         .then(data => {
             // Rasm yuklash (agar tanlangan bo'lsa)
             const rawFile = document.getElementById('cameraInput').files[0] || document.getElementById('galleryInput').files[0];
-            if (rawFile) {
+            const uploadFile = window._photoBlob ? new File([window._photoBlob], 'photo.jpg', {type:'image/jpeg'}) : rawFile;
+            if (uploadFile) {
                 const photoData = new FormData();
-                photoData.append('photo', rawFile);
+                photoData.append('photo', uploadFile);
                 fetch(`/api/users/${userId}/photo`, { method: 'POST', body: photoData })
                     .catch(e => {});
             }
@@ -1183,11 +1184,27 @@
 
     function previewPhoto(input) {
         if (!input.files || !input.files[0]) return;
+        window._photoBlob = null;
         const reader = new FileReader();
         reader.onload = e => {
-            const el = document.getElementById('photoPreview');
-            el.src = e.target.result;
-            el.style.cursor = 'zoom-in';
+            const img = new Image();
+            img.onload = () => {
+                const SIZE = 400;
+                const canvas = document.createElement('canvas');
+                canvas.width = SIZE;
+                canvas.height = SIZE;
+                const ctx = canvas.getContext('2d');
+                const min = Math.min(img.naturalWidth, img.naturalHeight);
+                const sx = (img.naturalWidth - min) / 2;
+                const sy = (img.naturalHeight - min) / 2;
+                ctx.drawImage(img, sx, sy, min, min, 0, 0, SIZE, SIZE);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                const el = document.getElementById('photoPreview');
+                el.src = dataUrl;
+                el.style.cursor = 'zoom-in';
+                canvas.toBlob(blob => { window._photoBlob = blob; }, 'image/jpeg', 0.92);
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
     }
