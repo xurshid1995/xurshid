@@ -10509,6 +10509,9 @@ def upload_user_photo(user_id):
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         user.photo = filename
         db.session.commit()
+        # Agar joriy foydalanuvchi o'z rasmini yuklayotgan bo'lsa session'ni yangilash
+        if session.get('user_id') == user_id:
+            session['user_photo'] = f'/static/uploads/users/{filename}'
         return jsonify({'success': True, 'photo': f'/static/uploads/users/{filename}'}), 200
     except Exception as e:
         db.session.rollback()
@@ -14047,6 +14050,7 @@ def api_login():
         session['user_name'] = f"{user.first_name} {user.last_name}"
         session['user_phone'] = user.phone or ''
         session['store_id'] = user.store_id
+        session['user_photo'] = f"/static/uploads/users/{user.photo}" if user.photo else None
         # Session hijacking himoyasi
         session['user_agent'] = request.headers.get('User-Agent', '')[:500]
         session['login_ip'] = request.remote_addr

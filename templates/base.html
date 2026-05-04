@@ -231,7 +231,13 @@
                 </div>
             </div>
             <div class="user-info">
-                <span class="user-icon"><img src="https://img.icons8.com/fluency/96/administrator-male.png" alt="User" style="width: 24px; height: 24px; vertical-align: middle;"></span>
+                <span class="user-icon">
+                    {% if session.user_photo %}
+                    <img src="{{ session.user_photo }}" alt="User" style="width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;border:2px solid #e2e8f0;">
+                    {% else %}
+                    <img src="https://img.icons8.com/fluency/96/administrator-male.png" alt="User" style="width: 24px; height: 24px; vertical-align: middle;">
+                    {% endif %}
+                </span>
                 <span class="user-name">{{ session.user_name or t('user') }}</span>
                 <span class="user-role">({{ session.role or t('role') }})</span>
             </div>
