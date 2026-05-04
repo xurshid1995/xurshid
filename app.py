@@ -45,10 +45,10 @@ def normalize_search(text):
 
 def fuzzy_score(query, name):
     """
-    So'z darajasida moslik (ratio >= 60%) + umumiy fuzzy ball.
-    - q_words va n_words: faqat uzunligi 2+ (bir harfli artifact tokenlar chiqarib tashlanadi)
-    - partial_ratio emas, ratio ishlatiladi (substring false match oldini oladi)
-    - Hech bir so'z mos kelmasa → 0 (tasodifiy matnlar ko'rsatilmaydi)
+    So'z darajasida moslik: substring YOKI ratio >= 60%.
+    - substring: "h7" in "pro-h7" → True (qisqa token uzun tokenda bor)
+    - ratio:     "zmr" ≈ "zimmer" → 67% (harflar tushib qolgan)
+    Ikkalasi birlashganda ham qisqa tokenlar, ham xato yozilganlar topiladi.
     """
     q = normalize_search(query)
     n = normalize_search(name)
@@ -56,10 +56,15 @@ def fuzzy_score(query, name):
     n_words = [w for w in n.split() if len(w) >= 2]
     if not q_words or not n_words:
         return 0
-    word_hits = sum(
-        1 for qw in q_words
-        if max((rfuzz.ratio(qw, nw) for nw in n_words), default=0) >= 60
-    )
+
+    def word_match(qw, n_words):
+        # "h7" → "pro-h7": substring tekshiruvi
+        if any(qw in nw for nw in n_words):
+            return True
+        # "zmr" → "zimmer": fuzzy ratio tekshiruvi
+        return max((rfuzz.ratio(qw, nw) for nw in n_words), default=0) >= 60
+
+    word_hits = sum(1 for qw in q_words if word_match(qw, n_words))
     coverage = word_hits / len(q_words)
     if coverage == 0:
         return 0
