@@ -16416,12 +16416,94 @@ def ai_chat():
         total_debt_uzs = db.session.query(db.func.sum(Sale.debt_amount))\
             .filter(Sale.payment_status == 'debt').scalar() or 0
 
-        context_text = f"""BUGUNGI SAVDO HISOBOTI ({today}, {['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'][today.weekday()]}):
+        import re as _re, datetime as _dt
+
+        weekdays = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba']
+
+        # --- Oylik statistika (barcha oylar) ---
+        monthly_rows = db.session.query(
+            db.func.to_char(Sale.sale_date, 'YYYY-MM').label('ym'),
+            db.func.count(Sale.id).label('cnt'),
+            db.func.sum(Sale.cash_usd + Sale.click_usd + Sale.terminal_usd + Sale.debt_usd).label('total_usd'),
+            db.func.sum(Sale.cash_amount + Sale.click_amount + Sale.terminal_amount + Sale.debt_amount).label('total_uzs'),
+            db.func.sum(Sale.total_profit).label('profit_usd'),
+            db.func.sum(Sale.total_profit * Sale.currency_rate).label('profit_uzs'),
+        ).group_by('ym').order_by('ym').all()
+
+        month_names = {
+            '01':'Yanvar','02':'Fevral','03':'Mart','04':'Aprel',
+            '05':'May','06':'Iyun','07':'Iyul','08':'Avgust',
+            '09':'Sentabr','10':'Oktabr','11':'Noyabr','12':'Dekabr'
+        }
+        monthly_lines = []
+        for r in monthly_rows:
+            ym = str(r.ym)
+            y, m = ym[:4], ym[5:7]
+            monthly_lines.append(
+                f"- {y}-{m} ({month_names.get(m,m)}): "
+                f"savdo: {int(r.cnt or 0)} ta | "
+                f"jami USD: ${float(r.total_usd or 0):,.2f} | "
+                f"jami UZS: {float(r.total_uzs or 0):,.0f} so'm | "
+                f"foyda USD: ${float(r.profit_usd or 0):,.2f} | "
+                f"foyda UZS: {float(r.profit_uzs or 0):,.0f} so'm"
+            )
+
+        # --- So'rovda aniq sana bormi? Agar bor bo'lsa o'sha kunni query qil ---
+        uz_months = {
+            'yanvar':1,'fevral':2,'mart':3,'aprel':4,'may':5,'iyun':6,
+            'iyul':7,'avgust':8,'sentabr':9,'oktabr':10,'noyabr':11,'dekabr':12
+        }
+        asked_date = None
+        msg_lower = user_message.lower()
+        # "2026-04-23" yoki "04-23" yoki "04.23"
+        m1 = _re.search(r'(\d{4})[-./](\d{1,2})[-./](\d{1,2})', msg_lower)
+        if m1:
+            try:
+                asked_date = _dt.date(int(m1.group(1)), int(m1.group(2)), int(m1.group(3)))
+            except Exception:
+                pass
+        if not asked_date:
+            m2 = _re.search(r'(\d{1,2})\s*[-./]?\s*(' + '|'.join(uz_months.keys()) + r')', msg_lower)
+            if m2:
+                try:
+                    asked_date = _dt.date(today.year, uz_months[m2.group(2)], int(m2.group(1)))
+                except Exception:
+                    pass
+        if not asked_date:
+            m3 = _re.search(r'(' + '|'.join(uz_months.keys()) + r')\s*(\d{1,2})', msg_lower)
+            if m3:
+                try:
+                    asked_date = _dt.date(today.year, uz_months[m3.group(1)], int(m3.group(2)))
+                except Exception:
+                    pass
+
+        asked_date_section = ""
+        if asked_date and asked_date != today:
+            asked_sales = Sale.query.filter(db.func.date(Sale.sale_date) == asked_date).all()
+            if asked_sales:
+                a_uzs = sum(float(s.cash_amount or 0)+float(s.click_amount or 0)+float(s.terminal_amount or 0)+float(s.debt_amount or 0) for s in asked_sales)
+                a_usd = sum(float(s.cash_usd or 0)+float(s.click_usd or 0)+float(s.terminal_usd or 0)+float(s.debt_usd or 0) for s in asked_sales)
+                a_pusd = sum(float(s.total_profit or 0) for s in asked_sales)
+                a_puzs = sum(float(s.total_profit or 0)*float(s.currency_rate or 1) for s in asked_sales)
+                asked_date_section = f"""
+SO'RALGAN KUN: {asked_date.strftime('%Y-%m-%d')} ({weekdays[asked_date.weekday()]}):
+- Savdolar soni: {len(asked_sales)} ta
+- Jami savdo (USD): ${a_usd:,.2f}
+- Jami savdo (UZS): {a_uzs:,.0f} so'm
+- Jami foyda (USD): ${a_pusd:,.2f}
+- Jami foyda (UZS): {a_puzs:,.0f} so'm"""
+            else:
+                asked_date_section = f"\nSO'RALGAN KUN: {asked_date.strftime('%Y-%m-%d')} - bu kunda savdo topilmadi."
+
+        context_text = f"""BUGUNGI SAVDO HISOBOTI ({today}, {weekdays[today.weekday()]}):
 - Savdolar soni: {len(today_sales)} ta
 - Jami savdo (USD): ${total_revenue_usd:,.2f}
 - Jami savdo (UZS): {total_revenue_uzs:,.0f} so'm
 - Jami foyda (USD): ${total_profit_usd:,.2f}
 - Jami foyda (UZS): {total_profit_uzs:,.0f} so'm
+{asked_date_section}
+OYLIK STATISTIKA (BARCHA OYLAR):
+{chr(10).join(monthly_lines) if monthly_lines else "- Ma'lumot yo'q"}
 
 OXIRGI 7 KUN STATISTIKASI:
 {chr(10).join(daily_stats) if daily_stats else "- Ma'lumot yo'q"}
