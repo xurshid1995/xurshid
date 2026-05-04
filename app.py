@@ -29,6 +29,34 @@ from sqlalchemy.exc import (
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash
 from rapidfuzz import process as fuzz_process, fuzz as rfuzz
+import re
+
+def normalize_search(text):
+    """
+    Qidiruv matnini normalizatsiya qilish:
+    - harf/raqam chegarasida ajratish: "e8h7" → "e8 h7", "zimmerE8" → "zimmer e8"
+    - pastki chiziqni bo'sh joy bilan almashtirish: "pro_h7" → "pro h7"
+    - kichik harfga o'tkazish va ortiqcha bo'shliqlarni tozalash
+    """
+    text = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', text)
+    text = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', text)
+    text = text.replace('_', ' ')
+    return re.sub(r'\s+', ' ', text).lower().strip()
+
+def fuzzy_score(query, name):
+    """
+    Ikkita matn orasidagi maksimal o'xshashlik balli.
+    Normalizatsiyadan keyin 3 scorer ishlatadi:
+    - partial_ratio: qisman so'z ("kran" → "kranomer")
+    - token_set_ratio: tartib farq qilmaydi ("e8 zimmer" = "Zimmer E8 pro")
+    - partial_token_set_ratio: ikkalasi birga (eng kuchli)
+    """
+    q = normalize_search(query)
+    n = normalize_search(name)
+    s1 = rfuzz.partial_ratio(q, n)
+    s2 = rfuzz.token_set_ratio(q, n)
+    s3 = rfuzz.partial_token_set_ratio(q, n)
+    return max(s1, s2, s3)
 from flask_wtf.csrf import CSRFProtect
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
@@ -2022,9 +2050,11 @@ def api_products():
 
     # Search filter - nom yoki barcode bo'yicha qidirish
     if search:
-        search_words = [w for w in search.lower().split() if w]
+        # Normalizatsiya: "e8h7" → "e8 h7", "pro_h7" → "pro h7"
+        norm_search = normalize_search(search)
+        search_words = [w for w in norm_search.split() if w]
         if search_words:
-            # Har bir so'z uchun OR sharti: har qanday so'z bo'lsa topadi (AND emas)
+            # Har bir so'z uchun OR sharti: har qanday so'z bo'lsa topadi
             word_conditions = [
                 db.or_(
                     Product.name.ilike(f'%{word}%'),
@@ -2141,13 +2171,8 @@ def api_products():
         name_to_product = {p.name: p for p in all_products if p.name}
 
         if name_to_product:
-            all_names = list(name_to_product.keys())
-            # Ikki scorer bilan o'lchash: partial (qisman so'z) va token_set (tartib)
-            scores = {}
-            for name in all_names:
-                s1 = rfuzz.partial_ratio(search.lower(), name.lower())
-                s2 = rfuzz.token_set_ratio(search.lower(), name.lower())
-                scores[name] = max(s1, s2)
+            # normalize_search: harf/raqam chegarasida ajratib, 3 scorer bilan o'lchash
+            scores = {name: fuzzy_score(search, name) for name in name_to_product}
 
             CUTOFF = 45
             fuzzy_added = 0
@@ -2344,7 +2369,7 @@ def api_search_products_by_location(location_type, location_id):
             ).filter(WarehouseStock.warehouse_id == location_id)
 
             if search_term:
-                search_words = [w for w in search_term.lower().split() if w]
+                search_words = [w for w in normalize_search(search_term).split() if w]
                 if search_words:
                     query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
@@ -2366,7 +2391,7 @@ def api_search_products_by_location(location_type, location_id):
             ).filter(StoreStock.store_id == location_id)
 
             if search_term:
-                search_words = [w for w in search_term.lower().split() if w]
+                search_words = [w for w in normalize_search(search_term).split() if w]
                 if search_words:
                     query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
@@ -2400,11 +2425,7 @@ def api_search_products_by_location(location_type, location_id):
 
             if name_to_data:
                 CUTOFF = 45
-                scores = {}
-                for name in name_to_data:
-                    s1 = rfuzz.partial_ratio(search_term.lower(), name.lower())
-                    s2 = rfuzz.token_set_ratio(search_term.lower(), name.lower())
-                    scores[name] = max(s1, s2)
+                scores = {name: fuzzy_score(search_term, name) for name in name_to_data}
 
                 fuzzy_added = 0
                 for name, score in sorted(scores.items(), key=lambda x: -x[1]):
