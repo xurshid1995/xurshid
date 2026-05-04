@@ -2113,13 +2113,55 @@ def api_products():
         product_dict = product.to_dict()
         products_list.append(product_dict)
 
+    # Fuzzy fallback: qidiruv bo'sh natija bersa, yozuv xatosiga chidamli qidiruv
+    total_count = paginated.total
+    if search and len(search) >= 2 and len(products_list) == 0:
+        logger.debug(f"🔍 Fuzzy fallback (api_products): '{search}'")
+        # Joylashuv bo'yicha mahsulotlarni yuklash (filter yo'q, faqat location)
+        base_query = Product.query.options(
+            db.joinedload(Product.warehouse_stocks),
+            db.joinedload(Product.store_stocks)
+        )
+        if final_loc_type and final_loc_id:
+            if final_loc_type == 'warehouse':
+                base_query = base_query.filter(
+                    Product.warehouse_stocks.any(
+                        WarehouseStock.warehouse_id == final_loc_id
+                    )
+                )
+            elif final_loc_type == 'store':
+                base_query = base_query.filter(
+                    Product.store_stocks.any(
+                        StoreStock.store_id == final_loc_id
+                    )
+                )
+        all_products = base_query.all()
+        name_to_product = {p.name: p for p in all_products if p.name}
+
+        if name_to_product:
+            matches = fuzz_process.extract(
+                search,
+                list(name_to_product.keys()),
+                scorer=rfuzz.WRatio,
+                limit=20,
+                score_cutoff=50
+            )
+            for match_name, score, _ in matches:
+                product = name_to_product[match_name]
+                pd = product.to_dict()
+                pd['fuzzy_match'] = True
+                pd['fuzzy_score'] = round(score)
+                products_list.append(pd)
+            total_count = len(products_list)
+            logger.debug(f"✅ Fuzzy (api_products): {total_count} ta natija")
+
     # Return with pagination metadata
     return jsonify({
         'products': products_list,
         'pagination': {
             'page': page,
             'per_page': per_page,
-            'total': paginated.total,
+            'total': total_count,
             'pages': paginated.pages,
             'has_next': paginated.has_next,
             'has_prev': paginated.has_prev
