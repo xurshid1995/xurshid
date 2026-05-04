@@ -28,6 +28,7 @@ from sqlalchemy.exc import (
 )
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash
+from rapidfuzz import process as fuzz_process, fuzz as rfuzz
 from flask_wtf.csrf import CSRFProtect
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
@@ -2333,6 +2334,51 @@ def api_search_products_by_location(location_type, location_id):
                         store_name = stock.store.name
                     product_dict['location_name'] = store_name
                     products_list.append(product_dict)
+
+        # Fuzzy fallback: agar oddiy qidiruv hech narsa topmasa, yozuv xatosi bo'lsa ham topadi
+        if search_term and len(search_term) >= 2 and len(products_list) == 0:
+            logger.debug(f"🔍 Fuzzy fallback ishga tushdi: '{search_term}'")
+            # Barcha mahsulotlarni joylashuvdan yuklash (filter yo'q)
+            if location_type == 'warehouse':
+                all_stocks = db.session.query(WarehouseStock, Product).join(
+                    Product, WarehouseStock.product_id == Product.id
+                ).filter(WarehouseStock.warehouse_id == location_id).all()
+            else:
+                all_stocks = db.session.query(StoreStock, Product).join(
+                    Product, StoreStock.product_id == Product.id
+                ).filter(StoreStock.store_id == location_id).all()
+
+            # Mahsulot nomi → (stock, product) lug'at
+            name_to_data = {}
+            for stock, product in all_stocks:
+                if product:
+                    name_to_data[product.name] = (stock, product)
+
+            if name_to_data:
+                # rapidfuzz bilan o'xshash nomlarni topish (score >= 50)
+                matches = fuzz_process.extract(
+                    search_term,
+                    list(name_to_data.keys()),
+                    scorer=rfuzz.WRatio,
+                    limit=limit,
+                    score_cutoff=50
+                )
+                for match_name, score, _ in matches:
+                    stock, product = name_to_data[match_name]
+                    product_dict = product.to_dict()
+                    product_dict['available_quantity'] = stock.quantity
+                    product_dict['fuzzy_match'] = True
+                    product_dict['fuzzy_score'] = round(score)
+                    if location_type == 'warehouse':
+                        product_dict['location_type'] = 'warehouse'
+                        product_dict['location_id'] = location_id
+                        product_dict['location_name'] = stock.warehouse.name if stock.warehouse else "Noma'lum ombor"
+                    else:
+                        product_dict['location_type'] = 'store'
+                        product_dict['location_id'] = location_id
+                        product_dict['location_name'] = stock.store.name if stock.store else "Noma'lum do'kon"
+                    products_list.append(product_dict)
+                logger.debug(f"✅ Fuzzy: {len(products_list)} ta o'xshash natija topildi")
 
         return jsonify({
             'products': products_list,

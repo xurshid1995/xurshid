@@ -2884,6 +2884,11 @@
                 const htmlSafeProductName = escapeHtml(productName);
                 const costPrice = product.cost_price || 0;
                 
+                // Fuzzy match belgisi
+                const fuzzyBadge = product.fuzzy_match
+                    ? `<span title="O'xshash natija (${product.fuzzy_score}%)" style="background:#f0ad4e;color:white;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:middle;">~fuzzy</span>`
+                    : '';
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.setAttribute('data-product-id', product.id);
@@ -2903,7 +2908,7 @@
                 const opacity = quantity <= 0 ? '0.8' : '1';
                 
                 row.innerHTML = `
-                    <td style="padding: 12px 8px; font-size: 16px; color: #333;" data-original-text="${htmlSafeProductName}" title="${htmlSafeProductName}">${htmlSafeProductName}</td>
+                    <td style="padding: 12px 8px; font-size: 16px; color: #333;" data-original-text="${htmlSafeProductName}" title="${htmlSafeProductName}">${htmlSafeProductName}${fuzzyBadge}</td>
                     <td style="padding: 12px 8px; text-align: left; font-size: 14px;">
                         <span style="background: ${quantityBadgeColor}; color: white; padding: 2px 6px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${quantityDisplay}</span>
                     </td>
