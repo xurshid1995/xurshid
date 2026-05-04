@@ -346,7 +346,7 @@
             <!-- Rasm yuklash -->
             <div class="photo-upload-section">
                 <div class="photo-avatar-wrap">
-                    <img id="photoPreview" class="photo-avatar" src="/static/images/default-avatar.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e2e8f0%22/%3E%3Ccircle cx=%2250%22 cy=%2238%22 r=%2218%22 fill=%22%23a0aec0%22/%3E%3Cellipse cx=%2250%22 cy=%2285%22 rx=%2230%22 ry=%2222%22 fill=%22%23a0aec0%22/%3E%3C/svg%3E'">
+                    <img id="photoPreview" class="photo-avatar" src="/static/images/default-avatar.png" onclick="zoomPhoto()" style="cursor:default;" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e2e8f0%22/%3E%3Ccircle cx=%2250%22 cy=%2238%22 r=%2218%22 fill=%22%23a0aec0%22/%3E%3Cellipse cx=%2250%22 cy=%2285%22 rx=%2230%22 ry=%2222%22 fill=%22%23a0aec0%22/%3E%3C/svg%3E';">
                     <button type="button" class="photo-avatar-edit" onclick="openPhotoModal()" title="Rasm tanlash">
                         <i class="fas fa-camera"></i>
                     </button>
@@ -358,6 +358,11 @@
                     </label>
                     <p style="margin-top:6px; font-size:11px; color:#94a3b8;">JPG, PNG, WEBP &middot; Maks 5MB</p>
                 </div>
+            </div>
+            <!-- Photo zoom lightbox -->
+            <div id="photoLightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;">
+                <img id="photoLightboxImg" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+                <button onclick="closeLightbox()" style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:28px;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;">&times;</button>
             </div>
             <!-- Photo source modal -->
             <div id="photoSourceModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55);" onclick="closePhotoModal()">
@@ -1131,6 +1136,18 @@
         }
     }
 
+    function zoomPhoto() {
+        const src = document.getElementById('photoPreview').src;
+        const svgPrefix = 'data:image/svg+xml';
+        if (!src || src.startsWith(svgPrefix)) return;
+        const lb = document.getElementById('photoLightbox');
+        document.getElementById('photoLightboxImg').src = src;
+        lb.style.display = 'flex';
+    }
+    function closeLightbox() {
+        document.getElementById('photoLightbox').style.display = 'none';
+    }
+
     let processedPhotoBlob = null;
 
     function openPhotoModal() {
@@ -1156,7 +1173,11 @@
 
         // Darhol original rasmni ko'rsatish
         const reader = new FileReader();
-        reader.onload = e => { document.getElementById('photoPreview').src = e.target.result; };
+        reader.onload = e => {
+            const el = document.getElementById('photoPreview');
+            el.src = e.target.result;
+            el.style.cursor = 'zoom-in';
+        };
         reader.readAsDataURL(file);
 
         // AI loading overlay ko'rsatish
