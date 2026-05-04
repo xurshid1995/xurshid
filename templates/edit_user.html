@@ -392,19 +392,29 @@
             <div class="photo-upload-section">
                 <div class="photo-avatar-wrap">
                     <img id="photoPreview" class="photo-avatar" src="/static/images/default-avatar.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e2e8f0%22/%3E%3Ccircle cx=%2250%22 cy=%2238%22 r=%2218%22 fill=%22%23a0aec0%22/%3E%3Cellipse cx=%2250%22 cy=%2285%22 rx=%2230%22 ry=%2222%22 fill=%22%23a0aec0%22/%3E%3C/svg%3E'">
-                    <button type="button" class="photo-avatar-edit" onclick="document.getElementById('photoInput').click()" title="Rasm o'zgartirish">
+                    <button type="button" class="photo-avatar-edit" onclick="openPhotoModal()" title="Rasm o'zgartirish">
                         <i class="fas fa-camera"></i>
                     </button>
                 </div>
                 <div class="photo-upload-info">
                     <p>Foydalanuvchi rasmi <span style="color:#94a3b8;">(ixtiyoriy)</span></p>
-                    <label class="photo-upload-btn" onclick="document.getElementById('photoInput').click()">
+                    <label class="photo-upload-btn" onclick="openPhotoModal()">
                         <i class="fas fa-upload"></i> Rasm o'zgartirish
                     </label>
                     <p style="margin-top:6px; font-size:11px; color:#94a3b8;">JPG, PNG, WEBP &middot; Maks 5MB</p>
                 </div>
             </div>
-            <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+            <!-- Photo source modal -->
+            <div id="photoSourceModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55);" onclick="closePhotoModal()">
+                <div style="position:absolute; bottom:0; left:0; right:0; background:#fff; border-radius:16px 16px 0 0; padding:24px 20px;" onclick="event.stopPropagation()">
+                    <p style="text-align:center; font-weight:600; font-size:15px; margin:0 0 16px; color:#1e293b;">Rasm manbaini tanlang</p>
+                    <button type="button" onclick="openCamera()" style="width:100%; padding:14px; margin-bottom:10px; background:#2563eb; color:#fff; border:none; border-radius:10px; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-camera"></i> Kamera</button>
+                    <button type="button" onclick="openGallery()" style="width:100%; padding:14px; margin-bottom:10px; background:#f1f5f9; color:#1e293b; border:none; border-radius:10px; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-images"></i> Galereya</button>
+                    <button type="button" onclick="closePhotoModal()" style="width:100%; padding:12px; background:#e2e8f0; color:#64748b; border:none; border-radius:10px; font-size:14px; cursor:pointer;">Bekor qilish</button>
+                </div>
+            </div>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="previewPhoto(this)">
+            <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
 
             <div class="form-row">
                 <div class="form-group">
@@ -1081,7 +1091,7 @@
         })
         .then(data => {
             // Rasm yuklash (agar tanlangan bo'lsa)
-            const photoFile = document.getElementById('photoInput').files[0];
+            const photoFile = document.getElementById('cameraInput').files[0] || document.getElementById('galleryInput').files[0];
             if (photoFile) {
                 const photoData = new FormData();
                 photoData.append('photo', photoFile);
@@ -1129,6 +1139,21 @@
                 alert('❌ ' + EULANG.eu_delete_fetch_error);
             });
         }
+    }
+
+    function openPhotoModal() {
+        document.getElementById('photoSourceModal').style.display = 'block';
+    }
+    function closePhotoModal() {
+        document.getElementById('photoSourceModal').style.display = 'none';
+    }
+    function openCamera() {
+        closePhotoModal();
+        document.getElementById('cameraInput').click();
+    }
+    function openGallery() {
+        closePhotoModal();
+        document.getElementById('galleryInput').click();
     }
 
     // Rasm preview
