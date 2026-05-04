@@ -16329,13 +16329,20 @@ def ai_chat():
             db.func.date(Sale.sale_date) == today
         ).all()
 
-        total_revenue_uzs = sum(float(s.total_amount or 0) for s in today_sales)
+        total_revenue_uzs = sum(
+            float(s.cash_amount or 0) + float(s.click_amount or 0) +
+            float(s.terminal_amount or 0) + float(s.debt_amount or 0)
+            for s in today_sales
+        )
         total_revenue_usd = sum(
             float(s.cash_usd or 0) + float(s.click_usd or 0) +
             float(s.terminal_usd or 0) + float(s.debt_usd or 0)
             for s in today_sales
         )
-        total_profit_uzs = sum(float(s.total_profit or 0) for s in today_sales)
+        total_profit_uzs = sum(
+            float(s.total_profit or 0) * float(s.currency_rate or 1)
+            for s in today_sales
+        )
 
         from datetime import timedelta
 
@@ -16345,13 +16352,20 @@ def ai_chat():
             day = today - timedelta(days=i)
             day_sales = Sale.query.filter(db.func.date(Sale.sale_date) == day).all()
             if day_sales:
-                day_uzs = sum(float(s.total_amount or 0) for s in day_sales)
+                day_uzs = sum(
+                    float(s.cash_amount or 0) + float(s.click_amount or 0) +
+                    float(s.terminal_amount or 0) + float(s.debt_amount or 0)
+                    for s in day_sales
+                )
                 day_usd = sum(
                     float(s.cash_usd or 0) + float(s.click_usd or 0) +
                     float(s.terminal_usd or 0) + float(s.debt_usd or 0)
                     for s in day_sales
                 )
-                day_profit = sum(float(s.total_profit or 0) for s in day_sales)
+                day_profit = sum(
+                    float(s.total_profit or 0) * float(s.currency_rate or 1)
+                    for s in day_sales
+                )
                 daily_stats.append(
                     f"- {day.strftime('%Y-%m-%d')} ({['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'][day.weekday()]}): "
                     f"{len(day_sales)} savdo, {day_uzs:,.0f} so'm, ${day_usd:,.2f}, foyda: {day_profit:,.0f} so'm"
