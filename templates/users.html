@@ -536,9 +536,13 @@
                        <i class="fas fa-trash"></i>
                    </button>`;
 
+            const avatarSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%23a0aec0'/%3E%3Cellipse cx='50' cy='85' rx='30' ry='22' fill='%23a0aec0'/%3E%3C/svg%3E`;
+            const avatarSrc = u.photo || avatarSvg;
+            const avatarHtml = `<img src="${avatarSrc}" onerror="this.src='${avatarSvg}'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;flex-shrink:0;">`;
+
             tableHtml += `<tr>
                 <td>${storeName}</td>
-                <td><strong>${u.username}</strong></td>
+                <td><div style="display:flex;align-items:center;gap:8px;">${avatarHtml}<strong>${u.username}</strong></div></td>
                 <td>${u.full_name}</td>
                 <td style="color:#64748b;">${u.email || '-'}</td>
                 <td style="white-space:nowrap;">${u.phone || '-'}</td>
@@ -568,8 +572,13 @@
             cardsHtml += `
                 <div class="mobile-user-card">
                     <div class="user-header">
-                        <div class="user-name">${u.full_name}</div>
-                        <div class="user-role">${u.role_display || u.role}</div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="${avatarSrc}" onerror="this.src='${avatarSvg}'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;flex-shrink:0;">
+                            <div>
+                                <div class="user-name">${u.full_name}</div>
+                                <div class="user-role">${u.role_display || u.role}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="user-info">
                         <div class="info-item">

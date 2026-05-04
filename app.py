@@ -96,6 +96,12 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+# Foydalanuvchi rasmlarini yuklash uchun papka
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads', 'users')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB
+
 # Logging konfiguratsiyasi
 logging.basicConfig(
     level=logging.INFO,
@@ -1172,6 +1178,7 @@ class User(db.Model):
     # Transfer qilish uchun ruxsat etilgan joylashuvlar
     transfer_locations = db.Column(db.JSON, default=lambda: [])
     is_active = db.Column(db.Boolean, default=True)
+    photo = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(
         db.DateTime,
@@ -1201,6 +1208,7 @@ class User(db.Model):
             'allowed_locations': self.allowed_locations or [],
             'transfer_locations': self.transfer_locations or [],
             'is_active': self.is_active,
+            'photo': f'/static/uploads/users/{self.photo}' if self.photo else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -10472,6 +10480,36 @@ def api_add_user():
     except Exception as e:
         db.session.rollback()
         app.logger.error(f"Error adding user: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/users/<int:user_id>/photo', methods=['POST'])
+@role_required('admin', 'kassir')
+def upload_user_photo(user_id):
+    """Foydalanuvchi rasmini yuklash"""
+    try:
+        user = User.query.get_or_404(user_id)
+        if 'photo' not in request.files:
+            return jsonify({'error': 'Rasm fayli topilmadi'}), 400
+        file = request.files['photo']
+        if file.filename == '':
+            return jsonify({'error': 'Fayl tanlanmagan'}), 400
+        allowed_ext = {'jpg', 'jpeg', 'png', 'gif', 'webp'}
+        ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+        if ext not in allowed_ext:
+            return jsonify({'error': 'Faqat jpg, jpeg, png, gif, webp formatlari qabul qilinadi'}), 400
+        filename = f"{user_id}.{ext}"
+        # Eski rasmni o'chirish (boshqa extension bo'lsa)
+        for old_ext in allowed_ext:
+            old_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_id}.{old_ext}")
+            if os.path.exists(old_path):
+                os.remove(old_path)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        user.photo = filename
+        db.session.commit()
+        return jsonify({'success': True, 'photo': f'/static/uploads/users/{filename}'}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 
