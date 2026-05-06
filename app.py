@@ -3838,6 +3838,14 @@ def add_customer():
             if not name:
                 return jsonify({'error': 'Mijoz nomi kiritilishi shart'}), 400
 
+            # Telefon raqami unikligini tekshirish
+            if phone and phone.strip():
+                existing = Customer.query.filter(Customer.phone == phone.strip()).first()
+                if existing:
+                    return jsonify({
+                        'error': f'Bu telefon raqam ({phone.strip()}) allaqachon "{existing.name}" mijozida ro\'yxatdan o\'tgan'
+                    }), 400
+
             # Store ID ni integer ga aylantirish
             if store_id and store_id != '':
                 try:
@@ -10121,6 +10129,17 @@ def api_add_customer():
         if not data or not data.get('name'):
             return jsonify({'error': 'Mijoz nomi talab qilinadi'}), 400
 
+        # Telefon raqami unikligini tekshirish
+        phone = data.get('phone', '').strip()
+        if phone:
+            existing = Customer.query.filter(
+                Customer.phone == phone
+            ).first()
+            if existing:
+                return jsonify({
+                    'error': f'Bu telefon raqam ({phone}) allaqachon "{existing.name}" mijozida ro\'yxatdan o\'tgan'
+                }), 400
+
         # Store_id ni data'dan olish
         store_id = data.get('store_id')
         print(
@@ -10296,6 +10315,18 @@ def update_customer(customer_id):
 
         if not data or not data.get('name'):
             return jsonify({'error': 'Mijoz nomi talab qilinadi'}), 400
+
+        # Telefon raqami unikligini tekshirish (o'zini hisobga olmasdan)
+        phone = data.get('phone', '').strip()
+        if phone:
+            existing = Customer.query.filter(
+                Customer.phone == phone,
+                Customer.id != customer_id
+            ).first()
+            if existing:
+                return jsonify({
+                    'error': f'Bu telefon raqam ({phone}) allaqachon "{existing.name}" mijozida ro\'yxatdan o\'tgan'
+                }), 400
 
         # Eski ma'lumotlarni saqlash
         old_data = {
