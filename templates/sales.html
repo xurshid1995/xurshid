@@ -1710,7 +1710,7 @@
         
         // Agar faqat bitta tab qolgan bo'lsa, yopishga ruxsat bermaslik
         if (salesTabs.length <= 1) {
-            alert('? ' + SLANG.last_tab_warn);
+            alert('⚠️ ' + SLANG.last_tab_warn);
             return;
         }
         
@@ -1720,9 +1720,9 @@
             const cart = (tabState && tabState.cart) || [];
             
             // Tasdiqlash xabari
-            let confirmMessage = '?? Bu tabni yopmoqchimisiz?\n\n';
+            let confirmMessage = '❓ Bu tabni yopmoqchimisiz?\n\n';
             if (cart.length > 0) {
-                confirmMessage = `?? Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
+                confirmMessage = `⚠️ Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
                     'Tabni yopsangiz, barcha ma\'lumotlar o\'chadi.\n\n';
             }
             confirmMessage += 'Davom etasizmi?';
@@ -2016,20 +2016,20 @@
         
         // Validatsiya
         if (!name) {
-            errorDiv.textContent = '?? ' + SLANG.customer_name_required;
+            errorDiv.textContent = '⚠️ ' + SLANG.customer_name_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         if (!storeId) {
-            errorDiv.textContent = '?? ' + SLANG.store_required;
+            errorDiv.textContent = '⚠️ ' + SLANG.store_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         // Telefon validatsiyasi
         if (phone && phone.length !== 18) {
-            errorDiv.textContent = '? ' + SLANG.phone_format_error;
+            errorDiv.textContent = '❌ ' + SLANG.phone_format_error;
             errorDiv.style.display = 'block';
             return;
         }
@@ -2050,7 +2050,7 @@
             const result = await response.json();
             
             if (!response.ok) {
-                errorDiv.textContent = '? ' + (result.error || SLANG.customer_add_error);
+                errorDiv.textContent = '❌ ' + (result.error || SLANG.customer_add_error);
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -2058,7 +2058,7 @@
             console.log('? Yangi mijoz qo\'shildi:', result);
             
             // Muvaffaqiyat xabari
-            successDiv.textContent = '? ' + SLANG.customer_added_success;
+            successDiv.textContent = '✅ ' + SLANG.customer_added_success;
             successDiv.style.display = 'block';
             
             // Mijozlar ro'yxatini yangilash
@@ -2108,7 +2108,7 @@
             
         } catch (error) {
             console.error('Mijoz qo\'shish xatosi:', error);
-            errorDiv.textContent = '? ' + SLANG.server_connection_error;
+            errorDiv.textContent = '❌ ' + SLANG.server_connection_error;
             errorDiv.style.display = 'block';
         }
     }
@@ -2168,11 +2168,11 @@
         
         // Joylashuv tanlanganligini tekshirish
         if (!selectedLocationId || !selectedLocationType) {
-            showBarcodeStatus('?? ' + SLANG.select_location_first, 'error');
+            showBarcodeStatus('⚠️ ' + SLANG.select_location_first, 'error');
             return;
         }
         
-        showBarcodeStatus('? Qidirilmoqda...', 'loading');
+        showBarcodeStatus('🔍 Qidirilmoqda...', 'loading');
         
         try {
             const response = await fetch('/api/search-product-by-barcode', {
@@ -2215,7 +2215,7 @@
             
         } catch (error) {
             console.error('? Barcode qidiruv xatosi:', error);
-            showBarcodeStatus('? Server xatosi', 'error');
+            showBarcodeStatus('❌ Server xatosi', 'error');
             const universalSearch = getActiveTabElement('universalSearch');
             if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
         }
@@ -3570,7 +3570,7 @@
                 
                 // Internet tekshiruvi (1-qatlam)
                 if (!navigator.onLine) {
-                    alert('?? Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+                    alert('📶 Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
                     return;
                 }
                 
@@ -3589,7 +3589,7 @@
                     console.log('? Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
                 } catch (error) {
                     console.error('Stok ayirish xatosi (network):', error);
-                    alert('?? Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+                    alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
                     return;
                 }
             }
@@ -3655,7 +3655,7 @@
         // Mahsulot allaqachon savatda borligini tekshirish
         const existingItem = cart.find(item => item.id === currentProduct.id);
         if (existingItem) {
-            alert('?? ' + SLANG.already_in_cart + '\n\n' + SLANG.already_in_cart_hint);
+            alert('⚠️ ' + SLANG.already_in_cart + '\n\n' + SLANG.already_in_cart_hint);
             closeModal();
             return;
         }
@@ -3672,7 +3672,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('?? Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
             return;
         }
         
@@ -3691,7 +3691,7 @@
             console.log('? Stokdan ayirildi:', quantity, 'dona');
         } catch (error) {
             console.error('Stok ayirish xatosi (network):', error);
-            alert('?? Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+            alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
             return;
         }
         
@@ -3992,7 +3992,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('?? Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
             return;
         }
         
@@ -4102,7 +4102,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
-            alert('?? Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
             updateCart(); // Eski qiymatni qaytarish
             return;
         }
@@ -5280,8 +5280,8 @@
         // Mahsulotlar jadvalini yangilash
         await loadProducts();
         
-        console.log('??? Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
-        alert('? ' + SLANG.cart_cleared);
+        console.log('✅ Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
+        alert('✅ ' + SLANG.cart_cleared);
     }
     
     // Avtomatik pending savdo yaratish/yangilash
