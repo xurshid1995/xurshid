@@ -205,7 +205,14 @@ let currentDateFrom = '';
 let currentDateTo = '';
 let exchangeRate = 12100;
 
-// Valyuta kursini olish
+// Lokal sana formatlash (toISOString() timezone muammosini oldini olish)
+function fmtDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 async function loadExchangeRate() {
     try {
         const res = await fetch('/api/settings');
@@ -219,21 +226,23 @@ function setPeriod(period) {
     document.querySelectorAll('.hr-btn').forEach(b => b.classList.remove('hr-btn-active'));
 
     const today = new Date();
-    const fmt = d => d.toISOString().split('T')[0];
 
     if (period === 'today') {
-        currentDateFrom = fmt(today);
-        currentDateTo = fmt(today);
+        currentDateFrom = fmtDate(today);
+        currentDateTo = fmtDate(today);
         document.getElementById('btn-today').classList.add('hr-btn-active');
     } else if (period === 'week') {
         const mon = new Date(today);
-        mon.setDate(today.getDate() - today.getDay() + 1);
-        currentDateFrom = fmt(mon);
-        currentDateTo = fmt(today);
+        // getDay(): 0=Yak, 1=Du ... Dushanba qilish
+        const diff = (today.getDay() + 6) % 7;
+        mon.setDate(today.getDate() - diff);
+        currentDateFrom = fmtDate(mon);
+        currentDateTo = fmtDate(today);
         document.getElementById('btn-week').classList.add('hr-btn-active');
     } else if (period === 'month') {
-        currentDateFrom = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
-        currentDateTo = fmt(today);
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        currentDateFrom = fmtDate(first);
+        currentDateTo = fmtDate(today);
         document.getElementById('btn-month').classList.add('hr-btn-active');
     } else if (period === 'custom') {
         currentDateFrom = document.getElementById('dateFrom').value;
@@ -259,119 +268,81 @@ function fmtNum(v) {
     return parseInt(v || 0).toLocaleString('uz-UZ');
 }
 
-async function loadSalesStats() {
-    try {
-        const res = await fetch(`/api/sales-statistics?date_from=${currentDateFrom}&date_to=${currentDateTo}`);
-        const d = await res.json();
-        document.getElementById('totalSales').textContent = fmtNum(d.total_sales);
-        document.getElementById('totalRevenue').textContent = fmtUsd(d.total_revenue);
-        document.getElementById('totalRevenueUzs').textContent = fmtUzs(d.total_revenue);
-        document.getElementById('avgSale').textContent = fmtUsd(d.avg_sale);
-    } catch(e) {
-        document.getElementById('totalSales').textContent = '—';
-    }
-}
+async function loadAll() {
+    // Parallel: history (stats+top products+locations) + chart (profit+payments) + debts
+    const [histRes, chartRes, debtRes] = await Promise.all([
+        fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1`),
+        fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom`),
+        fetch('/api/debts')
+    ]);
 
-async function loadProfitAndPayments() {
-    try {
-        const res = await fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom`);
-        const d = await res.json();
+    const hist = await histRes.json();
+    const chart = await chartRes.json();
+    const debtD = await debtRes.json();
 
-        // Foyda
-        const profitEl = document.getElementById('totalProfit');
+    const stats = (hist.data && hist.data.statistics) || {};
+
+    // --- Jami savdolar, tushum, o'rtacha ---
+    document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);
+    document.getElementById('totalRevenue').textContent = fmtUsd(stats.total_revenue);
+    document.getElementById('totalRevenueUzs').textContent = fmtUzs(stats.total_revenue);
+    document.getElementById('avgSale').textContent = fmtUsd(stats.avg_order_value);
+
+    // --- Foyda (sales-chart dan: profits massivini yig'ish) ---
+    const profitEl = document.getElementById('totalProfit');
+    if (profitEl) {
+        const profit = (chart.profits || []).reduce((a, b) => a + parseFloat(b || 0), 0);
+        profitEl.textContent = fmtUsd(profit);
         const profitUzsEl = document.getElementById('totalProfitUzs');
-        if (profitEl) {
-            const profit = parseFloat(d.total_profit || 0);
-            profitEl.textContent = fmtUsd(profit);
-            if (profitUzsEl) profitUzsEl.textContent = fmtUzs(profit);
-        }
-
-        // To'lov usullari
-        const pmDiv = document.getElementById('paymentMethods');
-        if (d.payment_methods && Object.keys(d.payment_methods).length > 0) {
-            const total = Object.values(d.payment_methods).reduce((a, b) => a + parseFloat(b || 0), 0);
-            const names = { cash: '💵 Naqd', card: '💳 Karta', transfer: '🏦 O\'tkazma', debt: '📋 Nasiya', dollar: '💵 Dollar' };
-            pmDiv.innerHTML = Object.entries(d.payment_methods)
-                .filter(([, v]) => parseFloat(v) > 0)
-                .sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]))
-                .map(([k, v]) => {
-                    const pct = total > 0 ? Math.round(parseFloat(v) / total * 100) : 0;
-                    return `<div class="hr-row">
-                        <span style="min-width:90px;">${names[k] || k}</span>
-                        <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%;"></div></div>
-                        <span style="font-weight:600; color:#1a6eff; min-width:80px; text-align:right;">${fmtUsd(v)}</span>
-                        <span style="color:#aaa; font-size:11px; min-width:30px; text-align:right;">${pct}%</span>
-                    </div>`;
-                }).join('');
-        } else {
-            pmDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
-        }
-
-        // Joylashuvlar
-        const locDiv = document.getElementById('locationStats');
-        if (d.locations && d.locations.length > 0) {
-            const maxVal = Math.max(...d.locations.map(l => parseFloat(l.revenue || 0)));
-            locDiv.innerHTML = d.locations.slice(0, 8).map((l, i) => {
-                const pct = maxVal > 0 ? Math.round(parseFloat(l.revenue || 0) / maxVal * 100) : 0;
-                return `<div class="hr-row">
-                    <div class="hr-rank">${i+1}</div>
-                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.name || 'Noma\'lum'}</span>
-                    <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%;"></div></div>
-                    <span style="font-weight:600; color:#22c55e; min-width:80px; text-align:right;">${fmtUsd(l.revenue)}</span>
-                </div>`;
-            }).join('');
-        } else {
-            locDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
-        }
-    } catch(e) {
-        document.getElementById('paymentMethods').innerHTML = '<div class="hr-loading">Xatolik</div>';
-        document.getElementById('locationStats').innerHTML = '<div class="hr-loading">Xatolik</div>';
+        if (profitUzsEl) profitUzsEl.textContent = fmtUzs(profit);
     }
-}
 
-async function loadDebts() {
-    try {
-        const res = await fetch('/api/debts');
-        const d = await res.json();
-        const debts = d.debts || [];
-        const totalDebt = debts.reduce((s, x) => s + parseFloat(x.total_debt || 0), 0);
-        document.getElementById('totalDebt').textContent = fmtUsd(totalDebt);
-        document.getElementById('totalDebtCount').textContent = `${debts.length} ta mijoz`;
+    // --- To'lov usullari (payment_totals dan) ---
+    const pmDiv = document.getElementById('paymentMethods');
+    const pt = chart.payment_totals || {};
+    const pmNames = { cash: '💵 Naqd', click: '📱 Click', terminal: '💳 Terminal', debt: '📋 Nasiya' };
+    const pmEntries = Object.entries(pmNames)
+        .map(([k, label]) => [k, label, parseFloat(pt[k] || 0)])
+        .filter(([,, v]) => v > 0)
+        .sort((a, b) => b[2] - a[2]);
 
-        const debtDiv = document.getElementById('debtList');
-        if (debts.length === 0) {
-            debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
-            return;
-        }
-        const sorted = [...debts].sort((a, b) => parseFloat(b.total_debt) - parseFloat(a.total_debt));
-        document.getElementById('debtListCount').textContent = sorted.length;
-        const max = parseFloat(sorted[0]?.total_debt || 1);
-        debtDiv.innerHTML = sorted.map((d, i) => {
-            const pct = Math.round(parseFloat(d.total_debt) / max * 100);
+    if (pmEntries.length > 0) {
+        const pmTotal = pmEntries.reduce((s, [,, v]) => s + v, 0);
+        pmDiv.innerHTML = pmEntries.map(([, label, v]) => {
+            const pct = pmTotal > 0 ? Math.round(v / pmTotal * 100) : 0;
             return `<div class="hr-row">
-                <div class="hr-rank">${i+1}</div>
-                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${d.customer_name}">${d.customer_name}</span>
-                <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%; background:#e53e3e;"></div></div>
-                <span style="font-weight:600; color:#e53e3e; min-width:80px; text-align:right;">${fmtUsd(d.total_debt)}</span>
+                <span style="min-width:90px;">${label}</span>
+                <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%;"></div></div>
+                <span style="font-weight:600; color:#1a6eff; min-width:80px; text-align:right;">${fmtUsd(v)}</span>
+                <span style="color:#aaa; font-size:11px; min-width:30px; text-align:right;">${pct}%</span>
             </div>`;
         }).join('');
-    } catch(e) {
-        document.getElementById('totalDebt').textContent = '—';
-        document.getElementById('debtList').innerHTML = '<div class="hr-loading">Xatolik</div>';
+    } else {
+        pmDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
     }
-}
 
-async function loadTopProducts() {
-    try {
-        const res = await fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1`);
-        const d = await res.json();
-        const products = (d.data && d.data.statistics && d.data.statistics.top_products) || [];
+    // --- Joylashuvlar (store_performance dan) ---
+    const locDiv = document.getElementById('locationStats');
+    const locs = (stats.store_performance || []).filter(l => parseFloat(l.revenue || 0) > 0);
+    if (locs.length > 0) {
+        const maxRev = Math.max(...locs.map(l => parseFloat(l.revenue || 0)));
+        locDiv.innerHTML = locs.map((l, i) => {
+            const pct = maxRev > 0 ? Math.round(parseFloat(l.revenue) / maxRev * 100) : 0;
+            return `<div class="hr-row">
+                <div class="hr-rank">${i+1}</div>
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.name || 'Noma\'lum'}</span>
+                <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%;"></div></div>
+                <span style="font-weight:600; color:#22c55e; min-width:80px; text-align:right;">${fmtUsd(l.revenue)}</span>
+            </div>`;
+        }).join('');
+    } else {
+        locDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+    }
 
-        const prodDiv = document.getElementById('topProducts');
-        if (products.length === 0) {
-            prodDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
-            return;
-        }
+    // --- Top 10 mahsulot ---
+    const prodDiv = document.getElementById('topProducts');
+    const products = stats.top_products || [];
+    if (products.length > 0) {
         const maxQty = parseFloat(products[0].quantity || 1);
         prodDiv.innerHTML = products.map((p, i) => {
             const qty = parseFloat(p.quantity || 0);
@@ -383,14 +354,33 @@ async function loadTopProducts() {
                 <span style="font-weight:600; color:#8b5cf6; min-width:55px; text-align:right;">${qty.toLocaleString('uz-UZ', {maximumFractionDigits:1})} dona</span>
             </div>`;
         }).join('');
-    } catch(e) {
-        document.getElementById('topProducts').innerHTML = '<div class="hr-loading">Xatolik</div>';
+    } else {
+        prodDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
     }
-}
 
-async function loadAll() {
-    await loadSalesStats();
-    await Promise.all([loadProfitAndPayments(), loadDebts(), loadTopProducts()]);
+    // --- Qarzli mijozlar ---
+    const debts = debtD.debts || [];
+    const totalDebt = debts.reduce((s, x) => s + parseFloat(x.total_debt || 0), 0);
+    document.getElementById('totalDebt').textContent = fmtUsd(totalDebt);
+    document.getElementById('totalDebtCount').textContent = `${debts.length} ta mijoz`;
+
+    const debtDiv = document.getElementById('debtList');
+    document.getElementById('debtListCount').textContent = debts.length;
+    if (debts.length === 0) {
+        debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
+    } else {
+        const sorted = [...debts].sort((a, b) => parseFloat(b.total_debt) - parseFloat(a.total_debt));
+        const maxDebt = parseFloat(sorted[0]?.total_debt || 1);
+        debtDiv.innerHTML = sorted.map((d, i) => {
+            const pct = Math.round(parseFloat(d.total_debt) / maxDebt * 100);
+            return `<div class="hr-row">
+                <div class="hr-rank">${i+1}</div>
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${d.customer_name}">${d.customer_name}</span>
+                <div class="hr-bar-wrap"><div class="hr-bar" style="width:${pct}%; background:#e53e3e;"></div></div>
+                <span style="font-weight:600; color:#e53e3e; min-width:80px; text-align:right;">${fmtUsd(d.total_debt)}</span>
+            </div>`;
+        }).join('');
+    }
 }
 
 // Boshlash
