@@ -11206,18 +11206,19 @@ def api_sales_history():
                 'revenue': float(revenue or 0)
             })
 
-        # Store performance - subquery bilan optimizatsiya
+        # Store + Warehouse performance - location_id/location_type asosida
         store_performance = []
+        Warehouse_alias = aliased(Warehouse)
         Store_alias = aliased(Store)
 
-        # ✅ Subquery ishlatish
+        # Do'konlar (store)
         store_perf_query = db.session.query(
             Store_alias.name,
             func.count(Sale.id).label('sales'),
             func.sum(Sale.total_amount).label('revenue'),
             func.sum(Sale.total_profit).label('profit')
         ).join(
-            Sale, Sale.store_id == Store_alias.id
+            Store_alias, db.and_(Sale.location_id == Store_alias.id, Sale.location_type == 'store')
         ).filter(
             Sale.id.in_(select(sale_ids_subquery.c.id))
         ).group_by(
@@ -11225,7 +11226,6 @@ def api_sales_history():
         ).order_by(
             func.sum(Sale.total_amount).desc()
         )
-
         for name, sales_count, revenue, profit in store_perf_query.all():
             store_performance.append({
                 'name': name or 'Noma\'lum',
@@ -11233,6 +11233,32 @@ def api_sales_history():
                 'revenue': float(revenue or 0),
                 'profit': float(profit or 0)
             })
+
+        # Omborlar (warehouse)
+        wh_perf_query = db.session.query(
+            Warehouse_alias.name,
+            func.count(Sale.id).label('sales'),
+            func.sum(Sale.total_amount).label('revenue'),
+            func.sum(Sale.total_profit).label('profit')
+        ).join(
+            Warehouse_alias, db.and_(Sale.location_id == Warehouse_alias.id, Sale.location_type == 'warehouse')
+        ).filter(
+            Sale.id.in_(select(sale_ids_subquery.c.id))
+        ).group_by(
+            Warehouse_alias.name
+        ).order_by(
+            func.sum(Sale.total_amount).desc()
+        )
+        for name, sales_count, revenue, profit in wh_perf_query.all():
+            store_performance.append({
+                'name': name or 'Noma\'lum',
+                'sales': sales_count,
+                'revenue': float(revenue or 0),
+                'profit': float(profit or 0)
+            })
+
+        # Revenue bo'yicha tartiblash
+        store_performance.sort(key=lambda x: x['revenue'], reverse=True)
 
         # Sales list conversion with error handling
         sales_list = []
