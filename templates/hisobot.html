@@ -302,8 +302,8 @@ async function loadAll() {
             const pmRows = pmSorted.map(([method, amt]) => {
                 const color = pmColors[method] || '#aaa';
                 const label = pmLabels[method] || method;
-                const barPct = maxTotal > 0 ? Math.round(amt / maxTotal * 100) : 0;
-                const labelPct = locTotal > 0 ? Math.round(amt / locTotal * 100) : 0;
+                const barPct = locTotal > 0 ? Math.round(amt / locTotal * 100) : 0;
+                const labelPct = barPct;
                 return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 30px;">
                     <span style="min-width:90px;font-size:12px;color:#555;">${label}</span>
                     <div class="hr-bar-wrap" style="margin:0;width:55%;"><div class="hr-bar" style="width:${barPct}%;background:${color};"></div></div>
