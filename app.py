@@ -7354,7 +7354,6 @@ def api_debt_payment_history():
             {location_filter}
             GROUP BY dp.customer_id, c.name, dp.payment_date, dp.received_by
             ORDER BY dp.payment_date DESC
-            LIMIT 1000
         """)
 
         result = db.session.execute(sql, params)
