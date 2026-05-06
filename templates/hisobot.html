@@ -297,6 +297,12 @@ async function loadAll() {
     const lpb = stats.location_payment_breakdown || [];
     const pmLabels = { cash: '💵 Naqd', click: '📱 Click', terminal: '💳 Terminal', debt: '📋 Nasiya' };
     const pmColors = { cash: '#22c55e', click: '#3b82f6', terminal: '#8b5cf6', debt: '#ef4444' };
+    const pmGradients = {
+        cash: 'linear-gradient(90deg,#16a34a,#4ade80)',
+        click: 'linear-gradient(90deg,#1d4ed8,#60a5fa)',
+        terminal: 'linear-gradient(90deg,#6d28d9,#c084fc)',
+        debt: 'linear-gradient(90deg,#b91c1c,#f87171)'
+    };
 
     if (lpb.length > 0) {
         const maxTotal = lpb[0].total;
@@ -307,31 +313,35 @@ async function loadAll() {
             const maxBar = Math.max(locTotal, locProfit, 0.01);
             const pmRows = pmSorted.map(([method, amt]) => {
                 const color = pmColors[method] || '#aaa';
+                const grad = pmGradients[method] || color;
                 const label = pmLabels[method] || method;
                 const barPct = locTotal > 0 ? Math.round(amt / locTotal * 100) : 0;
-                const labelPct = barPct;
-                return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 30px;">
-                    <span style="min-width:90px;font-size:12px;color:#555;">${label}</span>
-                    <div class="hr-bar-wrap" style="margin:0;width:55%;"><div class="hr-bar" style="width:${barPct}%;background:${color};"></div></div>
-                    <span style="font-weight:600;color:${color};font-size:12px;min-width:70px;text-align:right;">${fmtUsd(amt)}</span>
-                    <span style="color:#bbb;font-size:11px;min-width:28px;text-align:right;">${labelPct}%</span>
+                return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 30px;">
+                    <span style="min-width:88px;font-size:11.5px;color:#666;font-weight:500;">${label}</span>
+                    <div style="flex:1;height:7px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                        <div style="width:${barPct}%;height:100%;background:${grad};border-radius:99px;transition:width .6s ease;"></div>
+                    </div>
+                    <span style="font-weight:700;color:${color};font-size:12px;min-width:68px;text-align:right;">${fmtUsd(amt)}</span>
+                    <span style="background:${color}18;color:${color};font-size:10px;font-weight:700;min-width:32px;text-align:center;padding:1px 4px;border-radius:99px;">${barPct}%</span>
                 </div>`;
             }).join('');
             const profitPct = locTotal > 0 ? Math.round(locProfit / locTotal * 100) : 0;
-            const profitRow = `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 30px;border-top:1px dashed #f0f2f5;margin-top:2px;">
-                <span style="min-width:90px;font-size:12px;color:#555;">📈 Foyda</span>
-                <div class="hr-bar-wrap" style="margin:0;width:55%;"><div class="hr-bar" style="width:${profitPct}%;background:#f59e0b;"></div></div>
-                <span style="font-weight:600;color:#f59e0b;font-size:12px;min-width:70px;text-align:right;">${fmtUsd(locProfit)}</span>
-                <span style="color:#bbb;font-size:11px;min-width:28px;text-align:right;">${profitPct}%</span>
-            </div>`;
-            return `<div style="padding:10px 0; border-bottom:1px solid #f0f2f5;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                    <div class="hr-rank">${i+1}</div>
-                    <span style="font-weight:600;font-size:13px;flex:1;">${loc.name}</span>
-                    <span style="font-weight:700;color:#1a6eff;font-size:14px;">${fmtUsd(loc.total)}</span>
+            const profitRow = `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 30px;border-top:1px dashed #f0f2f5;margin-top:3px;">
+                <span style="min-width:88px;font-size:11.5px;color:#666;font-weight:500;">📈 Foyda</span>
+                <div style="flex:1;height:7px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                    <div style="width:${profitPct}%;height:100%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:99px;"></div>
                 </div>
-                <div class="hr-bar-wrap" style="margin:0 0 8px 30px;height:10px;border-radius:5px;">
-                    <div class="hr-bar" style="width:100%;background:linear-gradient(90deg,#1a6eff,#60a5fa);height:10px;border-radius:5px;"></div>
+                <span style="font-weight:700;color:#d97706;font-size:12px;min-width:68px;text-align:right;">${fmtUsd(locProfit)}</span>
+                <span style="background:#d9770618;color:#d97706;font-size:10px;font-weight:700;min-width:32px;text-align:center;padding:1px 4px;border-radius:99px;">${profitPct}%</span>
+            </div>`;
+            return `<div style="padding:10px 0;border-bottom:1px solid #f0f2f5;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <div class="hr-rank">${i+1}</div>
+                    <span style="font-weight:700;font-size:13px;flex:1;">${loc.name}</span>
+                    <span style="font-weight:800;color:#1a6eff;font-size:14px;">${fmtUsd(loc.total)}</span>
+                </div>
+                <div style="margin:0 0 8px 30px;height:12px;background:#e8f0fe;border-radius:99px;overflow:hidden;">
+                    <div style="width:100%;height:100%;background:linear-gradient(90deg,#1a6eff,#60a5fa,#a5c4ff);border-radius:99px;"></div>
                 </div>
                 ${pmRows}
                 ${profitRow}
@@ -361,29 +371,40 @@ async function loadAll() {
 
         const maxVal = Math.max(...pmEntries.map(e => e.val), totalProfit, 0.01);
 
+        const profitMargin = totalRevenue > 0 ? (totalProfit/totalRevenue*100).toFixed(1) : 0;
         summaryDiv.innerHTML = `
-        <div style="font-size:12px;font-weight:600;color:#888;margin-bottom:12px;">Umumiy ko'rsatkichlar</div>
-        <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <span style="font-size:12px;color:#555;">💰 Jami tushum</span>
-                <span style="font-size:13px;font-weight:700;color:#1a6eff;">${fmtUsd(totalRevenue)}</span>
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px;">Umumiy ko'rsatkichlar</div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;color:#555;font-weight:600;">💰 Jami tushum</span>
+                <span style="font-size:15px;font-weight:800;color:#1a6eff;">${fmtUsd(totalRevenue)}</span>
             </div>
-            <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#f0f2f5;">
-                ${pmEntries.map(e => `<div style="width:${totalRevenue>0?(e.val/totalRevenue*100).toFixed(1):0}%;background:${e.color};height:100%;" title="${e.label}: ${fmtUsd(e.val)}"></div>`).join('')}
+            <div style="display:flex;height:14px;border-radius:99px;overflow:hidden;background:#e5e7eb;gap:1px;">
+                ${pmEntries.map(e => `<div style="width:${totalRevenue>0?(e.val/totalRevenue*100).toFixed(1):0}%;background:${pmGradients[e.key]||e.color};height:100%;" title="${e.label}: ${fmtUsd(e.val)}"></div>`).join('')}
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                ${pmEntries.map(e => `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#555;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${e.color};"></span>${e.label.split(' ').slice(1).join(' ')}</span>`).join('')}
             </div>
         </div>
         ${pmEntries.map(e => {
             const barW = (e.val / maxVal * 100).toFixed(1);
-            return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-                <span style="min-width:100px;font-size:12px;color:#555;">${e.label}</span>
-                <div class="hr-bar-wrap" style="margin:0;flex:1;"><div class="hr-bar" style="width:${barW}%;background:${e.color};"></div></div>
-                <span style="font-weight:600;color:${e.color};font-size:12px;min-width:70px;text-align:right;">${fmtUsd(e.val)}</span>
+            const pct = totalRevenue > 0 ? (e.val/totalRevenue*100).toFixed(0) : 0;
+            return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+                <span style="min-width:95px;font-size:11.5px;color:#555;font-weight:500;">${e.label}</span>
+                <div style="flex:1;height:8px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                    <div style="width:${barW}%;height:100%;background:${pmGradients[e.key]||e.color};border-radius:99px;"></div>
+                </div>
+                <span style="font-weight:700;color:${e.color};font-size:12px;min-width:68px;text-align:right;">${fmtUsd(e.val)}</span>
+                <span style="background:${e.color}18;color:${e.color};font-size:10px;font-weight:700;min-width:28px;text-align:center;padding:1px 4px;border-radius:99px;">${pct}%</span>
             </div>`;
         }).join('')}
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-top:4px;border-top:1px solid #f0f2f5;">
-            <span style="min-width:100px;font-size:12px;color:#555;">📈 Jami foyda</span>
-            <div class="hr-bar-wrap" style="margin:0;flex:1;"><div class="hr-bar" style="width:${(totalProfit/maxVal*100).toFixed(1)}%;background:#f59e0b;"></div></div>
-            <span style="font-weight:600;color:#f59e0b;font-size:12px;min-width:70px;text-align:right;">${fmtUsd(totalProfit)}</span>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;margin-top:6px;border-top:2px dashed #fde68a;">
+            <span style="min-width:95px;font-size:11.5px;color:#92400e;font-weight:600;">📈 Jami foyda</span>
+            <div style="flex:1;height:8px;background:#fef3c7;border-radius:99px;overflow:hidden;">
+                <div style="width:${(totalProfit/maxVal*100).toFixed(1)}%;height:100%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:99px;"></div>
+            </div>
+            <span style="font-weight:800;color:#d97706;font-size:12px;min-width:68px;text-align:right;">${fmtUsd(totalProfit)}</span>
+            <span style="background:#fde68a;color:#92400e;font-size:10px;font-weight:700;min-width:28px;text-align:center;padding:1px 4px;border-radius:99px;">${profitMargin}%</span>
         </div>`;
     } else {
         summaryDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
