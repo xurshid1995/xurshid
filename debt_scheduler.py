@@ -117,6 +117,31 @@ class DebtScheduler:
                 logger.error(f"❌ Qarzli mijozlarni olishda xatolik: {e}")
                 return []
     
+    def _get_reminder_time_from_db(self) -> str:
+        """DB dan default_reminder_time ni o'qish, topilmasa .env dan"""
+        if self.app:
+            try:
+                with self.app.app_context():
+                    from app import Settings
+                    setting = Settings.query.filter_by(key='default_reminder_time').first()
+                    if setting and setting.value:
+                        return setting.value
+            except Exception:
+                pass
+        return os.getenv('DEBT_REMINDER_TIME', '10:00')
+
+    def _check_and_run_daily_reminders(self):
+        """Har daqiqa ishga tushadi: DB dagi vaqt bilan mos kelsa eslatmalar yuboradi"""
+        try:
+            reminder_time = self._get_reminder_time_from_db()
+            hour, minute = map(int, reminder_time.split(':'))
+            now = datetime.now()
+            if now.hour == hour and now.minute == minute:
+                logger.info(f"📅 Vaqt mos keldi ({reminder_time}) — kunlik eslatmalar yuborilmoqda...")
+                self.send_daily_reminders()
+        except Exception as e:
+            logger.error(f"❌ Kunlik eslatma tekshirishda xatolik: {e}")
+
     def send_daily_reminders(self):
         """Kunlik qarz eslatmalarini yuborish (sinxron)"""
         logger.info("📅 Kunlik qarz eslatmalari — muddatli qarzlar tekshirilmoqda...")
@@ -280,16 +305,16 @@ class DebtScheduler:
     def start(self):
         """Schedulerni ishga tushirish"""
         try:
-            # Kunlik eslatmalar (har kuni soat 10:00 da)
-            hour, minute = map(int, self.daily_reminder_time.split(':'))
+            # Kunlik eslatmalar — har daqiqa DB dagi vaqtni tekshiradi
             self.scheduler.add_job(
-                self.send_daily_reminders,
-                CronTrigger(hour=hour, minute=minute),
+                self._check_and_run_daily_reminders,
+                CronTrigger(minute='*'),
                 id='daily_reminders',
-                name='Kunlik qarz eslatmalari',
+                name='Kunlik qarz eslatmalari (DB vaqti)',
                 replace_existing=True
             )
-            logger.info(f"✅ Kunlik eslatmalar: har kuni {self.daily_reminder_time} da")
+            reminder_time = self._get_reminder_time_from_db()
+            logger.info(f"✅ Kunlik eslatmalar: DB dan o'qiladi (hozir: {reminder_time})")
             
             # Individual eslatmalarni tekshirish (har 5 daqiqada)
             self.scheduler.add_job(
