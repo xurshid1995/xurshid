@@ -7197,7 +7197,8 @@ def api_paid_debts():
                 JOIN debt_payments dp ON dp.sale_id = s.id
                 WHERE s.payment_status = 'paid'
                     AND s.debt_usd = 0
-                    AND c.store_id = :location_id
+                    AND s.location_id = :location_id
+                    AND s.location_type = 'store'
                 GROUP BY s.id, c.name, s.created_at, s.total_amount, s.cash_usd, s.click_usd, s.terminal_usd
                 ORDER BY MAX(dp.payment_date) DESC
                 LIMIT 200
@@ -7231,7 +7232,8 @@ def api_paid_debts():
                 JOIN debt_payments dp ON dp.sale_id = s.id
                 WHERE s.payment_status = 'paid'
                     AND s.debt_usd = 0
-                    AND c.store_id IN :store_ids
+                    AND s.location_id IN :store_ids
+                    AND s.location_type = 'store'
                 GROUP BY s.id, c.name, s.created_at, s.total_amount, s.cash_usd, s.click_usd, s.terminal_usd
                 ORDER BY MAX(dp.payment_date) DESC
                 LIMIT 200
@@ -7325,7 +7327,7 @@ def api_debt_payment_history():
             query = query.join(Sale, DebtPayment.sale_id == Sale.id, isouter=True).filter(
                 db.or_(
                     Sale.location_id == location_id,
-                    DebtPayment.sale_id is None  # sale_id NULL bo'lgan to'lovlar ham ko'rinadi
+                    DebtPayment.sale_id.is_(None)  # sale_id NULL bo'lgan to'lovlar ham ko'rinadi
                 )
             )
         else:
@@ -7338,7 +7340,7 @@ def api_debt_payment_history():
                 query = query.join(Sale, DebtPayment.sale_id == Sale.id, isouter=True).filter(
                     db.or_(
                         Sale.location_id.in_(allowed_location_ids),
-                        DebtPayment.sale_id is None
+                        DebtPayment.sale_id.is_(None)
                     )
                 )
 
@@ -7516,10 +7518,11 @@ def api_debt_payment():
                 'error': 'To\'lov summasi 0 dan katta bo\'lishi kerak'
             }), 400
 
-        # Mijozning qarzli savdolarini topish
+        # Mijozning qarzli savdolarini topish (pending bo'lmaganlar)
         sales = Sale.query.filter(
             Sale.customer_id == customer_id,
-            Sale.debt_usd > 0
+            Sale.debt_usd > 0,
+            Sale.payment_status != 'pending'
         ).order_by(Sale.created_at.asc()).all()
 
         if not sales:
