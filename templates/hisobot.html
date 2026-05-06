@@ -382,9 +382,6 @@ async function loadAll() {
             <div style="height:14px;border-radius:99px;overflow:hidden;background:#e5e7eb;">
                 <div style="width:100%;height:100%;background:linear-gradient(90deg,#1a6eff,#60a5fa,#a5c4ff);border-radius:99px;"></div>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                ${pmEntries.map(e => `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#555;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${e.color};"></span>${e.label.split(' ').slice(1).join(' ')}</span>`).join('')}
-            </div>
         </div>
         ${pmEntries.map(e => {
             const barW = (e.val / maxVal * 100).toFixed(1);
