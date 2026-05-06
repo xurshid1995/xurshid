@@ -172,13 +172,6 @@
     border-radius: 3px; font-weight: 700;
 }
 
-/* ── Keyboard navigation selected row ── */
-#productsTableBody tr.keyboard-selected {
-    background: #e0f0ff !important;
-    outline: 2px solid #1a6eff;
-    outline-offset: -2px;
-}
-
 /* ── Pagination ── */
 .ps-pagination {
     display: flex; justify-content: center; align-items: center;
@@ -473,15 +466,6 @@
     }
 
     // Qidiruv matnini ajratib ko'rsatish funksiyasi (har bir so'zni alohida)
-    // Klaviatura navigatsiyasi uchun qator highlight
-    function highlightRow(rows, index) {
-        rows.forEach(r => r.classList.remove('keyboard-selected'));
-        if (rows[index]) {
-            rows[index].classList.add('keyboard-selected');
-            rows[index].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }
-    }
-
     function highlightSearchText(text, searchTerm) {
         if (!searchTerm || searchTerm.trim() === '') {
             return text;
@@ -514,62 +498,23 @@
         
         // Qidiruv event listener with debounce
         let searchTimeout;
-        let barcodeBuffer = '';
-        let barcodeTimer = null;
-        let selectedRowIndex = -1;
         const clearSearchBtn = document.getElementById('clearSearch');
         const searchInput2 = document.getElementById('productSearch');
 
-        // Hardware barcode scanner: tez kirilgan raqamlarni barcode deb hisoblash
-        searchInput2.addEventListener('keypress', function(e) {
-            if (/^\d$/.test(e.key)) {
-                barcodeBuffer += e.key;
-                clearTimeout(barcodeTimer);
-                barcodeTimer = setTimeout(() => { barcodeBuffer = ''; }, 100);
-            }
-        });
-
-        // Klaviatura navigatsiyasi
-        searchInput2.addEventListener('keydown', function(e) {
-            const rows = document.querySelectorAll('#productsTableBody tr');
-            if (rows.length === 0) return;
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (selectedRowIndex < rows.length - 1) selectedRowIndex++;
-                else selectedRowIndex = 0;
-                highlightRow(rows, selectedRowIndex);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (selectedRowIndex > 0) selectedRowIndex--;
-                else selectedRowIndex = rows.length - 1;
-                highlightRow(rows, selectedRowIndex);
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (selectedRowIndex >= 0 && rows[selectedRowIndex]) {
-                    const pid = rows[selectedRowIndex].dataset.pid;
-                    if (pid) window.location.href = `/edit_product/${pid}`;
-                }
-            }
-        });
-
         searchInput2.addEventListener('input', function() {
             clearTimeout(searchTimeout);
-            selectedRowIndex = -1;
             const searchValue = this.value.trim();
             clearSearchBtn.style.display = searchValue ? 'block' : 'none';
             searchTimeout = setTimeout(() => {
                 currentSearch = searchValue;
-                // Agar faqat raqamlar va 4+ belgi bo'lsa barcode sifatida qidiruv (API ham barcode ni search orqali qidiradi)
                 loadProducts(1, searchValue, currentLocation);
-            }, 300); // 300ms debounce
+            }, 300);
         });
         clearSearchBtn.addEventListener('click', function() {
             const input = document.getElementById('productSearch');
             input.value = '';
             this.style.display = 'none';
             currentSearch = '';
-            selectedRowIndex = -1;
             loadProducts(1, '', currentLocation);
             input.focus();
         });
