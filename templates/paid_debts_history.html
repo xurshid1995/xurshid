@@ -497,10 +497,11 @@
 
         tbody.innerHTML = '';
         paidDebts.forEach((debt, index) => {
+            try {
             const row = document.createElement('tr');
-            row.setAttribute('data-customer', debt.customer_name.toLowerCase());
-            row.setAttribute('data-date', debt.payment_date.toLowerCase());
-            row.setAttribute('data-receiver', debt.received_by.toLowerCase());
+            row.setAttribute('data-customer', (debt.customer_name || '').toLowerCase());
+            row.setAttribute('data-date', (debt.payment_date || '').toLowerCase());
+            row.setAttribute('data-receiver', (debt.received_by || '').toLowerCase());
             
             // To'lov turlarini ko'rsatish
             const paymentTypes = [];
@@ -527,15 +528,16 @@
             
             row.innerHTML = `
                 <td style="text-align:center;color:#94a3b8;font-size:12px;">${index + 1}</td>
-                <td style="color:#475569;font-size:12px;">${debt.payment_date}</td>
-                <td><strong style="color:#1e293b;">${debt.customer_name}</strong></td>
+                <td style="color:#475569;font-size:12px;">${debt.payment_date || '-'}</td>
+                <td><strong style="color:#1e293b;">${debt.customer_name || ''}</strong></td>
                 <td><span class="pdh-amount">${parseFloat(totalAmount.toFixed(5)).toString()} USD</span></td>
                 <td><span class="pdh-amount-uzs">${totalUZS.toLocaleString('ru-RU')} UZS</span></td>
                 <td>${paymentTypes.join(' ')}</td>
-                <td><span class="pdh-receiver">👨‍💼 ${debt.received_by}</span></td>
+                <td><span class="pdh-receiver">👨‍💼 ${debt.received_by || ''}</span></td>
             `;
             
             tbody.appendChild(row);
+            } catch(e) { console.error('Row render error:', e, debt); }
         });
     }
 
