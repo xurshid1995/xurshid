@@ -62,29 +62,30 @@
         </div>
     </div>
 
-    <!-- Joylashuv × To'lov usullari kombinatsiya -->
-    <div style="margin-bottom:24px;">
+    <!-- Joylashuv × To'lov usullari + Top mahsulotlar + Qarzli mijozlar -->
+    <div style="display:grid; grid-template-columns:3fr 2fr; gap:16px; margin-bottom:24px;">
+        <!-- Chap: 60% joylashuv -->
         <div class="hr-section">
             <div class="hr-section-title">🏪💳 Joylashuv bo'yicha to'lov usullari</div>
             <div id="locPaymentCombo" style="padding:4px 0;">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
-    </div>
 
-    <!-- Top mahsulotlar + Qarzli mijozlar -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
-        <div class="hr-section">
-            <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
-            <div id="topProducts">
-                <div class="hr-loading">Yuklanmoqda...</div>
+        <!-- O'ng: 40% top mahsulotlar + qarzli mijozlar -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <div class="hr-section">
+                <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
+                <div id="topProducts">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
-        </div>
 
-        <div class="hr-section">
-            <div class="hr-section-title">⚠️ Qarzli mijozlar (<span id="debtListCount">0</span> ta)</div>
-            <div id="debtList">
-                <div class="hr-loading">Yuklanmoqda...</div>
+            <div class="hr-section">
+                <div class="hr-section-title">⚠️ Qarzli mijozlar (<span id="debtListCount">0</span> ta)</div>
+                <div id="debtList">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
     </div>
