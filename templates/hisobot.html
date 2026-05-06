@@ -302,12 +302,13 @@ async function loadAll() {
             const pmRows = pmSorted.map(([method, amt]) => {
                 const color = pmColors[method] || '#aaa';
                 const label = pmLabels[method] || method;
-                const pct = locTotal > 0 ? Math.round(amt / locTotal * 100) : 0;
+                const barPct = maxTotal > 0 ? Math.round(amt / maxTotal * 100) : 0;
+                const labelPct = locTotal > 0 ? Math.round(amt / locTotal * 100) : 0;
                 return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 30px;">
                     <span style="min-width:90px;font-size:12px;color:#555;">${label}</span>
-                    <div class="hr-bar-wrap" style="margin:0;width:55%;"><div class="hr-bar" style="width:${pct}%;background:${color};"></div></div>
+                    <div class="hr-bar-wrap" style="margin:0;width:55%;"><div class="hr-bar" style="width:${barPct}%;background:${color};"></div></div>
                     <span style="font-weight:600;color:${color};font-size:12px;min-width:70px;text-align:right;">${fmtUsd(amt)}</span>
-                    <span style="color:#bbb;font-size:11px;min-width:28px;text-align:right;">${pct}%</span>
+                    <span style="color:#bbb;font-size:11px;min-width:28px;text-align:right;">${labelPct}%</span>
                 </div>`;
             }).join('');
             return `<div style="padding:10px 0; border-bottom:1px solid #f0f2f5;">
