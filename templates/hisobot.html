@@ -66,8 +66,13 @@
     <div style="margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title">🏪💳 Joylashuv bo'yicha to'lov usullari</div>
-            <div id="locPaymentCombo" style="padding:4px 0;">
-                <div class="hr-loading">Yuklanmoqda...</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div id="locPaymentCombo" style="padding:4px 0;">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
+                <div id="locSummaryBar" style="padding:4px 0;">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -324,6 +329,39 @@ async function loadAll() {
         }).join('');
     } else {
         comboDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+    }
+
+    // --- Joylashuv umumiy bar (o'ng panel) ---
+    const summaryDiv = document.getElementById('locSummaryBar');
+    if (lpb.length > 0) {
+        const maxT = lpb[0].total;
+        summaryDiv.innerHTML = `<div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px;">Jami tushum bo'yicha taqqoslash</div>` +
+        lpb.map((loc, i) => {
+            const pct = maxT > 0 ? Math.round(loc.total / maxT * 100) : 0;
+            const pmSorted = Object.entries(loc.payments || {}).sort((a,b) => b[1]-a[1]);
+            const locT = pmSorted.reduce((s,[,v]) => s+v, 0);
+            // stacked segments
+            const segments = pmSorted.map(([method, amt]) => {
+                const color = pmColors[method] || '#aaa';
+                const segPct = locT > 0 ? (amt / locT * 100).toFixed(1) : 0;
+                return `<div style="width:${segPct}%;background:${color};height:100%;" title="${pmLabels[method]||method}: ${fmtUsd(amt)}"></div>`;
+            }).join('');
+            return `<div style="margin-bottom:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <div class="hr-rank" style="width:18px;height:18px;font-size:10px;">${i+1}</div>
+                    <span style="flex:1;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${loc.name}">${loc.name}</span>
+                    <span style="font-size:12px;font-weight:700;color:#1a6eff;">${fmtUsd(loc.total)}</span>
+                </div>
+                <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#f0f2f5;">
+                    <div style="display:flex;width:${pct}%;">${segments}</div>
+                </div>
+            </div>`;
+        }).join('') +
+        `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+            ${Object.entries(pmColors).map(([k,c]) => `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#555;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${c};"></span>${pmLabels[k]}</span>`).join('')}
+        </div>`;
+    } else {
+        summaryDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
     }
 
     // --- Top 10 mahsulot ---
