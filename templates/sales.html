@@ -843,6 +843,13 @@
                 <div id="cartTotalHeader" style="text-align: right;"></div>
             </div>
             <div id="cartContainer">
+                <!-- Korzina qidiruv maydoni -->
+                <div style="margin-bottom: 10px;">
+                    <input type="text" id="cartSearch" placeholder="🔍 Korzinada qidirish..." 
+                           oninput="filterCartItems(this)"
+                           style="width: 100%; padding: 8px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
+                </div>
                 <div class="table-wrapper">
                     <table class="cart-table">
                         <thead>
@@ -3810,12 +3817,22 @@
         let totalUSD = 0;
         let totalUZS = 0;
         
+        // Korzina qidiruv filtri
+        const cartSearchInput = document.getElementById(`cartSearch_tab${tabId}`);
+        const cartSearchQuery = cartSearchInput ? cartSearchInput.value.trim().toLowerCase() : '';
+        
         // Yangi qo'shilgan mahsulotlar tepada ko'rinishi uchun teskari tartibda
         const displayCart = [...cart].reverse();
         
         displayCart.forEach((item, displayIndex) => {
             // Original index (cart massividagi haqiqiy index)
             const index = cart.length - 1 - displayIndex;
+            
+            // Qidiruv filtri
+            if (cartSearchQuery && !item.name.toLowerCase().includes(cartSearchQuery)) {
+                return;
+            }
+            
             const subtotalUSD = item.priceUSD * item.quantity;
             const subtotalUZS = item.priceUZS * item.quantity;
             totalUSD += subtotalUSD;
@@ -3857,7 +3874,9 @@
             `;
         });
         
-        cartItemsDiv.innerHTML = html;
+        cartItemsDiv.innerHTML = html || (cartSearchQuery 
+            ? '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">🔍 Hech narsa topilmadi</td></tr>'
+            : '');
         cartTotalDiv.innerHTML = '';
         
         // Jami summani sarlavhada ko'rsatish
@@ -3874,6 +3893,11 @@
                 </div>
             </div>
         `;
+    }
+    
+    // Korzinada qidirish filtri
+    function filterCartItems(input) {
+        updateCart();
     }
     
     // Savatdan o'chirish
