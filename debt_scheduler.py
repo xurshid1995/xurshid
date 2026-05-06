@@ -291,16 +291,6 @@ class DebtScheduler:
             )
             logger.info(f"✅ Kunlik eslatmalar: har kuni {self.daily_reminder_time} da")
             
-            # Haftalik hisobot (har dushanba soat 09:00 da)
-            self.scheduler.add_job(
-                self.send_weekly_report,
-                CronTrigger(day_of_week=self.weekly_report_day, hour=9, minute=0),
-                id='weekly_report',
-                name='Haftalik hisobot',
-                replace_existing=True
-            )
-            logger.info("✅ Haftalik hisobot: har dushanba 09:00 da")
-            
             # Individual eslatmalarni tekshirish (har 5 daqiqada)
             self.scheduler.add_job(
                 self.check_scheduled_reminders,
