@@ -844,11 +844,14 @@
             </div>
             <div id="cartContainer">
                 <!-- Korzina qidiruv maydoni -->
-                <div style="margin-bottom: 10px;">
+                <div style="margin-bottom: 10px; position: relative;">
                     <input type="text" id="cartSearch" placeholder="🔍 Korzinada qidirish..." 
                            oninput="filterCartItems(this)"
-                           style="width: 100%; padding: 8px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+                           style="width: 100%; padding: 8px 36px 8px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
                            onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
+                    <button id="cartSearchClear" onclick="clearCartSearch(this)"
+                            style="display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #bbb; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; padding: 0;"
+                            title="Tozalash">✕</button>
                 </div>
                 <div class="table-wrapper">
                     <table class="cart-table">
@@ -3944,6 +3947,24 @@
 
     // Korzinada qidirish filtri
     function filterCartItems(input) {
+        // X tugmasini ko'rsatish/yashirish
+        const activeTab = document.querySelector('.sales-tab.active');
+        if (activeTab) {
+            const tabId = activeTab.dataset.tabId;
+            const clearBtn = document.getElementById(`cartSearchClear_tab${tabId}`);
+            if (clearBtn) clearBtn.style.display = input.value ? 'block' : 'none';
+        }
+        updateCart();
+    }
+
+    // Korzina qidiruv maydonini tozalash
+    function clearCartSearch(btn) {
+        const activeTab = document.querySelector('.sales-tab.active');
+        if (!activeTab) return;
+        const tabId = activeTab.dataset.tabId;
+        const input = document.getElementById(`cartSearch_tab${tabId}`);
+        if (input) { input.value = ''; input.focus(); }
+        btn.style.display = 'none';
         updateCart();
     }
     
