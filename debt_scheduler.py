@@ -135,7 +135,13 @@ class DebtScheduler:
         try:
             reminder_time = self._get_reminder_time_from_db()
             hour, minute = map(int, reminder_time.split(':'))
-            now = datetime.now()
+            if self.app:
+                with self.app.app_context():
+                    from app import get_tashkent_time
+                    now = get_tashkent_time()
+            else:
+                import pytz
+                now = datetime.now(pytz.timezone('Asia/Tashkent'))
             if now.hour == hour and now.minute == minute:
                 logger.info(f"📅 Vaqt mos keldi ({reminder_time}) — kunlik eslatmalar yuborilmoqda...")
                 self.send_daily_reminders()

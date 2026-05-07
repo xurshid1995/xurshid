@@ -11162,6 +11162,43 @@ def api_sales_history():
         )
         total_items = float(items_count_query.scalar() or 0)
 
+        # Kirim summasi: osha davr mobaynida joylashuvlarga qo'shilgan mahsulotlar tan narxi
+        incoming_q = db.session.query(
+            func.sum(ProductAddHistory.cost_price * ProductAddHistory.quantity)
+        )
+        if stats_date_filter == 'today':
+            today = get_tashkent_time().date()
+            today_start = datetime.combine(today, datetime.min.time())
+            today_end = datetime.combine(today, datetime.max.time())
+            incoming_q = incoming_q.filter(
+                ProductAddHistory.added_date >= today_start,
+                ProductAddHistory.added_date <= today_end
+            )
+        else:
+            if start_date:
+                incoming_q = incoming_q.filter(ProductAddHistory.added_date >= start_date)
+            if end_date:
+                incoming_q = incoming_q.filter(ProductAddHistory.added_date <= end_date + ' 23:59:59')
+        # Joylashuv filtri
+        if location_filter and location_filter != 'all':
+            if location_filter.startswith('store_'):
+                _loc_id = int(location_filter.replace('store_', ''))
+                _store = Store.query.get(_loc_id)
+                if _store:
+                    incoming_q = incoming_q.filter(
+                        ProductAddHistory.location_name == _store.name,
+                        ProductAddHistory.location_type == 'store'
+                    )
+            elif location_filter.startswith('warehouse_'):
+                _loc_id = int(location_filter.replace('warehouse_', ''))
+                _wh = Warehouse.query.get(_loc_id)
+                if _wh:
+                    incoming_q = incoming_q.filter(
+                        ProductAddHistory.location_name == _wh.name,
+                        ProductAddHistory.location_type == 'warehouse'
+                    )
+        total_cost = float(incoming_q.scalar() or 0)
+
         # Average order value
         avg_order_value = total_revenue / total_sales_count if total_sales_count > 0 else 0
 
@@ -11375,6 +11412,7 @@ def api_sales_history():
                     'total_sales': total_sales_count,  # Filtr qo'llanilgan barcha savdolar soni
                     'total_revenue': round(total_revenue, 2),
                     'total_profit': round(total_profit, 2),
+                    'total_cost': round(total_cost, 2),
                     'total_items': total_items,
                     'avg_order_value': round(avg_order_value, 2),
                     'profit_margin': round(profit_margin, 2),

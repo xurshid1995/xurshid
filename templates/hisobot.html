@@ -54,10 +54,11 @@
             </div>
         </div>
         <div class="hr-card">
-            <div class="hr-card-icon" style="background:#f0e8ff;">🛒</div>
+            <div class="hr-card-icon" style="background:#f0e8ff;">�</div>
             <div>
-                <div class="hr-card-label">O'rtacha savdo</div>
-                <div class="hr-card-val" id="avgSale">—</div>
+                <div class="hr-card-label">Kirim (tan narx)</div>
+                <div class="hr-card-val" id="totalCost">—</div>
+                <div class="hr-card-sub" id="totalCostSub">—</div>
             </div>
         </div>
     </div>
@@ -281,7 +282,8 @@ async function loadAll() {
     document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);
     document.getElementById('totalRevenue').textContent = fmtUsd(stats.total_revenue);
     document.getElementById('totalRevenueUzs').textContent = fmtUzs(stats.total_revenue);
-    document.getElementById('avgSale').textContent = fmtUsd(stats.avg_order_value);
+    document.getElementById('totalCost').textContent = fmtUsd(stats.total_cost || 0);
+    document.getElementById('totalCostSub').textContent = fmtUzs(stats.total_cost || 0);
 
     // --- Foyda (sales-chart dan: profits massivini yig'ish) ---
     const profitEl = document.getElementById('totalProfit');
