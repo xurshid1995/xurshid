@@ -5,14 +5,16 @@
 {% block content %}
 <div>
 
-    <!-- Sarlavha -->
-    <h2 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#1a1a2e;">&#x1F4B8; Xarajatlar</h2>
-    <!-- Joylashuv filtri (tugmalar) -->
-    <div id="loc-filter-bar" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
-        <button class="hr-btn hr-btn-active" onclick="setLocFilter(null,null)" id="loc-btn-all">&#x1F4CD; Barchasi</button>
-    </div>
-    <!-- Sana filtri -->
-    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+    <!-- Sarlavha + Joylashuv + Sana filtri bir qatorda -->
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e; white-space:nowrap;">&#x1F4B8; Xarajatlar</h2>
+        <span style="color:#ddd;">|</span>
+        <!-- Joylashuv filtri (tugmalar) -->
+        <div id="loc-filter-bar" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <button class="hr-btn hr-btn-active" onclick="setLocFilter(null,null)" id="loc-btn-all">&#x1F4CD; Barchasi</button>
+        </div>
+        <span style="color:#ddd;">|</span>
+        <!-- Sana filtri -->
         <button onclick="setPeriod('today')" id="btn-today" class="hr-btn hr-btn-active">Bugun</button>
         <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
         <button onclick="setPeriod('month')" id="btn-month" class="hr-btn">Bu oy</button>
