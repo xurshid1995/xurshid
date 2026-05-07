@@ -18,24 +18,13 @@
         </div>
     </div>
 
-    <!-- Kategoriya filtri -->
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; align-items:center;">
-        <span style="font-size:13px; color:#666; margin-right:4px;">Kategoriya:</span>
-        <button onclick="setCategory('all')" id="cat-all" class="hr-btn hr-btn-active" style="font-size:12px; padding:4px 12px;">Hammasi</button>
-        <button onclick="setCategory('Ijara')" id="cat-Ijara" class="hr-btn" style="font-size:12px; padding:4px 12px;">🏠 Ijara</button>
-        <button onclick="setCategory('Maosh')" id="cat-Maosh" class="hr-btn" style="font-size:12px; padding:4px 12px;">👷 Maosh</button>
-        <button onclick="setCategory('Kommunal')" id="cat-Kommunal" class="hr-btn" style="font-size:12px; padding:4px 12px;">💡 Kommunal</button>
-        <button onclick="setCategory('Transport')" id="cat-Transport" class="hr-btn" style="font-size:12px; padding:4px 12px;">🚚 Transport</button>
-        <button onclick="setCategory('Boshqa')" id="cat-Boshqa" class="hr-btn" style="font-size:12px; padding:4px 12px;">📦 Boshqa</button>
-    </div>
-
     <!-- Xulosa kartalar -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:24px;">
         <div class="hr-card">
             <div class="hr-card-icon" style="background:#fff0f0;">💸</div>
             <div>
                 <div class="hr-card-label">Jami xarajat (USD)</div>
-                <div class="hr-card-val" style="color:#dc2626;" id="totalUSD">—</div>
+                <div class="hr-card-val" style="color:#e53e3e;" id="totalUSD">—</div>
             </div>
         </div>
         <div class="hr-card">
@@ -54,32 +43,41 @@
         </div>
     </div>
 
-    <!-- Yangi xarajat qo'shish tugmasi -->
-    <div style="margin-bottom:16px; display:flex; justify-content:flex-end;">
-        <button onclick="openAddModal()" style="background:#1d4ed8; color:#fff; border:none; border-radius:8px; padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
-            <span style="font-size:18px;">+</span> Yangi xarajat
+    <!-- Kategoriya filtri + yangi xarajat tugmasi -->
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:13px; color:#888; margin-right:2px;">Kategoriya:</span>
+            <button onclick="setCategory('all')" id="cat-all" class="hr-btn hr-btn-active">Hammasi</button>
+            <button onclick="setCategory('Ijara')" id="cat-Ijara" class="hr-btn">🏠 Ijara</button>
+            <button onclick="setCategory('Maosh')" id="cat-Maosh" class="hr-btn">👷 Maosh</button>
+            <button onclick="setCategory('Kommunal')" id="cat-Kommunal" class="hr-btn">💡 Kommunal</button>
+            <button onclick="setCategory('Transport')" id="cat-Transport" class="hr-btn">🚚 Transport</button>
+            <button onclick="setCategory('Boshqa')" id="cat-Boshqa" class="hr-btn">📦 Boshqa</button>
+        </div>
+        <button onclick="openAddModal()" class="hr-btn" style="background:#1a6eff; color:#fff; border-color:#1a6eff; font-weight:600; display:flex; align-items:center; gap:5px;">
+            <span style="font-size:16px; line-height:1;">+</span> Yangi xarajat
         </button>
     </div>
 
     <!-- Xarajatlar jadvali -->
-    <div style="background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.08); overflow:hidden;">
-        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <div class="hr-section" style="padding:0; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
             <thead>
-                <tr style="background:#f8fafc; border-bottom:2px solid #e5e7eb;">
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">#</th>
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">Sana</th>
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">Sarlavha</th>
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">Kategoriya</th>
-                    <th style="padding:12px 16px; text-align:right; color:#64748b; font-weight:600;">Summa (USD)</th>
-                    <th style="padding:12px 16px; text-align:right; color:#64748b; font-weight:600;">Summa (UZS)</th>
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">Joylashuv</th>
-                    <th style="padding:12px 16px; text-align:left; color:#64748b; font-weight:600;">Qo'shgan</th>
-                    <th style="padding:12px 16px; text-align:center; color:#64748b; font-weight:600;">Amal</th>
+                <tr style="border-bottom:2px solid #f0f2f5;">
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">#</th>
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Sana</th>
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Sarlavha</th>
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Kategoriya</th>
+                    <th style="padding:12px 16px; text-align:right; color:#888; font-weight:600; background:#fafbfc;">USD</th>
+                    <th style="padding:12px 16px; text-align:right; color:#888; font-weight:600; background:#fafbfc;">UZS</th>
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Joylashuv</th>
+                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Qo'shgan</th>
+                    <th style="padding:12px 16px; text-align:center; color:#888; font-weight:600; background:#fafbfc;">Amal</th>
                 </tr>
             </thead>
             <tbody id="expenseTableBody">
                 <tr>
-                    <td colspan="9" style="padding:40px; text-align:center; color:#94a3b8;">Yuklanmoqda...</td>
+                    <td colspan="9" class="hr-loading">Yuklanmoqda...</td>
                 </tr>
             </tbody>
         </table>
@@ -88,30 +86,33 @@
 </div>
 
 <!-- Yangi xarajat modal -->
-<div id="addModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:28px; width:100%; max-width:480px; margin:20px; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <h3 style="margin:0 0 20px; font-size:18px; font-weight:700; color:#1a1a2e;">💸 Yangi xarajat qo'shish</h3>
+<div id="addModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:14px; padding:26px; width:100%; max-width:480px; margin:20px; box-shadow:0 20px 60px rgba(0,0,0,0.18);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="margin:0; font-size:16px; font-weight:700; color:#1a1a2e;">💸 Yangi xarajat qo'shish</h3>
+            <button onclick="closeAddModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#aaa; line-height:1;">×</button>
+        </div>
 
-        <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; flex-direction:column; gap:13px;">
             <div>
-                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Sarlavha *</label>
-                <input type="text" id="inp-title" placeholder="Masalan: Xona ijarasi, Elektr to'lovi..." style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Sarlavha *</label>
+                <input type="text" id="inp-title" placeholder="Masalan: Xona ijarasi, Elektr to'lovi..." style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                 <div>
-                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Summa (USD)</label>
-                    <input type="number" id="inp-usd" placeholder="0.00" min="0" step="0.01" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Summa (USD)</label>
+                    <input type="number" id="inp-usd" placeholder="0.00" min="0" step="0.01" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
                 </div>
                 <div>
-                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Summa (UZS)</label>
-                    <input type="number" id="inp-uzs" placeholder="0" min="0" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Summa (UZS)</label>
+                    <input type="number" id="inp-uzs" placeholder="0" min="0" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
                 </div>
             </div>
 
             <div>
-                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Kategoriya</label>
-                <select id="inp-category" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Kategoriya</label>
+                <select id="inp-category" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;">
                     <option value="">— Tanlang —</option>
                     <option value="Ijara">🏠 Ijara</option>
                     <option value="Maosh">👷 Maosh</option>
@@ -121,101 +122,154 @@
                 </select>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                 <div>
-                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Joylashuv turi</label>
-                    <select id="inp-loc-type" onchange="onLocTypeChange()" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Joylashuv turi</label>
+                    <select id="inp-loc-type" onchange="onLocTypeChange()" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;">
                         <option value="">— Umumiy —</option>
                         <option value="store">🏪 Do'kon</option>
                         <option value="warehouse">🏭 Ombor</option>
                     </select>
                 </div>
                 <div>
-                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Joylashuv nomi</label>
-                    <select id="inp-loc-id" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Joylashuv nomi</label>
+                    <select id="inp-loc-id" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;">
                         <option value="">— Tanlang —</option>
                     </select>
                 </div>
             </div>
 
             <div>
-                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Sana</label>
-                <input type="date" id="inp-date" style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Sana</label>
+                <input type="date" id="inp-date" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
             </div>
 
             <div>
-                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Izoh</label>
-                <textarea id="inp-desc" rows="2" placeholder="Qo'shimcha izoh..." style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; box-sizing:border-box; resize:vertical;"></textarea>
+                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Izoh</label>
+                <textarea id="inp-desc" rows="2" placeholder="Qo'shimcha izoh..." style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; resize:vertical;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'"></textarea>
             </div>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button onclick="closeAddModal()" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff; font-size:14px; cursor:pointer; color:#374151;">Bekor qilish</button>
-            <button onclick="saveExpense()" id="saveBtn" style="flex:2; padding:10px; border:none; border-radius:8px; background:#1d4ed8; color:#fff; font-size:14px; font-weight:600; cursor:pointer;">💾 Saqlash</button>
+        <div style="display:flex; gap:10px; margin-top:18px;">
+            <button onclick="closeAddModal()" class="hr-btn" style="flex:1; padding:9px;">Bekor qilish</button>
+            <button onclick="saveExpense()" id="saveBtn" class="hr-btn" style="flex:2; padding:9px; background:#1a6eff; color:#fff; border-color:#1a6eff; font-weight:700;">💾 Saqlash</button>
         </div>
     </div>
 </div>
 
 <style>
-.hr-btn { background:#f1f5f9; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#374151; transition:all .15s; }
-.hr-btn:hover { background:#e2e8f0; }
-.hr-btn-active { background:#1d4ed8; color:#fff; }
-.hr-date { border:1px solid #d1d5db; border-radius:8px; padding:6px 10px; font-size:13px; color:#374151; }
-.hr-card { display:flex; align-items:center; gap:14px; background:#fff; border-radius:12px; padding:18px 20px; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
-.hr-card-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-.hr-card-label { font-size:12px; color:#64748b; margin-bottom:3px; }
-.hr-card-val { font-size:20px; font-weight:700; color:#1a1a2e; }
+.hr-btn {
+    padding: 7px 14px;
+    border: 1px solid #dde1e7;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+    transition: all 0.2s;
+}
+.hr-btn:hover { border-color: #1a6eff; color: #1a6eff; }
+.hr-btn-active { background: #1a6eff; color: #fff !important; border-color: #1a6eff !important; }
+.hr-date {
+    padding: 6px 10px;
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #333;
+    outline: none;
+}
+.hr-card {
+    background: #fff;
+    border: 1px solid #eef0f4;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.hr-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.hr-card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.hr-card-val { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+.hr-section {
+    background: #fff;
+    border: 1px solid #eef0f4;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.hr-loading { color: #bbb; font-size: 13px; text-align: center; padding: 30px; }
+.hr-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f7f8fa;
+    font-size: 13px;
+}
+.hr-row:last-child { border-bottom: none; }
+.expense-row:hover { background: #f8faff; }
 </style>
 
 <script>
 const STORES = {{ stores | tojson }};
 const WAREHOUSES = {{ warehouses | tojson }};
-
-// Stores/Warehouses as arrays with id/name for the select
 const STORE_LIST = STORES.map(s => ({id: s.id, name: s.name}));
 const WH_LIST = WAREHOUSES.map(w => ({id: w.id, name: w.name}));
 
 let currentCategory = 'all';
 
-function formatNum(n, decimals=2) {
-    if (!n && n !== 0) return '—';
-    return new Intl.NumberFormat('uz-UZ', {minimumFractionDigits: decimals, maximumFractionDigits: decimals}).format(n);
+function fmtDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
 }
 
-function getToday() {
-    return new Date().toISOString().split('T')[0];
+function fmtUsd(v) {
+    return '$' + parseFloat(v || 0).toLocaleString('uz-UZ', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
-function getWeekStart() {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay() + 1);
-    return d.toISOString().split('T')[0];
-}
-
-function getMonthStart() {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-01';
+function fmtUzs(v) {
+    return parseFloat(v || 0).toLocaleString('uz-UZ', {maximumFractionDigits: 0}) + ' so\'m';
 }
 
 function setPeriod(period) {
-    document.querySelectorAll('#btn-today, #btn-week, #btn-month').forEach(b => b.classList.remove('hr-btn-active'));
-    const today = getToday();
+    document.querySelectorAll('.hr-btn').forEach(b => {
+        if (['btn-today','btn-week','btn-month'].includes(b.id)) b.classList.remove('hr-btn-active');
+    });
+    const today = new Date();
     let from, to;
     if (period === 'today') {
-        from = today; to = today;
+        from = fmtDate(today); to = fmtDate(today);
         document.getElementById('btn-today').classList.add('hr-btn-active');
     } else if (period === 'week') {
-        from = getWeekStart(); to = today;
+        const mon = new Date(today);
+        mon.setDate(today.getDate() - (today.getDay() + 6) % 7);
+        from = fmtDate(mon); to = fmtDate(today);
         document.getElementById('btn-week').classList.add('hr-btn-active');
     } else if (period === 'month') {
-        from = getMonthStart(); to = today;
+        from = fmtDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        to = fmtDate(today);
         document.getElementById('btn-month').classList.add('hr-btn-active');
     } else {
         from = document.getElementById('dateFrom').value;
         to = document.getElementById('dateTo').value;
+        if (!from || !to) return;
     }
-    if (from) document.getElementById('dateFrom').value = from;
-    if (to) document.getElementById('dateTo').value = to;
+    if (period !== 'custom') {
+        document.getElementById('dateFrom').value = from;
+        document.getElementById('dateTo').value = to;
+    }
     loadExpenses();
 }
 
@@ -230,17 +284,20 @@ function setCategory(cat) {
 function loadExpenses() {
     const from = document.getElementById('dateFrom').value;
     const to = document.getElementById('dateTo').value;
-    let url = '/api/expenses?';
-    if (from) url += 'start_date=' + from + '&';
-    if (to) url += 'end_date=' + to + '&';
-    if (currentCategory && currentCategory !== 'all') url += 'category=' + encodeURIComponent(currentCategory);
+    const params = new URLSearchParams();
+    if (from) params.set('start_date', from);
+    if (to) params.set('end_date', to);
+    if (currentCategory && currentCategory !== 'all') params.set('category', currentCategory);
 
-    fetch(url)
+    document.getElementById('expenseTableBody').innerHTML =
+        '<tr><td colspan="9" class="hr-loading">Yuklanmoqda...</td></tr>';
+
+    fetch('/api/expenses?' + params.toString())
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
-            document.getElementById('totalUSD').textContent = '$' + formatNum(data.total_usd);
-            document.getElementById('totalUZS').textContent = formatNum(data.total_uzs, 0) + ' UZS';
+            document.getElementById('totalUSD').textContent = fmtUsd(data.total_usd);
+            document.getElementById('totalUZS').textContent = fmtUzs(data.total_uzs);
             document.getElementById('totalCount').textContent = data.count + ' ta';
             renderTable(data.expenses);
         })
@@ -250,7 +307,7 @@ function loadExpenses() {
 function renderTable(expenses) {
     const tbody = document.getElementById('expenseTableBody');
     if (!expenses.length) {
-        tbody.innerHTML = '<tr><td colspan="9" style="padding:40px; text-align:center; color:#94a3b8;">Xarajatlar topilmadi</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="hr-loading">Xarajatlar topilmadi</td></tr>';
         return;
     }
 
@@ -264,28 +321,35 @@ function renderTable(expenses) {
     tbody.innerHTML = expenses.map((e, i) => {
         const cat = e.category || '';
         const catColor = catColors[cat] || '#6b7280';
-        const catBadge = cat ? `<span style="background:${catColor}22; color:${catColor}; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">${cat}</span>` : '—';
+        const catBadge = cat
+            ? `<span style="background:${catColor}18; color:${catColor}; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700;">${cat}</span>`
+            : '<span style="color:#ccc;">—</span>';
 
-        let locBadge = '—';
+        let locBadge = '<span style="color:#ccc;">—</span>';
         if (e.location_name) {
             if (e.location_type === 'warehouse') {
-                locBadge = `<span style="background:#16a34a22; color:#16a34a; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">🏭 ${e.location_name}</span>`;
-            } else if (e.location_type === 'store') {
-                locBadge = `<span style="background:#1d4ed822; color:#1d4ed8; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">🏪 ${e.location_name}</span>`;
+                locBadge = `<span style="background:#16a34a18; color:#16a34a; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700;">&#x1F3ED; ${escHtml(e.location_name)}</span>`;
+            } else {
+                locBadge = `<span style="background:#1a6eff18; color:#1a6eff; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700;">&#x1F3EA; ${escHtml(e.location_name)}</span>`;
             }
         }
 
-        const deleteBtn = isAdmin ? `<button onclick="deleteExpense(${e.id})" style="background:#fee2e2; color:#dc2626; border:none; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer;">🗑</button>` : '';
+        const deleteBtn = isAdmin
+            ? `<button onclick="deleteExpense(${e.id})" style="background:#fff0f0; color:#e53e3e; border:1px solid #fee2e2; border-radius:6px; padding:3px 10px; font-size:12px; cursor:pointer; transition:all .15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff0f0'">&#x1F5D1;</button>`
+            : '';
 
-        return `<tr style="border-bottom:1px solid #f1f5f9; ${i % 2 === 1 ? 'background:#fafafa;' : ''}">
-            <td style="padding:10px 16px; color:#94a3b8; font-size:12px;">${i+1}</td>
-            <td style="padding:10px 16px; color:#374151; white-space:nowrap;">${e.expense_date || '—'}</td>
+        const usdVal = parseFloat(e.amount_usd || 0);
+        const uzsVal = parseFloat(e.amount_uzs || 0);
+
+        return `<tr class="expense-row" style="border-bottom:1px solid #f7f8fa;">
+            <td style="padding:10px 16px; color:#bbb; font-size:12px;">${i + 1}</td>
+            <td style="padding:10px 16px; color:#666; font-size:12px; white-space:nowrap;">${e.expense_date || '—'}</td>
             <td style="padding:10px 16px; color:#1a1a2e; font-weight:500;">${escHtml(e.title)}</td>
             <td style="padding:10px 16px;">${catBadge}</td>
-            <td style="padding:10px 16px; text-align:right; color:#dc2626; font-weight:600;">${e.amount_usd > 0 ? '$' + formatNum(e.amount_usd) : '—'}</td>
-            <td style="padding:10px 16px; text-align:right; color:#d97706; font-weight:600;">${e.amount_uzs > 0 ? formatNum(e.amount_uzs, 0) + ' UZS' : '—'}</td>
+            <td style="padding:10px 16px; text-align:right; font-weight:700; color:${usdVal > 0 ? '#e53e3e' : '#ccc'};">${usdVal > 0 ? fmtUsd(usdVal) : '—'}</td>
+            <td style="padding:10px 16px; text-align:right; font-weight:700; color:${uzsVal > 0 ? '#d97706' : '#ccc'};">${uzsVal > 0 ? fmtUzs(uzsVal) : '—'}</td>
             <td style="padding:10px 16px;">${locBadge}</td>
-            <td style="padding:10px 16px; color:#64748b; font-size:12px;">${escHtml(e.created_by || '—')}</td>
+            <td style="padding:10px 16px; color:#888; font-size:12px;">${escHtml(e.created_by || '—')}</td>
             <td style="padding:10px 16px; text-align:center;">${deleteBtn}</td>
         </tr>`;
     }).join('');
@@ -293,7 +357,7 @@ function renderTable(expenses) {
 
 function escHtml(str) {
     if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function openAddModal() {
@@ -303,9 +367,10 @@ function openAddModal() {
     document.getElementById('inp-category').value = '';
     document.getElementById('inp-loc-type').value = '';
     document.getElementById('inp-loc-id').innerHTML = '<option value="">— Tanlang —</option>';
-    document.getElementById('inp-date').value = getToday();
+    document.getElementById('inp-date').value = fmtDate(new Date());
     document.getElementById('inp-desc').value = '';
     document.getElementById('addModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('inp-title').focus(), 50);
 }
 
 function closeAddModal() {
@@ -316,11 +381,12 @@ function onLocTypeChange() {
     const type = document.getElementById('inp-loc-type').value;
     const sel = document.getElementById('inp-loc-id');
     sel.innerHTML = '<option value="">— Tanlang —</option>';
-    let list = [];
-    if (type === 'store') list = STORE_LIST;
-    else if (type === 'warehouse') list = WH_LIST;
+    const list = type === 'store' ? STORE_LIST : type === 'warehouse' ? WH_LIST : [];
     list.forEach(item => {
-        sel.innerHTML += `<option value="${item.id}">${escHtml(item.name)}</option>`;
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        sel.appendChild(opt);
     });
 }
 
@@ -329,39 +395,33 @@ function saveExpense() {
     const usd = parseFloat(document.getElementById('inp-usd').value) || 0;
     const uzs = parseFloat(document.getElementById('inp-uzs').value) || 0;
 
-    if (!title) { alert('Sarlavha kiritilishi shart!'); return; }
+    if (!title) { document.getElementById('inp-title').focus(); return; }
     if (usd <= 0 && uzs <= 0) { alert('Kamida bitta summa kiritilishi shart!'); return; }
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saqlanmoqda...';
 
-    const payload = {
-        title: title,
-        amount_usd: usd,
-        amount_uzs: uzs,
-        category: document.getElementById('inp-category').value,
-        description: document.getElementById('inp-desc').value.trim(),
-        expense_date: document.getElementById('inp-date').value,
-        location_type: document.getElementById('inp-loc-type').value || null,
-        location_id: document.getElementById('inp-loc-id').value || null,
-    };
-
     fetch('/api/expenses', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+            title,
+            amount_usd: usd,
+            amount_uzs: uzs,
+            category: document.getElementById('inp-category').value,
+            description: document.getElementById('inp-desc').value.trim(),
+            expense_date: document.getElementById('inp-date').value,
+            location_type: document.getElementById('inp-loc-type').value || null,
+            location_id: document.getElementById('inp-loc-id').value || null,
+        })
     })
     .then(r => r.json())
     .then(data => {
         saveBtn.disabled = false;
         saveBtn.textContent = '💾 Saqlash';
-        if (data.success) {
-            closeAddModal();
-            loadExpenses();
-        } else {
-            alert('Xatolik: ' + (data.error || 'Nomalum xatolik'));
-        }
+        if (data.success) { closeAddModal(); loadExpenses(); }
+        else alert('Xatolik: ' + (data.error || 'Nomalum xatolik'));
     })
     .catch(e => {
         saveBtn.disabled = false;
@@ -380,12 +440,10 @@ function deleteExpense(id) {
         });
 }
 
-// Modaldan tashqari bosganda yopish
 document.getElementById('addModal').addEventListener('click', function(e) {
     if (e.target === this) closeAddModal();
 });
 
-// Sahifa yuklanganda
 setPeriod('today');
 </script>
 {% endblock %}
