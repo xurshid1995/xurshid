@@ -68,7 +68,6 @@
                 <tr style="border-bottom:2px solid #f0f2f5;">
                     <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">#</th>
                     <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Sana</th>
-                    <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Sarlavha</th>
                     <th style="padding:12px 16px; text-align:left; color:#888; font-weight:600; background:#fafbfc;">Kategoriya</th>
                     <th style="padding:12px 16px; text-align:right; color:#888; font-weight:600; background:#fafbfc;">USD</th>
                     <th style="padding:12px 16px; text-align:right; color:#888; font-weight:600; background:#fafbfc;">UZS</th>
@@ -79,7 +78,7 @@
             </thead>
             <tbody id="expenseTableBody">
                 <tr>
-                    <td colspan="9" class="hr-loading">Yuklanmoqda...</td>
+                    <td colspan="8" class="hr-loading">Yuklanmoqda...</td>
                 </tr>
             </tbody>
         </table>
@@ -131,11 +130,6 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:13px;">
-            <div>
-                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Sarlavha *</label>
-                <input type="text" id="inp-title" placeholder="Masalan: Xona ijarasi, Elektr to'lovi..." style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
-            </div>
-
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                 <div>
                     <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Summa (USD)</label>
@@ -346,7 +340,7 @@ function loadExpenses() {
 function renderTable(expenses) {
     const tbody = document.getElementById('expenseTableBody');
     if (!expenses.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="hr-loading">Xarajatlar topilmadi</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="hr-loading">Xarajatlar topilmadi</td></tr>';
         return;
     }
 
@@ -378,7 +372,6 @@ function renderTable(expenses) {
         return `<tr class="expense-row" style="border-bottom:1px solid #f7f8fa;">
             <td style="padding:10px 16px; color:#bbb; font-size:12px;">${i + 1}</td>
             <td style="padding:10px 16px; color:#666; font-size:12px; white-space:nowrap;">${e.expense_date || '—'}</td>
-            <td style="padding:10px 16px; color:#1a1a2e; font-weight:500;">${escHtml(e.title)}</td>
             <td style="padding:10px 16px;">${catBadge}</td>
             <td style="padding:10px 16px; text-align:right; font-weight:700; color:${usdVal > 0 ? '#e53e3e' : '#ccc'};">${usdVal > 0 ? fmtUsd(usdVal) : '—'}</td>
             <td style="padding:10px 16px; text-align:right; font-weight:700; color:${uzsVal > 0 ? '#d97706' : '#ccc'};">${uzsVal > 0 ? fmtUzs(uzsVal) : '—'}</td>
@@ -418,7 +411,6 @@ let currentModalType = 'daily';
 
 function openAddModal(type) {
     currentModalType = type;
-    document.getElementById('inp-title').value = '';
     document.getElementById('inp-usd').value = '';
     document.getElementById('inp-uzs').value = '';
     document.getElementById('inp-category').value = '';
@@ -438,7 +430,7 @@ function openAddModal(type) {
     }
     document.getElementById('inp-desc').value = '';
     document.getElementById('addModal').style.display = 'flex';
-    setTimeout(() => document.getElementById('inp-title').focus(), 50);
+    setTimeout(() => document.getElementById('inp-usd').focus(), 50);
 }
 
 function closeAddModal() {
@@ -459,11 +451,9 @@ function onLocTypeChange() {
 }
 
 function saveExpense() {
-    const title = document.getElementById('inp-title').value.trim();
     const usd = parseFloat(document.getElementById('inp-usd').value) || 0;
     const uzs = parseFloat(document.getElementById('inp-uzs').value) || 0;
 
-    if (!title) { document.getElementById('inp-title').focus(); return; }
     if (usd <= 0 && uzs <= 0) { alert('Kamida bitta summa kiritilishi shart!'); return; }
 
     const saveBtn = document.getElementById('saveBtn');
@@ -471,7 +461,6 @@ function saveExpense() {
     saveBtn.textContent = 'Saqlanmoqda...';
 
     const body = {
-        title,
         amount_usd: usd,
         amount_uzs: uzs,
         category: document.getElementById('inp-category').value,

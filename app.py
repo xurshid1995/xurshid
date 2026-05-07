@@ -16683,8 +16683,8 @@ def api_add_expense():
         current_user = get_current_user()
         data = request.get_json()
 
-        if not data or not data.get('title'):
-            return jsonify({'success': False, 'error': 'Sarlavha kiritilishi shart'}), 400
+        if not data:
+            return jsonify({'success': False, 'error': 'Ma\'lumot yuborilmadi'}), 400
 
         amount_usd = float(data.get('amount_usd') or 0)
         amount_uzs = float(data.get('amount_uzs') or 0)
@@ -16692,13 +16692,8 @@ def api_add_expense():
         if amount_usd <= 0 and amount_uzs <= 0:
             return jsonify({'success': False, 'error': 'Summa kiritilishi shart'}), 400
 
-        expense_date_str = data.get('expense_date')
-        expense_date = get_tashkent_time()
-        if expense_date_str:
-            try:
-                expense_date = datetime.strptime(expense_date_str, '%Y-%m-%d')
-            except ValueError:
-                pass
+        # Title: category dan auto yoki bo'sh string
+        auto_title = (data.get('category') or 'Xarajat').strip()
 
         # Location
         location_type = data.get('location_type')
@@ -16729,7 +16724,7 @@ def api_add_expense():
 
             for expense_date in working_days:
                 expense = Expense(
-                    title=data['title'].strip(),
+                    title=auto_title,
                     amount_usd=daily_usd,
                     amount_uzs=daily_uzs,
                     category=data.get('category', '').strip() or None,
@@ -16753,7 +16748,7 @@ def api_add_expense():
                 pass
 
         expense = Expense(
-            title=data['title'].strip(),
+            title=auto_title,
             amount_usd=amount_usd,
             amount_uzs=amount_uzs,
             category=data.get('category', '').strip() or None,
