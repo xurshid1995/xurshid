@@ -130,11 +130,11 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                 <div>
                     <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Summa (USD)</label>
-                    <input type="number" id="inp-usd" placeholder="0.00" min="0" step="0.01" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
+                    <input type="number" id="inp-usd" placeholder="0.00" min="0" step="0.01" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'" oninput="onUsdInput()">
                 </div>
                 <div>
                     <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Summa (UZS)</label>
-                    <input type="number" id="inp-uzs" placeholder="0" min="0" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
+                    <input type="number" id="inp-uzs" placeholder="0" min="0" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'" oninput="onUzsInput()">
                 </div>
             </div>
 
@@ -244,6 +244,9 @@
 </style>
 
 <script>
+let CURRENT_RATE = 13000;
+fetch('/api/currency-rate').then(r=>r.json()).then(d=>{ if(d.success && d.rate) CURRENT_RATE = parseFloat(d.rate.rate) || 13000; }).catch(()=>{});
+
 const STORES = {{ stores | tojson }};
 const WAREHOUSES = {{ warehouses | tojson }};
 const STORE_LIST = STORES.map(s => ({id: s.id, name: s.name}));
@@ -376,6 +379,26 @@ function renderTable(expenses) {
 function escHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function onUsdInput() {
+    const usd = parseFloat(document.getElementById('inp-usd').value);
+    const uzs = document.getElementById('inp-uzs');
+    if (!isNaN(usd) && usd > 0) {
+        uzs.value = Math.round(usd * CURRENT_RATE);
+    } else {
+        uzs.value = '';
+    }
+}
+
+function onUzsInput() {
+    const uzs = parseFloat(document.getElementById('inp-uzs').value);
+    const usd = document.getElementById('inp-usd');
+    if (!isNaN(uzs) && uzs > 0) {
+        usd.value = (uzs / CURRENT_RATE).toFixed(2);
+    } else {
+        usd.value = '';
+    }
 }
 
 function openAddModal() {
