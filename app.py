@@ -16715,11 +16715,19 @@ def api_add_expense():
             import calendar
             year, month = map(int, data['expense_month'].split('-'))
             days_in_month = calendar.monthrange(year, month)[1]
-            daily_usd = round(amount_usd / days_in_month, 6) if amount_usd else 0
-            daily_uzs = round(amount_uzs / days_in_month, 2) if amount_uzs else 0
+            # Dushanba (weekday=0) dam olish kuni - o'sha kunlarga qo'shilmaydi
+            working_days = [
+                datetime(year, month, day)
+                for day in range(1, days_in_month + 1)
+                if datetime(year, month, day).weekday() != 0  # 0 = Dushanba
+            ]
+            count = len(working_days)
+            if count == 0:
+                return jsonify({'success': False, 'error': 'Bu oyda ish kuni topilmadi'}), 400
+            daily_usd = round(amount_usd / count, 6) if amount_usd else 0
+            daily_uzs = round(amount_uzs / count, 2) if amount_uzs else 0
 
-            for day in range(1, days_in_month + 1):
-                expense_date = datetime(year, month, day)
+            for expense_date in working_days:
                 expense = Expense(
                     title=data['title'].strip(),
                     amount_usd=daily_usd,
@@ -16734,7 +16742,7 @@ def api_add_expense():
                 )
                 db.session.add(expense)
             db.session.commit()
-            return jsonify({'success': True, 'monthly': True, 'days': days_in_month})
+            return jsonify({'success': True, 'monthly': True, 'days': count})
 
         expense_date_str = data.get('expense_date')
         expense_date = get_tashkent_time()
