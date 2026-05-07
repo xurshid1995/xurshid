@@ -115,7 +115,7 @@
             {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/hisobot" {% if request.endpoint == 'hisobot' %}class="active"{% endif %}>
-                    <span class="icon">📊</span>
+                    <span class="icon"><img src="/static/images/icons8-analytics-fluent-96.png" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('reports') }}</span>
                 </a>
             </li>
