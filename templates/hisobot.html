@@ -240,7 +240,7 @@ async function loadExchangeRate() {
 
 function setPeriod(period) {
     currentPeriod = period;
-    document.querySelectorAll('.hr-btn').forEach(b => b.classList.remove('hr-btn-active'));
+    document.querySelectorAll('#btn-today, #btn-week, #btn-month').forEach(b => b.classList.remove('hr-btn-active'));
 
     const today = new Date();
 
