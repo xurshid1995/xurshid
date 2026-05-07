@@ -63,6 +63,14 @@
                 <div class="hr-card-sub" id="totalProfitUzs">—</div>
             </div>
         </div>
+        <div class="hr-card">
+            <div class="hr-card-icon" style="background:#e8fff0;">💰</div>
+            <div>
+                <div class="hr-card-label">Sof foyda</div>
+                <div class="hr-card-val" style="color:#0f766e;" id="totalNetProfit">—</div>
+                <div class="hr-card-sub" id="totalNetProfitUzs">—</div>
+            </div>
+        </div>
         {% endif %}
         <div class="hr-card">
             <div class="hr-card-icon" style="background:#fff0f0;">&#x1F4B8;</div>
@@ -334,7 +342,15 @@ async function loadAll() {
         profitEl.textContent = fmtUsd(profit);
         const profitUzsEl = document.getElementById('totalProfitUzs');
         if (profitUzsEl) profitUzsEl.textContent = fmtUzs(profit);
-    }
+        // --- Sof foyda = foyda - xarajat ---
+        const netProfitEl = document.getElementById('totalNetProfit');
+        if (netProfitEl) {
+            const netProfit = profit - expenseTotal;
+            netProfitEl.textContent = fmtUsd(netProfit);
+            netProfitEl.style.color = netProfit >= 0 ? '#0f766e' : '#e53e3e';
+            const netProfitUzsEl = document.getElementById('totalNetProfitUzs');
+            if (netProfitUzsEl) netProfitUzsEl.textContent = fmtUzs(netProfit);
+        }    }
 
     // --- Joylashuv × To'lov usullari kombinatsiya ---
     const comboDiv = document.getElementById('locPaymentCombo');
