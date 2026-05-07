@@ -5,9 +5,20 @@
 {% block content %}
 <div>
 
-    <!-- Sarlavha + Sana filtri -->
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+    <!-- Sarlavha + Joylashuv filtri + Sana filtri -->
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">📊 Hisobot</h2>
+        <span style="color:#ddd;">|</span>
+        <div id="loc-filter-bar" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <button onclick="setLocFilter(null)" id="loc-btn-all" class="hr-btn hr-btn-active">Barchasi</button>
+            {% for s in stores %}
+            <button onclick="setLocFilter('store_{{ s.id }}')" id="loc-btn-store-{{ s.id }}" class="hr-btn">🏪 {{ s.name }}</button>
+            {% endfor %}
+            {% for w in warehouses %}
+            <button onclick="setLocFilter('warehouse_{{ w.id }}')" id="loc-btn-wh-{{ w.id }}" class="hr-btn">🏭 {{ w.name }}</button>
+            {% endfor %}
+        </div>
+        <span style="color:#ddd;">|</span>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <button onclick="setPeriod('today')" id="btn-today" class="hr-btn hr-btn-active">Bugun</button>
             <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
@@ -264,6 +275,16 @@ function setPeriod(period) {
     loadAll();
 }
 
+let currentLocFilter = null;
+function setLocFilter(locKey) {
+    currentLocFilter = locKey;
+    document.querySelectorAll('#loc-filter-bar .hr-btn').forEach(b => b.classList.remove('hr-btn-active'));
+    const activeId = locKey ? (locKey.startsWith('store_') ? 'loc-btn-store-' + locKey.replace('store_','') : 'loc-btn-wh-' + locKey.replace('warehouse_','')) : 'loc-btn-all';
+    const activeBtn = document.getElementById(activeId);
+    if (activeBtn) activeBtn.classList.add('hr-btn-active');
+    loadAll();
+}
+
 function fmtUsd(v) {
     return '$' + parseFloat(v || 0).toLocaleString('uz-UZ', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
@@ -277,8 +298,8 @@ function fmtNum(v) {
 async function loadAll() {
     // Parallel: history (stats+top products+locations+debt_customers) + chart (profit+payments)
     const [histRes, chartRes] = await Promise.all([
-        fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1`),
-        fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom`)
+        fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1${currentLocFilter ? '&location_filter='+currentLocFilter : ''}`),
+        fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom${currentLocFilter ? '&location_id='+currentLocFilter.split('_')[1]+'&location_type='+currentLocFilter.split('_')[0] : ''}`)
     ]);
 
     const hist = await histRes.json();
