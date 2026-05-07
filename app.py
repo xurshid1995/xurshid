@@ -11334,7 +11334,7 @@ def api_sales_history():
             Sale.id.in_(select(sale_ids_subquery.c.id))
         ).group_by(Warehouse_alias2.name).all()
 
-        for name, cash, click, terminal, debt, profit in list(store_loc_pm) + list(wh_loc_pm):
+        for name, cash, click, terminal, debt, profit in store_loc_pm:
             loc_name = name or 'Noma\'lum'
             payments = {}
             if float(cash or 0) > 0:
@@ -11345,10 +11345,23 @@ def api_sales_history():
                 payments['terminal'] = float(terminal)
             if float(debt or 0) > 0:
                 payments['debt'] = float(debt)
-            loc_pm_dict[loc_name] = {'payments': payments, 'profit': float(profit or 0)}
+            loc_pm_dict[('store', loc_name)] = {'payments': payments, 'profit': float(profit or 0)}
+
+        for name, cash, click, terminal, debt, profit in wh_loc_pm:
+            loc_name = name or 'Noma\'lum'
+            payments = {}
+            if float(cash or 0) > 0:
+                payments['cash'] = float(cash)
+            if float(click or 0) > 0:
+                payments['click'] = float(click)
+            if float(terminal or 0) > 0:
+                payments['terminal'] = float(terminal)
+            if float(debt or 0) > 0:
+                payments['debt'] = float(debt)
+            loc_pm_dict[('warehouse', loc_name)] = {'payments': payments, 'profit': float(profit or 0)}
 
         location_payment_breakdown = [
-            {'name': k, 'payments': v['payments'], 'total': sum(v['payments'].values()), 'profit': v['profit']}
+            {'name': k[1], 'location_type': k[0], 'payments': v['payments'], 'total': sum(v['payments'].values()), 'profit': v['profit']}
             for k, v in loc_pm_dict.items()
         ]
         location_payment_breakdown.sort(key=lambda x: x['total'], reverse=True)
