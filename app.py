@@ -11413,13 +11413,26 @@ def api_sales_history():
             exp_q = exp_q.group_by(Expense.location_type, Expense.location_id)
             exp_by_loc = {}
             for loc_type, loc_id, total_usd in exp_q.all():
-                # loc_id'dan nom topish
                 if loc_type == 'store':
                     obj = Store.query.get(loc_id)
                 else:
                     obj = Warehouse.query.get(loc_id)
                 if obj:
                     exp_by_loc[(loc_type, obj.name)] = float(total_usd)
+
+            # Savdosi yo'q ammo xarajati bor joylashuvlarni ham qo'shish
+            existing_keys = {(item['location_type'], item['name']) for item in location_payment_breakdown}
+            for (loc_type, loc_name), exp_amt in exp_by_loc.items():
+                if (loc_type, loc_name) not in existing_keys:
+                    location_payment_breakdown.append({
+                        'name': loc_name,
+                        'location_type': loc_type,
+                        'payments': {},
+                        'total': 0,
+                        'profit': 0,
+                        'expense': exp_amt
+                    })
+
             for item in location_payment_breakdown:
                 item['expense'] = exp_by_loc.get((item['location_type'], item['name']), 0)
         except Exception:
