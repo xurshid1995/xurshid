@@ -16711,6 +16711,39 @@ def api_add_expense():
             wh = Warehouse.query.get(int(location_id))
             location_name = wh.name if wh else None
 
+        if data.get('is_monthly') and data.get('expense_month'):
+            import calendar
+            year, month = map(int, data['expense_month'].split('-'))
+            days_in_month = calendar.monthrange(year, month)[1]
+            daily_usd = round(amount_usd / days_in_month, 6) if amount_usd else 0
+            daily_uzs = round(amount_uzs / days_in_month, 2) if amount_uzs else 0
+
+            for day in range(1, days_in_month + 1):
+                expense_date = datetime(year, month, day)
+                expense = Expense(
+                    title=data['title'].strip(),
+                    amount_usd=daily_usd,
+                    amount_uzs=daily_uzs,
+                    category=data.get('category', '').strip() or None,
+                    description=data.get('description', '').strip() or None,
+                    expense_date=expense_date,
+                    created_by=current_user.username if current_user else 'unknown',
+                    location_type=location_type or None,
+                    location_id=int(location_id) if location_id else None,
+                    location_name=location_name,
+                )
+                db.session.add(expense)
+            db.session.commit()
+            return jsonify({'success': True, 'monthly': True, 'days': days_in_month})
+
+        expense_date_str = data.get('expense_date')
+        expense_date = get_tashkent_time()
+        if expense_date_str:
+            try:
+                expense_date = datetime.strptime(expense_date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
+
         expense = Expense(
             title=data['title'].strip(),
             amount_usd=amount_usd,

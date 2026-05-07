@@ -165,9 +165,13 @@
                 </div>
             </div>
 
-            <div>
+            <div id="inp-date-row">
                 <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Sana</label>
                 <input type="date" id="inp-date" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
+            </div>
+            <div id="inp-month-row" style="display:none;">
+                <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Oy</label>
+                <input type="month" id="inp-month" style="width:100%; padding:8px 11px; border:1px solid #dde1e7; border-radius:8px; font-size:13px; box-sizing:border-box; outline:none; color:#333;" onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
             </div>
 
             <div>
@@ -404,7 +408,10 @@ function onUzsInput() {
     }
 }
 
+let currentModalType = 'daily';
+
 function openAddModal(type) {
+    currentModalType = type;
     document.getElementById('inp-title').value = '';
     document.getElementById('inp-usd').value = '';
     document.getElementById('inp-uzs').value = '';
@@ -414,9 +421,13 @@ function openAddModal(type) {
     const now = new Date();
     if (type === 'monthly') {
         document.getElementById('add-modal-title').textContent = "💸 Oylik xarajat qo'shish";
-        document.getElementById('inp-date').value = fmtDate(new Date(now.getFullYear(), now.getMonth(), 1));
+        document.getElementById('inp-date-row').style.display = 'none';
+        document.getElementById('inp-month-row').style.display = 'block';
+        document.getElementById('inp-month').value = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
     } else {
         document.getElementById('add-modal-title').textContent = "💸 Kunlik xarajat qo'shish";
+        document.getElementById('inp-date-row').style.display = 'block';
+        document.getElementById('inp-month-row').style.display = 'none';
         document.getElementById('inp-date').value = fmtDate(now);
     }
     document.getElementById('inp-desc').value = '';
@@ -453,19 +464,29 @@ function saveExpense() {
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saqlanmoqda...';
 
+    const body = {
+        title,
+        amount_usd: usd,
+        amount_uzs: uzs,
+        category: document.getElementById('inp-category').value,
+        description: document.getElementById('inp-desc').value.trim(),
+        location_type: document.getElementById('inp-loc-type').value || null,
+        location_id: document.getElementById('inp-loc-id').value || null,
+    };
+
+    if (currentModalType === 'monthly') {
+        const monthVal = document.getElementById('inp-month').value;
+        if (!monthVal) { saveBtn.disabled = false; saveBtn.textContent = '💾 Saqlash'; alert('Oy tanlanishi shart!'); return; }
+        body.is_monthly = true;
+        body.expense_month = monthVal;
+    } else {
+        body.expense_date = document.getElementById('inp-date').value;
+    }
+
     fetch('/api/expenses', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            title,
-            amount_usd: usd,
-            amount_uzs: uzs,
-            category: document.getElementById('inp-category').value,
-            description: document.getElementById('inp-desc').value.trim(),
-            expense_date: document.getElementById('inp-date').value,
-            location_type: document.getElementById('inp-loc-type').value || null,
-            location_id: document.getElementById('inp-loc-id').value || null,
-        })
+        body: JSON.stringify(body)
     })
     .then(r => r.json())
     .then(data => {
