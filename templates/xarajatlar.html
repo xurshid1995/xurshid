@@ -5,10 +5,20 @@
 {% block content %}
 <div>
 
-    <!-- Sarlavha + Sana filtri -->
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">💸 Xarajatlar</h2>
+    <!-- Sarlavha + Filtirlar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">&#x1F4B8; Xarajatlar</h2>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <!-- Joylashuv filtri -->
+            <select id="filter-loc-type" onchange="onFilterLocTypeChange()" class="hr-date" style="font-size:13px; color:#333;">
+                <option value="">&#x1F4CD; Barcha joylashuv</option>
+                <option value="store">&#x1F3EA; Do'kon</option>
+                <option value="warehouse">&#x1F3ED; Ombor</option>
+            </select>
+            <select id="filter-loc-id" onchange="loadExpenses()" class="hr-date" style="font-size:13px; color:#333; display:none;">
+                <option value="">— Hammasi —</option>
+            </select>
+            <!-- Sana filtri -->
             <button onclick="setPeriod('today')" id="btn-today" class="hr-btn hr-btn-active">Bugun</button>
             <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
             <button onclick="setPeriod('month')" id="btn-month" class="hr-btn">Bu oy</button>
@@ -314,16 +324,39 @@ function setCategory(cat) {
     loadExpenses();
 }
 
+function onFilterLocTypeChange() {
+    const type = document.getElementById('filter-loc-type').value;
+    const sel = document.getElementById('filter-loc-id');
+    sel.innerHTML = '<option value="">— Hammasi —</option>';
+    if (type) {
+        const list = type === 'store' ? STORE_LIST : WH_LIST;
+        list.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name;
+            sel.appendChild(opt);
+        });
+        sel.style.display = 'inline-block';
+    } else {
+        sel.style.display = 'none';
+    }
+    loadExpenses();
+}
+
 function loadExpenses() {
     const from = document.getElementById('dateFrom').value;
     const to = document.getElementById('dateTo').value;
+    const locType = document.getElementById('filter-loc-type').value;
+    const locId = document.getElementById('filter-loc-id').value;
     const params = new URLSearchParams();
     if (from) params.set('start_date', from);
     if (to) params.set('end_date', to);
     if (currentCategory && currentCategory !== 'all') params.set('category', currentCategory);
+    if (locType) params.set('location_type', locType);
+    if (locId) params.set('location_id', locId);
 
     document.getElementById('expenseTableBody').innerHTML =
-        '<tr><td colspan="9" class="hr-loading">Yuklanmoqda...</td></tr>';
+        '<tr><td colspan="8" class="hr-loading">Yuklanmoqda...</td></tr>';
 
     fetch('/api/expenses?' + params.toString())
         .then(r => r.json())

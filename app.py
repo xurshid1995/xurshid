@@ -16649,6 +16649,8 @@ def api_get_expenses():
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
         category = request.args.get('category')
+        location_type = request.args.get('location_type')
+        location_id = request.args.get('location_id')
 
         query = Expense.query
 
@@ -16658,6 +16660,10 @@ def api_get_expenses():
             query = query.filter(Expense.expense_date <= end_date + ' 23:59:59')
         if category and category != 'all':
             query = query.filter(Expense.category == category)
+        if location_type:
+            query = query.filter(Expense.location_type == location_type)
+        if location_id:
+            query = query.filter(Expense.location_id == int(location_id))
 
         expenses = query.order_by(Expense.expense_date.desc()).all()
         total_usd = sum(float(e.amount_usd or 0) for e in expenses)
