@@ -15288,7 +15288,7 @@ def hisobot():
     if 'user_id' not in session:
         return redirect('/login')
     current_user = get_current_user()
-    stores = Store.query.filter_by(is_active=True).order_by(Store.name).all()
+    stores = Store.query.order_by(Store.name).all()
     warehouses = Warehouse.query.order_by(Warehouse.name).all()
     return render_template('hisobot.html', current_user=current_user, stores=stores, warehouses=warehouses)
 
