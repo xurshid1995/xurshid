@@ -1748,6 +1748,39 @@ class CurrencyRate(db.Model):
             'updated_by': self.updated_by}
 
 
+class Expense(db.Model):
+    """Xarajatlar jadvali"""
+    __tablename__ = 'expenses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(300), nullable=False)
+    amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    amount_uzs = db.Column(db.DECIMAL(precision=20, scale=2), nullable=False, default=0)
+    category = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    expense_date = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+    created_by = db.Column(db.String(100), nullable=True)
+    location_type = db.Column(db.String(20), nullable=True)  # 'store' | 'warehouse' | None
+    location_id = db.Column(db.Integer, nullable=True)
+    location_name = db.Column(db.String(200), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'amount_usd': float(self.amount_usd or 0),
+            'amount_uzs': float(self.amount_uzs or 0),
+            'category': self.category,
+            'description': self.description,
+            'expense_date': self.expense_date.strftime('%Y-%m-%d %H:%M') if self.expense_date else None,
+            'created_by': self.created_by,
+            'location_type': self.location_type,
+            'location_id': self.location_id,
+            'location_name': self.location_name,
+        }
+
+
 # ============================================
 # HOSTING TO'LOV TIZIMI MODELLARI
 # ============================================
@@ -16593,6 +16626,126 @@ except Exception as e:
 
 
 # AI Chat endpoint olib tashlandi
+
+
+# ============================================
+# XARAJATLAR (EXPENSES) ROUTES
+# ============================================
+
+@app.route('/xarajatlar')
+@role_required('admin', 'kassir')
+def xarajatlar():
+    """Xarajatlar sahifasi"""
+    stores = Store.query.filter_by(is_active=True).order_by(Store.name).all()
+    warehouses = Warehouse.query.filter_by(is_active=True).order_by(Warehouse.name).all()
+    return render_template('xarajatlar.html', stores=stores, warehouses=warehouses)
+
+
+@app.route('/api/expenses', methods=['GET'])
+@role_required('admin', 'kassir')
+def api_get_expenses():
+    """Xarajatlar ro'yxati"""
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        category = request.args.get('category')
+
+        query = Expense.query
+
+        if start_date:
+            query = query.filter(Expense.expense_date >= start_date)
+        if end_date:
+            query = query.filter(Expense.expense_date <= end_date + ' 23:59:59')
+        if category and category != 'all':
+            query = query.filter(Expense.category == category)
+
+        expenses = query.order_by(Expense.expense_date.desc()).all()
+        total_usd = sum(float(e.amount_usd or 0) for e in expenses)
+        total_uzs = sum(float(e.amount_uzs or 0) for e in expenses)
+
+        return jsonify({
+            'success': True,
+            'expenses': [e.to_dict() for e in expenses],
+            'total_usd': round(total_usd, 2),
+            'total_uzs': round(total_uzs, 2),
+            'count': len(expenses)
+        })
+    except Exception as e:
+        logger.error(f"Xarajatlar olishda xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/expenses', methods=['POST'])
+@role_required('admin', 'kassir')
+def api_add_expense():
+    """Yangi xarajat qo'shish"""
+    try:
+        current_user = get_current_user()
+        data = request.get_json()
+
+        if not data or not data.get('title'):
+            return jsonify({'success': False, 'error': 'Sarlavha kiritilishi shart'}), 400
+
+        amount_usd = float(data.get('amount_usd') or 0)
+        amount_uzs = float(data.get('amount_uzs') or 0)
+
+        if amount_usd <= 0 and amount_uzs <= 0:
+            return jsonify({'success': False, 'error': 'Summa kiritilishi shart'}), 400
+
+        expense_date_str = data.get('expense_date')
+        expense_date = get_tashkent_time()
+        if expense_date_str:
+            try:
+                expense_date = datetime.strptime(expense_date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
+
+        # Location
+        location_type = data.get('location_type')
+        location_id = data.get('location_id')
+        location_name = None
+        if location_type == 'store' and location_id:
+            store = Store.query.get(int(location_id))
+            location_name = store.name if store else None
+        elif location_type == 'warehouse' and location_id:
+            wh = Warehouse.query.get(int(location_id))
+            location_name = wh.name if wh else None
+
+        expense = Expense(
+            title=data['title'].strip(),
+            amount_usd=amount_usd,
+            amount_uzs=amount_uzs,
+            category=data.get('category', '').strip() or None,
+            description=data.get('description', '').strip() or None,
+            expense_date=expense_date,
+            created_by=current_user.username if current_user else 'unknown',
+            location_type=location_type or None,
+            location_id=int(location_id) if location_id else None,
+            location_name=location_name,
+        )
+        db.session.add(expense)
+        db.session.commit()
+
+        return jsonify({'success': True, 'expense': expense.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Xarajat qo'shishda xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
+@role_required('admin')
+def api_delete_expense(expense_id):
+    """Xarajatni o'chirish"""
+    try:
+        expense = Expense.query.get_or_404(expense_id)
+        db.session.delete(expense)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     # Telegram bot scheduler ni ishga tushirish
