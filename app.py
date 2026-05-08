@@ -7187,6 +7187,45 @@ def api_debts():
         }), 500
 
 
+@app.route('/api/low-stock-alerts')
+@role_required('admin', 'kassir', 'sotuvchi', 'ombor_xodimi')
+def api_low_stock_alerts():
+    """Qoldig'i kam mahsulotlar ro'yxati (min_stock dan past)"""
+    try:
+        query = text("""
+            SELECT p.id, p.name, p.unit_type,
+                   COALESCE((
+                       SELECT SUM(ws.quantity) FROM warehouse_stocks ws WHERE ws.product_id = p.id
+                   ), 0) +
+                   COALESCE((
+                       SELECT SUM(ss.quantity) FROM store_stocks ss WHERE ss.product_id = p.id
+                   ), 0) AS total_qty,
+                   p.min_stock
+            FROM products p
+            WHERE p.is_active = TRUE
+              AND (
+                  COALESCE((SELECT SUM(ws.quantity) FROM warehouse_stocks ws WHERE ws.product_id = p.id), 0) +
+                  COALESCE((SELECT SUM(ss.quantity) FROM store_stocks ss WHERE ss.product_id = p.id), 0)
+              ) < p.min_stock
+            ORDER BY total_qty ASC
+            LIMIT 20
+        """)
+        result = db.session.execute(query)
+        items = []
+        for row in result:
+            items.append({
+                'id': row.id,
+                'name': row.name,
+                'unit_type': row.unit_type or 'dona',
+                'quantity': float(row.total_qty),
+                'min_stock': row.min_stock
+            })
+        return jsonify({'success': True, 'items': items})
+    except Exception as e:
+        app.logger.error(f"Low stock alerts xatosi: {str(e)}")
+        return jsonify({'success': True, 'items': []})
+
+
 @app.route('/api/debts/paid')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_paid_debts():

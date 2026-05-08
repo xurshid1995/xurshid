@@ -212,6 +212,31 @@
             </h1>
         </div>
         <div class="header-right">
+            <!-- ===== BILDIRISHNOMA TUGMASI ===== -->
+            <div class="notif-wrap" id="notifWrap" style="position:relative; display:flex; align-items:center;">
+                <button id="notifBtn" onclick="toggleNotifPanel()" title="Bildirishnomalar"
+                    style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #e2e8f0; border-radius:8px; background:rgba(255,255,255,0.9); cursor:pointer; position:relative; flex-shrink:0; transition: box-shadow 0.2s;">
+                    <img src="{{ url_for('static', filename='images/icons8-notification-fluent-96.png') }}" alt="Bildirishnomalar" style="width:22px; height:22px;">
+                    <span id="notifBadge" style="display:none; position:absolute; top:-4px; right:-4px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 5px; min-width:16px; text-align:center; line-height:16px;"></span>
+                </button>
+                <!-- Bildirishnoma paneli -->
+                <div id="notifPanel" style="display:none; position:absolute; top:calc(100% + 8px); right:0; width:320px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:9999; overflow:hidden;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #f0f2f5; background:#fafbfc;">
+                        <span style="font-size:14px; font-weight:700; color:#1e293b;">🔔 Bildirishnomalar</span>
+                        <button onclick="markAllNotifRead()" style="background:none; border:none; font-size:12px; color:#1a6eff; cursor:pointer; font-weight:600;">Hammasini o'qildi</button>
+                    </div>
+                    <div id="notifList" style="max-height:340px; overflow-y:auto; padding:4px 0;">
+                        <div style="text-align:center; color:#aaa; font-size:13px; padding:24px;">
+                            <div style="font-size:28px; margin-bottom:8px;">🔔</div>
+                            Yuklanmoqda...
+                        </div>
+                    </div>
+                    <div style="padding:10px 16px; border-top:1px solid #f0f2f5; text-align:center;">
+                        <a href="/debts" style="font-size:12px; color:#1a6eff; text-decoration:none; font-weight:600;">Barcha qarzlarni ko'rish →</a>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== VALYUTA KURSI ===== -->
             <div class="currency-display" title="{{ t('exchange_rate') }}">
                 <span class="currency-rate"><span class="currency-label">💵 1 USD = </span><span class="currency-value">... UZS</span></span>
                 <button class="edit-rate-btn" onclick="editCurrency()" title="{{ t('rate_change') }}">
@@ -313,7 +338,131 @@
             if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
                 menu.style.display = 'none';
             }
+            // Bildirishnoma panelini yopish
+            const notifPanel = document.getElementById('notifPanel');
+            const notifWrap = document.getElementById('notifWrap');
+            if (notifPanel && notifWrap && !notifWrap.contains(e.target)) {
+                notifPanel.style.display = 'none';
+            }
         });
+
+        // ========== BILDIRISHNOMA TIZIMI ==========
+        let _notifLoaded = false;
+
+        function toggleNotifPanel() {
+            const panel = document.getElementById('notifPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                if (!_notifLoaded) loadNotifications();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        async function loadNotifications() {
+            _notifLoaded = true;
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            try {
+                const [debtsRes, stockRes] = await Promise.all([
+                    fetch('/api/debts').catch(() => null),
+                    fetch('/api/low-stock-alerts').catch(() => null)
+                ]);
+
+                const items = [];
+                const today = new Date(); today.setHours(0,0,0,0);
+
+                // Muddati o'tgan qarzlar
+                if (debtsRes && debtsRes.ok) {
+                    const debtsData = await debtsRes.json();
+                    const debts = (debtsData.debts || []).filter(d => {
+                        if (!d.nearest_due_date) return false;
+                        const due = new Date(d.nearest_due_date); due.setHours(0,0,0,0);
+                        return due < today;
+                    }).slice(0, 5);
+                    debts.forEach(d => {
+                        items.push({
+                            type: 'debt',
+                            icon: '💳',
+                            color: '#e53e3e',
+                            bg: '#fff5f5',
+                            title: d.customer_name || 'Mijoz',
+                            desc: 'Muddati o\'tgan qarz: $' + parseFloat(d.remaining_debt || 0).toFixed(2),
+                            link: '/debts'
+                        });
+                    });
+                }
+
+                // Kam qoldiq mahsulotlar (agar endpoint bo'lsa)
+                if (stockRes && stockRes.ok) {
+                    const stockData = await stockRes.json();
+                    const lowItems = stockData.items || [];
+                    lowItems.slice(0, 3).forEach(p => {
+                        items.push({
+                            type: 'stock',
+                            icon: '📦',
+                            color: '#d97706',
+                            bg: '#fffbeb',
+                            title: p.name || 'Mahsulot',
+                            desc: 'Qoldiq kam: ' + p.quantity + ' ' + (p.unit_type || 'dona'),
+                            link: '/products'
+                        });
+                    });
+                }
+
+                // Badge yangilash
+                if (items.length > 0) {
+                    badge.textContent = items.length > 9 ? '9+' : items.length;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                // Ro'yxatni render qilish
+                if (items.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">✅</div>Hamma narsa joyida!</div>';
+                } else {
+                    list.innerHTML = items.map((it, i) => `
+                        <a href="${it.link}" onclick="document.getElementById('notifPanel').style.display='none'"
+                            style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; text-decoration:none; color:inherit; border-bottom:1px solid #f7f8fa; transition:background 0.15s;"
+                            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+                            <div style="width:34px; height:34px; border-radius:8px; background:${it.bg}; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">${it.icon}</div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:13px; font-weight:600; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.title}</div>
+                                <div style="font-size:12px; color:${it.color}; margin-top:2px;">${it.desc}</div>
+                            </div>
+                        </a>`).join('');
+                }
+            } catch(e) {
+                list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;">Xatolik yuz berdi</div>';
+            }
+        }
+
+        function markAllNotifRead() {
+            document.getElementById('notifBadge').style.display = 'none';
+            document.getElementById('notifPanel').style.display = 'none';
+            _notifLoaded = false;
+        }
+
+        // Sahifa yuklanganda bildirishnomalarni tekshirish (faqat badge uchun)
+        async function checkNotifCount() {
+            try {
+                const badge = document.getElementById('notifBadge');
+                const res = await fetch('/api/debts').catch(() => null);
+                if (!res || !res.ok) return;
+                const data = await res.json();
+                const today = new Date(); today.setHours(0,0,0,0);
+                const overdue = (data.debts || []).filter(d => {
+                    if (!d.nearest_due_date) return false;
+                    const due = new Date(d.nearest_due_date); due.setHours(0,0,0,0);
+                    return due < today;
+                });
+                if (overdue.length > 0) {
+                    badge.textContent = overdue.length > 9 ? '9+' : overdue.length;
+                    badge.style.display = 'block';
+                }
+            } catch(e) {}
+        }
 
         // Global o'zgaruvchi - barcha sahifalarda ishlaydi
         window.currentExchangeRate = null; // Null boshlanadi, API dan olinadi
@@ -587,6 +736,9 @@
             
             // Session monitoring tizimini ishga tushirish
             setupSessionMonitoring();
+            
+            // Bildirishnoma badge ni yuklash
+            checkNotifCount();
         });
         
         // ========================================
