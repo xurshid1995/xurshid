@@ -815,10 +815,10 @@
                     ? `<span style="font-family: monospace; font-size: 12px;">${product.barcode}</span>`
                     : '<span style="color: #999;">-</span>';
                 
-                // Mahsulot rasmi
+                // Mahsulot rasmi (kliklab rasm yuklash mumkin)
                 const imageCell = product.image_url
-                    ? `<img src="${product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;">`
-                    : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`;
+                    ? `<img src="${product.image_url}" alt="" onclick="openImageUpload(${product.id})" title="Rasmni o'zgartirish" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer;">`
+                    : `<div onclick="openImageUpload(${product.id})" title="Rasm yuklash" style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;cursor:pointer;">📷</div>`;
                 
                 // Kategoriya badge
                 const catBadge = product.category_name
@@ -1269,6 +1269,45 @@
         btn.classList.add('active');
         currentCategory = categoryId;
         loadProducts(1, currentSearch, currentLocation);
+    }
+
+    // Mahsulot rasmi yuklash (products sahifasidan)
+    let _uploadProductId = null;
+    (function createImageInput() {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'image/jpeg,image/png,image/webp';
+        inp.id = '_productImgInput';
+        inp.style.display = 'none';
+        inp.addEventListener('change', function() {
+            if (!this.files || !this.files[0] || !_uploadProductId) return;
+            const fd = new FormData();
+            fd.append('image', this.files[0]);
+            fetch(`/api/products/${_uploadProductId}/image`, { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        // Jadvalda rasmni yangilash
+                        const row = document.querySelector(`tr[data-pid="${_uploadProductId}"]`);
+                        if (row) {
+                            const imgTd = row.querySelector('td:first-child');
+                            if (imgTd) {
+                                imgTd.innerHTML = `<img src="${data.image_url}?t=${Date.now()}" onclick="openImageUpload(${_uploadProductId})" title="Rasmni o'zgartirish" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer;">`;
+                            }
+                        }
+                    } else {
+                        alert(data.error || 'Rasm yuklanmadi');
+                    }
+                })
+                .catch(() => alert('Rasm yuklanmadi'));
+            this.value = '';
+        });
+        document.body.appendChild(inp);
+    })();
+
+    function openImageUpload(productId) {
+        _uploadProductId = productId;
+        document.getElementById('_productImgInput').click();
     }
 </script>
 {% endblock %}

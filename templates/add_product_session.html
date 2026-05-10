@@ -2123,15 +2123,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
             .then(data => {
                 if (data.success) {
                     // Rasmli mahsulotlar uchun upload
-                    const productsWithImages = tempProducts.filter(p => p._imageFile);
+                    const productsWithImages = tempProducts.filter(p => p._imageFile instanceof File);
                     if (data.saved_products && productsWithImages.length > 0) {
-                        productsWithImages.forEach((p, idx) => {
-                            const saved = data.saved_products[idx];
+                        productsWithImages.forEach(p => {
+                            const saved = data.saved_products.find(s => s.name === p.name);
                             if (saved && saved.id) {
                                 const fd = new FormData();
                                 fd.append('image', p._imageFile);
                                 fetch(`/api/products/${saved.id}/image`, { method: 'POST', body: fd })
-                                    .catch(() => {});
+                                    .catch(err => console.warn('Rasm yuklanmadi:', err));
                             }
                         });
                     }
