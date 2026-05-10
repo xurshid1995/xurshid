@@ -358,6 +358,15 @@
                 </div>
             </div>
         </div>
+        <!-- Kategoriya filtri -->
+        <div class="ps-filter-row" style="margin-top:10px;">
+            <div class="ps-filter-group" style="width:100%;">
+                <label>Kategoriya</label>
+                <div class="location-buttons" id="categoryButtons">
+                    <button class="location-button active" data-category="all" onclick="filterByCategory(this, 'all')">Barchasi</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Table Card -->
@@ -377,6 +386,7 @@
             <table class="ps-table" id="productsTable" style="display: none;">
                 <thead>
                     <tr>
+                        <th style="width:44px;"></th>
                         <th class="col-barcode">{{ t('header_barcode') }}</th>
                         <th class="col-name">{{ t('header_product_name') }}</th>
                         <th class="col-price">{{ t('header_price') }}</th>
@@ -433,6 +443,7 @@
     let totalPages = 0;
     let currentSearch = '';
     let currentLocation = 'all';
+    let currentCategory = 'all';
     let isLoading = false;
     let userExplicitlySelectedLocation = false; // User o'zi location tanladi
     let locationButtonsLoaded = false; // Location tugmalar yuklandi
@@ -489,6 +500,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadProductCurrencyRate();
         loadProducts();
+        loadCategoryButtons();
         
         // Qidiruv maydoniga fokus berish
         const searchInput = document.getElementById('productSearch');
@@ -563,6 +575,10 @@
             
             if (location && location !== 'all') {
                 params.append('location', location);
+            }
+            
+            if (currentCategory && currentCategory !== 'all') {
+                params.append('category_id', currentCategory);
             }
             
             const response = await fetch(`/api/products?${params}`);
@@ -799,10 +815,21 @@
                     ? `<span style="font-family: monospace; font-size: 12px;">${product.barcode}</span>`
                     : '<span style="color: #999;">-</span>';
                 
+                // Mahsulot rasmi
+                const imageCell = product.image_url
+                    ? `<img src="${product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;">`
+                    : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`;
+                
+                // Kategoriya badge
+                const catBadge = product.category_name
+                    ? `<span style="display:inline-block;background:${product.category_color||'#6366f1'}22;color:${product.category_color||'#6366f1'};font-size:10px;padding:1px 6px;border-radius:4px;margin-top:2px;">${product.category_name}</span>`
+                    : '';
+                
                 tableHtml += `
                     <tr data-pid="${product.id}">
+                        <td style="text-align:center;padding:4px 6px!important;">${imageCell}</td>
                         <td style="text-align: center;">${barcodeCell}</td>
-                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">🕐</button>${highlightedName}${fuzzyBadge}</td>
+                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">🕐</button>${highlightedName}${fuzzyBadge}${catBadge}</td>
                         <td class="price-cell col-price">
                             <span style="background-color: #5cb85c; color: white; font-size: 0.9rem; font-weight: 700; padding: 2px 8px; border-radius: 0;">$${formatPrice(product.sell_price)}</span>
                             <span style="background-color: #5dade2; color: white; font-size: 0.9rem; font-weight: 700; margin-left: 2px; padding: 2px 8px; border-radius: 0;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
@@ -1216,5 +1243,32 @@
     }
 
     // Boshqa joyga bosganda - backdrop orqali yopiladi (onclick), qolgan click listener shart emas
+
+    // ─── Kategoriya filtri ────────────────────────────────────────────────
+    function loadCategoryButtons() {
+        fetch('/api/categories')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const container = document.getElementById('categoryButtons');
+                data.categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'location-button';
+                    btn.dataset.category = cat.id;
+                    btn.textContent = cat.name;
+                    btn.style.borderColor = cat.color;
+                    btn.onclick = function() { filterByCategory(this, cat.id); };
+                    container.appendChild(btn);
+                });
+            })
+            .catch(() => {});
+    }
+
+    function filterByCategory(btn, categoryId) {
+        document.querySelectorAll('#categoryButtons .location-button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = categoryId;
+        loadProducts(1, currentSearch, currentLocation);
+    }
 </script>
 {% endblock %}

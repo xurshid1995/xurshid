@@ -270,6 +270,20 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
+                    <!-- Kategoriya -->
+                    <div class="ap-form-group">
+                        <label class="ap-label" for="category_id">Kategoriya</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <select id="category_id" name="category_id" class="ap-input" style="flex:1;">
+                                <option value="">— Kategoriyasiz —</option>
+                            </select>
+                            <button type="button" onclick="openAddCategoryModal()"
+                                    style="padding:8px 12px; background:#6366f1; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px; white-space:nowrap;" title="Yangi kategoriya qo'shish">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Barcode -->
                     <div class="ap-form-group">
                             <label class="ap-label" for="barcode">{{ t('ap_barcode_label') }}</label>
@@ -1630,6 +1644,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const productName = document.getElementById('product_name').value.trim();
             const barcode = document.getElementById('barcode').value.trim();
             const unitType = document.getElementById('unit_type').value;
+            const categoryId = document.getElementById('category_id').value || null;
+            const categoryName = categoryId ? document.getElementById('category_id').selectedOptions[0].text : null;
             // Tan narx maydonidagi qiymatni olish (bu ortacha narx bo'lishi mumkin)
             const costPriceFromField = parseFloat(document.getElementById('cost_price').value);
             const sellPrice = parseFloat(document.getElementById('sell_price').value);
@@ -1721,7 +1737,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 location_name: locationName,
                 location_type: locationType,
                 profit: sellPrice - finalCostPrice,
-                total_value: finalCostPrice * quantity
+                total_value: finalCostPrice * quantity,
+                categoryId: categoryId,
+                categoryName: categoryName
             };
             
             console.log('📦 Yaratilgan mahsulot:', product);
@@ -2045,7 +2063,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         unitType: product.unit_type || 'dona', // O'lchov birligi
                         min_stock: product.min_stock,
                         location_type: locationType,
-                        location_id: locationId
+                        location_id: locationId,
+                        categoryId: product.categoryId || null
                     };
                     
                     console.log('📦 API ga yuborilayotgan mahsulot:', productData);
@@ -2345,6 +2364,51 @@ optgroup option { font-weight: normal; color: #1e293b; }
         // Sahifa yuklanganda
         document.addEventListener('DOMContentLoaded', function() {
             loadPendingBatchFromUrl();
+            loadCategories();
         });
+
+        // ─── Kategoriyalar ────────────────────────────────────────────────
+        function loadCategories() {
+            fetch('/api/categories')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) return;
+                    const sel = document.getElementById('category_id');
+                    sel.innerHTML = '<option value="">— Kategoriyasiz —</option>';
+                    data.categories.forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.textContent = cat.name;
+                        opt.style.color = cat.color;
+                        sel.appendChild(opt);
+                    });
+                })
+                .catch(() => {});
+        }
+
+        function openAddCategoryModal() {
+            const name = prompt('Yangi kategoriya nomi:');
+            if (!name || !name.trim()) return;
+            const color = prompt('Rang (masalan #6366f1):', '#6366f1') || '#6366f1';
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: name.trim(), color: color.trim()})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadCategories();
+                    setTimeout(() => {
+                        const sel = document.getElementById('category_id');
+                        for (let opt of sel.options) {
+                            if (opt.textContent === name.trim()) { opt.selected = true; break; }
+                        }
+                    }, 300);
+                } else {
+                    alert(data.error || 'Xatolik');
+                }
+            });
+        }
     </script>
 {% endblock %}

@@ -104,6 +104,12 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB
 
+# Mahsulot rasmlarini yuklash uchun papka
+PRODUCT_UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads', 'products')
+os.makedirs(PRODUCT_UPLOAD_FOLDER, exist_ok=True)
+app.config['PRODUCT_UPLOAD_FOLDER'] = PRODUCT_UPLOAD_FOLDER
+ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
+
 # Logging konfiguratsiyasi
 logging.basicConfig(
     level=logging.INFO,
@@ -578,6 +584,25 @@ def extract_location_ids(locations, location_type):
     return result
 
 
+# Model yaratish - Kategoriya jadvali
+class Category(db.Model):
+    __tablename__ = 'categories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    color = db.Column(db.String(7), default='#6366f1')
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    products = db.relationship('Product', backref='category', lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'color': self.color,
+        }
+
+
 # Model yaratish - Mahsulot jadvali
 class Product(db.Model):
     __tablename__ = 'products'
@@ -600,6 +625,8 @@ class Product(db.Model):
         db.Boolean,
         default=False,
         nullable=False)  # Tekshirilganlik holati
+    image_path = db.Column(db.String(255), nullable=True)  # Mahsulot rasmi
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete='SET NULL'), nullable=True)  # Kategoriya
 
     # Relationships
     warehouse_stocks = db.relationship('WarehouseStock',
@@ -638,6 +665,10 @@ class Product(db.Model):
             'last_batch_cost': str(self.last_batch_cost) if self.last_batch_cost else None,
             'last_batch_date': self.last_batch_date.isoformat() if self.last_batch_date else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'image_url': f'/static/uploads/products/{self.image_path}' if self.image_path else None,
+            'category_id': self.category_id,
+            'category_name': self.category.name if self.category else None,
+            'category_color': self.category.color if self.category else None,
             'stocks': stocks
         }
 
@@ -2177,6 +2208,11 @@ def api_products():
             pass
     # Location filter yo'q bo'lsa - barcha mahsulotlarni ko'rsatish (stock bo'lsin yoki bo'lmasin)
 
+    # Category filter
+    category_id_filter = request.args.get('category_id', type=int)
+    if category_id_filter:
+        query = query.filter(Product.category_id == category_id_filter)
+
     # Saralash: Eng ko'p sotilgan mahsulotlar birinchi bo'lishi uchun
     from sqlalchemy import desc, func
     from sqlalchemy import select as sa_select
@@ -2929,6 +2965,10 @@ def api_add_product():
                     if 'barcode' in product_data and product_data['barcode']:
                         existing_product.barcode = product_data['barcode']
 
+                    # Kategoriya yangilash (agar berilgan bo'lsa)
+                    if 'categoryId' in product_data and product_data['categoryId']:
+                        existing_product.category_id = product_data['categoryId']
+
                     product = existing_product
                 else:
                     # Yangi mahsulot yaratish
@@ -2941,7 +2981,8 @@ def api_add_product():
                         last_batch_date=get_tashkent_time(),
                         stock_quantity=0,  # Global stock 0 ga qo'yamiz
                         min_stock=product_data.get('minStock', 0),
-                        unit_type=product_data.get('unitType', 'dona')  # O'lchov birligi
+                        unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
+                        category_id=product_data.get('categoryId', None)  # Kategoriya
                     )
                     db.session.add(product)
                     db.session.flush()  # ID olish uchun
@@ -3921,6 +3962,145 @@ def add_customer():
 @app.route('/products')
 def products_list():
     return render_template('products.html')
+
+
+# ─── Kategoriya API endpoints ──────────────────────────────────────────────
+
+@app.route('/api/categories', methods=['GET'])
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_get_categories():
+    try:
+        categories = Category.query.order_by(Category.name).all()
+        return jsonify({'success': True, 'categories': [c.to_dict() for c in categories]})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/categories', methods=['POST'])
+@role_required('admin')
+def api_create_category():
+    try:
+        data = request.get_json() or {}
+        name = (data.get('name') or '').strip()
+        if not name:
+            return jsonify({'success': False, 'error': 'Nom kiritilishi shart'}), 400
+        if Category.query.filter_by(name=name).first():
+            return jsonify({'success': False, 'error': 'Bu nom allaqachon mavjud'}), 400
+        color = (data.get('color') or '#6366f1').strip()
+        cat = Category(name=name, color=color)
+        db.session.add(cat)
+        db.session.commit()
+        return jsonify({'success': True, 'category': cat.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/categories/<int:cat_id>', methods=['DELETE'])
+@role_required('admin')
+def api_delete_category(cat_id):
+    try:
+        cat = Category.query.get_or_404(cat_id)
+        db.session.delete(cat)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ─── Mahsulot rasmi upload endpoint ───────────────────────────────────────
+
+def _allowed_image(filename):
+    return ('.' in filename and
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS)
+
+
+@app.route('/api/products/<int:product_id>/image', methods=['POST'])
+@role_required('admin', 'kassir')
+def api_upload_product_image(product_id):
+    try:
+        from PIL import Image as PILImage
+        product = Product.query.get_or_404(product_id)
+
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'error': 'Rasm tanlanmagan'}), 400
+
+        file = request.files['image']
+        if not file or not file.filename:
+            return jsonify({'success': False, 'error': 'Rasm tanlanmagan'}), 400
+
+        if not _allowed_image(file.filename):
+            return jsonify({'success': False, 'error': 'Faqat jpg, jpeg, png, webp formatlar ruxsat etilgan'}), 400
+
+        # Eski rasmni o'chirish
+        if product.image_path:
+            old_file = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], product.image_path)
+            if os.path.exists(old_file):
+                os.remove(old_file)
+
+        # Yangi fayl nomi - UUID bilan (xavfsizlik uchun)
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{product_id}_{uuid.uuid4().hex[:8]}.jpg"
+
+        # Pillow bilan resize va JPEG sifatida saqlash
+        img = PILImage.open(file.stream)
+        img = img.convert('RGB')
+        img.thumbnail((800, 800), PILImage.LANCZOS)
+        save_path = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], filename)
+        img.save(save_path, 'JPEG', quality=85, optimize=True)
+
+        product.image_path = filename
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'image_url': f'/static/uploads/products/{filename}'
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Product image upload error: {e}')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/products/<int:product_id>/image', methods=['DELETE'])
+@role_required('admin', 'kassir')
+def api_delete_product_image(product_id):
+    try:
+        product = Product.query.get_or_404(product_id)
+        if product.image_path:
+            old_file = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], product.image_path)
+            if os.path.exists(old_file):
+                os.remove(old_file)
+            product.image_path = None
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ─── Mahsulot kategoriyasini yangilash ────────────────────────────────────
+
+@app.route('/api/products/<int:product_id>/category', methods=['PATCH'])
+@role_required('admin', 'kassir')
+def api_update_product_category(product_id):
+    try:
+        product = Product.query.get_or_404(product_id)
+        data = request.get_json() or {}
+        category_id = data.get('category_id')
+        if category_id is not None and category_id != '':
+            cat = Category.query.get(category_id)
+            if not cat:
+                return jsonify({'success': False, 'error': 'Kategoriya topilmadi'}), 404
+            product.category_id = category_id
+        else:
+            product.category_id = None
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/print-barcode')
