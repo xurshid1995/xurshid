@@ -3334,9 +3334,9 @@ def api_batch_products():
 
         # saved_products ro'yxatini qaytarish (rasm upload uchun)
         saved_list = []
-        for p_data in products_data:
+        for p_data in products:
             prod = Product.query.filter_by(
-                name=p_data.get('name'), barcode=p_data.get('barcode')
+                name=p_data.get('name')
             ).order_by(Product.id.desc()).first()
             if prod:
                 saved_list.append({'id': prod.id, 'name': prod.name})
