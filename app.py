@@ -4054,10 +4054,11 @@ def api_upload_product_image(product_id):
         ext = file.filename.rsplit('.', 1)[1].lower()
         filename = f"{product_id}_{uuid.uuid4().hex[:8]}.jpg"
 
-        # Pillow bilan resize va JPEG sifatida saqlash
+        # Pillow bilan 400x400 crop va JPEG sifatida saqlash
+        from PIL import ImageOps as PILImageOps
         img = PILImage.open(file.stream)
         img = img.convert('RGB')
-        img.thumbnail((800, 800), PILImage.LANCZOS)
+        img = PILImageOps.fit(img, (400, 400), PILImage.LANCZOS)
         save_path = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], filename)
         img.save(save_path, 'JPEG', quality=85, optimize=True)
 
