@@ -976,7 +976,7 @@
 
     function emCropSave() {
         if (!_emCropper) return;
-        const canvas = _emCropper.getCroppedCanvas({ width: 400, height: 400, imageSmoothingQuality: 'high' });
+        const canvas = _emCropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
         const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
         const thumb = document.getElementById('em-img-thumb');
         thumb.src = dataUrl;
