@@ -173,12 +173,18 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
 @media (max-width: 1100px) { .ap-grid { grid-template-columns: 1fr; } }
 .ap-row-2col-dsk { grid-template-columns: 1fr 1fr; }
+.ap-qty-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-areas:"qty unit" "min barcode"; gap:12px; margin-bottom:12px; }
+.ap-qty-grid .ap-qty   { grid-area:qty; }
+.ap-qty-grid .ap-unit  { grid-area:unit; }
+.ap-qty-grid .ap-min   { grid-area:min; }
+.ap-qty-grid .ap-bcode { grid-area:barcode; }
 @media (max-width: 768px) {
     .ap-page { padding: 12px; }
     .ap-row { grid-template-columns: 1fr; }
     .ap-row-2col { grid-template-columns: 1fr 1fr !important; }
     .ap-row-2col-dsk { grid-template-columns: 1fr !important; }
     .ap-row-3col { grid-template-columns: 1fr 1fr 1fr !important; }
+    .ap-qty-grid { grid-template-columns:1fr 1fr 1fr; grid-template-areas:"qty unit min" "barcode barcode barcode"; }
     .ap-card-body { padding: 12px 14px; }
     .ap-btn-excel-import,
     .ap-btn-excel-template {
@@ -250,15 +256,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
-                    <!-- Miqdor va O'lchov birligi -->
-                    <div class="ap-row ap-row-2col">
-                        <div class="ap-form-group">
+                    <!-- Miqdor, O'lchov birligi, Minimal qoldiq, Barcode -->
+                    <div class="ap-qty-grid">
+                        <div class="ap-form-group ap-qty">
                             <label class="ap-label" for="quantity">{{ t('ap_quantity_label') }}</label>
                             <input type="number" id="quantity" name="quantity" class="ap-input"
                                    placeholder="0" min="0" step="any"
                                    oninput="validateQuantityInput(); calculateProfit();">
                         </div>
-                        <div class="ap-form-group">
+                        <div class="ap-form-group ap-unit">
                             <label class="ap-label" for="unit_type">{{ t('ap_unit_type_label') }}</label>
                             <select id="unit_type" name="unit_type" class="ap-input"
                                     onchange="updateQuantityStep(); validateQuantityInput();">
@@ -266,16 +272,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 <option value="litr">{{ t('ap_unit_litr') }}</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Minimal qoldiq va Barcode -->
-                    <div class="ap-row ap-row-2col-dsk">
-                        <div class="ap-form-group">
+                        <div class="ap-form-group ap-min">
                             <label class="ap-label" for="min_stock">{{ t('ap_min_stock_label') }}</label>
                             <input type="number" id="min_stock" name="min_stock" class="ap-input"
                                    placeholder="0" min="0">
                         </div>
-                        <div class="ap-form-group">
+                        <div class="ap-form-group ap-bcode">
                             <label class="ap-label" for="barcode">{{ t('ap_barcode_label') }}</label>
                             <div id="barcodeErrorContainer" style="margin-bottom:4px;"></div>
                             <div style="display:flex; gap:5px;">
