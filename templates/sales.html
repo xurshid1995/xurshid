@@ -2795,10 +2795,11 @@
                 
                 const costPrice = parseFloat(row.getAttribute('data-cost-price')) || 0;
                 const unitType = row.getAttribute('data-unit-type') || 'dona';
+                const imageUrl = (button && button.dataset.imageUrl) ? button.dataset.imageUrl : '';
                 
                 // Agar miqdor 0 dan katta bo'lsa, qo'shish
                 if (quantity > 0) {
-                    addToCart(productId, productName, quantity, price, costPrice, unitType);
+                    addToCart(productId, productName, quantity, price, costPrice, unitType, imageUrl);
                 }
                 return;
             }
