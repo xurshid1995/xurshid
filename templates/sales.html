@@ -1588,8 +1588,8 @@
                 // Debounce - 300ms kutish
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    // Agar faqat raqamlar bo'lsa va 4+ belgi - barcode skaneri
-                    if (/^\d+$/.test(value) && value.length >= 4) {
+                    // Agar faqat raqamlar bo'lsa va 8+ belgi - barcode skaneri
+                    if (/^\d+$/.test(value) && value.length >= 8) {
                         searchProductByBarcode(value);
                     } else {
                         // Aks holda nom bo'yicha qidirish (barcode ham qidiriladi serverda)
