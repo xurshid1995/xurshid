@@ -128,15 +128,19 @@
         box-sizing: border-box;
     }
     
-    .sales-product-table th:nth-child(1) { text-align: left; width: 52%; }
-    .sales-product-table th:nth-child(2) { text-align: left; width: 16%; }
-    .sales-product-table th:nth-child(3) { text-align: center; width: 24%; }
-    .sales-product-table th:nth-child(4) { text-align: center; width: 8%; }
+    .sales-product-table th:nth-child(1) { text-align: center; width: 42px; }
+    .sales-product-table th:nth-child(2) { text-align: left; width: 46%; }
+    .sales-product-table th:nth-child(3) { text-align: left; width: 16%; }
+    .sales-product-table th:nth-child(4) { text-align: center; width: 24%; }
+    .sales-product-table th:nth-child(5) { text-align: center; width: 8%; }
     
-    .sales-product-table td:nth-child(1) { width: 52%; }
-    .sales-product-table td:nth-child(2) { width: 16%; text-align: left; }
-    .sales-product-table td:nth-child(3) { width: 24%; text-align: center; }
-    .sales-product-table td:nth-child(4) { width: 8%; text-align: center; }
+    .sales-product-table td:nth-child(1) { width: 42px; text-align: center; padding: 4px 6px !important; }
+    .sales-product-table td:nth-child(2) { width: 46%; }
+    .sales-product-table td:nth-child(3) { width: 16%; text-align: left; }
+    .sales-product-table td:nth-child(4) { width: 24%; text-align: center; }
+    .sales-product-table td:nth-child(5) { width: 8%; text-align: center; }
+    .spt-img { width: 34px; height: 34px; object-fit: cover; border-radius: 4px; display: block; margin: 0 auto; }
+    .spt-img-placeholder { width: 34px; height: 34px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin: 0 auto; }
     
     .cart-table {
         width: 100%;
@@ -201,14 +205,16 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        .sales-product-table th:nth-child(1) { width: 52% !important; }
-        .sales-product-table th:nth-child(2) { width: 16% !important; }
-        .sales-product-table th:nth-child(3) { width: 24% !important; }
-        .sales-product-table th:nth-child(4) { width: 8% !important; }
-        .sales-product-table td:nth-child(1) { width: 52% !important; }
-        .sales-product-table td:nth-child(2) { width: 16% !important; }
-        .sales-product-table td:nth-child(3) { width: 24% !important; }
-        .sales-product-table td:nth-child(4) { width: 8% !important; }
+        .sales-product-table th:nth-child(1) { width: 42px !important; }
+        .sales-product-table th:nth-child(2) { width: 46% !important; }
+        .sales-product-table th:nth-child(3) { width: 16% !important; }
+        .sales-product-table th:nth-child(4) { width: 24% !important; }
+        .sales-product-table th:nth-child(5) { width: 8% !important; }
+        .sales-product-table td:nth-child(1) { width: 42px !important; }
+        .sales-product-table td:nth-child(2) { width: 46% !important; }
+        .sales-product-table td:nth-child(3) { width: 16% !important; }
+        .sales-product-table td:nth-child(4) { width: 24% !important; }
+        .sales-product-table td:nth-child(5) { width: 8% !important; }
         .sales-product-table tbody tr {
             cursor: pointer !important;
         }
@@ -263,8 +269,13 @@
         }
         
         /* Mahsulot jadvalidagi Amal ustunini yashirish (mobilda qatorni bosish mumkin) */
-        .sales-product-table th:nth-child(4),
-        .sales-product-table td:nth-child(4) {
+        .sales-product-table th:nth-child(5),
+        .sales-product-table td:nth-child(5) {
+            display: none !important;
+        }
+        /* Mobilda rasm ustunini ham yashirish */
+        .sales-product-table th:nth-child(1),
+        .sales-product-table td:nth-child(1) {
             display: none !important;
         }
         
@@ -813,6 +824,7 @@
                 <table class="sales-product-table">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>{{ t('header_product') }}</th>
                             <th>{{ t('header_available') }}</th>
                             <th>{{ t('header_price') }}</th>
@@ -821,7 +833,7 @@
                     </thead>
                     <tbody id="productsTable">
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 30px; color: #999;">
+                            <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
                                 {{ t('placeholder_select_location') }}
                             </td>
                         </tr>
@@ -2843,7 +2855,7 @@
             console.log(`?? Tab ${tabId} location saqlandi:`, type, parseInt(id));
         }
         
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">' + SLANG.searching + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">' + SLANG.searching + '</td></tr>';
         
         try {
             // Cache'dan tekshirish
@@ -2875,7 +2887,7 @@
             }
             
             if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">' + SLANG.product_not_found + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">' + SLANG.product_not_found + '</td></tr>';
                 document.getElementById(`productsPagination_tab${tabId}`).innerHTML = '';
                 return;
             }
@@ -2943,7 +2955,13 @@
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
                 
+                const imgHtml = product.image_url
+                    ? `<img src="${product.image_url}" class="spt-img" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                       <div class="spt-img-placeholder" style="display:none;">📦</div>`
+                    : `<div class="spt-img-placeholder">📦</div>`;
+
                 row.innerHTML = `
+                    <td>${imgHtml}</td>
                     <td style="padding: 6px 8px; font-size: 16px; color: #333;" data-original-text="${htmlSafeProductName}" title="${htmlSafeProductName}">${htmlSafeProductName}${fuzzyBadge}</td>
                     <td style="padding: 6px 8px; text-align: left; font-size: 14px;">
                         <span style="background: ${quantityBadgeColor}; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${quantityDisplay}</span>
