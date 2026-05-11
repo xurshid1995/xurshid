@@ -469,6 +469,26 @@
                     <label class="em-label">{{ t('sd_th_unit_profit') }}</label>
                     <div class="em-profit" id="em-profitDisplay">$0.00 (0.0%)</div>
                 </div>
+                <div class="em-group full">
+                    <label class="em-label">Kategoriya</label>
+                    <select class="em-input" id="em-category">
+                        <option value="">— Kategoriyasiz —</option>
+                    </select>
+                </div>
+                <div class="em-group full">
+                    <label class="em-label">Rasm</label>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div id="em-img-preview" onclick="document.getElementById('em-img-file').click()" style="width:60px;height:60px;border-radius:8px;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in;flex-shrink:0;">
+                            <span id="em-img-placeholder" style="color:#94a3b8;font-size:22px;">📷</span>
+                            <img id="em-img-thumb" src="" alt="" style="display:none;width:60px;height:60px;object-fit:cover;border-radius:6px;">
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:5px;">
+                            <input type="file" id="em-img-file" accept="image/*" style="display:none;" onchange="emPreviewImage(this)">
+                            <button type="button" onclick="document.getElementById('em-img-file').click()" style="padding:5px 14px;border:1.5px solid #1a6eff;background:#eff6ff;color:#1a6eff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">📁 Rasm tanlash</button>
+                            <button type="button" id="em-img-delete-btn" onclick="emDeleteImage()" style="padding:5px 14px;border:1.5px solid #ef4444;background:#fef2f2;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:none;">🗑️ Rasmni o'chirish</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="em-error" id="em-error"></div>
             <div class="em-footer">
@@ -547,17 +567,21 @@
         }
     });
 
+    let allCategories = [];
     function loadCategories() {
         fetch('/api/categories')
             .then(r => r.json())
             .then(data => {
                 if (!data.success) return;
+                allCategories = data.categories;
                 const sel = document.getElementById('category-filter');
+                const emSel = document.getElementById('em-category');
                 data.categories.forEach(cat => {
                     const opt = document.createElement('option');
                     opt.value = cat.id;
                     opt.textContent = cat.name;
                     sel.appendChild(opt);
+                    emSel.appendChild(opt.cloneNode(true));
                 });
             })
             .catch(() => {});
@@ -641,7 +665,9 @@
                 quantity: item.stock.quantity,
                 minStock: item.stock.product.min_stock || 0,
                 costPrice: item.stock.product.cost_price,
-                sellPrice: item.stock.product.sell_price
+                sellPrice: item.stock.product.sell_price,
+                categoryId: item.stock.product.category_id || '',
+                imageUrl: item.stock.product.image_url || ''
             };
 
             // Mahsulot nomini highlight qilish
@@ -826,6 +852,22 @@
         document.getElementById('em-minStock').value = d.minStock;
         document.getElementById('em-costPrice').value = parseFloat(d.costPrice).toFixed(2);
         document.getElementById('em-sellPrice').value = parseFloat(d.sellPrice).toFixed(2);
+        document.getElementById('em-category').value = d.categoryId || '';
+        // Rasm preview
+        const thumb = document.getElementById('em-img-thumb');
+        const placeholder = document.getElementById('em-img-placeholder');
+        document.getElementById('em-img-file').value = '';
+        if (d.imageUrl) {
+            thumb.src = d.imageUrl;
+            thumb.style.display = 'block';
+            placeholder.style.display = 'none';
+            document.getElementById('em-img-delete-btn').style.display = 'block';
+        } else {
+            thumb.src = '';
+            thumb.style.display = 'none';
+            placeholder.style.display = 'block';
+            document.getElementById('em-img-delete-btn').style.display = 'none';
+        }
         document.getElementById('em-error').style.display = 'none';
         emUpdateProfit();
         document.getElementById('editModalOverlay').classList.add('active');
@@ -877,6 +919,36 @@
         el.style.color = profit >= 0 ? '#0284c7' : '#ef4444';
     }
 
+    function emPreviewImage(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const thumb = document.getElementById('em-img-thumb');
+            thumb.src = e.target.result;
+            thumb.style.display = 'block';
+            document.getElementById('em-img-placeholder').style.display = 'none';
+            document.getElementById('em-img-delete-btn').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    async function emDeleteImage() {
+        const productId = document.getElementById('em-product-id').value;
+        if (!confirm('Rasmni o\'chirishni tasdiqlaysizmi?')) return;
+        try {
+            const res = await fetch(`/api/products/${productId}/image`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('em-img-thumb').style.display = 'none';
+                document.getElementById('em-img-placeholder').style.display = 'block';
+                document.getElementById('em-img-delete-btn').style.display = 'none';
+                document.getElementById('em-img-file').value = '';
+                const d = stockItemMap[productId];
+                if (d) d.imageUrl = '';
+            }
+        } catch(e) {}
+    }
+
     // Overlay click yopish
     document.getElementById('editModalOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeEditModal();
@@ -901,6 +973,7 @@
             minStock: document.getElementById('em-minStock').value,
             costPrice: document.getElementById('em-costPrice').value,
             sellPrice: document.getElementById('em-sellPrice').value,
+            categoryId: document.getElementById('em-category').value || null,
         };
 
         errorEl.style.display = 'none';
@@ -908,6 +981,12 @@
         saveBtn.textContent = '...';
 
         try {
+            const imgFile = document.getElementById('em-img-file').files[0];
+            if (imgFile) {
+                const formData = new FormData();
+                formData.append('image', imgFile);
+                await fetch(`/api/products/${productId}/image`, { method: 'POST', body: formData });
+            }
             const res = await fetch(`/api/edit_store_stock/${storeId}/${productId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -918,7 +997,8 @@
                 closeEditModal();
                 const searchValue = document.querySelector('#search-input').value;
                 const statusValue = document.querySelector('#status-filter').value;
-                loadStockData(currentPage, searchValue, statusValue);
+                const categoryValue = document.querySelector('#category-filter').value;
+                loadStockData(currentPage, searchValue, statusValue, categoryValue);
             } else {
                 errorEl.textContent = '❌ ' + data.error;
                 errorEl.style.display = 'block';

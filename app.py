@@ -6178,7 +6178,8 @@ def api_store_stock(store_id):
                         'sell_price': float(stock.product.sell_price),
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
                         'last_batch_date': stock.product.last_batch_date.isoformat() if stock.product.last_batch_date else None,
-                        'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None
+                        'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None,
+                        'category_id': stock.product.category_id
                     }
                 },
                 'unit_profit': float(unit_profit),
@@ -6587,7 +6588,8 @@ def api_warehouse_stock(warehouse_id):
                         'min_stock': min_stock,
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
                         'last_batch_date': stock.product.last_batch_date.isoformat() if stock.product.last_batch_date else None,
-                        'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None
+                        'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None,
+                        'category_id': stock.product.category_id
                     }
                 },
                 'unit_profit': float(unit_profit),
@@ -8654,6 +8656,7 @@ def api_edit_store_stock(store_id, product_id):
         new_min_stock = int(float(data.get('minStock', 0)))
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
+        new_category_id = data.get('categoryId')
 
         if not new_product_name:
             return jsonify({'success': False, 'error': 'Mahsulot nomi bo\'sh bo\'lishi mumkin emas'}), 400
@@ -8681,6 +8684,7 @@ def api_edit_store_stock(store_id, product_id):
         stock.product.min_stock = new_min_stock
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
+        stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()
 
@@ -8728,6 +8732,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         new_min_stock = int(float(data.get('minStock', 0)))
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
+        new_category_id = data.get('categoryId')
 
         if not new_product_name:
             return jsonify({'success': False, 'error': 'Mahsulot nomi bo\'sh bo\'lishi mumkin emas'}), 400
@@ -8755,6 +8760,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         stock.product.min_stock = new_min_stock
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
+        stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()
 
