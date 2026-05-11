@@ -238,8 +238,9 @@
     .ps-filter-panel { padding: 10px; }
     .ps-header { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
     .ps-title { font-size: 15px; }
-    .ps-filter-row { grid-template-columns: 1fr; }
-    .ps-search-box { max-width: 100%; }
+    .ps-filter-row { grid-template-columns: 1fr 1fr; }
+    .ps-search-box { grid-column: 1 / -1; max-width: 100%; }
+    .ps-filter-location { grid-column: 1 / -1; }
 }
 
     #prodOpsBackdrop {
