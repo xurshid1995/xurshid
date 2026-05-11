@@ -829,7 +829,7 @@
                 <table class="sales-product-table">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th>Rasm</th>
                             <th>{{ t('header_product') }}</th>
                             <th>{{ t('header_available') }}</th>
                             <th>{{ t('header_price') }}</th>
@@ -903,6 +903,10 @@
     <div id="quantityModal" class="modal-overlay">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 8px; padding: 30px; width: 450px; max-width: 90vw; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
             <h3 style="margin: 0 0 20px 0; color: #333;">{{ t('product_info') }}</h3>
+            <!-- Mahsulot rasmi -->
+            <div id="modalProductImgWrap" style="display:none; text-align:center; margin-bottom:14px;">
+                <img id="modalProductImg" src="" alt="" style="max-height:120px; max-width:100%; border-radius:8px; object-fit:contain; cursor:zoom-in; box-shadow:0 2px 8px rgba(0,0,0,0.12);" onclick="openSptLightbox(this.src)">
+            </div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ t('label_product') }}</label>
                 <div id="modalProductName" style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-weight: 500;"></div>
@@ -2807,8 +2811,9 @@
         const price = parseFloat(btn.dataset.price);
         const costPrice = parseFloat(btn.dataset.costPrice);
         const unitType = btn.dataset.unitType || 'dona';
+        const imageUrl = btn.dataset.imageUrl || '';
         
-        addToCart(productId, productName, quantity, price, costPrice, unitType);
+        addToCart(productId, productName, quantity, price, costPrice, unitType, imageUrl);
     }
     
     // Mahsulotlarni yuklash
@@ -2976,9 +2981,7 @@
                         <span style="background: #5cb3ff; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
-                        <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" data-unit-type="${unitType}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
-                    </td>
-                `;
+                        <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" data-unit-type="${unitType}" data-image-url="${product.image_url || ''}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
                 
                 // Event listener qo'shmaslik - event delegation ishlatamiz
                 
@@ -3160,7 +3163,7 @@
     }
     
     // Modal ochish
-    function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona') {
+    function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
         console.log('?? addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
         
         // Miqdori 0 bo'lsa xabar chiqarish
@@ -3200,6 +3203,19 @@
         }
         
         modalProductName.textContent = productName;
+
+        // Mahsulot rasmini ko'rsatish
+        const imgWrap = document.getElementById('modalProductImgWrap');
+        const imgEl = document.getElementById('modalProductImg');
+        if (imgWrap && imgEl) {
+            if (imageUrl) {
+                imgEl.src = imageUrl;
+                imgWrap.style.display = 'block';
+            } else {
+                imgWrap.style.display = 'none';
+                imgEl.src = '';
+            }
+        }
         
         // Mavjud miqdorni unit type bilan ko'rsatish
         const unitText = unitType === 'litr' ? 'L' : SLANG.unit_pcs;
