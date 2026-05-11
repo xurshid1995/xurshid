@@ -11148,14 +11148,14 @@ def update_user(user_id):
             logger.debug(f" Updating permissions: {permissions}")
             user.permissions = permissions
 
-            # Allowed locations ni saqlash
-            user.allowed_locations = allowed_locations
-            logger.debug(f" Allowed locations (including stock check): {allowed_locations}")
-            logger.debug(f" Stock check locations: {stock_check_locations}")
+        # Allowed locations ni har doim saqlash (permissions bo'lmasa ham)
+        user.allowed_locations = allowed_locations
+        logger.debug(f" Allowed locations (including stock check): {allowed_locations}")
+        logger.debug(f" Stock check locations: {stock_check_locations}")
 
-            # Transfer locations ni saqlash
-            user.transfer_locations = transfer_locations
-            logger.debug(f" Transfer locations: {transfer_locations}")
+        # Transfer locations ni har doim saqlash
+        user.transfer_locations = transfer_locations
+        logger.debug(f" Transfer locations: {transfer_locations}")
 
         # Asosiy joylashuvni yangilash (store_id faqat)
         store_id = data.get('store_id')
