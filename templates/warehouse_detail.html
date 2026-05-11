@@ -342,6 +342,9 @@
                    placeholder="{{ t('sd_search') }}" onkeyup="filterTable()">
         </div>
         <span id="product-count-badge" style="background:#6aa3ff;color:#fff;font-weight:600;font-size:13px;padding:4px 12px;border-radius:8px;white-space:nowrap;">— ta</span>
+        <select id="category-filter" class="ps-select" onchange="handleFilterChange()" style="min-width:160px;">
+            <option value="">Barcha kategoriyalar</option>
+        </select>
         <select id="status-filter" class="ps-select" onchange="handleFilterChange()">
             <option value="">{{ t('sd_all_statuses') }}</option>
             <option value="normal">{{ t('sd_status_enough') }}</option>
@@ -513,6 +516,7 @@
 
     // DOM yuklanganida pagination sistemasini ishga tushirish
     document.addEventListener('DOMContentLoaded', function() {
+        loadCategories();
         loadStockData(1, '');
         
         // Fokusni qidiruv maydoniga berish
@@ -522,7 +526,23 @@
         }
     });
 
-    function loadStockData(page = 1, search = '', status = '') {
+    function loadCategories() {
+        fetch('/api/categories')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const sel = document.getElementById('category-filter');
+                data.categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = cat.name;
+                    sel.appendChild(opt);
+                });
+            })
+            .catch(() => {});
+    }
+
+    function loadStockData(page = 1, search = '', status = '', category_id = '') {
         const tbody = document.querySelector('#stock-table tbody');
         const paginationInfo = document.querySelector('#pagination-info');
         const paginationButtons = document.querySelector('#pagination-buttons');
@@ -549,6 +569,7 @@
             search: search,
             status: status
         });
+        if (category_id) params.append('category_id', category_id);
 
         fetch(`/api/warehouse/${warehouseId}/stock?${params}`)
             .then(response => response.json())
@@ -657,7 +678,7 @@
         
         // Oldingi sahifa tugmasi
         if (currentPage > 1) {
-            buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">‹ ${WDLANG.prev}</button>`;
+            buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">‹ ${WDLANG.prev}</button>`;
         }
         
         // Sahifa raqamlari
@@ -666,12 +687,12 @@
         
         for (let i = startPage; i <= endPage; i++) {
             const activeClass = i === currentPage ? 'active' : '';
-            buttonsHTML += `<button onclick="loadStockData(${i}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn ${activeClass}">${i}</button>`;
+            buttonsHTML += `<button onclick="loadStockData(${i}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn ${activeClass}">${i}</button>`;
         }
         
         // Keyingi sahifa tugmasi
         if (currentPage < totalPages) {
-            buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value)" class="pagination-btn">${WDLANG.next} ›</button>`;
+            buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">${WDLANG.next} ›</button>`;
         }
         
         paginationButtons.innerHTML = buttonsHTML;
@@ -681,10 +702,11 @@
     function filterTable() {
         const searchValue = document.querySelector('#search-input').value;
         const statusValue = document.querySelector('#status-filter').value;
+        const categoryValue = document.querySelector('#category-filter').value;
         
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            loadStockData(1, searchValue, statusValue);
+            loadStockData(1, searchValue, statusValue, categoryValue);
         }, 300);
     }
 
@@ -692,7 +714,8 @@
     function handleFilterChange() {
         const searchValue = document.querySelector('#search-input').value;
         const statusValue = document.querySelector('#status-filter').value;
-        loadStockData(1, searchValue, statusValue);
+        const categoryValue = document.querySelector('#category-filter').value;
+        loadStockData(1, searchValue, statusValue, categoryValue);
     }
 
     // Excel export funksiyasi

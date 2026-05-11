@@ -6106,6 +6106,7 @@ def api_store_stock(store_id):
         per_page = request.args.get('per_page', 50, type=int)
         search = request.args.get('search', '', type=str)
         status = request.args.get('status', '', type=str)
+        category_id = request.args.get('category_id', type=int)
 
         # Base query
         query = StoreStock.query.filter_by(store_id=store_id)
@@ -6119,6 +6120,12 @@ def api_store_stock(store_id):
             for word in search_words:
                 if word:  # Bo'sh so'zlarni o'tkazib yuborish
                     query = query.filter(Product.name.ilike(f'%{word}%'))
+
+        # Category filter
+        if category_id:
+            if not search:  # join faqat bir marta bo'lsin
+                query = query.join(Product)
+            query = query.filter(Product.category_id == category_id)
 
         # Execute query with pagination
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -6508,6 +6515,7 @@ def api_warehouse_stock(warehouse_id):
         per_page = request.args.get('per_page', 50, type=int)
         search = request.args.get('search', '', type=str)
         status = request.args.get('status', '', type=str)
+        category_id = request.args.get('category_id', type=int)
 
         # Base query
         query = WarehouseStock.query.filter_by(warehouse_id=warehouse_id)
@@ -6521,6 +6529,12 @@ def api_warehouse_stock(warehouse_id):
             for word in search_words:
                 if word:  # Bo'sh so'zlarni o'tkazib yuborish
                     query = query.filter(Product.name.ilike(f'%{word}%'))
+
+        # Category filter
+        if category_id:
+            if not search:  # join faqat bir marta bo'lsin
+                query = query.join(Product)
+            query = query.filter(Product.category_id == category_id)
 
         # Execute query with pagination
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
