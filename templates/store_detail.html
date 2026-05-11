@@ -822,7 +822,7 @@
         document.getElementById('em-product-id').value = productId;
         document.getElementById('em-productName').value = d.name;
         document.getElementById('em-barcode').value = d.barcode;
-        document.getElementById('em-quantity').value = d.quantity;
+        document.getElementById('em-quantity').value = (d.quantity % 1 === 0) ? Math.floor(d.quantity) : parseFloat(d.quantity);
         document.getElementById('em-minStock').value = d.minStock;
         document.getElementById('em-costPrice').value = parseFloat(d.costPrice).toFixed(2);
         document.getElementById('em-sellPrice').value = parseFloat(d.sellPrice).toFixed(2);
