@@ -17033,7 +17033,7 @@ def xarajatlar():
 
 
 @app.route('/api/expenses', methods=['GET'])
-@role_required('admin', 'kassir')
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_get_expenses():
     """Xarajatlar ro'yxati"""
     try:
@@ -17073,7 +17073,7 @@ def api_get_expenses():
 
 
 @app.route('/api/expenses', methods=['POST'])
-@role_required('admin', 'kassir')
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_add_expense():
     """Yangi xarajat qo'shish"""
     try:
