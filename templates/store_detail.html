@@ -95,7 +95,13 @@
     position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
     color: #94a3b8; font-size: 14px; pointer-events: none;
 }
-.ps-search-input { padding-left: 40px !important; }
+.ps-search-input { padding-left: 40px !important; padding-right: 34px !important; }
+.ps-clear-btn {
+    display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 15px;
+    line-height: 1; padding: 0; transition: color 0.15s;
+}
+.ps-clear-btn:hover { color: #ef4444; }
 .ps-input {
     padding: 9px 14px;
     border: 1.5px solid #e2e8f0;
@@ -379,7 +385,8 @@
             <div class="ps-search-box">
                 <i class="fas fa-search ps-search-icon"></i>
                 <input type="text" id="search-input" class="ps-input ps-search-input"
-                       placeholder="{{ t('sd_search') }}" onkeyup="filterTable()">
+                       placeholder="{{ t('sd_search') }}" oninput="filterTable(); var b=document.getElementById('search-clear-btn'); b.style.display=this.value?'block':'none';" onkeyup="filterTable()">
+                <button type="button" id="search-clear-btn" class="ps-clear-btn" onclick="var i=document.getElementById('search-input'); i.value=''; this.style.display='none'; filterTable(); i.focus();">&#10005;</button>
             </div>
             <span id="product-count-badge" style="background:#6aa3ff;color:#fff;font-weight:600;font-size:13px;padding:4px 12px;border-radius:8px;white-space:nowrap;">— ta</span>
         </div>
