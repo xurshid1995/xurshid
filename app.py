@@ -17172,7 +17172,10 @@ def api_add_expense():
         expense_date = get_tashkent_time()
         if expense_date_str:
             try:
-                expense_date = datetime.strptime(expense_date_str, '%Y-%m-%d')
+                parsed_date = datetime.strptime(expense_date_str, '%Y-%m-%d')
+                now = get_tashkent_time()
+                # Sanani foydalanuvchi tanlagan kun bilan almashtiramiz, vaqtni hozirgi saqlaymiz
+                expense_date = now.replace(year=parsed_date.year, month=parsed_date.month, day=parsed_date.day)
             except ValueError:
                 pass
 
