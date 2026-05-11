@@ -22,6 +22,9 @@ ALTER TABLE products
 CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
 
 -- 5. Bir nechta default kategoriyalar (ixtiyoriy)
+GRANT ALL PRIVILEGES ON TABLE categories TO xurshid_user;
+GRANT USAGE, SELECT ON SEQUENCE categories_id_seq TO xurshid_user;
+
 INSERT INTO categories (name, color) VALUES
     ('Umumiy', '#6366f1'),
     ('Oziq-ovqat', '#22c55e'),

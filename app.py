@@ -2968,10 +2968,15 @@ def api_add_product():
                     # Kategoriya yangilash (agar berilgan bo'lsa)
                     if 'categoryId' in product_data and product_data['categoryId']:
                         existing_product.category_id = product_data['categoryId']
+                        logger.info(f"   Kategoriya saqlandi: {product_data['categoryId']}")
+                    else:
+                        logger.info(f"   Kategoriya yo'q (categoryId: {product_data.get('categoryId')})")
 
                     product = existing_product
                 else:
                     # Yangi mahsulot yaratish
+                    cat_id = product_data.get('categoryId', None)
+                    logger.info(f"   Yangi mahsulot kategoriyasi: {cat_id}")
                     product = Product(
                         name=product_data['name'],
                         barcode=product_data.get('barcode', None),  # Barcode qo'shish
@@ -2982,7 +2987,7 @@ def api_add_product():
                         stock_quantity=0,  # Global stock 0 ga qo'yamiz
                         min_stock=product_data.get('minStock', 0),
                         unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
-                        category_id=product_data.get('categoryId', None)  # Kategoriya
+                        category_id=cat_id  # Kategoriya
                     )
                     db.session.add(product)
                     db.session.flush()  # ID olish uchun
@@ -3195,11 +3200,16 @@ def api_batch_products():
                         'error': f'Barcode {barcode} allaqachon "{existing_barcode_product.name}" mahsulotida mavjud!'
                     }), 400
 
+            # Kategoriya ID ni integer ga o'tkazish
+            raw_cat_id = product_data.get('categoryId')
+            category_id = int(raw_cat_id) if raw_cat_id else None
+
             # Mahsulot mavjudligini tekshirish
             product = Product.query.filter_by(name=name).first()
             if not product:
                 # Yangi mahsulot yaratish
                 logger.info("✨ Yangi mahsulot yaratilmoqda")
+                logger.info(f"   Kategoriya: {category_id}")
                 product = Product(
                     name=name,
                     barcode=barcode,  # Barcode saqlash
@@ -3208,7 +3218,8 @@ def api_batch_products():
                     last_batch_cost=last_batch_cost,  # Frontend'dan kelgan qiymat
                     last_batch_date=get_tashkent_time(),
                     min_stock=min_stock,
-                    unit_type=product_data.get('unitType', 'dona')  # O'lchov birligi
+                    unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
+                    category_id=category_id  # Kategoriya
                 )
                 db.session.add(product)
                 db.session.flush()  # ID olish uchun
@@ -3219,6 +3230,7 @@ def api_batch_products():
                 logger.info(f"   Eski cost_price (ortacha): ${product.cost_price}")
                 logger.info(f"   Frontend dan kelgan cost_price (ortacha): ${cost_price}")
                 logger.info(f"   Frontend dan kelgan last_batch_cost (yangi partiya): ${product_data.get('lastBatchCost', cost_price)}")
+                logger.info(f"   Kategoriya: {category_id}")
 
                 # Ortacha narxni yangilash
                 product.cost_price = cost_price
@@ -3230,6 +3242,10 @@ def api_batch_products():
                 # Unit type yangilash (agar berilgan bo'lsa)
                 if 'unitType' in product_data:
                     product.unit_type = product_data['unitType']
+
+                # Kategoriya yangilash
+                if category_id is not None:
+                    product.category_id = category_id
 
                 # Oxirgi partiya ma'lumotlarini saqlash
                 product.last_batch_cost = last_batch_cost
@@ -3467,7 +3483,9 @@ def search_product(product_name):
                     'sell_price': float(product.sell_price),
                     'min_stock': product.min_stock,
                     'last_batch_cost': float(product.last_batch_cost) if product.last_batch_cost else None,
-                    'last_batch_date': product.last_batch_date.isoformat() if product.last_batch_date else None
+                    'last_batch_date': product.last_batch_date.isoformat() if product.last_batch_date else None,
+                    'category_id': product.category_id,
+                    'image_url': f'/static/uploads/products/{product.image_path}' if product.image_path else None
                 },
                 'locations': locations,
                 'total_quantity': total_quantity
@@ -4007,6 +4025,28 @@ def api_create_category():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/categories/<int:cat_id>', methods=['PATCH'])
+@role_required('admin')
+def api_update_category(cat_id):
+    try:
+        cat = Category.query.get_or_404(cat_id)
+        data = request.get_json() or {}
+        name = (data.get('name') or '').strip()
+        if not name:
+            return jsonify({'success': False, 'error': 'Nom kiritilishi shart'}), 400
+        existing = Category.query.filter_by(name=name).first()
+        if existing and existing.id != cat_id:
+            return jsonify({'success': False, 'error': 'Bu nom allaqachon mavjud'}), 400
+        cat.name = name
+        if 'color' in data and data['color']:
+            cat.color = data['color'].strip()
+        db.session.commit()
+        return jsonify({'success': True, 'category': cat.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/categories/<int:cat_id>', methods=['DELETE'])
 @role_required('admin')
 def api_delete_category(cat_id):
@@ -4058,7 +4098,7 @@ def api_upload_product_image(product_id):
         from PIL import ImageOps as PILImageOps
         img = PILImage.open(file.stream)
         img = img.convert('RGB')
-        img = PILImageOps.fit(img, (400, 400), PILImage.LANCZOS)
+        img = PILImageOps.fit(img, (800, 800), PILImage.LANCZOS)
         save_path = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], filename)
         img.save(save_path, 'JPEG', quality=85, optimize=True)
 
