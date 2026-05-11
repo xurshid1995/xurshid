@@ -635,7 +635,7 @@
             
             return `
             <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
+                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
                 <td style="padding: 5px; text-align: center; color: #666; font-family: monospace; width: 90px;">${item.stock.product.barcode || '-'}</td>
                 <td style="padding: 5px; text-align: left;"><strong>${highlightedName}</strong></td>
                 <td style="padding: 5px; text-align: center; font-weight: bold; width: 80px;">${quantityDisplay}</td>

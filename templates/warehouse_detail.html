@@ -622,7 +622,7 @@
 
             return `
             <tr class="stock-row" data-status="${item.status}">
-                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
+                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
                 <td style="font-family:monospace;color:#94a3b8;font-size:12px;">${item.stock.product.barcode || '-'}</td>
                 <td class="td-left"><strong>${highlightedName}</strong></td>
                 <td style="font-weight:700;">${quantityDisplay}</td>
