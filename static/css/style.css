@@ -1502,6 +1502,18 @@ footer {
         width: 100%;
     }
     
+    /* Bildirishnoma paneli - mobilda markazda */
+    #notifPanel {
+        position: fixed !important;
+        top: 68px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 92vw !important;
+        max-width: 360px !important;
+        z-index: 99999 !important;
+    }
+
     /* Mobile sidebar - To'liq ekranni qoplash */
     .sidebar {
         position: fixed;
