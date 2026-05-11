@@ -786,6 +786,10 @@
         
         // MUHIM: Huquqlarni to'ldirish checkboxlar yaratilgandan keyin amalga oshiriladi
         // populatePermissions() loadStoresAndWarehouses() ichida chaqiriladi
+        // Lekin agar storelar allaqachon yuklangan bo'lsa (race condition), hoziroq chaqiramiz
+        if (user.role === 'sotuvchi' && user.permissions && (allStores.length > 0 || allWarehouses.length > 0)) {
+            setTimeout(() => populatePermissions(user.permissions), 50);
+        }
         
         // Rol bo'yicha huquqlarni ko'rsatish
         togglePermissions();
