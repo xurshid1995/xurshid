@@ -905,10 +905,12 @@
     <!-- Modal oyna -->
     <div id="quantityModal" class="modal-overlay">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 8px; padding: 30px; width: 450px; max-width: 90vw; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-            <h3 style="margin: 0 0 20px 0; color: #333;">{{ t('product_info') }}</h3>
-            <!-- Mahsulot rasmi -->
-            <div id="modalProductImgWrap" style="display:none; text-align:center; margin-bottom:14px;">
-                <img id="modalProductImg" src="" alt="" style="max-height:120px; max-width:100%; border-radius:8px; object-fit:contain; cursor:zoom-in; box-shadow:0 2px 8px rgba(0,0,0,0.12);" onclick="openSptLightbox(this.src)">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; gap:12px;">
+                <h3 style="margin: 0; color: #333;">{{ t('product_info') }}</h3>
+                <!-- Mahsulot rasmi -->
+                <div id="modalProductImgWrap" style="display:none; flex-shrink:0;">
+                    <img id="modalProductImg" src="" alt="" style="width:80px; height:80px; border-radius:8px; object-fit:cover; cursor:zoom-in; box-shadow:0 2px 8px rgba(0,0,0,0.15);" onclick="openSptLightbox(this.src)">
+                </div>
             </div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ t('label_product') }}</label>
