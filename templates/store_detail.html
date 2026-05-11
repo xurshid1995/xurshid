@@ -226,6 +226,11 @@
         .em-btn-auto { padding: 5px 8px; background: transparent; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #059669; white-space: nowrap; transition: all 0.2s; width: 100%; height: 38px; justify-content: center; }
         .em-btn-auto:hover { background: #f0fff4; }
         .em-grid .em-group.full { grid-column: span 10; }
+@media (max-width: 768px) {
+    .em-grid .em-group.col-6 { grid-column: span 10; }
+    .em-grid .em-group.col-2 { grid-column: span 8; }
+    .em-grid .em-group.col-1 { grid-column: span 1; }
+}
 .em-group { display: flex; flex-direction: column; gap: 5px; }
 .em-group.full { grid-column: 1 / -1; }
 .em-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
