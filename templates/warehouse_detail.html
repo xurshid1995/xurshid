@@ -271,7 +271,8 @@
     .ps-stat-card { padding: 14px 12px; }
     .ps-stat-number { font-size: 1.2rem; }
     .ps-filter-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-    .ps-search-box { grid-column: 1; width: 100%; }
+    .ps-search-box { grid-column: 1; width: 100%; flex: unset; min-width: 0; }
+    .ps-search-box .ps-input { width: 100%; box-sizing: border-box; }
     #product-count-badge { grid-column: 2; align-self: center; justify-self: start; width: fit-content; }
     #category-filter { grid-column: 1; }
     #status-filter { grid-column: 2; }
