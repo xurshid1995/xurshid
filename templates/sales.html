@@ -2774,8 +2774,8 @@
                 event.stopPropagation();
                 
                 const productId = parseInt(row.getAttribute('data-product-id'));
-                const productName = row.querySelector('td:first-child')?.getAttribute('data-original-text') || '';
-                const quantityBadge = row.querySelector('td:nth-child(2) span');
+                const productName = row.querySelector('td:nth-child(2)')?.getAttribute('data-original-text') || '';
+                const quantityBadge = row.querySelector('td:nth-child(3) span');
                 
                 // Miqdorni olish - unit type bilan birga
                 let quantity = 0;
