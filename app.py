@@ -10942,6 +10942,8 @@ def delete_user_photo(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
 @role_required('admin')
 def delete_user(user_id):
     try:
