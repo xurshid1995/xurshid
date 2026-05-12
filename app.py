@@ -1325,7 +1325,7 @@ class UserSession(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'username': self.user.username if self.user else None,
-            'full_name': self.user.full_name if self.user else None,
+            'full_name': f"{self.user.first_name} {self.user.last_name}" if self.user else None,
             'session_id': self.session_id,
             'login_time': self.login_time.isoformat() if self.login_time else None,
             'last_activity': self.last_activity.isoformat() if self.last_activity else None,
@@ -5721,60 +5721,57 @@ def api_check_stock_finish():
         if not session:
             return jsonify({'success': False, 'message': 'Sessiya topilmadi'}), 404
 
-        # Tekshirilgan mahsulotlarni olish (barcha statuslar: kamomad, ortiqcha, normal)
-        # actual_quantity NULL bo'lmagan barcha mahsulotlar
-        checked_items = StockCheckItem.query.filter(
-            StockCheckItem.session_id == session_id,
-            StockCheckItem.actual_quantity.isnot(None)
-        ).all()
+        # Idempotency: agar sessiya allaqachon yakunlangan bo'lsa, darhol success qaytarish
+        # (internet uzilsa va foydalanuvchi qayta bosganda ham xato bo'lmaydi)
+        if session.status == 'completed':
+            logger.info(f"ℹ️ Session {session_id} already completed, returning success (idempotent)")
+            return jsonify({
+                'success': True,
+                'message': 'Tekshiruv allaqachon yakunlangan.',
+                'updated_count': 0,
+                'errors': []
+            })
 
-        logger.info(f"🔍 Found {len(checked_items)} items with actual_quantity in session {session_id}")
-        updated_count = 0
-        errors = []
+        # Tekshirilgan mahsulotlar sonini olish
+        item_count = db.session.execute(text(
+            "SELECT COUNT(*) FROM stock_check_items WHERE session_id = :sid AND actual_quantity IS NOT NULL"
+        ), {'sid': session_id}).scalar()
 
-        # Har bir tekshirilgan mahsulot uchun tizim miqdorini yangilash
-        for item in checked_items:
-            try:
-                if item.actual_quantity is not None:
-                    if session.location_type == 'store':
-                        # Do'kon stokini yangilash
-                        stock = StoreStock.query.filter_by(
-                            store_id=session.location_id,
-                            product_id=item.product_id
-                        ).first()
+        logger.info(f"🔍 Found {item_count} items with actual_quantity in session {session_id}")
 
-                        if stock:
-                            old_qty = stock.quantity
-                            stock.quantity = item.actual_quantity
-                            updated_count += 1
-                            logger.info(f"📦 Store stock updated: Product {item.product_id} ({item.product_name}), "
-                                        f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
-                        else:
-                            error_msg = f"❌ Store stock not found: store_id={session.location_id}, product_id={item.product_id}"
-                            logger.error(error_msg)
-                            errors.append(error_msg)
+        # Bulk UPDATE — bitta SQL so'rov bilan barcha stokni yangilash (N+1 muammosi yo'q)
+        if session.location_type == 'store':
+            result = db.session.execute(text("""
+                UPDATE store_stocks ss
+                SET quantity = sci.actual_quantity
+                FROM stock_check_items sci
+                WHERE sci.session_id = :session_id
+                  AND sci.actual_quantity IS NOT NULL
+                  AND ss.store_id = :location_id
+                  AND ss.product_id = sci.product_id
+            """), {
+                'session_id': session_id,
+                'location_id': session.location_id
+            })
+            updated_count = result.rowcount
 
-                    elif session.location_type == 'warehouse':
-                        # Ombor stokini yangilash
-                        stock = WarehouseStock.query.filter_by(
-                            warehouse_id=session.location_id,
-                            product_id=item.product_id
-                        ).first()
+        elif session.location_type == 'warehouse':
+            result = db.session.execute(text("""
+                UPDATE warehouse_stocks ws
+                SET quantity = sci.actual_quantity
+                FROM stock_check_items sci
+                WHERE sci.session_id = :session_id
+                  AND sci.actual_quantity IS NOT NULL
+                  AND ws.warehouse_id = :location_id
+                  AND ws.product_id = sci.product_id
+            """), {
+                'session_id': session_id,
+                'location_id': session.location_id
+            })
+            updated_count = result.rowcount
 
-                        if stock:
-                            old_qty = stock.quantity
-                            stock.quantity = item.actual_quantity
-                            updated_count += 1
-                            logger.info(f"📦 Warehouse stock updated: Product {item.product_id} ({item.product_name}), "
-                                        f"Old: {old_qty}, New: {item.actual_quantity}, Diff: {item.difference}")
-                        else:
-                            error_msg = f"❌ Warehouse stock not found: warehouse_id={session.location_id}, product_id={item.product_id}"
-                            logger.error(error_msg)
-                            errors.append(error_msg)
-            except Exception as item_error:
-                error_msg = f"❌ Error updating product {item.product_id}: {str(item_error)}"
-                logger.error(error_msg)
-                errors.append(error_msg)
+        else:
+            updated_count = 0
 
         # Sessiyani yakunlash
         session.status = 'completed'
@@ -5782,19 +5779,15 @@ def api_check_stock_finish():
         db.session.commit()
 
         logger.info(f"✅ Check stock finished: session_id={session_id}, user={current_user.username}, "
-                    f"updated={updated_count} products, errors={len(errors)}")
+                    f"updated={updated_count} products (bulk SQL)")
 
         message = f'Tekshiruv yakunlandi. {updated_count} ta mahsulot yangilandi.'
-        if errors:
-            message += f'\n\n⚠️ {len(errors)} ta xatolik:'
-            for err in errors[:3]:  # Faqat birinchi 3 ta xatolikni ko'rsatish
-                message += f'\n- {err}'
 
         return jsonify({
             'success': True,
             'message': message,
             'updated_count': updated_count,
-            'errors': errors
+            'errors': []
         })
     except Exception as e:
         db.session.rollback()

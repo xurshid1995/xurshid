@@ -1141,12 +1141,18 @@ async function doFinish() {
     btn.disabled = true;
     btn.textContent = '⏳ Yakunlanmoqda...';
 
+    // 5 daqiqa timeout (10000 ta mahsulot bo'lsa ham yetarli)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000);
+
     try {
         const response = await fetch('/api/check_stock/finish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: sessionId })
+            body: JSON.stringify({ session_id: sessionId }),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const data = await response.json();
 
@@ -1157,11 +1163,32 @@ async function doFinish() {
             window.location.href = '/check_stock';
         } else {
             alert(CSSLANG.finish_error + ': ' + (data.message || ''));
+            btn.disabled = false;
+            btn.textContent = '✅ Yakunlash';
         }
     } catch (error) {
+        clearTimeout(timeoutId);
         console.error('Tekshiruvni yakunlashda xatolik:', error);
         closeFinishModal();
-        alert(CSSLANG.finish_fetch_error);
+
+        if (error.name === 'AbortError') {
+            // Timeout — server hali ishlamoqda bo'lishi mumkin
+            // Qayta urinib ko'rish uchun sahifani yangilash
+            const retry = confirm(
+                '⏱️ Server uzoq vaqt javob bermadi.\n\n' +
+                'Ehtimol tekshiruv serverda yakunlangan bo\'lishi mumkin.\n' +
+                'Sahifani yangilab tekshirishni xohlaysizmi?'
+            );
+            if (retry) window.location.href = '/check_stock';
+            else {
+                btn.disabled = false;
+                btn.textContent = '✅ Yakunlash';
+            }
+        } else {
+            alert(CSSLANG.finish_fetch_error);
+            btn.disabled = false;
+            btn.textContent = '✅ Yakunlash';
+        }
     }
 }
 
