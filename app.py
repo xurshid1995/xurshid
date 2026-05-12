@@ -5781,18 +5781,19 @@ def api_check_stock_finish():
                 'errors': []
             })
 
-        # Race condition himoyasi: DB darajasida atomik holda 'active' -> 'in_progress' qilish
-        # Agar boshqa so'rov bir vaqtda kelgan bo'lsa, rowcount=0 bo'ladi va biz to'xtaymiz
+        # Race condition himoyasi: DB darajasida atomik holda 'active'/'in_progress' -> 'in_progress' qilish
+        # 'in_progress' ham qabul qilinadi: tarmoq uzilsa sessiya shu holatda qotib qolishi mumkin,
+        # shu sababli sessiya egasi qayta urinishda sessiyasini yakunlay olishi kerak.
+        # Bulk UPDATE idempotent bo'lgani uchun bir necha marta bajarilsa ham xavfsiz.
         lock_result = db.session.execute(text("""
             UPDATE stock_check_sessions
             SET status = 'in_progress'
-            WHERE id = :session_id AND status = 'active'
+            WHERE id = :session_id AND status IN ('active', 'in_progress')
         """), {'session_id': session_id})
         db.session.flush()
 
         if lock_result.rowcount == 0:
-            # Boshqa so'rov allaqachon ishlamoqda yoki sessiya tugagan
-            # Sessiya holatini qayta tekshirish
+            # Sessiya completed yoki boshqa noma'lum holatda
             db.session.refresh(session_obj)
             if session_obj.status == 'completed':
                 return jsonify({
@@ -5802,7 +5803,7 @@ def api_check_stock_finish():
                     'errors': []
                 })
             logger.warning(f"⚠️ Session {session_id} lock failed, status={session_obj.status}")
-            return jsonify({'success': False, 'message': 'Tekshiruv hozir boshqa tomondan yakunlanmoqda, biroz kuting'}), 409
+            return jsonify({'success': False, 'message': 'Sessiya topilmadi yoki yakunlanib bo\'lgan'}), 409
 
         logger.info(f"🔒 Session {session_id} locked for finalization by user={current_user.username}")
 
