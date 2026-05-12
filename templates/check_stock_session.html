@@ -1141,23 +1141,39 @@ async function doFinish() {
     btn.disabled = true;
     btn.textContent = '⏳ Yakunlanmoqda...';
 
-    // 5 daqiqa timeout (10000 ta mahsulot bo'lsa ham yetarli)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000);
+    async function attemptFinish(isRetry) {
+        // 5 daqiqa timeout (10000 ta mahsulot bo'lsa ham yetarli)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000);
+        try {
+            const response = await fetch('/api/check_stock/finish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return { ok: true, data: await response.json() };
+        } catch (err) {
+            clearTimeout(timeoutId);
+            return { ok: false, error: err };
+        }
+    }
 
-    try {
-        const response = await fetch('/api/check_stock/finish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: sessionId }),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
+    // 1-urinish
+    let result = await attemptFinish(false);
 
-        const data = await response.json();
+    // Network xatosida 3 soniya kutib avtomatik qayta urinish
+    if (!result.ok && result.error.name !== 'AbortError') {
+        btn.textContent = '🔄 Qayta urinilmoqda...';
+        await new Promise(r => setTimeout(r, 3000));
+        result = await attemptFinish(true);
+    }
 
-        closeFinishModal();
+    closeFinishModal();
 
+    if (result.ok) {
+        const data = result.data;
         if (data.success) {
             alert(checkedProducts.length === 0 ? CSSLANG.finished_empty : CSSLANG.finished_success);
             window.location.href = '/check_stock';
@@ -1166,14 +1182,12 @@ async function doFinish() {
             btn.disabled = false;
             btn.textContent = '✅ Yakunlash';
         }
-    } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Tekshiruvni yakunlashda xatolik:', error);
-        closeFinishModal();
+    } else {
+        const err = result.error;
+        console.error('Tekshiruvni yakunlashda xatolik:', err);
 
-        if (error.name === 'AbortError') {
+        if (err.name === 'AbortError') {
             // Timeout — server hali ishlamoqda bo'lishi mumkin
-            // Qayta urinib ko'rish uchun sahifani yangilash
             const retry = confirm(
                 '⏱️ Server uzoq vaqt javob bermadi.\n\n' +
                 'Ehtimol tekshiruv serverda yakunlangan bo\'lishi mumkin.\n' +
@@ -1185,9 +1199,18 @@ async function doFinish() {
                 btn.textContent = '✅ Yakunlash';
             }
         } else {
-            alert(CSSLANG.finish_fetch_error);
-            btn.disabled = false;
-            btn.textContent = '✅ Yakunlash';
+            // Ikki marta ham network xatosi — server yoki internet muammosi
+            const retry = confirm(
+                '🌐 Internet aloqasi uzildi.\n\n' +
+                'Tekshiruv serverda saqlanган bo\'lishi mumkin.\n' +
+                'Internet tiklangandan so\'ng sahifani yangilang va tekshiruv holatini ko\'ring.\n\n' +
+                'Hozir sahifani yangilashni xohlaysizmi?'
+            );
+            if (retry) window.location.href = '/check_stock';
+            else {
+                btn.disabled = false;
+                btn.textContent = '✅ Yakunlash';
+            }
         }
     }
 }
