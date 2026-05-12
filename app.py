@@ -1202,7 +1202,7 @@ class User(db.Model):
     telegram_chat_id = db.Column(db.BigInteger, nullable=True)  # Parol tiklash uchun Telegram chat ID
     reset_code = db.Column(db.String(6), nullable=True)
     reset_code_expires_at = db.Column(db.DateTime, nullable=True)
-    # admin, sotuvchi, kassir, ombor_xodimi
+    # admin, sotuvchi, kassir, omborchi, ombor_xodimi
     role = db.Column(db.String(50), nullable=False, default='sotuvchi')
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'), nullable=True)
     permissions = db.Column(db.JSON, default=lambda: {})  # Ruxsatlar (JSON)
@@ -1254,6 +1254,7 @@ class User(db.Model):
             'admin': 'Admin',
             'sotuvchi': 'Sotuvchi',
             'kassir': 'Kassir',
+            'omborchi': 'Omborchi',
             'ombor_xodimi': 'Ombor xodimi',
             'manager': 'Menejer'
         }
@@ -5124,8 +5125,8 @@ def check_stock():
             else:
                 abort(403)  # Qoldiqni tekshirish huquqi yo'q
 
-        # Sotuvchi uchun qo'shimcha sozlamani tekshirish
-        if current_user.role in ('sotuvchi', 'omborchi'):
+        # Sotuvchi uchun qo'shimcha sozlamani tekshirish (omborchi uchun emas)
+        if current_user.role == 'sotuvchi':
             setting = Settings.query.filter_by(key='stock_check_visible').first()
             if setting and setting.value.lower() == 'false':
                 abort(403)  # Sahifa yashirilgan
@@ -5767,7 +5768,7 @@ def api_check_stock_remove_item():
 
 
 @app.route('/api/check_stock/finish', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_check_stock_finish():
     """Tekshiruvni yakunlash va tizim miqdorlarini haqiqiy miqdorlar bilan yangilash"""
     try:
@@ -5934,7 +5935,7 @@ def api_check_stock_delete_session():
 
 
 @app.route('/api/check_stock/session_items/<int:session_id>')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_check_stock_session_items(session_id):
     """Sessiya bo'yicha tekshirilgan mahsulotlarni olish"""
     try:
@@ -5967,7 +5968,7 @@ def api_check_stock_session_items(session_id):
 
 
 @app.route('/api/check_stock/all_location_products')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_check_stock_all_location_products():
     """Joylashuvdagi barcha mahsulotlarni olish (tekshirilgan va tekshirilmagan)"""
     try:
@@ -6928,7 +6929,7 @@ def edit_warehouse(warehouse_id):
 
 
 @app.route('/api/warehouses')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_warehouses():
     try:
         current_user = get_current_user()
@@ -6975,7 +6976,7 @@ def api_warehouses():
 
 
 @app.route('/api/stores')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_stores():
     try:
         current_user = get_current_user()
@@ -7021,7 +7022,7 @@ def api_stores():
 
 
 @app.route('/api/stores-warehouses')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_stores_warehouses():
     try:
         locations = []
@@ -7096,7 +7097,7 @@ def api_stores_warehouses():
 
 
 @app.route('/api/transfer-locations')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_transfer_locations():
     """Transfer uchun ruxsat etilgan joylashuvlarni qaytarish"""
     try:
@@ -7537,7 +7538,7 @@ def api_debts():
 
 
 @app.route('/api/low-stock-alerts')
-@role_required('admin', 'kassir', 'sotuvchi', 'ombor_xodimi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi', 'ombor_xodimi')
 def api_low_stock_alerts():
     """Qoldig'i kam mahsulotlar ro'yxati (min_stock dan past)"""
     try:
@@ -7576,7 +7577,7 @@ def api_low_stock_alerts():
 
 
 @app.route('/api/notifications/dismiss', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi', 'ombor_xodimi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi', 'ombor_xodimi')
 def dismiss_notifications():
     """Bildirishnomalarni o'qildi deb belgilash â€” Flask session ga saqlanadi"""
     import time
@@ -8808,7 +8809,7 @@ def api_edit_store_stock(store_id, product_id):
 
 
 @app.route('/api/edit_warehouse_stock/<int:warehouse_id>/<int:product_id>', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_edit_warehouse_stock(warehouse_id, product_id):
     """Modal orqali ombor stokini tahrirlash (JSON API)"""
     try:
@@ -8886,7 +8887,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
 # Faqat store stock miqdorini yangilash (stock checking uchun)
 @app.route('/api/update_store_stock/<int:store_id>/<int:product_id>',
            methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 @location_permission_required('store_id')
 def update_store_stock_quantity(store_id, product_id):
     try:
@@ -8958,7 +8959,7 @@ def update_store_stock_quantity(store_id, product_id):
 # Faqat warehouse stock miqdorini yangilash (stock checking uchun)
 @app.route('/api/update_warehouse_stock/<int:warehouse_id>/<int:product_id>',
            methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 @location_permission_required('warehouse_id')
 def update_warehouse_stock_quantity(warehouse_id, product_id):
     try:
@@ -9031,7 +9032,7 @@ def update_warehouse_stock_quantity(warehouse_id, product_id):
 
 # Qoldiq tekshirish sessionini boshlash
 @app.route('/api/start-stock-check', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def start_stock_check():
     """Qoldiq tekshirish sessionini boshlash"""
     try:
@@ -9091,7 +9092,7 @@ def start_stock_check():
 
 # Aktiv sessionlarni olish
 @app.route('/api/get-active-sessions', methods=['GET'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def get_active_sessions():
     """Barcha aktiv qoldiq tekshirish sessionlarini olish"""
     try:
@@ -9131,7 +9132,7 @@ def get_active_sessions():
 
 # Sessionni yangilash (heartbeat)
 @app.route('/api/update-stock-check-session', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def update_stock_check_session():
     """Session'ni aktiv deb belgilash (heartbeat)"""
     try:
@@ -9163,7 +9164,7 @@ def update_stock_check_session():
 
 # Sessionni tugatish
 @app.route('/api/end-stock-check', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def end_stock_check():
     """Qoldiq tekshirish sessionini tugatish"""
     try:
@@ -9598,7 +9599,7 @@ def get_product_locations(product_id):
 
 
 @app.route('/api/transfer', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 @timeout_monitor(max_seconds=10, operation_name='Transfer')
 @check_idempotency('transfer')
 def process_transfers():
@@ -9613,8 +9614,8 @@ def process_transfers():
         print(
             f"ğŸ” Transfer API - User: {current_user.username}, Role: {current_user.role}")
 
-        # Sotuvchi uchun transfer huquqi va joylashuv tekshirish
-        if current_user.role == 'sotuvchi':
+        # Sotuvchi va omborchi uchun transfer huquqi va joylashuv tekshirish
+        if current_user.role in ('sotuvchi', 'omborchi'):
             # Transfer huquqi tekshirish
             permissions = current_user.permissions or {}
             has_transfer_permission = permissions.get('transfer', False)
@@ -9661,8 +9662,8 @@ def process_transfers():
             print(
                 f"ğŸ“¦ Transfer: {product_id} from {from_location} to {to_location}, qty: {quantity}")
 
-            # Sotuvchi uchun from_location ruxsatini tekshirish
-            if current_user.role == 'sotuvchi':
+            # Sotuvchi va omborchi uchun from_location ruxsatini tekshirish
+            if current_user.role in ('sotuvchi', 'omborchi'):
                 from_type, from_id = from_location.split('_')
                 from_location_id = int(from_id)
 
@@ -9896,7 +9897,7 @@ def process_transfers():
 
 
 @app.route('/api/transfer/history', methods=['GET'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def get_transfer_history():
     """Transfer tarixini qaytarish - faqat 40 kunlik ma'lumotlar"""
     try:
@@ -9982,7 +9983,7 @@ def manual_cleanup_transfers():
 
 
 @app.route('/api/transfer-history')
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def get_transfer_history_formatted():
     """Transfer tarixini formatlangan ko'rinishda qaytarish"""
     try:
@@ -10077,7 +10078,7 @@ def get_transfer_history_formatted():
 
 @app.route('/api/pending-transfer', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/api/pending-transfer/<int:pending_id>', methods=['GET', 'PUT', 'DELETE'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def manage_pending_transfer(pending_id=None):
     """Tasdiqlanmagan transferni boshqarish"""
     try:
@@ -10205,7 +10206,7 @@ def manage_pending_transfer(pending_id=None):
 
 @app.route('/api/pending-product-batch', methods=['GET', 'POST'])
 @app.route('/api/pending-product-batch/<int:batch_id>', methods=['GET', 'PUT', 'DELETE'])
-@role_required('admin', 'kassir')
+@role_required('admin', 'kassir', 'omborchi')
 def manage_pending_product_batch(batch_id=None):
     """Tugallanmagan mahsulot qo'shish sessiyalarini boshqarish"""
     try:
@@ -10271,7 +10272,7 @@ def manage_pending_product_batch(batch_id=None):
 
 
 @app.route('/api/all-pending-transfers', methods=['GET'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def get_all_pending_transfers():
     """Barcha tasdiqlanmagan transferlarni olish"""
     try:
@@ -10338,7 +10339,7 @@ def get_all_pending_transfers():
 
 
 @app.route('/api/product/<int:product_id>', methods=['GET'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def get_single_product(product_id):
     """Bitta mahsulotni olish (stokiga qaramay)"""
     try:
