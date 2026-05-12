@@ -2524,48 +2524,76 @@ def api_search_products_by_location(location_type, location_id):
         # Smart sort: DB + fuzzy natijalarni birgalikda relevantlik bo'yicha saralash
         if search_term and len(search_term) >= 2:
             db_ids = {p['id'] for p in products_list}
+            # M5 fix: Barcha stock'larni xotiraga yuklamaslik.
+            # Faqat mahsulot nomlarini (id + name) olamiz - bu ancha yengil.
             if location_type == 'warehouse':
-                all_stocks = db.session.query(WarehouseStock, Product).join(
-                    Product, WarehouseStock.product_id == Product.id
-                ).filter(WarehouseStock.warehouse_id == location_id).all()
+                name_rows = db.session.query(
+                    WarehouseStock.product_id, WarehouseStock.quantity, Product.name
+                ).join(Product, WarehouseStock.product_id == Product.id
+                ).filter(WarehouseStock.warehouse_id == location_id
+                ).with_entities(Product.id, Product.name, WarehouseStock.quantity).all()
             else:
-                all_stocks = db.session.query(StoreStock, Product).join(
-                    Product, StoreStock.product_id == Product.id
-                ).filter(StoreStock.store_id == location_id).all()
+                name_rows = db.session.query(
+                    StoreStock.product_id, StoreStock.quantity, Product.name
+                ).join(Product, StoreStock.product_id == Product.id
+                ).filter(StoreStock.store_id == location_id
+                ).with_entities(Product.id, Product.name, StoreStock.quantity).all()
 
-            name_to_data = {product.name: (stock, product) for stock, product in all_stocks if product and product.name}
+            # Faqat id, name, quantity saqlash (to'liq object emas)
+            name_to_light = {row.name: (row.id, row.quantity) for row in name_rows if row.name}
 
-            if name_to_data:
+            if name_to_light:
                 CUTOFF = 45
-                scores = {name: fuzzy_score(search_term, name) for name in name_to_data}
+                scores = {name: fuzzy_score(search_term, name) for name in name_to_light}
 
                 # DB natijalariga score qo'shish
                 for pd in products_list:
                     pd['_score'] = scores.get(pd.get('name', ''), 0)
 
-                # Fuzzy orqali yangi natijalar qo'shish
+                # Fuzzy orqali yangi natijalar qo'shish (faqat top 10 ta)
                 fuzzy_added = 0
-                for name, score in sorted(scores.items(), key=lambda x: -x[1]):
-                    if score < CUTOFF or fuzzy_added >= 10:
-                        break
-                    stock, product = name_to_data[name]
-                    if product.id not in db_ids:
-                        pd = product.to_dict()
-                        pd['available_quantity'] = stock.quantity
-                        pd['fuzzy_match'] = True
-                        pd['fuzzy_score'] = round(score)
-                        pd['_score'] = score
-                        if location_type == 'warehouse':
-                            pd['location_type'] = 'warehouse'
+                top_fuzzy = sorted(
+                    ((name, score) for name, score in scores.items() if score >= CUTOFF),
+                    key=lambda x: -x[1]
+                )[:20]  # Kandidatlar soni cheklangan
+
+                # Faqat kerakli product_id larni DB dan olamiz (bulk)
+                fuzzy_product_ids = [name_to_light[name][0] for name, _ in top_fuzzy
+                                     if name_to_light[name][0] not in db_ids][:10]
+
+                if fuzzy_product_ids:
+                    if location_type == 'warehouse':
+                        fuzzy_stocks = db.session.query(WarehouseStock, Product).join(
+                            Product, WarehouseStock.product_id == Product.id
+                        ).filter(
+                            WarehouseStock.warehouse_id == location_id,
+                            WarehouseStock.product_id.in_(fuzzy_product_ids)
+                        ).all()
+                        loc_name_attr = lambda s: s.warehouse.name if s.warehouse else "Noma'lum ombor"
+                        loc_type_val = 'warehouse'
+                    else:
+                        fuzzy_stocks = db.session.query(StoreStock, Product).join(
+                            Product, StoreStock.product_id == Product.id
+                        ).filter(
+                            StoreStock.store_id == location_id,
+                            StoreStock.product_id.in_(fuzzy_product_ids)
+                        ).all()
+                        loc_name_attr = lambda s: s.store.name if s.store else "Noma'lum do'kon"
+                        loc_type_val = 'store'
+
+                    for stock, product in fuzzy_stocks:
+                        if product and product.id not in db_ids:
+                            pd = product.to_dict()
+                            pd['available_quantity'] = stock.quantity
+                            pd['fuzzy_match'] = True
+                            pd['fuzzy_score'] = round(scores.get(product.name, 0))
+                            pd['_score'] = scores.get(product.name, 0)
+                            pd['location_type'] = loc_type_val
                             pd['location_id'] = location_id
-                            pd['location_name'] = stock.warehouse.name if stock.warehouse else "Noma'lum ombor"
-                        else:
-                            pd['location_type'] = 'store'
-                            pd['location_id'] = location_id
-                            pd['location_name'] = stock.store.name if stock.store else "Noma'lum do'kon"
-                        products_list.append(pd)
-                        db_ids.add(product.id)
-                        fuzzy_added += 1
+                            pd['location_name'] = loc_name_attr(stock)
+                            products_list.append(pd)
+                            db_ids.add(product.id)
+                            fuzzy_added += 1
 
                 # Hammani relevantlik bo'yicha saralash
                 products_list.sort(key=lambda x: x.get('_score', 0), reverse=True)
@@ -5340,6 +5368,16 @@ def api_start_check_stock():
 
         if not location_type or not location_id:
             return jsonify({'success': False, 'message': 'Joylashuv ma\'lumotlari to\'liq emas'}), 400
+
+        # M4 fix: Foydalanuvchi bu joylashuvga ruxsati borligini tekshirish (admin uchun o'tkazib yuboriladi)
+        if current_user.role != 'admin':
+            stock_check_locs = current_user.stock_check_locations or []
+            if not stock_check_locs:
+                stock_check_locs = current_user.allowed_locations or []
+            allowed_ids = extract_location_ids(stock_check_locs, location_type)
+            if allowed_ids is not None and int(location_id) not in allowed_ids:
+                logger.warning(f"⛔ User {current_user.username} tried to start stock check for unauthorized location: {location_type}#{location_id}")
+                return jsonify({'success': False, 'message': 'Bu joylashuv uchun ruxsatingiz yo\'q'}), 403
 
         # Joylashuv nomini olish
         location_name = ''
@@ -8232,6 +8270,14 @@ def check_user_status():
                          or request.endpoint == 'api_login')):
                 return
 
+            # P3 fix: Har so'rovda DB ga bormaslik - 60 soniyalik cache
+            import time as _time
+            _now = _time.time()
+            _last_checked = session.get('_session_checked_at', 0)
+            if _now - _last_checked < 60:
+                return  # 60 soniya ichida allaqachon tekshirilgan
+            session['_session_checked_at'] = _now
+
             # Session ID mavjudligini tekshirish
             if session_id:
                 # Database'dan session holatini tekshirish
@@ -9930,31 +9976,37 @@ def get_transfer_history_formatted():
             Transfer.created_at.desc()
         ).limit(limit * 10).all()  # Ko'proq olish, keyin guruhlash
 
+        # M7 fix: N+1 oldini olish - barcha store/warehouse/product IDlarini bir marta yuklaymiz
+        warehouse_ids = {t.from_location_id for t in transfers if t.from_location_type == 'warehouse'} | \
+                        {t.to_location_id for t in transfers if t.to_location_type == 'warehouse'}
+        store_ids = {t.from_location_id for t in transfers if t.from_location_type == 'store'} | \
+                    {t.to_location_id for t in transfers if t.to_location_type == 'store'}
+        product_ids = {t.product_id for t in transfers}
+
+        warehouses_map = {w.id: w.name for w in Warehouse.query.filter(Warehouse.id.in_(warehouse_ids)).all()} if warehouse_ids else {}
+        stores_map = {s.id: s.name for s in Store.query.filter(Store.id.in_(store_ids)).all()} if store_ids else {}
+        products_map = {p.id: p.name for p in Product.query.filter(Product.id.in_(product_ids)).all()} if product_ids else {}
+
         # Transferlarni guruhlash - bir xil vaqt, from_location, to_location, user
         grouped_transfers = {}
 
         for transfer in transfers:
-            # Joylashuv nomlarini olish
+            # Joylashuv nomlarini map dan olish (DB ga bormasdan)
             from_location_name = "N/A"
             to_location_name = "N/A"
 
             if transfer.from_location_type == 'warehouse':
-                warehouse = Warehouse.query.get(transfer.from_location_id)
-                from_location_name = warehouse.name if warehouse else f"Ombor #{transfer.from_location_id}"
+                from_location_name = warehouses_map.get(transfer.from_location_id, f"Ombor #{transfer.from_location_id}")
             elif transfer.from_location_type == 'store':
-                store = Store.query.get(transfer.from_location_id)
-                from_location_name = store.name if store else f"Dokon #{transfer.from_location_id}"
+                from_location_name = stores_map.get(transfer.from_location_id, f"Dokon #{transfer.from_location_id}")
 
             if transfer.to_location_type == 'warehouse':
-                warehouse = Warehouse.query.get(transfer.to_location_id)
-                to_location_name = warehouse.name if warehouse else f"Ombor #{transfer.to_location_id}"
+                to_location_name = warehouses_map.get(transfer.to_location_id, f"Ombor #{transfer.to_location_id}")
             elif transfer.to_location_type == 'store':
-                store = Store.query.get(transfer.to_location_id)
-                to_location_name = store.name if store else f"Dokon #{transfer.to_location_id}"
+                to_location_name = stores_map.get(transfer.to_location_id, f"Dokon #{transfer.to_location_id}")
 
-            # Mahsulot ma'lumotlarini olish
-            product = Product.query.get(transfer.product_id)
-            product_name = product.name if product else f"Mahsulot #{transfer.product_id}"
+            # Mahsulot nomini map dan olish
+            product_name = products_map.get(transfer.product_id, f"Mahsulot #{transfer.product_id}")
 
             # Grupplash kaliti - 1 daqiqa oralig'ida, bir xil joylashuvlar va foydalanuvchi
             if transfer.created_at:
@@ -10420,52 +10472,58 @@ def get_customers():
             print("📅 Barcha vaqt (filtr yo'q)")
 
         result = []
+
+        # P4 fix: N+1 oldini olish - barcha mijozlar uchun savdo yig'indilarini 1 ta query bilan olamiz
+        from sqlalchemy import func as _func
+        customer_ids = [c.id for c in customers]
+        if customer_ids:
+            sales_agg_query = db.session.query(
+                Sale.customer_id,
+                _func.count(Sale.id).label('total_sales'),
+                _func.sum(Sale.total_amount).label('total_amount'),
+                _func.sum(Sale.total_profit).label('total_profit'),
+                _func.max(Sale.sale_date).label('last_sale_date')
+            ).filter(Sale.customer_id.in_(customer_ids))
+
+            if start_date:
+                sales_agg_query = sales_agg_query.filter(Sale.sale_date >= start_date)
+            if end_date:
+                sales_agg_query = sales_agg_query.filter(Sale.sale_date <= end_date)
+
+            sales_agg = {row.customer_id: row for row in sales_agg_query.group_by(Sale.customer_id).all()}
+
+            # last_sale_date uchun filtrsiz alohida query (vaqt filtri qo'llanmagan holda)
+            if time_filter != 'all':
+                last_sale_rows = db.session.query(
+                    Sale.customer_id,
+                    _func.max(Sale.sale_date).label('last_sale_date')
+                ).filter(Sale.customer_id.in_(customer_ids)).group_by(Sale.customer_id).all()
+                last_sale_map = {row.customer_id: row.last_sale_date for row in last_sale_rows}
+            else:
+                last_sale_map = {cid: (sales_agg[cid].last_sale_date if cid in sales_agg else None) for cid in customer_ids}
+        else:
+            sales_agg = {}
+            last_sale_map = {}
+
         for customer in customers:
             customer_dict = customer.to_dict()
+            agg = sales_agg.get(customer.id)
 
-            # Savdolar ma'lumotini hisoblash
-            try:
-                sales_query = Sale.query.filter_by(customer_id=customer.id)
-                if start_date:
-                    sales_query = sales_query.filter(Sale.sale_date >= start_date)
-                if end_date:
-                    sales_query = sales_query.filter(Sale.sale_date <= end_date)
+            total_sales = int(agg.total_sales) if agg else 0
+            total_amount = round(Decimal(str(agg.total_amount or 0)), 2) if agg else Decimal('0')
+            total_profit = round(Decimal(str(agg.total_profit or 0)), 2) if agg else Decimal('0')
+            last_sale_dt = last_sale_map.get(customer.id)
 
-                sales = sales_query.all()
-                total_sales = len(sales)
+            customer_dict['total_sales'] = total_sales
+            customer_dict['total_amount'] = float(total_amount)
+            customer_dict['total_profit'] = float(total_profit)
+            customer_dict['last_sale_date'] = last_sale_dt.strftime('%d.%m.%Y') if last_sale_dt else None
 
-                # Total amount va profit ni hisoblash (allaqachon USD da)
-                total_amount = Decimal('0')
-                total_profit = Decimal('0')
-                for sale in sales:
-                    # Ma'lumotlar allaqachon USD da saqlanadi
-                    if sale.total_amount:
-                        total_amount += sale.total_amount
+            # Vaqt filtri qo'llangan bo'lsa va savdo bo'lmasa - o'tkazib yuborish
+            if time_filter != 'all' and total_sales == 0:
+                continue
 
-                    if sale.total_profit:
-                        total_profit += sale.total_profit
-
-                customer_dict['total_sales'] = total_sales
-                customer_dict['total_amount'] = round(total_amount, 2)
-                customer_dict['total_profit'] = round(total_profit, 2)
-
-                # Oxirgi savdo sanasini olish (vaqt filtrisiz)
-                last_sale = Sale.query.filter_by(customer_id=customer.id).order_by(Sale.sale_date.desc()).first()
-                customer_dict['last_sale_date'] = last_sale.sale_date.strftime('%d.%m.%Y') if last_sale else None
-
-                # ⚠️ MUHIM: Agar vaqt filtri qo'llangan bo'lsa va mijozning savdosi bo'lmasa, uni ro'yxatga qo'shmaslik
-                if time_filter != 'all' and total_sales == 0:
-                    continue  # Bu mijozni o'tkazib yuborish
-
-                result.append(customer_dict)
-            except Exception as e:
-                logger.error(f"Error calculating sales for customer {customer.id}: {str(e)}")
-                # Xatolik bo'lsa ham, faqat 'all' filtri uchun mijozni qo'shamiz
-                if time_filter == 'all':
-                    customer_dict['total_sales'] = 0
-                    customer_dict['total_amount'] = 0
-                    customer_dict['total_profit'] = 0
-                    result.append(customer_dict)
+            result.append(customer_dict)
 
         logger.debug(f" Returning {len(result)} customers with sales data")
         print(f"📊 Jami {len(result)} ta mijoz qaytarilmoqda")
