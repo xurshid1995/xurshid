@@ -3630,7 +3630,20 @@ def api_customer_balances():
 
         from sqlalchemy import text as sa_text
 
-        query = sa_text("""
+        # Sotuvchi uchun faqat ruxsat berilgan do'konlar
+        store_filter_sql = ""
+        bind_params = {}
+        if current_user.role == 'sotuvchi':
+            allowed_locations = current_user.allowed_locations or []
+            allowed_store_ids = extract_location_ids(allowed_locations, 'store')
+            if allowed_store_ids:
+                store_filter_sql = "WHERE c.store_id = ANY(:store_ids)"
+                bind_params['store_ids'] = allowed_store_ids
+            else:
+                # Hech qanday do'kon ruxsati yo'q — bo'sh qaytarish
+                return jsonify({'success': True, 'customers': [], 'exchange_rate': float(exchange_rate)})
+
+        query = sa_text(f"""
             SELECT
                 c.id,
                 c.name,
@@ -3647,12 +3660,13 @@ def api_customer_balances():
                 ) AS paid_usd
             FROM customers c
             LEFT JOIN sales s ON c.id = s.customer_id AND s.debt_usd > 0
+            {store_filter_sql}
             GROUP BY c.id, c.name, c.phone, c.store_id, c.balance,
                      c.last_debt_payment_usd, c.last_debt_payment_date
             ORDER BY debt_usd DESC, c.name ASC
         """)
 
-        result = db.session.execute(query)
+        result = db.session.execute(query, bind_params)
 
         customers = []
         for row in result:
