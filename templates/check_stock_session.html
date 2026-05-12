@@ -454,9 +454,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Tekshirilgan mahsulotlarni sinxronlashtirish (real-time yangilanish)
 async function syncCheckedProducts() {
-    // Agar foydalanuvchi haqiqiy miqdor inputini tahrirlayotgan bo'lsa, sinxronlashtirishni o'tkazib yuborish
+    // Foydalanuvchi biror input ichida yozayotgan bo'lsa, sinxronlashtirishni o'tkazib yuborish
     const activeEl = document.activeElement;
-    if (activeEl && activeEl.type === 'number' && activeEl.closest('#checkedTableBody')) {
+    if (activeEl && (
+        activeEl.id === 'productSearch' ||
+        activeEl.id === 'checkedSearch' ||
+        (activeEl.type === 'number' && activeEl.closest('#checkedTableBody'))
+    )) {
         return;
     }
 
@@ -731,6 +735,10 @@ function displayProducts(products) {
 function renderProductsPage() {
     const tbody = document.getElementById('productsTableBody');
     const products = currentDisplayProducts;
+
+    // Fokusni saqlash: agar productSearch fokusda bo'lsa, render keyin qaytaramiz
+    const searchInput = document.getElementById('productSearch');
+    const hadFocus = document.activeElement === searchInput;
     
     // Mahsulotlar sonini yangilash
     document.getElementById('productsCount').textContent = products.length;
@@ -802,8 +810,11 @@ function renderProductsPage() {
     } else {
         document.getElementById('productsPagination').style.display = 'none';
     }
-    
-    console.log(`Render: Page ${currentProductsPage}, Showing ${pageProducts.length} products (${startIndex + 1}-${endIndex} / ${products.length})`);
+
+    // Agar qidiruv maydoni fokusda bo'lgan bo'lsa — qaytaramiz
+    if (hadFocus) {
+        searchInput.focus();
+    }
 }
 
 // Oldingi sahifa
