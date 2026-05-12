@@ -350,6 +350,7 @@
             <h3 class="card-title"><i class="fas fa-id-card"></i> {{ t('label_user_info') }}</h3>
             
             <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="generalError" style="display:none; margin-bottom:12px;"></div>
             
             <form id="addUserForm">
 
@@ -932,7 +933,7 @@
             email: formData.get('email').trim(),
             username: formData.get('username').trim(),
             password: formData.get('password').trim(),
-            phone: formData.get('phone').trim(),
+            phone: (formData.get('phone') || '').trim(),
             role: formData.get('role'),
             is_active: formData.get('is_active') === 'on'
         };
@@ -1055,6 +1056,7 @@
                     window.location.href = '/users';
                 }, 2000);
             } else {
+                console.error('Server error (400):', result);
                 showError('general', result.error || AULANG.error_occurred);
             }
         } catch (error) {
