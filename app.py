@@ -8170,7 +8170,7 @@ def api_debt_payment():
 
 
 @app.route('/edit-user/<int:user_id>')
-# @role_required('admin', 'kassir')  # Test uchun vaqtincha o'chirilgan
+@role_required('admin', 'kassir')
 def edit_user_page(user_id):
     return render_template(
         'edit_user.html',
@@ -9179,6 +9179,7 @@ def cleanup_old_sessions():
 
 # Store stock o'chirish route
 @app.route('/api/store_stock/<int:store_id>/<int:product_id>', methods=['DELETE'])
+@role_required('admin')
 def delete_store_stock(store_id, product_id):
     try:
         print(
@@ -9283,6 +9284,7 @@ def delete_store_stock(store_id, product_id):
 # Warehouse stock o'chirish route
 @app.route('/api/warehouse_stock/<int:warehouse_id>/<int:product_id>',
            methods=['DELETE'])
+@role_required('admin')
 def delete_warehouse_stock(warehouse_id, product_id):
     try:
         stock = WarehouseStock.query.filter_by(
@@ -10285,6 +10287,7 @@ def get_single_product(product_id):
 
 
 @app.route('/api/product/<int:product_id>', methods=['DELETE'])
+@role_required('admin')
 def delete_product(product_id):
     """Mahsulotni o'chirish"""
     try:
@@ -11090,7 +11093,7 @@ def get_active_user_sessions():
 
 
 @app.route('/api/users/<int:user_id>', methods=['GET'])
-# @role_required('admin', 'kassir')  # Test uchun vaqtincha o'chirilgan
+@role_required('admin', 'kassir')
 def get_user(user_id):
     try:
         user = User.query.get_or_404(user_id)
@@ -12117,6 +12120,7 @@ def finalize_sale(sale_id):
 
 # Savdoni tasdiqlash API'si
 @app.route('/api/approve-sale/<int:sale_id>', methods=['POST'])
+@role_required('admin', 'kassir')
 def approve_sale(sale_id):
     try:
         sale = Sale.query.get(sale_id)
@@ -12145,6 +12149,7 @@ def approve_sale(sale_id):
 
 # Savdoni rad etish API'si
 @app.route('/api/reject-sale/<int:sale_id>', methods=['POST'])
+@role_required('admin', 'kassir')
 def reject_sale(sale_id):
     try:
         data = request.get_json()
@@ -13684,6 +13689,7 @@ def _mark_idempotency(key):
 
 # API endpoint - Real-time stock rezerv qilish (korzinaga qo'shilganda)
 @app.route('/api/reserve-stock', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_reserve_stock():
     """Mahsulot korzinaga qo'shilganda real-time stock'dan ayirish"""
     try:
@@ -13809,6 +13815,7 @@ def api_reserve_stock():
 
 
 @app.route('/api/return-stock', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_return_stock():
     """Mahsulot korzinadan o'chirilganda real-time stock'ga qaytarish"""
     try:
