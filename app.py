@@ -5131,8 +5131,10 @@ def api_check_stock_locations():
         warehouses_data = [{'id': w.id, 'name': w.name} for w in warehouses]
         logger.debug(f"🏭 Warehouses to return: {len(warehouses_data)}")
 
-        # Faol tekshiruvlar bor joylashuvlarni olish
-        active_sessions = StockCheckSession.query.filter_by(status='active').all()
+        # Faol tekshiruvlar bor joylashuvlarni olish (in_progress ham - yakunlash jarayonida)
+        active_sessions = StockCheckSession.query.filter(
+            StockCheckSession.status.in_(['active', 'in_progress'])
+        ).all()
         active_locations = []
         for check_session in active_sessions:
             active_locations.append({
@@ -5162,8 +5164,10 @@ def api_check_stock_active_sessions():
 
         logger.debug(f"🔍 Active Sessions - User: {current_user.username}, Role: {current_user.role}")
 
-        # Faol sessiyalarni olish
-        sessions = StockCheckSession.query.filter_by(status='active').order_by(StockCheckSession.started_at.desc()).all()
+        # Faol sessiyalarni olish (in_progress ham - yakunlash jarayonida)
+        sessions = StockCheckSession.query.filter(
+            StockCheckSession.status.in_(['active', 'in_progress'])
+        ).order_by(StockCheckSession.started_at.desc()).all()
 
         # Foydalanuvchi huquqlarini tekshirish
         if current_user.role != 'admin':
@@ -9039,7 +9043,7 @@ def get_active_sessions():
                 s.updated_at
             FROM stock_check_sessions s
             JOIN users u ON s.user_id = u.id
-            WHERE s.status = 'active'
+            WHERE s.status IN ('active', 'in_progress')
             ORDER BY s.started_at DESC
         """)).fetchall()
 
