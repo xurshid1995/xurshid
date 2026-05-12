@@ -4231,14 +4231,14 @@ def transfer_session():
 
 
 @app.route('/return-product')
-@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+@role_required('admin', 'kassir', 'sotuvchi')
 def return_product():
     """Mahsulotni qaytarish sahifasi"""
     return render_template('return_product.html')
 
 
 @app.route('/api/returned-products-history', methods=['GET'])
-@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_returned_products_history():
     """Qaytarilgan mahsulotlar tarixi"""
     try:
@@ -4286,7 +4286,7 @@ def api_returned_products_history():
 
 
 @app.route('/api/return-product', methods=['POST'])
-@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_return_product():
     """Mahsulotni qaytarish API"""
     try:
