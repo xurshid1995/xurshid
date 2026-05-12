@@ -5717,13 +5717,21 @@ def api_check_stock_finish():
             return jsonify({'success': False, 'message': 'Session ID topilmadi'}), 400
 
         # Sessiyani topish
-        session = StockCheckSession.query.get(session_id)
-        if not session:
+        session_obj = StockCheckSession.query.get(session_id)
+        if not session_obj:
             return jsonify({'success': False, 'message': 'Sessiya topilmadi'}), 404
+
+        # Ownership tekshirish: faqat o'z sessiyasini yoki admin yakunlay oladi
+        if current_user.role not in ('admin',) and session_obj.user_id != current_user.id:
+            logger.warning(
+                f"⛔ Unauthorized finish attempt: user={current_user.username} (id={current_user.id}) "
+                f"tried to finish session {session_id} owned by user_id={session_obj.user_id}"
+            )
+            return jsonify({'success': False, 'message': 'Bu sessiyani yakunlashga ruxsat yo\'q'}), 403
 
         # Idempotency: agar sessiya allaqachon yakunlangan bo'lsa, darhol success qaytarish
         # (internet uzilsa va foydalanuvchi qayta bosganda ham xato bo'lmaydi)
-        if session.status == 'completed':
+        if session_obj.status == 'completed':
             logger.info(f"ℹ️ Session {session_id} already completed, returning success (idempotent)")
             return jsonify({
                 'success': True,
@@ -5732,15 +5740,33 @@ def api_check_stock_finish():
                 'errors': []
             })
 
-        # Tekshirilgan mahsulotlar sonini olish
-        item_count = db.session.execute(text(
-            "SELECT COUNT(*) FROM stock_check_items WHERE session_id = :sid AND actual_quantity IS NOT NULL"
-        ), {'sid': session_id}).scalar()
+        # Race condition himoyasi: DB darajasida atomik holda 'active' -> 'in_progress' qilish
+        # Agar boshqa so'rov bir vaqtda kelgan bo'lsa, rowcount=0 bo'ladi va biz to'xtaymiz
+        lock_result = db.session.execute(text("""
+            UPDATE stock_check_sessions
+            SET status = 'in_progress'
+            WHERE id = :session_id AND status = 'active'
+        """), {'session_id': session_id})
+        db.session.flush()
 
-        logger.info(f"🔍 Found {item_count} items with actual_quantity in session {session_id}")
+        if lock_result.rowcount == 0:
+            # Boshqa so'rov allaqachon ishlamoqda yoki sessiya tugagan
+            # Sessiya holatini qayta tekshirish
+            db.session.refresh(session_obj)
+            if session_obj.status == 'completed':
+                return jsonify({
+                    'success': True,
+                    'message': 'Tekshiruv allaqachon yakunlangan.',
+                    'updated_count': 0,
+                    'errors': []
+                })
+            logger.warning(f"⚠️ Session {session_id} lock failed, status={session_obj.status}")
+            return jsonify({'success': False, 'message': 'Tekshiruv hozir boshqa tomondan yakunlanmoqda, biroz kuting'}), 409
+
+        logger.info(f"🔒 Session {session_id} locked for finalization by user={current_user.username}")
 
         # Bulk UPDATE — bitta SQL so'rov bilan barcha stokni yangilash (N+1 muammosi yo'q)
-        if session.location_type == 'store':
+        if session_obj.location_type == 'store':
             result = db.session.execute(text("""
                 UPDATE store_stocks ss
                 SET quantity = sci.actual_quantity
@@ -5751,11 +5777,11 @@ def api_check_stock_finish():
                   AND ss.product_id = sci.product_id
             """), {
                 'session_id': session_id,
-                'location_id': session.location_id
+                'location_id': session_obj.location_id
             })
             updated_count = result.rowcount
 
-        elif session.location_type == 'warehouse':
+        elif session_obj.location_type == 'warehouse':
             result = db.session.execute(text("""
                 UPDATE warehouse_stocks ws
                 SET quantity = sci.actual_quantity
@@ -5766,7 +5792,7 @@ def api_check_stock_finish():
                   AND ws.product_id = sci.product_id
             """), {
                 'session_id': session_id,
-                'location_id': session.location_id
+                'location_id': session_obj.location_id
             })
             updated_count = result.rowcount
 
@@ -5774,8 +5800,8 @@ def api_check_stock_finish():
             updated_count = 0
 
         # Sessiyani yakunlash
-        session.status = 'completed'
-        session.completed_by_user_id = current_user.id
+        session_obj.status = 'completed'
+        session_obj.completed_by_user_id = current_user.id
         db.session.commit()
 
         logger.info(f"✅ Check stock finished: session_id={session_id}, user={current_user.username}, "
@@ -8957,7 +8983,7 @@ def start_stock_check():
             JOIN users u ON s.user_id = u.id
             WHERE s.location_id = :location_id
             AND s.location_type = :location_type
-            AND s.status = 'active'
+            AND s.status IN ('active', 'in_progress')
         """), {
             'location_id': location_id,
             'location_type': location_type
@@ -9126,7 +9152,7 @@ def cleanup_old_sessions():
         result = db.session.execute(text("""
             UPDATE stock_check_sessions
             SET status = 'cancelled', updated_at = NOW()
-            WHERE status = 'active'
+            WHERE status IN ('active', 'in_progress')
             AND updated_at < NOW() - INTERVAL '1 hour'
             RETURNING id, location_name
         """))
