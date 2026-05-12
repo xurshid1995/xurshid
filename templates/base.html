@@ -44,6 +44,7 @@
                     <span>{{ t('dashboard') }}</span>
                 </a>
             </li>
+            {% if session.role != 'omborchi' %}
             <li>
                 <a href="/sales" {% if request.endpoint == 'sales' %}class="active"{% endif %}>
                     <span class="icon">🛒</span>
@@ -74,6 +75,7 @@
                     {% endif %}
                 </a>
             </li>
+            {% endif %}
             <li>
                 <a href="/products" {% if request.endpoint == 'products_list' %}class="active"{% endif %}>
                     <span class="icon">📦</span>
@@ -101,7 +103,7 @@
                     <span>{{ t('operations_history') }}</span>
                 </a>
             </li>
-            {% if session.role != 'sotuvchi' or (session.role == 'sotuvchi' and stock_check_visible) %}
+            {% if session.role not in ['sotuvchi', 'omborchi'] or (session.role in ['sotuvchi', 'omborchi'] and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
                     <span class="icon">📋</span>
@@ -118,13 +120,15 @@
                     <span>Xarajatlar</span>
                 </a>
             </li>
-            {% if session.role != 'sotuvchi' %}
+            {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/hisobot" {% if request.endpoint == 'hisobot' %}class="active"{% endif %}>
                     <span class="icon"><img src="/static/images/icons8-analytics-fluent-96.png" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('reports') }}</span>
                 </a>
             </li>
+            {% endif %}
+            {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/add_product" {% if request.endpoint in ('add_product', 'add_product_session') %}class="active"{% endif %}>
                     <span class="icon">➕</span>
@@ -134,6 +138,8 @@
                     {% endif %}
                 </a>
             </li>
+            {% endif %}
+            {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>
                     <span class="icon"><img src="{{ url_for('static', filename='images/icons8-shop-94.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
@@ -147,6 +153,7 @@
                 </a>
             </li>
             {% endif %}
+            {% if session.role != 'omborchi' %}
             <li>
                 <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
                     <span class="icon"><img src="{{ url_for('static', filename='images/icons8-credit-card-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
@@ -159,7 +166,8 @@
                     <span>{{ t('customers') }}</span>
                 </a>
             </li>
-            {% if session.role != 'sotuvchi' %}
+            {% endif %}
+            {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/users" {% if request.endpoint == 'users' %}class="active"{% endif %}>
                     <span class="icon"><img src="https://img.icons8.com/fluency/96/administrator-male.png" alt="Users" style="width: 20px; height: 20px;"></span>

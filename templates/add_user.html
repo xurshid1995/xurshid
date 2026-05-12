@@ -442,6 +442,7 @@
                 <label for="role">{{ t('label_role_required') }} <span class="required">*</span></label>
                 <select id="role" name="role" required>
                     <option value="sotuvchi">{{ t('role_seller') }}</option>
+                    <option value="omborchi">Omborchi</option>
                     <option value="admin">{{ t('role_admin') }}</option>
                 </select>
             </div>
@@ -690,7 +691,7 @@
         const sellerPermissions = document.getElementById('sellerPermissions');
         const adminNote = document.getElementById('adminNote');
         
-        if (roleSelect.value === 'sotuvchi') {
+        if (roleSelect.value === 'sotuvchi' || roleSelect.value === 'omborchi') {
             sellerPermissions.style.display = 'block';
             adminNote.style.display = 'none';
         } else if (roleSelect.value === 'admin') {
@@ -936,8 +937,8 @@
             is_active: formData.get('is_active') === 'on'
         };
 
-        // Agar sotuvchi bo'lsa, huquqlarni ham qo'shish
-        if (userData.role === 'sotuvchi') {
+        // Agar sotuvchi yoki omborchi bo'lsa, huquqlarni ham qo'shish
+        if (userData.role === 'sotuvchi' || userData.role === 'omborchi') {
             // Huquqlarni tekshirish
             const canSellCheckbox = document.getElementById('canSell');
             const canTransferCheckbox = document.getElementById('canTransfer');
