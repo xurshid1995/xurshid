@@ -191,6 +191,15 @@
 .ps-no-data { text-align: center; padding: 50px 20px; color: #94a3b8; }
 .ps-no-data i { font-size: 40px; margin-bottom: 12px; display: block; }
 
+/* Pagination */
+.ps-pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid #e8edf5; flex-wrap: wrap; gap: 10px; }
+.ps-pag-info { font-size: 13px; color: #64748b; }
+.ps-pag-btns { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.ps-pag-btn { min-width: 34px; height: 34px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #374151; font-size: 13px; cursor: pointer; transition: all .15s; }
+.ps-pag-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+.ps-pag-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; font-weight: 600; }
+.ps-pag-btn:disabled { opacity: .4; cursor: default; }
+
 @media (max-width: 640px) {
     .ps-page { padding: 14px 12px 30px; }
     .ps-meta-strip { gap: 10px; font-size: 12px; }
@@ -323,6 +332,7 @@
                 </tbody>
             </table>
         </div>
+        <div class="ps-pagination" id="paginationBar" style="display:none;"></div>
     </div>
 
 </div>
@@ -347,6 +357,9 @@ const locationId = {{ check_session.location_id }};
 let allProducts = [];
 let checkedProductsData = [];
 let currentFilter = 'all';
+let currentFiltered = [];
+let currentPage = 1;
+const PAGE_SIZE = 50;
 
 document.addEventListener('DOMContentLoaded', async function() {
     await loadData();
@@ -444,6 +457,8 @@ function filterAndDisplay() {
     document.getElementById('uncheckedCount').textContent = allProducts.filter(p => p.status === 'unchecked').length;
     document.getElementById('errorCount').textContent = allProducts.filter(p => p.difference !== 0 && p.difference !== null).length;
 
+    currentFiltered = filtered;
+    currentPage = 1;
     displayTable(filtered);
 }
 
@@ -482,11 +497,20 @@ function exportToExcel() {
 
 function displayTable(products) {
     const tbody = document.getElementById('productsTableBody');
+    const pagBar = document.getElementById('paginationBar');
     if (products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="ps-no-data"><i class="fas fa-search"></i><div>' + CSVLANG.not_found + '</div></td></tr>';
+        pagBar.style.display = 'none';
         return;
     }
-    tbody.innerHTML = products.map((p, i) => {
+
+    const totalPages = Math.ceil(products.length / PAGE_SIZE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = products.slice(start, start + PAGE_SIZE);
+
+    tbody.innerHTML = pageItems.map((p, i) => {
+        const globalIdx = start + i + 1;
         let diffHtml = '-';
         if (p.difference !== null) {
             const cls = p.difference > 0 ? 'diff-plus' : p.difference < 0 ? 'diff-minus' : 'diff-zero';
@@ -502,7 +526,7 @@ function displayTable(products) {
         }
 
         return `<tr>
-            <td>${i + 1}</td>
+            <td>${globalIdx}</td>
             <td class="col-name">${p.name}</td>
             <td>${p.price ? '$' + parseFloat(p.price).toFixed(2) : '-'}</td>
             <td>${p.system_quantity ?? 0}</td>
@@ -511,6 +535,43 @@ function displayTable(products) {
             <td>${badge}</td>
         </tr>`;
     }).join('');
+
+    renderPagination(products.length, totalPages);
+}
+
+function renderPagination(total, totalPages) {
+    const pagBar = document.getElementById('paginationBar');
+    if (totalPages <= 1) { pagBar.style.display = 'none'; return; }
+    pagBar.style.display = 'flex';
+
+    const start = (currentPage - 1) * PAGE_SIZE + 1;
+    const end = Math.min(currentPage * PAGE_SIZE, total);
+    let html = `<span class="ps-pag-info">${start}–${end} / ${total} ta</span><div class="ps-pag-btns">`;
+
+    html += `<button class="ps-pag-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#8249;</button>`;
+
+    // page numbers with ellipsis
+    let pages = [];
+    for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) pages.push(p);
+        else if (pages[pages.length - 1] !== '...') pages.push('...');
+    }
+    pages.forEach(p => {
+        if (p === '...') html += `<span class="ps-pag-btn" style="cursor:default;">…</span>`;
+        else html += `<button class="ps-pag-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+    });
+
+    html += `<button class="ps-pag-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&#8250;</button>`;
+    html += `</div>`;
+    pagBar.innerHTML = html;
+}
+
+function goToPage(page) {
+    const totalPages = Math.ceil(currentFiltered.length / PAGE_SIZE);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    displayTable(currentFiltered);
+    document.querySelector('.ps-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 {% endblock %}
