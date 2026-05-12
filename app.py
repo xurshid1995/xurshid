@@ -3550,11 +3550,13 @@ def calculate_total():
 
 # Yangi sahifalar uchun route'lar
 @app.route('/sales')
+@role_required('admin', 'kassir', 'sotuvchi')
 def sales():
     return render_template('sales.html')
 
 
 @app.route('/sales-history')
+@role_required('admin', 'kassir', 'sotuvchi')
 def sales_history():
     return render_template(
         'sales-history.html',
@@ -3563,6 +3565,7 @@ def sales_history():
 
 
 @app.route('/debt-sales')
+@role_required('admin', 'kassir', 'sotuvchi')
 def debt_sales():
     return render_template(
         'debt-sales.html',
@@ -3571,6 +3574,7 @@ def debt_sales():
 
 
 @app.route('/pending-sales')
+@role_required('admin', 'kassir', 'sotuvchi')
 def pending_sales():
     return render_template(
         'pending-sales.html',
@@ -3787,6 +3791,7 @@ def debt_payment_history():
 
 
 @app.route('/customer/<int:customer_id>/timeline')
+@role_required('admin', 'kassir', 'sotuvchi')
 def customer_timeline(customer_id):
     """Mijoz barcha amallari ketma-ketligi sahifasi"""
     try:
@@ -3802,6 +3807,7 @@ def customer_timeline(customer_id):
 
 
 @app.route('/api/customer/<int:customer_id>/timeline')
+@role_required('admin', 'kassir', 'sotuvchi')
 def api_customer_timeline(customer_id):
     """Mijoz barcha amallarini ketma-ketlikda qaytaradi (savdolar + to'lovlar)"""
     try:
@@ -3943,6 +3949,7 @@ def api_customer_timeline(customer_id):
 
 
 @app.route('/customer/<int:customer_id>')
+@role_required('admin', 'kassir', 'sotuvchi')
 def customer_detail(customer_id):
     """Mijoz tafsilotlari sahifasi"""
     try:
@@ -3958,6 +3965,7 @@ def customer_detail(customer_id):
 
 
 @app.route('/add-customer', methods=['GET', 'POST'])
+@role_required('admin', 'kassir', 'sotuvchi')
 def add_customer():
     """Mijoz qo'shish sahifasi"""
     if request.method == 'POST':
@@ -4020,6 +4028,7 @@ def add_customer():
 
 
 @app.route('/products')
+@role_required('admin', 'kassir', 'sotuvchi')
 def products_list():
     return render_template('products.html')
 
@@ -4188,6 +4197,7 @@ def api_update_product_category(product_id):
 
 
 @app.route('/print-barcode')
+@role_required('admin', 'kassir', 'sotuvchi')
 def print_barcode():
     """Barcode chop etish sahifasi"""
     return render_template('barcode_print.html')
@@ -10683,6 +10693,7 @@ def get_customer_orders(customer_id):
 
 
 @app.route('/api/customers/<int:customer_id>', methods=['DELETE'])
+@role_required('admin', 'kassir')
 def delete_customer(customer_id):
     try:
         logger.info(f" Mijoz o'chirish so'rovi: Customer ID: {customer_id}")
@@ -10752,6 +10763,7 @@ def delete_customer(customer_id):
 
 
 @app.route('/api/customers/<int:customer_id>', methods=['PUT'])
+@role_required('admin', 'kassir', 'sotuvchi')
 def update_customer(customer_id):
     try:
         customer = Customer.query.get_or_404(customer_id)
