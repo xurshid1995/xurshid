@@ -871,10 +871,11 @@ function addToChecked(product) {
 function closeModal() {
     document.getElementById('quantityModal').style.display = 'none';
     currentProduct = null;
-    // Fokusni qidiruv maydoniga qaytarish
+    // Fokusni qidiruv maydoniga qaytarish va matnni tanlash
     setTimeout(() => {
         const searchInput = document.getElementById('productSearch');
         searchInput.focus();
+        searchInput.select();
     }, 50);
 }
 
