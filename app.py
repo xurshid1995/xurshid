@@ -5200,21 +5200,20 @@ def api_check_stock_active_sessions():
             checked_items_count = StockCheckItem.query.filter_by(session_id=check_session.id).count()
 
             # Jami mahsulotlar sonini olish (location_type va location_id ga qarab)
+            # quantity > 0 filtri yo'q - 0 miqdorda bo'lgan mahsulotlar ham tekshirilishi kerak
             if check_session.location_type == 'warehouse':
                 total_products = WarehouseStock.query.filter(
-                    WarehouseStock.warehouse_id == check_session.location_id,
-                    WarehouseStock.quantity > 0
+                    WarehouseStock.warehouse_id == check_session.location_id
                 ).count()
             else:  # store
                 total_products = StoreStock.query.filter(
-                    StoreStock.store_id == check_session.location_id,
-                    StoreStock.quantity > 0
+                    StoreStock.store_id == check_session.location_id
                 ).count()
 
-            # Progress foizini hisoblash
+            # Progress foizini hisoblash (max 100% da ko'rsatiladi)
             progress_percent = 0
             if total_products > 0:
-                progress_percent = round((checked_items_count / total_products) * 100, 1)
+                progress_percent = min(round((checked_items_count / total_products) * 100, 1), 100.0)
 
             sessions_data.append({
                 'id': check_session.id,
