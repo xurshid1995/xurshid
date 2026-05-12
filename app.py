@@ -5762,13 +5762,20 @@ def api_check_stock_finish():
         if not session_obj:
             return jsonify({'success': False, 'message': 'Sessiya topilmadi'}), 404
 
-        # Ownership tekshirish: faqat o'z sessiyasini yoki admin yakunlay oladi
-        if current_user.role not in ('admin',) and session_obj.user_id != current_user.id:
-            logger.warning(
-                f"⛔ Unauthorized finish attempt: user={current_user.username} (id={current_user.id}) "
-                f"tried to finish session {session_id} owned by user_id={session_obj.user_id}"
-            )
-            return jsonify({'success': False, 'message': 'Bu sessiyani yakunlashga ruxsat yo\'q'}), 403
+        # Ruxsat tekshirish: admin va kassir har qanday sessiyani yakunlay oladi.
+        # Sotuvchi esa o'sha joylashuvga stock_check ruxsati bo'lsa yakunlay oladi
+        # (user_id emas, joylashuv ruxsatiga qarab — sessiyani boshqasi boshlagan bo'lsa ham)
+        if current_user.role not in ('admin', 'kassir'):
+            stock_check_locs = current_user.stock_check_locations or []
+            if not stock_check_locs:
+                stock_check_locs = current_user.allowed_locations or []
+            allowed_ids = extract_location_ids(stock_check_locs, session_obj.location_type)
+            if allowed_ids is not None and int(session_obj.location_id) not in allowed_ids:
+                logger.warning(
+                    f"⛔ Unauthorized finish attempt: user={current_user.username} "
+                    f"has no permission for {session_obj.location_type}#{session_obj.location_id}"
+                )
+                return jsonify({'success': False, 'message': 'Bu joylashuv uchun tekshiruv yakunlash ruxsatingiz yo\'q'}), 403
 
         # Idempotency: agar sessiya allaqachon yakunlangan bo'lsa, darhol success qaytarish
         # (internet uzilsa va foydalanuvchi qayta bosganda ham xato bo'lmaydi)
