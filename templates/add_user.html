@@ -743,7 +743,7 @@
                     const label = document.createElement('label');
                     label.className = 'permission-item';
                     label.innerHTML = `
-                        <input type="checkbox" name="sales_location_${location.id}" value="${location.id}">
+                        <input type="checkbox" name="sales_location_${location.id}" value="${location.id}" data-type="${location.type}">
                         <span>${location.type === 'store' ? '🏪' : '🏭'} ${location.name}</span>
                     `;
                     salesLocationsList.appendChild(label);
@@ -812,7 +812,7 @@
                     const label = document.createElement('label');
                     label.className = 'permission-item';
                     label.innerHTML = `
-                        <input type="checkbox" name="transfer_location_${location.id}" value="${location.id}">
+                        <input type="checkbox" name="transfer_location_${location.id}" value="${location.id}" data-type="${location.type}">
                         <span>${location.type === 'store' ? '🏪' : '🏭'} ${location.name}</span>
                     `;
                     transferLocationsList.appendChild(label);

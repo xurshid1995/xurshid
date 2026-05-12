@@ -494,6 +494,8 @@
                 <label for="role">{{ t('label_role_required') }} <span class="required">*</span></label>
                 <select id="role" name="role" required>
                     <option value="sotuvchi">{{ t('role_seller') }}</option>
+                    <option value="kassir">Kassir</option>
+                    <option value="omborchi">Omborchi</option>
                     <option value="admin">{{ t('role_admin') }}</option>
                 </select>
             </div>
@@ -787,7 +789,7 @@
         // MUHIM: Huquqlarni to'ldirish checkboxlar yaratilgandan keyin amalga oshiriladi
         // populatePermissions() loadStoresAndWarehouses() ichida chaqiriladi
         // Lekin agar storelar allaqachon yuklangan bo'lsa (race condition), hoziroq chaqiramiz
-        if (user.role === 'sotuvchi' && user.permissions && (allStores.length > 0 || allWarehouses.length > 0)) {
+        if ((user.role === 'sotuvchi' || user.role === 'omborchi') && user.permissions && (allStores.length > 0 || allWarehouses.length > 0)) {
             setTimeout(() => populatePermissions(user.permissions), 50);
         }
         
@@ -1041,8 +1043,8 @@
             console.log('🏪 Primary location set:', primaryLocationSelect.value, 'Type:', locationType, 'ID:', locationId);
         }
 
-        // Sotuvchi huquqlarini yig'ish
-        if (document.getElementById('role').value === 'sotuvchi') {
+        // Sotuvchi va omborchi huquqlarini yig'ish
+        if (document.getElementById('role').value === 'sotuvchi' || document.getElementById('role').value === 'omborchi') {
             formData.permissions = {};
             formData.allowed_locations = [];  // To'g'ridan-to'g'ri formData ichiga
             
@@ -1293,7 +1295,7 @@
         const role = document.getElementById('role').value;
         const permissionsSection = document.getElementById('sellerPermissions');
         
-        if (role === 'sotuvchi') {
+        if (role === 'sotuvchi' || role === 'omborchi') {
             if (permissionsSection) {
                 permissionsSection.style.display = 'block';
             }
