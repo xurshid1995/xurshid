@@ -854,6 +854,11 @@ function addToChecked(product) {
 function closeModal() {
     document.getElementById('quantityModal').style.display = 'none';
     currentProduct = null;
+    // Fokusni qidiruv maydoniga qaytarish
+    setTimeout(() => {
+        const searchInput = document.getElementById('productSearch');
+        searchInput.focus();
+    }, 50);
 }
 
 // Miqdorni saqlash
@@ -915,6 +920,7 @@ async function saveQuantity() {
             
             // Chap jadvaldan o'chirish
             allProducts = allProducts.filter(p => p.id !== currentProduct.id);
+            selectedProductIndex = -1; // Highlight reset
             displayProducts(allProducts);
             
             // Qidiruv maydonini tozalash
