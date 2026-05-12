@@ -141,6 +141,24 @@
         .cs-header { flex-direction: column; align-items: stretch; }
         .cs-header-right { justify-content: flex-end; }
     }
+    @keyframes progressPulse {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    #finishProgressBar {
+        background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb);
+        background-size: 200% 100%;
+        animation: progressPulse 1.5s ease infinite;
+    }
+    #finishStep3 .spinner-icon {
+        display: inline-block;
+        animation: spin 1.2s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
@@ -321,6 +339,18 @@
                     ✕ Bekor qilish
                 </button>
             </div>
+        </div>
+
+        <!-- Bosqich 3: Progress (yakunlash jarayoni) -->
+        <div id="finishStep3" style="display:none; text-align:center; padding:10px 0;">
+            <div style="font-size:38px; margin-bottom:16px;"><span class="spinner-icon">⚙️</span></div>
+            <h4 style="margin:0 0 8px; color:#1e293b; font-weight:700; font-size:17px;">Tekshiruv yakunlanmoqda</h4>
+            <p id="finishProgressText" style="font-size:13px; color:#475569; margin:0 0 22px;">Stok ma'lumotlari yangilanmoqda...</p>
+            <!-- Animatsiyali progress bar -->
+            <div style="background:#e2e8f0; border-radius:999px; height:8px; overflow:hidden; margin-bottom:20px;">
+                <div id="finishProgressBar" style="height:100%; border-radius:999px; background:linear-gradient(90deg,#2563eb,#06b6d4); width:0%; transition:width 0.4s ease;"></div>
+            </div>
+            <p style="font-size:12px; color:#94a3b8;">Sahifani yopmang, biroz kuting...</p>
         </div>
 
     </div>
@@ -1134,14 +1164,27 @@ function closeFinishModal() {
     document.getElementById('finishConfirmModal').style.display = 'none';
 }
 
+function showFinishProgress(text, barPct) {
+    document.getElementById('finishStep1').style.display = 'none';
+    document.getElementById('finishStep2').style.display = 'none';
+    document.getElementById('finishStep3').style.display = 'block';
+    document.getElementById('finishProgressText').textContent = text;
+    // bar animatsiyasi uchun kichik delay
+    setTimeout(() => {
+        document.getElementById('finishProgressBar').style.width = barPct + '%';
+    }, 50);
+}
+
 async function doFinish() {
     const btn = document.getElementById('fcConfirmBtn');
     if (btn.disabled) return;
 
     btn.disabled = true;
-    btn.textContent = '⏳ Yakunlanmoqda...';
 
-    async function attemptFinish(isRetry) {
+    // Progress ekranini ko'rsatish
+    showFinishProgress('Serverga so\'rov yuborilmoqda...', 20);
+
+    async function attemptFinish() {
         // 5 daqiqa timeout (10000 ta mahsulot bo'lsa ham yetarli)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000);
@@ -1161,23 +1204,30 @@ async function doFinish() {
     }
 
     // 1-urinish
-    let result = await attemptFinish(false);
+    showFinishProgress('Stok ma\'lumotlari yangilanmoqda...', 50);
+    let result = await attemptFinish();
 
     // Network xatosida 3 soniya kutib avtomatik qayta urinish
     if (!result.ok && result.error.name !== 'AbortError') {
-        btn.textContent = '🔄 Qayta urinilmoqda...';
+        showFinishProgress('Internet uzildi, qayta urinilmoqda...', 65);
         await new Promise(r => setTimeout(r, 3000));
-        result = await attemptFinish(true);
+        result = await attemptFinish();
     }
-
-    closeFinishModal();
 
     if (result.ok) {
         const data = result.data;
         if (data.success) {
-            alert(checkedProducts.length === 0 ? CSSLANG.finished_empty : CSSLANG.finished_success);
-            window.location.href = '/check_stock';
+            showFinishProgress(
+                'Tekshiruv muvaffaqiyatli yakunlandi! ' + data.updated_count + ' ta mahsulot yangilandi.',
+                100
+            );
+            setTimeout(() => {
+                closeFinishModal();
+                alert(checkedProducts.length === 0 ? CSSLANG.finished_empty : CSSLANG.finished_success);
+                window.location.href = '/check_stock';
+            }, 800);
         } else {
+            closeFinishModal();
             alert(CSSLANG.finish_error + ': ' + (data.message || ''));
             btn.disabled = false;
             btn.textContent = '✅ Yakunlash';
@@ -1185,9 +1235,9 @@ async function doFinish() {
     } else {
         const err = result.error;
         console.error('Tekshiruvni yakunlashda xatolik:', err);
+        closeFinishModal();
 
         if (err.name === 'AbortError') {
-            // Timeout — server hali ishlamoqda bo'lishi mumkin
             const retry = confirm(
                 '⏱️ Server uzoq vaqt javob bermadi.\n\n' +
                 'Ehtimol tekshiruv serverda yakunlangan bo\'lishi mumkin.\n' +
@@ -1199,7 +1249,6 @@ async function doFinish() {
                 btn.textContent = '✅ Yakunlash';
             }
         } else {
-            // Ikki marta ham network xatosi — server yoki internet muammosi
             const retry = confirm(
                 '🌐 Internet aloqasi uzildi.\n\n' +
                 'Tekshiruv serverda saqlanган bo\'lishi mumkin.\n' +
