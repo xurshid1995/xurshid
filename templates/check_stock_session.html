@@ -628,7 +628,7 @@ function highlightRow(rows, index) {
     rows.forEach((row, i) => {
         if (i === index) {
             row.style.background = '#e3f2fd';
-            row.style.outline = '2px solid #2196F3';
+            row.style.outline = '';
             row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
             row.style.background = '';
