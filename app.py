@@ -7740,39 +7740,25 @@ def api_debt_payment_history():
         # Location filter parametri
         location_id = request.args.get('location_id', type=int)
 
-        # Allowed locations tekshirish
-        allowed_location_ids = None
-        if current_user.role != 'admin':
+        # Sotuvchi uchun ruxsat berilgan do'konlar bo'yicha filter
+        allowed_store_ids = None
+        if current_user.role == 'sotuvchi':
             allowed_locations = current_user.allowed_locations or []
-            if allowed_locations:
-                store_ids = extract_location_ids(allowed_locations, 'store')
-                warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
-                allowed_location_ids = []
-                if store_ids:
-                    allowed_location_ids.extend(store_ids)
-                if warehouse_ids:
-                    allowed_location_ids.extend(warehouse_ids)
+            allowed_store_ids = extract_location_ids(allowed_locations, 'store')
+            if not allowed_store_ids:
+                return jsonify({'success': True, 'payments': []})
 
         # Raw SQL bilan tranzaksiya bo'yicha guruhlash
-        # Bir to'lov bir necha savdoga bo'linsa ham, bitta qator sifatida ko'rinadi
-        # Grupplash kaliti: customer_id + payment_date + received_by (bir xil request ichida yaratilgan)
         location_filter = ""
         params = {}
 
-        if location_id:
-            if allowed_location_ids is not None and location_id not in allowed_location_ids:
-                return jsonify({'success': True, 'payments': []})
-            location_filter = """
-                AND (s.location_id = :location_id OR dp.sale_id IS NULL)
-            """
+        if allowed_store_ids is not None:
+            # Sotuvchi: faqat o'z do'konlaridagi mijozlarning to'lovlari
+            location_filter = "AND c.store_id = ANY(:store_ids)"
+            params['store_ids'] = allowed_store_ids
+        elif location_id:
+            location_filter = "AND (s.location_id = :location_id OR dp.sale_id IS NULL)"
             params['location_id'] = location_id
-        elif allowed_location_ids is not None:
-            if not allowed_location_ids:
-                return jsonify({'success': True, 'payments': []})
-            location_filter = """
-                AND (s.location_id = ANY(:allowed_ids) OR dp.sale_id IS NULL)
-            """
-            params['allowed_ids'] = allowed_location_ids
 
         sql = text(f"""
             SELECT
