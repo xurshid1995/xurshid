@@ -1191,6 +1191,9 @@ async function doFinish() {
 
     btn.disabled = true;
 
+    // Sahifa yopilmasligini bloklash
+    finishInProgress = true;
+
     // Progress ekranini ko'rsatish
     showFinishProgress('Serverga so\'rov yuborilmoqda...', 20);
 
@@ -1232,11 +1235,13 @@ async function doFinish() {
                 100
             );
             setTimeout(() => {
+                finishInProgress = false;
                 closeFinishModal();
                 alert(checkedProducts.length === 0 ? CSSLANG.finished_empty : CSSLANG.finished_success);
                 window.location.href = '/check_stock';
             }, 800);
         } else {
+            finishInProgress = false;
             closeFinishModal();
             alert(CSSLANG.finish_error + ': ' + (data.message || ''));
             btn.disabled = false;
@@ -1245,6 +1250,7 @@ async function doFinish() {
     } else {
         const err = result.error;
         console.error('Tekshiruvni yakunlashda xatolik:', err);
+        finishInProgress = false;
         closeFinishModal();
 
         if (err.name === 'AbortError') {
@@ -1274,9 +1280,20 @@ async function doFinish() {
     }
 }
 
-// Modal tashqarisiga bosganda yopish
+// Yakunlash jarayoni davomida sahifa yopilmasligini ta'minlash
+let finishInProgress = false;
+
+window.addEventListener('beforeunload', function(e) {
+    if (finishInProgress) {
+        e.preventDefault();
+        e.returnValue = 'Tekshiruv yakunlanmoqda! Sahifani yopsangiz jarayon uzilishi mumkin.';
+        return e.returnValue;
+    }
+});
+
+// Modal tashqarisiga bosganda yopish — faqat progress bo'lmaganda
 document.getElementById('finishConfirmModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFinishModal();
+    if (e.target === this && !finishInProgress) closeFinishModal();
 });
 </script>
 
