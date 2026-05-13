@@ -4756,11 +4756,13 @@
         // Narxni button'ning data-price attributidan olish (formatlanmagan)
         const priceButton = cells[4].querySelector('.add-to-cart-btn');
         const price = priceButton ? parseFloat(priceButton.getAttribute('data-price')) || 0 : 0;
+        const unitType = priceButton ? (priceButton.getAttribute('data-unit-type') || 'dona') : 'dona';
+        const imageUrl = priceButton ? (priceButton.getAttribute('data-image-url') || '') : '';
         
-        console.log('?? Tanlangan mahsulot:', { productId, productName, quantity, price, costPrice });
+        console.log('?? Tanlangan mahsulot:', { productId, productName, quantity, price, costPrice, unitType, imageUrl });
         
         if (productId && quantity > 0 && price > 0) {
-            addToCart(parseInt(productId), productName, quantity, price, costPrice);
+            addToCart(parseInt(productId), productName, quantity, price, costPrice, unitType, imageUrl);
             
             // Qidiruv maydoniga fokus va matnni belgilash
             const universalSearch = getActiveTabElement('universalSearch');
