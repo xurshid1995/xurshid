@@ -742,7 +742,7 @@
 {% block content %}
 <!-- Offline banner -->
 <div id="offlineBanner" style="display:none; position:sticky; top:0; z-index:10000; background:#dc3545; color:white; text-align:center; padding:10px 20px; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    ?? Internet aloqasi yo'q — savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
+    ?? Internet aloqasi yo'q ï¿½ savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
 </div>
 <div class="sales-container">
     <!-- Page Header (yuqorida) -->
@@ -2367,11 +2367,11 @@
                     const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
                     const isSamsung = /SamsungBrowser/.test(navigator.userAgent);
                     if (isIOS) {
-                        permSteps.innerHTML = '1. <b>iPhone Sozlamalar</b> › <b>Safari</b> › <b>Kamera</b><br>2. <b>sergeli0606.uz</b> › <b>Ruxsat</b><br>3. Sahifani yangilang';
+                        permSteps.innerHTML = '1. <b>iPhone Sozlamalar</b> ï¿½ <b>Safari</b> ï¿½ <b>Kamera</b><br>2. <b>sergeli0606.uz</b> ï¿½ <b>Ruxsat</b><br>3. Sahifani yangilang';
                     } else if (isSamsung) {
-                        permSteps.innerHTML = '1. Brauzer <b>? menyu</b> › <b>Sozlamalar</b> › <b>Sayt sozlamalari</b> › <b>Kamera</b><br>2. <b>sergeli0606.uz</b> › <b>Ruxsat</b><br>3. Sahifani yangilang';
+                        permSteps.innerHTML = '1. Brauzer <b>? menyu</b> ï¿½ <b>Sozlamalar</b> ï¿½ <b>Sayt sozlamalari</b> ï¿½ <b>Kamera</b><br>2. <b>sergeli0606.uz</b> ï¿½ <b>Ruxsat</b><br>3. Sahifani yangilang';
                     } else if (isChrome) {
-                        permSteps.innerHTML = '1. Manzil qatoridagi ?? belgisini bosing<br>2. <b>Kamera</b> › <b>Har doim ruxsat berish</b><br>3. Sahifani yangilang tugmasini bosing';
+                        permSteps.innerHTML = '1. Manzil qatoridagi ?? belgisini bosing<br>2. <b>Kamera</b> ï¿½ <b>Har doim ruxsat berish</b><br>3. Sahifani yangilang tugmasini bosing';
                     } else {
                         permSteps.innerHTML = 'Brauzer manzil qatoridagi kamera belgisini bosib, <b>Ruxsat berish</b> ni tanlang va sahifani yangilang';
                     }
@@ -3980,7 +3980,7 @@
         // 1. To'liq substring mos kelsa - maksimal ball
         if (n.includes(q)) return 100;
 
-        // 2. Qisman so'z moslik: "diam" › "diamond", "led" › "Led 100W"
+        // 2. Qisman so'z moslik: "diam" ï¿½ "diamond", "led" ï¿½ "Led 100W"
         const qWords = q.split(/\s+/).filter(w => w.length >= 1);
         const nWords = n.split(/\s+/).filter(w => w.length >= 1);
 
@@ -3989,7 +3989,7 @@
         ).length;
         const coverage = qWords.length > 0 ? wordHits / qWords.length : 0;
 
-        // 3. Belgilar ketma-ketligi (fuzzy: "zmr" › "zimmer", "dmd" › "diamond")
+        // 3. Belgilar ketma-ketligi (fuzzy: "zmr" ï¿½ "zimmer", "dmd" ï¿½ "diamond")
         const qChars = q.replace(/\s/g, '');
         let ni = 0, seqMatches = 0;
         for (let qi = 0; qi < qChars.length; qi++) {
