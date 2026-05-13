@@ -1822,12 +1822,17 @@
         console.log(`?? Tab ${tabId} ma'lumotlari saqlanmoqda...`);
         
         // Hozirgi UI state'ni olish va saqlash
+        const locationSelectEl = getActiveTabElement('locationSelect');
+        const locationValue = locationSelectEl ? locationSelectEl.value : '';
+        const [locType, locId] = locationValue ? locationValue.split('_') : ['', ''];
+        const customerIdEl = getActiveTabElement('selectedCustomerId');
+        const customerSearchEl = getActiveTabElement('customerSearch');
         const tabData = {
             cart: cart,
-            locationId: getCurrentLocationId(),
-            locationType: getCurrentLocationType(),
-            customerId: getCurrentCustomerId(),
-            customerName: getCurrentCustomerName(),
+            locationId: locId || '',
+            locationType: locType || '',
+            customerId: customerIdEl ? customerIdEl.value : '',
+            customerName: customerSearchEl ? customerSearchEl.value : '',
             timestamp: Date.now()
         };
         
