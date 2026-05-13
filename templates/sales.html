@@ -908,8 +908,8 @@
             <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0; gap:12px;">
                 <h3 style="margin: 0; color: #333;">{{ t('product_info') }}</h3>
                 <!-- Mahsulot rasmi -->
-                <div id="modalProductImgWrap" style="display:none; flex-shrink:0;">
-                    <img id="modalProductImg" src="" alt="" style="width:80px; height:80px; border-radius:8px; object-fit:cover; cursor:zoom-in; box-shadow:0 2px 8px rgba(0,0,0,0.15);" onclick="openSptLightbox(this.src)">
+                <div id="modalProductImgWrap" class="modal-product-img-wrap" style="display:none; flex-shrink:0;">
+                    <img id="modalProductImg" class="modal-product-img" src="" alt="" style="width:80px; height:80px; border-radius:8px; object-fit:cover; cursor:zoom-in; box-shadow:0 2px 8px rgba(0,0,0,0.15);" onclick="openSptLightbox(this.src)">
                 </div>
             </div>
             <div style="margin-bottom: 10px;">
@@ -3213,8 +3213,8 @@
         modalProductName.textContent = productName;
 
         // Mahsulot rasmini ko'rsatish
-        const imgWrap = getActiveTabElement('modalProductImgWrap');
-        const imgEl = getActiveTabElement('modalProductImg');
+        const imgWrap = quantityModal.querySelector('.modal-product-img-wrap');
+        const imgEl = quantityModal.querySelector('.modal-product-img');
         if (imgWrap && imgEl) {
             if (imageUrl) {
                 imgEl.src = imageUrl;
