@@ -3213,8 +3213,8 @@
         modalProductName.textContent = productName;
 
         // Mahsulot rasmini ko'rsatish
-        const imgWrap = getActiveTabElement('modalProductImgWrap');
-        const imgEl = getActiveTabElement('modalProductImg');
+        const imgWrap = document.getElementById('modalProductImgWrap');
+        const imgEl = document.getElementById('modalProductImg');
         if (imgWrap && imgEl) {
             if (imageUrl) {
                 imgEl.src = imageUrl;
