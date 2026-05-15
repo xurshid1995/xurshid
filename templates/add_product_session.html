@@ -1509,7 +1509,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             html += `
                                 <div class="product-dropdown-item suggestion-item" 
-                                     onclick="selectProduct('${productData.product.name}', ${lastBatchCost}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}', '${productData.product.barcode || ''}', ${productData.product.category_id || 'null'}, '${productData.product.image_url || ''}')"
+                                     onclick="selectProduct('${productData.product.name}', ${productData.product.cost_price}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}', '${productData.product.barcode || ''}', ${productData.product.category_id || 'null'}, '${productData.product.image_url || ''}')"
                                      onmouseenter="handleMouseEnterSuggestion(this)">
                                     <div class="product-dropdown-content">
                                         <strong style="color: #2c3e50; font-size: 1.1rem;">${productData.product.name}</strong> | 
