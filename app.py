@@ -4066,7 +4066,10 @@ def api_customer_timeline(customer_id):
         rb = float(customer.balance or 0)
         for ev in events:
             if ev.get('has_snapshot'):
-                continue  # snapshot eventlar uchun debt_before/after allaqachon tоgri
+                # Snapshot eventlar uchun rd/rb ni tiklash (legacy eventlar uchun togri hisoblash)
+                rd = float(ev.get('debt_before', rd))
+                rb = float(ev.get('balance_before', rb))
+                continue  # snapshot debt_before/after allaqachon togri
             ev['debt_after'] = round(max(0.0, rd), 2)
             ev['balance_after'] = round(max(0.0, rb), 2)
             if ev['type'] == 'sale':
@@ -12345,6 +12348,61 @@ def finalize_sale(sale_id):
             logger.info(f"Finalize savdo #{sale_id} uchun {len(sale.items)} ta OperationHistory yozildi")
         except Exception as log_err:
             logger.warning(f"Finalize OperationHistory log xatoligi: {log_err}")
+
+        # CustomerTimelineSnapshot yozish (pending sale finalize qilinganda)
+        if sale.customer_id:
+            try:
+                fin_snap_debt = float(db.session.query(
+                    db.func.coalesce(db.func.sum(Sale.debt_usd), 0)
+                ).filter(Sale.customer_id == sale.customer_id, Sale.debt_usd > 0).scalar() or 0)
+                fin_sale_debt = float(sale.debt_usd or 0)
+                fin_snap_debt_before = fin_snap_debt - fin_sale_debt
+                fin_customer = Customer.query.get(sale.customer_id)
+                fin_snap_bal_after = float(fin_customer.balance or 0) if fin_customer else 0
+                fin_snap_bal_before = fin_snap_bal_after + float(sale.balance_usd or 0)
+                fin_items_snap = [
+                    {
+                        'product_id': si.product_id,
+                        'name': si.product.name if si.product else 'Mahsulot',
+                        'quantity': float(si.quantity),
+                        'unit_price': float(si.unit_price or 0),
+                        'total_price': float(si.total_price or 0),
+                    }
+                    for si in sale.items
+                ]
+                fin_seller = f'{sale.seller.first_name} {sale.seller.last_name}'.strip() if sale.seller else ''
+                fin_loc_obj = Store.query.get(sale.location_id) if sale.location_type == 'store' else Warehouse.query.get(sale.location_id)
+                fin_loc_name = fin_loc_obj.name if fin_loc_obj else ''
+                fin_snap = CustomerTimelineSnapshot(
+                    customer_id=sale.customer_id,
+                    event_type='sale',
+                    event_id=sale.id,
+                    event_date=sale.sale_date or get_tashkent_time(),
+                    snapshot_data={
+                        'payment_status': sale.payment_status,
+                        'total_amount': float(sale.total_amount or 0),
+                        'cash_usd': float(sale.cash_usd or 0),
+                        'click_usd': float(sale.click_usd or 0),
+                        'terminal_usd': float(sale.terminal_usd or 0),
+                        'debt_usd': float(sale.debt_usd or 0),
+                        'balance_usd': float(sale.balance_usd or 0),
+                        'currency_rate': float(sale.currency_rate or 0),
+                        'location': fin_loc_name,
+                        'seller': fin_seller,
+                        'items': fin_items_snap,
+                        'notes': sale.notes or '',
+                    },
+                    debt_before=Decimal(str(round(max(0.0, fin_snap_debt_before), 2))),
+                    debt_after=Decimal(str(round(fin_snap_debt, 2))),
+                    balance_before=Decimal(str(round(fin_snap_bal_before, 2))),
+                    balance_after=Decimal(str(round(fin_snap_bal_after, 2))),
+                )
+                db.session.merge(fin_snap)
+                db.session.commit()
+                logger.info(f'Finalize sale snapshot yozildi: sale_id={sale.id}')
+            except Exception as snap_err:
+                logger.warning(f'Finalize snapshot xatolik: {snap_err}')
+                db.session.rollback()
 
         return jsonify({
             'success': True,
