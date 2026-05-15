@@ -2509,15 +2509,19 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             comparisonHTML += '</tbody>';
                             comparisonHTML += '</table>';
                             
-                            // Matematik ko'rsatma
-                            comparisonHTML += '<div style="padding: 10px 12px; background: #fff3cd; border-top: 2px solid #ffeaa7; font-size: 1rem; font-weight: 700; color: #856404; text-align: center; border-radius: 0 0 3px 3px;">';
+                            // Matematik ko'rsatma - 3 ta qiymat aniq ko'rsatilsin
+                            comparisonHTML += '<div style="padding: 10px 12px; background: #fff3cd; border-top: 2px solid #ffeaa7; font-size: 0.92rem; font-weight: 600; color: #856404; border-radius: 0 0 3px 3px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; align-items: center;">';
                             if (newQuantity > 0) {
                                 const finalQuantity = totalQuantityCheck + newQuantity;
                                 const finalValue = totalOldValueCheck + (newQuantity * newCostPrice);
-                                const finalAveragePrice = finalValue / finalQuantity;
-                                comparisonHTML += ' Hozirgi: <span style="background: #ffd700; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span>  Yangi: <span style="background: #28a745; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$' + finalAveragePrice.toFixed(2) + '</span>';
+                                const finalAveragePrice = finalQuantity > 0 ? finalValue / finalQuantity : newCostPrice;
+                                comparisonHTML += '<span>Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span style="color:#aaa;">→</span>';
+                                comparisonHTML += '<span>Yangi partiya narxi: <span style="background: #17a2b8; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + newCostPrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span style="color:#aaa;">→</span>';
+                                comparisonHTML += '<span>Ortacha tan narx: <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + finalAveragePrice.toFixed(2) + '</span></span>';
                             } else {
-                                comparisonHTML += '💡 Hozirgi o\'rtacha: <span style="background: #ffd700; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span>';
+                                comparisonHTML += '<span>💡 Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
                             }
                             comparisonHTML += '</div>';
                             
