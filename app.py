@@ -13345,7 +13345,7 @@ def update_sale(sale_id):
 
 
 @app.route('/api/sales/<int:sale_id>', methods=['DELETE'])
-@role_required('admin', 'kassir', 'sotuvchi')
+@role_required('admin', 'kassir')
 def delete_sale_with_stock_return(sale_id):
     """Savdoni o'chirish va stock ni qaytarish - yangi tuzilma bilan"""
     try:

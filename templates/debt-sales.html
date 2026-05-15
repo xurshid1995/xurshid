@@ -1630,12 +1630,13 @@ function displaySalesData(data) {
                     <button class="btn-action btn-view" onclick="viewSaleDetails(${sale.id})" title="Ko'rish">
                         <img src="/static/images/icons8-eye-fluent-96.png" style="width:16px;height:16px;vertical-align:middle;">
                     </button>
+                    ${userRole !== 'sotuvchi' ? `
                     <button class="btn-action btn-edit" onclick="editSaleGroup(${sale.id})" title="Guruhni tahrirlash">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn-action btn-delete" onclick="deleteGroup(${sale.id})" title="O'chirish">
                         <i class="fas fa-trash"></i>
-                    </button>
+                    </button>` : ''}
                 </td>
             </tr>
         `;
@@ -1711,6 +1712,7 @@ function getLocationName(item) {
 }
 
 function editSaleGroup(saleId) {
+    if (userRole === 'sotuvchi') { return; }
     // Savdo guruhini tahrirlash funksiyasi - Sales sahifasiga yo'naltirish
     console.log(`✏️ Savdo ${saleId} tahrirlash uchun sales sahifasiga yo'naltirmoqda...`);
     
@@ -1866,6 +1868,7 @@ function saveEditedSale() {
 }
 
 function deleteGroup(saleId) {
+    if (userRole === 'sotuvchi') { return; }
     // Savdo guruhini o'chirish funksiyasi
     if (confirm(DSLANG.delete_group_confirm)) {
         console.log(`🗑️ Savdo o'chirilmoqda: ${saleId}`);
@@ -3374,12 +3377,13 @@ function updateTableForCompactView() {
                         <button class="btn-action btn-view" onclick="viewSaleDetails(${firstItem.id})" title="Ko'rish">
                             <img src="/static/images/icons8-eye-fluent-96.png" style="width:16px;height:16px;vertical-align:middle;">
                         </button>
+                        ${userRole !== 'sotuvchi' ? `
                         <button class="btn-action btn-edit" onclick="editSaleGroup(${firstItem.id})" title="Tahrirlash">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteGroup(${firstItem.id})" title="O'chirish">
                             <i class="fas fa-trash"></i>
-                        </button>
+                        </button>` : ''}
                     </td>
                 `;
                 
