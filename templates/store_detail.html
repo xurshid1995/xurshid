@@ -494,9 +494,13 @@
                     <label class="em-label">{{ t('sd_th_sell') }}</label>
                     <input type="number" class="em-input" id="em-sellPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
                 </div>
-                <div class="em-group full em-half-mob">
+                <div class="em-group em-half-mob">
                     <label class="em-label">{{ t('sd_th_unit_profit') }}</label>
                     <div class="em-profit" id="em-profitDisplay">$0.00 (0.0%)</div>
+                </div>
+                <div class="em-group em-half-mob">
+                    <label class="em-label">Asl tan narx (oxirgi partiya)</label>
+                    <div class="em-profit" id="em-lastBatchDisplay" style="color:#d97706;">—</div>
                 </div>
                 <div class="em-group full em-half-mob">
                     <label class="em-label">Kategoriya</label>
@@ -719,6 +723,7 @@
                 quantity: item.stock.quantity,
                 minStock: item.stock.product.min_stock || 0,
                 costPrice: item.stock.product.cost_price,
+                lastBatchCost: item.stock.product.last_batch_cost || null,
                 sellPrice: item.stock.product.sell_price,
                 categoryId: item.stock.product.category_id || '',
                 imageUrl: item.stock.product.image_url || ''
@@ -923,6 +928,13 @@
             document.getElementById('em-img-delete-btn').style.display = 'none';
         }
         document.getElementById('em-error').style.display = 'none';
+        // Asl tan narx (oxirgi partiya)
+        const lbEl = document.getElementById('em-lastBatchDisplay');
+        if (d.lastBatchCost && d.lastBatchCost > 0) {
+            lbEl.textContent = '$' + parseFloat(d.lastBatchCost).toFixed(2);
+        } else {
+            lbEl.textContent = '—';
+        }
         emUpdateProfit();
         document.getElementById('editModalOverlay').classList.add('active');
         setTimeout(() => document.getElementById('em-productName').focus(), 100);
