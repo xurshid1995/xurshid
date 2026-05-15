@@ -221,7 +221,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 <!-- Excel fayl input (yashirin) -->
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleExcelFile(event)">
 
-                <form id="productForm">
+                <form id="productForm" onsubmit="return false;">
                     <!-- Joylashuv va Excel Import -->
                     <div class="ap-row ap-row-2col" style="margin-bottom:11px;">
                         <div class="ap-form-group" style="margin-bottom:0;">
