@@ -363,6 +363,37 @@ def check_password(password, hashed):
         return False
 
 
+def calculate_average_cost(product_id, new_quantity, new_batch_cost):
+    """
+    Og'irlikli o'rtacha tan narxni backend'da hisoblash.
+    Formula: (mavjud_qty * mavjud_narx + yangi_qty * yangi_narx) / (mavjud_qty + yangi_qty)
+    """
+    from sqlalchemy import func as sql_func
+    warehouse_qty = db.session.query(
+        sql_func.sum(WarehouseStock.quantity)
+    ).filter_by(product_id=product_id).scalar() or Decimal('0')
+
+    store_qty = db.session.query(
+        sql_func.sum(StoreStock.quantity)
+    ).filter_by(product_id=product_id).scalar() or Decimal('0')
+
+    total_existing_qty = Decimal(str(warehouse_qty)) + Decimal(str(store_qty))
+
+    product = Product.query.get(product_id)
+    existing_cost = product.cost_price if product else Decimal('0')
+
+    existing_value = total_existing_qty * existing_cost
+    new_value = Decimal(str(new_quantity)) * Decimal(str(new_batch_cost))
+    total_qty = total_existing_qty + Decimal(str(new_quantity))
+
+    if total_qty > 0:
+        average = (existing_value + new_value) / total_qty
+    else:
+        average = Decimal(str(new_batch_cost))
+
+    return average.quantize(Decimal('0.00001'))
+
+
 def validate_quantity(quantity, field_name='Miqdor'):
     """Miqdorni validatsiya qilish - manfiy va haddan tashqari katta qiymatlardan himoya"""
     try:
@@ -2970,18 +3001,25 @@ def api_add_product():
                 existing_product = Product.query.filter_by(
                     name=product_data['name']).first()
                 if existing_product:
-                    # Mavjud mahsulot - Frontend'dan ortacha narx va asl narx keladi
+                    # Mavjud mahsulot - Backend'da og'irlikli o'rtacha narx hisoblanadi
+                    last_batch_cost = Decimal(str(product_data.get('lastBatchCost', cost_price)))
 
-                    logger.info("ğŸ“Š Mavjud mahsulot yangilanmoqda:")
-                    logger.info(f"   Eski cost_price (ortacha): ${existing_product.cost_price}")
-                    logger.info(f"   Frontend dan kelgan cost_price (ortacha): ${cost_price}")
-                    logger.info(f"   Frontend dan kelgan last_batch_cost (yangi partiya): ${product_data.get('lastBatchCost', cost_price)}")
+                    logger.info('Mavjud mahsulot yangilanmoqda (backend hisoblash):')
+                    logger.info(f'   Eski cost_price: ${existing_product.cost_price}')
+                    logger.info(f'   Yangi partiya narxi: ${last_batch_cost}')
+                    logger.info(f'   Yangi miqdor: {quantity}')
 
-                    # Ortacha narxni yangilash
-                    existing_product.cost_price = cost_price
+                    # Backend'da og'irlikli o'rtacha hisoblash
+                    average_cost = calculate_average_cost(
+                        existing_product.id, quantity, last_batch_cost
+                    )
+                    logger.info(f"   Hisoblangan o'rtacha: ${average_cost}")
+
+                    # Ortacha narxni saqlash
+                    existing_product.cost_price = average_cost
 
                     # Oxirgi partiya ma'lumotlarini saqlash
-                    existing_product.last_batch_cost = Decimal(str(product_data.get('lastBatchCost', cost_price)))
+                    existing_product.last_batch_cost = last_batch_cost
                     existing_product.last_batch_date = get_tashkent_time()
 
                     # Boshqa maydonlar
@@ -3257,15 +3295,21 @@ def api_batch_products():
                 db.session.flush()  # ID olish uchun
                 logger.info(f"âœ… Yangi mahsulot yaratildi - ID: {product.id}, barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
             else:
-                # Mavjud mahsulot - Frontend'dan ortacha narx va asl narx keladi
-                logger.info(f"â™»ï¸ Mavjud mahsulot yangilanmoqda - ID: {product.id}")
-                logger.info(f"   Eski cost_price (ortacha): ${product.cost_price}")
-                logger.info(f"   Frontend dan kelgan cost_price (ortacha): ${cost_price}")
-                logger.info(f"   Frontend dan kelgan last_batch_cost (yangi partiya): ${product_data.get('lastBatchCost', cost_price)}")
-                logger.info(f"   Kategoriya: {category_id}")
+                # Mavjud mahsulot - Backend'da og'irlikli o'rtacha narx hisoblanadi
+                logger.info(f'Mavjud mahsulot yangilanmoqda (backend) - ID: {product.id}')
+                logger.info(f'   Eski cost_price: ${product.cost_price}')
+                logger.info(f'   Yangi partiya narxi: ${last_batch_cost}')
+                logger.info(f'   Yangi miqdor: {quantity}')
+                logger.info(f'   Kategoriya: {category_id}')
 
-                # Ortacha narxni yangilash
-                product.cost_price = cost_price
+                # Backend'da og'irlikli o'rtacha hisoblash
+                average_cost = calculate_average_cost(
+                    product.id, int(quantity), last_batch_cost
+                )
+                logger.info(f"   Hisoblangan o'rtacha: ${average_cost}")
+
+                # Ortacha narxni saqlash
+                product.cost_price = average_cost
 
                 # Barcode yangilash (agar kiritilgan bo'lsa)
                 if barcode:
