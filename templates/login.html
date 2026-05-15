@@ -917,9 +917,16 @@ document.getElementById('resetModal').addEventListener('click', function(e) {
     const usernameInput = document.getElementById('username') || document.querySelector('input[name="username"]');
     const passwordInput = document.getElementById('password') || document.querySelector('input[name="password"]');
 
+    function isInputFilled(el) {
+        if (!el) return false;
+        if (el.value.trim().length > 0) return true;
+        // Brauzer autofill ni aniqlash (Chrome/Edge autofill .value ni bo'sh qaytaradi)
+        try { if (el.matches(':-webkit-autofill')) return true; } catch(e) {}
+        return false;
+    }
+
     function isFilled() {
-        return (usernameInput && usernameInput.value.trim().length > 0) &&
-               (passwordInput && passwordInput.value.trim().length > 0);
+        return isInputFilled(usernameInput) && isInputFilled(passwordInput);
     }
 
     let isRunaway = false;
