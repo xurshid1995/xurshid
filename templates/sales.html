@@ -6212,7 +6212,7 @@
                 total_uzs: totalUZS,
                 exchange_rate: exchangeRate,
                 // Payment status ni avtomatik aniqlash
-                payment_status: debtUSD > 0 ? ((cashUSD + clickUSD + terminalUSD + balanceUsed) > 0 ? 'partial' : 'debt') : 'paid',
+                payment_status: debtUSD > 0 ? 'partial' : 'paid',
                 // Qarz to'lash muddati
                 payment_due_date: (() => {
                     if (debtUSD <= 0) return null;
