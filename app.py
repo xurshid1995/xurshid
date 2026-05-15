@@ -1219,6 +1219,37 @@ class DebtReminder(db.Model):
         }
 
 
+# Mijoz amallar tarixi snapshot modeli (timeline uchun immutable yozuvlar)
+class CustomerTimelineSnapshot(db.Model):
+    __tablename__ = 'customer_timeline_snapshot'
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, nullable=False, index=True)
+    event_type = db.Column(db.String(20), nullable=False)   # 'sale', 'payment', 'return'
+    event_id = db.Column(db.Integer, nullable=False)         # sale.id yoki debt_payment.id
+    event_date = db.Column(db.DateTime, nullable=False)
+    snapshot_data = db.Column(db.JSON, nullable=False, default=dict)
+    debt_before = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    debt_after = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    balance_before = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    balance_after = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'customer_id': self.customer_id,
+            'event_type': self.event_type,
+            'event_id': self.event_id,
+            'event_date': self.event_date.strftime('%Y-%m-%d %H:%M') if self.event_date else None,
+            'snapshot_data': self.snapshot_data,
+            'debt_before': float(self.debt_before or 0),
+            'debt_after': float(self.debt_after or 0),
+            'balance_before': float(self.balance_before or 0),
+            'balance_after': float(self.balance_after or 0),
+        }
+
+
 # Foydalanuvchilar modeli
 class User(db.Model):
     __tablename__ = 'users'
@@ -3868,20 +3899,86 @@ def customer_timeline(customer_id):
 @app.route('/api/customer/<int:customer_id>/timeline')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_customer_timeline(customer_id):
-    """Mijoz barcha amallarini ketma-ketlikda qaytaradi (savdolar + to'lovlar)"""
+    """Mijoz barcha amallarini ketma-ketlikda qaytaradi (savdolar + tolovlar)"""
     try:
         customer = Customer.query.get_or_404(customer_id)
         events = []
 
-        # Savdolarni olish
-        sales = Sale.query.filter_by(customer_id=customer_id).order_by(Sale.sale_date.desc()).all()
-        for sale in sales:
+        # Snapshot yozuvlarini olish (yangi, immutable)
+        snapshots = CustomerTimelineSnapshot.query.filter_by(
+            customer_id=customer_id
+        ).order_by(CustomerTimelineSnapshot.event_date.desc()).all()
+        snap_sale_ids = {s.event_id for s in snapshots if s.event_type == 'sale'}
+        snap_payment_ids = {s.event_id for s in snapshots if s.event_type == 'payment'}
+
+        # Snapshot savdolarini qayta ishlash (payment_status immutable)
+        for snap in snapshots:
+            sd = snap.snapshot_data or {}
+            if snap.event_type == 'sale':
+                items_list = [
+                    {
+                        'product_name': it.get('name', 'Nomаlum'),
+                        'quantity': float(it.get('quantity', 0)),
+                        'unit_price': float(it.get('unit_price', 0)),
+                        'total': float(it.get('total_price', 0))
+                    }
+                    for it in sd.get('items', [])
+                ]
+                events.append({
+                    'type': 'sale',
+                    'id': snap.event_id,
+                    'date': snap.event_date.strftime('%Y-%m-%d %H:%M:%S') if snap.event_date else None,
+                    'total_amount': float(sd.get('total_amount', 0)),
+                    'payment_status': sd.get('payment_status', 'unknown'),
+                    'cash_usd': float(sd.get('cash_usd', 0)),
+                    'click_usd': float(sd.get('click_usd', 0)),
+                    'terminal_usd': float(sd.get('terminal_usd', 0)),
+                    'debt_usd': float(sd.get('debt_usd', 0)),
+                    'currency_rate': float(sd.get('currency_rate', 0)),
+                    'seller': sd.get('seller', ''),
+                    'notes': sd.get('notes', ''),
+                    'items': items_list,
+                    'items_count': len(items_list),
+                    'debt_before': float(snap.debt_before or 0),
+                    'debt_after': float(snap.debt_after or 0),
+                    'balance_before': float(snap.balance_before or 0),
+                    'balance_after': float(snap.balance_after or 0),
+                    'has_snapshot': True
+                })
+            elif snap.event_type == 'payment':
+                events.append({
+                    'type': 'payment',
+                    'id': snap.event_id,
+                    'date': snap.event_date.strftime('%Y-%m-%d %H:%M:%S') if snap.event_date else None,
+                    'total_usd': float(sd.get('total_paid', 0)),
+                    'cash_usd': float(sd.get('cash_usd', 0)),
+                    'click_usd': float(sd.get('click_usd', 0)),
+                    'terminal_usd': float(sd.get('terminal_usd', 0)),
+                    'currency_rate': float(sd.get('currency_rate', 0)),
+                    'received_by': sd.get('received_by', ''),
+                    'notes': sd.get('notes', ''),
+                    'sale_id': sd.get('sale_ids', [None])[0] if sd.get('sale_ids') else None,
+                    'sale_ids': sd.get('sale_ids', []),
+                    'debt_before': float(snap.debt_before or 0),
+                    'debt_after': float(snap.debt_after or 0),
+                    'balance_before': float(snap.balance_before or 0),
+                    'balance_after': float(snap.balance_after or 0),
+                    'has_snapshot': True
+                })
+
+        # Eski savdolarni olish (snapshot yoq)
+        sales_query = Sale.query.filter_by(customer_id=customer_id)
+        if snap_sale_ids:
+            sales_query = sales_query.filter(~Sale.id.in_(snap_sale_ids))
+        legacy_sales = sales_query.order_by(Sale.sale_date.desc()).all()
+
+        for sale in legacy_sales:
             items_list = []
             for item in sale.items:
                 try:
-                    pname = item.product.name if item.product else 'Noma\'lum'
+                    pname = item.product.name if item.product else 'Nomаlum'
                 except Exception:
-                    pname = 'Noma\'lum'
+                    pname = 'Nomаlum'
                 items_list.append({
                     'product_name': pname,
                     'quantity': float(item.quantity or 0),
@@ -3899,15 +3996,20 @@ def api_customer_timeline(customer_id):
                 'terminal_usd': float(sale.terminal_usd or 0),
                 'debt_usd': float(sale.debt_usd or 0),
                 'currency_rate': float(sale.currency_rate or 0),
-                'seller': f"{sale.seller.first_name} {sale.seller.last_name}".strip() if sale.seller else 'Noma\'lum',
+                'seller': f"{sale.seller.first_name} {sale.seller.last_name}".strip() if sale.seller else 'Nomаlum',
                 'notes': sale.notes or '',
                 'items': items_list,
-                'items_count': len(items_list)
+                'items_count': len(items_list),
+                'has_snapshot': False
             })
 
-        # Qarz to'lovlarini olish
-        payments = DebtPayment.query.filter_by(customer_id=customer_id).order_by(DebtPayment.payment_date.desc()).all()
-        for p in payments:
+        # Eski tolovlarni olish (snapshot yoq)
+        pay_query = DebtPayment.query.filter_by(customer_id=customer_id)
+        if snap_payment_ids:
+            pay_query = pay_query.filter(~DebtPayment.id.in_(snap_payment_ids))
+        legacy_payments = pay_query.order_by(DebtPayment.payment_date.desc()).all()
+
+        for p in legacy_payments:
             events.append({
                 'type': 'payment',
                 'id': p.id,
@@ -3919,15 +4021,16 @@ def api_customer_timeline(customer_id):
                 'currency_rate': float(p.currency_rate or 0),
                 'received_by': p.received_by or '',
                 'notes': p.notes or '',
-                'sale_id': p.sale_id
+                'sale_id': p.sale_id,
+                'has_snapshot': False
             })
 
-        # Qaytarilgan mahsulotlarni olish (operation_history orqali)
-        sale_ids = [s.id for s in sales]
-        if sale_ids:
+        # Qaytarilgan mahsulotlar (operation_history)
+        all_sale_ids = list(snap_sale_ids) + [s.id for s in legacy_sales]
+        if all_sale_ids:
             returns = OperationHistory.query.filter(
                 OperationHistory.operation_type == 'return',
-                OperationHistory.record_id.in_(sale_ids)
+                OperationHistory.record_id.in_(all_sale_ids)
             ).order_by(OperationHistory.created_at.desc()).all()
             for r in returns:
                 nd = r.new_data or {}
@@ -3936,59 +4039,47 @@ def api_customer_timeline(customer_id):
                     'id': r.id,
                     'date': r.created_at.strftime('%Y-%m-%d %H:%M:%S') if r.created_at else None,
                     'sale_id': nd.get('sale_id') or r.record_id,
-                    'product_name': nd.get('product_name', 'Noma\'lum'),
+                    'product_name': nd.get('product_name', 'Nomаlum'),
                     'returned_quantity': float(nd.get('returned_quantity', 0)),
                     'amount_usd': float(nd.get('amount_usd', 0)),
                     'username': r.username or '',
                     'description': r.description or ''
                 })
 
-        # Sanaga ko'ra tartiblash (yangirog'i birinchi)
+        # Sanaga ko ra tartiblash
         events.sort(key=lambda x: x['date'] or '', reverse=True)
 
-        # Haqiqiy qarz = savdolardagi joriy qolgan debt_usd yig'indisi
-        current_debt = sum(float(s.debt_usd or 0) for s in sales if float(s.debt_usd or 0) > 0)
-        total_paid_usd = sum(float(p.total_usd or 0) for p in payments)
+        # Qarz va balans (legacy eventlar uchun orqaga hisoblash)
+        current_debt = sum(float(s.debt_usd or 0) for s in Sale.query.filter_by(customer_id=customer_id).all() if float(s.debt_usd or 0) > 0)
+        total_paid_usd = sum(float(p.total_usd or 0) for p in DebtPayment.query.filter_by(customer_id=customer_id).all())
 
-        # Har bir savdo uchun asl qarz = joriy debt_usd + o'sha savdoga bog'liq to'lovlar
+        all_payments_map = {p.id: float(p.total_usd or 0) for p in DebtPayment.query.filter_by(customer_id=customer_id).all()}
         sale_linked_payments = {}
-        for p in payments:
+        for p in DebtPayment.query.filter_by(customer_id=customer_id).all():
             if p.sale_id:
                 sale_linked_payments[p.sale_id] = sale_linked_payments.get(p.sale_id, 0.0) + float(p.total_usd or 0)
-        original_debt_map = {}
-        for s in sales:
-            orig = float(s.debt_usd or 0) + sale_linked_payments.get(s.id, 0.0)
-            original_debt_map[s.id] = orig
 
-        # --- Orqaga ishlash: oxirgi to'g'ri holatdan (DB) vaqt bo'yicha orqaga ---
-        # Bu yondashuv har doim DB dagi joriy qarz/balans bilan mos keladi
-        final_debt = current_debt
-        final_balance = float(customer.balance or 0)
+        all_sales_map = {s.id: float(s.debt_usd or 0) + sale_linked_payments.get(s.id, 0.0)
+                         for s in Sale.query.filter_by(customer_id=customer_id).all()}
 
-        chrono_rev = sorted(events, key=lambda x: x['date'] or '', reverse=True)
-        rd = final_debt
-        rb = final_balance
-
-        for ev in chrono_rev:
+        rd = current_debt
+        rb = float(customer.balance or 0)
+        for ev in events:
+            if ev.get('has_snapshot'):
+                continue  # snapshot eventlar uchun debt_before/after allaqachon tоgri
             ev['debt_after'] = round(max(0.0, rd), 2)
             ev['balance_after'] = round(max(0.0, rb), 2)
-
             if ev['type'] == 'sale':
-                # Bu savdoni bekor qilish: qarz + orqaga
-                orig = original_debt_map.get(ev['id'], 0.0)
+                orig = all_sales_map.get(ev['id'], 0.0)
                 rd = max(0.0, rd - orig)
-            elif ev['type'] == 'payment':
-                amt = ev.get('total_usd', 0)
+            elif ev['type'] in ('payment', 'return'):
+                amt = ev.get('total_usd', 0) or ev.get('amount_usd', 0)
                 rb -= amt
                 if rb < 0:
                     rd += abs(rb)
                     rb = 0.0
-            elif ev['type'] == 'return':
-                amt = ev.get('amount_usd', 0)
-                rb -= amt
-                if rb < 0:
-                    rd += abs(rb)
-                    rb = 0.0
+            ev['debt_before'] = round(max(0.0, rd), 2)
+            ev['balance_before'] = round(max(0.0, rb), 2)
 
         return jsonify({
             'success': True,
@@ -4005,8 +4096,6 @@ def api_customer_timeline(customer_id):
     except Exception as e:
         app.logger.error(f"Error in customer timeline API: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
 @app.route('/customer/<int:customer_id>')
 @role_required('admin', 'kassir', 'sotuvchi')
 def customer_detail(customer_id):
@@ -8251,6 +8340,35 @@ def api_debt_payment():
 
             except Exception as e:
                 logger.error(f"âŒ Telegram xabar yuborishda xatolik: {e}")
+
+        # CustomerTimelineSnapshot: bitta umumiy payment yozuvi
+        try:
+            pay_snap = CustomerTimelineSnapshot(
+                customer_id=customer_id,
+                event_type='payment',
+                event_id=debt_payment.id,
+                event_date=payment_time_dp,
+                snapshot_data={
+                    'sale_ids': updated_sales,
+                    'cash_usd': float(cash_usd),
+                    'click_usd': float(click_usd),
+                    'terminal_usd': float(terminal_usd),
+                    'total_paid': float(payment_usd - remaining_payment),
+                    'balance_added': float(remaining_payment),
+                    'currency_rate': float(current_rate_dp),
+                    'received_by': session.get('user_name', 'Unknown'),
+                    'notes': notes_dp,
+                },
+                debt_before=Decimal(str(round(float(previous_total_debt), 2))),
+                debt_after=Decimal(str(round(float(total_remaining_debt), 2))),
+                balance_before=Decimal(str(round(float(customer.balance if customer else 0) - float(remaining_payment), 2))),
+                balance_after=Decimal(str(round(float(customer.balance if customer else 0), 2))),
+            )
+            db.session.add(pay_snap)
+            db.session.commit()
+        except Exception as snap_err:
+            logger.warning(f"Payment snapshot xatolik: {snap_err}")
+            db.session.rollback()
 
         return jsonify({
             'success': True,
@@ -13082,6 +13200,65 @@ def create_sale():
                 print(f"ğŸ’³ Mijoz balansidan ${balance_used} ayirildi. Yangi balans: ${float(sale_customer.balance)}")
         
         db.session.commit()
+
+        # CustomerTimelineSnapshot yozish (faqat yangi savdolar uchun, tahrirlash emas)
+        if not is_edit_mode and final_customer_id:
+            try:
+                cust_total_debt = float(db.session.query(
+                    db.func.coalesce(db.func.sum(Sale.debt_usd), 0)
+                ).filter(
+                    Sale.customer_id == final_customer_id,
+                    Sale.debt_usd > 0
+                ).scalar() or 0)
+                sale_debt_now = float(current_sale.debt_usd or 0)
+                snap_debt_after = cust_total_debt
+                snap_debt_before = cust_total_debt - sale_debt_now
+
+                snap_customer = Customer.query.get(final_customer_id)
+                snap_bal_after = float(snap_customer.balance or 0) if snap_customer else 0
+                snap_bal_before = snap_bal_after + float(balance_used)
+
+                items_snap = [
+                    {
+                        'product_id': si.product_id,
+                        'name': si.product.name if si.product else 'Mahsulot',
+                        'quantity': float(si.quantity),
+                        'unit_price': float(si.unit_price or 0),
+                        'total_price': float(si.total_price or 0),
+                    }
+                    for si in current_sale.items
+                ]
+
+                snap = CustomerTimelineSnapshot(
+                    customer_id=final_customer_id,
+                    event_type='sale',
+                    event_id=current_sale.id,
+                    event_date=current_sale.sale_date or get_tashkent_time(),
+                    snapshot_data={
+                        'payment_status': current_sale.payment_status,
+                        'total_amount': float(current_sale.total_amount or 0),
+                        'cash_usd': float(current_sale.cash_usd or 0),
+                        'click_usd': float(current_sale.click_usd or 0),
+                        'terminal_usd': float(current_sale.terminal_usd or 0),
+                        'debt_usd': float(current_sale.debt_usd or 0),
+                        'balance_usd': float(current_sale.balance_usd or 0),
+                        'currency_rate': float(current_sale.currency_rate or 0),
+                        'location': location_name,
+                        'seller': f'{current_user.first_name} {current_user.last_name}',
+                        'items': items_snap,
+                        'notes': current_sale.notes or '',
+                    },
+                    debt_before=Decimal(str(round(snap_debt_before, 2))),
+                    debt_after=Decimal(str(round(snap_debt_after, 2))),
+                    balance_before=Decimal(str(round(snap_bal_before, 2))),
+                    balance_after=Decimal(str(round(snap_bal_after, 2))),
+                )
+                db.session.add(snap)
+                db.session.commit()
+                logger.info(f'Sale snapshot yozildi: sale_id={current_sale.id}, customer_id={final_customer_id}')
+            except Exception as snap_err:
+                logger.warning(f'Sale snapshot xatolik (savdo saqlangan): {snap_err}')
+                db.session.rollback()
 
         return jsonify({
             'success': True,
