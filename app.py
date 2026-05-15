@@ -12782,16 +12782,16 @@ def create_sale():
                 'error': f"To'lov summasi (${payment_total_check:.2f}) mahsulotlar narxiga (${items_total_check:.2f}) mos emas"
             }), 400
 
-        # Payment status ni qarz bo'yicha avtomatik aniqlash
         if debt_usd > 0:
-            # Agar qarz bo'lsa - partial (qisman to'langan)
-            final_payment_status = 'partial'
-            logger.info(f"ğŸ’³ Qarz aniqlandi: {debt_usd} USD, payment_status = 'partial'")
+            paid_cash = cash_usd + click_usd + terminal_usd + balance_used
+            if paid_cash > 0:
+                final_payment_status = 'partial'
+                logger.info(f'Qisman tolangan: cash={paid_cash}, debt={debt_usd}')
+            else:
+                final_payment_status = 'debt'
+                logger.info(f'Toliq qarz: debt={debt_usd}')
         else:
-            # Agar qarz yo'q bo'lsa - to'liq to'langan (pending bo'lsa ham)
             final_payment_status = 'paid'
-            logger.info("âœ… To'liq to'langan, payment_status = 'paid'")
-
         # Payment method ni aniqlash (birinchi to'lov turini olish)
         payment_method = 'cash'  # default
         if click_usd > 0:
