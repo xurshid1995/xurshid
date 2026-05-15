@@ -227,6 +227,7 @@
                 <button id="notifBtn" onclick="toggleNotifPanel()" title="Bildirishnomalar"
                     style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:none; border-radius:8px; background:transparent; cursor:pointer; position:relative; flex-shrink:0; transition: box-shadow 0.2s;">
                     <img src="{{ url_for('static', filename='images/icons8-notification-fluent-96.png') }}" alt="Bildirishnomalar" style="width:22px; height:22px;">
+                    <span id="notifBadge" style="display:none; position:absolute; top:-4px; right:-4px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:16px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
                 </button>
                 <!-- Bildirishnoma paneli -->
                 <div id="notifPanel" style="display:none; position:absolute; top:calc(100% + 8px); right:0; width:320px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:9999; overflow:hidden;">
@@ -427,7 +428,16 @@
                     });
                 }
 
-                // Badge olib tashlandi
+                // Badge ni yangilash
+                const badge = document.getElementById('notifBadge');
+                if (badge) {
+                    if (items.length > 0) {
+                        badge.textContent = items.length > 9 ? '9+' : items.length;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
 
                 // Ro'yxatni render qilish
                 if (items.length === 0) {
@@ -463,12 +473,43 @@
             document.getElementById('notifPanel').style.display = 'none';
             document.getElementById('notifList').innerHTML =
                 '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">✅</div>Hamma narsa joyida!</div>';
+            const badge = document.getElementById('notifBadge');
+            if (badge) badge.style.display = 'none';
             _notifLoaded = true;
         }
 
         // Sahifa yuklanganda bildirishnomalarni tekshirish (faqat badge uchun)
         async function checkNotifCount() {
-            // badge olib tashlandi
+            if (isNotifDismissed()) return;
+            try {
+                const [debtsRes, stockRes] = await Promise.all([
+                    fetch('/api/debts').catch(() => null),
+                    fetch('/api/low-stock-alerts').catch(() => null)
+                ]);
+                let count = 0;
+                const today = new Date(); today.setHours(0,0,0,0);
+                if (debtsRes && debtsRes.ok) {
+                    const d = await debtsRes.json();
+                    count += (d.debts || []).filter(x => {
+                        if (!x.nearest_due_date) return false;
+                        const due = new Date(x.nearest_due_date); due.setHours(0,0,0,0);
+                        return due < today;
+                    }).length;
+                }
+                if (stockRes && stockRes.ok) {
+                    const s = await stockRes.json();
+                    count += (s.items || []).length;
+                }
+                const badge = document.getElementById('notifBadge');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count > 9 ? '9+' : count;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch(e) {}
         }
 
         // Global o'zgaruvchi - barcha sahifalarda ishlaydi
