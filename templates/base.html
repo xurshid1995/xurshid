@@ -1084,5 +1084,95 @@
         });
     </script>
 
+    <!-- ── Global modal keyboard shortcuts: ESC = yopish, Enter = saqlash ── -->
+    <script>
+    (function() {
+        function findActiveModal() {
+            // 1. editModalOverlay (warehouse_detail, store_detail)
+            var m = document.querySelector('#editModalOverlay.active');
+            if (m) return m;
+            // 2. customer_balances
+            m = document.querySelector('.cb-modal-overlay.open');
+            if (m) return m;
+            // 3. style="display:flex" modals (customers, add_product_session va boshqalar)
+            var ids = ['addCustomerModal','editCustomerModal','deleteModal','catEditModal','emCropModal',
+                       'addBalanceModal','editBalanceModal'];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (el && (el.style.display === 'flex' || el.style.display === 'block')) return el;
+            }
+            // 4. Umumiy: ko'rinadigan, fixed pozitsiyali, tugma bo'lgan overlay
+            var all = document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]');
+            for (var j = 0; j < all.length; j++) {
+                var el2 = all[j];
+                if ((el2.style.display === 'flex' || el2.style.display === 'block')
+                    && el2.querySelector('button') && parseInt(el2.style.zIndex || 0) > 100) {
+                    return el2;
+                }
+            }
+            return null;
+        }
+
+        function findCancelBtn(modal) {
+            // Aniq class bo'yicha
+            var b = modal.querySelector('.em-btn-cancel, .cb-modal-cancel, .modal-btn-cancel');
+            if (b) return b;
+            // onclick "close" so'zi bo'lgan birinchi tugma
+            var btns = modal.querySelectorAll('button');
+            for (var i = 0; i < btns.length; i++) {
+                var oc = btns[i].getAttribute('onclick') || '';
+                if (/close/i.test(oc)) return btns[i];
+            }
+            // "Bekor" yoki "×" matni
+            for (var i = 0; i < btns.length; i++) {
+                var txt = btns[i].textContent;
+                if (txt.includes('Bekor') || txt.includes('\u00d7') || txt.trim() === '\u00d7') return btns[i];
+            }
+            return null;
+        }
+
+        function findSaveBtn(modal) {
+            // Aniq ID/class bo'yicha
+            var b = modal.querySelector('#em-save-btn, .cb-modal-save, .em-btn-save, .modal-btn-save');
+            if (b) return b;
+            // type=submit
+            b = modal.querySelector('button[type="submit"]');
+            if (b) return b;
+            // "Saqlash" matni bo'lgan tugma
+            var btns = modal.querySelectorAll('button');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].textContent.includes('Saqlash')) return btns[i];
+            }
+            return null;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape' && e.key !== 'Enter') return;
+
+            var modal = findActiveModal();
+            if (!modal) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                var cancelBtn = findCancelBtn(modal);
+                if (cancelBtn) cancelBtn.click();
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                // Textarea da Enter = yangi qator (to'xtatmaymiz)
+                if (e.target.tagName === 'TEXTAREA') return;
+                // Select da Enter = tanlash (to'xtatmaymiz)
+                if (e.target.tagName === 'SELECT') return;
+                var saveBtn = findSaveBtn(modal);
+                if (saveBtn && !saveBtn.disabled) {
+                    e.preventDefault();
+                    saveBtn.click();
+                }
+            }
+        });
+    })();
+    </script>
+
 </body>
 </html>
