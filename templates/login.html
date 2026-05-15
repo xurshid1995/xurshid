@@ -961,7 +961,7 @@ document.getElementById('resetModal').addEventListener('click', function(e) {
         const dy = e.clientY - btnCY;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 120) {
+        if (dist < 55) {
             const flee = 140;
             const angle = Math.atan2(dy, dx);
             let newLeft = btnRect.left - Math.cos(angle) * flee;
