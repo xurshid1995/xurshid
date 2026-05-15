@@ -2467,7 +2467,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             });
                             
                             // Jami qator (eski qiymatlar bilan)
-                            const currentAveragePrice = totalOldValueCheck / totalQuantityCheck;
+                            const currentAveragePrice = totalQuantityCheck > 0 ? totalOldValueCheck / totalQuantityCheck : 0;
                             comparisonHTML += '<tr style="background: #e3f2fd; font-weight: 600;">';
                             comparisonHTML += '<td style="padding: 4px 6px; color: #1976d2;"></td>';
                             comparisonHTML += '<td style="padding: 4px 6px; color: #1976d2;">JAMI (hozirgi)</td>';
