@@ -275,6 +275,13 @@
     }
     .btn-login:active { transform: translateY(0); }
     .btn-login:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+    .btn-login.runaway {
+        position: fixed;
+        transition: left .12s cubic-bezier(.4,2,.6,1), top .12s cubic-bezier(.4,2,.6,1), box-shadow .2s;
+        cursor: not-allowed;
+        z-index: 9999;
+    }
+    .btn-login.runaway:hover { transform: none; }
 
     /* ── RIGHT: Info side ── */
     .lc-info {
@@ -513,9 +520,11 @@
                     <a href="#" class="forgot-password" onclick="openResetModal(); return false;">{{ t('forgot_password') }}</a>
                 </div>
 
-                <button type="submit" class="btn-login" id="loginBtn" style="margin: 0 auto;">
-                    <i class="fas fa-arrow-right-to-bracket"></i> {{ t('login_button') }}
-                </button>
+                <div id="btnWrapper" style="display:flex;justify-content:center;">
+                    <button type="submit" class="btn-login" id="loginBtn" style="margin: 0 auto;">
+                        <i class="fas fa-arrow-right-to-bracket"></i> {{ t('login_button') }}
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -901,6 +910,69 @@ function toggleResetPass(inputId, iconId) {
 document.getElementById('resetModal').addEventListener('click', function(e) {
     if (e.target === this) closeResetModal();
 });
+
+// ── Qochuvchi tugma ──
+(function() {
+    const btn = document.getElementById('loginBtn');
+    const usernameInput = document.getElementById('username') || document.querySelector('input[name="username"]');
+    const passwordInput = document.getElementById('password') || document.querySelector('input[name="password"]');
+
+    function isFilled() {
+        return (usernameInput && usernameInput.value.trim().length > 0) &&
+               (passwordInput && passwordInput.value.trim().length > 0);
+    }
+
+    let isRunaway = false;
+
+    function enableRunaway() {
+        if (isRunaway) return;
+        isRunaway = true;
+        const rect = btn.getBoundingClientRect();
+        btn.style.width = btn.offsetWidth + 'px';
+        btn.classList.add('runaway');
+        btn.style.left = rect.left + 'px';
+        btn.style.top  = rect.top  + 'px';
+    }
+
+    function disableRunaway() {
+        if (!isRunaway) return;
+        isRunaway = false;
+        btn.classList.remove('runaway');
+        btn.style.left = '';
+        btn.style.top  = '';
+        btn.style.width = '60%';
+    }
+
+    document.addEventListener('mousemove', function(e) {
+        if (isFilled()) { disableRunaway(); return; }
+        if (!isRunaway) enableRunaway();
+
+        const btnRect = btn.getBoundingClientRect();
+        const btnCX = btnRect.left + btnRect.width / 2;
+        const btnCY = btnRect.top  + btnRect.height / 2;
+        const dx = e.clientX - btnCX;
+        const dy = e.clientY - btnCY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 120) {
+            const flee = 140;
+            const angle = Math.atan2(dy, dx);
+            let newLeft = btnRect.left - Math.cos(angle) * flee;
+            let newTop  = btnRect.top  - Math.sin(angle) * flee;
+
+            const margin = 10;
+            newLeft = Math.max(margin, Math.min(window.innerWidth  - btnRect.width  - margin, newLeft));
+            newTop  = Math.max(margin, Math.min(window.innerHeight - btnRect.height - margin, newTop));
+
+            btn.style.left = newLeft + 'px';
+            btn.style.top  = newTop  + 'px';
+        }
+    });
+
+    // Maydon to'ldirilganda tugmani qaytarish
+    if (usernameInput) usernameInput.addEventListener('input', function() { if (isFilled()) disableRunaway(); });
+    if (passwordInput) passwordInput.addEventListener('input', function() { if (isFilled()) disableRunaway(); });
+})();
 </script>
 </body>
 </html>
