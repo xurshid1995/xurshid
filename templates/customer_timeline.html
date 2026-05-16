@@ -276,9 +276,6 @@ function renderSale(e) {
     if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">🏦 Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
     if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
-    if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
-    if (e.seller) chips.push(`<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>`);
-    chips.push(statusBadge(e.payment_status));
 
     const chipsHtml = chips.filter(Boolean).join('');
 
@@ -297,9 +294,12 @@ function renderSale(e) {
         <div class="tl-dot tl-dot-sale"></div>
         <div class="tl-card tl-card-sale">
             <div class="tl-card-header">
-                <div style="display:flex;align-items:center;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
                     <span class="tl-type-badge tl-type-sale">🛒 Savdo ID ${e.id}</span>
+                    ${statusBadge(e.payment_status)}
+                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
+                    ${e.seller ? `<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>` : ''}
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-sale">$${e.total_amount.toFixed(2)}</span>
