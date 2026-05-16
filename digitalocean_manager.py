@@ -183,3 +183,62 @@ class DigitalOceanManager:
         """API token ishlaydimi tekshirish"""
         result = self._request("GET", "account")
         return result is not None
+
+    # ==========================================
+    # TRAFIK / BANDWIDTH MONITORING
+    # ==========================================
+
+    def _calc_bandwidth_gb(self, result: Optional[Dict]) -> float:
+        """DO Monitoring API javobidan GB hisoblash (bps × step_interval)"""
+        if not result:
+            return 0.0
+        try:
+            data = result.get('data', {})
+            results_list = data.get('result', [])
+            if not results_list:
+                return 0.0
+            values = results_list[0].get('values', [])
+            if len(values) < 2:
+                return 0.0
+            # Qadamlar orasidagi vaqt (sekundda)
+            step = values[1][0] - values[0][0]
+            if step <= 0:
+                step = 3600  # default 1 soat
+            total_bits = sum(float(v[1]) * step for v in values)
+            return total_bits / 8 / 1_000_000_000  # GB
+        except Exception as e:
+            logger.error(f"Bandwidth hisoblashda xato: {e}")
+            return 0.0
+
+    def get_monthly_bandwidth_gb(self, droplet_id: int) -> Dict:
+        """Joriy oy trafik ishlatilishini olish (inbound + outbound, GB)"""
+        from datetime import datetime
+        now = datetime.utcnow()
+        month_start = datetime(now.year, now.month, 1)
+        start_ts = int(month_start.timestamp())
+        end_ts = int(now.timestamp())
+
+        base = f"monitoring/metrics/droplet/bandwidth?host_id={droplet_id}&interface=public"
+        outbound_raw = self._request("GET", f"{base}&direction=outbound&start={start_ts}&end={end_ts}")
+        inbound_raw = self._request("GET", f"{base}&direction=inbound&start={start_ts}&end={end_ts}")
+
+        outbound_gb = self._calc_bandwidth_gb(outbound_raw)
+        inbound_gb = self._calc_bandwidth_gb(inbound_raw)
+        used_gb = outbound_gb + inbound_gb
+
+        # Limit: droplet size dan olish
+        limit_gb = 0.0
+        droplet = self.get_droplet(droplet_id)
+        if droplet:
+            transfer_tb = droplet.get('size', {}).get('transfer', 0) or 0
+            limit_gb = float(transfer_tb) * 1024.0
+
+        percent = round(used_gb / limit_gb * 100, 1) if limit_gb > 0 else 0.0
+
+        return {
+            'used_gb': round(used_gb, 2),
+            'outbound_gb': round(outbound_gb, 2),
+            'inbound_gb': round(inbound_gb, 2),
+            'limit_gb': round(limit_gb, 0),
+            'percent': min(percent, 100.0),
+        }

@@ -41,6 +41,11 @@
             balance: 'Balans',
             monthly_payment: 'Oylik to\'lov',
             server: 'Server',
+            traffic: '📡 Trafik (oy)',
+            traffic_used: 'Ishlatilgan',
+            traffic_left: 'Qolgan',
+            traffic_limit: 'Limit',
+            traffic_no_data: 'Ma\'lumot yo\'q',
             scan_telegram_bot: 'Telegram botga o\'tish uchun skanerlang',
             open_telegram: 'Telegram\'da ochish',
             scan_contact: 'Biz bilan bog\'lanish uchun skanerlang',
@@ -61,6 +66,11 @@
             balance: 'Баланс',
             monthly_payment: 'Ойлик тўлов',
             server: 'Сервер',
+            traffic: '📡 Трафик (ой)',
+            traffic_used: 'Ишлатилган',
+            traffic_left: 'Қолган',
+            traffic_limit: 'Лимит',
+            traffic_no_data: 'Маълумот йўқ',
             scan_telegram_bot: 'Telegram ботга ўтиш учун сканерланг',
             open_telegram: 'Telegram\'да очиш',
             scan_contact: 'Биз билан боғланиш учун сканерланг',
@@ -81,6 +91,11 @@
             balance: 'Баланс',
             monthly_payment: 'Ежемесячный платёж',
             server: 'Сервер',
+            traffic: '📡 Трафик (месяц)',
+            traffic_used: 'Использовано',
+            traffic_left: 'Осталось',
+            traffic_limit: 'Лимит',
+            traffic_no_data: 'Нет данных',
             scan_telegram_bot: 'Сканируйте для перехода в Telegram бот',
             open_telegram: 'Открыть в Telegram',
             scan_contact: 'Сканируйте для связи с нами',
@@ -244,6 +259,45 @@
             text-align: center;
             font-size: 11px;
             color: #bbb;
+        }
+
+        #hosting-widget .hw-traffic {
+            margin: 10px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        #hosting-widget .hw-traffic-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #hosting-widget .hw-traffic-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        #hosting-widget .hw-traffic-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        #hosting-widget .hw-traffic-bar.ok   { background: linear-gradient(90deg, #28a745, #20c997); }
+        #hosting-widget .hw-traffic-bar.warn { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+        #hosting-widget .hw-traffic-bar.crit { background: linear-gradient(90deg, #dc3545, #e83e8c); }
+        #hosting-widget .hw-traffic-nums {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #888;
         }
 
         #hw-qr-modal, #hw-qr-modal-contact {
@@ -452,6 +506,46 @@
         }
     };
 
+    // Trafik blokini qurishh
+    function buildTrafficBlock(traffic) {
+        if (!traffic || traffic.limit_gb <= 0) {
+            if (!traffic || traffic.used_gb === undefined) {
+                return '';  // droplet_id yo'q
+            }
+            // Limit yo'q — faqat ishlatilganini ko'rsat
+            var usedStr = traffic.used_gb < 1
+                ? (traffic.used_gb * 1024).toFixed(1) + ' MB'
+                : traffic.used_gb.toFixed(2) + ' GB';
+            return `<div class="hw-traffic">
+                <div class="hw-traffic-title"><span>${T.traffic}</span></div>
+                <div class="hw-traffic-nums">
+                    <span>${T.traffic_used}: <strong>${usedStr}</strong></span>
+                    <span>${T.traffic_limit}: &infin;</span>
+                </div>
+            </div>`;
+        }
+        var pct = Math.min(Math.round(traffic.percent), 100);
+        var leftGb = Math.max(traffic.limit_gb - traffic.used_gb, 0);
+        var barClass = pct < 70 ? 'ok' : pct < 90 ? 'warn' : 'crit';
+        function fmtGb(gb) {
+            return gb < 1 ? (gb * 1024).toFixed(0) + ' MB' : gb.toFixed(1) + ' GB';
+        }
+        return `<div class="hw-traffic">
+            <div class="hw-traffic-title">
+                <span>${T.traffic}</span>
+                <span style="font-weight:700;color:${pct<70?'#28a745':pct<90?'#fd7e14':'#dc3545'}">${pct}%</span>
+            </div>
+            <div class="hw-traffic-bar-wrap">
+                <div class="hw-traffic-bar ${barClass}" style="width:${pct}%"></div>
+            </div>
+            <div class="hw-traffic-nums">
+                <span>${T.traffic_used}: <strong>${fmtGb(traffic.used_gb)}</strong></span>
+                <span>${T.traffic_left}: <strong>${fmtGb(leftGb)}</strong></span>
+                <span>${T.traffic_limit}: ${fmtGb(traffic.limit_gb)}</span>
+            </div>
+        </div>`;
+    }
+
     // Ma'lumotlarni yuklash
     function loadWidgetData() {
         var url = apiBase + '/api/hosting/widget/' + token;
@@ -498,6 +592,8 @@
                         <span class="hw-label">${T.server}</span>
                         <span class="hw-server ${serverClass}">${serverText}</span>
                     </div>
+                    ${buildTrafficBlock(data.traffic)}
+                
                     <div style="margin-top:12px;padding:10px;background:linear-gradient(135deg,#0088cc,#0077b5);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
                       <a href="https://t.me/DgitaloceanHostingTolov_bot" target="_blank" style="text-decoration:none;color:white;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;">
                         <img src="https://img.icons8.com/color/120/telegram-app.png" alt="Telegram" style="width:24px;height:24px;">

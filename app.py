@@ -16792,6 +16792,10 @@ def api_check_and_send_reminders():
 
 
 # ============================================
+# Bandwidth kesh (5 daqiqa TTL)
+_bw_cache = {}
+_BW_CACHE_TTL = 300
+
 # HOSTING ADMIN PANEL ROUTES
 # ============================================
 
@@ -16825,6 +16829,22 @@ def api_hosting_widget_status(token):
             status = 'overdue'
             days_left = 0
 
+        # Trafik ma'lumotini olish (kesh bilan, 5 daqiqa)
+        traffic = None
+        if client.droplet_id:
+            import time as _time
+            _cached = _bw_cache.get(client.droplet_id)
+            if _cached and (_time.time() - _cached['ts']) < _BW_CACHE_TTL:
+                traffic = _cached['data']
+            else:
+                try:
+                    from digitalocean_manager import DigitalOceanManager
+                    do_mgr = DigitalOceanManager()
+                    traffic = do_mgr.get_monthly_bandwidth_gb(client.droplet_id)
+                    _bw_cache[client.droplet_id] = {'data': traffic, 'ts': _time.time()}
+                except Exception as _e:
+                    logger.warning(f"Trafik ma'lumotini olishda xato ({client.name}): {_e}")
+
         # CORS header
         response = jsonify({
             'success': True,
@@ -16836,7 +16856,8 @@ def api_hosting_widget_status(token):
             'days_left': days_left,
             'end_date': end_date,
             'server_status': client.server_status,
-            'status': status
+            'status': status,
+            'traffic': traffic,
         })
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
