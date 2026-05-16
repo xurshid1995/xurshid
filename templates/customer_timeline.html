@@ -222,8 +222,8 @@ function timeOnly(dateStr) {
 function statusBadge(status) {
     if (status === 'paid') return '<span class="tl-status-paid">✅ To\'langan</span>';
     if (status === 'debt') return '<span class="tl-status-debt">💳 Qarz</span>';
-    if (status === 'partial') return '<span class="tl-status-partial">⚠️ Qisman</span>';
-    return '<span class="tl-status-partial">' + status + '</span>';
+    if (status === 'partial') return '<span class="tl-status-debt">💳 Qarz</span>';
+    return '';
 }
 
 function afterRow(e) {
