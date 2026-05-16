@@ -13313,7 +13313,9 @@ def create_sale():
                     event_type='sale', event_id=current_sale.id
                 ).first()
                 if existing_snap:
-                    existing_snap.snapshot_data = snap.snapshot_data
+                    sd_updated = dict(snap.snapshot_data)
+                    sd_updated['is_edited'] = True
+                    existing_snap.snapshot_data = sd_updated
                     existing_snap.debt_before = snap.debt_before
                     existing_snap.debt_after = snap.debt_after
                     existing_snap.balance_before = snap.balance_before
