@@ -242,7 +242,7 @@ function afterRow(e) {
 
 function renderReturn(e) {
     const chipsHtml = [
-        `🔗 Savdo #${e.sale_id}`,
+        `🔗 Savdo ID ${e.sale_id}`,
         `📦 ${e.product_name} × ${e.returned_quantity}`,
         e.username ? `👤 ${e.username}` : ''
     ].filter(Boolean).map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
@@ -317,7 +317,7 @@ function renderPayment(e) {
     if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
     if (e.currency_rate > 0) chips.push(`📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
     if (e.received_by) chips.push(`👤 ${e.received_by}`);
-    if (e.sale_id) chips.push(`🔗 Savdo #${e.sale_id}`);
+    if (e.sale_id) chips.push(`🔗 Savdo ID ${e.sale_id}`);
 
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
@@ -328,7 +328,7 @@ function renderPayment(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment">💳 To'lov #${e.id}</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-payment">+$${e.total_usd.toFixed(2)}</span>
