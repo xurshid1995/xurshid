@@ -189,7 +189,7 @@ class DigitalOceanManager:
     # ==========================================
 
     def _calc_bandwidth_gb(self, result: Optional[Dict]) -> float:
-        """DO Monitoring API javobidan GB hisoblash (bps × step_interval)"""
+        """DO Monitoring API javobidan GB hisoblash (Mbps × step_interval → GB)"""
         if not result:
             return 0.0
         try:
@@ -203,9 +203,10 @@ class DigitalOceanManager:
             # Qadamlar orasidagi vaqt (sekundda)
             step = values[1][0] - values[0][0]
             if step <= 0:
-                step = 3600  # default 1 soat
-            total_bits = sum(float(v[1]) * step for v in values)
-            return total_bits / 8 / 1_000_000_000  # GB
+                step = 3279  # default ~55 daqiqa
+            # DO returns Mbps → Mbits = Mbps × step → GB = Mbits / 8 / 1000
+            total_mbits = sum(float(v[1]) * step for v in values)
+            return total_mbits / 8 / 1_000  # Mbits → MB → GB
         except Exception as e:
             logger.error(f"Bandwidth hisoblashda xato: {e}")
             return 0.0
