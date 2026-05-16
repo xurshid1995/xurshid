@@ -58,6 +58,7 @@
 
 .tl-details { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .tl-detail-chip { font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; color: #475569; }
+.tl-detail-chip-total { font-size: 12px; background: #1e293b; color: #fff; border-radius: 6px; padding: 3px 10px; font-weight: 700; }
 .tl-after-row { display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:12px; }
 .tl-after-label { color:#94a3b8; }
 .tl-after-debt { background:#fee2e2; color:#dc2626; border-radius:5px; padding:2px 8px; font-weight:600; }
@@ -269,16 +270,16 @@ function renderReturn(e) {
 
 function renderSale(e) {
     const chips = [];
-    if (e.total_amount > 0) chips.push(`💰 Jami: $${e.total_amount.toFixed(2)}`);
-    if (e.cash_usd > 0) chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
-    if (e.click_usd > 0) chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
-    if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
-    if ((e.balance_usd || 0) > 0) chips.push(`🏦 Balansdan: $${e.balance_usd.toFixed(2)}`);
-    if (e.debt_usd > 0) chips.push(`📝 Qarz: $${e.debt_usd.toFixed(2)}`);
-    if (e.currency_rate > 0) chips.push(`📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
-    if (e.seller) chips.push(`👤 ${e.seller}`);
+    if (e.total_amount > 0) chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_amount.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
+    if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">🏦 Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
+    if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
+    if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
+    if (e.seller) chips.push(`<span class="tl-detail-chip">👤 ${e.seller}</span>`);
 
-    const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
+    const chipsHtml = chips.join('');
 
     let itemsHtml = '';
     if (e.items && e.items.length > 0) {
