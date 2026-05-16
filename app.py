@@ -3944,6 +3944,10 @@ def api_customer_timeline(customer_id):
                     'debt_after': float(snap.debt_after or 0),
                     'balance_before': float(snap.balance_before or 0),
                     'balance_after': float(snap.balance_after or 0),
+                    'is_deleted': bool(sd.get('is_deleted', False)),
+                    'deleted_by': sd.get('deleted_by', ''),
+                    'deleted_at': sd.get('deleted_at', ''),
+                    'is_edited': bool(sd.get('is_edited', False)),
                     'has_snapshot': True
                 })
             elif snap.event_type == 'payment':
@@ -13253,8 +13257,8 @@ def create_sale():
         
         db.session.commit()
 
-        # CustomerTimelineSnapshot yozish (faqat yangi savdolar uchun, tahrirlash emas)
-        if not is_edit_mode and final_customer_id:
+        # CustomerTimelineSnapshot yozish (yangi va tahrirlangan savdolar uchun)
+        if final_customer_id:
             try:
                 cust_total_debt = float(db.session.query(
                     db.func.coalesce(db.func.sum(Sale.debt_usd), 0)
@@ -13305,9 +13309,21 @@ def create_sale():
                     balance_before=Decimal(str(round(snap_bal_before, 2))),
                     balance_after=Decimal(str(round(snap_bal_after, 2))),
                 )
-                db.session.add(snap)
+                existing_snap = CustomerTimelineSnapshot.query.filter_by(
+                    event_type='sale', event_id=current_sale.id
+                ).first()
+                if existing_snap:
+                    existing_snap.snapshot_data = snap.snapshot_data
+                    existing_snap.debt_before = snap.debt_before
+                    existing_snap.debt_after = snap.debt_after
+                    existing_snap.balance_before = snap.balance_before
+                    existing_snap.balance_after = snap.balance_after
+                    existing_snap.event_date = snap.event_date
+                else:
+                    db.session.add(snap)
                 db.session.commit()
-                logger.info(f'Sale snapshot yozildi: sale_id={current_sale.id}, customer_id={final_customer_id}')
+                action_log = 'yangilandi' if existing_snap else 'yozildi'
+                logger.info(f'Sale snapshot {action_log}: sale_id={current_sale.id}, customer_id={final_customer_id}, is_edit={is_edit_mode}')
             except Exception as snap_err:
                 logger.warning(f'Sale snapshot xatolik (savdo saqlangan): {snap_err}')
                 db.session.rollback()
@@ -13712,6 +13728,16 @@ def delete_sale_with_stock_return(sale_id):
         db.session.add(operation)
 
         # Savdoni o'chirish (cascade delete SaleItems ham o'chiradi)
+        # Snapshot da o'chirilgan deb belgilash
+        del_snap = CustomerTimelineSnapshot.query.filter_by(
+            event_type='sale', event_id=sale_id
+        ).first()
+        if del_snap:
+            sd = dict(del_snap.snapshot_data)
+            sd['is_deleted'] = True
+            sd['deleted_by'] = f'{current_user.first_name} {current_user.last_name}'
+            sd['deleted_at'] = get_tashkent_time().strftime('%Y-%m-%d %H:%M')
+            del_snap.snapshot_data = sd
         db.session.delete(sale)
         db.session.commit()
 
