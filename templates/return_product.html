@@ -836,7 +836,7 @@
                 html += `
                     <tr style="border-bottom: 1px solid #f0f0f0;">
                         <td style="padding: 12px;">${saleDate}</td>
-                        <td style="padding: 12px; text-align: center; font-weight: 600;">#${sale.id}</td>
+                        <td style="padding: 12px; text-align: center; font-weight: 600;">Savdo ID ${sale.id}</td>
                         <td style="padding: 12px;">${sale.customer_name}</td>
                         <td style="padding: 12px; text-align: center; font-weight: 600;">${totalProductTypes}</td>
                         <td style="padding: 12px; text-align: center; font-weight: 600; color: #007bff;">${sale.product_quantity}</td>
@@ -1224,7 +1224,7 @@
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Savdo ID:</div>
-                    <div class="info-value">#${currentSale.id}</div>
+                    <div class="info-value">${currentSale.id}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Mijoz:</div>
@@ -1363,7 +1363,7 @@
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Savdo ID:</div>
-                    <div class="info-value">#${currentSale.id}</div>
+                    <div class="info-value">${currentSale.id}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Mijoz:</div>
@@ -1743,7 +1743,7 @@
                     row.innerHTML = `
                         <td style="padding: 12px;">${item.date}</td>
                         <td style="padding: 12px; text-align: center;">
-                            <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; font-weight: 600;">#${item.sale_id}</span>
+                            <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; font-weight: 600;">Savdo ID ${item.sale_id}</span>
                         </td>
                         <td style="padding: 12px;">${item.product_name}</td>
                         <td style="padding: 12px; text-align: center;">

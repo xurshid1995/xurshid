@@ -2948,7 +2948,7 @@
                     ? `${parseFloat(quantity).toFixed(2)} L` 
                     : (quantity % 1 === 0 ? `${Math.floor(quantity)} ${SLANG.unit_pcs}` : `${parseFloat(quantity).toFixed(1)} ${SLANG.unit_pcs}`);
                 
-                const productName = product.name || `${SLANG.product_prefix} #${product.id}`;
+                const productName = product.name || `${SLANG.product_prefix} ${product.id}`;
                 const safeProductName = productName.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
                 const htmlSafeProductName = escapeHtml(productName);
                 const costPrice = product.cost_price || 0;
@@ -3763,7 +3763,7 @@
         // Savatga yangi mahsulot qo'shish (duplicate allaqachon tekshirilgan)
         cart.push({
             id: currentProduct.id,
-            name: currentProduct?.name || `${SLANG.product_prefix} #${currentProduct?.id || 'Unknown'}`,
+            name: currentProduct?.name || `${SLANG.product_prefix} ${currentProduct?.id || 'Unknown'}`,
             priceUSD: priceUSD,
             priceUZS: priceUZS,
             quantity: quantity
@@ -3779,7 +3779,7 @@
         
         // currentProduct ma'lumotlarini saqlab qo'yish (closeModal() uni null qiladi)
         const addedProduct = {
-            name: currentProduct?.name || `${SLANG.product_prefix} #${currentProduct?.id}`,
+            name: currentProduct?.name || `${SLANG.product_prefix} ${currentProduct?.id}`,
             id: currentProduct?.id
         };
         
@@ -4634,7 +4634,7 @@
                     }
                 }
                 
-                const productName = product.name || `${SLANG.product_prefix} #${product.id}`;
+                const productName = product.name || `${SLANG.product_prefix} ${product.id}`;
                 const safeProductName = productName.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
                 const htmlSafeProductName = escapeHtml(productName);
                 const costPrice = product.cost_price || 0;
