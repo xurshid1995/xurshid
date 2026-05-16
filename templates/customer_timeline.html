@@ -276,8 +276,8 @@ function renderSale(e) {
     if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">🏦 Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
     if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
-    if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
-    if (e.seller) chips.push(`<span class="tl-detail-chip">👤 ${e.seller}</span>`);
+    if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
+    if (e.seller) chips.push(`<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>`);
 
     const chipsHtml = chips.join('');
 
@@ -318,9 +318,9 @@ function renderPayment(e) {
     if (e.cash_usd > 0) chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
     if (e.click_usd > 0) chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
     if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
-    if (e.currency_rate > 0) chips.push(`📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
+    if (e.currency_rate > 0) chips.push(`📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
     if ((e.balance_added || 0) > 0) chips.push(`🏦 Balansga: $${e.balance_added.toFixed(2)}`);
-    if (e.received_by) chips.push(`👤 ${e.received_by}`);
+    if (e.received_by) chips.push(`👤 Qabul qildi: ${e.received_by}`);
     if (e.sale_id) chips.push(`🔗 Savdo ID ${e.sale_id}`);
 
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
