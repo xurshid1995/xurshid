@@ -63,6 +63,7 @@
 .tl-after-debt { background:#fee2e2; color:#dc2626; border-radius:5px; padding:2px 8px; font-weight:600; }
 .tl-after-debt.zero { background:#dcfce7; color:#16a34a; }
 .tl-after-balance { background:#dbeafe; color:#1d4ed8; border-radius:5px; padding:2px 8px; font-weight:600; }
+.tl-after-balance.zero { background:#f1f5f9; color:#94a3b8; }
 .tl-dot-return { color: #f59e0b; background: #f59e0b; }
 .tl-card-return { border-left-color: #f59e0b; }
 .tl-type-return { background: #fef3c7; color: #92400e; }
@@ -229,12 +230,12 @@ function statusBadge(status) {
 function afterRow(e) {
     const debt = e.debt_after != null ? e.debt_after : null;
     const bal = e.balance_after != null ? e.balance_after : null;
-    if (debt === null) return '';
+    if (debt === null && bal === null) return '';
     const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
-    let html = `<div class="tl-after-row">
-        <span class="tl-after-label">Amaldan keyin:</span>
-        <span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span>`;
-    if (bal > 0) html += `<span class="tl-after-balance">Balans: $${bal.toFixed(2)}</span>`;
+    const balCls = bal > 0 ? 'tl-after-balance' : 'tl-after-balance zero';
+    let html = `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span>`;
+    if (debt !== null) html += `<span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span>`;
+    if (bal !== null) html += `<span class="${balCls}">Balans: $${bal.toFixed(2)}</span>`;
     html += `</div>`;
     return html;
 }
