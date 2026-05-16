@@ -3934,6 +3934,7 @@ def api_customer_timeline(customer_id):
                     'click_usd': float(sd.get('click_usd', 0)),
                     'terminal_usd': float(sd.get('terminal_usd', 0)),
                     'debt_usd': float(sd.get('debt_usd', 0)),
+                    'balance_usd': float(sd.get('balance_usd', 0)),
                     'currency_rate': float(sd.get('currency_rate', 0)),
                     'seller': sd.get('seller', ''),
                     'notes': sd.get('notes', ''),
@@ -3957,6 +3958,7 @@ def api_customer_timeline(customer_id):
                     'currency_rate': float(sd.get('currency_rate', 0)),
                     'received_by': sd.get('received_by', ''),
                     'notes': sd.get('notes', ''),
+                    'balance_added': float(sd.get('balance_added', 0)),
                     'sale_id': sd.get('sale_ids', [None])[0] if sd.get('sale_ids') else None,
                     'sale_ids': sd.get('sale_ids', []),
                     'debt_before': float(snap.debt_before or 0),
@@ -3995,6 +3997,7 @@ def api_customer_timeline(customer_id):
                 'click_usd': float(sale.click_usd or 0),
                 'terminal_usd': float(sale.terminal_usd or 0),
                 'debt_usd': float(sale.debt_usd or 0),
+                'balance_usd': float(sale.balance_usd or 0),
                 'currency_rate': float(sale.currency_rate or 0),
                 'seller': f"{sale.seller.first_name} {sale.seller.last_name}".strip() if sale.seller else 'Nomаlum',
                 'notes': sale.notes or '',
@@ -4021,6 +4024,7 @@ def api_customer_timeline(customer_id):
                 'currency_rate': float(p.currency_rate or 0),
                 'received_by': p.received_by or '',
                 'notes': p.notes or '',
+                'balance_added': 0.0,
                 'sale_id': p.sale_id,
                 'has_snapshot': False
             })
