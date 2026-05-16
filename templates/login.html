@@ -962,14 +962,42 @@ document.getElementById('resetModal').addEventListener('click', function(e) {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < 120) {
-            const flee = 140;
+            const flee = 160;
             const angle = Math.atan2(dy, dx);
             let newLeft = btnRect.left - Math.cos(angle) * flee;
             let newTop  = btnRect.top  - Math.sin(angle) * flee;
 
             const margin = 10;
-            newLeft = Math.max(margin, Math.min(window.innerWidth  - btnRect.width  - margin, newLeft));
-            newTop  = Math.max(margin, Math.min(window.innerHeight - btnRect.height - margin, newTop));
+            const maxLeft = window.innerWidth  - btnRect.width  - margin;
+            const maxTop  = window.innerHeight - btnRect.height - margin;
+
+            // Burchakda qotib qolmasin: devorga tegsa perpendikular yo'nalishda siljit
+            const hitLeft  = newLeft < margin;
+            const hitRight = newLeft > maxLeft;
+            const hitTop   = newTop  < margin;
+            const hitBot   = newTop  > maxTop;
+
+            if ((hitLeft || hitRight) && !(hitTop || hitBot)) {
+                // Chap/o'ng devorga tegdi — yuqori/pastga siljit
+                newLeft = Math.max(margin, Math.min(maxLeft, newLeft));
+                newTop  = btnRect.top + (dy > 0 ? -flee : flee);
+            } else if ((hitTop || hitBot) && !(hitLeft || hitRight)) {
+                // Yuqori/past devorga tegdi — chap/o'ngga siljit
+                newTop  = Math.max(margin, Math.min(maxTop, newTop));
+                newLeft = btnRect.left + (dx > 0 ? -flee : flee);
+            } else if (hitLeft || hitRight || hitTop || hitBot) {
+                // Burchak — markazga qarab qoch
+                const cx = window.innerWidth  / 2;
+                const cy = window.innerHeight / 2;
+                const toCX = cx - btnCX;
+                const toCY = cy - btnCY;
+                const toLen = Math.sqrt(toCX*toCX + toCY*toCY) || 1;
+                newLeft = btnRect.left + (toCX / toLen) * flee;
+                newTop  = btnRect.top  + (toCY / toLen) * flee;
+            }
+
+            newLeft = Math.max(margin, Math.min(maxLeft, newLeft));
+            newTop  = Math.max(margin, Math.min(maxTop,  newTop));
 
             btn.style.left = newLeft + 'px';
             btn.style.top  = newTop  + 'px';
