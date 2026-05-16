@@ -278,8 +278,9 @@ function renderSale(e) {
     if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
     if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
     if (e.seller) chips.push(`<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>`);
+    chips.push(statusBadge(e.payment_status));
 
-    const chipsHtml = chips.join('');
+    const chipsHtml = chips.filter(Boolean).join('');
 
     let itemsHtml = '';
     if (e.items && e.items.length > 0) {
@@ -299,7 +300,6 @@ function renderSale(e) {
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
                     <span class="tl-type-badge tl-type-sale">🛒 Savdo ID ${e.id}</span>
-                    ${statusBadge(e.payment_status)}
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-sale">$${e.total_amount.toFixed(2)}</span>
