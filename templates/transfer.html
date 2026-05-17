@@ -251,14 +251,11 @@
             <i class="fas fa-history" style="color:#1a6eff; font-size:16px;"></i>
             <h3>{{ t('tr1_history') }}</h3>
         </div>
-        <div class="transfer1-search-panel" style="display:flex; align-items:center; gap:10px;">
-            <div class="transfer1-search-wrap" style="max-width:320px; flex:1;">
+        <div class="transfer1-search-panel">
+            <div class="transfer1-search-wrap">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="historySearch" class="transfer1-search-input" placeholder="{{ t('tr1_search') }}">
             </div>
-            <button onclick="exportTransferHistoryToExcel()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#1d6f42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;height:38px;">
-                <img src="https://img.icons8.com/color/20/microsoft-excel-2019--v1.png" style="width:18px;height:18px;"> Excel
-            </button>
         </div>
         <div class="transfer1-table-wrap">
             <table class="transfer1-table" id="transferHistoryTable">
@@ -287,8 +284,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- SheetJS kutubxonasi Excel eksport uchun -->
-<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     const TR1LANG = {
         no_pending: {{ t('tr1_no_pending')|tojson }},
@@ -523,37 +518,6 @@
         }
     }
     
-    // Transfer tarixi Excel eksport
-    function exportTransferHistoryToExcel() {
-        if (typeof XLSX === 'undefined') {
-            alert('❌ Excel kutubxonasi yuklanmadi, sahifani yangilang.');
-            return;
-        }
-        const table = document.getElementById('transferHistoryTable');
-        if (!table) { alert('❌ Jadval topilmadi.'); return; }
-
-        const rows = [];
-        // Sarlavha
-        const headers = [];
-        table.querySelectorAll('thead th').forEach(th => headers.push(th.innerText.trim()));
-        rows.push(headers);
-
-        // Ma'lumotlar
-        table.querySelectorAll('tbody tr').forEach(tr => {
-            if (tr.style.display === 'none') return;
-            const cells = [];
-            tr.querySelectorAll('td').forEach(td => cells.push(td.innerText.trim()));
-            if (cells.some(c => c)) rows.push(cells);
-        });
-
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [18, 14, 14, 40, 12, 14].map(w => ({ wch: w }));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Transfer Tarixi');
-        const today = new Date().toISOString().slice(0, 10);
-        XLSX.writeFile(wb, `transfer_tarixi_${today}.xlsx`);
-    }
-
     // Transfer tarixini yuklash
     async function loadTransferHistory() {
         try {

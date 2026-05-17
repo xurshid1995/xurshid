@@ -769,8 +769,11 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 0;">
-                <input type="text" id="transferListSearch" class="search-input" placeholder="{{ t('placeholder_search') }}" onkeyup="filterTransferList()">
+            <div style="margin-bottom: 0; display:flex; align-items:center; gap:8px;">
+                <input type="text" id="transferListSearch" class="search-input" placeholder="{{ t('placeholder_search') }}" onkeyup="filterTransferList()" style="flex:1; min-width:0;">
+                <button onclick="exportTransferListToExcel()" title="Excel" style="display:flex;align-items:center;gap:5px;padding:7px 13px;background:#1d6f42;color:white;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;height:36px;flex-shrink:0;">
+                    <img src="https://img.icons8.com/color/20/microsoft-excel-2019--v1.png" style="width:16px;height:16px;"> Excel
+                </button>
             </div>
 
             <div class="products-table-container">
@@ -848,7 +851,40 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- SheetJS kutubxonasi Excel eksport uchun -->
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
+    // Transfer ro'yxatini Excel ga eksport qilish
+    function exportTransferListToExcel() {
+        if (typeof XLSX === 'undefined') {
+            alert('❌ Excel kutubxonasi yuklanmadi, sahifani yangilang.');
+            return;
+        }
+        const table = document.getElementById('transferListTable');
+        if (!table) { alert('❌ Jadval topilmadi.'); return; }
+
+        const rows = [];
+        const headers = [];
+        table.querySelectorAll('thead th').forEach(th => headers.push(th.innerText.trim()));
+        rows.push(headers);
+
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            if (tr.style.display === 'none') return;
+            const cells = [];
+            tr.querySelectorAll('td').forEach(td => cells.push(td.innerText.trim()));
+            if (cells.some(c => c)) rows.push(cells);
+        });
+
+        if (rows.length <= 1) { alert('❌ Eksport qilish uchun ma\'lumot yo\'q.'); return; }
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [40, 12, 12, 10].map(w => ({ wch: w }));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transfer');
+        const today = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `transfer_${today}.xlsx`);
+    }
+
     const TLANG = {
         warehouses_group: {{ t("warehouses_group")|tojson }},
         stores_group: {{ t("stores_group")|tojson }},
