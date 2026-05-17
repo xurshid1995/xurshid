@@ -7348,6 +7348,67 @@ def api_warehouse_stats():
     })
 
 
+@app.route('/api/omborchi-dashboard')
+@role_required('admin', 'omborchi')
+def api_omborchi_dashboard():
+    """Omborchi uchun dashboard ma'lumotlari: omborlar holati, kam qolgan mahsulotlar, so'nggi transferlar"""
+    try:
+        # 1. Omborlar holati
+        warehouses = Warehouse.query.order_by(Warehouse.name).all()
+        warehouse_data = []
+        for wh in warehouses:
+            stocks = WarehouseStock.query.filter_by(warehouse_id=wh.id).all()
+            total_qty = sum(float(s.quantity) for s in stocks)
+            product_count = len(stocks)
+            low_count = sum(
+                1 for s in stocks
+                if float(s.quantity) == 0 or (s.min_stock > 0 and float(s.quantity) <= s.min_stock)
+            )
+            warehouse_data.append({
+                'id': wh.id,
+                'name': wh.name,
+                'product_count': product_count,
+                'total_qty': total_qty,
+                'low_stock_count': low_count
+            })
+
+        # 2. Kam qolgan mahsulotlar (barcha omborlardan, max 30 ta)
+        low_stocks_query = WarehouseStock.query.filter(
+            db.or_(
+                WarehouseStock.quantity == 0,
+                db.and_(
+                    WarehouseStock.min_stock > 0,
+                    WarehouseStock.quantity <= WarehouseStock.min_stock
+                )
+            )
+        ).order_by(WarehouseStock.quantity.asc()).limit(30).all()
+
+        low_stock_data = []
+        for s in low_stocks_query:
+            low_stock_data.append({
+                'product_name': s.product.name if s.product else 'Noma\'lum',
+                'barcode': s.product.barcode if s.product else '',
+                'quantity': float(s.quantity),
+                'min_stock': s.min_stock,
+                'warehouse_name': s.warehouse.name if s.warehouse else 'Noma\'lum',
+                'status': 'critical' if float(s.quantity) == 0 else 'low'
+            })
+
+        # 3. So'nggi 10 ta transfer
+        recent_transfers = Transfer.query.order_by(Transfer.created_at.desc()).limit(10).all()
+        transfer_data = [t.to_dict() for t in recent_transfers]
+
+        return jsonify({
+            'warehouses': warehouse_data,
+            'low_stocks': low_stock_data,
+            'recent_transfers': transfer_data
+        })
+
+    except Exception as e:
+        logger.error(f"Omborchi dashboard xatolik: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/warehouse/<int:warehouse_id>', methods=['DELETE'])
 def api_delete_warehouse(warehouse_id):
     try:

@@ -13,6 +13,7 @@
 
     <div class="row g-4">
 
+{% if session.role != 'omborchi' %}
         <!-- ===== Chart Card (full width) ===== -->
         <div class="col-12">
             <div class="db-card">
@@ -72,6 +73,39 @@
 
             </div>
         </div>
+{% endif %}
+
+{% if session.role == 'omborchi' %}
+        <!-- ===== Omborchi Dashboard ===== -->
+        <div class="col-12">
+            <div class="db-card">
+                <div class="db-card-head">
+                    <span class="db-card-label">🏭 Omborlar holati</span>
+                    <button onclick="loadOmborchiDashboard()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
+                </div>
+                <div id="warehouseCardsContainer" style="display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="db-card">
+                <div class="db-card-head">
+                    <span class="db-card-label">⚠️ Kam qolgan mahsulotlar</span>
+                    <span id="lowStockCount" style="background:#fee2e2;color:#dc2626;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;">0</span>
+                </div>
+                <div id="lowStockList" style="max-height:400px;overflow-y:auto;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="db-card">
+                <div class="db-card-head">
+                    <span class="db-card-label">🔄 So\'nggi transferlar</span>
+                </div>
+                <div id="recentTransfersList" style="max-height:400px;overflow-y:auto;"></div>
+            </div>
+        </div>
+{% endif %}
 
     </div>
 </div>
@@ -476,11 +510,15 @@ const userRole = '{{ session.role }}';
 let currentPeriod = 'today';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Avval valyuta kursini yuklash, keyin savdo ma'lumotlarini
-    waitForCurrencyRate().then(() => {
-        loadLocations();
-        loadSalesChart();
-    });
+    if (userRole === 'omborchi') {
+        loadOmborchiDashboard();
+    } else {
+        // Avval valyuta kursini yuklash, keyin savdo ma'lumotlarini
+        waitForCurrencyRate().then(() => {
+            loadLocations();
+            loadSalesChart();
+        });
+    }
 });
 
 // Valyuta kursi yuklanguncha kutish
@@ -1002,6 +1040,87 @@ function updateStatistics(data) {
         totalAmount: totalAmount, 
         totalProfit: totalProfit
     });
+}
+
+// ===== OMBORCHI DASHBOARD =====
+async function loadOmborchiDashboard() {
+    try {
+        const res = await fetch('/api/omborchi-dashboard');
+        if (!res.ok) throw new Error('API xatolik: ' + res.status);
+        const data = await res.json();
+        renderWarehouseCards(data.warehouses || []);
+        renderLowStocks(data.low_stocks || []);
+        renderRecentTransfers(data.recent_transfers || []);
+    } catch (e) {
+        console.error('Omborchi dashboard xatolik:', e);
+    }
+}
+
+function renderWarehouseCards(warehouses) {
+    const container = document.getElementById('warehouseCardsContainer');
+    if (!container) return;
+    if (!warehouses.length) {
+        container.innerHTML = '<p style="color:#94a3b8;padding:8px;">Omborlar topilmadi</p>';
+        return;
+    }
+    container.innerHTML = warehouses.map(wh => `
+        <div style="flex:1;min-width:200px;background:#f8fafc;border-radius:12px;padding:16px 20px;border-left:4px solid ${wh.low_stock_count > 0 ? '#f59e0b' : '#14b8a6'};">
+            <div style="font-size:13px;color:#64748b;margin-bottom:4px;">🏭 ${wh.name}</div>
+            <div style="font-size:22px;font-weight:800;color:#1e293b;">${wh.product_count} <span style="font-size:13px;font-weight:500;color:#64748b;">mahsulot turi</span></div>
+            <div style="font-size:13px;color:#475569;margin-top:4px;">Jami: ${wh.total_qty.toLocaleString()} dona</div>
+            ${wh.low_stock_count > 0 ? `<div style="margin-top:6px;font-size:12px;color:#d97706;font-weight:600;">⚠️ ${wh.low_stock_count} ta kam qolgan</div>` : `<div style="margin-top:6px;font-size:12px;color:#0d9488;font-weight:600;">✅ Zaxira yetarli</div>`}
+        </div>
+    `).join('');
+}
+
+function renderLowStocks(items) {
+    const list = document.getElementById('lowStockList');
+    const countEl = document.getElementById('lowStockCount');
+    if (!list) return;
+    if (countEl) countEl.textContent = items.length;
+    if (!items.length) {
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#0d9488;font-size:14px;">✅ Barcha mahsulotlar yetarli darajada</div>';
+        return;
+    }
+    list.innerHTML = items.map(item => `
+        <div style="display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid #f1f5f9;gap:12px;">
+            <span style="font-size:18px;">${item.status === 'critical' ? '🚨' : '⚠️'}</span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.product_name}</div>
+                <div style="font-size:11px;color:#64748b;">${item.warehouse_name}${item.barcode ? ' • ' + item.barcode : ''}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;color:${item.status === 'critical' ? '#dc2626' : '#d97706'}">${item.quantity}</div>
+                <div style="font-size:10px;color:#94a3b8;">min: ${item.min_stock}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderRecentTransfers(transfers) {
+    const list = document.getElementById('recentTransfersList');
+    if (!list) return;
+    if (!transfers.length) {
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:14px;">Transferlar topilmadi</div>';
+        return;
+    }
+    list.innerHTML = transfers.map(t => {
+        const dt = new Date(t.created_at);
+        const dateStr = dt.toLocaleDateString('uz-UZ', {day:'2-digit', month:'2-digit'}) + ' ' + dt.toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'});
+        const isOut = t.from_location_type === 'warehouse';
+        return `
+        <div style="display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid #f1f5f9;gap:12px;">
+            <span style="font-size:18px;">${isOut ? '📤' : '📥'}</span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.product_name}</div>
+                <div style="font-size:11px;color:#64748b;">${t.from_location_name} → ${t.to_location_name}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;color:#1e293b;">${t.quantity}</div>
+                <div style="font-size:10px;color:#94a3b8;">${dateStr}</div>
+            </div>
+        </div>`;
+    }).join('');
 }
 </script>
 {% endblock %}
