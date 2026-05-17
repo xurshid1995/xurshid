@@ -397,8 +397,7 @@
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
                                 // Omborchi: mahsulotlarni ko'rish/tahrirlash va yig'ishni boshlash
                                 actionButtons = `
-                                    <a href="/transfer_session?id=${pending.id}" class="btn-sm" style="background:#1a6eff;color:white;text-decoration:none;">▶️ Davom ettirish</a>
-                                    <button class="btn-sm" style="background:#17a2b8;color:white;margin-left:5px;" onclick="warehouseConfirm(${pending.id}); return false;">📦 Yig'ishni boshlash</button>
+                                    <a href="/transfer_session?id=${pending.id}&mode=dispatch" class="btn-sm" style="background:#17a2b8;color:white;text-decoration:none;">📦 Yig'ishni boshlash</a>
                                 `;
                             } else {
                                 // Sotuvchi: hech narsa qila olmaydi — faqat kutadi

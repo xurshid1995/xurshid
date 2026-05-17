@@ -689,6 +689,12 @@
         <div style="font-size:13px; color:#0c5460; margin-top:4px;">Quyidagi mahsulotlar ro'yxatini tekshiring va hammasi to'liq kelgan bo'lsa tasdiqlang.</div>
     </div>
 
+    <!-- Yig'ish banneri (faqat mode=dispatch da ko'rinadi) -->
+    <div id="dispatchBanner" style="display:none; background:#cce5ff; border:1px solid #b8daff; border-radius:10px; padding:14px 20px; margin-bottom:10px;">
+        <div style="font-size:16px; font-weight:600; color:#004085;">📦 Mahsulotlarni Yig'ish</div>
+        <div style="font-size:13px; color:#004085; margin-top:4px;">Ro'yxatdagi mahsulotlarni yig'ing, kerakli miqdorlarni tekshiring va "Sotuvchiga jo'natish" tugmasini bosing.</div>
+    </div>
+
     <div class="transfer-layouts">
         <!-- Chap layout - Mahsulot tanlash -->
         <div class="transfer-layout">
@@ -796,6 +802,10 @@
             <!-- Kirim tasdiqlash tugmasi (faqat mode=receive da) -->
             <div class="action-buttons" id="receiveActionButtons" style="display:none;">
                 <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="confirmReceiveTransfer()">✅ Kirimni tasdiqlash</button>
+            </div>
+            <!-- Sotuvchiga jonatish tugmasi (faqat mode=dispatch da) -->
+            <div class="action-buttons" id="dispatchActionButtons" style="display:none;">
+                <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">📦 Sotuvchiga jo'natish</button>
             </div>
         </div>
     </div>
@@ -1777,7 +1787,9 @@
     // Transfer ro'yxatini ko'rsatish
     function updateTransferListDisplay() {
         const tbody = document.getElementById('transferList');
-        const isReceiveMode = new URLSearchParams(window.location.search).get('mode') === 'receive';
+        const urlMode = new URLSearchParams(window.location.search).get('mode');
+        const isReceiveMode = urlMode === 'receive';
+        const isDispatchMode = urlMode === 'dispatch';
         
         if (transferList.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📋</div><div>' + TLANG.transfer_add_product + '</div></td></tr>';
@@ -2129,6 +2141,66 @@
         console.log('✅ Kirim tekshiruvi rejimi yoqildi');
     }
 
+    // Yig'ish rejimini yoqish (omborchi)
+    function enableDispatchMode() {
+        // Grid ni bir ustunli qilish (chap panel kerak emas)
+        const layouts = document.querySelectorAll('.transfer-layout');
+        if (layouts.length >= 1) layouts[0].style.display = 'none';
+
+        const grid = document.querySelector('.transfer-layouts');
+        if (grid) grid.style.gridTemplateColumns = '1fr';
+
+        // Amallar tugmalarini almashtirish
+        document.getElementById('normalActionButtons').style.display = 'none';
+        document.getElementById('dispatchActionButtons').style.display = 'flex';
+
+        // Dispatch banneri ko'rsatish
+        document.getElementById('dispatchBanner').style.display = 'block';
+
+        // Sarlavhani o'zgartirish
+        document.getElementById('pageTitle').textContent = '📦 Mahsulotlarni Yig\'ish';
+
+        // Qidiruv inputni ko'rsatib qolish (omborchi mahsulot qidira oladi)
+        console.log('✅ Yig\'ish rejimi yoqildi');
+    }
+
+    // Sotuvchiga jo'natish (dispatch mode dan)
+    async function confirmDispatchTransfer() {
+        if (!currentPendingTransferId) {
+            alert('❌ Transfer ID topilmadi');
+            return;
+        }
+
+        if (!confirm('📦 Mahsulotlar yig\'ildi va sotuvchiga jo\'natilsinmi?')) return;
+
+        const btn = document.querySelector('#dispatchActionButtons button');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ Jo\'natilmoqda...';
+
+        try {
+            const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/warehouse-confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+
+            if (response.ok && (result.success || result.message)) {
+                alert('✅ Transfer sotuvchiga muvaffaqiyatli jo\'natildi!');
+                window.location.href = '/transfer';
+            } else {
+                alert('❌ Xatolik: ' + (result.error || result.message || 'Noma\'lum xatolik'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('❌ Jo\'natishda xatolik:', error);
+            alert('❌ Serverga ulanishda xatolik');
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
     // Kirimni tasdiqlash (receive mode dan)
     async function confirmReceiveTransfer() {
         if (!currentPendingTransferId) {
@@ -2364,11 +2436,16 @@
         const isNewTransfer = urlParams.get('new') === 'true';
         const pendingId = urlParams.get('id');
         const isReceiveMode = urlParams.get('mode') === 'receive';
+        const isDispatchMode = urlParams.get('mode') === 'dispatch';
         
         if (isReceiveMode && pendingId) {
-            // Kirim tekshiruvi rejimi
+            // Kirim tekshiruvi rejimi (sotuvchi)
             await loadPendingTransfer();
             enableReceiveMode();
+        } else if (isDispatchMode && pendingId) {
+            // Yig'ish rejimi (omborchi)
+            await loadPendingTransfer();
+            enableDispatchMode();
         } else if (isNewTransfer) {
             // Yangi transfer boshlash - ID'ni o'chirish
             currentPendingTransferId = null;
