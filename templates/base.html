@@ -1135,12 +1135,17 @@
             // 2. customer_balances
             m = document.querySelector('.cb-modal-overlay.open');
             if (m) return m;
-            // 3. style="display:flex" modals (customers, add_product_session, sales va boshqalar)
-            var ids = ['quantityModal','paymentModal','addCustomerModal','editCustomerModal','deleteModal','catEditModal','emCropModal',
+            // 3. style="display:flex" modals (customers, add_product_session va boshqalar)
+            var ids = ['paymentModal','addCustomerModal','editCustomerModal','deleteModal','catEditModal','emCropModal',
                        'addBalanceModal','editBalanceModal'];
             for (var i = 0; i < ids.length; i++) {
                 var el = document.getElementById(ids[i]);
                 if (el && (el.style.display === 'flex' || el.style.display === 'block')) return el;
+            }
+            // 3b. sales.html tab-specific modals: quantityModal_tab{N}
+            var tabModals = document.querySelectorAll('[id^="quantityModal"]');
+            for (var t = 0; t < tabModals.length; t++) {
+                if (tabModals[t].style.display === 'flex' || tabModals[t].style.display === 'block') return tabModals[t];
             }
             // 4. Umumiy: ko'rinadigan, fixed pozitsiyali, tugma bo'lgan overlay
             var all = document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]');
