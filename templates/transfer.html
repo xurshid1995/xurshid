@@ -395,9 +395,9 @@
                             `;
                         } else if (status === 'sent') {
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
-                                // Omborchi: mahsulotlarni ko'rish/tahrirlash va yig'ishni boshlash
+                                // Omborchi: mahsulotlarni ko'rish/tahrirlash
                                 actionButtons = `
-                                    <a href="/transfer_session?id=${pending.id}&mode=dispatch" class="btn-sm" style="background:#17a2b8;color:white;text-decoration:none;">📦 Yig'ishni boshlash</a>
+                                    <a href="/transfer_session?id=${pending.id}&mode=dispatch" class="btn-sm" style="background:#17a2b8;color:white;text-decoration:none;">👁️ Ko'rish</a>
                                 `;
                             } else {
                                 // Sotuvchi: hech narsa qila olmaydi — faqat kutadi
