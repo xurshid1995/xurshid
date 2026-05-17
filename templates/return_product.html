@@ -744,8 +744,10 @@
                      style="padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;"
                      onmouseover="this.style.background='#f8f9fa'" 
                      onmouseout="this.style.background='white'">
-                    <div style="font-weight: 600; color: #333;">${product.name}</div>
-                    ${product.barcode ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">Barkod: ${product.barcode}</div>` : ''}
+                    <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight: 600; color: #333;">${product.name}</span>
+                        ${product.barcode ? `<span style="font-size: 12px; color: #999;">Barkod: ${product.barcode}</span>` : ''}
+                    </div>
                 </div>
             `;
         });
