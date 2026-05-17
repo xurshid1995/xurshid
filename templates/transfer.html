@@ -395,9 +395,10 @@
                             `;
                         } else if (status === 'sent') {
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
-                                // Omborchi: yig'ish va tasdiqlash
+                                // Omborchi: yig'ish va tasdiqlash + tahrirlash
                                 actionButtons = `
-                                    <button class="btn-sm" style="background:#17a2b8;color:white;" onclick="warehouseConfirm(${pending.id}); return false;">📦 ${TR1LANG.warehouse_confirm}</button>
+                                    <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;margin-left:5px;" onclick="warehouseConfirm(${pending.id}); return false;">📦 ${TR1LANG.warehouse_confirm}</button>
                                 `;
                             } else {
                                 // Sotuvchi: hech narsa qila olmaydi — faqat kutadi
@@ -410,8 +411,10 @@
                                     <a href="/transfer_session?id=${pending.id}&mode=receive" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">▶️ Davom ettirish</a>
                                 `;
                             } else {
-                                // Omborchi: faqat ko'radi
-                                actionButtons = `<span style="color:#0c5460;font-size:0.85em;">🚚 Sotuvchi kutilmoqda...</span>`;
+                                // Omborchi: tahrirlash mumkin (sotuvchi tasdiqlagunicha)
+                                actionButtons = `
+                                    <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
+                                `;
                             }
                         } else {
                             actionButtons = `<span style="color:#999;font-size:0.9em;">—</span>`;

@@ -10404,8 +10404,9 @@ def manage_pending_transfer(pending_id=None):
             if not user_can_manage_transfer(current_user, pending):
                 return jsonify({'error': 'Sizga bu transferni tahrirlash uchun ruxsat yo\'q'}), 403
 
-            # Yuborilgan yoki jo'natilgan transferni tahrirlash mumkin emas
-            if pending.status in ('sent', 'dispatched'):
+            # Sotuvchi sent/dispatched transferni tahrirlay olmaydi
+            # Omborchi esa sotuvchi tasdiqlagunicha (dispatched holatda) tahrirlay oladi
+            if pending.status in ('sent', 'dispatched') and current_user.role == 'sotuvchi':
                 return jsonify({'error': 'Yuborilgan transferni tahrirlash mumkin emas'}), 403
 
             pending.from_location_type = data['from_location_type']
