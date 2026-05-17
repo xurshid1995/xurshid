@@ -18,6 +18,7 @@
                         <i class="fas fa-search rp-search-icon"></i>
                         <input type="text" id="productSearchInput" placeholder="{{ t('select_location_first') }}"
                                autocomplete="off" disabled oninput="searchProducts()"
+                               onkeydown="handleSearchKeydown(event)"
                                class="rp-search-input" style="padding-right:36px;">
                         <button id="clearProductBtn" onclick="clearProductSelection()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; font-size:16px; line-height:1; padding:2px 4px;" title="Tozalash">✕</button>
                         <div id="productSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; max-height: 300px; overflow-y: auto; z-index: 1000;"></div>
@@ -736,14 +737,17 @@
             return;
         }
 
+        currentSuggestionIndex = -1;
         let html = '';
         products.forEach(product => {
             console.log('Mahsulot qo\'shilmoqda:', product.name);
             html += `
-                <div onclick="selectProduct(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.barcode || ''}')" 
-                     style="padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;"
-                     onmouseover="this.style.background='#f8f9fa'" 
-                     onmouseout="this.style.background='white'">
+                <div class="suggestion-item"
+                     data-product-id="${product.id}"
+                     data-product-name="${product.name.replace(/"/g, '&quot;')}"
+                     data-product-barcode="${product.barcode || ''}"
+                     onclick="selectProduct(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.barcode || ''}')" 
+                     style="padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;">
                     <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
                         <span style="font-weight: 600; color: #333;">${product.name}</span>
                         ${product.barcode ? `<span style="font-size: 12px; color: #999;">Barkod: ${product.barcode}</span>` : ''}
@@ -758,8 +762,51 @@
         console.log('✅ Mahsulotlar ko\'rsatildi, display:', suggestionsDiv.style.display);
     }
 
+    // Keyboard navigation uchun o'zgaruvchi
+    let currentSuggestionIndex = -1;
+
+    function highlightSuggestion(index) {
+        const items = document.querySelectorAll('#productSuggestions .suggestion-item');
+        items.forEach((item, i) => {
+            item.style.background = i === index ? '#e8f0fe' : 'white';
+        });
+        if (items[index]) {
+            items[index].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    function handleSearchKeydown(e) {
+        const suggestionsDiv = document.getElementById('productSuggestions');
+        const items = suggestionsDiv ? suggestionsDiv.querySelectorAll('.suggestion-item') : [];
+
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentSuggestionIndex = currentSuggestionIndex < items.length - 1 ? currentSuggestionIndex + 1 : 0;
+            highlightSuggestion(currentSuggestionIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentSuggestionIndex = currentSuggestionIndex > 0 ? currentSuggestionIndex - 1 : items.length - 1;
+            highlightSuggestion(currentSuggestionIndex);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentSuggestionIndex >= 0 && items[currentSuggestionIndex]) {
+                const item = items[currentSuggestionIndex];
+                const id = parseInt(item.dataset.productId);
+                const name = item.dataset.productName.replace(/&quot;/g, '"');
+                const barcode = item.dataset.productBarcode;
+                selectProduct(id, name, barcode);
+            }
+        } else if (e.key === 'Escape') {
+            suggestionsDiv.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+    }
+
     async function selectProduct(productId, productName, barcode) {
         selectedProduct = { id: productId, name: productName, barcode: barcode };
+        currentSuggestionIndex = -1;
         
         // Input va suggestions'ni yashirish
         document.getElementById('productSearchInput').value = productName;
