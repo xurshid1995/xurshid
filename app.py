@@ -10686,13 +10686,21 @@ def get_all_pending_transfers():
         if not current_user:
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
 
-        # Admin barcha tasdiqlanmagan transferlarni ko'rishi mumkin
-        if current_user.role == 'admin':
+        # Admin va kassir barcha transferlarni ko'radi
+        if current_user.role in ('admin', 'kassir'):
             pending_transfers = PendingTransfer.query.all()
+        elif current_user.role == 'omborchi':
+            # Omborchi faqat yuborilgan (sent/dispatched) transferlarni ko'radi
+            # Draft holatdagi (sotuvchi hali yozmayotgan) transferlarni ko'rmaydi
+            all_pendings = PendingTransfer.query.filter(
+                PendingTransfer.status.in_(('sent', 'dispatched'))
+            ).all()
+            pending_transfers = [
+                p for p in all_pendings
+                if user_can_manage_transfer(current_user, p)
+            ]
         else:
-            # Boshqa foydalanuvchilar:
-            # 1. O'zining pending transferlari
-            # 2. Ikkala joylashuvga ruxsati bor transferlar
+            # Sotuvchi: faqat o'zining va ruxsat berilgan transferlar (barcha statuslar)
             all_pendings = PendingTransfer.query.all()
             pending_transfers = [
                 p for p in all_pendings
