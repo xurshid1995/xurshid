@@ -663,6 +663,11 @@
         document.getElementById('productSearchInput').disabled = false;
         document.getElementById('productSearchInput').placeholder = 'Mahsulot nomini kiriting...';
 
+        // Fokusni qidiruv maydoniga berish
+        setTimeout(() => {
+            document.getElementById('productSearchInput').focus();
+        }, 50);
+
         console.log('Joylashuv tanlandi:', returnLocationType, returnLocationId);
     }
 
