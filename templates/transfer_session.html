@@ -691,8 +691,8 @@
 
     <!-- Yig'ish banneri (faqat mode=dispatch da ko'rinadi) -->
     <div id="dispatchBanner" style="display:none; background:#cce5ff; border:1px solid #b8daff; border-radius:10px; padding:14px 20px; margin-bottom:10px;">
-        <div style="font-size:16px; font-weight:600; color:#004085;">📦 Mahsulotlarni Yig'ish</div>
-        <div style="font-size:13px; color:#004085; margin-top:4px;">Ro'yxatdagi mahsulotlarni yig'ing, kerakli miqdorlarni tekshiring va "Sotuvchiga jo'natish" tugmasini bosing.</div>
+        <div style="font-size:16px; font-weight:600; color:#004085;">📦 Transferni Tahrirlash va Yig'ish</div>
+        <div style="font-size:13px; color:#004085; margin-top:4px;">Ro'yxatdagi mahsulotlarni tahrirlashingiz, yangi mahsulot qo'shishingiz yoki o'chirishingiz mumkin. Tayyor bo'lgach "Sotuvchiga jo'natish" tugmasini bosing.</div>
     </div>
 
     <div class="transfer-layouts">
@@ -2143,12 +2143,23 @@
 
     // Yig'ish rejimini yoqish (omborchi)
     function enableDispatchMode() {
-        // Grid ni bir ustunli qilish (chap panel kerak emas)
-        const layouts = document.querySelectorAll('.transfer-layout');
-        if (layouts.length >= 1) layouts[0].style.display = 'none';
+        // Chap panelni ko'rsatib qolish — omborchi mahsulot qo'sha/tahrirlashi mumkin
+        // (Ilgari yashirilardi, endi tahrirlash uchun ko'rinadi)
 
-        const grid = document.querySelector('.transfer-layouts');
-        if (grid) grid.style.gridTemplateColumns = '1fr';
+        // Joylashuv selectlarini vizual o'chirib qo'yish (transfer yo'nalishi o'zgartirilmasin)
+        // disabled ishlatilmaydi — aks holda .value bo'sh qaytadi va savePendingTransfer o'chiradi
+        const fromSelect = document.getElementById('fromLocation');
+        const toSelect = document.getElementById('toLocation');
+        if (fromSelect) {
+            fromSelect.style.pointerEvents = 'none';
+            fromSelect.style.opacity = '0.65';
+            fromSelect.style.cursor = 'default';
+        }
+        if (toSelect) {
+            toSelect.style.pointerEvents = 'none';
+            toSelect.style.opacity = '0.65';
+            toSelect.style.cursor = 'default';
+        }
 
         // Amallar tugmalarini almashtirish
         document.getElementById('normalActionButtons').style.display = 'none';
@@ -2158,10 +2169,9 @@
         document.getElementById('dispatchBanner').style.display = 'block';
 
         // Sarlavhani o'zgartirish
-        document.getElementById('pageTitle').textContent = '📦 Mahsulotlarni Yig\'ish';
+        document.getElementById('pageTitle').textContent = '📦 Transferni Tahrirlash va Yig\'ish';
 
-        // Qidiruv inputni ko'rsatib qolish (omborchi mahsulot qidira oladi)
-        console.log('✅ Yig\'ish rejimi yoqildi');
+        console.log('✅ Yig\'ish rejimi yoqildi (tahrirlash imkoni bilan)');
     }
 
     // Sotuvchiga jo'natish (dispatch mode dan)
@@ -2179,6 +2189,9 @@
         btn.textContent = '⏳ Jo\'natilmoqda...';
 
         try {
+            // Avval o'zgarishlarni saqlash
+            await savePendingTransfer();
+
             const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/warehouse-confirm`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
