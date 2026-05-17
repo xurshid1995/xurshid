@@ -388,24 +388,33 @@
                     let actionButtons = '';
                     if (hasPermission) {
                         if (status === 'draft') {
-                            // Tahrirlash va o'chirish
+                            // Tahrirlash va o'chirish (faqat draft holatda)
                             actionButtons = `
                                 <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
                                 <button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>
                             `;
-                        } else if (status === 'sent' && (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir')) {
-                            // Omborchi tasdiqlashi
-                            actionButtons = `
-                                <button class="btn-sm" style="background:#17a2b8;color:white;" onclick="warehouseConfirm(${pending.id}); return false;">📦 ${TR1LANG.warehouse_confirm}</button>
-                                <button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>
-                            `;
+                        } else if (status === 'sent') {
+                            if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
+                                // Omborchi: yig'ish va tasdiqlash
+                                actionButtons = `
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;" onclick="warehouseConfirm(${pending.id}); return false;">📦 ${TR1LANG.warehouse_confirm}</button>
+                                `;
+                            } else {
+                                // Sotuvchi: hech narsa qila olmaydi — faqat kutadi
+                                actionButtons = `<span style="color:#856404;font-size:0.85em;">⏳ Omborchi kutilmoqda...</span>`;
+                            }
                         } else if (status === 'dispatched') {
-                            // Sotuvchi qabul tasdiqlashi
-                            actionButtons = `
-                                <button class="btn-sm" style="background:#28a745;color:white;" onclick="receiverConfirm(${pending.id}); return false;">✅ ${TR1LANG.receiver_confirm}</button>
-                            `;
+                            if (userRole === 'admin' || userRole === 'sotuvchi' || userRole === 'kassir') {
+                                // Sotuvchi: kirim tasdiqlash
+                                actionButtons = `
+                                    <button class="btn-sm" style="background:#28a745;color:white;" onclick="receiverConfirm(${pending.id}); return false;">✅ ${TR1LANG.receiver_confirm}</button>
+                                `;
+                            } else {
+                                // Omborchi: faqat ko'radi
+                                actionButtons = `<span style="color:#0c5460;font-size:0.85em;">🚚 Sotuvchi kutilmoqda...</span>`;
+                            }
                         } else {
-                            actionButtons = `<button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;">🗑️ ${TR1LANG.delete_btn}</button>`;
+                            actionButtons = `<span style="color:#999;font-size:0.9em;">—</span>`;
                         }
                     } else {
                         actionButtons = `<span style="color: #999; font-size: 0.9em;">🔒 ${TR1LANG.no_permission}</span>`;

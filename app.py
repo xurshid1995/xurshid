@@ -10404,6 +10404,10 @@ def manage_pending_transfer(pending_id=None):
             if not user_can_manage_transfer(current_user, pending):
                 return jsonify({'error': 'Sizga bu transferni tahrirlash uchun ruxsat yo\'q'}), 403
 
+            # Yuborilgan yoki jo'natilgan transferni tahrirlash mumkin emas
+            if pending.status in ('sent', 'dispatched'):
+                return jsonify({'error': 'Yuborilgan transferni tahrirlash mumkin emas'}), 403
+
             pending.from_location_type = data['from_location_type']
             pending.from_location_id = data['from_location_id']
             pending.to_location_type = data['to_location_type']
@@ -10428,12 +10432,18 @@ def manage_pending_transfer(pending_id=None):
                 if not user_can_manage_transfer(current_user, pending):
                     return jsonify({'error': 'Sizga bu transferni o\'chirish uchun ruxsat yo\'q'}), 403
 
+                # Sent yoki dispatched holatdagi transferni sotuvchi o'chira olmaydi
+                if pending.status in ('sent', 'dispatched') and current_user.role == 'sotuvchi':
+                    return jsonify({'error': 'Yuborilgan transferni o\'chirish mumkin emas'}), 403
+
                 db.session.delete(pending)
             else:
-                # Barcha ruxsat etilgan pending transferlarni o'chirish
+                # Barcha ruxsat etilgan pending transferlarni o'chirish (faqat draft holatdagilarni)
                 all_pendings = PendingTransfer.query.all()
                 for p in all_pendings:
                     if user_can_manage_transfer(current_user, p):
+                        if p.status in ('sent', 'dispatched') and current_user.role == 'sotuvchi':
+                            continue
                         db.session.delete(p)
 
             db.session.commit()
