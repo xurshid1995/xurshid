@@ -230,12 +230,13 @@
                         <th>{{ t('tr1_th_created') }}</th>
                         <th>{{ t('tr1_th_products') }}</th>
                         <th>{{ t('tr1_th_user') }}</th>
+                        <th>{{ t('tr1_status') }}</th>
                         <th>{{ t('tr1_th_actions') }}</th>
                     </tr>
                 </thead>
                 <tbody id="pendingTransfersBody">
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af;">
+                        <td colspan="7" style="text-align: center; padding: 24px; color: #9ca3af;">
                             📭 {{ t('tr1_no_pending') }}
                         </td>
                     </tr>
@@ -294,7 +295,14 @@
         delete_confirm: {{ t('tr1_delete_confirm')|tojson }},
         delete_success: {{ t('tr1_delete_success')|tojson }},
         delete_error: {{ t('tr1_delete_error')|tojson }},
-        delete_no_perm: {{ t('tr1_delete_no_perm')|tojson }}
+        delete_no_perm: {{ t('tr1_delete_no_perm')|tojson }},
+        warehouse_confirm: {{ t('tr1_warehouse_confirm')|tojson }},
+        receiver_confirm: {{ t('tr1_receiver_confirm')|tojson }},
+        warehouse_confirm_done: {{ t('tr1_warehouse_confirm_done')|tojson }},
+        receiver_confirm_done: {{ t('tr1_receiver_confirm_done')|tojson }},
+        status_draft: {{ t('tr1_status_draft')|tojson }},
+        status_sent: {{ t('tr1_status_sent')|tojson }},
+        status_dispatched: {{ t('tr1_status_dispatched')|tojson }}
     };
 
     // Session ma'lumotlari
@@ -366,25 +374,41 @@
                     
                     // Ruxsat tekshirish — backend allaqachon filterlaydi, can_manage=true kelgan transferlar boshqarilishi mumkin
                     const hasPermission = (pending.can_manage === true) || (userRole === 'admin');
-                    
-                    // Tugmalar
+                    const status = pending.status || 'draft';
+
+                    // Status badge
+                    const statusBadges = {
+                        draft: `<span style="background:#e9ecef;color:#6c757d;padding:2px 8px;border-radius:10px;font-size:12px;">✏️ ${TR1LANG.status_draft}</span>`,
+                        sent: `<span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:10px;font-size:12px;">📤 ${TR1LANG.status_sent}</span>`,
+                        dispatched: `<span style="background:#d1ecf1;color:#0c5460;padding:2px 8px;border-radius:10px;font-size:12px;">🚚 ${TR1LANG.status_dispatched}</span>`
+                    };
+                    const statusBadge = statusBadges[status] || statusBadges.draft;
+
+                    // Tugmalar — statusga qarab
                     let actionButtons = '';
                     if (hasPermission) {
-                        actionButtons = `
-                            <a href="/transfer_session?id=${pending.id}" 
-                               class="btn-sm btn-success-sm">
-                                ✏️ ${TR1LANG.edit}
-                            </a>
-                            <button class="btn-sm btn-danger-sm" 
-                                    onclick="deletePendingTransfer(${pending.id}); return false;" 
-                                    style="margin-left: 5px;">
-                                🗑️ ${TR1LANG.delete_btn}
-                            </button>
-                        `;
+                        if (status === 'draft') {
+                            // Tahrirlash va o'chirish
+                            actionButtons = `
+                                <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
+                                <button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>
+                            `;
+                        } else if (status === 'sent' && (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir')) {
+                            // Omborchi tasdiqlashi
+                            actionButtons = `
+                                <button class="btn-sm" style="background:#17a2b8;color:white;" onclick="warehouseConfirm(${pending.id}); return false;">📦 ${TR1LANG.warehouse_confirm}</button>
+                                <button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>
+                            `;
+                        } else if (status === 'dispatched') {
+                            // Sotuvchi qabul tasdiqlashi
+                            actionButtons = `
+                                <button class="btn-sm" style="background:#28a745;color:white;" onclick="receiverConfirm(${pending.id}); return false;">✅ ${TR1LANG.receiver_confirm}</button>
+                            `;
+                        } else {
+                            actionButtons = `<button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;">🗑️ ${TR1LANG.delete_btn}</button>`;
+                        }
                     } else {
-                        actionButtons = `
-                            <span style="color: #999; font-size: 0.9em;">🔒 ${TR1LANG.no_permission}</span>
-                        `;
+                        actionButtons = `<span style="color: #999; font-size: 0.9em;">🔒 ${TR1LANG.no_permission}</span>`;
                     }
                     
                     return `
@@ -396,6 +420,7 @@
                                 <span class="badge-count">${productCount}</span>
                             </td>
                             <td>${pending.user_name}</td>
+                            <td>${statusBadge}</td>
                             <td>
                                 ${actionButtons}
                             </td>
@@ -445,6 +470,40 @@
         } catch (error) {
             console.error('Error deleting transfer:', error);
             alert('❌ ' + TR1LANG.delete_error);
+        }
+    }
+
+    // Omborchi tasdiqlash
+    async function warehouseConfirm(pendingId) {
+        if (!confirm(TR1LANG.warehouse_confirm + '?')) return;
+        try {
+            const response = await fetch(`/api/pending-transfer/${pendingId}/warehouse-confirm`, { method: 'POST' });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                alert('✅ ' + TR1LANG.warehouse_confirm_done);
+                await loadPendingTransfers();
+            } else {
+                alert('❌ ' + (result.error || TR1LANG.error));
+            }
+        } catch (e) {
+            alert('❌ ' + TR1LANG.error);
+        }
+    }
+
+    // Sotuvchi qabul tasdiqlash
+    async function receiverConfirm(pendingId) {
+        if (!confirm(TR1LANG.receiver_confirm + '?')) return;
+        try {
+            const response = await fetch(`/api/pending-transfer/${pendingId}/receiver-confirm`, { method: 'POST' });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                alert('✅ ' + TR1LANG.receiver_confirm_done);
+                await loadPendingTransfers();
+            } else {
+                alert('❌ ' + (result.error || TR1LANG.error));
+            }
+        } catch (e) {
+            alert('❌ ' + TR1LANG.error);
         }
     }
     

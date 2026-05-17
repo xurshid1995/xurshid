@@ -230,6 +230,17 @@
         box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
     }
 
+    .btn-send-transfer {
+        background: #1a6eff;
+        color: white;
+    }
+
+    .btn-send-transfer:hover {
+        background: #0055dd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 110, 255, 0.4);
+    }
+
     /* Empty state */
     .empty-state {
         text-align: center;
@@ -773,6 +784,7 @@
 
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="clearTransferList()">🗑️ {{ t('btn_clear') }}</button>
+                <button class="btn btn-send-transfer" onclick="sendTransferToWarehouse()">📤 {{ t('btn_send_transfer') }}</button>
                 <button class="btn btn-success" onclick="completeTransfer()">✅ {{ t('btn_finish_transfer') }}</button>
             </div>
         </div>
@@ -855,7 +867,11 @@
         delete_label: {{ t("delete_label")|tojson }},
         pagination_from: {{ t("pagination_from")|tojson }},
         items_count: {{ t("items_count")|tojson }},
-        only_step_half: {{ t("only_step_half")|tojson }}
+        only_step_half: {{ t("only_step_half")|tojson }},
+        send_transfer: {{ t("btn_send_transfer")|tojson }},
+        send_transfer_confirm: {{ t("send_transfer_confirm")|tojson }},
+        send_transfer_success: {{ t("send_transfer_success")|tojson }},
+        sending: {{ t("sending")|tojson }}
     };
 
     let transferList = [];
@@ -2071,6 +2087,77 @@
 
     // Double-click himoyasi uchun o'zgaruvchi
     let isProcessingTransfer = false;
+
+    // Transferni omborchiga yuborish
+    async function sendTransferToWarehouse() {
+        const fromLocation = document.getElementById('fromLocation').value;
+        const toLocation = document.getElementById('toLocation').value;
+
+        if (!fromLocation) {
+            alert(TLANG.select_from);
+            return;
+        }
+        if (!toLocation) {
+            alert(TLANG.select_to);
+            return;
+        }
+        if (fromLocation === toLocation) {
+            alert(TLANG.same_location_error);
+            return;
+        }
+        if (transferList.length === 0) {
+            alert(TLANG.add_products_to_list);
+            return;
+        }
+
+        if (!confirm(TLANG.send_transfer_confirm || 'Transferni omborchiga yubormoqchimisiz?')) {
+            return;
+        }
+
+        const sendBtn = document.querySelector('button[onclick="sendTransferToWarehouse()"]');
+        if (sendBtn) {
+            sendBtn.disabled = true;
+            sendBtn.textContent = '⏳ ' + (TLANG.sending || 'Yuborilmoqda...');
+            sendBtn.style.opacity = '0.6';
+        }
+
+        try {
+            // Avval pending transferni saqlash (yangi yoki mavjud)
+            await savePendingTransfer();
+
+            if (!currentPendingTransferId) {
+                alert('❌ Transfer saqlanmadi, qayta urinib ko\'ring');
+                return;
+            }
+
+            const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert('✅ ' + (TLANG.send_transfer_success || 'Transfer omborchiga yuborildi!'));
+                // Tozalash va bosh sahifaga qaytish
+                transferList = [];
+                currentPendingTransferId = null;
+                updateTransferListDisplay();
+                window.location.href = '/transfer';
+            } else {
+                alert('❌ ' + (result.error || 'Xatolik yuz berdi'));
+            }
+        } catch (error) {
+            console.error('Transfer yuborishda xatolik:', error);
+            alert('❌ ' + TLANG.error_occurred);
+        } finally {
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.textContent = '📤 ' + (TLANG.send_transfer || 'Transfer yuborish');
+                sendBtn.style.opacity = '1';
+            }
+        }
+    }
 
     // Transferni yakunlash
     async function completeTransfer() {
