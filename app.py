@@ -13466,6 +13466,13 @@ def update_sale(sale_id):
                     'error': 'Bu savdoni tahrirlash uchun ruxsatingiz yo\'q'
                 }), 403
 
+            # Sotuvchi faqat tasdiqlanmagan (pending) savdolarni tahrirlashi mumkin
+            if sale.payment_status != 'pending':
+                return jsonify({
+                    'success': False,
+                    'error': 'Sotuvchi faqat tasdiqlanmagan savdolarni tahrirlashi mumkin'
+                }), 403
+
         data = request.get_json()
         app.logger.info(f"ğŸ”„ UPDATE Sale ID: {sale_id}")
         app.logger.info(f"ğŸ“¦ Update data: {data}")
@@ -13592,7 +13599,7 @@ def update_sale(sale_id):
 
 
 @app.route('/api/sales/<int:sale_id>', methods=['DELETE'])
-@role_required('admin', 'kassir')
+@role_required('admin', 'kassir', 'sotuvchi')
 def delete_sale_with_stock_return(sale_id):
     """Savdoni o'chirish va stock ni qaytarish - yangi tuzilma bilan"""
     try:
@@ -13627,6 +13634,13 @@ def delete_sale_with_stock_return(sale_id):
                 return jsonify({
                     'success': False,
                     'error': 'Bu savdoni o\'chirish uchun ruxsatingiz yo\'q'
+                }), 403
+
+            # Sotuvchi faqat tasdiqlanmagan (pending) savdolarni o'chira oladi
+            if sale.payment_status != 'pending':
+                return jsonify({
+                    'success': False,
+                    'error': 'Sotuvchi faqat tasdiqlanmagan savdolarni o\'chira oladi'
                 }), 403
 
         # Debug: Savdo ma'lumotlarini ko'rsatish
