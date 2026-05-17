@@ -405,9 +405,9 @@
                             }
                         } else if (status === 'dispatched') {
                             if (userRole === 'admin' || userRole === 'sotuvchi' || userRole === 'kassir') {
-                                // Sotuvchi: kirim tasdiqlash
+                                // Sotuvchi: davom ettirish (transfer_session'da tekshirib tasdiqlaydi)
                                 actionButtons = `
-                                    <button class="btn-sm" style="background:#28a745;color:white;" onclick="receiverConfirm(${pending.id}); return false;">✅ ${TR1LANG.receiver_confirm}</button>
+                                    <a href="/transfer_session?id=${pending.id}&mode=receive" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">▶️ Davom ettirish</a>
                                 `;
                             } else {
                                 // Omborchi: faqat ko'radi
