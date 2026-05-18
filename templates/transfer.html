@@ -371,6 +371,9 @@
         return false;
     }
     
+    // Transfer items ni saqlash uchun global Map
+    const transferItemsMap = new Map();
+
     // Tasdiqlanmagan transferlarni yuklash
     async function loadPendingTransfers() {
         try {
@@ -380,6 +383,10 @@
             const tbody = document.getElementById('pendingTransfersBody');
             
             if (data.pending_transfers && data.pending_transfers.length > 0) {
+                // Items ni Map ga saqlash
+                data.pending_transfers.forEach(p => {
+                    transferItemsMap.set(p.id, { items: p.items, from: p.from_location, to: p.to_location });
+                });
                 tbody.innerHTML = data.pending_transfers.map(pending => {
                     const createdDate = new Date(pending.created_at);
                     const formattedDate = createdDate.toLocaleString('uz-UZ', {
@@ -434,13 +441,13 @@
                                 // Sotuvchi: davom ettirish (transfer_session'da tekshirib tasdiqlaydi)
                                 actionButtons = `
                                     <a href="/transfer_session?id=${pending.id}&mode=receive" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">▶️ Davom ettirish</a>
-                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id}, ${JSON.stringify(pending.items).replace(/"/g, '&quot;')}, '${pending.from_location}', '${pending.to_location}')">👁️ Ko'rish</button>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             } else {
                                 // Omborchi: tahrirlash + ko'rish
                                 actionButtons = `
                                     <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
-                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id}, ${JSON.stringify(pending.items).replace(/"/g, '&quot;')}, '${pending.from_location}', '${pending.to_location}')">👁️ Ko'rish</button>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             }
                         } else {
@@ -623,7 +630,12 @@
     });
     
     // Transfer mahsulotlarini modal da ko'rsatish
-    function showTransferItems(id, items, from, to) {
+    function showTransferItems(id) {
+        const data = transferItemsMap.get(id);
+        if (!data) return;
+        const items = data.items;
+        const from = data.from;
+        const to = data.to;
         document.getElementById('transferItemsRoute').textContent = from + ' → ' + to;
         const tbody = document.getElementById('transferItemsBody');
         const empty = document.getElementById('transferItemsEmpty');
