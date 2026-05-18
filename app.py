@@ -10404,8 +10404,8 @@ def manage_pending_transfer(pending_id=None):
             if not user_can_manage_transfer(current_user, pending):
                 return jsonify({'error': 'Sizga bu transferni tahrirlash uchun ruxsat yo\'q'}), 403
 
-            # Sotuvchi sent/dispatched transferni tahrirlay olmaydi
-            if pending.status in ('sent', 'dispatched') and current_user.role == 'sotuvchi':
+            # Sotuvchi sent/picking/dispatched transferni tahrirlay olmaydi
+            if pending.status in ('sent', 'picking', 'dispatched') and current_user.role == 'sotuvchi':
                 return jsonify({'error': 'Yuborilgan transferni tahrirlash mumkin emas'}), 403
 
             # Omborchi dispatched (yo'lda) transferni tahrirlay olmaydi — sotuvchi rad etgandagina mumkin
@@ -10511,7 +10511,7 @@ def warehouse_confirm_transfer(pending_id):
         if not user_can_manage_transfer(current_user, pending):
             return jsonify({'error': 'Ruxsat yo\'q'}), 403
 
-        if pending.status != 'sent':
+        if pending.status not in ('sent', 'picking'):
             return jsonify({'error': 'Transfer hali yuborilmagan yoki allaqachon tasdiqlangan'}), 400
 
         from datetime import datetime
@@ -10525,6 +10525,36 @@ def warehouse_confirm_transfer(pending_id):
     except Exception as e:
         db.session.rollback()
         logger.error(f"Omborchi tasdiqlashda xatolik: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/pending-transfer/<int:pending_id>/start-picking', methods=['POST'])
+@role_required('admin', 'kassir', 'omborchi')
+def start_picking_transfer(pending_id):
+    """Omborchi yig'ishni boshlaydi — status: sent → picking"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
+
+        pending = PendingTransfer.query.get(pending_id)
+        if not pending:
+            return jsonify({'error': 'Transfer topilmadi'}), 404
+
+        if not user_can_manage_transfer(current_user, pending):
+            return jsonify({'error': 'Ruxsat yo\'q'}), 403
+
+        if pending.status != 'sent':
+            return jsonify({'error': 'Faqat yuborilgan transferni yig\'ish boshlash mumkin'}), 400
+
+        pending.status = 'picking'
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Yig\'ish boshlandi', 'status': 'picking'})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Yig'ishni boshlashda xatolik: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

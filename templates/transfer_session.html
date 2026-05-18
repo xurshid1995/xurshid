@@ -804,6 +804,10 @@
             <div class="action-buttons" id="dispatchActionButtons" style="display:none;">
                 <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">📦 Jo'natish</button>
             </div>
+            <!-- Yig'ishni boshlash tugmasi (faqat sent holatda omborchi uchun) -->
+            <div class="action-buttons" id="startPickingButtons" style="display:none;">
+                <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="startPickingTransfer()">⚙️ Yig'ishni boshlash</button>
+            </div>
         </div>
     </div>
 
@@ -2237,6 +2241,7 @@
         document.getElementById('normalActionButtons').style.display = 'none';
         document.getElementById('dispatchActionButtons').style.display = 'none';
         document.getElementById('receiveActionButtons').style.display = 'none';
+        document.getElementById('startPickingButtons').style.display = 'none';
 
         // Sariq banner ko'rsatish
         const banner = document.getElementById('receiveBanner');
@@ -2255,6 +2260,64 @@
         if (searchInput) searchInput.style.display = 'none';
 
         console.log('🔒 Locked dispatch rejimi yoqildi');
+    }
+
+    // Sent holat — omborchi yig'ishni boshlashdan oldin (tahrirlash imkoni bilan)
+    function enableStartPickingMode() {
+        // Chap panelni yashirish emas — omborchi ko'rishi mumkin lekin loc tanlay olmaydi
+        const fromSelect = document.getElementById('fromLocation');
+        const toSelect = document.getElementById('toLocation');
+        if (fromSelect) { fromSelect.style.pointerEvents = 'none'; fromSelect.style.opacity = '0.65'; }
+        if (toSelect) { toSelect.style.pointerEvents = 'none'; toSelect.style.opacity = '0.65'; }
+
+        document.getElementById('normalActionButtons').style.display = 'none';
+        document.getElementById('dispatchActionButtons').style.display = 'none';
+        document.getElementById('receiveActionButtons').style.display = 'none';
+        document.getElementById('startPickingButtons').style.display = 'flex';
+
+        document.getElementById('pageTitle').textContent = '📋 Transfer so\'rovini ko\'rish';
+
+        // Banner: yuborilgan, kutilmoqda
+        const banner = document.getElementById('receiveBanner');
+        if (banner) {
+            banner.style.display = 'block';
+            banner.style.background = '#fff3cd';
+            banner.style.borderColor = '#ffc107';
+            banner.innerHTML = '<div style="font-size:15px;font-weight:600;color:#856404;">📤 Sotuvchidan transfer so\'rovi keldi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Mahsulotlarni ko\'rib chiqing, keyin "⚙️ Yig\'ishni boshlash" tugmasini bosing.</div>';
+        }
+
+        console.log('📋 Start-picking rejimi yoqildi');
+    }
+
+    // Yig'ishni boshlash — sent → picking
+    async function startPickingTransfer() {
+        if (!currentPendingTransferId) {
+            alert('❌ Transfer ID topilmadi');
+            return;
+        }
+        const btn = document.querySelector('#startPickingButtons button');
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Boshlanmoqda...'; }
+        try {
+            const resp = await fetch(`/api/pending-transfer/${currentPendingTransferId}/start-picking`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                // picking holatiga o'tdi — dispatch modeni yoq
+                if (banner) banner.style.display = 'none';
+                const b2 = document.getElementById('receiveBanner');
+                if (b2) b2.style.display = 'none';
+                document.getElementById('startPickingButtons').style.display = 'none';
+                enableDispatchMode();
+            } else {
+                alert('❌ ' + (data.error || 'Xatolik yuz berdi'));
+                if (btn) { btn.disabled = false; btn.textContent = '⚙️ Yig\'ishni boshlash'; }
+            }
+        } catch (e) {
+            alert('❌ Server xatosi: ' + e.message);
+            if (btn) { btn.disabled = false; btn.textContent = '⚙️ Yig\'ishni boshlash'; }
+        }
     }
 
     // Saqlash va chiqish (dispatch mode — tasdiqlamasdan)
@@ -2680,9 +2743,21 @@
                     updateTransferListDisplay();
                     console.log('✅ Tasdiqlanmagan transfer tiklandi:', transferList.length, 'ta mahsulot');
 
-                    // Agar transfer 'sent' holatida va omborchi/admin bo'lsa — dispatch modeni avtomatik yoq
+                    // Agar transfer 'sent' holatida va omborchi/admin bo'lsa — yig'ishni boshlash rejimi
                     if (pending.status === 'sent' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
+                        enableStartPickingMode();
+                    } else if (pending.status === 'picking' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
+                        // Yig'ilmoqda — omborchi dispatch rejimida tahrirlaydi va jo'natadi
                         enableDispatchMode();
+                    } else if (pending.status === 'picking' && userRole === 'sotuvchi') {
+                        // Sotuvchi: yig'ilmoqda — faqat ko'rish
+                        enableLockedDispatchMode();
+                        const banner = document.getElementById('receiveBanner');
+                        if (banner) {
+                            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#0066cc;">⚙️ Omborchi yig\'imoqda...</div><div style="font-size:13px;color:#0066cc;margin-top:4px;">Omborchi mahsulotlarni yig\'moqda. Jo\'natilgach siz qabul qilasiz.</div>';
+                            banner.style.background = '#e8f4fd';
+                            banner.style.borderColor = '#0066cc';
+                        }
                     } else if (pending.status === 'dispatched' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
                         // Jo'natilgan transfer — faqat ko'rish rejimi
                         enableLockedDispatchMode();
