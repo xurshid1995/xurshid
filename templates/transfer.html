@@ -291,7 +291,9 @@
                 <div id="transferItemsRoute" style="font-size:13px; color:#6b7280; margin-top:4px;"></div>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
-                <button onclick="exportTransferExcel()" style="background:#1d6f42; color:white; border:none; border-radius:7px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">📊 Excel</button>
+                <button onclick="exportTransferExcel()" style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:transparent;color:#1d6f42;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;height:36px;flex-shrink:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28"><path fill="#4CAF50" d="M41,10H25v28h16c0.6,0,1-0.4,1-1V11C42,10.4,41.6,10,41,10z"/><path fill="#fff" d="M32 15H39V18H32zM32 25H39V28H32zM32 30H39V33H32zM32 20H39V23H32zM25 15H30V18H25zM25 25H30V28H25zM25 30H30V33H25zM25 20H30V23H25z"/><path fill="#2E7D32" d="M27 42L6 38 6 10 27 6z"/><path fill="#fff" d="M19.1 32l-2.8-4.4-2.7 4.4H11l4-6.4L11 19h2.8l2.6 4.1 2.6-4.1H22l-4 6.5 4.1 6.5z"/></svg> Excel
+                </button>
                 <button onclick="document.getElementById('transferItemsModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280; line-height:1;">✕</button>
             </div>
         </div>
