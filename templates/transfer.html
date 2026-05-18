@@ -310,10 +310,7 @@
             <tbody id="transferItemsBody"></tbody>
             <tfoot id="transferItemsFoot" style="display:none;">
                 <tr style="background:#f0fdf4; border-top:2px solid #16a34a;">
-                    <td style="padding:10px 12px; font-weight:700; color:#15803d;" colspan="1">Jami</td>
-                    <td style="padding:10px 12px; font-weight:700; color:#15803d;" id="totalProducts"></td>
-                    <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalPrice"></td>
-                    <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalQty"></td>
+                    <td colspan="4" style="padding:10px 12px; font-weight:700; color:#15803d; text-align:right;">Jami:</td>
                     <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalSum"></td>
                 </tr>
             </tfoot>
@@ -706,9 +703,6 @@
                     <td style="padding:9px 12px; text-align:center; color:#15803d; font-weight:600;">$${rowSum.toFixed(2)}</td>
                 </tr>`;
             }).join('');
-            document.getElementById('totalProducts').textContent = items.length + ' ta mahsulot';
-            document.getElementById('totalPrice').textContent = '';
-            document.getElementById('totalQty').textContent = totalQty + ' dona';
             document.getElementById('totalSum').textContent = '$' + totalPrice.toFixed(2);
             foot.style.display = '';
         }
