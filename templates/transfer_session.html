@@ -689,12 +689,6 @@
         <div style="font-size:13px; color:#0c5460; margin-top:4px;">Quyidagi mahsulotlar ro'yxatini tekshiring va hammasi to'liq kelgan bo'lsa tasdiqlang.</div>
     </div>
 
-    <!-- Yig'ish banneri (faqat mode=dispatch da ko'rinadi) -->
-    <div id="dispatchBanner" style="display:none; background:#cce5ff; border:1px solid #b8daff; border-radius:10px; padding:14px 20px; margin-bottom:10px;">
-        <div style="font-size:16px; font-weight:600; color:#004085;">📦 Transferni Tahrirlash va Yig'ish</div>
-        <div style="font-size:13px; color:#004085; margin-top:4px;">Ro'yxatdagi mahsulotlarni tahrirlashingiz, yangi mahsulot qo'shishingiz yoki o'chirishingiz mumkin. Tayyor bo'lgach "Sotuvchiga jo'natish" tugmasini bosing.</div>
-    </div>
-
     <div class="transfer-layouts">
         <!-- Chap layout - Mahsulot tanlash -->
         <div class="transfer-layout">
@@ -2200,9 +2194,6 @@
         // Amallar tugmalarini almashtirish
         document.getElementById('normalActionButtons').style.display = 'none';
         document.getElementById('dispatchActionButtons').style.display = 'flex';
-
-        // Dispatch banneri ko'rsatish
-        document.getElementById('dispatchBanner').style.display = 'block';
 
         // Sarlavhani o'zgartirish
         document.getElementById('pageTitle').textContent = '📦 Transferni Tahrirlash va Yig\'ish';
