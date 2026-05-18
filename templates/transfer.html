@@ -321,9 +321,9 @@
 
 {% endblock %}
 
+{% block extra_js %}
 <!-- SheetJS kutubxonasi Excel eksport uchun -->
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-{% block extra_js %}
 <script>
     const TR1LANG = {
         no_pending: {{ t('tr1_no_pending')|tojson }},
