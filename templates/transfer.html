@@ -304,6 +304,7 @@
                     <th style="padding:10px 12px; text-align:left; color:#374151; font-weight:600;">Mahsulot</th>
                     <th style="padding:10px 12px; text-align:center; color:#374151; font-weight:600;">Narx</th>
                     <th style="padding:10px 12px; text-align:center; color:#374151; font-weight:600;">Miqdor</th>
+                    <th style="padding:10px 12px; text-align:center; color:#374151; font-weight:600;">Jami</th>
                 </tr>
             </thead>
             <tbody id="transferItemsBody"></tbody>
@@ -313,6 +314,7 @@
                     <td style="padding:10px 12px; font-weight:700; color:#15803d;" id="totalProducts"></td>
                     <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalPrice"></td>
                     <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalQty"></td>
+                    <td style="padding:10px 12px; text-align:center; font-weight:700; color:#15803d;" id="totalSum"></td>
                 </tr>
             </tfoot>
         </table>
@@ -652,13 +654,14 @@
         const rows = document.querySelectorAll('#transferItemsBody tr');
         if (!rows.length) return;
 
-        let csv = '\uFEFF#,Mahsulot,Narx,Miqdor\n';
+        let csv = '\uFEFF#,Mahsulot,Narx,Miqdor,Jami\n';
         rows.forEach((row, i) => {
             const cells = row.querySelectorAll('td');
             const name = cells[1] ? cells[1].textContent.trim() : '';
             const price = cells[2] ? cells[2].textContent.trim() : '';
             const qty = cells[3] ? cells[3].textContent.replace(' dona','').trim() : '';
-            csv += `${i+1},"${name}",${price},${qty}\n`;
+            const sum = cells[4] ? cells[4].textContent.trim() : '';
+            csv += `${i+1},"${name}",${price},${qty},${sum}\n`;
         });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -691,19 +694,22 @@
             tbody.innerHTML = items.map((item, i) => {
                 const qty = parseFloat(item.quantity || 0);
                 const price = parseFloat(item.price || 0);
+                const rowSum = qty * price;
                 totalQty += qty;
-                totalPrice += qty * price;
+                totalPrice += rowSum;
                 return `
                 <tr style="border-bottom:1px solid #f0f0f0;">
                     <td style="padding:9px 12px; color:#9ca3af;">${i + 1}</td>
                     <td style="padding:9px 12px; font-weight:500;">${item.name || '—'}</td>
                     <td style="padding:9px 12px; text-align:center; color:#6b7280;">$${price.toFixed(2)}</td>
                     <td style="padding:9px 12px; text-align:center;"><strong>${qty}</strong> dona</td>
+                    <td style="padding:9px 12px; text-align:center; color:#15803d; font-weight:600;">$${rowSum.toFixed(2)}</td>
                 </tr>`;
             }).join('');
             document.getElementById('totalProducts').textContent = items.length + ' ta mahsulot';
-            document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+            document.getElementById('totalPrice').textContent = '';
             document.getElementById('totalQty').textContent = totalQty + ' dona';
+            document.getElementById('totalSum').textContent = '$' + totalPrice.toFixed(2);
             foot.style.display = '';
         }
         document.getElementById('transferItemsModal').style.display = 'flex';
