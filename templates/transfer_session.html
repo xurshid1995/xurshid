@@ -2305,7 +2305,6 @@
             const data = await resp.json();
             if (resp.ok && data.success) {
                 // picking holatiga o'tdi — dispatch modeni yoq
-                if (banner) banner.style.display = 'none';
                 const b2 = document.getElementById('receiveBanner');
                 if (b2) b2.style.display = 'none';
                 document.getElementById('startPickingButtons').style.display = 'none';
