@@ -662,8 +662,7 @@
 
         // Sarlavha + bo'sh qator + jadval sarlavhasi + qatorlar + jami
         const data = [
-            [`Transfer ro'yxati: ${route}`],
-            [`Sana: ${today}`],
+            [`Transfer ro'yxati: ${route}`, '', '', `Sana: ${today}`, ''],
             [],
             ['#', 'Mahsulot', 'Narx ($)', 'Miqdor', 'Jami ($)']
         ];
@@ -681,14 +680,19 @@
         const ws = XLSX.utils.aoa_to_sheet(data);
         ws['!cols'] = [{ wch: 5 }, { wch: 38 }, { wch: 12 }, { wch: 10 }, { wch: 14 }];
 
+        // Sarlavha katak bold
+        ['A1','D1'].forEach(addr => {
+            if (ws[addr]) ws[addr].s = { font: { bold: true, sz: 12 } };
+        });
+
         // A4 print sozlamalari
         ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
         ws['!margins'] = { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 };
 
-        // Sarlavha hujayralarini birlashtirish (A1:E1, A2:E2, A3:E3)
+        // Sarlavha hujayralarini birlashtirish
         ws['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
-            { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
+            { s: { r: 0, c: 3 }, e: { r: 0, c: 4 } }
         ];
 
         const wb = XLSX.utils.book_new();
