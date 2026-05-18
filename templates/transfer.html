@@ -322,8 +322,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- SheetJS kutubxonasi Excel eksport uchun -->
-<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     const TR1LANG = {
         no_pending: {{ t('tr1_no_pending')|tojson }},
@@ -649,10 +647,6 @@
     
     // Transfer Excel export
     function exportTransferExcel() {
-        if (typeof XLSX === 'undefined') {
-            alert('❌ Excel kutubxonasi yuklanmadi, sahifani yangilang.');
-            return;
-        }
         const route = document.getElementById('transferItemsRoute').textContent;
         const rows = document.querySelectorAll('#transferItemsBody tr');
         if (!rows.length) return;
@@ -660,44 +654,61 @@
         const today = new Date().toLocaleDateString('uz-UZ');
         const totalSum = document.getElementById('totalSum').textContent;
 
-        // Sarlavha + bo'sh qator + jadval sarlavhasi + qatorlar + jami
-        const data = [
-            [`Transfer ro'yxati: ${route}`, '', '', `Sana: ${today}`, ''],
-            [],
-            ['#', 'Mahsulot', 'Narx ($)', 'Miqdor', 'Jami ($)']
-        ];
+        let itemsHtml = '';
         rows.forEach((row, i) => {
             const cells = row.querySelectorAll('td');
-            const name = cells[1] ? cells[1].textContent.trim() : '';
-            const price = cells[2] ? parseFloat(cells[2].textContent.replace('$','')) || 0 : 0;
-            const qty = cells[3] ? parseFloat(cells[3].textContent) || 0 : 0;
-            const sum = cells[4] ? parseFloat(cells[4].textContent.replace('$','')) || 0 : 0;
-            data.push([i + 1, name, price, qty, sum]);
-        });
-        data.push([]);
-        data.push(['', '', '', 'Jami:', parseFloat(totalSum.replace('$','')) || 0]);
-
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        ws['!cols'] = [{ wch: 5 }, { wch: 38 }, { wch: 12 }, { wch: 10 }, { wch: 14 }];
-
-        // Sarlavha katak bold
-        ['A1','D1'].forEach(addr => {
-            if (ws[addr]) ws[addr].s = { font: { bold: true, sz: 12 } };
+            const name  = cells[1] ? cells[1].textContent.trim() : '';
+            const price = cells[2] ? cells[2].textContent.trim() : '';
+            const qty   = cells[3] ? cells[3].textContent.trim() : '';
+            const sum   = cells[4] ? cells[4].textContent.trim() : '';
+            itemsHtml +=
+                '<tr>' +
+                '<td colspan="1" style="text-align:center;">' + (i+1) + '</td>' +
+                '<td colspan="9">' + name + '</td>' +
+                '<td colspan="2" style="text-align:center;">' + price + '</td>' +
+                '<td colspan="2" style="text-align:center;">' + qty + '</td>' +
+                '<td colspan="1" style="text-align:center;">' + sum + '</td>' +
+                '</tr>';
         });
 
-        // A4 print sozlamalari
-        ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
-        ws['!margins'] = { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 };
+        const html =
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head><meta charset="UTF-8">' +
+            '<style>table{width:100%;border-collapse:collapse;font-size:20pt;table-layout:fixed;}td,th{padding:12px 10px;word-wrap:break-word;overflow:hidden;}</style>' +
+            '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>' +
+            '<x:Name>Transfer</x:Name>' +
+            '<x:WorksheetOptions><x:Print><x:ValidPrinterInfo/><x:PaperSizeIndex>9</x:PaperSizeIndex><x:HorizontalResolution>600</x:HorizontalResolution><x:VerticalResolution>600</x:VerticalResolution></x:Print>' +
+            '<x:FitToPage/><x:DoNotDisplayGridlines/><x:PageSetup><x:Layout x:Orientation="Portrait"/></x:PageSetup></x:WorksheetOptions>' +
+            '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
+            '</head><body><table border="1" width="100%">' +
+            '<tr>' +
+              '<td colspan="10" style="font-size:22pt;font-weight:bold;background-color:#d9e2f3;">Transfer ro\'yxati: ' + route + '</td>' +
+              '<td colspan="5"  style="font-size:18pt;font-weight:bold;background-color:#d9e2f3;text-align:right;">Sana: ' + today + '</td>' +
+            '</tr>' +
+            '<tr><td colspan="15">&nbsp;</td></tr>' +
+            '<tr style="background-color:#f0f0f0;font-weight:bold;">' +
+              '<td colspan="1" style="text-align:center;">#</td>' +
+              '<td colspan="9">Mahsulot</td>' +
+              '<td colspan="2" style="text-align:center;">Narx ($)</td>' +
+              '<td colspan="2" style="text-align:center;">Miqdor</td>' +
+              '<td colspan="1" style="text-align:center;">Jami ($)</td>' +
+            '</tr>' +
+            itemsHtml +
+            '<tr><td colspan="15">&nbsp;</td></tr>' +
+            '<tr>' +
+              '<td colspan="13"></td>' +
+              '<td colspan="1" style="font-weight:bold;text-align:right;">Jami:</td>' +
+              '<td colspan="1" style="font-weight:bold;text-align:center;">' + totalSum + '</td>' +
+            '</tr>' +
+            '</table></body></html>';
 
-        // Sarlavha hujayralarini birlashtirish
-        ws['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
-            { s: { r: 0, c: 3 }, e: { r: 0, c: 4 } }
-        ];
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Transfer');
-        XLSX.writeFile(wb, `transfer_${route.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`);
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transfer_' + route.replace(/[^a-zA-Z0-9]/g,'_') + '.xls';
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     // Transfer mahsulotlarini modal da ko'rsatish
