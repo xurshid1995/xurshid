@@ -802,6 +802,7 @@
             </div>
             <!-- Sotuvchiga jonatish tugmasi (faqat mode=dispatch da) -->
             <div class="action-buttons" id="dispatchActionButtons" style="display:none;">
+                <button class="btn" style="background:#6c757d;color:white;font-size:15px;padding:14px 32px;" onclick="saveAndExitDispatch()">💾 Saqlash va chiqish</button>
                 <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">📦 Sotuvchiga jo'natish</button>
             </div>
         </div>
@@ -2199,6 +2200,20 @@
         document.getElementById('pageTitle').textContent = '📦 Transferni Tahrirlash va Yig\'ish';
 
         console.log('✅ Yig\'ish rejimi yoqildi (tahrirlash imkoni bilan)');
+    }
+
+    // Saqlash va chiqish (dispatch mode — tasdiqlamasdan)
+    async function saveAndExitDispatch() {
+        const btn = document.querySelector('#dispatchActionButtons button');
+        btn.disabled = true;
+        btn.textContent = '⏳ Saqlanmoqda...';
+        try {
+            await savePendingTransfer();
+            window.location.href = '/transfer';
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = '💾 Saqlash va chiqish';
+        }
     }
 
     // Sotuvchiga jo'natish (dispatch mode dan)
