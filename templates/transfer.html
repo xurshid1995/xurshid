@@ -662,7 +662,6 @@
 
         // Sarlavha + bo'sh qator + jadval sarlavhasi + qatorlar + jami
         const data = [
-            ['Diamond Car Accessories'],
             [`Transfer ro'yxati: ${route}`],
             [`Sana: ${today}`],
             [],
@@ -689,8 +688,7 @@
         // Sarlavha hujayralarini birlashtirish (A1:E1, A2:E2, A3:E3)
         ws['!merges'] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
-            { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
-            { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }
         ];
 
         const wb = XLSX.utils.book_new();
