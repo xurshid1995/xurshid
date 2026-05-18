@@ -434,8 +434,11 @@
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             } else {
-                                // Sotuvchi: hech narsa qila olmaydi — faqat kutadi
-                                actionButtons = `<span style="color:#856404;font-size:0.85em;">⏳ Omborchi kutilmoqda...</span>`;
+                                // Sotuvchi: faqat kutadi + ko'rish
+                                actionButtons = `
+                                    <span style="color:#856404;font-size:0.85em;">⏳ Omborchi kutilmoqda...</span>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
+                                `;
                             }
                         } else if (status === 'dispatched') {
                             if (userRole === 'admin' || userRole === 'sotuvchi' || userRole === 'kassir') {
