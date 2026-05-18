@@ -803,7 +803,6 @@
             <!-- Sotuvchiga jonatish tugmasi (faqat mode=dispatch da) -->
             <div class="action-buttons" id="dispatchActionButtons" style="display:none;">
                 <button class="btn" style="background:#6c757d;color:white;font-size:15px;padding:14px 32px;" onclick="saveAndExitDispatch()">💾 Saqlash va chiqish</button>
-                <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">📦 Sotuvchiga jo'natish</button>
             </div>
         </div>
     </div>
@@ -879,6 +878,8 @@
         const today = new Date().toISOString().slice(0, 10);
         XLSX.writeFile(wb, `transfer_${today}.xlsx`);
     }
+
+    const userRole = '{{ session.get("role", "") }}';
 
     const TLANG = {
         warehouses_group: {{ t("warehouses_group")|tojson }},
@@ -2026,7 +2027,23 @@
         const toLocation = document.getElementById('toLocation').value;
         
         // Agar joylashuvlar tanlanmagan yoki ro'yxat bo'sh bo'lsa, o'chirish
+        // MUHIM: 'sent' holatdagi transferni o'chirish mumkin emas (omborchi ko'radi)
         if (!fromLocation || !toLocation || transferList.length === 0) {
+            // Faqat 'draft' holatdagi transferni o'chirish — 'sent'ni o'chirmaymiz
+            if (currentPendingTransferId) {
+                // Avval statusini tekshiramiz
+                try {
+                    const checkResp = await fetch(`/api/pending-transfer/${currentPendingTransferId}`);
+                    if (checkResp.ok) {
+                        const checkData = await checkResp.json();
+                        const st = checkData.pending_transfer && checkData.pending_transfer.status;
+                        if (st === 'sent' || st === 'dispatched') {
+                            // Yuborilgan transferni bo'sh ro'yxat bilan o'chirmaymiz, shunchaki chiqamiz
+                            return;
+                        }
+                    }
+                } catch (e) { /* ignore */ }
+            }
             await deletePendingTransfer();
             return;
         }
@@ -2491,16 +2508,11 @@
         const isNewTransfer = urlParams.get('new') === 'true';
         const pendingId = urlParams.get('id');
         const isReceiveMode = urlParams.get('mode') === 'receive';
-        const isDispatchMode = urlParams.get('mode') === 'dispatch';
         
         if (isReceiveMode && pendingId) {
             // Kirim tekshiruvi rejimi (sotuvchi)
             await loadPendingTransfer();
             enableReceiveMode();
-        } else if (isDispatchMode && pendingId) {
-            // Yig'ish rejimi (omborchi)
-            await loadPendingTransfer();
-            enableDispatchMode();
         } else if (isNewTransfer) {
             // Yangi transfer boshlash - ID'ni o'chirish
             currentPendingTransferId = null;
@@ -2596,6 +2608,11 @@
                     
                     updateTransferListDisplay();
                     console.log('✅ Tasdiqlanmagan transfer tiklandi:', transferList.length, 'ta mahsulot');
+
+                    // Agar transfer 'sent' holatida va omborchi/admin bo'lsa — dispatch modeni avtomatik yoq
+                    if (pending.status === 'sent' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
+                        enableDispatchMode();
+                    }
                 }
             }
         } catch (error) {
