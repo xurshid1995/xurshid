@@ -321,6 +321,8 @@
 
 {% endblock %}
 
+<!-- SheetJS kutubxonasi Excel eksport uchun -->
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 {% block extra_js %}
 <script>
     const TR1LANG = {
@@ -647,27 +649,29 @@
     
     // Transfer Excel export
     function exportTransferExcel() {
+        if (typeof XLSX === 'undefined') {
+            alert('❌ Excel kutubxonasi yuklanmadi, sahifani yangilang.');
+            return;
+        }
         const route = document.getElementById('transferItemsRoute').textContent;
         const rows = document.querySelectorAll('#transferItemsBody tr');
         if (!rows.length) return;
 
-        let csv = '\uFEFF#,Mahsulot,Narx,Miqdor,Jami\n';
+        const data = [['#', 'Mahsulot', 'Narx ($)', 'Miqdor', 'Jami ($)']];
         rows.forEach((row, i) => {
             const cells = row.querySelectorAll('td');
             const name = cells[1] ? cells[1].textContent.trim() : '';
-            const price = cells[2] ? cells[2].textContent.trim() : '';
-            const qty = cells[3] ? cells[3].textContent.replace(' dona','').trim() : '';
-            const sum = cells[4] ? cells[4].textContent.trim() : '';
-            csv += `${i+1},"${name}",${price},${qty},${sum}\n`;
+            const price = cells[2] ? parseFloat(cells[2].textContent.replace('$','')) || 0 : 0;
+            const qty = cells[3] ? parseFloat(cells[3].textContent) || 0 : 0;
+            const sum = cells[4] ? parseFloat(cells[4].textContent.replace('$','')) || 0 : 0;
+            data.push([i + 1, name, price, qty, sum]);
         });
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `transfer_${route.replace(/[^a-zA-Z0-9]/g,'_')}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{ wch: 4 }, { wch: 35 }, { wch: 12 }, { wch: 10 }, { wch: 12 }];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transfer');
+        XLSX.writeFile(wb, `transfer_${route.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`);
     }
 
     // Transfer mahsulotlarini modal da ko'rsatish
