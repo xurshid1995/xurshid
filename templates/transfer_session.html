@@ -1851,7 +1851,7 @@
                     <span style="background: #3d6e8f; color: white; padding: 4px 10px; border-radius: 6px; font-weight: 600;">${quantityDisplay}</span>
                 </td>
                 <td style="text-align: center;">
-                    ${isReceiveMode ? '' : `
+                    ${(isReceiveMode || isLockedMode) ? '' : `
                     <button onclick="editTransferItem(${index})" 
                             style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px 4px;" 
                             title="${TLANG.edit_label}">✏️</button>
@@ -2023,6 +2023,9 @@
 
     // Tasdiqlanmagan transferni saqlash/yangilash
     async function savePendingTransfer() {
+        // Locked modeda (dispatched holat, omborchi ko'rish rejimi) save ishlamaydi
+        if (isLockedMode) return;
+
         const fromLocation = document.getElementById('fromLocation').value;
         const toLocation = document.getElementById('toLocation').value;
         
@@ -2160,6 +2163,7 @@
 
     // Double-click himoyasi uchun o'zgaruvchi
     let isProcessingTransfer = false;
+    let isLockedMode = false; // dispatched holat — omborchi faqat ko'ra oladi
 
     // Kirim tekshiruvi rejimini yoqish
     function enableReceiveMode() {
@@ -2217,6 +2221,40 @@
         document.getElementById('pageTitle').textContent = '📦 Transferni Tahrirlash va Yig\'ish';
 
         console.log('✅ Yig\'ish rejimi yoqildi (tahrirlash imkoni bilan)');
+    }
+
+    // Jo'natilgan transfer — faqat ko'rish (omborchi uchun, dispatched holatda)
+    function enableLockedDispatchMode() {
+        isLockedMode = true;
+
+        // Chap panelni yashirish
+        const layouts = document.querySelectorAll('.transfer-layout');
+        if (layouts.length >= 1) layouts[0].style.display = 'none';
+        const grid = document.querySelector('.transfer-layouts');
+        if (grid) grid.style.gridTemplateColumns = '1fr';
+
+        // Barcha tugmalarni yashirish
+        document.getElementById('normalActionButtons').style.display = 'none';
+        document.getElementById('dispatchActionButtons').style.display = 'none';
+        document.getElementById('receiveActionButtons').style.display = 'none';
+
+        // Sariq banner ko'rsatish
+        const banner = document.getElementById('receiveBanner');
+        if (banner) {
+            banner.style.display = 'block';
+            banner.style.background = '#fff3cd';
+            banner.style.borderColor = '#ffc107';
+            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#856404;">⏳ Transfer yo\'lda — kutish rejimi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Transfer sotuvchiga jo\'natildi. Sotuvchi qabul qilgunicha yoki rad etgunicha tahrirlash mumkin emas.</div>';
+        }
+
+        // Sarlavhani o'zgartirish
+        document.getElementById('pageTitle').textContent = '🔒 Transfer yo\'lda (faqat ko\'rish)';
+
+        // Qidiruvni yashirish
+        const searchInput = document.getElementById('transferListSearch');
+        if (searchInput) searchInput.style.display = 'none';
+
+        console.log('🔒 Locked dispatch rejimi yoqildi');
     }
 
     // Saqlash va chiqish (dispatch mode — tasdiqlamasdan)
@@ -2645,6 +2683,9 @@
                     // Agar transfer 'sent' holatida va omborchi/admin bo'lsa — dispatch modeni avtomatik yoq
                     if (pending.status === 'sent' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
                         enableDispatchMode();
+                    } else if (pending.status === 'dispatched' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
+                        // Jo'natilgan transfer — faqat ko'rish rejimi
+                        enableLockedDispatchMode();
                     }
                 }
             }

@@ -10405,9 +10405,12 @@ def manage_pending_transfer(pending_id=None):
                 return jsonify({'error': 'Sizga bu transferni tahrirlash uchun ruxsat yo\'q'}), 403
 
             # Sotuvchi sent/dispatched transferni tahrirlay olmaydi
-            # Omborchi esa sotuvchi tasdiqlagunicha (dispatched holatda) tahrirlay oladi
             if pending.status in ('sent', 'dispatched') and current_user.role == 'sotuvchi':
                 return jsonify({'error': 'Yuborilgan transferni tahrirlash mumkin emas'}), 403
+
+            # Omborchi dispatched (yo'lda) transferni tahrirlay olmaydi — sotuvchi rad etgandagina mumkin
+            if pending.status == 'dispatched' and current_user.role in ('omborchi', 'admin', 'kassir'):
+                return jsonify({'error': 'Jo\'natilgan transferni tahrirlash mumkin emas. Sotuvchi rad etganidan keyin tahrirlash mumkin'}), 403
 
             pending.from_location_type = data['from_location_type']
             pending.from_location_id = data['from_location_id']
