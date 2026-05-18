@@ -281,6 +281,32 @@
     </div>
 
 </div>
+
+<!-- Transfer mahsulotlari modali -->
+<div id="transferItemsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:28px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div>
+                <h3 style="margin:0; font-size:16px; color:#1a202c;">📦 Transfer ro'yxati</h3>
+                <div id="transferItemsRoute" style="font-size:13px; color:#6b7280; margin-top:4px;"></div>
+            </div>
+            <button onclick="document.getElementById('transferItemsModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280; line-height:1;">✕</button>
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+                <tr style="background:#f8f9fa; border-bottom:2px solid #e9ecef;">
+                    <th style="padding:10px 12px; text-align:left; color:#374151; font-weight:600;">#</th>
+                    <th style="padding:10px 12px; text-align:left; color:#374151; font-weight:600;">Mahsulot</th>
+                    <th style="padding:10px 12px; text-align:center; color:#374151; font-weight:600;">Narx</th>
+                    <th style="padding:10px 12px; text-align:center; color:#374151; font-weight:600;">Miqdor</th>
+                </tr>
+            </thead>
+            <tbody id="transferItemsBody"></tbody>
+        </table>
+        <div id="transferItemsEmpty" style="display:none; text-align:center; padding:30px; color:#9ca3af;">📭 Mahsulotlar yo'q</div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -408,11 +434,13 @@
                                 // Sotuvchi: davom ettirish (transfer_session'da tekshirib tasdiqlaydi)
                                 actionButtons = `
                                     <a href="/transfer_session?id=${pending.id}&mode=receive" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">▶️ Davom ettirish</a>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id}, ${JSON.stringify(pending.items).replace(/"/g, '&quot;')}, '${pending.from_location}', '${pending.to_location}')">👁️ Ko'rish</button>
                                 `;
                             } else {
-                                // Omborchi: tahrirlash mumkin (sotuvchi tasdiqlagunicha)
+                                // Omborchi: tahrirlash + ko'rish
                                 actionButtons = `
                                     <a href="/transfer_session?id=${pending.id}" class="btn-sm btn-success-sm">✏️ ${TR1LANG.edit}</a>
+                                    <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id}, ${JSON.stringify(pending.items).replace(/"/g, '&quot;')}, '${pending.from_location}', '${pending.to_location}')">👁️ Ko'rish</button>
                                 `;
                             }
                         } else {
@@ -594,6 +622,28 @@
         });
     });
     
+    // Transfer mahsulotlarini modal da ko'rsatish
+    function showTransferItems(id, items, from, to) {
+        document.getElementById('transferItemsRoute').textContent = from + ' → ' + to;
+        const tbody = document.getElementById('transferItemsBody');
+        const empty = document.getElementById('transferItemsEmpty');
+        if (!items || items.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            tbody.innerHTML = items.map((item, i) => `
+                <tr style="border-bottom:1px solid #f0f0f0;">
+                    <td style="padding:9px 12px; color:#9ca3af;">${i + 1}</td>
+                    <td style="padding:9px 12px; font-weight:500;">${item.name || '—'}</td>
+                    <td style="padding:9px 12px; text-align:center; color:#6b7280;">$${parseFloat(item.price || 0).toFixed(2)}</td>
+                    <td style="padding:9px 12px; text-align:center;"><strong>${item.quantity || 0}</strong> dona</td>
+                </tr>
+            `).join('');
+        }
+        document.getElementById('transferItemsModal').style.display = 'flex';
+    }
+
     // Sahifa yuklanganda ma'lumotlarni yuklash
     document.addEventListener('DOMContentLoaded', function() {
         loadPendingTransfers();
