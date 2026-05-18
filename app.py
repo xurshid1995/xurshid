@@ -10610,6 +10610,36 @@ def receiver_confirm_transfer(pending_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/pending-transfer/<int:pending_id>/reject', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def reject_transfer(pending_id):
+    """Sotuvchi kirimni rad etadi — transfer qaytib 'sent' holatiga tushadi"""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
+
+        pending = PendingTransfer.query.get(pending_id)
+        if not pending:
+            return jsonify({'error': 'Transfer topilmadi'}), 404
+
+        if not user_can_manage_transfer(current_user, pending):
+            return jsonify({'error': 'Ruxsat yo\'q'}), 403
+
+        if pending.status != 'dispatched':
+            return jsonify({'error': 'Faqat yo\'ldagi (dispatched) transferni rad etish mumkin'}), 400
+
+        pending.status = 'sent'
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Transfer rad etildi, omborchiga qaytarildi'})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Transferni rad etishda xatolik: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/pending-product-batch', methods=['GET', 'POST'])
 @app.route('/api/pending-product-batch/<int:batch_id>', methods=['GET', 'PUT', 'DELETE'])
 @role_required('admin', 'kassir', 'omborchi')

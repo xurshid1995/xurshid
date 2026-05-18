@@ -797,6 +797,7 @@
             </div>
             <!-- Kirim tasdiqlash tugmasi (faqat mode=receive da) -->
             <div class="action-buttons" id="receiveActionButtons" style="display:none;">
+                <button class="btn" style="background:#dc3545;color:white;font-size:15px;padding:14px 32px;margin-right:12px;" onclick="rejectTransfer()">❌ Rad etish</button>
                 <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="confirmReceiveTransfer()">✅ Kirimni tasdiqlash</button>
             </div>
             <!-- Sotuvchiga jonatish tugmasi (faqat sent holatda omborchi uchun) -->
@@ -2273,6 +2274,39 @@
     }
 
     // Kirimni tasdiqlash (receive mode dan)
+    async function rejectTransfer() {
+        if (!currentPendingTransferId) {
+            alert('❌ Transfer ID topilmadi');
+            return;
+        }
+        if (!confirm('❌ Transferni rad etasizmi? Omborchi qayta ko\'radi.')) return;
+        
+        const btn = document.querySelector('#receiveActionButtons button:first-child');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ ...';
+        
+        try {
+            const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                alert('✅ Transfer rad etildi. Omborchi qayta tahrirlaydi.');
+                window.location.href = '/transfer';
+            } else {
+                alert('❌ ' + (result.error || 'Xatolik'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        } catch (e) {
+            alert('❌ Serverga ulanishda xatolik');
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
     async function confirmReceiveTransfer() {
         if (!currentPendingTransferId) {
             alert('❌ Transfer ID topilmadi');
