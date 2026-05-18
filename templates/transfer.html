@@ -290,7 +290,10 @@
                 <h3 style="margin:0; font-size:16px; color:#1a202c;">📦 Transfer ro'yxati</h3>
                 <div id="transferItemsRoute" style="font-size:13px; color:#6b7280; margin-top:4px;"></div>
             </div>
-            <button onclick="document.getElementById('transferItemsModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280; line-height:1;">✕</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button onclick="exportTransferExcel()" style="background:#1d6f42; color:white; border:none; border-radius:7px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">📊 Excel</button>
+                <button onclick="document.getElementById('transferItemsModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280; line-height:1;">✕</button>
+            </div>
         </div>
         <table style="width:100%; border-collapse:collapse; font-size:14px;">
             <thead>
@@ -633,6 +636,30 @@
         });
     });
     
+    // Transfer Excel export
+    function exportTransferExcel() {
+        const route = document.getElementById('transferItemsRoute').textContent;
+        const rows = document.querySelectorAll('#transferItemsBody tr');
+        if (!rows.length) return;
+
+        let csv = '\uFEFF#,Mahsulot,Narx,Miqdor\n';
+        rows.forEach((row, i) => {
+            const cells = row.querySelectorAll('td');
+            const name = cells[1] ? cells[1].textContent.trim() : '';
+            const price = cells[2] ? cells[2].textContent.trim() : '';
+            const qty = cells[3] ? cells[3].textContent.replace(' dona','').trim() : '';
+            csv += `${i+1},"${name}",${price},${qty}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transfer_${route.replace(/[^a-zA-Z0-9]/g,'_')}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     // Transfer mahsulotlarini modal da ko'rsatish
     function showTransferItems(id) {
         const data = transferItemsMap.get(id);
