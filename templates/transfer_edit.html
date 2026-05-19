@@ -5,10 +5,10 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
 <style>
-.te-topbar { position: sticky; top: 0; z-index: 50; background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 12px; }
-.te-topbar .arrow { font-size: 22px; color: #0066cc; font-weight: 700; }
-.te-topbar select { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
-.te-topbar .label { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+.te-topbar { position: sticky; top: 0; z-index: 50; background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 10px; width: 50%; max-width: 50%; }
+.te-topbar .arrow { font-size: 18px; color: #0066cc; font-weight: 700; }
+.te-topbar select { padding: 6px 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 13px; width: 100%; box-sizing: border-box; }
+.te-topbar .label { font-size: 10px; text-transform: uppercase; color: #6c757d; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 2px; }
 .te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .te-panel { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
 .te-panel-head { padding: 14px 18px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -39,7 +39,7 @@
 .te-cnt-badge { display: inline-flex; min-width: 24px; height: 24px; padding: 0 8px; border-radius: 12px; background: #28a745; color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; }
 .te-from-badge { display: inline-flex; padding: 4px 10px; border-radius: 10px; background: #cfe9ff; color: #024a87; font-size: 12px; font-weight: 600; }
 @media (max-width: 800px) {
-    .te-topbar { grid-template-columns: 1fr; }
+    .te-topbar { grid-template-columns: 1fr; width: 100%; max-width: 100%; }
     .te-topbar .arrow { display: none; }
     .te-grid { grid-template-columns: 1fr; }
     .te-actions-bar { flex-direction: column-reverse; }
@@ -113,7 +113,7 @@ function render() {
                     ${locOptions(toKey)}
                 </select>
             </div>
-            <div style="text-align:right;min-width:160px;">
+            <div style="text-align:right;min-width:120px;">
                 <div class="label">Holat</div>
                 <span class="tv-status tv-status-draft">✏️ Qoralama</span>
                 <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">✓ Saqlandi</span>
