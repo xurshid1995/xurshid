@@ -10753,10 +10753,10 @@ def get_all_pending_transfers():
         if current_user.role in ('admin', 'kassir'):
             pending_transfers = PendingTransfer.query.all()
         elif current_user.role == 'omborchi':
-            # Omborchi faqat yuborilgan (sent/dispatched) transferlarni ko'radi
+            # Omborchi faqat yuborilgan (sent/picking/dispatched) transferlarni ko'radi
             # Draft holatdagi (sotuvchi hali yozmayotgan) transferlarni ko'rmaydi
             all_pendings = PendingTransfer.query.filter(
-                PendingTransfer.status.in_(('sent', 'dispatched'))
+                PendingTransfer.status.in_(('sent', 'picking', 'dispatched'))
             ).all()
             pending_transfers = [
                 p for p in all_pendings
