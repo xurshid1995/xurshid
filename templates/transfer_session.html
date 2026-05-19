@@ -2648,7 +2648,7 @@
 
     // Sahifa yuklanganda
     document.addEventListener('DOMContentLoaded', async function() {
-        await loadLocations(); // Joylashuvlarni avval yuklash
+        await loadLocations(); // instant (INITIAL_DATA)
         
         // URL parametrlarini tekshirish
         const urlParams = new URLSearchParams(window.location.search);
@@ -2657,55 +2657,43 @@
         const isReceiveMode = urlParams.get('mode') === 'receive';
         
         if (isReceiveMode && pendingId) {
-            // Kirim tekshiruvi rejimi (sotuvchi)
+            // Kirim tekshiruvi rejimi — instant (INITIAL_DATA) + mode darhol
             await loadPendingTransfer();
             enableReceiveMode();
         } else if (isNewTransfer) {
-            // Yangi transfer boshlash - ID'ni o'chirish
             currentPendingTransferId = null;
-            console.log('✅ Yangi transfer boshlandi');
-            // URL'ni tozalash - ?new=true parametrini o'chirish
             const newUrl = new URL(window.location);
             newUrl.searchParams.delete('new');
             window.history.replaceState({}, '', newUrl);
         } else if (pendingId) {
-            // Mavjud pending transferni yuklash
+            // instant (INITIAL_DATA) + mode darhol o'rnatildi
             await loadPendingTransfer();
         }
         
-        const productSearch = document.getElementById('productSearch');
-        const fromLocation = document.getElementById('fromLocation');
-        
-        // Sahifa yuklanganda qayerdan selectiga fokus
-        setTimeout(() => fromLocation.focus(), 100);
-        
-        // Input hodisasi - filterProducts va barcode detection
-        productSearch.addEventListener('input', function() {
-            filterProducts();
-        });
-        
-        // Keydown hodisasi - klaviatura navigatsiyasi
-        productSearch.addEventListener('keydown', function(e) {
-            handleProductSearchKeydown(e);
-        });
-        
-        // Keypress hodisasi - Enter tugmasini to'xtatish
-        productSearch.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-            }
-        });
-        
-        // Focus hodisasi - status xabarni yashirish
-        productSearch.addEventListener('focus', function() {
-            document.getElementById('searchStatus').style.display = 'none';
-        });
-        
-        // Barcha data va role UI tayyor — sahifani ko'rsatish
+        // ← SAHIFA DARHOL KO'RSATISH (mode tayyor, UI to'g'ri holda)
         const overlay = document.getElementById('pageLoadingOverlay');
         if (overlay) overlay.style.display = 'none';
         const mainContent = document.getElementById('transferMainContent');
         if (mainContent) mainContent.style.visibility = 'visible';
+        
+        // Products non-blocking yuklash — sahifa allaqachon ko'rinmoqda,
+        // jadval ichida o'zining "⏳ Yuklanmoqda..." spinneri bor
+        loadProducts();
+        
+        const productSearch = document.getElementById('productSearch');
+        const fromLocation = document.getElementById('fromLocation');
+        
+        setTimeout(() => fromLocation.focus(), 100);
+        
+        productSearch.addEventListener('input', function() { filterProducts(); });
+        productSearch.addEventListener('keydown', function(e) { handleProductSearchKeydown(e); });
+        productSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+        productSearch.addEventListener('focus', function() {
+            document.getElementById('searchStatus').style.display = 'none';
+        });
+        
         console.log('✅ Transfer sahifasi tayyor (barcode scanner yoqilgan)');
     });
     
@@ -2749,10 +2737,7 @@
                     document.getElementById('fromLocation').value = fromLocation;
                     document.getElementById('toLocation').value = toLocation;
                     
-                    // Mahsulotlarni yuklash
-                    await loadProducts();
-                    
-                    // Transfer ro'yxatini tiklash
+                    // Transfer ro'yxatini tiklash (products yuklashdan OLDIN — darhol ko'rinadi)
                     transferList = pending.items.map(item => ({
                         id: item.product_id,
                         name: item.name,
@@ -2761,18 +2746,14 @@
                         available: item.available || 0,
                         unitType: item.unitType || 'dona'
                     }));
-                    
                     updateTransferListDisplay();
-                    console.log('✅ Tasdiqlanmagan transfer tiklandi:', transferList.length, 'ta mahsulot');
 
-                    // Agar transfer 'sent' holatida va omborchi/admin bo'lsa — yig'ishni boshlash rejimi
+                    // MODE DARHOL O'RNATISH — products kutmasdan sahifa to'g'ri holda ko'rinadi
                     if (pending.status === 'sent' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
                         enableStartPickingMode();
                     } else if (pending.status === 'picking' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
-                        // Yig'ilmoqda — omborchi dispatch rejimida tahrirlaydi va jo'natadi
                         enableDispatchMode();
                     } else if (pending.status === 'picking' && userRole === 'sotuvchi') {
-                        // Sotuvchi: yig'ilmoqda — faqat ko'rish
                         enableLockedDispatchMode();
                         const banner = document.getElementById('receiveBanner');
                         if (banner) {
@@ -2781,9 +2762,9 @@
                             banner.style.borderColor = '#0066cc';
                         }
                     } else if (pending.status === 'dispatched' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
-                        // Jo'natilgan transfer — faqat ko'rish rejimi
                         enableLockedDispatchMode();
                     }
+                    // loadProducts() — DOMContentLoaded da sahifa ochilgandan keyin chaqiriladi
                 }
             }
         } catch (error) {
