@@ -77,7 +77,7 @@ function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFracti
 function locOptions(selectedKey) {
     return INITIAL_DATA.locations.map(loc => {
         const key = `${loc.type}_${loc.id}`;
-        const label = (loc.type === 'warehouse' ? '🏭 ' : '🏪 ') + loc.name;
+        const label = (loc.type === 'warehouse' ? '🏭 ' : '🔄 ') + loc.name;
         return `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${label}</option>`;
     }).join('');
 }
@@ -88,7 +88,7 @@ function getLocName(key) {
     const lid = parseInt(id);
     const loc = INITIAL_DATA.locations.find(l => l.type === type && l.id === lid);
     if (!loc) return '—';
-    return (loc.type === 'warehouse' ? '🏭 ' : '🏪 ') + loc.name;
+    return (loc.type === 'warehouse' ? '🏭 ' : '🔄 ') + loc.name;
 }
 
 function render() {
@@ -140,7 +140,7 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-right">
                     <div>
-                        <h3 class="te-panel-title">🏪 <span id="toName">Do'kon tanlanmadi</span></h3>
+                        <h3 class="te-panel-title">🔄 <span id="toName">Do'kon tanlanmadi</span></h3>
                         <span class="te-panel-subtitle">— Jo'natiladigan mahsulotlar</span>
                     </div>
                     <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
