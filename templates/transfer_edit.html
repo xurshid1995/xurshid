@@ -33,22 +33,24 @@
     margin-bottom: 14px;
 }
 .tr-box-header .tr-box-title { margin: 0; flex-shrink: 0; }
-.tr-loc-inline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
+.tr-loc-inline { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; flex: 1; overflow: hidden; }
 .tr-loc-inline label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: #495057;
+    color: #64748b;
     white-space: nowrap;
 }
 .tr-loc-inline select {
-    padding: 6px 10px;
+    padding: 5px 6px;
     border: 1px solid #ced4da;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 12px;
     background: white;
     cursor: pointer;
-    min-width: 150px;
+    width: 0;
     flex: 1;
+    min-width: 0;
+    max-width: 160px;
 }
 .tr-save-badge {
     font-size: 12px;
