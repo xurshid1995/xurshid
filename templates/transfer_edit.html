@@ -5,39 +5,60 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
 <style>
-.te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.te-search-wrap { position: relative; }
+.te-topbar { position: sticky; top: 0; z-index: 50; background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 12px; }
+.te-topbar .arrow { font-size: 22px; color: #0066cc; font-weight: 700; }
+.te-topbar select { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+.te-topbar .label { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+.te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.te-panel { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.te-panel-head { padding: 14px 18px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.te-panel-head-left { background: linear-gradient(135deg, #e8f4fd 0%, #f5fbff 100%); }
+.te-panel-head-right { background: linear-gradient(135deg, #e6f6ec 0%, #f3fcf6 100%); }
+.te-panel-title { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; }
+.te-panel-subtitle { font-size: 12px; color: #6c757d; margin-top: 2px; }
+.te-panel-body { padding: 14px; }
 .te-search-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-.te-product-list { max-height: 480px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-top: 10px; }
-.te-product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f1f3f5; cursor: pointer; transition: background 0.15s; }
-.te-product-row:hover { background: #f8f9fa; }
+.te-product-list { max-height: 520px; overflow-y: auto; border: 1px solid #f1f3f5; border-radius: 8px; margin-top: 10px; }
+.te-product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f8f9fa; cursor: pointer; transition: background 0.15s; }
+.te-product-row:hover { background: #f0f9ff; }
 .te-product-row:last-child { border-bottom: none; }
 .te-product-name { font-weight: 500; color: #0f172a; font-size: 14px; }
 .te-product-meta { font-size: 12px; color: #6c757d; margin-top: 2px; }
 .te-add-btn { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
 .te-add-btn:disabled { background: #adb5bd; cursor: not-allowed; }
-.te-selected-empty { text-align: center; color: #adb5bd; padding: 40px 12px; font-size: 14px; }
+.te-selected-empty { text-align: center; color: #adb5bd; padding: 50px 12px; font-size: 14px; }
+.te-cart-table { width: 100%; border-collapse: collapse; }
+.te-cart-table th, .te-cart-table td { padding: 10px 8px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; font-size: 14px; }
+.te-cart-table th { background: #f8f9fa; font-size: 12px; color: #6c757d; text-transform: uppercase; text-align: left; }
 .te-qty-cell { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
-.te-qty-btn { width: 28px; height: 28px; border-radius: 6px; background: #f1f3f5; border: 1px solid #dee2e6; cursor: pointer; font-weight: 700; color: #495057; }
+.te-qty-btn { width: 28px; height: 28px; border-radius: 6px; background: #f1f3f5; border: 1px solid #dee2e6; cursor: pointer; font-weight: 700; color: #495057; font-size: 16px; }
 .te-qty-btn:hover { background: #e9ecef; }
+.te-qty-input { width: 70px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 6px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
 .te-del-btn { background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 4px 8px; }
+.te-actions-bar { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #e9ecef; padding: 14px 18px; margin-top: 16px; border-radius: 12px; box-shadow: 0 -2px 6px rgba(0,0,0,0.04); display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.te-cnt-badge { display: inline-flex; min-width: 24px; height: 24px; padding: 0 8px; border-radius: 12px; background: #28a745; color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; }
+.te-from-badge { display: inline-flex; padding: 4px 10px; border-radius: 10px; background: #cfe9ff; color: #024a87; font-size: 12px; font-weight: 600; }
 @media (max-width: 800px) {
+    .te-topbar { grid-template-columns: 1fr; }
+    .te-topbar .arrow { display: none; }
     .te-grid { grid-template-columns: 1fr; }
+    .te-actions-bar { flex-direction: column-reverse; }
+    .te-actions-bar > * { width: 100%; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="tv-wrap" style="max-width: 1200px;">
+<div class="tv-wrap" style="max-width: 1280px;">
     <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
     <div id="tvRoot"></div>
 </div>
 
 <script>
 const INITIAL_DATA = {{ initial_data|tojson }};
-const MODE = INITIAL_DATA.mode; // 'new' yoki 'edit'
+const MODE = INITIAL_DATA.mode;
 let pendingId = INITIAL_DATA.pending_transfer ? INITIAL_DATA.pending_transfer.id : null;
-let selectedItems = []; // [{product_id, name, quantity, price}]
+let selectedItems = [];
 let allProducts = [];
 let filteredProducts = [];
 let saveTimer = null;
@@ -53,12 +74,21 @@ if (INITIAL_DATA.pending_transfer) {
 
 function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
 
-function locationOptions(selectedKey) {
+function locOptions(selectedKey) {
     return INITIAL_DATA.locations.map(loc => {
         const key = `${loc.type}_${loc.id}`;
         const label = (loc.type === 'warehouse' ? '🏭 ' : '🏪 ') + loc.name;
         return `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${label}</option>`;
     }).join('');
+}
+
+function getLocName(key) {
+    if (!key) return '—';
+    const [type, id] = key.split('_');
+    const lid = parseInt(id);
+    const loc = INITIAL_DATA.locations.find(l => l.type === type && l.id === lid);
+    if (!loc) return '—';
+    return (loc.type === 'warehouse' ? '🏭 ' : '🏪 ') + loc.name;
 }
 
 function render() {
@@ -67,57 +97,69 @@ function render() {
     const toKey = p.to_location_type ? `${p.to_location_type}_${p.to_location_id}` : '';
 
     document.getElementById('tvRoot').innerHTML = `
-        <div class="tv-card">
-            <h2 class="tv-title">${MODE === 'new' ? '➕ Yangi transfer' : `✏️ Transfer #${pendingId} tahriri`}
-                <span class="tv-save-indicator" id="saveInd">✓ Saqlandi</span>
-            </h2>
-            <div class="tv-info-box">
-                💡 Mahsulotlarni qo'shing va keyinroq omborga yuborishingiz mumkin. Avtomatik saqlanadi.
+        <div class="te-topbar">
+            <div>
+                <div class="label">Qayerdan (ombor)</div>
+                <select id="fromLocation">
+                    <option value="">— Tanlang —</option>
+                    ${locOptions(fromKey)}
+                </select>
             </div>
-            <div class="tv-row">
-                <div>
-                    <div class="tv-label">Qayerdan (ombor)</div>
-                    <select id="fromLocation" class="te-search-input">
-                        <option value="">— Tanlang —</option>
-                        ${locationOptions(fromKey)}
-                    </select>
-                </div>
-                <div>
-                    <div class="tv-label">Qayerga (do'kon)</div>
-                    <select id="toLocation" class="te-search-input">
-                        <option value="">— Tanlang —</option>
-                        ${locationOptions(toKey)}
-                    </select>
-                </div>
+            <div class="arrow">➜</div>
+            <div>
+                <div class="label">Qayerga (do'kon)</div>
+                <select id="toLocation">
+                    <option value="">— Tanlang —</option>
+                    ${locOptions(toKey)}
+                </select>
+            </div>
+            <div style="text-align:right;min-width:160px;">
+                <div class="label">Holat</div>
+                <span class="tv-status tv-status-draft">✏️ Qoralama</span>
+                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">✓ Saqlandi</span>
             </div>
         </div>
 
         <div class="te-grid">
-            <div class="tv-card">
-                <h3 class="tv-title" style="font-size:16px;">📦 Mahsulot tanlash</h3>
-                <div class="te-search-wrap">
-                    <input type="text" id="productSearch" class="te-search-input" placeholder="Mahsulot nomi yoki barcode..." />
+            <div class="te-panel">
+                <div class="te-panel-head te-panel-head-left">
+                    <div>
+                        <h3 class="te-panel-title">📦 <span id="fromName">Ombor tanlanmadi</span></h3>
+                        <div class="te-panel-subtitle">Mavjud mahsulotlar — bosib qo'shing</div>
+                    </div>
+                    <span class="te-from-badge" id="fromCount">0 ta</span>
                 </div>
-                <div class="te-product-list" id="productList">
-                    <div class="te-selected-empty">Avval omborni tanlang</div>
+                <div class="te-panel-body">
+                    <input type="text" id="productSearch" class="te-search-input" placeholder="🔎 Nomi yoki barcode bo'yicha qidirish..." />
+                    <div class="te-product-list" id="productList">
+                        <div class="te-selected-empty">Avval omborni tanlang</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="tv-card">
-                <h3 class="tv-title" style="font-size:16px;">🛒 Tanlangan mahsulotlar (<span id="cntSelected">${selectedItems.length}</span>)</h3>
-                <table class="tv-table">
-                    <thead><tr>
-                        <th>Mahsulot</th>
-                        <th class="num">Miqdor</th>
-                        <th></th>
-                    </tr></thead>
-                    <tbody id="selectedBody"></tbody>
-                </table>
+            <div class="te-panel">
+                <div class="te-panel-head te-panel-head-right">
+                    <div>
+                        <h3 class="te-panel-title">🛒 <span id="toName">Do'kon tanlanmadi</span></h3>
+                        <div class="te-panel-subtitle">Jo'natiladigan mahsulotlar ro'yxati</div>
+                    </div>
+                    <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
+                </div>
+                <div class="te-panel-body">
+                    <table class="te-cart-table">
+                        <thead><tr>
+                            <th>Mahsulot</th>
+                            <th style="text-align:right;">Miqdor</th>
+                            <th></th>
+                        </tr></thead>
+                        <tbody id="selectedBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="tv-actions tv-actions-between">
-            <button class="tv-btn tv-btn-danger" id="btnDelete" ${MODE === 'new' ? 'style="display:none;"' : ''}>🗑️ O'chirish</button>
+        <div class="te-actions-bar">
+            <button class="tv-btn tv-btn-danger" id="btnDelete" ${MODE === 'new' ? 'style="display:none;"' : ''}>🗑️ Qoralamani o'chirish</button>
             <div style="display:flex;gap:10px;">
                 <a href="/transfer" class="tv-btn tv-btn-secondary">Yopish</a>
                 <button class="tv-btn tv-btn-success" id="btnSend">📤 Omborga yuborish</button>
@@ -126,25 +168,40 @@ function render() {
     `;
 
     document.getElementById('fromLocation').addEventListener('change', onLocationChange);
-    document.getElementById('toLocation').addEventListener('change', scheduleSave);
+    document.getElementById('toLocation').addEventListener('change', onToChange);
     document.getElementById('productSearch').addEventListener('input', onSearch);
     document.getElementById('btnSend').addEventListener('click', sendToWarehouse);
     document.getElementById('btnDelete').addEventListener('click', deleteDraft);
 
+    updatePanelHeaders();
     renderSelected();
     if (fromKey) loadProducts();
 }
 
+function updatePanelHeaders() {
+    const from = document.getElementById('fromLocation').value;
+    const to = document.getElementById('toLocation').value;
+    document.getElementById('fromName').textContent = from ? getLocName(from) : 'Ombor tanlanmadi';
+    document.getElementById('toName').textContent = to ? getLocName(to) : 'Do\'kon tanlanmadi';
+}
+
 function onLocationChange() {
+    updatePanelHeaders();
     loadProducts();
+    scheduleSave();
+}
+function onToChange() {
+    updatePanelHeaders();
     scheduleSave();
 }
 
 async function loadProducts() {
     const from = document.getElementById('fromLocation').value;
     const list = document.getElementById('productList');
+    const cnt = document.getElementById('fromCount');
     if (!from) {
         list.innerHTML = '<div class="te-selected-empty">Avval omborni tanlang</div>';
+        cnt.textContent = '0 ta';
         return;
     }
     list.innerHTML = '<div class="te-selected-empty">⏳ Yuklanmoqda...</div>';
@@ -153,6 +210,7 @@ async function loadProducts() {
         const data = await res.json();
         allProducts = Array.isArray(data) ? data : (data.products || []);
         filteredProducts = allProducts;
+        cnt.textContent = `${allProducts.length} ta`;
         renderProductList();
     } catch (e) {
         list.innerHTML = '<div class="te-selected-empty">⚠️ Xatolik: ' + e.message + '</div>';
@@ -182,9 +240,9 @@ function renderProductList() {
             <div class="te-product-row" data-pid="${p.id}">
                 <div>
                     <div class="te-product-name">${p.name}</div>
-                    <div class="te-product-meta">Mavjud: ${fmtNum(stock)} | Narx: ${fmtNum(p.price)}</div>
+                    <div class="te-product-meta">📦 ${fmtNum(stock)} dona • 💰 ${fmtNum(p.price)}</div>
                 </div>
-                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓ qo\'shilgan' : '+ qo\'shish'}</button>
+                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓' : '+ qo\'shish'}</button>
             </div>
         `;
     }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidirish bilan toraytiring.</div>` : '');
@@ -196,11 +254,8 @@ function renderProductList() {
 
 function onSearch(e) {
     const q = e.target.value.trim().toLowerCase();
-    if (!q) filteredProducts = allProducts;
-    else filteredProducts = allProducts.filter(p =>
-        (p.name || '').toLowerCase().includes(q) ||
-        (p.barcode || '').toLowerCase().includes(q)
-    );
+    filteredProducts = !q ? allProducts : allProducts.filter(p =>
+        (p.name||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q));
     renderProductList();
 }
 
@@ -218,20 +273,20 @@ function renderSelected() {
     const body = document.getElementById('selectedBody');
     document.getElementById('cntSelected').textContent = selectedItems.length;
     if (!selectedItems.length) {
-        body.innerHTML = '<tr><td colspan="3" class="te-selected-empty">Mahsulot tanlanmadi</td></tr>';
+        body.innerHTML = '<tr><td colspan="3" class="te-selected-empty">Mahsulot tanlanmadi.<br>Chap tomondan tanlang.</td></tr>';
         return;
     }
     body.innerHTML = selectedItems.map((it, idx) => `
         <tr>
             <td>${it.name}</td>
-            <td class="num">
+            <td>
                 <div class="te-qty-cell">
                     <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">−</button>
-                    <input type="number" class="tv-input-qty" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
+                    <input type="number" class="te-qty-input" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
                     <button class="te-qty-btn" onclick="changeQty(${idx}, 1)">+</button>
                 </div>
             </td>
-            <td><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+            <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
         </tr>
     `).join('');
 }
@@ -273,7 +328,7 @@ async function autoSave() {
         items: items
     };
     try {
-        let res, data;
+        let res;
         if (pendingId) {
             res = await fetch(`/api/pending-transfer/${pendingId}`, {
                 method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
@@ -283,9 +338,11 @@ async function autoSave() {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
             });
         }
-        data = await res.json();
+        const data = await res.json();
         if (data.success && data.pending_transfer) {
             pendingId = data.pending_transfer.id;
+            const btnDel = document.getElementById('btnDelete');
+            if (btnDel) btnDel.style.display = '';
             showSaved();
         }
     } catch (e) {
@@ -306,7 +363,6 @@ async function sendToWarehouse() {
     if (!selectedItems.length || selectedItems.every(i => i.quantity <= 0)) return alert('Kamida bitta mahsulot qo\'shing.');
     if (!confirm('Transferni omborga yuborasizmi? Yuborilgandan keyin tahrirlay olmaysiz.')) return;
 
-    // Avval saqlash
     clearTimeout(saveTimer);
     await autoSave();
     if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
