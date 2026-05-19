@@ -17,14 +17,18 @@
 .ts-card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
 .ts-search { width: 100%; padding: 9px 12px; border: none; border-bottom: 1px solid #dee2e6; font-size: 14px; box-sizing: border-box; outline: none; background: #f8f9fa; }
 .ts-search:focus { background: #fff; border-bottom-color: #0066cc; }
-.ts-table { width: 100%; border-collapse: collapse; }
-.ts-table th { padding: 9px 12px; text-align: left; font-size: 12px; color: #6c757d; font-weight: 600; border-bottom: 1px solid #dee2e6; background: #f8f9fa; text-transform: uppercase; }
-.ts-table td { padding: 9px 12px; font-size: 14px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+.ts-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ts-table th { padding: 8px 8px; text-align: left; font-size: 11px; color: #6c757d; font-weight: 600; border-bottom: 1px solid #dee2e6; background: #f8f9fa; text-transform: uppercase; white-space: nowrap; }
+.ts-table td { padding: 8px 8px; font-size: 13px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ts-table .col-name { width: auto; }
+.ts-table .col-price { width: 70px; }
+.ts-table .col-stock { width: 60px; }
+.ts-table .col-action { width: 85px; }
 .ts-table tr:last-child td { border-bottom: none; }
 .ts-table tr:hover td { background: #f8fbff; }
 .ts-empty { text-align: center; padding: 48px 12px; color: #adb5bd; font-size: 14px; }
 .ts-empty-icon { font-size: 32px; margin-bottom: 8px; }
-.ts-add-btn { background: #0066cc; color: #fff; border: none; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+.ts-add-btn { background: #0066cc; color: #fff; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px; white-space: nowrap; width: 100%; }
 .ts-add-btn:hover { background: #0052a3; }
 .ts-add-btn:disabled { background: #6c757d; cursor: default; }
 .ts-qty-cell { display: flex; align-items: center; gap: 4px; }
@@ -35,7 +39,7 @@
 .ts-foot { padding: 12px 16px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px; align-items: center; background: #fff; }
 .ts-save-badge { font-size: 12px; color: #28a745; opacity: 0; transition: opacity 0.3s; }
 .ts-save-badge.show { opacity: 1; }
-.ts-scroll { max-height: 500px; overflow-y: auto; }
+.ts-scroll { max-height: 500px; overflow-y: auto; overflow-x: hidden; }
 @media (max-width: 800px) {
     .ts-grid { grid-template-columns: 1fr; }
     .ts-loc-bar select { min-width: 100%; }
@@ -68,6 +72,12 @@
             <input type="text" class="ts-search" id="productSearch" placeholder="Qldirish..." />
             <div class="ts-scroll">
                 <table class="ts-table">
+                    <colgroup>
+                        <col class="col-name">
+                        <col class="col-price">
+                        <col class="col-stock">
+                        <col class="col-action">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Mahsulot</th>
@@ -91,11 +101,17 @@
             <input type="text" class="ts-search" id="cartSearch" placeholder="Qldirish..." />
             <div class="ts-scroll">
                 <table class="ts-table">
+                    <colgroup>
+                        <col class="col-name">
+                        <col class="col-price">
+                        <col style="width:130px">
+                        <col style="width:44px">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Mahsulot</th>
                             <th>Narx</th>
-                            <th>Miqdor:</th>
+                            <th>Miqdor</th>
                             <th>Amal</th>
                         </tr>
                     </thead>
