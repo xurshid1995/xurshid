@@ -1,57 +1,115 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}{% if initial_data.mode == 'new' %}Yangi transfer{% else %}Transfer #{{ initial_data.pending_transfer.id }} tahrir{% endif %}{% endblock %}
+{% block title %}Transfer Sahifasi{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
 <style>
-.te-topbar { position: sticky; top: 0; z-index: 50; background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 10px; width: 50%; max-width: 50%; }
-.te-topbar .arrow { font-size: 18px; color: #0066cc; font-weight: 700; }
-.te-topbar select { padding: 6px 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 13px; width: 100%; box-sizing: border-box; }
-.te-topbar .label { font-size: 10px; text-transform: uppercase; color: #6c757d; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 2px; }
-.te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-.te-panel { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.te-panel-head { padding: 14px 18px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.te-panel-head-left { background: linear-gradient(135deg, #e8f4fd 0%, #f5fbff 100%); }
-.te-panel-head-right { background: linear-gradient(135deg, #e6f6ec 0%, #f3fcf6 100%); }
-.te-panel-title { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; display: inline; }
-.te-panel-subtitle { font-size: 12px; color: #6c757d; margin-left: 8px; display: inline; }
-.te-panel-body { padding: 14px; }
-.te-search-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-.te-product-list { max-height: 520px; overflow-y: auto; border: 1px solid #f1f3f5; border-radius: 8px; margin-top: 10px; }
-.te-product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f8f9fa; cursor: pointer; transition: background 0.15s; }
-.te-product-row:hover { background: #f0f9ff; }
-.te-product-row:last-child { border-bottom: none; }
-.te-product-name { font-weight: 500; color: #0f172a; font-size: 14px; }
-.te-product-meta { font-size: 12px; color: #6c757d; margin-top: 2px; }
-.te-add-btn { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
-.te-add-btn:disabled { background: #adb5bd; cursor: not-allowed; }
-.te-selected-empty { text-align: center; color: #adb5bd; padding: 50px 12px; font-size: 14px; }
-.te-cart-table { width: 100%; border-collapse: collapse; }
-.te-cart-table th, .te-cart-table td { padding: 10px 8px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; font-size: 14px; }
-.te-cart-table th { background: #f8f9fa; font-size: 12px; color: #6c757d; text-transform: uppercase; text-align: left; }
-.te-qty-cell { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
-.te-qty-btn { width: 28px; height: 28px; border-radius: 6px; background: #f1f3f5; border: 1px solid #dee2e6; cursor: pointer; font-weight: 700; color: #495057; font-size: 16px; }
-.te-qty-btn:hover { background: #e9ecef; }
-.te-qty-input { width: 70px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 6px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
-.te-del-btn { background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 4px 8px; }
-.te-actions-bar { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #e9ecef; padding: 14px 18px; margin-top: 16px; border-radius: 12px; box-shadow: 0 -2px 6px rgba(0,0,0,0.04); display: flex; justify-content: space-between; gap: 10px; align-items: center; }
-.te-cnt-badge { display: inline-flex; min-width: 24px; height: 24px; padding: 0 8px; border-radius: 12px; background: #28a745; color: #fff; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; }
-.te-from-badge { display: inline-flex; padding: 4px 10px; border-radius: 10px; background: #cfe9ff; color: #024a87; font-size: 12px; font-weight: 600; }
+.ts-page { padding: 20px; }
+.ts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.ts-title { font-size: 22px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+.ts-loc-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.ts-loc-bar label { font-size: 14px; font-weight: 600; color: #495057; }
+.ts-loc-bar select { padding: 7px 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; min-width: 200px; }
+.ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.ts-card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
+.ts-card-head { padding: 12px 16px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; justify-content: space-between; }
+.ts-card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+.ts-search { width: 100%; padding: 9px 12px; border: none; border-bottom: 1px solid #dee2e6; font-size: 14px; box-sizing: border-box; outline: none; background: #f8f9fa; }
+.ts-search:focus { background: #fff; border-bottom-color: #0066cc; }
+.ts-table { width: 100%; border-collapse: collapse; }
+.ts-table th { padding: 9px 12px; text-align: left; font-size: 12px; color: #6c757d; font-weight: 600; border-bottom: 1px solid #dee2e6; background: #f8f9fa; text-transform: uppercase; }
+.ts-table td { padding: 9px 12px; font-size: 14px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+.ts-table tr:last-child td { border-bottom: none; }
+.ts-table tr:hover td { background: #f8fbff; }
+.ts-empty { text-align: center; padding: 48px 12px; color: #adb5bd; font-size: 14px; }
+.ts-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.ts-add-btn { background: #0066cc; color: #fff; border: none; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+.ts-add-btn:hover { background: #0052a3; }
+.ts-add-btn:disabled { background: #6c757d; cursor: default; }
+.ts-qty-cell { display: flex; align-items: center; gap: 4px; }
+.ts-qty-btn { width: 26px; height: 26px; border-radius: 4px; background: #e9ecef; border: 1px solid #ced4da; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; }
+.ts-qty-btn:hover { background: #dee2e6; }
+.ts-qty-input { width: 60px; padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-size: 13px; }
+.ts-del-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 2px 6px; }
+.ts-foot { padding: 12px 16px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px; align-items: center; background: #fff; }
+.ts-save-badge { font-size: 12px; color: #28a745; opacity: 0; transition: opacity 0.3s; }
+.ts-save-badge.show { opacity: 1; }
+.ts-scroll { max-height: 500px; overflow-y: auto; }
 @media (max-width: 800px) {
-    .te-topbar { grid-template-columns: 1fr; width: 100%; max-width: 100%; }
-    .te-topbar .arrow { display: none; }
-    .te-grid { grid-template-columns: 1fr; }
-    .te-actions-bar { flex-direction: column-reverse; }
-    .te-actions-bar > * { width: 100%; }
+    .ts-grid { grid-template-columns: 1fr; }
+    .ts-loc-bar select { min-width: 100%; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="tv-wrap" style="max-width: 100%; width: 100%; padding: 0 12px;">
-    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
-    <div id="tvRoot"></div>
+<div class="ts-page">
+    <div class="ts-header">
+        <div class="ts-title">🔄 Transfer Sahifasi</div>
+        <a href="/transfer" class="tv-btn tv-btn-secondary" style="font-size:13px;">← Orqaga</a>
+    </div>
+
+    <div class="ts-loc-bar">
+        <label>Qayerdan:</label>
+        <select id="fromLocation">
+            <option value="">Tanlang...</option>
+        </select>
+        <label>Qayerga:</label>
+        <select id="toLocation">
+            <option value="">Tanlang...</option>
+        </select>
+        <span class="ts-save-badge" id="saveBadge">✓ Saqlandi</span>
+    </div>
+
+    <div class="ts-grid">
+        <!-- Chap: Mahsulotlar -->
+        <div class="ts-card">
+            <input type="text" class="ts-search" id="productSearch" placeholder="Qldirish..." />
+            <div class="ts-scroll">
+                <table class="ts-table">
+                    <thead>
+                        <tr>
+                            <th>Mahsulot</th>
+                            <th>Narx</th>
+                            <th>Mavjud</th>
+                            <th>Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productBody">
+                        <tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">📦</div>Joylashuvni tanlang</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- O'ng: Transfer ro'yxati -->
+        <div class="ts-card">
+            <div class="ts-card-head">
+                <div class="ts-card-title">🔄 Transfer ro'yxati</div>
+            </div>
+            <input type="text" class="ts-search" id="cartSearch" placeholder="Qldirish..." />
+            <div class="ts-scroll">
+                <table class="ts-table">
+                    <thead>
+                        <tr>
+                            <th>Mahsulot</th>
+                            <th>Narx</th>
+                            <th>Miqdor:</th>
+                            <th>Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartBody">
+                        <tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🗃️</div>Transfer qilish uchun mahsulot qo'shing</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ts-foot">
+                <button class="tv-btn tv-btn-danger" id="btnClear" style="background:#495057;border-color:#495057;">🗑 Tozalash</button>
+                <button class="tv-btn tv-btn-success" id="btnSend">✅ Transferni yakunlash</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -61,6 +119,7 @@ let pendingId = INITIAL_DATA.pending_transfer ? INITIAL_DATA.pending_transfer.id
 let selectedItems = [];
 let allProducts = [];
 let filteredProducts = [];
+let cartFilter = '';
 let saveTimer = null;
 
 if (INITIAL_DATA.pending_transfer) {
@@ -72,245 +131,163 @@ if (INITIAL_DATA.pending_transfer) {
     }));
 }
 
-function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
+function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', {maximumFractionDigits: 2}); }
 
-function locOptions(selectedKey) {
-    return INITIAL_DATA.locations.map(loc => {
-        const key = `${loc.type}_${loc.id}`;
-        const label = (loc.type === 'warehouse' ? '🏭 ' : '🔄 ') + loc.name;
-        return `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${label}</option>`;
-    }).join('');
-}
-
-function getLocName(key) {
-    if (!key) return '—';
-    const [type, id] = key.split('_');
-    const lid = parseInt(id);
-    const loc = INITIAL_DATA.locations.find(l => l.type === type && l.id === lid);
-    if (!loc) return '—';
-    return (loc.type === 'warehouse' ? '🏭 ' : '🔄 ') + loc.name;
-}
-
-function render() {
+// Populate selects
+function populateSelects() {
     const p = INITIAL_DATA.pending_transfer || {};
     const fromKey = p.from_location_type ? `${p.from_location_type}_${p.from_location_id}` : '';
     const toKey = p.to_location_type ? `${p.to_location_type}_${p.to_location_id}` : '';
-
-    document.getElementById('tvRoot').innerHTML = `
-        <div class="te-topbar">
-            <div>
-                <div class="label">Qayerdan (ombor)</div>
-                <select id="fromLocation">
-                    <option value="">— Tanlang —</option>
-                    ${locOptions(fromKey)}
-                </select>
-            </div>
-            <div class="arrow">➜</div>
-            <div>
-                <div class="label">Qayerga (do'kon)</div>
-                <select id="toLocation">
-                    <option value="">— Tanlang —</option>
-                    ${locOptions(toKey)}
-                </select>
-            </div>
-            <div style="text-align:right;min-width:120px;">
-                <div class="label">Holat</div>
-                <span class="tv-status tv-status-draft">✏️ Qoralama</span>
-                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">✓ Saqlandi</span>
-            </div>
-        </div>
-
-        <div class="te-grid">
-            <div class="te-panel">
-                <div class="te-panel-head te-panel-head-left">
-                    <div>
-                        <h3 class="te-panel-title">📦 <span id="fromName">Ombor tanlanmadi</span></h3>
-                        <span class="te-panel-subtitle">— Mavjud mahsulotlar, bosib qo'shing</span>
-                    </div>
-                    <span class="te-from-badge" id="fromCount">0 ta</span>
-                </div>
-                <div class="te-panel-body">
-                    <input type="text" id="productSearch" class="te-search-input" placeholder="🔎 Nomi yoki barcode bo'yicha qidirish..." />
-                    <div class="te-product-list" id="productList">
-                        <div class="te-selected-empty">Avval omborni tanlang</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="te-panel">
-                <div class="te-panel-head te-panel-head-right">
-                    <div>
-                        <h3 class="te-panel-title"><span id="toName">Do'kon tanlanmadi</span></h3>
-                        <span class="te-panel-subtitle">— Jo'natiladigan mahsulotlar</span>
-                    </div>
-                    <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
-                </div>
-                <div class="te-panel-body">
-                    <table class="te-cart-table">
-                        <thead><tr>
-                            <th>Mahsulot</th>
-                            <th style="text-align:right;">Miqdor</th>
-                            <th></th>
-                        </tr></thead>
-                        <tbody id="selectedBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="te-actions-bar">
-            <button class="tv-btn tv-btn-danger" id="btnDelete" ${MODE === 'new' ? 'style="display:none;"' : ''}>🗑️ Qoralamani o'chirish</button>
-            <div style="display:flex;gap:10px;">
-                <a href="/transfer" class="tv-btn tv-btn-secondary">Yopish</a>
-                <button class="tv-btn tv-btn-success" id="btnSend">📤 Omborga yuborish</button>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('fromLocation').addEventListener('change', onLocationChange);
-    document.getElementById('toLocation').addEventListener('change', onToChange);
-    document.getElementById('productSearch').addEventListener('input', onSearch);
-    document.getElementById('btnSend').addEventListener('click', sendToWarehouse);
-    document.getElementById('btnDelete').addEventListener('click', deleteDraft);
-
-    updatePanelHeaders();
-    renderSelected();
+    const fromSel = document.getElementById('fromLocation');
+    const toSel = document.getElementById('toLocation');
+    INITIAL_DATA.locations.forEach(loc => {
+        const key = `${loc.type}_${loc.id}`;
+        const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
+        const label = `${icon} ${loc.name}`;
+        fromSel.innerHTML += `<option value="${key}" ${key===fromKey?'selected':''}>${label}</option>`;
+        toSel.innerHTML += `<option value="${key}" ${key===toKey?'selected':''}>${label}</option>`;
+    });
+    fromSel.addEventListener('change', () => { loadProducts(); scheduleSave(); });
+    toSel.addEventListener('change', scheduleSave);
     if (fromKey) loadProducts();
 }
 
-function updatePanelHeaders() {
+function getStockFor(product) {
     const from = document.getElementById('fromLocation').value;
-    const to = document.getElementById('toLocation').value;
-    document.getElementById('fromName').textContent = from ? getLocName(from) : 'Ombor tanlanmadi';
-    document.getElementById('toName').textContent = to ? getLocName(to) : 'Do\'kon tanlanmadi';
-}
-
-function onLocationChange() {
-    updatePanelHeaders();
-    loadProducts();
-    scheduleSave();
-}
-function onToChange() {
-    updatePanelHeaders();
-    scheduleSave();
+    if (!from || !product.stocks) return 0;
+    const [type, id] = from.split('_');
+    const lid = parseInt(id);
+    const s = product.stocks.find(s => type === 'warehouse' ? s.warehouse_id === lid : s.store_id === lid);
+    return s ? Number(s.quantity || 0) : 0;
 }
 
 async function loadProducts() {
     const from = document.getElementById('fromLocation').value;
-    const list = document.getElementById('productList');
-    const cnt = document.getElementById('fromCount');
-    if (!from) {
-        list.innerHTML = '<div class="te-selected-empty">Avval omborni tanlang</div>';
-        cnt.textContent = '0 ta';
-        return;
-    }
-    list.innerHTML = '<div class="te-selected-empty">⏳ Yuklanmoqda...</div>';
+    const tbody = document.getElementById('productBody');
+    if (!from) { tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">📦</div>Joylashuvni tanlang</div></td></tr>'; return; }
+    tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty">⏳ Yuklanmoqda...</div></td></tr>';
     try {
         const res = await fetch(`/api/products?location=${from}&per_page=10000`);
         const data = await res.json();
         allProducts = Array.isArray(data) ? data : (data.products || []);
         filteredProducts = allProducts;
-        cnt.textContent = `${allProducts.length} ta`;
-        renderProductList();
-    } catch (e) {
-        list.innerHTML = '<div class="te-selected-empty">⚠️ Xatolik: ' + e.message + '</div>';
+        renderProducts();
+    } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="4"><div class="ts-empty">⚠️ Xato: ${e.message}</div></td></tr>`;
     }
 }
 
-function getStockFor(product) {
-    if (!product.stocks || !product.stocks.length) return 0;
-    const from = document.getElementById('fromLocation').value;
-    const [type, id] = from.split('_');
-    const lid = parseInt(id);
-    const s = product.stocks.find(s => (type === 'warehouse' ? s.warehouse_id === lid : s.store_id === lid));
-    return s ? Number(s.quantity || 0) : 0;
-}
-
-function renderProductList() {
-    const list = document.getElementById('productList');
-    if (!filteredProducts.length) {
-        list.innerHTML = '<div class="te-selected-empty">Mahsulot topilmadi</div>';
-        return;
-    }
-    const limit = 100;
-    list.innerHTML = filteredProducts.slice(0, limit).map(p => {
-        const stock = getStockFor(p);
-        const inCart = selectedItems.some(i => i.product_id === p.id);
-        return `
-            <div class="te-product-row" data-pid="${p.id}">
-                <div>
-                    <div class="te-product-name">${p.name}</div>
-                    <div class="te-product-meta">📦 ${fmtNum(stock)} dona • 💰 ${fmtNum(p.price)}</div>
-                </div>
-                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓' : '+ qo\'shish'}</button>
-            </div>
-        `;
-    }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidirish bilan toraytiring.</div>` : '');
-
-    list.querySelectorAll('.te-product-row').forEach(row => {
-        row.addEventListener('click', () => addProduct(Number(row.dataset.pid)));
-    });
-}
-
-function onSearch(e) {
-    const q = e.target.value.trim().toLowerCase();
+function renderProducts() {
+    const tbody = document.getElementById('productBody');
+    const q = document.getElementById('productSearch').value.trim().toLowerCase();
     filteredProducts = !q ? allProducts : allProducts.filter(p =>
         (p.name||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q));
-    renderProductList();
+    if (!filteredProducts.length) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🔍</div>Mahsulot topilmadi</div></td></tr>';
+        return;
+    }
+    const limit = 150;
+    tbody.innerHTML = filteredProducts.slice(0, limit).map(p => {
+        const stock = getStockFor(p);
+        const inCart = selectedItems.some(i => i.product_id === p.id);
+        return `<tr>
+            <td>${p.name}</td>
+            <td style="white-space:nowrap;">${fmtNum(p.price)}</td>
+            <td>${fmtNum(stock)}</td>
+            <td><button class="ts-add-btn" onclick="addProduct(${p.id})" ${inCart?'disabled':''} id="addbtn_${p.id}">${inCart?'✓':'+Qo\'sh'}</button></td>
+        </tr>`;
+    }).join('') + (filteredProducts.length > limit ? `<tr><td colspan="4" style="text-align:center;color:#6c757d;font-size:12px;padding:8px;">+${filteredProducts.length-limit} ta. Qidirish orqali toraytiring.</td></tr>` : '');
 }
 
-function addProduct(pid) {
+function renderCart() {
+    const tbody = document.getElementById('cartBody');
+    const q = cartFilter.toLowerCase();
+    const items = !q ? selectedItems : selectedItems.filter(i => i.name.toLowerCase().includes(q));
+    if (!selectedItems.length) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🗃️</div>Transfer qilish uchun mahsulot qo\'shing</div></td></tr>';
+        return;
+    }
+    if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty">Qidiruv natijasi yo\'q</div></td></tr>';
+        return;
+    }
+    tbody.innerHTML = items.map((it, idx) => {
+        const realIdx = selectedItems.indexOf(it);
+        return `<tr>
+            <td>${it.name}</td>
+            <td style="white-space:nowrap;">${fmtNum(it.price)}</td>
+            <td>
+                <div class="ts-qty-cell">
+                    <button class="ts-qty-btn" onclick="changeQty(${realIdx},-1)">−</button>
+                    <input class="ts-qty-input" type="number" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${realIdx},this.value)" />
+                    <button class="ts-qty-btn" onclick="changeQty(${realIdx},1)">+</button>
+                </div>
+            </td>
+            <td><button class="ts-del-btn" onclick="removeItem(${realIdx})">🗑️</button></td>
+        </tr>`;
+    }).join('');
+}
+
+window.addProduct = function(pid) {
     if (selectedItems.some(i => i.product_id === pid)) return;
     const p = allProducts.find(x => x.id === pid);
     if (!p) return;
-    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price || 0) });
-    renderSelected();
-    renderProductList();
-    scheduleSave();
-}
-
-function renderSelected() {
-    const body = document.getElementById('selectedBody');
-    document.getElementById('cntSelected').textContent = selectedItems.length;
-    if (!selectedItems.length) {
-        body.innerHTML = '<tr><td colspan="3" class="te-selected-empty">Mahsulot tanlanmadi.<br>Chap tomondan tanlang.</td></tr>';
-        return;
-    }
-    body.innerHTML = selectedItems.map((it, idx) => `
-        <tr>
-            <td>${it.name}</td>
-            <td>
-                <div class="te-qty-cell">
-                    <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">−</button>
-                    <input type="number" class="te-qty-input" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
-                    <button class="te-qty-btn" onclick="changeQty(${idx}, 1)">+</button>
-                </div>
-            </td>
-            <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
-        </tr>
-    `).join('');
-}
-
-window.changeQty = function(idx, delta) {
-    selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + delta);
-    renderSelected();
+    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price||0) });
+    renderCart();
+    const btn = document.getElementById('addbtn_' + pid);
+    if (btn) { btn.disabled = true; btn.textContent = '✓'; }
     scheduleSave();
 };
+window.changeQty = function(idx, d) {
+    selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + d);
+    renderCart(); scheduleSave();
+};
 window.setQty = function(idx, v) {
-    selectedItems[idx].quantity = Math.max(0, Number(v) || 0);
+    selectedItems[idx].quantity = Math.max(0, Number(v)||0);
     scheduleSave();
 };
 window.removeItem = function(idx) {
+    const pid = selectedItems[idx].product_id;
     selectedItems.splice(idx, 1);
-    renderSelected();
-    renderProductList();
+    renderCart();
+    const btn = document.getElementById('addbtn_' + pid);
+    if (btn) { btn.disabled = false; btn.textContent = '+Qo\'sh'; }
     scheduleSave();
 };
 
-function scheduleSave() {
+document.getElementById('productSearch').addEventListener('input', renderProducts);
+document.getElementById('cartSearch').addEventListener('input', e => { cartFilter = e.target.value; renderCart(); });
+
+document.getElementById('btnClear').addEventListener('click', () => {
+    if (!selectedItems.length) return;
+    if (!confirm('Ro\'yxatni tozalash?')) return;
+    selectedItems = [];
+    renderCart();
+    renderProducts();
+    scheduleSave();
+});
+
+document.getElementById('btnSend').addEventListener('click', async () => {
+    const from = document.getElementById('fromLocation').value;
+    const to = document.getElementById('toLocation').value;
+    if (!from || !to) return alert('Avval qayerdan va qayerga tanlang.');
+    const valid = selectedItems.filter(i => i.quantity > 0);
+    if (!valid.length) return alert('Kamida bitta mahsulot qo\'shing.');
+    if (!confirm(`${valid.length} ta mahsulotni transferga yuborasizmi?`)) return;
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(autoSave, 1500);
-}
+    await autoSave();
+    if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
+    const btn = document.getElementById('btnSend');
+    btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+    try {
+        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, { method: 'POST', headers: {'Content-Type':'application/json'} });
+        const data = await res.json();
+        if (data.success) { alert('✅ ' + data.message); window.location.href = '/transfer'; }
+        else { alert('Xato: ' + (data.error||'Noma\'lum')); btn.disabled=false; btn.textContent='✅ Transferni yakunlash'; }
+    } catch(e) { alert('Tarmoq xatosi: '+e.message); btn.disabled=false; btn.textContent='✅ Transferni yakunlash'; }
+});
+
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(autoSave, 1500); }
 
 async function autoSave() {
     const from = document.getElementById('fromLocation').value;
@@ -319,90 +296,27 @@ async function autoSave() {
     const [fromType, fromId] = from.split('_');
     const [toType, toId] = to.split('_');
     const items = selectedItems.filter(i => i.quantity > 0).map(i => ({
-        id: i.product_id, product_id: i.product_id, name: i.name,
-        quantity: i.quantity, price: i.price
+        id: i.product_id, product_id: i.product_id, name: i.name, quantity: i.quantity, price: i.price
     }));
-    const payload = {
-        from_location_type: fromType, from_location_id: Number(fromId),
-        to_location_type: toType, to_location_id: Number(toId),
-        items: items
-    };
+    const payload = { from_location_type: fromType, from_location_id: Number(fromId), to_location_type: toType, to_location_id: Number(toId), items };
     try {
         let res;
         if (pendingId) {
-            res = await fetch(`/api/pending-transfer/${pendingId}`, {
-                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-            });
+            res = await fetch(`/api/pending-transfer/${pendingId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
         } else {
-            res = await fetch('/api/pending-transfer', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-            });
+            res = await fetch('/api/pending-transfer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
         }
         const data = await res.json();
         if (data.success && data.pending_transfer) {
             pendingId = data.pending_transfer.id;
-            const btnDel = document.getElementById('btnDelete');
-            if (btnDel) btnDel.style.display = '';
-            showSaved();
+            const badge = document.getElementById('saveBadge');
+            badge.classList.add('show');
+            setTimeout(() => badge.classList.remove('show'), 1500);
         }
-    } catch (e) {
-        console.error('Auto-save xato:', e);
-    }
+    } catch(e) { console.error('Save error:', e); }
 }
 
-function showSaved() {
-    const ind = document.getElementById('saveInd');
-    ind.classList.add('show');
-    setTimeout(() => ind.classList.remove('show'), 1500);
-}
-
-async function sendToWarehouse() {
-    const from = document.getElementById('fromLocation').value;
-    const to = document.getElementById('toLocation').value;
-    if (!from || !to) return alert('Avval qayerdan va qayerga maydonlarini tanlang.');
-    if (!selectedItems.length || selectedItems.every(i => i.quantity <= 0)) return alert('Kamida bitta mahsulot qo\'shing.');
-    if (!confirm('Transferni omborga yuborasizmi? Yuborilgandan keyin tahrirlay olmaysiz.')) return;
-
-    clearTimeout(saveTimer);
-    await autoSave();
-    if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
-
-    const btn = document.getElementById('btnSend');
-    btn.disabled = true;
-    btn.textContent = 'Yuborilmoqda...';
-    try {
-        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'}
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert('✅ ' + data.message);
-            window.location.href = '/transfer';
-        } else {
-            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
-            btn.disabled = false;
-            btn.textContent = '📤 Omborga yuborish';
-        }
-    } catch (e) {
-        alert('Tarmoq xatosi: ' + e.message);
-        btn.disabled = false;
-        btn.textContent = '📤 Omborga yuborish';
-    }
-}
-
-async function deleteDraft() {
-    if (!pendingId) return;
-    if (!confirm('Bu qoralama transferni o\'chirmoqchimisiz?')) return;
-    try {
-        const res = await fetch(`/api/pending-transfer/${pendingId}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.success) window.location.href = '/transfer';
-        else alert('Xatolik: ' + (data.error || 'Noma\'lum'));
-    } catch (e) {
-        alert('Tarmoq xatosi: ' + e.message);
-    }
-}
-
-render();
+populateSelects();
+renderCart();
 </script>
 {% endblock %}
