@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}{% if initial_data.mode == 'new' %}Yangi transfer{% else %}Transfer #{{ initial_data.pending_transfer.id }} tahrir{% endif %}{% endblock %}
 
@@ -140,7 +140,7 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-right">
                     <div>
-                        <h3 class="te-panel-title">� <span id="toName">Do'kon tanlanmadi</span></h3>
+                        <h3 class="te-panel-title">🏪 <span id="toName">Do'kon tanlanmadi</span></h3>
                         <span class="te-panel-subtitle">— Jo'natiladigan mahsulotlar</span>
                     </div>
                     <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
