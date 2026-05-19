@@ -14,8 +14,8 @@
 .te-panel-head { padding: 14px 18px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .te-panel-head-left { background: linear-gradient(135deg, #e8f4fd 0%, #f5fbff 100%); }
 .te-panel-head-right { background: linear-gradient(135deg, #e6f6ec 0%, #f3fcf6 100%); }
-.te-panel-title { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; }
-.te-panel-subtitle { font-size: 12px; color: #6c757d; margin-top: 2px; }
+.te-panel-title { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; display: inline; }
+.te-panel-subtitle { font-size: 12px; color: #6c757d; margin-left: 8px; display: inline; }
 .te-panel-body { padding: 14px; }
 .te-search-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
 .te-product-list { max-height: 520px; overflow-y: auto; border: 1px solid #f1f3f5; border-radius: 8px; margin-top: 10px; }
@@ -125,7 +125,7 @@ function render() {
                 <div class="te-panel-head te-panel-head-left">
                     <div>
                         <h3 class="te-panel-title">📦 <span id="fromName">Ombor tanlanmadi</span></h3>
-                        <div class="te-panel-subtitle">Mavjud mahsulotlar — bosib qo'shing</div>
+                        <span class="te-panel-subtitle">— Mavjud mahsulotlar, bosib qo'shing</span>
                     </div>
                     <span class="te-from-badge" id="fromCount">0 ta</span>
                 </div>
@@ -141,7 +141,7 @@ function render() {
                 <div class="te-panel-head te-panel-head-right">
                     <div>
                         <h3 class="te-panel-title">🛒 <span id="toName">Do'kon tanlanmadi</span></h3>
-                        <div class="te-panel-subtitle">Jo'natiladigan mahsulotlar ro'yxati</div>
+                        <span class="te-panel-subtitle">— Jo'natiladigan mahsulotlar</span>
                     </div>
                     <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
                 </div>
