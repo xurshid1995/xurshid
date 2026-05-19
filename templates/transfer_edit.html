@@ -1,60 +1,252 @@
 {% extends "base.html" %}
-
 {% block title %}Transfer Sahifasi{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
 <style>
-.ts-page { padding: 20px; }
-.ts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.ts-title { font-size: 22px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-.ts-loc-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-.ts-loc-bar label { font-size: 14px; font-weight: 600; color: #495057; }
-.ts-loc-bar select { padding: 7px 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; min-width: 200px; }
-.ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-.ts-card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; min-width: 0; }
-.ts-card-head { padding: 12px 16px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; justify-content: space-between; }
-.ts-card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
-.ts-search { width: 100%; padding: 9px 12px; border: none; border-bottom: 1px solid #dee2e6; font-size: 14px; box-sizing: border-box; outline: none; background: #f8f9fa; }
-.ts-search:focus { background: #fff; border-bottom-color: #0066cc; }
-.ts-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.ts-table th { padding: 8px 8px; text-align: left; font-size: 11px; color: #6c757d; font-weight: 600; border-bottom: 1px solid #dee2e6; background: #f8f9fa; text-transform: uppercase; white-space: nowrap; }
-.ts-table td { padding: 8px 8px; font-size: 13px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ts-table .col-name  { width: 52%; }
-.ts-table .col-price { width: 16%; }
-.ts-table .col-stock { width: 14%; }
-.ts-table .col-action { width: 18%; }
-.ts-table tr:last-child td { border-bottom: none; }
-.ts-table tr:hover td { background: #f8fbff; }
-.ts-empty { text-align: center; padding: 48px 12px; color: #adb5bd; font-size: 14px; }
-.ts-empty-icon { font-size: 32px; margin-bottom: 8px; }
-.ts-add-btn { background: #0066cc; color: #fff; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px; white-space: nowrap; width: 100%; }
-.ts-add-btn:hover { background: #0052a3; }
-.ts-add-btn:disabled { background: #6c757d; cursor: default; }
-.ts-qty-cell { display: flex; align-items: center; gap: 4px; }
-.ts-qty-btn { width: 26px; height: 26px; border-radius: 4px; background: #e9ecef; border: 1px solid #ced4da; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; }
-.ts-qty-btn:hover { background: #dee2e6; }
-.ts-qty-input { width: 60px; padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-size: 13px; }
-.ts-del-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 2px 6px; }
-.ts-foot { padding: 12px 16px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px; align-items: center; background: #fff; }
-.ts-save-badge { font-size: 12px; color: #28a745; opacity: 0; transition: opacity 0.3s; }
-.ts-save-badge.show { opacity: 1; }
-.ts-scroll { max-height: 500px; overflow-y: auto; overflow-x: hidden; }
-@media (max-width: 800px) {
-    .ts-grid { grid-template-columns: 1fr; }
-    .ts-loc-bar select { min-width: 100%; }
+.transfer-container {
+    padding: 24px 28px 40px;
+    background: #f5f6fa;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+.tr-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.tr-page-header h1 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+}
+.tr-loc-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.tr-loc-bar label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+.tr-loc-bar select {
+    padding: 9px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    min-width: 200px;
+}
+.tr-save-badge {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.tr-save-badge.show { opacity: 1; }
+
+/* === GRID === */
+.sales-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.sales-grid > div:first-child,
+.sales-grid > div:nth-child(2) {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.sales-layout-box {
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    box-sizing: border-box;
+}
+.tr-box-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tr-search-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+}
+.tr-search-input:focus { border-color: #1a6eff; }
+
+/* === TABLES === */
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    box-sizing: border-box;
+}
+.tr-prod-table,
+.tr-cart-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+.tr-prod-table thead tr,
+.tr-cart-table thead tr {
+    background: #f1f5f9 !important;
+}
+.tr-prod-table th,
+.tr-cart-table th {
+    padding: 10px 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    background: #f1f5f9 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none !important;
+    box-sizing: border-box;
+    text-align: left;
+}
+.tr-prod-table td,
+.tr-cart-table td {
+    padding: 8px 8px !important;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    box-sizing: border-box;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tr-prod-table tbody tr:hover td,
+.tr-cart-table tbody tr:hover td {
+    background: #f8fbff !important;
+}
+
+/* Product table column widths */
+.tr-prod-table th:nth-child(1),
+.tr-prod-table td:nth-child(1) { width: 50%; }
+.tr-prod-table th:nth-child(2),
+.tr-prod-table td:nth-child(2) { width: 18%; text-align: right; }
+.tr-prod-table th:nth-child(3),
+.tr-prod-table td:nth-child(3) { width: 14%; text-align: right; }
+.tr-prod-table th:nth-child(4),
+.tr-prod-table td:nth-child(4) { width: 18%; text-align: center; }
+
+/* Cart table column widths */
+.tr-cart-table th:nth-child(1),
+.tr-cart-table td:nth-child(1) { width: 40%; }
+.tr-cart-table th:nth-child(2),
+.tr-cart-table td:nth-child(2) { width: 16%; text-align: right; }
+.tr-cart-table th:nth-child(3),
+.tr-cart-table td:nth-child(3) { width: 34%; text-align: center; }
+.tr-cart-table th:nth-child(4),
+.tr-cart-table td:nth-child(4) { width: 10%; text-align: center; }
+
+.tr-empty-row td {
+    text-align: center;
+    padding: 40px 12px !important;
+    color: #adb5bd;
+    font-size: 14px;
+    white-space: normal !important;
+}
+.tr-add-btn {
+    background: #1a6eff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.tr-add-btn:hover { background: #1558d6; }
+.tr-add-btn:disabled { background: #94a3b8; cursor: default; }
+.tr-qty-cell { display: flex; align-items: center; justify-content: center; gap: 3px; }
+.tr-qty-btn {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.tr-qty-btn:hover { background: #dee2e6; }
+.tr-qty-input {
+    width: 52px;
+    padding: 3px 4px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+}
+.tr-del-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px 4px;
+}
+.tr-scroll { max-height: 480px; overflow-y: auto; }
+.tr-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1.5px solid #eeeef8;
+}
+
+@media (max-width: 1200px) {
+    .sales-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 768px) {
+    .transfer-container { padding: 12px; }
+    .tr-loc-bar select { min-width: 100%; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="ts-page">
-    <div class="ts-header">
-        <div class="ts-title">🔄 Transfer Sahifasi</div>
+<div class="transfer-container">
+    <div class="tr-page-header">
+        <h1>🔄 Transfer Sahifasi</h1>
         <a href="/transfer" class="tv-btn tv-btn-secondary" style="font-size:13px;">← Orqaga</a>
     </div>
 
-    <div class="ts-loc-bar">
+    <div class="tr-loc-bar">
         <label>Qayerdan:</label>
         <select id="fromLocation">
             <option value="">Tanlang...</option>
@@ -63,65 +255,56 @@
         <select id="toLocation">
             <option value="">Tanlang...</option>
         </select>
-        <span class="ts-save-badge" id="saveBadge">✓ Saqlandi</span>
+        <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
     </div>
 
-    <div class="ts-grid">
+    <div class="sales-grid">
         <!-- Chap: Mahsulotlar -->
-        <div class="ts-card">
-            <input type="text" class="ts-search" id="productSearch" placeholder="Qldirish..." />
-            <div class="ts-scroll">
-                <table class="ts-table">
-                    <colgroup>
-                        <col class="col-name">
-                        <col class="col-price">
-                        <col class="col-stock">
-                        <col class="col-action">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Mahsulot</th>
-                            <th>Narx</th>
-                            <th>Mavjud</th>
-                            <th>Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productBody">
-                        <tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">📦</div>Joylashuvni tanlang</div></td></tr>
-                    </tbody>
-                </table>
+        <div class="sales-layout-box">
+            <h3 class="tr-box-title">📦 Mahsulotlar</h3>
+            <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." />
+            <div class="table-wrapper">
+                <div class="tr-scroll">
+                    <table class="tr-prod-table">
+                        <thead>
+                            <tr>
+                                <th>Mahsulot</th>
+                                <th style="text-align:right">Narx</th>
+                                <th style="text-align:right">Mavjud</th>
+                                <th style="text-align:center">Amal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productBody">
+                            <tr class="tr-empty-row"><td colspan="4">📦 Joylashuvni tanlang</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- O'ng: Transfer ro'yxati -->
-        <div class="ts-card">
-            <div class="ts-card-head">
-                <div class="ts-card-title">🔄 Transfer ro'yxati</div>
+        <div class="sales-layout-box">
+            <h3 class="tr-box-title">🔄 Transfer ro'yxati</h3>
+            <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
+            <div class="table-wrapper">
+                <div class="tr-scroll">
+                    <table class="tr-cart-table">
+                        <thead>
+                            <tr>
+                                <th>Mahsulot</th>
+                                <th style="text-align:right">Narx</th>
+                                <th style="text-align:center">Miqdor</th>
+                                <th style="text-align:center">Amal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            <tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo'shing</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <input type="text" class="ts-search" id="cartSearch" placeholder="Qldirish..." />
-            <div class="ts-scroll">
-                <table class="ts-table">
-                    <colgroup>
-                        <col style="width:42%">
-                        <col style="width:15%">
-                        <col style="width:33%">
-                        <col style="width:10%">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Mahsulot</th>
-                            <th>Narx</th>
-                            <th>Miqdor</th>
-                            <th>Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cartBody">
-                        <tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🗃️</div>Transfer qilish uchun mahsulot qo'shing</div></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="ts-foot">
-                <button class="tv-btn tv-btn-danger" id="btnClear" style="background:#495057;border-color:#495057;">🗑 Tozalash</button>
+            <div class="tr-foot">
+                <button class="tv-btn" id="btnClear" style="background:#495057;color:#fff;border-color:#495057;">🗑 Tozalash</button>
                 <button class="tv-btn tv-btn-success" id="btnSend">✅ Transferni yakunlash</button>
             </div>
         </div>
@@ -130,11 +313,9 @@
 
 <script>
 const INITIAL_DATA = {{ initial_data|tojson }};
-const MODE = INITIAL_DATA.mode;
 let pendingId = INITIAL_DATA.pending_transfer ? INITIAL_DATA.pending_transfer.id : null;
 let selectedItems = [];
 let allProducts = [];
-let filteredProducts = [];
 let cartFilter = '';
 let saveTimer = null;
 
@@ -147,9 +328,10 @@ if (INITIAL_DATA.pending_transfer) {
     }));
 }
 
-function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', {maximumFractionDigits: 2}); }
+function fmtNum(n) {
+    return Number(n || 0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 });
+}
 
-// Populate selects
 function populateSelects() {
     const p = INITIAL_DATA.pending_transfer || {};
     const fromKey = p.from_location_type ? `${p.from_location_type}_${p.from_location_id}` : '';
@@ -159,16 +341,19 @@ function populateSelects() {
     INITIAL_DATA.locations.forEach(loc => {
         const key = `${loc.type}_${loc.id}`;
         const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
-        const label = `${icon} ${loc.name}`;
-        fromSel.innerHTML += `<option value="${key}" ${key===fromKey?'selected':''}>${label}</option>`;
-        toSel.innerHTML += `<option value="${key}" ${key===toKey?'selected':''}>${label}</option>`;
+        const opt1 = new Option(`${icon} ${loc.name}`, key);
+        const opt2 = new Option(`${icon} ${loc.name}`, key);
+        if (key === fromKey) opt1.selected = true;
+        if (key === toKey) opt2.selected = true;
+        fromSel.appendChild(opt1);
+        toSel.appendChild(opt2);
     });
     fromSel.addEventListener('change', () => { loadProducts(); scheduleSave(); });
     toSel.addEventListener('change', scheduleSave);
     if (fromKey) loadProducts();
 }
 
-function getStockFor(product) {
+function getStock(product) {
     const from = document.getElementById('fromLocation').value;
     if (!from || !product.stocks) return 0;
     const [type, id] = from.split('_');
@@ -180,39 +365,48 @@ function getStockFor(product) {
 async function loadProducts() {
     const from = document.getElementById('fromLocation').value;
     const tbody = document.getElementById('productBody');
-    if (!from) { tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">📦</div>Joylashuvni tanlang</div></td></tr>'; return; }
-    tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty">⏳ Yuklanmoqda...</div></td></tr>';
+    if (!from) {
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">📦 Joylashuvni tanlang</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">⏳ Yuklanmoqda...</td></tr>';
     try {
         const res = await fetch(`/api/products?location=${from}&per_page=10000`);
         const data = await res.json();
         allProducts = Array.isArray(data) ? data : (data.products || []);
-        filteredProducts = allProducts;
         renderProducts();
     } catch(e) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="ts-empty">⚠️ Xato: ${e.message}</div></td></tr>`;
+        tbody.innerHTML = `<tr class="tr-empty-row"><td colspan="4">⚠️ Xato: ${e.message}</td></tr>`;
     }
 }
 
 function renderProducts() {
     const tbody = document.getElementById('productBody');
     const q = document.getElementById('productSearch').value.trim().toLowerCase();
-    filteredProducts = !q ? allProducts : allProducts.filter(p =>
-        (p.name||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q));
-    if (!filteredProducts.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🔍</div>Mahsulot topilmadi</div></td></tr>';
+    const filtered = !q ? allProducts : allProducts.filter(p =>
+        (p.name || '').toLowerCase().includes(q) || (p.barcode || '').toLowerCase().includes(q));
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🔍 Mahsulot topilmadi</td></tr>';
         return;
     }
-    const limit = 150;
-    tbody.innerHTML = filteredProducts.slice(0, limit).map(p => {
-        const stock = getStockFor(p);
+    const limit = 200;
+    const rows = filtered.slice(0, limit).map(p => {
+        const stock = getStock(p);
         const inCart = selectedItems.some(i => i.product_id === p.id);
         return `<tr>
-            <td>${p.name}</td>
-            <td style="white-space:nowrap;">${fmtNum(p.price)}</td>
-            <td>${fmtNum(stock)}</td>
-            <td><button class="ts-add-btn" onclick="addProduct(${p.id})" ${inCart?'disabled':''} id="addbtn_${p.id}">${inCart?'✓':'+Qo\'sh'}</button></td>
+            <td title="${p.name}">${p.name}</td>
+            <td style="text-align:right">${fmtNum(p.price)}</td>
+            <td style="text-align:right">${fmtNum(stock)}</td>
+            <td style="text-align:center">
+                <button class="tr-add-btn" onclick="addProduct(${p.id})" ${inCart ? 'disabled' : ''} id="addbtn_${p.id}">
+                    ${inCart ? '✓' : '+ Qo\'sh'}
+                </button>
+            </td>
         </tr>`;
-    }).join('') + (filteredProducts.length > limit ? `<tr><td colspan="4" style="text-align:center;color:#6c757d;font-size:12px;padding:8px;">+${filteredProducts.length-limit} ta. Qidirish orqali toraytiring.</td></tr>` : '');
+    }).join('');
+    tbody.innerHTML = rows + (filtered.length > limit
+        ? `<tr><td colspan="4" style="text-align:center;color:#94a3b8;font-size:12px;padding:8px">+${filtered.length - limit} ta. Qidirish orqali toraytiring.</td></tr>`
+        : '');
 }
 
 function renderCart() {
@@ -220,26 +414,27 @@ function renderCart() {
     const q = cartFilter.toLowerCase();
     const items = !q ? selectedItems : selectedItems.filter(i => i.name.toLowerCase().includes(q));
     if (!selectedItems.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty"><div class="ts-empty-icon">🗃️</div>Transfer qilish uchun mahsulot qo\'shing</div></td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo\'shing</td></tr>';
         return;
     }
     if (!items.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="ts-empty">Qidiruv natijasi yo\'q</div></td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🔍 Qidiruv natijasi yo\'q</td></tr>';
         return;
     }
-    tbody.innerHTML = items.map((it, idx) => {
-        const realIdx = selectedItems.indexOf(it);
+    tbody.innerHTML = items.map(it => {
+        const idx = selectedItems.indexOf(it);
         return `<tr>
-            <td>${it.name}</td>
-            <td style="white-space:nowrap;">${fmtNum(it.price)}</td>
+            <td title="${it.name}">${it.name}</td>
+            <td style="text-align:right">${fmtNum(it.price)}</td>
             <td>
-                <div class="ts-qty-cell">
-                    <button class="ts-qty-btn" onclick="changeQty(${realIdx},-1)">−</button>
-                    <input class="ts-qty-input" type="number" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${realIdx},this.value)" />
-                    <button class="ts-qty-btn" onclick="changeQty(${realIdx},1)">+</button>
+                <div class="tr-qty-cell">
+                    <button class="tr-qty-btn" onclick="changeQty(${idx},-1)">−</button>
+                    <input class="tr-qty-input" type="number" value="${it.quantity}" min="0" step="0.01"
+                        onchange="setQty(${idx},this.value)" />
+                    <button class="tr-qty-btn" onclick="changeQty(${idx},1)">+</button>
                 </div>
             </td>
-            <td><button class="ts-del-btn" onclick="removeItem(${realIdx})">🗑️</button></td>
+            <td style="text-align:center"><button class="tr-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
         </tr>`;
     }).join('');
 }
@@ -248,7 +443,7 @@ window.addProduct = function(pid) {
     if (selectedItems.some(i => i.product_id === pid)) return;
     const p = allProducts.find(x => x.id === pid);
     if (!p) return;
-    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price||0) });
+    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price || 0) });
     renderCart();
     const btn = document.getElementById('addbtn_' + pid);
     if (btn) { btn.disabled = true; btn.textContent = '✓'; }
@@ -259,7 +454,7 @@ window.changeQty = function(idx, d) {
     renderCart(); scheduleSave();
 };
 window.setQty = function(idx, v) {
-    selectedItems[idx].quantity = Math.max(0, Number(v)||0);
+    selectedItems[idx].quantity = Math.max(0, Number(v) || 0);
     scheduleSave();
 };
 window.removeItem = function(idx) {
@@ -267,7 +462,7 @@ window.removeItem = function(idx) {
     selectedItems.splice(idx, 1);
     renderCart();
     const btn = document.getElementById('addbtn_' + pid);
-    if (btn) { btn.disabled = false; btn.textContent = '+Qo\'sh'; }
+    if (btn) { btn.disabled = false; btn.textContent = '+ Qo\'sh'; }
     scheduleSave();
 };
 
@@ -278,9 +473,7 @@ document.getElementById('btnClear').addEventListener('click', () => {
     if (!selectedItems.length) return;
     if (!confirm('Ro\'yxatni tozalash?')) return;
     selectedItems = [];
-    renderCart();
-    renderProducts();
-    scheduleSave();
+    renderCart(); renderProducts(); scheduleSave();
 });
 
 document.getElementById('btnSend').addEventListener('click', async () => {
@@ -296,11 +489,16 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     const btn = document.getElementById('btnSend');
     btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
     try {
-        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, { method: 'POST', headers: {'Content-Type':'application/json'} });
+        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }
+        });
         const data = await res.json();
         if (data.success) { alert('✅ ' + data.message); window.location.href = '/transfer'; }
-        else { alert('Xato: ' + (data.error||'Noma\'lum')); btn.disabled=false; btn.textContent='✅ Transferni yakunlash'; }
-    } catch(e) { alert('Tarmoq xatosi: '+e.message); btn.disabled=false; btn.textContent='✅ Transferni yakunlash'; }
+        else { alert('Xato: ' + (data.error || 'Noma\'lum')); btn.disabled = false; btn.textContent = '✅ Transferni yakunlash'; }
+    } catch(e) {
+        alert('Tarmoq xatosi: ' + e.message);
+        btn.disabled = false; btn.textContent = '✅ Transferni yakunlash';
+    }
 });
 
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(autoSave, 1500); }
@@ -314,13 +512,20 @@ async function autoSave() {
     const items = selectedItems.filter(i => i.quantity > 0).map(i => ({
         id: i.product_id, product_id: i.product_id, name: i.name, quantity: i.quantity, price: i.price
     }));
-    const payload = { from_location_type: fromType, from_location_id: Number(fromId), to_location_type: toType, to_location_id: Number(toId), items };
+    const payload = {
+        from_location_type: fromType, from_location_id: Number(fromId),
+        to_location_type: toType, to_location_id: Number(toId), items
+    };
     try {
         let res;
         if (pendingId) {
-            res = await fetch(`/api/pending-transfer/${pendingId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            res = await fetch(`/api/pending-transfer/${pendingId}`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
         } else {
-            res = await fetch('/api/pending-transfer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            res = await fetch('/api/pending-transfer', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
         }
         const data = await res.json();
         if (data.success && data.pending_transfer) {
