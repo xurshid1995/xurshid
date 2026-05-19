@@ -25,27 +25,30 @@
     font-size: 18px;
     font-weight: 700;
 }
-.tr-loc-bar {
+.tr-box-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 10px;
     flex-wrap: wrap;
+    margin-bottom: 14px;
 }
-.tr-loc-bar label {
-    font-size: 14px;
+.tr-box-header .tr-box-title { margin: 0; flex-shrink: 0; }
+.tr-loc-inline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
+.tr-loc-inline label {
+    font-size: 13px;
     font-weight: 600;
     color: #495057;
     white-space: nowrap;
 }
-.tr-loc-bar select {
-    padding: 9px 12px;
+.tr-loc-inline select {
+    padding: 6px 10px;
     border: 1px solid #ced4da;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     background: white;
     cursor: pointer;
-    min-width: 200px;
+    min-width: 150px;
+    flex: 1;
 }
 .tr-save-badge {
     font-size: 12px;
@@ -53,6 +56,7 @@
     font-weight: 500;
     opacity: 0;
     transition: opacity 0.3s;
+    white-space: nowrap;
 }
 .tr-save-badge.show { opacity: 1; }
 
@@ -246,22 +250,19 @@
         <a href="/transfer" class="tv-btn tv-btn-secondary" style="font-size:13px;">← Orqaga</a>
     </div>
 
-    <div class="tr-loc-bar">
-        <label>Qayerdan:</label>
-        <select id="fromLocation">
-            <option value="">Tanlang...</option>
-        </select>
-        <label>Qayerga:</label>
-        <select id="toLocation">
-            <option value="">Tanlang...</option>
-        </select>
-        <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
-    </div>
-
     <div class="sales-grid">
         <!-- Chap: Mahsulotlar -->
         <div class="sales-layout-box">
-            <h3 class="tr-box-title">📦 Mahsulotlar</h3>
+            <div class="tr-box-header">
+                <h3 class="tr-box-title">📦 Mahsulotlar</h3>
+                <div class="tr-loc-inline">
+                    <label>Qayerdan:</label>
+                    <select id="fromLocation"><option value="">Tanlang...</option></select>
+                    <label>Qayerga:</label>
+                    <select id="toLocation"><option value="">Tanlang...</option></select>
+                    <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
+                </div>
+            </div>
             <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
