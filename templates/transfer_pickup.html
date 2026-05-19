@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Yig'ish{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tv-wrap">
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
+    <div id="tvRoot"></div>
+</div>
+
+<script>
+const INITIAL_DATA = {{ initial_data|tojson }};
+
+function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
+function fmtDate(s) { if (!s) return '—'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
+
+function render() {
+    const p = INITIAL_DATA.pending_transfer;
+    const items = p.items || [];
+    const rows = items.map(it => `
+        <tr>
+            <td>${it.name || ('#'+(it.id||it.product_id))}</td>
+            <td class="num">${fmtNum(it.quantity)}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('tvRoot').innerHTML = `
+        <div class="tv-card">
+            <h2 class="tv-title">Yangi transfer keldi (#${p.id})</h2>
+            <div class="tv-info-box">📥 Sotuvchi tomonidan yuborildi. Yig'ishni boshlash uchun pastdagi tugmani bosing.</div>
+            <div class="tv-row">
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
+            </div>
+            <div class="tv-row">
+                <div><div class="tv-label">Buyurtmachi (sotuvchi)</div><div class="tv-value">${p.user_name || '—'}</div></div>
+                <div><div class="tv-label">Yuborilgan vaqt</div><div class="tv-value">${fmtDate(p.sent_at || p.updated_at)}</div></div>
+            </div>
+        </div>
+
+        <div class="tv-card">
+            <h3 class="tv-title" style="font-size:16px;">So'ralgan mahsulotlar (${items.length})</h3>
+            <table class="tv-table">
+                <thead><tr><th>Mahsulot</th><th class="num">Miqdor</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="2" style="text-align:center;color:#999;">Mahsulot yo\'q</td></tr>'}</tbody>
+            </table>
+        </div>
+
+        <div class="tv-actions tv-actions-between">
+            <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
+            <button class="tv-btn tv-btn-success" id="btnStart">⚙️ Yig'ishni boshlash</button>
+        </div>
+    `;
+
+    document.getElementById('btnStart').addEventListener('click', startPicking);
+}
+
+async function startPicking() {
+    const btn = document.getElementById('btnStart');
+    btn.disabled = true;
+    btn.textContent = 'Boshlanmoqda...';
+    try {
+        const res = await fetch(`/api/pending-transfer/${INITIAL_DATA.pending_transfer.id}/start-picking`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.href = `/transfer/${INITIAL_DATA.pending_transfer.id}/pack`;
+        } else {
+            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+            btn.disabled = false;
+            btn.textContent = '⚙️ Yig\'ishni boshlash';
+        }
+    } catch (e) {
+        alert('Tarmoq xatosi: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = '⚙️ Yig\'ishni boshlash';
+    }
+}
+
+render();
+</script>
+{% endblock %}

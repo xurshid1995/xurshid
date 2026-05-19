@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Yig'ish{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
+<style>
+.te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.te-search-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+.te-product-list { max-height: 480px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-top: 10px; }
+.te-product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f1f3f5; cursor: pointer; transition: background 0.15s; }
+.te-product-row:hover { background: #f8f9fa; }
+.te-product-row:last-child { border-bottom: none; }
+.te-product-name { font-weight: 500; color: #0f172a; font-size: 14px; }
+.te-product-meta { font-size: 12px; color: #6c757d; margin-top: 2px; }
+.te-add-btn { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.te-add-btn:disabled { background: #adb5bd; cursor: not-allowed; }
+.te-selected-empty { text-align: center; color: #adb5bd; padding: 40px 12px; font-size: 14px; }
+.te-qty-cell { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+.te-qty-btn { width: 28px; height: 28px; border-radius: 6px; background: #f1f3f5; border: 1px solid #dee2e6; cursor: pointer; font-weight: 700; color: #495057; }
+.te-del-btn { background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 4px 8px; }
+.tp-orig { color: #6c757d; font-size: 11px; text-decoration: line-through; margin-left: 4px; }
+.tp-changed { background: #fff8f1; }
+@media (max-width: 800px) { .te-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tv-wrap" style="max-width: 1200px;">
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
+    <div id="tvRoot"></div>
+</div>
+
+<script>
+const INITIAL_DATA = {{ initial_data|tojson }};
+const TRANSFER_ID = INITIAL_DATA.pending_transfer.id;
+const ORIGINAL_ITEMS = (INITIAL_DATA.pending_transfer.items || []).reduce((acc, it) => {
+    acc[it.id || it.product_id] = Number(it.quantity || 0);
+    return acc;
+}, {});
+
+let selectedItems = (INITIAL_DATA.pending_transfer.items || []).map(it => ({
+    product_id: it.id || it.product_id,
+    name: it.name || ('#' + (it.id || it.product_id)),
+    quantity: Number(it.quantity || 0),
+    price: Number(it.price || 0)
+}));
+let allProducts = [];
+let filteredProducts = [];
+let saveTimer = null;
+
+function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
+
+function render() {
+    const p = INITIAL_DATA.pending_transfer;
+    document.getElementById('tvRoot').innerHTML = `
+        <div class="tv-card">
+            <h2 class="tv-title">📦 Mahsulotlarni yig'ish (#${p.id})
+                <span class="tv-save-indicator" id="saveInd">✓ Saqlandi</span>
+            </h2>
+            <div class="tv-info-box">
+                <b>Yo'riqnoma:</b> Sotuvchi so'ragan mahsulotlarni omborda toping va miqdorlarni to'g'rilang.
+                Mavjud bo'lmagan mahsulotlarni o'chirib tashlang yoki yangisini qo'shing. Tugatgach "Jo'natdim" tugmasini bosing.
+            </div>
+            <div class="tv-row">
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
+            </div>
+            <div class="tv-row">
+                <div><div class="tv-label">Sotuvchi</div><div class="tv-value">${p.user_name || '—'}</div></div>
+                <div><div class="tv-label">Status</div><div class="tv-value"><span class="tv-status tv-status-picking">⚙️ Yig'ilmoqda</span></div></div>
+            </div>
+        </div>
+
+        <div class="te-grid">
+            <div class="tv-card">
+                <h3 class="tv-title" style="font-size:16px;">➕ Mahsulot qo'shish</h3>
+                <input type="text" id="productSearch" class="te-search-input" placeholder="Mahsulot nomi yoki barcode..." />
+                <div class="te-product-list" id="productList">
+                    <div class="te-selected-empty">⏳ Yuklanmoqda...</div>
+                </div>
+            </div>
+
+            <div class="tv-card">
+                <h3 class="tv-title" style="font-size:16px;">🛒 Yig'ilgan mahsulotlar (<span id="cntSelected">${selectedItems.length}</span>)</h3>
+                <table class="tv-table">
+                    <thead><tr>
+                        <th>Mahsulot</th>
+                        <th class="num">Yig'ilgan miqdor</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody id="selectedBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tv-actions">
+            <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
+            <button class="tv-btn tv-btn-success" id="btnDispatch">📦 Jo'natdim (sotuvchiga yuborish)</button>
+        </div>
+    `;
+
+    document.getElementById('productSearch').addEventListener('input', onSearch);
+    document.getElementById('btnDispatch').addEventListener('click', dispatchTransfer);
+
+    renderSelected();
+    loadProducts();
+}
+
+async function loadProducts() {
+    const p = INITIAL_DATA.pending_transfer;
+    const from = `${p.from_location_type}_${p.from_location_id}`;
+    try {
+        const res = await fetch(`/api/products?location=${from}&per_page=10000`);
+        const data = await res.json();
+        allProducts = Array.isArray(data) ? data : (data.products || []);
+        filteredProducts = allProducts;
+        renderProductList();
+    } catch (e) {
+        document.getElementById('productList').innerHTML = '<div class="te-selected-empty">⚠️ Xato: ' + e.message + '</div>';
+    }
+}
+
+function getStockFor(product) {
+    if (!product.stocks || !product.stocks.length) return 0;
+    const p = INITIAL_DATA.pending_transfer;
+    const type = p.from_location_type;
+    const lid = p.from_location_id;
+    const s = product.stocks.find(s => (type === 'warehouse' ? s.warehouse_id === lid : s.store_id === lid));
+    return s ? Number(s.quantity || 0) : 0;
+}
+
+function renderProductList() {
+    const list = document.getElementById('productList');
+    if (!filteredProducts.length) { list.innerHTML = '<div class="te-selected-empty">Mahsulot topilmadi</div>'; return; }
+    const limit = 100;
+    list.innerHTML = filteredProducts.slice(0, limit).map(p => {
+        const stock = getStockFor(p);
+        const inCart = selectedItems.some(i => i.product_id === p.id);
+        return `
+            <div class="te-product-row" data-pid="${p.id}">
+                <div>
+                    <div class="te-product-name">${p.name}</div>
+                    <div class="te-product-meta">Mavjud: ${fmtNum(stock)} | Narx: ${fmtNum(p.price)}</div>
+                </div>
+                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓ ro\'yxatda' : '+ qo\'shish'}</button>
+            </div>`;
+    }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidiring.</div>` : '');
+    list.querySelectorAll('.te-product-row').forEach(row => {
+        row.addEventListener('click', () => addProduct(Number(row.dataset.pid)));
+    });
+}
+
+function onSearch(e) {
+    const q = e.target.value.trim().toLowerCase();
+    filteredProducts = !q ? allProducts : allProducts.filter(p =>
+        (p.name||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q));
+    renderProductList();
+}
+
+function addProduct(pid) {
+    if (selectedItems.some(i => i.product_id === pid)) return;
+    const p = allProducts.find(x => x.id === pid);
+    if (!p) return;
+    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price || 0) });
+    renderSelected(); renderProductList(); scheduleSave();
+}
+
+function renderSelected() {
+    const body = document.getElementById('selectedBody');
+    document.getElementById('cntSelected').textContent = selectedItems.length;
+    if (!selectedItems.length) { body.innerHTML = '<tr><td colspan="3" class="te-selected-empty">Mahsulot yo\'q</td></tr>'; return; }
+    body.innerHTML = selectedItems.map((it, idx) => {
+        const orig = ORIGINAL_ITEMS[it.product_id];
+        const changed = orig !== undefined && Number(orig) !== Number(it.quantity);
+        const origHint = (orig !== undefined && changed) ? `<span class="tp-orig">${fmtNum(orig)}</span>` : '';
+        return `
+            <tr class="${changed ? 'tp-changed' : ''}">
+                <td>${it.name}</td>
+                <td class="num">
+                    <div class="te-qty-cell">
+                        <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+                        <input type="number" class="tv-input-qty" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
+                        <button class="te-qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+                        ${origHint}
+                    </div>
+                </td>
+                <td><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+            </tr>`;
+    }).join('');
+}
+
+window.changeQty = function(idx, delta) {
+    selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + delta);
+    renderSelected(); scheduleSave();
+};
+window.setQty = function(idx, v) {
+    selectedItems[idx].quantity = Math.max(0, Number(v) || 0);
+    renderSelected(); scheduleSave();
+};
+window.removeItem = function(idx) {
+    selectedItems.splice(idx, 1);
+    renderSelected(); renderProductList(); scheduleSave();
+};
+
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(autoSave, 1500); }
+
+async function autoSave() {
+    const p = INITIAL_DATA.pending_transfer;
+    const items = selectedItems.filter(i => i.quantity > 0).map(i => ({
+        id: i.product_id, product_id: i.product_id, name: i.name,
+        quantity: i.quantity, price: i.price
+    }));
+    const payload = {
+        from_location_type: p.from_location_type, from_location_id: p.from_location_id,
+        to_location_type: p.to_location_type, to_location_id: p.to_location_id,
+        items: items
+    };
+    try {
+        const res = await fetch(`/api/pending-transfer/${TRANSFER_ID}`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) showSaved();
+    } catch (e) { console.error('Auto-save xato:', e); }
+}
+
+function showSaved() {
+    const ind = document.getElementById('saveInd');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+async function dispatchTransfer() {
+    const validItems = selectedItems.filter(i => i.quantity > 0);
+    if (!validItems.length) return alert('Hech bo\'lmasa bitta mahsulot yig\'ing.');
+    if (!confirm(`${validItems.length} ta mahsulotni sotuvchiga jo'natasizmi?\nJo'natilgandan keyin tahrirlay olmaysiz.`)) return;
+
+    // Avval saqlash
+    clearTimeout(saveTimer);
+    await autoSave();
+
+    const btn = document.getElementById('btnDispatch');
+    btn.disabled = true;
+    btn.textContent = 'Yuborilmoqda...';
+    try {
+        const res = await fetch(`/api/pending-transfer/${TRANSFER_ID}/warehouse-confirm`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('✅ ' + data.message);
+            window.location.href = '/transfer';
+        } else {
+            alert('Xato: ' + (data.error || 'Noma\'lum'));
+            btn.disabled = false;
+            btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+        }
+    } catch (e) {
+        alert('Tarmoq: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+    }
+}
+
+render();
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+/* Yangi transfer sahifalari uchun umumiy stil */
+.tv-wrap { padding: 20px; max-width: 980px; margin: 0 auto; }
+.tv-card { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.tv-title { margin: 0 0 12px 0; font-size: 20px; color: #0f172a; }
+.tv-subtitle { color: #6c757d; font-size: 14px; margin-top: -6px; margin-bottom: 16px; }
+.tv-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+.tv-label { color: #6c757d; font-size: 13px; margin-bottom: 4px; }
+.tv-value { font-weight: 600; color: #0f172a; }
+.tv-status { display:inline-block; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+.tv-status-completed { background: #d4edda; color: #155724; }
+.tv-status-dispatched { background: #d1ecf1; color: #0c5460; }
+.tv-status-picking { background: #e8f4fd; color: #0066cc; }
+.tv-status-sent { background: #fff3cd; color: #856404; }
+.tv-status-draft { background: #e9ecef; color: #6c757d; }
+.tv-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.tv-table th, .tv-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+.tv-table th { background: #f8f9fa; font-size: 13px; color: #6c757d; text-transform: uppercase; }
+.tv-table td.num, .tv-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tv-diff-less { color: #c0392b; font-weight: 700; }
+.tv-diff-ok { color: #27ae60; }
+.tv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+.tv-actions-between { justify-content: space-between; }
+.tv-btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.tv-btn-primary { background: #007bff; }
+.tv-btn-secondary { background: #6c757d; }
+.tv-btn-success { background: #28a745; }
+.tv-btn-danger { background: #dc3545; }
+.tv-btn-warning { background: #fd7e14; }
+.tv-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.tv-input-qty { width: 90px; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 6px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+.tv-input-qty.changed { border-color: #fd7e14; background: #fff8f1; }
+.tv-textarea { width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-family: inherit; resize: vertical; box-sizing: border-box; }
+.tv-hint { color: #6c757d; font-size: 12px; margin-top: 4px; }
+.tv-note-box { background: #fff8e1; border-left: 3px solid #ffc107; padding: 10px 12px; margin-top: 8px; border-radius: 6px; color: #5d4037; }
+.tv-info-box { background: #e8f4fd; border-left: 3px solid #0066cc; padding: 12px 14px; border-radius: 6px; color: #0c5460; margin-bottom: 12px; font-size: 14px; }
+.tv-save-indicator { font-size: 13px; color: #28a745; margin-left: 12px; opacity: 0; transition: opacity 0.3s; }
+.tv-save-indicator.show { opacity: 1; }
+.tv-back-link { color: #6c757d; text-decoration: none; font-size: 14px; margin-bottom: 12px; display: inline-block; }
+.tv-back-link:hover { color: #007bff; }
+@media (max-width: 700px) {
+    .tv-wrap { padding: 12px; }
+    .tv-row { grid-template-columns: 1fr; }
+    .tv-actions { flex-direction: column-reverse; }
+    .tv-btn { width: 100%; justify-content: center; }
+    .tv-table th, .tv-table td { padding: 8px 6px; font-size: 13px; }
+}

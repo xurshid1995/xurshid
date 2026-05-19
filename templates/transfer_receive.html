@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Qabul qilish{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tv-wrap">
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
+    <div id="tvRoot"></div>
+</div>
+
+<script>
+const INITIAL_DATA = {{ initial_data|tojson }};
+const TRANSFER_ID = INITIAL_DATA.pending_transfer.id;
+
+function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
+function fmtDate(s) { if (!s) return '—'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
+
+function render() {
+    const p = INITIAL_DATA.pending_transfer;
+    const items = p.items || [];
+
+    const rows = items.map((it, idx) => {
+        const pid = it.id || it.product_id;
+        const sent = Number(it.quantity || 0);
+        return `
+            <tr data-pid="${pid}" data-sent="${sent}">
+                <td>${it.name || ('#'+pid)}</td>
+                <td class="num"><b>${fmtNum(sent)}</b></td>
+                <td class="num">
+                    <input type="number" class="tv-input-qty rcv-qty" min="0" step="0.01"
+                           value="${sent}" max="${sent}" data-sent="${sent}" />
+                </td>
+                <td class="num diff-cell">—</td>
+            </tr>
+        `;
+    }).join('');
+
+    document.getElementById('tvRoot').innerHTML = `
+        <div class="tv-card">
+            <h2 class="tv-title">📥 Mahsulotni qabul qilish (#${p.id})</h2>
+            <div class="tv-info-box">
+                <b>Yo'riqnoma:</b> Har bir mahsulot uchun haqiqatda nechtasi keldi — uni "Qabul qilingan" maydoniga yozing.
+                Standart qiymat — jo'natilgan miqdor. Agar to'liq kelgan bo'lsa, faqat "Tasdiqlash" tugmasini bosing.
+            </div>
+            <div class="tv-row">
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
+            </div>
+            <div class="tv-row">
+                <div><div class="tv-label">Yuborgan vaqt (ombor)</div><div class="tv-value">${fmtDate(p.dispatched_at)}</div></div>
+                <div><div class="tv-label">Yuborgan ombor xodimi</div><div class="tv-value">ID ${p.dispatched_by_id || '—'}</div></div>
+            </div>
+        </div>
+
+        <div class="tv-card">
+            <h3 class="tv-title" style="font-size:16px;">Mahsulotlar (${items.length})</h3>
+            <table class="tv-table">
+                <thead><tr>
+                    <th>Mahsulot</th>
+                    <th class="num">Jo'natilgan</th>
+                    <th class="num">Qabul qilindi</th>
+                    <th class="num">Farq</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+
+            <div style="margin-top:16px;">
+                <div class="tv-label">Izoh (ixtiyoriy)</div>
+                <textarea class="tv-textarea" id="receiveNote" placeholder="Misol: 2 ta sindirilgan holatda keldi"></textarea>
+            </div>
+        </div>
+
+        <div class="tv-actions tv-actions-between">
+            <button class="tv-btn tv-btn-danger" id="btnReject">❌ Rad etish (omborga qaytarish)</button>
+            <div style="display:flex;gap:10px;">
+                <button class="tv-btn tv-btn-warning" id="btnZeroAll">0 qabul (hech narsa kelmadi)</button>
+                <button class="tv-btn tv-btn-success" id="btnConfirm">✅ Tasdiqlash</button>
+            </div>
+        </div>
+    `;
+
+    document.querySelectorAll('.rcv-qty').forEach(inp => {
+        inp.addEventListener('input', updateDiff);
+        updateDiff({ target: inp });
+    });
+    document.getElementById('btnConfirm').addEventListener('click', confirmReceive);
+    document.getElementById('btnReject').addEventListener('click', rejectTransfer);
+    document.getElementById('btnZeroAll').addEventListener('click', () => {
+        document.querySelectorAll('.rcv-qty').forEach(i => { i.value = 0; updateDiff({ target: i }); });
+    });
+}
+
+function updateDiff(e) {
+    const inp = e.target;
+    const tr = inp.closest('tr');
+    const sent = Number(tr.dataset.sent || 0);
+    let val = Number(inp.value || 0);
+    if (val < 0) { val = 0; inp.value = 0; }
+    if (val > sent) { val = sent; inp.value = sent; }
+    const diff = val - sent;
+    const cell = tr.querySelector('.diff-cell');
+    if (diff === 0) {
+        cell.innerHTML = '<span class="tv-diff-ok">✓ to\'liq</span>';
+        inp.classList.remove('changed');
+    } else {
+        cell.innerHTML = `<span class="tv-diff-less">${diff}</span>`;
+        inp.classList.add('changed');
+    }
+}
+
+async function confirmReceive() {
+    const items = [];
+    let anyShortage = false;
+    document.querySelectorAll('.rcv-qty').forEach(inp => {
+        const tr = inp.closest('tr');
+        const pid = Number(tr.dataset.pid);
+        const sent = Number(tr.dataset.sent || 0);
+        const qty = Number(inp.value || 0);
+        if (qty < sent) anyShortage = true;
+        items.push({ product_id: pid, received_qty: qty });
+    });
+    const note = document.getElementById('receiveNote').value.trim();
+
+    if (anyShortage) {
+        if (!confirm('Ba\'zi mahsulotlar to\'liq kelmagan. Tasdiqlashni xohlaysizmi?\n\nFarq diqqat bilan tekshirilsin — bu amal qaytarilmaydi.')) return;
+    } else if (!confirm('Hammasi to\'liq qabul qilindi. Tasdiqlaysizmi?')) {
+        return;
+    }
+
+    const btn = document.getElementById('btnConfirm');
+    btn.disabled = true;
+    btn.textContent = 'Yuborilmoqda...';
+    try {
+        const res = await fetch(`/api/pending-transfer/${TRANSFER_ID}/receiver-confirm`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ received_items: items, received_note: note })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('✅ ' + data.message);
+            window.location.href = '/transfer';
+        } else {
+            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+            btn.disabled = false;
+            btn.textContent = '✅ Tasdiqlash';
+        }
+    } catch (e) {
+        alert('Tarmoq xatosi: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = '✅ Tasdiqlash';
+    }
+}
+
+async function rejectTransfer() {
+    if (!confirm('Transferni rad etib, omborga qaytarmoqchimisiz? Omborchi mahsulotlarni qaytadan tekshirib jo\'natadi.')) return;
+    const btn = document.getElementById('btnReject');
+    btn.disabled = true;
+    try {
+        const res = await fetch(`/api/pending-transfer/${TRANSFER_ID}/reject`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '/transfer';
+        } else {
+            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+            btn.disabled = false;
+        }
+    } catch (e) {
+        alert('Tarmoq xatosi: ' + e.message);
+        btn.disabled = false;
+    }
+}
+
+render();
+</script>
+{% endblock %}

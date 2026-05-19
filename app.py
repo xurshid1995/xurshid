@@ -938,11 +938,15 @@ class PendingTransfer(db.Model):
     to_location_type = db.Column(db.String(20), nullable=False)  # 'store' yoki 'warehouse'
     to_location_id = db.Column(db.Integer, nullable=False)
     items = db.Column(db.JSON, nullable=False)  # [{product_id, name, price, quantity, available}, ...]
-    status = db.Column(db.String(20), default='draft')  # draft | sent | dispatched | completed
+    status = db.Column(db.String(20), default='draft')  # draft | sent | picking | dispatched | completed
     sent_at = db.Column(db.DateTime, nullable=True)
     dispatched_at = db.Column(db.DateTime, nullable=True)
     dispatched_by_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     receiver_confirmed_at = db.Column(db.DateTime, nullable=True)
+    # Sotuvchi qisman qabul qilganda: [{product_id, received_qty}, ...]
+    received_items = db.Column(db.JSON, nullable=True)
+    received_at = db.Column(db.DateTime, nullable=True)
+    received_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
@@ -968,6 +972,9 @@ class PendingTransfer(db.Model):
             'dispatched_at': self.dispatched_at.isoformat() if self.dispatched_at else None,
             'dispatched_by_name': self.dispatched_by.username if self.dispatched_by else None,
             'receiver_confirmed_at': self.receiver_confirmed_at.isoformat() if self.receiver_confirmed_at else None,
+            'received_items': self.received_items,
+            'received_at': self.received_at.isoformat() if self.received_at else None,
+            'received_note': self.received_note,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -4377,6 +4384,153 @@ def print_barcode():
 @role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def transfer():
     return render_template('transfer.html')
+
+
+def _get_locations_for_user(current_user):
+    """Foydalanuvchining transfer uchun ruxsat etilgan joylashuvlari ro'yxati."""
+    locations = []
+    if not current_user:
+        return locations
+
+    if current_user.role == 'admin':
+        allowed_store_ids = None
+        allowed_warehouse_ids = None
+    else:
+        transfer_locs = current_user.transfer_locations or []
+        if transfer_locs and isinstance(transfer_locs[0], int):
+            allowed_store_ids = transfer_locs
+            allowed_warehouse_ids = transfer_locs
+        else:
+            allowed_store_ids = extract_location_ids(transfer_locs, 'store')
+            allowed_warehouse_ids = extract_location_ids(transfer_locs, 'warehouse')
+
+    stores = (Store.query.all() if allowed_store_ids is None
+              else (Store.query.filter(Store.id.in_(allowed_store_ids)).all()
+                    if allowed_store_ids else []))
+    for s in stores:
+        locations.append({
+            'id': s.id, 'name': s.name, 'type': 'store',
+            'address': s.address, 'manager_name': s.manager_name, 'phone': s.phone
+        })
+
+    warehouses = (Warehouse.query.all() if allowed_warehouse_ids is None
+                  else (Warehouse.query.filter(Warehouse.id.in_(allowed_warehouse_ids)).all()
+                        if allowed_warehouse_ids else []))
+    for w in warehouses:
+        locations.append({
+            'id': w.id, 'name': w.name, 'type': 'warehouse',
+            'address': w.address, 'manager_name': w.manager_name,
+            'current_stock': w.current_stock
+        })
+    return locations
+
+
+@app.route('/transfer/new')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def transfer_new_page():
+    """Yangi transfer yaratish (draft)"""
+    current_user = get_current_user()
+    locations = _get_locations_for_user(current_user)
+    initial_data = {'locations': locations, 'pending_transfer': None, 'mode': 'new'}
+    return render_template('transfer_edit.html', initial_data=initial_data)
+
+
+@app.route('/transfer/<int:transfer_id>')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def transfer_smart_redirect(transfer_id):
+    """Status'ga qarab to'g'ri sahifaga yo'naltirish."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    status = pending.status or 'draft'
+    url_map = {
+        'draft': f'/transfer/{transfer_id}/edit',
+        'sent': f'/transfer/{transfer_id}/pickup',
+        'picking': f'/transfer/{transfer_id}/pack',
+        'dispatched': f'/transfer/{transfer_id}/receive',
+        'completed': f'/transfer/{transfer_id}/view',
+        'completed_with_shortage': f'/transfer/{transfer_id}/view',
+    }
+    return redirect(url_map.get(status, '/transfer'))
+
+
+@app.route('/transfer/<int:transfer_id>/edit')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def transfer_edit_page(transfer_id):
+    """Qoralama (draft) transfer tahrirlash."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    if (pending.status or 'draft') != 'draft':
+        return redirect(f'/transfer/{transfer_id}')
+    locations = _get_locations_for_user(current_user)
+    initial_data = {
+        'locations': locations,
+        'pending_transfer': pending.to_dict(),
+        'mode': 'edit',
+    }
+    return render_template('transfer_edit.html', initial_data=initial_data)
+
+
+@app.route('/transfer/<int:transfer_id>/pickup')
+@role_required('admin', 'kassir', 'omborchi')
+def transfer_pickup_page(transfer_id):
+    """Omborchi yangi kelgan transferni ko'radi (status='sent')."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    if pending.status != 'sent':
+        return redirect(f'/transfer/{transfer_id}')
+    initial_data = {'pending_transfer': pending.to_dict()}
+    return render_template('transfer_pickup.html', initial_data=initial_data)
+
+
+@app.route('/transfer/<int:transfer_id>/pack')
+@role_required('admin', 'kassir', 'omborchi')
+def transfer_pack_page(transfer_id):
+    """Omborchi mahsulotlarni yig'adi (status='picking')."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    if pending.status != 'picking':
+        return redirect(f'/transfer/{transfer_id}')
+    locations = _get_locations_for_user(current_user)
+    initial_data = {
+        'locations': locations,
+        'pending_transfer': pending.to_dict(),
+        'mode': 'pack',
+    }
+    return render_template('transfer_pack.html', initial_data=initial_data)
+
+
+@app.route('/transfer/<int:transfer_id>/receive')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def transfer_receive_page(transfer_id):
+    """Sotuvchi kirimni tekshiradi va tasdiqlaydi (status='dispatched')."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    if pending.status != 'dispatched':
+        return redirect(f'/transfer/{transfer_id}')
+    initial_data = {'pending_transfer': pending.to_dict()}
+    return render_template('transfer_receive.html', initial_data=initial_data)
+
+
+@app.route('/transfer/<int:transfer_id>/view')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def transfer_view_page(transfer_id):
+    """Yakunlangan transferni faqat ko'rish."""
+    current_user = get_current_user()
+    pending = PendingTransfer.query.get_or_404(transfer_id)
+    if not user_can_manage_transfer(current_user, pending):
+        abort(403)
+    initial_data = {'pending_transfer': pending.to_dict()}
+    return render_template('transfer_view.html', initial_data=initial_data)
 
 
 @app.route('/transfer_session')
@@ -8544,6 +8698,18 @@ def add_user_page():
 def create_tables():
     if not hasattr(create_tables, 'created'):
         db.create_all()
+        # Idempotent migration: pending_transfers ga received_items ustunlarini qo'shish
+        try:
+            db.session.execute(db.text("""
+                ALTER TABLE pending_transfers
+                    ADD COLUMN IF NOT EXISTS received_items JSON,
+                    ADD COLUMN IF NOT EXISTS received_at TIMESTAMP,
+                    ADD COLUMN IF NOT EXISTS received_note TEXT;
+            """))
+            db.session.commit()
+        except Exception as _e:
+            db.session.rollback()
+            logger.warning(f"pending_transfers migration: {_e}")
         create_tables.created = True
 
     # Test ombor stocklari o'chirildi - manual ravishda qo'shiladi
@@ -10611,7 +10777,11 @@ def start_picking_transfer(pending_id):
 @app.route('/api/pending-transfer/<int:pending_id>/receiver-confirm', methods=['POST'])
 @role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def receiver_confirm_transfer(pending_id):
-    """Sotuvchi kirimni tasdiqlaydi — actual stock transfer amalga oshadi (status: dispatched → completed)"""
+    """Sotuvchi kirimni tasdiqlaydi — actual stock transfer amalga oshadi.
+    Qisman qabul qo'llanadi: received_items=[{product_id, received_qty}, ...].
+    Agar received_items berilmasa, dispatched miqdorlar bilan to'liq qabul qilinadi.
+    Stock to'g'ri (received_qty) bilan o'zgaradi: ombor stockidan ham received_qty kamayadi.
+    """
     try:
         current_user = get_current_user()
         if not current_user:
@@ -10627,9 +10797,29 @@ def receiver_confirm_transfer(pending_id):
         if pending.status != 'dispatched':
             return jsonify({'error': 'Transfer hali omborchi tomonidan tasdiqlanmagan'}), 400
 
-        from datetime import datetime
+        # Duplicate confirm oldini olish (refresh, double click)
+        if pending.received_at is not None:
+            return jsonify({'error': 'Bu transfer allaqachon tasdiqlangan'}), 400
 
-        # Actual stock transfer
+        from datetime import datetime
+        data = request.get_json(silent=True) or {}
+        received_items_input = data.get('received_items') or []
+        received_note = (data.get('received_note') or '').strip() or None
+
+        # received_qty xaritasi: product_id -> Decimal
+        received_map = {}
+        for ri in received_items_input:
+            pid = ri.get('product_id') or ri.get('id')
+            try:
+                qty = Decimal(str(ri.get('received_qty', 0)))
+            except Exception:
+                qty = Decimal('0')
+            if pid is None or qty < 0:
+                continue
+            received_map[int(pid)] = qty
+
+        # Stock yangilash uchun yakuniy received_items ro'yxati (saqlanadi)
+        final_received = []
         from_type = pending.from_location_type
         from_id = pending.from_location_id
         to_type = pending.to_location_type
@@ -10637,55 +10827,84 @@ def receiver_confirm_transfer(pending_id):
 
         for item in pending.items:
             product_id = item.get('id') or item.get('product_id')
-            quantity = Decimal(str(item.get('quantity', 0)))
-            if not product_id or quantity <= 0:
+            if not product_id:
+                continue
+            product_id = int(product_id)
+            sent_qty = Decimal(str(item.get('quantity', 0)))
+            # Agar received_items berilgan bo'lsa - undan ol, aks holda to'liq qabul
+            if received_items_input:
+                received_qty = received_map.get(product_id, Decimal('0'))
+            else:
+                received_qty = sent_qty
+            if received_qty < 0:
+                received_qty = Decimal('0')
+            if received_qty > sent_qty:
+                received_qty = sent_qty  # jo'natilgandan ko'p qabul qilinmaydi
+
+            final_received.append({
+                'product_id': product_id,
+                'sent_qty': float(sent_qty),
+                'received_qty': float(received_qty),
+            })
+
+            if received_qty <= 0:
                 continue
 
-            # FROM location'dan kamaytirish
+            # FROM (omborchi joyi) - received_qty kamaytirish
             if from_type == 'store':
                 stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).first()
-                if not stock or stock.quantity < quantity:
+                if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
-                stock.quantity -= quantity
+                stock.quantity -= received_qty
             elif from_type == 'warehouse':
                 stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).first()
-                if not stock or stock.quantity < quantity:
+                if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
-                stock.quantity -= quantity
+                stock.quantity -= received_qty
 
-            # TO location'ga qo'shish
+            # TO (sotuvchi joyi) - received_qty qo'shish
             if to_type == 'store':
                 to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).first()
                 if to_stock:
-                    to_stock.quantity += quantity
+                    to_stock.quantity += received_qty
                 else:
-                    to_stock = StoreStock(store_id=to_id, product_id=product_id, quantity=quantity)
+                    to_stock = StoreStock(store_id=to_id, product_id=product_id, quantity=received_qty)
                     db.session.add(to_stock)
             elif to_type == 'warehouse':
                 to_stock = WarehouseStock.query.filter_by(warehouse_id=to_id, product_id=product_id).first()
                 if to_stock:
-                    to_stock.quantity += quantity
+                    to_stock.quantity += received_qty
                 else:
-                    to_stock = WarehouseStock(warehouse_id=to_id, product_id=product_id, quantity=quantity)
+                    to_stock = WarehouseStock(warehouse_id=to_id, product_id=product_id, quantity=received_qty)
                     db.session.add(to_stock)
 
-            # Transfer tarixi
+            # Transfer tarixi (received_qty bilan)
             transfer_record = Transfer(
                 product_id=product_id,
                 from_location_type=from_type,
                 from_location_id=from_id,
                 to_location_type=to_type,
                 to_location_id=to_id,
-                quantity=quantity,
+                quantity=received_qty,
                 user_name=current_user.username
             )
             db.session.add(transfer_record)
 
-        # Pending transferni o'chirish (completed)
+        # Pending'ni completed deb belgilash va o'chirish (eskicha)
+        pending.status = 'completed'
+        pending.received_items = final_received
+        pending.received_at = datetime.utcnow()
+        pending.received_note = received_note
+        pending.receiver_confirmed_at = datetime.utcnow()
+
         db.session.delete(pending)
         db.session.commit()
 
-        return jsonify({'success': True, 'message': 'Kirim tasdiqlandi! Transfer muvaffaqiyatli yakunlandi.'})
+        return jsonify({
+            'success': True,
+            'message': 'Kirim tasdiqlandi! Transfer muvaffaqiyatli yakunlandi.',
+            'received_items': final_received,
+        })
 
     except Exception as e:
         db.session.rollback()

@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}{% if initial_data.mode == 'new' %}Yangi transfer{% else %}Transfer #{{ initial_data.pending_transfer.id }} tahrir{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transfer_v2.css') }}">
+<style>
+.te-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.te-search-wrap { position: relative; }
+.te-search-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+.te-product-list { max-height: 480px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-top: 10px; }
+.te-product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f1f3f5; cursor: pointer; transition: background 0.15s; }
+.te-product-row:hover { background: #f8f9fa; }
+.te-product-row:last-child { border-bottom: none; }
+.te-product-name { font-weight: 500; color: #0f172a; font-size: 14px; }
+.te-product-meta { font-size: 12px; color: #6c757d; margin-top: 2px; }
+.te-add-btn { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.te-add-btn:disabled { background: #adb5bd; cursor: not-allowed; }
+.te-selected-empty { text-align: center; color: #adb5bd; padding: 40px 12px; font-size: 14px; }
+.te-qty-cell { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+.te-qty-btn { width: 28px; height: 28px; border-radius: 6px; background: #f1f3f5; border: 1px solid #dee2e6; cursor: pointer; font-weight: 700; color: #495057; }
+.te-qty-btn:hover { background: #e9ecef; }
+.te-del-btn { background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 4px 8px; }
+@media (max-width: 800px) {
+    .te-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tv-wrap" style="max-width: 1200px;">
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
+    <div id="tvRoot"></div>
+</div>
+
+<script>
+const INITIAL_DATA = {{ initial_data|tojson }};
+const MODE = INITIAL_DATA.mode; // 'new' yoki 'edit'
+let pendingId = INITIAL_DATA.pending_transfer ? INITIAL_DATA.pending_transfer.id : null;
+let selectedItems = []; // [{product_id, name, quantity, price}]
+let allProducts = [];
+let filteredProducts = [];
+let saveTimer = null;
+
+if (INITIAL_DATA.pending_transfer) {
+    selectedItems = (INITIAL_DATA.pending_transfer.items || []).map(it => ({
+        product_id: it.id || it.product_id,
+        name: it.name || ('#' + (it.id || it.product_id)),
+        quantity: Number(it.quantity || 0),
+        price: Number(it.price || 0)
+    }));
+}
+
+function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
+
+function locationOptions(selectedKey) {
+    return INITIAL_DATA.locations.map(loc => {
+        const key = `${loc.type}_${loc.id}`;
+        const label = (loc.type === 'warehouse' ? '🏭 ' : '🏪 ') + loc.name;
+        return `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${label}</option>`;
+    }).join('');
+}
+
+function render() {
+    const p = INITIAL_DATA.pending_transfer || {};
+    const fromKey = p.from_location_type ? `${p.from_location_type}_${p.from_location_id}` : '';
+    const toKey = p.to_location_type ? `${p.to_location_type}_${p.to_location_id}` : '';
+
+    document.getElementById('tvRoot').innerHTML = `
+        <div class="tv-card">
+            <h2 class="tv-title">${MODE === 'new' ? '➕ Yangi transfer' : `✏️ Transfer #${pendingId} tahriri`}
+                <span class="tv-save-indicator" id="saveInd">✓ Saqlandi</span>
+            </h2>
+            <div class="tv-info-box">
+                💡 Mahsulotlarni qo'shing va keyinroq omborga yuborishingiz mumkin. Avtomatik saqlanadi.
+            </div>
+            <div class="tv-row">
+                <div>
+                    <div class="tv-label">Qayerdan (ombor)</div>
+                    <select id="fromLocation" class="te-search-input">
+                        <option value="">— Tanlang —</option>
+                        ${locationOptions(fromKey)}
+                    </select>
+                </div>
+                <div>
+                    <div class="tv-label">Qayerga (do'kon)</div>
+                    <select id="toLocation" class="te-search-input">
+                        <option value="">— Tanlang —</option>
+                        ${locationOptions(toKey)}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="te-grid">
+            <div class="tv-card">
+                <h3 class="tv-title" style="font-size:16px;">📦 Mahsulot tanlash</h3>
+                <div class="te-search-wrap">
+                    <input type="text" id="productSearch" class="te-search-input" placeholder="Mahsulot nomi yoki barcode..." />
+                </div>
+                <div class="te-product-list" id="productList">
+                    <div class="te-selected-empty">Avval omborni tanlang</div>
+                </div>
+            </div>
+
+            <div class="tv-card">
+                <h3 class="tv-title" style="font-size:16px;">🛒 Tanlangan mahsulotlar (<span id="cntSelected">${selectedItems.length}</span>)</h3>
+                <table class="tv-table">
+                    <thead><tr>
+                        <th>Mahsulot</th>
+                        <th class="num">Miqdor</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody id="selectedBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tv-actions tv-actions-between">
+            <button class="tv-btn tv-btn-danger" id="btnDelete" ${MODE === 'new' ? 'style="display:none;"' : ''}>🗑️ O'chirish</button>
+            <div style="display:flex;gap:10px;">
+                <a href="/transfer" class="tv-btn tv-btn-secondary">Yopish</a>
+                <button class="tv-btn tv-btn-success" id="btnSend">📤 Omborga yuborish</button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('fromLocation').addEventListener('change', onLocationChange);
+    document.getElementById('toLocation').addEventListener('change', scheduleSave);
+    document.getElementById('productSearch').addEventListener('input', onSearch);
+    document.getElementById('btnSend').addEventListener('click', sendToWarehouse);
+    document.getElementById('btnDelete').addEventListener('click', deleteDraft);
+
+    renderSelected();
+    if (fromKey) loadProducts();
+}
+
+function onLocationChange() {
+    loadProducts();
+    scheduleSave();
+}
+
+async function loadProducts() {
+    const from = document.getElementById('fromLocation').value;
+    const list = document.getElementById('productList');
+    if (!from) {
+        list.innerHTML = '<div class="te-selected-empty">Avval omborni tanlang</div>';
+        return;
+    }
+    list.innerHTML = '<div class="te-selected-empty">⏳ Yuklanmoqda...</div>';
+    try {
+        const res = await fetch(`/api/products?location=${from}&per_page=10000`);
+        const data = await res.json();
+        allProducts = Array.isArray(data) ? data : (data.products || []);
+        filteredProducts = allProducts;
+        renderProductList();
+    } catch (e) {
+        list.innerHTML = '<div class="te-selected-empty">⚠️ Xatolik: ' + e.message + '</div>';
+    }
+}
+
+function getStockFor(product) {
+    if (!product.stocks || !product.stocks.length) return 0;
+    const from = document.getElementById('fromLocation').value;
+    const [type, id] = from.split('_');
+    const lid = parseInt(id);
+    const s = product.stocks.find(s => (type === 'warehouse' ? s.warehouse_id === lid : s.store_id === lid));
+    return s ? Number(s.quantity || 0) : 0;
+}
+
+function renderProductList() {
+    const list = document.getElementById('productList');
+    if (!filteredProducts.length) {
+        list.innerHTML = '<div class="te-selected-empty">Mahsulot topilmadi</div>';
+        return;
+    }
+    const limit = 100;
+    list.innerHTML = filteredProducts.slice(0, limit).map(p => {
+        const stock = getStockFor(p);
+        const inCart = selectedItems.some(i => i.product_id === p.id);
+        return `
+            <div class="te-product-row" data-pid="${p.id}">
+                <div>
+                    <div class="te-product-name">${p.name}</div>
+                    <div class="te-product-meta">Mavjud: ${fmtNum(stock)} | Narx: ${fmtNum(p.price)}</div>
+                </div>
+                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓ qo\'shilgan' : '+ qo\'shish'}</button>
+            </div>
+        `;
+    }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidirish bilan toraytiring.</div>` : '');
+
+    list.querySelectorAll('.te-product-row').forEach(row => {
+        row.addEventListener('click', () => addProduct(Number(row.dataset.pid)));
+    });
+}
+
+function onSearch(e) {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) filteredProducts = allProducts;
+    else filteredProducts = allProducts.filter(p =>
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.barcode || '').toLowerCase().includes(q)
+    );
+    renderProductList();
+}
+
+function addProduct(pid) {
+    if (selectedItems.some(i => i.product_id === pid)) return;
+    const p = allProducts.find(x => x.id === pid);
+    if (!p) return;
+    selectedItems.push({ product_id: p.id, name: p.name, quantity: 1, price: Number(p.price || 0) });
+    renderSelected();
+    renderProductList();
+    scheduleSave();
+}
+
+function renderSelected() {
+    const body = document.getElementById('selectedBody');
+    document.getElementById('cntSelected').textContent = selectedItems.length;
+    if (!selectedItems.length) {
+        body.innerHTML = '<tr><td colspan="3" class="te-selected-empty">Mahsulot tanlanmadi</td></tr>';
+        return;
+    }
+    body.innerHTML = selectedItems.map((it, idx) => `
+        <tr>
+            <td>${it.name}</td>
+            <td class="num">
+                <div class="te-qty-cell">
+                    <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+                    <input type="number" class="tv-input-qty" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
+                    <button class="te-qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+                </div>
+            </td>
+            <td><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+        </tr>
+    `).join('');
+}
+
+window.changeQty = function(idx, delta) {
+    selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + delta);
+    renderSelected();
+    scheduleSave();
+};
+window.setQty = function(idx, v) {
+    selectedItems[idx].quantity = Math.max(0, Number(v) || 0);
+    scheduleSave();
+};
+window.removeItem = function(idx) {
+    selectedItems.splice(idx, 1);
+    renderSelected();
+    renderProductList();
+    scheduleSave();
+};
+
+function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(autoSave, 1500);
+}
+
+async function autoSave() {
+    const from = document.getElementById('fromLocation').value;
+    const to = document.getElementById('toLocation').value;
+    if (!from || !to) return;
+    const [fromType, fromId] = from.split('_');
+    const [toType, toId] = to.split('_');
+    const items = selectedItems.filter(i => i.quantity > 0).map(i => ({
+        id: i.product_id, product_id: i.product_id, name: i.name,
+        quantity: i.quantity, price: i.price
+    }));
+    const payload = {
+        from_location_type: fromType, from_location_id: Number(fromId),
+        to_location_type: toType, to_location_id: Number(toId),
+        items: items
+    };
+    try {
+        let res, data;
+        if (pendingId) {
+            res = await fetch(`/api/pending-transfer/${pendingId}`, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+            });
+        } else {
+            res = await fetch('/api/pending-transfer', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+            });
+        }
+        data = await res.json();
+        if (data.success && data.pending_transfer) {
+            pendingId = data.pending_transfer.id;
+            showSaved();
+        }
+    } catch (e) {
+        console.error('Auto-save xato:', e);
+    }
+}
+
+function showSaved() {
+    const ind = document.getElementById('saveInd');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+async function sendToWarehouse() {
+    const from = document.getElementById('fromLocation').value;
+    const to = document.getElementById('toLocation').value;
+    if (!from || !to) return alert('Avval qayerdan va qayerga maydonlarini tanlang.');
+    if (!selectedItems.length || selectedItems.every(i => i.quantity <= 0)) return alert('Kamida bitta mahsulot qo\'shing.');
+    if (!confirm('Transferni omborga yuborasizmi? Yuborilgandan keyin tahrirlay olmaysiz.')) return;
+
+    // Avval saqlash
+    clearTimeout(saveTimer);
+    await autoSave();
+    if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
+
+    const btn = document.getElementById('btnSend');
+    btn.disabled = true;
+    btn.textContent = 'Yuborilmoqda...';
+    try {
+        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('✅ ' + data.message);
+            window.location.href = '/transfer';
+        } else {
+            alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+            btn.disabled = false;
+            btn.textContent = '📤 Omborga yuborish';
+        }
+    } catch (e) {
+        alert('Tarmoq xatosi: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = '📤 Omborga yuborish';
+    }
+}
+
+async function deleteDraft() {
+    if (!pendingId) return;
+    if (!confirm('Bu qoralama transferni o\'chirmoqchimisiz?')) return;
+    try {
+        const res = await fetch(`/api/pending-transfer/${pendingId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) window.location.href = '/transfer';
+        else alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+    } catch (e) {
+        alert('Tarmoq xatosi: ' + e.message);
+    }
+}
+
+render();
+</script>
+{% endblock %}
