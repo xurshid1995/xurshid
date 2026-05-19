@@ -4382,7 +4382,57 @@ def transfer():
 @app.route('/transfer_session')
 @role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def transfer_session():
-    return render_template('transfer_session.html')
+    current_user = get_current_user()
+    locations = []
+
+    if current_user:
+        if current_user.role == 'admin':
+            allowed_store_ids = None
+            allowed_warehouse_ids = None
+        else:
+            transfer_locs = current_user.transfer_locations or []
+            if transfer_locs and isinstance(transfer_locs[0], int):
+                allowed_store_ids = transfer_locs
+                allowed_warehouse_ids = transfer_locs
+            else:
+                allowed_store_ids = extract_location_ids(transfer_locs, 'store')
+                allowed_warehouse_ids = extract_location_ids(transfer_locs, 'warehouse')
+
+        stores = (Store.query.all() if allowed_store_ids is None
+                  else (Store.query.filter(Store.id.in_(allowed_store_ids)).all()
+                        if allowed_store_ids else []))
+        for s in stores:
+            locations.append({
+                'id': s.id, 'name': s.name, 'type': 'store',
+                'address': s.address, 'manager_name': s.manager_name, 'phone': s.phone
+            })
+
+        warehouses = (Warehouse.query.all() if allowed_warehouse_ids is None
+                      else (Warehouse.query.filter(Warehouse.id.in_(allowed_warehouse_ids)).all()
+                            if allowed_warehouse_ids else []))
+        for w in warehouses:
+            locations.append({
+                'id': w.id, 'name': w.name, 'type': 'warehouse',
+                'address': w.address, 'manager_name': w.manager_name,
+                'current_stock': w.current_stock
+            })
+
+    # Pending transfer ma'lumotlarini oldindan yuklash
+    pending_transfer = None
+    pending_id = request.args.get('id')
+    if pending_id and current_user:
+        try:
+            pending = PendingTransfer.query.get(int(pending_id))
+            if pending and user_can_manage_transfer(current_user, pending):
+                pending_transfer = pending.to_dict()
+        except Exception:
+            pass
+
+    initial_data = {
+        'locations': locations,
+        'pending_transfer': pending_transfer,
+    }
+    return render_template('transfer_session.html', initial_data=initial_data)
 
 
 @app.route('/return-product')

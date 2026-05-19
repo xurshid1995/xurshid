@@ -930,6 +930,9 @@
         sending: {{ t("sending")|tojson }}
     };
 
+    // Server tomonidan uzatilgan dastlabki ma'lumotlar (fetch kerak emas)
+    const INITIAL_DATA = {{ initial_data|tojson }};
+
     let transferList = [];
     let currentProduct = null;
     let allProducts = [];
@@ -951,11 +954,15 @@
     // Joylashuvlarni yuklash
     async function loadLocations() {
         try {
-            console.log('🔄 Transfer uchun joylashuvlar yuklanmoqda...');
+            // Server tomonidan oldindan yuklangan ma'lumotlarni ishlatish
+            if (INITIAL_DATA && INITIAL_DATA.locations && INITIAL_DATA.locations.length > 0) {
+                locations = INITIAL_DATA.locations;
+                populateLocationSelects();
+                return;
+            }
+            // Fallback: server data yo'q bo'lsa fetch qilish
             const response = await fetch('/api/transfer-locations');
             const data = await response.json();
-            
-            console.log('📦 API javob:', data);
             
             // API locations arrayini to'g'ridan-to'g'ri qaytaradi
             locations = data.locations || [];
@@ -2699,25 +2706,29 @@
             
             if (pendingId) {
                 currentPendingTransferId = parseInt(pendingId);
-                
-                const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}`);
-                
-                // Xatolikni tekshirish
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    alert('❌ ' + (errorData.error || 'Transferni yuklashda xatolik'));
-                    // URL'dan ID'ni o'chirish
-                    const newUrl = new URL(window.location);
-                    newUrl.searchParams.delete('id');
-                    window.history.replaceState({}, '', newUrl);
-                    currentPendingTransferId = null;
-                    return;
+
+                // Server tomonidan oldindan yuklangan ma'lumotlarni ishlatish
+                let pending = null;
+                if (INITIAL_DATA && INITIAL_DATA.pending_transfer &&
+                    INITIAL_DATA.pending_transfer.id === currentPendingTransferId) {
+                    pending = INITIAL_DATA.pending_transfer;
+                } else {
+                    // Fallback: INITIAL_DATA mos kelmasa fetch qilish
+                    const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert('❌ ' + (errorData.error || 'Transferni yuklashda xatolik'));
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.delete('id');
+                        window.history.replaceState({}, '', newUrl);
+                        currentPendingTransferId = null;
+                        return;
+                    }
+                    const data = await response.json();
+                    pending = data.pending_transfer;
                 }
                 
-                const data = await response.json();
-                
-                if (data.pending_transfer) {
-                    const pending = data.pending_transfer;
+                if (pending) {
                     
                     // Joylashuvlarni to'ldirish
                     const fromLocation = `${pending.from_location_type}_${pending.from_location_id}`;
