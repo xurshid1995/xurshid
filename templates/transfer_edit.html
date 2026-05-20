@@ -209,6 +209,7 @@
 }
 .tr-add-btn:hover { background: #1558d6; }
 .tr-add-btn:disabled { background: #94a3b8; cursor: default; }
+.tr-in-cart-icon { color: #22c55e; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
 .tr-qty-cell { display: flex; align-items: center; justify-content: center; gap: 3px; }
 .tr-qty-btn {
     width: 24px; height: 24px;
@@ -583,9 +584,10 @@ function renderProducts() {
             <td style="text-align:right">$${fmtPrice(p.price)}</td>
             <td style="text-align:center"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
             <td style="text-align:center">
-                <button class="tr-add-btn" onclick="addProduct(${p.id})" ${inCart ? 'disabled' : ''} id="addbtn_${p.id}">
-                    ${inCart ? '✓' : '+ Qo\'sh'}
-                </button>
+                ${inCart
+                    ? `<span class="tr-in-cart-icon" id="addbtn_${p.id}"><i class="fa-solid fa-circle-check"></i></span>`
+                    : `<button class="tr-add-btn" onclick="addProduct(${p.id})" id="addbtn_${p.id}">+ Qo'sh</button>`
+                }
             </td>
         </tr>`;
     }).join('');
@@ -682,8 +684,8 @@ window.addProduct = function(pid) {
         }
         selectedItems.push({ product_id: p.id, name: p.name, quantity: qty, price: Number(p.price || 0) });
         renderCart();
-        const btn = document.getElementById('addbtn_' + pid);
-        if (btn) { btn.disabled = true; btn.textContent = '\u2713'; }
+        const cell = document.getElementById('addbtn_' + pid);
+        if (cell) { cell.outerHTML = `<span class="tr-in-cart-icon" id="addbtn_${pid}"><i class="fa-solid fa-circle-check"></i></span>`; }
         scheduleSave();
         closeModal();
     };
@@ -731,8 +733,8 @@ window.removeItem = function(idx) {
     const pid = item.product_id;
     selectedItems.splice(idx, 1);
     renderCart();
-    const btn = document.getElementById('addbtn_' + pid);
-    if (btn) { btn.disabled = false; btn.textContent = '+ Qo\'sh'; }
+    const cell = document.getElementById('addbtn_' + pid);
+    if (cell) { cell.outerHTML = `<button class="tr-add-btn" onclick="addProduct(${pid})" id="addbtn_${pid}">+ Qo'sh</button>`; }
     scheduleSave();
 };
 
