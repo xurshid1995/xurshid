@@ -4387,35 +4387,23 @@ def transfer():
 
 
 def _get_locations_for_user(current_user):
-    """Foydalanuvchining transfer uchun ruxsat etilgan joylashuvlari ro'yxati."""
+    """Foydalanuvchining transfer uchun joylashuvlar ro'yxati.
+    Sotuvchi ham barcha joylarni ko'radi — lekin faqat transfer_locations ga kiruvchilardan
+    to'g'ridan transfer qila oladi, qolganlaridan faqat omborchiga yuborishi mumkin.
+    """
     locations = []
     if not current_user:
         return locations
 
-    if current_user.role == 'admin':
-        allowed_store_ids = None
-        allowed_warehouse_ids = None
-    else:
-        transfer_locs = current_user.transfer_locations or []
-        if transfer_locs and isinstance(transfer_locs[0], int):
-            allowed_store_ids = transfer_locs
-            allowed_warehouse_ids = transfer_locs
-        else:
-            allowed_store_ids = extract_location_ids(transfer_locs, 'store')
-            allowed_warehouse_ids = extract_location_ids(transfer_locs, 'warehouse')
-
-    stores = (Store.query.all() if allowed_store_ids is None
-              else (Store.query.filter(Store.id.in_(allowed_store_ids)).all()
-                    if allowed_store_ids else []))
+    # Barcha joylarni qaytarish (admin, kassir, omborchi, sotuvchi — hammasi uchun)
+    stores = Store.query.all()
     for s in stores:
         locations.append({
             'id': s.id, 'name': s.name, 'type': 'store',
             'address': s.address, 'manager_name': s.manager_name, 'phone': s.phone
         })
 
-    warehouses = (Warehouse.query.all() if allowed_warehouse_ids is None
-                  else (Warehouse.query.filter(Warehouse.id.in_(allowed_warehouse_ids)).all()
-                        if allowed_warehouse_ids else []))
+    warehouses = Warehouse.query.all()
     for w in warehouses:
         locations.append({
             'id': w.id, 'name': w.name, 'type': 'warehouse',
