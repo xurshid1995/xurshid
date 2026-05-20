@@ -244,6 +244,14 @@
     margin-top: 2px;
     white-space: nowrap;
 }
+.tr-edit-btn {
+    background: none;
+    border: none;
+    color: #1a6eff;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px 4px;
+}
 .tr-del-btn {
     background: none;
     border: none;
@@ -717,7 +725,10 @@ function renderCart() {
                 </div>
                 <div class="tr-qty-error" style="${invalid ? 'display:block' : 'display:none'}">${errMsg}</div>
             </td>
-            <td style="text-align:center"><button class="tr-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+            <td style="text-align:center">
+                <button class="tr-edit-btn" onclick="editItem(${idx})" title="Tahrirlash">✏️</button>
+                <button class="tr-del-btn" onclick="removeItem(${idx})" title="O'chirish">🗑️</button>
+            </td>
         </tr>`;
     }).join('');
 }
@@ -821,6 +832,43 @@ window.changeQty = function(idx, d) {
 window.setQty = function(idx, v) {
     selectedItems[idx].quantity = Math.max(1, Number(v) || 1);
     scheduleSave();
+};
+window.editItem = function(idx) {
+    const item = selectedItems[idx];
+    const p = allProducts.find(x => x.id === item.product_id);
+    const stock = p ? getStock(p) : 0;
+    document.getElementById('trModalName').textContent = item.name;
+    document.getElementById('trModalSub').textContent = fmtNum(stock) + ' dona';
+    const qtyInput = document.getElementById('trModalQty');
+    qtyInput.value = item.quantity;
+    qtyInput.max = stock > 0 ? stock : 99999;
+    document.getElementById('trModalError').style.display = 'none';
+    qtyInput.classList.remove('is-invalid');
+    document.getElementById('trModalOverlay').classList.add('open');
+    setTimeout(() => { qtyInput.focus(); qtyInput.select(); }, 80);
+    document.getElementById('trModalConfirm').onclick = function() {
+        const qty = parseFloat(qtyInput.value);
+        const errEl = document.getElementById('trModalError');
+        errEl.style.display = 'none';
+        if (!qty || qty <= 0) {
+            errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
+            errEl.style.display = 'block';
+            qtyInput.classList.add('is-invalid');
+            qtyInput.focus();
+            return;
+        }
+        if (stock > 0 && qty > stock) {
+            errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
+            errEl.style.display = 'block';
+            qtyInput.classList.add('is-invalid');
+            qtyInput.focus();
+            return;
+        }
+        selectedItems[idx].quantity = qty;
+        renderCart();
+        scheduleSave();
+        closeModal();
+    };
 };
 window.removeItem = function(idx) {
     const item = selectedItems[idx];
