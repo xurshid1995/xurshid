@@ -422,7 +422,7 @@
 
         <!-- O'ng: Transfer ro'yxati -->
         <div class="sales-layout-box">
-            <h3 class="tr-box-title">🔄 Transfer ro'yxati</h3>
+            <h3 class="tr-box-title">🔄 Transfer ro'yxati <span id="cartItemCount" style="display:none; background:#1a6eff; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px;"></span></h3>
             <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
@@ -676,6 +676,11 @@ function renderCart() {
     const tbody = document.getElementById('cartBody');
     const q = cartFilter.toLowerCase();
     const items = !q ? selectedItems : selectedItems.filter(i => i.name.toLowerCase().includes(q));
+    const cntEl = document.getElementById('cartItemCount');
+    if (cntEl) {
+        if (selectedItems.length) { cntEl.textContent = selectedItems.length + ' ta'; cntEl.style.display = 'inline-block'; }
+        else { cntEl.style.display = 'none'; }
+    }
     if (!selectedItems.length) {
         tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo\'shing</td></tr>';
         return;
