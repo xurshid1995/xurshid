@@ -450,6 +450,7 @@
                                 actionButtons = `
                                     <button class="btn-sm" style="background:#28a745;color:white;border:none;cursor:pointer;" onclick="startPickingAndEdit(${pending.id})">⚙️ Yig'ishni boshlash</button>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
+                                    ${userRole === 'admin' ? `<button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>` : ''}
                                 `;
                             } else {
                                 // Sotuvchi: faqat kutadi + ko'rish
@@ -464,6 +465,7 @@
                                 actionButtons = `
                                     <a href="/transfer/${pending.id}/edit" class="btn-sm" style="background:#fd7e14;color:white;text-decoration:none;">▶️ Yig'ishni davom ettirish</a>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
+                                    ${userRole === 'admin' ? `<button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>` : ''}
                                 `;
                             } else {
                                 actionButtons = `
@@ -477,6 +479,7 @@
                                 actionButtons = `
                                     <a href="/transfer/${pending.id}/receive" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">▶️ Qabul qilish</a>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
+                                    ${userRole === 'admin' ? `<button class="btn-sm btn-danger-sm" onclick="deletePendingTransfer(${pending.id}); return false;" style="margin-left:5px;">🗑️ ${TR1LANG.delete_btn}</button>` : ''}
                                 `;
                             } else {
                                 // Omborchi: faqat ko'rish
