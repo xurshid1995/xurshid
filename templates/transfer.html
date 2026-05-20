@@ -408,7 +408,7 @@
                 });
                 tbody.innerHTML = data.pending_transfers.map(pending => {
                     const createdDate = new Date(pending.created_at);
-                    const formattedDateOnly = createdDate.toLocaleDateString('uz-UZ', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    const formattedDateOnly = createdDate.toLocaleDateString('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' });
                     const formattedTimeOnly = createdDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
                     
                     const productCount = pending.items.length;
