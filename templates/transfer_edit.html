@@ -417,10 +417,7 @@
                     <select id="toLocation"><option value="">Tanlang...</option></select>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="flex:1; margin-bottom:0;" />
-                <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
-            </div>
+            <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="width:100%; box-sizing:border-box;" />
             <div class="table-wrapper">
                 <div class="tr-scroll">
                     <table class="tr-prod-table">
@@ -991,8 +988,7 @@ async function autoSave() {
         if (data.success && data.pending_transfer) {
             pendingId = data.pending_transfer.id;
             const badge = document.getElementById('saveBadge');
-            badge.classList.add('show');
-            setTimeout(() => badge.classList.remove('show'), 1500);
+            if (badge) { badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 1500); }
         }
     } catch(e) { console.error('Save error:', e); }
 }
