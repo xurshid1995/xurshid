@@ -19,6 +19,40 @@
     <style>
         .lang-option:hover { background: #f5f3ff; }
         .lang-active { background: #ede9fe; font-weight: 600; }
+
+        /* ── Universal data-table styles ── */
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        table.data-table thead tr {
+            background: #f1f5f9;
+        }
+        table.data-table thead th {
+            padding: 10px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        table.data-table tbody td {
+            padding: 9px 10px;
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+        table.data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        table.data-table tbody tr:hover td {
+            background: #f8fbff;
+        }
     </style>
 </head>
 <body>
