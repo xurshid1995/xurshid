@@ -524,6 +524,13 @@ function updateSendBtn() {
     const from = document.getElementById('fromLocation').value;
     const to   = document.getElementById('toLocation').value;
     const btn  = document.getElementById('btnSend');
+    // Omborchi sent transferni tahrirlayapti — faqat tasdiqlash tugmasi
+    if (INITIAL_DATA.mode === 'edit-sent') {
+        btn.textContent = '✅ Saqlash va tasdiqlash';
+        btn.style.background = '#16a34a';
+        btn.dataset.mode = 'warehouse-confirm';
+        return;
+    }
     if (canDirectComplete(from, to)) {
         btn.textContent = '✅ To\'g\'ridan yakunlash';
         btn.style.background = '#16a34a';
@@ -796,19 +803,29 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     const valid = selectedItems.filter(i => i.quantity > 0);
     if (!valid.length) return alert('Kamida bitta mahsulot qo\'shing.');
     const btn = document.getElementById('btnSend');
-    const isDirect = btn.dataset.mode === 'direct';
-    const confirmMsg = isDirect
-        ? `${valid.length} ta mahsulot to'g'ridan transferlanadi (stok darhol o'zgaradi). Davom etasizmi?`
-        : `${valid.length} ta mahsulot omborchiga yuboriladi. Davom etasizmi?`;
+    const mode = btn.dataset.mode;
+    const isDirect = mode === 'direct';
+    const isWarehouseConfirm = mode === 'warehouse-confirm';
+    let confirmMsg;
+    if (isWarehouseConfirm) {
+        confirmMsg = `${valid.length} ta mahsulot tasdiqlansın va sotuvchiga jo'natilsin. Davom etasizmi?`;
+    } else if (isDirect) {
+        confirmMsg = `${valid.length} ta mahsulot to'g'ridan transferlanadi (stok darhol o'zgaradi). Davom etasizmi?`;
+    } else {
+        confirmMsg = `${valid.length} ta mahsulot omborchiga yuboriladi. Davom etasizmi?`;
+    }
     if (!confirm(confirmMsg)) return;
     clearTimeout(saveTimer);
     await autoSave();
     if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
     const btnOrigText = btn.textContent;
-    btn.disabled = true; btn.textContent = isDirect ? 'Yakunlanmoqda...' : 'Yuborilmoqda...';
-    const endpoint = isDirect
-        ? `/api/pending-transfer/${pendingId}/direct-complete`
-        : `/api/pending-transfer/${pendingId}/send`;
+    btn.disabled = true;
+    btn.textContent = isWarehouseConfirm ? 'Tasdiqlanmoqda...' : (isDirect ? 'Yakunlanmoqda...' : 'Yuborilmoqda...');
+    const endpoint = isWarehouseConfirm
+        ? `/api/pending-transfer/${pendingId}/warehouse-confirm`
+        : (isDirect
+            ? `/api/pending-transfer/${pendingId}/direct-complete`
+            : `/api/pending-transfer/${pendingId}/send`);
     try {
         const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();

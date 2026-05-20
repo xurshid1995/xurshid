@@ -4470,18 +4470,22 @@ def transfer_smart_redirect(transfer_id):
 @app.route('/transfer/<int:transfer_id>/edit')
 @role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def transfer_edit_page(transfer_id):
-    """Qoralama (draft) transfer tahrirlash."""
+    """Qoralama (draft) yoki yuborilgan (sent) transferni tahrirlash."""
     current_user = get_current_user()
     pending = PendingTransfer.query.get_or_404(transfer_id)
     if not user_can_manage_transfer(current_user, pending):
         abort(403)
-    if (pending.status or 'draft') != 'draft':
+    status = pending.status or 'draft'
+    # Omborchi sent transferni ham tahrirlay oladi (yig'ishdan oldin)
+    omborchi_can_edit_sent = status == 'sent' and current_user.role in ('omborchi', 'admin', 'kassir')
+    if status != 'draft' and not omborchi_can_edit_sent:
         return redirect(f'/transfer/{transfer_id}')
     locations = _get_locations_for_user(current_user)
+    mode = 'edit-sent' if status == 'sent' else 'edit'
     initial_data = {
         'locations': locations,
         'pending_transfer': pending.to_dict(),
-        'mode': 'edit',
+        'mode': mode,
         'user_transfer_locations': current_user.transfer_locations or [],
         'user_role': current_user.role,
     }
