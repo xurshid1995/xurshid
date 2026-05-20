@@ -793,7 +793,8 @@ window.removeItem = function(idx) {
 document.getElementById('productSearch').addEventListener('input', () => { currentPage = 1; renderProducts(); });
 document.getElementById('cartSearch').addEventListener('input', e => { cartFilter = e.target.value; renderCart(); });
 
-document.getElementById('btnClear').addEventListener('click', () => {
+const btnClear = document.getElementById('btnClear');
+if (btnClear) btnClear.addEventListener('click', () => {
     if (!selectedItems.length) return;
     if (!confirm('Ro\'yxatni tozalash?')) return;
     selectedItems = [];
