@@ -642,7 +642,9 @@ function renderProducts() {
             <td style="text-align:center">
                 ${inCart
                     ? `<span class="tr-in-cart-icon" id="addbtn_${p.id}"><i class="fa-solid fa-circle-check"></i></span>`
-                    : `<button class="tr-add-btn" onclick="addProduct(${p.id})" id="addbtn_${p.id}">+ Qo'sh</button>`
+                    : stock <= 0
+                        ? `<span id="addbtn_${p.id}" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#e53935,#c62828);border-radius:7px;box-shadow:0 2px 8px rgba(229,57,53,0.35);"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="white" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></span>`
+                        : `<button class="tr-add-btn" onclick="addProduct(${p.id})" id="addbtn_${p.id}">+ Qo'sh</button>`
                 }
             </td>
         </tr>`;
