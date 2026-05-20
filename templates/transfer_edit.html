@@ -118,43 +118,13 @@
 }
 .tr-prod-table,
 .tr-cart-table {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    border-collapse: collapse !important;
-    table-layout: fixed !important;
-}
-.tr-prod-table thead tr,
-.tr-cart-table thead tr {
-    background: #f1f5f9 !important;
-}
-.tr-prod-table th,
-.tr-cart-table th {
-    padding: 10px 8px !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #64748b !important;
-    background: #f1f5f9 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: none !important;
-    box-sizing: border-box;
-    text-align: left;
+    table-layout: fixed;
 }
 .tr-prod-table td,
 .tr-cart-table td {
-    padding: 8px 8px !important;
-    font-size: 14px;
-    border-bottom: 1px solid #f1f5f9;
-    box-sizing: border-box;
-    vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-.tr-prod-table tbody tr:hover td,
-.tr-cart-table tbody tr:hover td {
-    background: #f8fbff !important;
 }
 
 /* Product table column widths */
@@ -389,7 +359,7 @@
             <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" />
             <div class="table-wrapper">
                 <div class="tr-scroll">
-                    <table class="tr-prod-table">
+                    <table class="tr-prod-table data-table">
                         <thead>
                             <tr>
                                 <th>Mahsulot</th>
@@ -413,7 +383,7 @@
             <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
-                    <table class="tr-cart-table">
+                    <table class="tr-cart-table data-table">
                         <thead>
                             <tr>
                                 <th>Mahsulot</th>
