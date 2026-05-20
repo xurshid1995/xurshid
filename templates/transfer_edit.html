@@ -443,7 +443,7 @@ function renderProducts() {
         const inCart = selectedItems.some(i => i.product_id === p.id);
         return `<tr>
             <td title="${p.name}">${p.name}</td>
-            <td style="text-align:right">${fmtNum(p.price)}</td>
+            <td style="text-align:right">$${fmtNum(p.price)}</td>
             <td style="text-align:right">${fmtNum(stock)}</td>
             <td style="text-align:center">
                 <button class="tr-add-btn" onclick="addProduct(${p.id})" ${inCart ? 'disabled' : ''} id="addbtn_${p.id}">
@@ -496,7 +496,7 @@ function renderCart() {
         const idx = selectedItems.indexOf(it);
         return `<tr>
             <td title="${it.name}">${it.name}</td>
-            <td style="text-align:right">${fmtNum(it.price)}</td>
+            <td style="text-align:right">$${fmtNum(it.price)}</td>
             <td>
                 <div class="tr-qty-cell">
                     <button class="tr-qty-btn" onclick="changeQty(${idx},-1)">−</button>
