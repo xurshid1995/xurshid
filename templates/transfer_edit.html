@@ -210,40 +210,6 @@
 .tr-add-btn:hover { background: #1558d6; }
 .tr-add-btn:disabled { background: #94a3b8; cursor: default; }
 .tr-in-cart-icon { color: #22c55e; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
-.tr-qty-cell { display: flex; align-items: center; justify-content: center; gap: 3px; }
-.tr-qty-btn {
-    width: 24px; height: 24px;
-    border-radius: 4px;
-    background: #e9ecef;
-    border: 1px solid #ced4da;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1;
-    flex-shrink: 0;
-}
-.tr-qty-btn:hover { background: #dee2e6; }
-.tr-qty-input {
-    width: 52px;
-    padding: 3px 4px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 13px;
-    transition: border-color .15s, background .15s;
-}
-.tr-qty-input.is-invalid {
-    border-color: #e53e3e !important;
-    background: #fff5f5 !important;
-    color: #c53030 !important;
-}
-.tr-qty-error {
-    display: none;
-    color: #e53e3e;
-    font-size: 11px;
-    margin-top: 2px;
-    white-space: nowrap;
-}
 .tr-edit-btn {
     background: none;
     border: none;
@@ -711,23 +677,21 @@ function renderCart() {
         const isOver = maxQty > 0 && it.quantity > maxQty;
         const isZero = !it.quantity || it.quantity <= 0;
         const invalid = isOver || isZero;
-        const errMsg = isZero ? '⚠️ 0 dan katta bo\'lishi kerak' : (isOver ? `⚠️ Max: ${fmtNum(maxQty)}` : '');
+        const errMsg = isZero ? '⚠️ 0 dan katta' : (isOver ? `⚠️ Max: ${fmtNum(maxQty)}` : '');
+        const badgeStyle = invalid ? 'background:#e53e3e' : '';
         return `<tr>
             <td title="${it.name}">${it.name}</td>
             <td style="text-align:right">$${fmtNum(it.price)}</td>
-            <td>
-                <div class="tr-qty-cell">
-                    <button class="tr-qty-btn" onclick="changeQty(${idx},-1)">−</button>
-                    <input class="tr-qty-input${invalid ? ' is-invalid' : ''}" type="number" value="${it.quantity}" min="1" step="0.01"
-                        data-idx="${idx}" data-max="${maxQty}"
-                        oninput="handleCartQtyInput(${idx},this)" />
-                    <button class="tr-qty-btn" onclick="changeQty(${idx},1)">+</button>
-                </div>
-                <div class="tr-qty-error" style="${invalid ? 'display:block' : 'display:none'}">${errMsg}</div>
+            <td style="text-align:center">
+                <span class="tr-stock-badge" style="${badgeStyle}" title="${errMsg}">${fmtNum(it.quantity)} dona</span>
+                ${invalid ? `<div class="tr-qty-error" style="display:block">${errMsg}</div>` : ''}
             </td>
             <td style="text-align:center">
                 <button class="tr-edit-btn" onclick="editItem(${idx})" title="Tahrirlash">✏️</button>
                 <button class="tr-del-btn" onclick="removeItem(${idx})" title="O'chirish">🗑️</button>
+            </td>
+        </tr>`;
+    }).join('');
             </td>
         </tr>`;
     }).join('');
@@ -803,36 +767,6 @@ document.getElementById('trModalQty').addEventListener('input', function() {
         this.classList.remove('is-invalid');
     }
 });
-window.handleCartQtyInput = function(idx, el) {
-    const val = parseFloat(el.value);
-    const max = parseFloat(el.dataset.max) || 0;
-    const cell = el.closest('td');
-    const errEl = cell ? cell.querySelector('.tr-qty-error') : null;
-    if (!val || val <= 0) {
-        el.classList.add('is-invalid');
-        if (errEl) { errEl.textContent = "⚠️ 0 dan katta bo'lishi kerak"; errEl.style.display = 'block'; }
-    } else if (max > 0 && val > max) {
-        el.classList.add('is-invalid');
-        if (errEl) { errEl.textContent = `⚠️ Max: ${fmtNum(max)}`; errEl.style.display = 'block'; }
-    } else {
-        el.classList.remove('is-invalid');
-        if (errEl) errEl.style.display = 'none';
-        selectedItems[idx].quantity = val;
-        scheduleSave();
-    }
-};
-window.changeQty = function(idx, d) {
-    const item = selectedItems[idx];
-    const prod = allProducts.find(x => x.id === item.product_id);
-    const maxQty = prod ? getStock(prod) : 0;
-    const newQty = Math.max(1, Number(item.quantity) + d);
-    item.quantity = maxQty > 0 ? Math.min(newQty, maxQty) : newQty;
-    renderCart(); scheduleSave();
-};
-window.setQty = function(idx, v) {
-    selectedItems[idx].quantity = Math.max(1, Number(v) || 1);
-    scheduleSave();
-};
 window.editItem = function(idx) {
     const item = selectedItems[idx];
     const p = allProducts.find(x => x.id === item.product_id);
