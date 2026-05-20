@@ -548,13 +548,14 @@ function populateSelects() {
     const toKey = p.to_location_type ? `${p.to_location_type}_${p.to_location_id}` : '';
     const fromSel = document.getElementById('fromLocation');
     const toSel = document.getElementById('toLocation');
+    const defaultTo = INITIAL_DATA.default_to_location || '';
     INITIAL_DATA.locations.forEach(loc => {
         const key = `${loc.type}_${loc.id}`;
         const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
         const opt1 = new Option(`${icon} ${loc.name}`, key);
         const opt2 = new Option(`${icon} ${loc.name}`, key);
         if (key === fromKey) opt1.selected = true;
-        if (key === toKey) opt2.selected = true;
+        if (key === (toKey || defaultTo)) opt2.selected = true;
         fromSel.appendChild(opt1);
         toSel.appendChild(opt2);
     });

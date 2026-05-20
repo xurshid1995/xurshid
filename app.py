@@ -4419,12 +4419,30 @@ def transfer_new_page():
     """Yangi transfer yaratish (draft)"""
     current_user = get_current_user()
     locations = _get_locations_for_user(current_user)
+
+    # Sotuvchi uchun avtomatik "Qayerga" joylashuvini aniqlash
+    default_to_location = None
+    if current_user.role not in ('admin',):
+        # 1. store_id bo'lsa — shuni ishlatamiz
+        if current_user.store_id:
+            default_to_location = f'store_{current_user.store_id}'
+        else:
+            # 2. transfer_locations yoki allowed_locations dagi birinchi joy
+            locs = current_user.transfer_locations or current_user.allowed_locations or []
+            if locs:
+                first = locs[0]
+                if isinstance(first, dict):
+                    default_to_location = f"{first.get('type', 'store')}_{first.get('id', '')}"
+                elif isinstance(first, int):
+                    default_to_location = f'store_{first}'
+
     initial_data = {
         'locations': locations,
         'pending_transfer': None,
         'mode': 'new',
         'user_transfer_locations': current_user.transfer_locations or [],
         'user_role': current_user.role,
+        'default_to_location': default_to_location,
     }
     return render_template('transfer_edit.html', initial_data=initial_data)
 
