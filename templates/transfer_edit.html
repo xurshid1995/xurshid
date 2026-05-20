@@ -393,6 +393,7 @@
                 <div class="tr-loc-inline">
                     <label>Qayerdan:</label>
                     <select id="fromLocation"><option value="">Tanlang...</option></select>
+                    <span id="fromProductCount" style="display:none; background:#1a6eff; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:2px;"></span>
                     <label>Qayerga:</label>
                     <select id="toLocation"><option value="">Tanlang...</option></select>
                     <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
@@ -587,6 +588,8 @@ async function loadProducts() {
     if (!from) {
         tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">📦 Joylashuvni tanlang</td></tr>';
         document.getElementById('productPagination').innerHTML = '';
+        const cntEl = document.getElementById('fromProductCount');
+        if (cntEl) { cntEl.style.display = 'none'; cntEl.textContent = ''; }
         return;
     }
     tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">⏳ Yuklanmoqda...</td></tr>';
@@ -595,6 +598,8 @@ async function loadProducts() {
         const data = await res.json();
         allProducts = Array.isArray(data) ? data : (data.products || []);
         currentPage = 1;
+        const cntEl = document.getElementById('fromProductCount');
+        if (cntEl) { cntEl.textContent = allProducts.length + ' ta'; cntEl.style.display = 'inline-block'; }
         renderProducts();
     } catch(e) {
         tbody.innerHTML = `<tr class="tr-empty-row"><td colspan="4">⚠️ Xato: ${e.message}</td></tr>`;
