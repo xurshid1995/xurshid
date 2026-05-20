@@ -6217,16 +6217,8 @@
                 payment_due_date: (() => {
                     if (debtUSD <= 0) return null;
                     const dueDateEl = document.getElementById('paymentDueDate');
-                    let val = dueDateEl ? dueDateEl.value : '';
-                    // Agar qarz bor lekin muddat belgilanmagan bo'lsa - 7 kun default
-                    if (!val) {
-                        const d = new Date();
-                        d.setDate(d.getDate() + 7);
-                        val = d.toISOString().split('T')[0];
-                        console.log('?? Muddat avtomatik belgilandi (7 kun):', val);
-                    }
-                    console.log('?? DEBUG payment_due_date:', val, 'debtUSD:', debtUSD);
-                    return val;
+                    const val = dueDateEl ? dueDateEl.value : '';
+                    return val || null;
                 })(),
                 // Agar tahrirlash rejimida bo'lsa
                 original_sale_id: editingSaleId,
