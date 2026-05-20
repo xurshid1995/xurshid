@@ -444,9 +444,9 @@
                             `;
                         } else if (status === 'sent') {
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
-                                // Omborchi: edit sahifasi (mahsulot qo'shish/o'chirish imkoni)
+                                // Omborchi: start-picking API → edit sahifasi
                                 actionButtons = `
-                                    <a href="/transfer/${pending.id}/edit" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">⚙️ Yig'ishni boshlash</a>
+                                    <button class="btn-sm" style="background:#28a745;color:white;border:none;cursor:pointer;" onclick="startPickingAndEdit(${pending.id})">⚙️ Yig'ishni boshlash</button>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             } else {
@@ -458,9 +458,9 @@
                             }
                         } else if (status === 'picking') {
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
-                                // Omborchi: pack sahifasi (jo'natish)
+                                // Omborchi: picking davom ettirish → edit sahifasi
                                 actionButtons = `
-                                    <a href="/transfer/${pending.id}/pack" class="btn-sm" style="background:#fd7e14;color:white;text-decoration:none;">📦 Jo'natish</a>
+                                    <a href="/transfer/${pending.id}/edit" class="btn-sm" style="background:#fd7e14;color:white;text-decoration:none;">▶️ Yig'ishni davom ettirish</a>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             } else {
@@ -520,6 +520,23 @@
         }
     }
     
+    // Yig'ishni boshlash: start-picking API → edit sahifasi
+    async function startPickingAndEdit(pendingId) {
+        try {
+            const res = await fetch(`/api/pending-transfer/${pendingId}/start-picking`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}
+            });
+            const data = await res.json();
+            if (data.success || data.status === 'picking') {
+                window.location.href = `/transfer/${pendingId}/edit`;
+            } else {
+                alert('Xatolik: ' + (data.error || 'Noma\'lum'));
+            }
+        } catch (e) {
+            alert('Tarmoq xatosi');
+        }
+    }
+
     // Pending transferni o'chirish
     async function deletePendingTransfer(pendingId) {
         if (!confirm(TR1LANG.delete_confirm)) {

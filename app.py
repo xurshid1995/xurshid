@@ -4477,7 +4477,7 @@ def transfer_edit_page(transfer_id):
         abort(403)
     status = pending.status or 'draft'
     # Omborchi sent transferni ham tahrirlay oladi (yig'ishdan oldin)
-    omborchi_can_edit_sent = status == 'sent' and current_user.role in ('omborchi', 'admin', 'kassir')
+    omborchi_can_edit_sent = status in ('sent', 'picking') and current_user.role in ('omborchi', 'admin', 'kassir')
     if status != 'draft' and not omborchi_can_edit_sent:
         return redirect(f'/transfer/{transfer_id}')
     locations = _get_locations_for_user(current_user)

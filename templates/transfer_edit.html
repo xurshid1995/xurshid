@@ -526,7 +526,7 @@ function updateSendBtn() {
     const btn  = document.getElementById('btnSend');
     // Omborchi/admin/kassir sent transferni tahrirlayapti — tasdiqlash tugmasi
     const pendingStatus = (INITIAL_DATA.pending_transfer || {}).status || 'draft';
-    if (pendingStatus === 'sent' && (USER_ROLE === 'omborchi' || USER_ROLE === 'admin' || USER_ROLE === 'kassir')) {
+    if ((pendingStatus === 'sent' || pendingStatus === 'picking') && (USER_ROLE === 'omborchi' || USER_ROLE === 'admin' || USER_ROLE === 'kassir')) {
         btn.textContent = '✅ Saqlash va tasdiqlash';
         btn.style.background = '#16a34a';
         btn.dataset.mode = 'warehouse-confirm';
