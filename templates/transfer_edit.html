@@ -422,7 +422,10 @@
 
         <!-- O'ng: Transfer ro'yxati -->
         <div class="sales-layout-box">
-            <h3 class="tr-box-title" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">🔄 Transfer ro'yxati <span id="cartItemCount" style="display:none; background:#1a6eff; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px;"></span><span id="cartTotal" style="display:none; margin-left:auto; font-size:13px; font-weight:700; color:#1a6eff;">Jami: <span id="cartTotalValue"></span></span></h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 class="tr-box-title" style="margin:0;">🔄 Transfer ro'yxati</h3>
+                <div id="cartTotal"></div>
+            </div>
             <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
@@ -676,20 +679,21 @@ function renderCart() {
     const tbody = document.getElementById('cartBody');
     const q = cartFilter.toLowerCase();
     const items = !q ? selectedItems : selectedItems.filter(i => i.name.toLowerCase().includes(q));
-    const cntEl = document.getElementById('cartItemCount');
-    if (cntEl) {
-        if (selectedItems.length) { cntEl.textContent = selectedItems.length + ' ta'; cntEl.style.display = 'inline-block'; }
-        else { cntEl.style.display = 'none'; }
-    }
     const totalEl = document.getElementById('cartTotal');
-    const totalValEl = document.getElementById('cartTotalValue');
-    if (totalEl && totalValEl) {
+    if (totalEl) {
         if (selectedItems.length) {
             const sum = selectedItems.reduce((acc, i) => acc + (Number(i.quantity || 0) * Number(i.price || 0)), 0);
-            totalValEl.textContent = '$' + fmtPrice(sum);
-            totalEl.style.display = 'block';
+            totalEl.innerHTML = `
+                <div style="padding:8px 14px; background:rgba(84,110,122,0.06); border-radius:10px; border:1px solid rgba(84,110,122,0.15);">
+                    <div style="font-size:13px; font-weight:600; color:#1a1a2e; display:flex; align-items:center; gap:8px;">
+                        <div style="background:#546e7a; color:white; padding:4px 10px; border-radius:7px; font-size:13px; min-width:32px; text-align:center; box-shadow:0 2px 8px rgba(84,110,122,0.3);">
+                            ${selectedItems.length}
+                        </div>
+                        <div>Jami: <span style="color:#e53935; font-size:15px; font-weight:700;">$${fmtPrice(sum)}</span></div>
+                    </div>
+                </div>`;
         } else {
-            totalEl.style.display = 'none';
+            totalEl.innerHTML = '';
         }
     }
     if (!selectedItems.length) {
