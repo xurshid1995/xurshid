@@ -408,7 +408,7 @@
                     const createdDate = new Date(pending.created_at);
                     const formattedDate = createdDate.toLocaleDateString('uz-UZ', {
                         year: 'numeric', month: '2-digit', day: '2-digit'
-                    }) + '<br><span style="font-size:13px;font-weight:600;color:#1a6eff;">' +
+                    }) + '<br><span style="background:#1a6eff;color:#fff;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;">' +
                     createdDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }) + '</span>';
                     
                     const productCount = pending.items.length;
