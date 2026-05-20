@@ -441,6 +441,9 @@
                     </table>
                 </div>
             </div>
+            <div id="cartTotal" style="display:none; text-align:right; padding:8px 12px 4px; font-size:13px; font-weight:700; color:#1a6eff; border-top:1px solid #e9ecef;">
+                Jami: <span id="cartTotalValue"></span>
+            </div>
             <div class="tr-foot">
                 {% set _st = initial_data.pending_transfer.status if initial_data.pending_transfer else 'draft' %}
                 {% if _st not in ('sent', 'picking') or initial_data.user_role not in ('omborchi', 'admin', 'kassir') %}
@@ -680,6 +683,17 @@ function renderCart() {
     if (cntEl) {
         if (selectedItems.length) { cntEl.textContent = selectedItems.length + ' ta'; cntEl.style.display = 'inline-block'; }
         else { cntEl.style.display = 'none'; }
+    }
+    const totalEl = document.getElementById('cartTotal');
+    const totalValEl = document.getElementById('cartTotalValue');
+    if (totalEl && totalValEl) {
+        if (selectedItems.length) {
+            const sum = selectedItems.reduce((acc, i) => acc + (Number(i.quantity || 0) * Number(i.price || 0)), 0);
+            totalValEl.textContent = '$' + fmtPrice(sum);
+            totalEl.style.display = 'block';
+        } else {
+            totalEl.style.display = 'none';
+        }
     }
     if (!selectedItems.length) {
         tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo\'shing</td></tr>';
