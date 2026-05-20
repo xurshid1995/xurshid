@@ -726,7 +726,9 @@ window.setQty = function(idx, v) {
     scheduleSave();
 };
 window.removeItem = function(idx) {
-    const pid = selectedItems[idx].product_id;
+    const item = selectedItems[idx];
+    if (!confirm(`"${item.name}" ni ro'yxatdan o'chirmoqchimisiz?`)) return;
+    const pid = item.product_id;
     selectedItems.splice(idx, 1);
     renderCart();
     const btn = document.getElementById('addbtn_' + pid);
