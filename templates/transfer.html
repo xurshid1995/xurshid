@@ -225,10 +225,9 @@
             <table class="transfer1-table" id="pendingTransfersTable">
                 <thead class="pending-thead">
                     <tr>
-                        <th>ID</th>
+                        <th>ID / Sana</th>
                         <th>{{ t('tr1_th_from') }}</th>
                         <th>{{ t('tr1_th_to') }}</th>
-                        <th>{{ t('tr1_th_created') }}</th>
                         <th>{{ t('tr1_th_products') }}</th>
                         <th>{{ t('tr1_th_user') }}</th>
                         <th>{{ t('tr1_status') }}</th>
@@ -237,7 +236,7 @@
                 </thead>
                 <tbody id="pendingTransfersBody">
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 24px; color: #9ca3af;">
+                        <td colspan="7" style="text-align: center; padding: 24px; color: #9ca3af;">
                             📭 {{ t('tr1_no_pending') }}
                         </td>
                     </tr>
@@ -407,13 +406,10 @@
                 });
                 tbody.innerHTML = data.pending_transfers.map(pending => {
                     const createdDate = new Date(pending.created_at);
-                    const formattedDate = createdDate.toLocaleString('uz-UZ', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    const formattedDate = createdDate.toLocaleDateString('uz-UZ', {
+                        year: 'numeric', month: '2-digit', day: '2-digit'
+                    }) + '<br><span style="font-size:13px;font-weight:600;color:#1a6eff;">' +
+                    createdDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }) + '</span>';
                     
                     const productCount = pending.items.length;
                     
@@ -498,10 +494,12 @@
                     
                     return `
                         <tr>
-                            <td>${pending.id}</td>
+                            <td style="white-space:nowrap;line-height:1.6;">
+                                <span style="background:#e0edff;color:#1a6eff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px;">ID: ${pending.id}</span><br>
+                                <span style="font-size:12px;color:#555;">${formattedDate}</span>
+                            </td>
                             <td>${pending.from_location}</td>
                             <td>${pending.to_location}</td>
-                            <td style="white-space: nowrap;">${formattedDate}</td>
                             <td style="text-align: center;">
                                 <span class="badge-count">${productCount}</span>
                             </td>
