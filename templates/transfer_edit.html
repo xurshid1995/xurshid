@@ -464,6 +464,7 @@
         <div class="tr-modal-field">
             <label class="tr-modal-label">Miqdor:</label>
             <input class="tr-modal-qty-input" type="number" id="trModalQty" value="1" min="1">
+            <div id="trModalError" style="color:#e53e3e;font-size:12px;margin-top:4px;display:none;"></div>
         </div>
         <div class="tr-modal-footer">
             <button class="tr-modal-cancel" id="trModalCancel">Bekor qilish</button>
@@ -655,11 +656,26 @@ window.addProduct = function(pid) {
     const qtyInput = document.getElementById('trModalQty');
     qtyInput.value = 1;
     qtyInput.max = stock > 0 ? stock : 99999;
+    document.getElementById('trModalError').style.display = 'none';
     document.getElementById('trModalOverlay').classList.add('open');
     setTimeout(() => { qtyInput.focus(); qtyInput.select(); }, 80);
     // Confirm
     document.getElementById('trModalConfirm').onclick = function() {
-        const qty = Math.max(1, parseInt(qtyInput.value) || 1);
+        const qty = parseFloat(qtyInput.value);
+        const errEl = document.getElementById('trModalError');
+        errEl.style.display = 'none';
+        if (!qty || qty <= 0) {
+            errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
+            errEl.style.display = 'block';
+            qtyInput.focus();
+            return;
+        }
+        if (stock > 0 && qty > stock) {
+            errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
+            errEl.style.display = 'block';
+            qtyInput.focus();
+            return;
+        }
         selectedItems.push({ product_id: p.id, name: p.name, quantity: qty, price: Number(p.price || 0) });
         renderCart();
         const btn = document.getElementById('addbtn_' + pid);
