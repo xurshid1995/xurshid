@@ -230,6 +230,19 @@
     border-radius: 4px;
     text-align: center;
     font-size: 13px;
+    transition: border-color .15s, background .15s;
+}
+.tr-qty-input.is-invalid {
+    border-color: #e53e3e !important;
+    background: #fff5f5 !important;
+    color: #c53030 !important;
+}
+.tr-qty-error {
+    display: none;
+    color: #e53e3e;
+    font-size: 11px;
+    margin-top: 2px;
+    white-space: nowrap;
 }
 .tr-del-btn {
     background: none;
@@ -685,16 +698,24 @@ function renderCart() {
     }
     tbody.innerHTML = items.map(it => {
         const idx = selectedItems.indexOf(it);
+        const prod = allProducts.find(x => x.id === it.product_id);
+        const maxQty = prod ? getStock(prod) : 0;
+        const isOver = maxQty > 0 && it.quantity > maxQty;
+        const isZero = !it.quantity || it.quantity <= 0;
+        const invalid = isOver || isZero;
+        const errMsg = isZero ? '⚠️ 0 dan katta bo\'lishi kerak' : (isOver ? `⚠️ Max: ${fmtNum(maxQty)}` : '');
         return `<tr>
             <td title="${it.name}">${it.name}</td>
             <td style="text-align:right">$${fmtNum(it.price)}</td>
             <td>
                 <div class="tr-qty-cell">
                     <button class="tr-qty-btn" onclick="changeQty(${idx},-1)">−</button>
-                    <input class="tr-qty-input" type="number" value="${it.quantity}" min="0" step="0.01"
-                        onchange="setQty(${idx},this.value)" />
+                    <input class="tr-qty-input${invalid ? ' is-invalid' : ''}" type="number" value="${it.quantity}" min="1" step="0.01"
+                        data-idx="${idx}" data-max="${maxQty}"
+                        oninput="handleCartQtyInput(${idx},this)" />
                     <button class="tr-qty-btn" onclick="changeQty(${idx},1)">+</button>
                 </div>
+                <div class="tr-qty-error" style="${invalid ? 'display:block' : 'display:none'}">${errMsg}</div>
             </td>
             <td style="text-align:center"><button class="tr-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
         </tr>`;
@@ -771,12 +792,34 @@ document.getElementById('trModalQty').addEventListener('input', function() {
         this.classList.remove('is-invalid');
     }
 });
+window.handleCartQtyInput = function(idx, el) {
+    const val = parseFloat(el.value);
+    const max = parseFloat(el.dataset.max) || 0;
+    const cell = el.closest('td');
+    const errEl = cell ? cell.querySelector('.tr-qty-error') : null;
+    if (!val || val <= 0) {
+        el.classList.add('is-invalid');
+        if (errEl) { errEl.textContent = "⚠️ 0 dan katta bo'lishi kerak"; errEl.style.display = 'block'; }
+    } else if (max > 0 && val > max) {
+        el.classList.add('is-invalid');
+        if (errEl) { errEl.textContent = `⚠️ Max: ${fmtNum(max)}`; errEl.style.display = 'block'; }
+    } else {
+        el.classList.remove('is-invalid');
+        if (errEl) errEl.style.display = 'none';
+        selectedItems[idx].quantity = val;
+        scheduleSave();
+    }
+};
 window.changeQty = function(idx, d) {
-    selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + d);
+    const item = selectedItems[idx];
+    const prod = allProducts.find(x => x.id === item.product_id);
+    const maxQty = prod ? getStock(prod) : 0;
+    const newQty = Math.max(1, Number(item.quantity) + d);
+    item.quantity = maxQty > 0 ? Math.min(newQty, maxQty) : newQty;
     renderCart(); scheduleSave();
 };
 window.setQty = function(idx, v) {
-    selectedItems[idx].quantity = Math.max(0, Number(v) || 0);
+    selectedItems[idx].quantity = Math.max(1, Number(v) || 1);
     scheduleSave();
 };
 window.removeItem = function(idx) {
