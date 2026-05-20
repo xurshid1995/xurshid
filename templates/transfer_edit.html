@@ -407,7 +407,7 @@
                             <tr>
                                 <th>Mahsulot</th>
                                 <th style="text-align:right">Narx</th>
-                                <th style="text-align:right">Mavjud</th>
+                                <th style="text-align:left">Mavjud</th>
                                 <th style="text-align:center">Amal</th>
                             </tr>
                         </thead>
@@ -434,7 +434,7 @@
                             <tr>
                                 <th>Mahsulot</th>
                                 <th style="text-align:right">Narx</th>
-                                <th style="text-align:center">Miqdor</th>
+                                <th style="text-align:left">Miqdor</th>
                                 <th style="text-align:center">Amal</th>
                             </tr>
                         </thead>
@@ -638,7 +638,7 @@ function renderProducts() {
         return `<tr>
             <td title="${p.name}">${p.name}</td>
             <td style="text-align:right">$${fmtPrice(p.price)}</td>
-            <td style="text-align:center"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
+            <td style="text-align:left"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
             <td style="text-align:center">
                 ${inCart
                     ? `<span class="tr-in-cart-icon" id="addbtn_${p.id}"><i class="fa-solid fa-circle-check"></i></span>`
@@ -718,7 +718,7 @@ function renderCart() {
         return `<tr>
             <td title="${it.name}">${it.name}</td>
             <td style="text-align:right">$${fmtNum(it.price)}</td>
-            <td style="text-align:center">
+            <td style="text-align:left">
                 <span class="tr-stock-badge" style="${badgeStyle}" title="${errMsg}">${fmtNum(it.quantity)} dona</span>
                 ${invalid ? `<div class="tr-qty-error" style="display:block">${errMsg}</div>` : ''}
             </td>
