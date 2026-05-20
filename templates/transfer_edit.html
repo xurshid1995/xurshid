@@ -695,6 +695,20 @@ document.getElementById('trModalQty').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') document.getElementById('trModalConfirm').click();
     if (e.key === 'Escape') closeModal();
 });
+document.getElementById('trModalQty').addEventListener('input', function() {
+    const errEl = document.getElementById('trModalError');
+    const qty = parseFloat(this.value);
+    const max = parseFloat(this.max) || 0;
+    if (!qty || qty <= 0) {
+        errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
+        errEl.style.display = 'block';
+    } else if (max > 0 && qty > max) {
+        errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(max)})`;
+        errEl.style.display = 'block';
+    } else {
+        errEl.style.display = 'none';
+    }
+});
 window.changeQty = function(idx, d) {
     selectedItems[idx].quantity = Math.max(0, Number(selectedItems[idx].quantity) + d);
     renderCart(); scheduleSave();
