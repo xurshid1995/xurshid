@@ -483,7 +483,11 @@
             if (isNotifDismissed()) return;
             try {
                 const [debtsRes, stockRes] = await Promise.all([
+                    {% if session.role not in ('omborchi', 'sotuvchi') %}
                     fetch('/api/debts').catch(() => null),
+                    {% else %}
+                    Promise.resolve(null),
+                    {% endif %}
                     fetch('/api/low-stock-alerts').catch(() => null)
                 ]);
                 let count = 0;
