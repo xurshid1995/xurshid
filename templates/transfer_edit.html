@@ -742,6 +742,10 @@ window.addProduct = function(pid) {
         if (cell) { cell.outerHTML = `<span class="tr-in-cart-icon" id="addbtn_${pid}"><i class="fa-solid fa-circle-check"></i></span>`; }
         scheduleSave();
         closeModal();
+        setTimeout(() => {
+            const searchEl = document.getElementById('productSearch');
+            if (searchEl) { searchEl.focus(); searchEl.select(); }
+        }, 80);
     };
 };
 function closeModal() {
