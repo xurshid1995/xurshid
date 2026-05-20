@@ -183,7 +183,7 @@
 .tr-prod-table th:nth-child(1),
 .tr-prod-table td:nth-child(1) { width: 50%; }
 .tr-prod-table th:nth-child(2),
-.tr-prod-table td:nth-child(2) { width: 10%; text-align: right; }
+.tr-prod-table td:nth-child(2) { width: 10%; text-align: left; }
 .tr-prod-table th:nth-child(3),
 .tr-prod-table td:nth-child(3) { width: 20%; text-align: center; }
 .tr-prod-table th:nth-child(4),
@@ -193,7 +193,7 @@
 .tr-cart-table th:nth-child(1),
 .tr-cart-table td:nth-child(1) { width: 50%; }
 .tr-cart-table th:nth-child(2),
-.tr-cart-table td:nth-child(2) { width: 10%; text-align: right; }
+.tr-cart-table td:nth-child(2) { width: 10%; text-align: left; }
 .tr-cart-table th:nth-child(3),
 .tr-cart-table td:nth-child(3) { width: 20%; text-align: center; }
 .tr-cart-table th:nth-child(4),
@@ -406,7 +406,7 @@
                         <thead>
                             <tr>
                                 <th>Mahsulot</th>
-                                <th style="text-align:right">Narx</th>
+                                <th style="text-align:left">Narx</th>
                                 <th style="text-align:left">Mavjud</th>
                                 <th style="text-align:center">Amal</th>
                             </tr>
@@ -433,7 +433,7 @@
                         <thead>
                             <tr>
                                 <th>Mahsulot</th>
-                                <th style="text-align:right">Narx</th>
+                                <th style="text-align:left">Narx</th>
                                 <th style="text-align:left">Miqdor</th>
                                 <th style="text-align:center">Amal</th>
                             </tr>
@@ -637,7 +637,7 @@ function renderProducts() {
         const inCart = selectedItems.some(i => i.product_id === p.id);
         return `<tr>
             <td title="${p.name}">${p.name}</td>
-            <td style="text-align:right">$${fmtPrice(p.price)}</td>
+            <td style="text-align:left">$${fmtPrice(p.price)}</td>
             <td style="text-align:left"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
             <td style="text-align:center">
                 ${inCart
@@ -717,7 +717,7 @@ function renderCart() {
         const badgeStyle = invalid ? 'background:#e53e3e' : '';
         return `<tr>
             <td title="${it.name}">${it.name}</td>
-            <td style="text-align:right">$${fmtNum(it.price)}</td>
+            <td style="text-align:left">$${fmtNum(it.price)}</td>
             <td style="text-align:left">
                 <span class="tr-stock-badge" style="${badgeStyle}" title="${errMsg}">${fmtNum(it.quantity)} dona</span>
                 ${invalid ? `<div class="tr-qty-error" style="display:block">${errMsg}</div>` : ''}
