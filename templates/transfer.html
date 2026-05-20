@@ -225,6 +225,7 @@
             <table class="transfer1-table" id="pendingTransfersTable">
                 <thead class="pending-thead">
                     <tr>
+                        <th>ID</th>
                         <th>{{ t('tr1_th_from') }}</th>
                         <th>{{ t('tr1_th_to') }}</th>
                         <th>{{ t('tr1_th_created') }}</th>
@@ -236,7 +237,7 @@
                 </thead>
                 <tbody id="pendingTransfersBody">
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 24px; color: #9ca3af;">
+                        <td colspan="8" style="text-align: center; padding: 24px; color: #9ca3af;">
                             📭 {{ t('tr1_no_pending') }}
                         </td>
                     </tr>
@@ -497,6 +498,7 @@
                     
                     return `
                         <tr>
+                            <td>${pending.id}</td>
                             <td>${pending.from_location}</td>
                             <td>${pending.to_location}</td>
                             <td style="white-space: nowrap;">${formattedDate}</td>
