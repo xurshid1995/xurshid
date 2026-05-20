@@ -1220,5 +1220,80 @@
     })();
     </script>
 
+    <!-- ── Universal keyboard navigation for search inputs ── -->
+    <!-- Usage: add data-nav-tbody="tbodyId" data-nav-btn="btnClass" to any search input -->
+    <script>
+    (function() {
+        var NAV_ROW_CLASS = 'kb-nav-active';
+        var style = document.createElement('style');
+        style.textContent = 'tr.kb-nav-active { background: #e8f0fe !important; outline: 2px solid #1a6eff; outline-offset: -2px; }';
+        document.head.appendChild(style);
+
+        function clearHighlight(tbody) {
+            tbody.querySelectorAll('tr.' + NAV_ROW_CLASS).forEach(function(r) { r.classList.remove(NAV_ROW_CLASS); });
+        }
+
+        function getRows(tbody) {
+            return Array.from(tbody.querySelectorAll('tr')).filter(function(r) {
+                return !r.classList.contains('tr-empty-row') && r.style.display !== 'none';
+            });
+        }
+
+        function scrollToRow(row) {
+            row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            var input = document.activeElement;
+            if (!input || input.tagName !== 'INPUT') return;
+            var tbodyId = input.getAttribute('data-nav-tbody');
+            var btnClass = input.getAttribute('data-nav-btn');
+            if (!tbodyId) return;
+            var tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            var rows = getRows(tbody);
+            if (!rows.length) return;
+
+            var cur = tbody.querySelector('tr.' + NAV_ROW_CLASS);
+            var idx = cur ? rows.indexOf(cur) : -1;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (idx < rows.length - 1) idx++; else idx = 0;
+                clearHighlight(tbody);
+                rows[idx].classList.add(NAV_ROW_CLASS);
+                scrollToRow(rows[idx]);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (idx > 0) idx--; else idx = rows.length - 1;
+                clearHighlight(tbody);
+                rows[idx].classList.add(NAV_ROW_CLASS);
+                scrollToRow(rows[idx]);
+            } else if (e.key === 'Enter') {
+                if (!cur) return;
+                e.preventDefault();
+                var btn = btnClass
+                    ? cur.querySelector('.' + btnClass + ':not([disabled])')
+                    : cur.querySelector('button:not([disabled])');
+                if (btn) btn.click();
+            } else if (e.key === 'Escape') {
+                input.value = '';
+                input.dispatchEvent(new Event('input'));
+                clearHighlight(tbody);
+            }
+        }, true);
+
+        // Clear highlight when input changes
+        document.addEventListener('input', function(e) {
+            var input = e.target;
+            if (!input || input.tagName !== 'INPUT') return;
+            var tbodyId = input.getAttribute('data-nav-tbody');
+            if (!tbodyId) return;
+            var tbody = document.getElementById(tbodyId);
+            if (tbody) clearHighlight(tbody);
+        }, true);
+    })();
+    </script>
+
 </body>
 </html>
