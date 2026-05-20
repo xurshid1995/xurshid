@@ -2167,7 +2167,7 @@ def api_next_barcode():
                 except Exception:
                     continue
 
-            logger.info(f"ğŸ“¦ Vaqtinchalik ro'yxatdan {temp_barcodes_count} ta barcode qo'shildi")
+            logger.info(f"📦 Vaqtinchalik ro'yxatdan {temp_barcodes_count} ta barcode qo'shildi")
 
         # 1 dan boshlab birinchi bo'sh joyni topish
         next_barcode_num = None
@@ -2466,8 +2466,8 @@ def api_locations():
                 'type': 'store',
                 'id': store.id,
                 'name': store.name,
-                'emoji': 'ğŸª',
-                'display': f'ğŸª {store.name} (Do\'kon)'
+                'emoji': '🏪',
+                'display': f'🏪 {store.name} (Do\'kon)'
             })
 
         # Omborlarni qo'shish (ikkinchi bo'lib)
@@ -2482,8 +2482,8 @@ def api_locations():
                 'type': 'warehouse',
                 'id': warehouse.id,
                 'name': warehouse.name,
-                'emoji': 'ğŸ“¦',
-                'display': f'ğŸ“¦ {warehouse.name} (Ombor)'
+                'emoji': '📦',
+                'display': f'📦 {warehouse.name} (Ombor)'
             })
 
         logger.debug(f" Final locations count: {len(locations)}")
@@ -2507,7 +2507,7 @@ def api_all_locations():
     if _all_locations_cache and _all_locations_cache_time:
         elapsed = (datetime.now() - _all_locations_cache_time).total_seconds()
         if elapsed < CACHE_DURATION:
-            logger.debug(f"ğŸ“¦ All-locations cache hit - {int(CACHE_DURATION - elapsed)}s qoldi")
+            logger.debug(f"📦 All-locations cache hit - {int(CACHE_DURATION - elapsed)}s qoldi")
             return jsonify(_all_locations_cache)
 
     logger.debug(" All Locations API - Barcha foydalanuvchilar uchun barcha joylashuvlar")
@@ -2522,7 +2522,7 @@ def api_all_locations():
             'type': 'warehouse',
             'id': warehouse.id,
             'name': warehouse.name,
-            'display': f'ğŸ“¦ {warehouse.name} (Ombor)'
+            'display': f'📦 {warehouse.name} (Ombor)'
         })
 
     # Barcha do'konlarni qo'shish
@@ -2533,7 +2533,7 @@ def api_all_locations():
             'type': 'store',
             'id': store.id,
             'name': store.name,
-            'display': f'ğŸª {store.name} (Do\'kon)'
+            'display': f'🏪 {store.name} (Do\'kon)'
         })
 
     logger.info(f" Total locations for products page: {len(locations)}")
@@ -3011,7 +3011,7 @@ def check_barcode():
 def api_add_product():
     try:
         data = request.get_json()
-        logger.info(f"ğŸ“¦ Mahsulot qo'shish so'rovi: {data}")
+        logger.info(f"📦 Mahsulot qo'shish so'rovi: {data}")
 
         # Bir nechta mahsulotlar uchun
         if 'products' in data:
@@ -3273,7 +3273,7 @@ def api_batch_products():
         data = request.get_json()
         products = data.get('products', [])
 
-        logger.info(f"ğŸ“¦ Batch products request keldi: {len(products)} ta mahsulot")
+        logger.info(f"📦 Batch products request keldi: {len(products)} ta mahsulot")
 
         if not products:
             return jsonify({'error': 'Mahsulotlar ro\'yxati bo\'sh'}), 400
@@ -4697,7 +4697,7 @@ def api_return_product():
             # Frontend'dan 'quantity' yoki 'return_quantity' kelishi mumkin
             return_quantity = item.get('return_quantity') or item.get('quantity', 0)
 
-            logger.info(f"ğŸ“¦ Item: product_id={product_id}, return_quantity={return_quantity}, type={type(return_quantity)}")
+            logger.info(f"📦 Item: product_id={product_id}, return_quantity={return_quantity}, type={type(return_quantity)}")
 
             # Decimal ga o'tkazish
             try:
@@ -5320,7 +5320,7 @@ def api_product_operations(product_id):
         op_labels = {
             'sale': 'ğŸ›’ Sotish',
             'sale_edit': 'âœï¸ Savdo tahrirlash',
-            'add_product': 'ğŸ“¦ Qo\'shish',
+            'add_product': '📦 Qo\'shish',
             'edit_stock': 'ğŸ“ Zaxira tahrirlash',
             'transfer': 'ğŸ”„ Transfer',
             'return': 'â†©ï¸ Qaytarish',
@@ -5329,7 +5329,7 @@ def api_product_operations(product_id):
             'delete': 'ğŸ—‘ï¸ O\'chirish',
             'delete_stock': 'ğŸ—‘ï¸ Zaxira o\'chirish',
             'edit_user': 'ğŸ‘¤ Foydalanuvchi tahrirlash',
-            'create_store': 'ğŸª Do\'kon yaratish',
+            'create_store': '🏪 Do\'kon yaratish',
         }
 
         # user_id â†’ user ma'lumotlari cache
@@ -5539,7 +5539,7 @@ def api_check_stock_locations():
             allowed_store_ids = extract_location_ids(stock_check_locs, 'store')
             allowed_warehouse_ids = extract_location_ids(stock_check_locs, 'warehouse')
 
-            logger.debug(f"ğŸª Filtered store IDs: {allowed_store_ids}")
+            logger.debug(f"🏪 Filtered store IDs: {allowed_store_ids}")
             logger.debug(f"ğŸ­ Filtered warehouse IDs: {allowed_warehouse_ids}")
 
         # Do'konlarni olish - faqat ruxsat etilganlar
@@ -5549,7 +5549,7 @@ def api_check_stock_locations():
             stores = Store.query.filter(Store.id.in_(allowed_store_ids)).all() if allowed_store_ids else []
 
         stores_data = [{'id': s.id, 'name': s.name} for s in stores]
-        logger.debug(f"ğŸª Stores to return: {len(stores_data)}")
+        logger.debug(f"🏪 Stores to return: {len(stores_data)}")
 
         # Omborlarni olish - faqat ruxsat etilganlar
         if allowed_warehouse_ids is None:
@@ -5607,7 +5607,7 @@ def api_check_stock_active_sessions():
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            logger.debug(f"ğŸª Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"🏪 Allowed store IDs: {allowed_store_ids}")
             logger.debug(f"ğŸ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
 
             # Sessiyalarni filterlash
@@ -5692,7 +5692,7 @@ def api_check_stock_completed_sessions():
             allowed_store_ids = extract_location_ids(allowed_locations, 'store')
             allowed_warehouse_ids = extract_location_ids(allowed_locations, 'warehouse')
 
-            logger.debug(f"ğŸª Allowed store IDs: {allowed_store_ids}")
+            logger.debug(f"🏪 Allowed store IDs: {allowed_store_ids}")
             logger.debug(f"ğŸ­ Allowed warehouse IDs: {allowed_warehouse_ids}")
 
             # Filterlash - faqat ruxsat etilgan joylashuvlar
@@ -10138,7 +10138,7 @@ def process_transfers():
             to_location = transfer['to_location']
             quantity = Decimal(str(transfer['quantity']))  # Decimal ishlatish (0.5 litr uchun)
             print(
-                f"ğŸ“¦ Transfer: {product_id} from {from_location} to {to_location}, qty: {quantity}")
+                f"📦 Transfer: {product_id} from {from_location} to {to_location}, qty: {quantity}")
 
             # Sotuvchi va omborchi uchun from_location ruxsatini tekshirish
             if current_user.role in ('sotuvchi', 'omborchi'):
@@ -12357,7 +12357,7 @@ def api_sales_history():
                     Sale.location_id == store_filter_id,
                     Sale.location_type == 'store'
                 )
-                print(f"ğŸª Location filtri: store_id={store_filter_id}")
+                print(f"🏪 Location filtri: store_id={store_filter_id}")
             elif location_filter.startswith('warehouse_'):
                 warehouse_filter_id = int(location_filter.replace('warehouse_', ''))
                 # Yangi tizim: location_id va location_type ishlatish
@@ -13181,7 +13181,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"ğŸ“¦ Store stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
+                        f"📦 Store stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = StoreStock(
@@ -13191,7 +13191,7 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"ğŸ“¦ Yangi store stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
+                        f"📦 Yangi store stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
             elif sale_item.source_type == 'warehouse':
                 # Warehouse stock'ni qaytarish
@@ -13203,7 +13203,7 @@ def reject_sale(sale_id):
                 if stock:
                     stock.quantity += sale_item.quantity
                     print(
-                        f"ğŸ“¦ Warehouse stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
+                        f"📦 Warehouse stock qaytarildi: {sale_item.product.name} +{sale_item.quantity} = {stock.quantity}")
                 else:
                     # Agar stock yo'q bo'lsa, yangi stock yaratish
                     new_stock = WarehouseStock(
@@ -13213,7 +13213,7 @@ def reject_sale(sale_id):
                     )
                     db.session.add(new_stock)
                     print(
-                        f"ğŸ“¦ Yangi warehouse stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
+                        f"📦 Yangi warehouse stock yaratildi: {sale_item.product.name} = {sale_item.quantity}")
 
         # Savdoni butunlay o'chirish
         db.session.delete(sale)
@@ -14176,7 +14176,7 @@ def update_sale(sale_id):
 
         data = request.get_json()
         app.logger.info(f"ğŸ”„ UPDATE Sale ID: {sale_id}")
-        app.logger.info(f"ğŸ“¦ Update data: {data}")
+        app.logger.info(f"📦 Update data: {data}")
         app.logger.info(f"ğŸ’° Sale payment status: {sale.payment_status}")
 
         # Sale statusini tekshirish
@@ -14206,7 +14206,7 @@ def update_sale(sale_id):
         # Confirmed sale: stock allaqachon ayirilgan, real-time API bilan boshqariladi
         # Edit da faqat difference logic ishlatamiz
         app.logger.info(
-            f"ğŸ“¦ Real-time stock system: {'confirmed' if is_confirmed_sale else 'pending'} sale")
+            f"📦 Real-time stock system: {'confirmed' if is_confirmed_sale else 'pending'} sale")
 
         # Eski SaleItem'larni o'chirish
         SaleItem.query.filter_by(sale_id=sale.id).delete()
@@ -14641,7 +14641,7 @@ def create_pending_sale(data):
             item_location_type = item.get('location_type', 'store')
 
             print(
-                f"ğŸ“¦ Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
+                f"📦 Pending savdo item yaratilmoqda: {product.name} - {quantity} ta (Stock oldindan rezerv qilingan)")
 
             # SaleItem yaratish - USD da
             unit_price_usd = Decimal(str(unit_price))
@@ -14803,7 +14803,7 @@ def api_reserve_stock():
         import traceback
         logger.debug(''.join(traceback.format_stack()[-5:-1]))
         print(f"\n{'=' * 80}")
-        print("ğŸ“¦ RESERVE-STOCK API CHAQIRILDI:")
+        print("📦 RESERVE-STOCK API CHAQIRILDI:")
         print(f"   Product ID: {product_id}")
         print(f"   Quantity: {quantity}")
         print(f"   Location: {location_id} ({location_type})")
@@ -15487,7 +15487,7 @@ def add_currency_column():
 def api_stock_status():
     """Barcha stock ma'lumotlarini qaytarish API"""
     try:
-        print("ğŸ“¦ Stock status API so'rovi")
+        print("📦 Stock status API so'rovi")
 
         # Store stocks
         store_stocks = db.session.query(
@@ -16313,7 +16313,7 @@ def api_sales_chart():
             if location_type == 'store':
                 conditions.append("(s.location_id = :location_id AND s.location_type = 'store')")
                 params['location_id'] = int(location_id)
-                print(f"ğŸª Store filtri: location_id={location_id}, location_type=store")
+                print(f"🏪 Store filtri: location_id={location_id}, location_type=store")
             elif location_type == 'warehouse':
                 # Warehouse'dan savdo bo'lishi mumkin (yangi tizimda)
                 conditions.append("(s.location_id = :location_id AND s.location_type = 'warehouse')")
