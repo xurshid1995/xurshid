@@ -794,7 +794,8 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     if (!from || !to) return alert('Avval qayerdan va qayerga tanlang.');
     const valid = selectedItems.filter(i => i.quantity > 0);
     if (!valid.length) return alert('Kamida bitta mahsulot qo\'shing.');
-    const isDirect = document.getElementById('btnSend').dataset.mode === 'direct';
+    const btn = document.getElementById('btnSend');
+    const isDirect = btn.dataset.mode === 'direct';
     const confirmMsg = isDirect
         ? `${valid.length} ta mahsulot to'g'ridan transferlanadi (stok darhol o'zgaradi). Davom etasizmi?`
         : `${valid.length} ta mahsulot omborchiga yuboriladi. Davom etasizmi?`;
@@ -802,8 +803,6 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     clearTimeout(saveTimer);
     await autoSave();
     if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
-    const btn = document.getElementById('btnSend');
-    const isDirect = btn.dataset.mode === 'direct';
     const btnOrigText = btn.textContent;
     btn.disabled = true; btn.textContent = isDirect ? 'Yakunlanmoqda...' : 'Yuborilmoqda...';
     const endpoint = isDirect
