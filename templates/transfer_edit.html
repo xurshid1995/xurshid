@@ -346,6 +346,8 @@
     outline: none;
 }
 .tr-modal-qty-input:focus { border-color: #16a34a; background: #dcfce7; }
+.tr-modal-qty-input.is-invalid { border-color: #e53e3e !important; background: #fff5f5 !important; color: #c53030 !important; }
+.tr-modal-qty-input.is-invalid:focus { border-color: #c53030 !important; background: #fed7d7 !important; }
 .tr-modal-footer {
     display: flex;
     gap: 10px;
@@ -667,12 +669,14 @@ window.addProduct = function(pid) {
         if (!qty || qty <= 0) {
             errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
             errEl.style.display = 'block';
+            qtyInput.classList.add('is-invalid');
             qtyInput.focus();
             return;
         }
         if (stock > 0 && qty > stock) {
             errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
             errEl.style.display = 'block';
+            qtyInput.classList.add('is-invalid');
             qtyInput.focus();
             return;
         }
@@ -686,6 +690,7 @@ window.addProduct = function(pid) {
 };
 function closeModal() {
     document.getElementById('trModalOverlay').classList.remove('open');
+    document.getElementById('trModalQty').classList.remove('is-invalid');
 }
 document.getElementById('trModalCancel').addEventListener('click', closeModal);
 document.getElementById('trModalOverlay').addEventListener('click', function(e) {
@@ -702,11 +707,14 @@ document.getElementById('trModalQty').addEventListener('input', function() {
     if (!qty || qty <= 0) {
         errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
         errEl.style.display = 'block';
+        this.classList.add('is-invalid');
     } else if (max > 0 && qty > max) {
         errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(max)})`;
         errEl.style.display = 'block';
+        this.classList.add('is-invalid');
     } else {
         errEl.style.display = 'none';
+        this.classList.remove('is-invalid');
     }
 });
 window.changeQty = function(idx, d) {
