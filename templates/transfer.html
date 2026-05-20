@@ -444,9 +444,9 @@
                             `;
                         } else if (status === 'sent') {
                             if (userRole === 'admin' || userRole === 'omborchi' || userRole === 'kassir') {
-                                // Omborchi: pickup sahifasi (yig'ishni boshlash tugmasi bor)
+                                // Omborchi: edit sahifasi (mahsulot qo'shish/o'chirish imkoni)
                                 actionButtons = `
-                                    <a href="/transfer/${pending.id}/pickup" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">⚙️ Yig'ishni boshlash</a>
+                                    <a href="/transfer/${pending.id}/edit" class="btn-sm" style="background:#28a745;color:white;text-decoration:none;">⚙️ Yig'ishni boshlash</a>
                                     <button class="btn-sm" style="background:#17a2b8;color:white;border:none;cursor:pointer;" onclick="showTransferItems(${pending.id})">👁️ Ko'rish</button>
                                 `;
                             } else {
