@@ -675,6 +675,19 @@ window.goPage = function(p) {
     document.getElementById('productSearch').scrollIntoView({behavior:'smooth', block:'nearest'});
 };
 
+function lockLocationSelects(lock) {
+    const fromSel = document.getElementById('fromLocation');
+    const toSel   = document.getElementById('toLocation');
+    if (!fromSel || !toSel) return;
+    fromSel.disabled = lock;
+    toSel.disabled   = lock;
+    const style = lock
+        ? 'opacity:0.5; cursor:not-allowed; pointer-events:none;'
+        : 'opacity:1; cursor:pointer; pointer-events:auto;';
+    fromSel.style.cssText += style;
+    toSel.style.cssText   += style;
+}
+
 function renderCart() {
     const tbody = document.getElementById('cartBody');
     const q = cartFilter.toLowerCase();
@@ -698,12 +711,14 @@ function renderCart() {
     }
     if (!selectedItems.length) {
         tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo\'shing</td></tr>';
+        lockLocationSelects(false);
         return;
     }
     if (!items.length) {
         tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🔍 Qidiruv natijasi yo\'q</td></tr>';
         return;
     }
+    lockLocationSelects(true);
     tbody.innerHTML = items.map(it => {
         const idx = selectedItems.indexOf(it);
         const prod = allProducts.find(x => x.id === it.product_id);
