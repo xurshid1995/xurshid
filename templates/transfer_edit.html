@@ -415,10 +415,12 @@
 
                     <label>Qayerga:</label>
                     <select id="toLocation"><option value="">Tanlang...</option></select>
-                    <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
                 </div>
             </div>
-            <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" />
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="flex:1; margin-bottom:0;" />
+                <span class="tr-save-badge" id="saveBadge">✓ Saqlandi</span>
+            </div>
             <div class="table-wrapper">
                 <div class="tr-scroll">
                     <table class="tr-prod-table">
