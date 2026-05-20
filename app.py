@@ -11184,7 +11184,7 @@ def get_all_pending_transfers():
 
             result.append({
                 'id': pending.id,
-                'user_name': pending.user.username if pending.user else 'N/A',
+                'user_name': f"{pending.user.first_name} {pending.user.last_name}".strip() if pending.user else 'N/A',
                 'from_location': from_location_name,
                 'from_location_id': pending.from_location_id,
                 'from_location_type': pending.from_location_type,
