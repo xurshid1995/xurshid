@@ -422,7 +422,7 @@
 
         <!-- O'ng: Transfer ro'yxati -->
         <div class="sales-layout-box">
-            <h3 class="tr-box-title">🔄 Transfer ro'yxati <span id="cartItemCount" style="display:none; background:#1a6eff; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px;"></span></h3>
+            <h3 class="tr-box-title" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">🔄 Transfer ro'yxati <span id="cartItemCount" style="display:none; background:#1a6eff; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px;"></span><span id="cartTotal" style="display:none; margin-left:auto; font-size:13px; font-weight:700; color:#1a6eff;">Jami: <span id="cartTotalValue"></span></span></h3>
             <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
@@ -440,9 +440,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div id="cartTotal" style="display:none; text-align:right; padding:8px 12px 4px; font-size:13px; font-weight:700; color:#1a6eff; border-top:1px solid #e9ecef;">
-                Jami: <span id="cartTotalValue"></span>
             </div>
             <div class="tr-foot">
                 {% set _st = initial_data.pending_transfer.status if initial_data.pending_transfer else 'draft' %}
