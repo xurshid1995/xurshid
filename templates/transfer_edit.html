@@ -553,6 +553,28 @@ function fmtPrice(n) {
     return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function rebuildSelectOptions(sel, excludeKey, selectedKey) {
+    const current = selectedKey !== undefined ? selectedKey : sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    INITIAL_DATA.locations.forEach(loc => {
+        const key = `${loc.type}_${loc.id}`;
+        if (key === excludeKey) return;
+        const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
+        const opt = new Option(`${icon} ${loc.name}`, key);
+        if (key === current) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function syncLocationFilters() {
+    const fromSel = document.getElementById('fromLocation');
+    const toSel   = document.getElementById('toLocation');
+    const fromVal = fromSel.value;
+    const toVal   = toSel.value;
+    rebuildSelectOptions(toSel,   fromVal, toVal);
+    rebuildSelectOptions(fromSel, toVal,   fromVal);
+}
+
 function populateSelects() {
     const p = INITIAL_DATA.pending_transfer || {};
     const fromKey = p.from_location_type ? `${p.from_location_type}_${p.from_location_id}` : '';
@@ -570,8 +592,9 @@ function populateSelects() {
         fromSel.appendChild(opt1);
         toSel.appendChild(opt2);
     });
-    fromSel.addEventListener('change', () => { loadProducts(); scheduleSave(); updateSendBtn(); });
-    toSel.addEventListener('change', () => { scheduleSave(); updateSendBtn(); });
+    syncLocationFilters();
+    fromSel.addEventListener('change', () => { syncLocationFilters(); loadProducts(); scheduleSave(); updateSendBtn(); });
+    toSel.addEventListener('change', () => { syncLocationFilters(); scheduleSave(); updateSendBtn(); });
     if (fromKey) loadProducts();
     updateSendBtn();
 }
