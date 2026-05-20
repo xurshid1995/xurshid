@@ -4431,7 +4431,13 @@ def transfer_new_page():
     """Yangi transfer yaratish (draft)"""
     current_user = get_current_user()
     locations = _get_locations_for_user(current_user)
-    initial_data = {'locations': locations, 'pending_transfer': None, 'mode': 'new'}
+    initial_data = {
+        'locations': locations,
+        'pending_transfer': None,
+        'mode': 'new',
+        'user_transfer_locations': current_user.transfer_locations or [],
+        'user_role': current_user.role,
+    }
     return render_template('transfer_edit.html', initial_data=initial_data)
 
 
@@ -4470,6 +4476,8 @@ def transfer_edit_page(transfer_id):
         'locations': locations,
         'pending_transfer': pending.to_dict(),
         'mode': 'edit',
+        'user_transfer_locations': current_user.transfer_locations or [],
+        'user_role': current_user.role,
     }
     return render_template('transfer_edit.html', initial_data=initial_data)
 
@@ -10939,6 +10947,111 @@ def reject_transfer(pending_id):
     except Exception as e:
         db.session.rollback()
         logger.error(f"Transferni rad etishda xatolik: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/pending-transfer/<int:pending_id>/direct-complete', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+def direct_complete_transfer(pending_id):
+    """Sotuvchi ikkala joylashuvga ruxsati bo'lsa, transferni to'g'ridan yakunlaydi."""
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
+
+        pending = PendingTransfer.query.get(pending_id)
+        if not pending:
+            return jsonify({'error': 'Transfer topilmadi'}), 404
+
+        if not user_can_manage_transfer(current_user, pending):
+            return jsonify({'error': 'Ruxsat yo\'q'}), 403
+
+        # Ikki tomonlama ruxsat tekshirish (faqat admin emas — roldan qat\'i nazar)
+        if current_user.role not in ('admin', 'kassir'):
+            transfer_locs = current_user.transfer_locations or []
+            allowed_locs = current_user.allowed_locations or []
+            all_locs = transfer_locs + allowed_locs
+
+            def _has_loc(loc_type, loc_id):
+                for loc in all_locs:
+                    if isinstance(loc, dict):
+                        try:
+                            lid = int(loc.get('id', -1))
+                        except (TypeError, ValueError):
+                            lid = -1
+                        if lid == loc_id and loc.get('type') == loc_type:
+                            return True
+                    elif isinstance(loc, int) and loc == loc_id:
+                        return True
+                return False
+
+            if not (_has_loc(pending.from_location_type, pending.from_location_id) and
+                    _has_loc(pending.to_location_type, pending.to_location_id)):
+                return jsonify({'error': 'To\'g\'ridan yakunlash uchun ikki joylashuvga ham ruxsat kerak'}), 403
+
+        if pending.status not in ('draft', None):
+            return jsonify({'error': 'Faqat qoralama transferni to\'g\'ridan yakunlash mumkin'}), 400
+
+        from datetime import datetime
+        from_type = pending.from_location_type
+        from_id = pending.from_location_id
+        to_type = pending.to_location_type
+        to_id = pending.to_location_id
+
+        for item in pending.items:
+            product_id = item.get('id') or item.get('product_id')
+            if not product_id:
+                continue
+            product_id = int(product_id)
+            qty = Decimal(str(item.get('quantity', 0)))
+            if qty <= 0:
+                continue
+
+            # FROM stokdan kamaytirish
+            if from_type == 'store':
+                stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).first()
+                if not stock or stock.quantity < qty:
+                    return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                stock.quantity -= qty
+            elif from_type == 'warehouse':
+                stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).first()
+                if not stock or stock.quantity < qty:
+                    return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                stock.quantity -= qty
+
+            # TO stokga qo'shish
+            if to_type == 'store':
+                to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).first()
+                if to_stock:
+                    to_stock.quantity += qty
+                else:
+                    db.session.add(StoreStock(store_id=to_id, product_id=product_id, quantity=qty))
+            elif to_type == 'warehouse':
+                to_stock = WarehouseStock.query.filter_by(warehouse_id=to_id, product_id=product_id).first()
+                if to_stock:
+                    to_stock.quantity += qty
+                else:
+                    db.session.add(WarehouseStock(warehouse_id=to_id, product_id=product_id, quantity=qty))
+
+            # Transfer tarixi
+            db.session.add(Transfer(
+                product_id=product_id,
+                from_location_type=from_type,
+                from_location_id=from_id,
+                to_location_type=to_type,
+                to_location_id=to_id,
+                quantity=qty,
+                user_name=current_user.username
+            ))
+
+        db.session.delete(pending)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Transfer muvaffaqiyatli yakunlandi!'})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Direct complete transferda xatolik: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

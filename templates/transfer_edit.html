@@ -496,6 +496,45 @@ if (INITIAL_DATA.pending_transfer) {
     }));
 }
 
+// --- Transfer tugma logikasi ---
+const USER_TRANSFER_LOCS = INITIAL_DATA.user_transfer_locations || [];
+const USER_ALLOWED_LOCS  = INITIAL_DATA.user_allowed_locations  || [];
+const USER_ROLE           = INITIAL_DATA.user_role || '';
+const ALL_USER_LOCS = [...USER_TRANSFER_LOCS, ...USER_ALLOWED_LOCS];
+
+function _hasLoc(locType, locId) {
+    const id = parseInt(locId);
+    for (const loc of ALL_USER_LOCS) {
+        if (typeof loc === 'object' && loc !== null) {
+            if (parseInt(loc.id) === id && loc.type === locType) return true;
+        } else if (typeof loc === 'number' && loc === id) return true;
+    }
+    return false;
+}
+
+function canDirectComplete(fromVal, toVal) {
+    if (!fromVal || !toVal) return false;
+    if (USER_ROLE === 'admin' || USER_ROLE === 'kassir') return true;
+    const [fromType, fromId] = fromVal.split('_');
+    const [toType,   toId  ] = toVal.split('_');
+    return _hasLoc(fromType, fromId) && _hasLoc(toType, toId);
+}
+
+function updateSendBtn() {
+    const from = document.getElementById('fromLocation').value;
+    const to   = document.getElementById('toLocation').value;
+    const btn  = document.getElementById('btnSend');
+    if (canDirectComplete(from, to)) {
+        btn.textContent = '✅ To\'g\'ridan yakunlash';
+        btn.style.background = '#16a34a';
+        btn.dataset.mode = 'direct';
+    } else {
+        btn.textContent = '📦 Omborchiga yuborish';
+        btn.style.background = '';
+        btn.dataset.mode = 'send';
+    }
+}
+
 function fmtNum(n) {
     return Number(n || 0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 });
 }
@@ -519,9 +558,10 @@ function populateSelects() {
         fromSel.appendChild(opt1);
         toSel.appendChild(opt2);
     });
-    fromSel.addEventListener('change', () => { loadProducts(); scheduleSave(); });
-    toSel.addEventListener('change', scheduleSave);
+    fromSel.addEventListener('change', () => { loadProducts(); scheduleSave(); updateSendBtn(); });
+    toSel.addEventListener('change', () => { scheduleSave(); updateSendBtn(); });
     if (fromKey) loadProducts();
+    updateSendBtn();
 }
 
 function getStock(product) {
@@ -754,22 +794,29 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     if (!from || !to) return alert('Avval qayerdan va qayerga tanlang.');
     const valid = selectedItems.filter(i => i.quantity > 0);
     if (!valid.length) return alert('Kamida bitta mahsulot qo\'shing.');
-    if (!confirm(`${valid.length} ta mahsulotni transferga yuborasizmi?`)) return;
+    const isDirect = document.getElementById('btnSend').dataset.mode === 'direct';
+    const confirmMsg = isDirect
+        ? `${valid.length} ta mahsulot to'g'ridan transferlanadi (stok darhol o'zgaradi). Davom etasizmi?`
+        : `${valid.length} ta mahsulot omborchiga yuboriladi. Davom etasizmi?`;
+    if (!confirm(confirmMsg)) return;
     clearTimeout(saveTimer);
     await autoSave();
     if (!pendingId) return alert('Transfer saqlanmadi. Internet bilan ulanishni tekshiring.');
     const btn = document.getElementById('btnSend');
-    btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+    const isDirect = btn.dataset.mode === 'direct';
+    const btnOrigText = btn.textContent;
+    btn.disabled = true; btn.textContent = isDirect ? 'Yakunlanmoqda...' : 'Yuborilmoqda...';
+    const endpoint = isDirect
+        ? `/api/pending-transfer/${pendingId}/direct-complete`
+        : `/api/pending-transfer/${pendingId}/send`;
     try {
-        const res = await fetch(`/api/pending-transfer/${pendingId}/send`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }
-        });
+        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();
         if (data.success) { alert('✅ ' + data.message); window.location.href = '/transfer'; }
-        else { alert('Xato: ' + (data.error || 'Noma\'lum')); btn.disabled = false; btn.textContent = '✅ Transferni yakunlash'; }
+        else { alert('Xato: ' + (data.error || 'Noma\'lum')); btn.disabled = false; btn.textContent = btnOrigText; }
     } catch(e) {
         alert('Tarmoq xatosi: ' + e.message);
-        btn.disabled = false; btn.textContent = '✅ Transferni yakunlash';
+        btn.disabled = false; btn.textContent = btnOrigText;
     }
 });
 
