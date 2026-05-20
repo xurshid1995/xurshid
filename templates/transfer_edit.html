@@ -381,7 +381,7 @@
 {% block content %}
 <div class="transfer-container">
     <div class="tr-page-header">
-        <h1>🔄 Transfer #{{ initial_data.pending_transfer.id if initial_data.pending_transfer else '—' }}</h1>
+        <h1>🔄 Transfer ID:{{ initial_data.pending_transfer.id if initial_data.pending_transfer else '—' }}</h1>
         <a href="/transfer" class="tv-btn tv-btn-secondary" style="font-size:13px;">← Orqaga</a>
     </div>
 
