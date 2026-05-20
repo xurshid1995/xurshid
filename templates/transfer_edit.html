@@ -426,10 +426,18 @@ function renderProducts() {
         pagDiv.innerHTML = '';
         return;
     }
-    const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const pageItems = filteredProducts.slice(start, start + PAGE_SIZE);
+    let pageItems;
+    if (q) {
+        // Qidiruv bo'lsa — barcha natijalarni ko'rsat, pagination yo'q
+        pageItems = filteredProducts;
+        pagDiv.innerHTML = '';
+    } else {
+        const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start = (currentPage - 1) * PAGE_SIZE;
+        pageItems = filteredProducts.slice(start, start + PAGE_SIZE);
+        renderPagination(totalPages);
+    }
     tbody.innerHTML = pageItems.map(p => {
         const stock = getStock(p);
         const inCart = selectedItems.some(i => i.product_id === p.id);
@@ -444,7 +452,6 @@ function renderProducts() {
             </td>
         </tr>`;
     }).join('');
-    renderPagination(totalPages);
 }
 
 function renderPagination(totalPages) {
