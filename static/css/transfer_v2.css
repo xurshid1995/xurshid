@@ -42,5 +42,6 @@
     .tv-row { grid-template-columns: 1fr; }
     .tv-actions { flex-direction: column-reverse; }
     .tv-btn { width: 100%; justify-content: center; }
+    .tv-btn-secondary { width: auto; padding: 8px 14px; }
     .tv-table th, .tv-table td { padding: 8px 6px; font-size: 13px; }
 }
