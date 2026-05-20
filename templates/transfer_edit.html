@@ -638,7 +638,7 @@ function renderProducts() {
         return `<tr>
             <td title="${p.name}">${p.name}</td>
             <td style="text-align:right">$${fmtPrice(p.price)}</td>
-            <td style="text-align:center"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
+            <td style="text-align:center"><span class="tr-stock-badge" style="${stock <= 0 ? 'background:#e53e3e' : ''}">${fmtNum(stock)} dona</span></td>
             <td style="text-align:center">
                 ${inCart
                     ? `<span class="tr-in-cart-icon" id="addbtn_${p.id}"><i class="fa-solid fa-circle-check"></i></span>`
