@@ -4481,11 +4481,10 @@ def transfer_edit_page(transfer_id):
     if status != 'draft' and not omborchi_can_edit_sent:
         return redirect(f'/transfer/{transfer_id}')
     locations = _get_locations_for_user(current_user)
-    mode = 'edit-sent' if status == 'sent' else 'edit'
     initial_data = {
         'locations': locations,
         'pending_transfer': pending.to_dict(),
-        'mode': mode,
+        'mode': 'edit',
         'user_transfer_locations': current_user.transfer_locations or [],
         'user_role': current_user.role,
     }
