@@ -55,21 +55,25 @@
     }
     .cs-table {
         width: 100%; border-collapse: collapse;
-        table-layout: fixed; font-size: 13px;
+        table-layout: fixed; font-size: 14px;
         min-width: 0 !important;
     }
     .cs-table th {
-        padding: 7px 6px; font-size: 11px; font-weight: 700;
-        color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;
-        border-bottom: 1.5px solid #e2e8f0; background: #f8fafc;
+        padding: 6px 8px; font-size: 11px; font-weight: 700;
+        color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
+        border: none; border-right: 1px solid #dde3ec; background: #f1f5f9;
         overflow: hidden; text-overflow: ellipsis; white-space: normal;
         word-break: break-word; line-height: 1.2;
-        vertical-align: middle; text-align: center;
+        vertical-align: middle; text-align: left; box-sizing: border-box;
     }
+    .cs-table th:last-child { border-right: none; }
     .cs-table td {
-        padding: 7px 6px; border-bottom: 1px solid #f1f5f9; font-size: 14px;
+        padding: 5px 8px; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f0f0f0;
+        font-size: 14px; font-weight: 500;
         color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        box-sizing: border-box; vertical-align: middle;
     }
+    .cs-table td:last-child { border-right: none; }
     .cs-table td:first-child { white-space: normal; word-break: break-word; }
     .cs-table tbody tr:last-child td { border-bottom: none; }
     .cs-table tbody tr:hover td { background: #f8fafc; }
