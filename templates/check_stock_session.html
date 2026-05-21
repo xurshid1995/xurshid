@@ -200,7 +200,7 @@
                         <tr>
                             <th style="width:60%; text-align:left;">{{ t('css_th_product') }}</th>
                             <th style="width:15%; text-align:center;">{{ t('css_th_price') }}</th>
-                            <th style="width:15%; text-align:center;">{{ t('css_th_available') }}</th>
+                            <th style="width:15%; text-align:left;">{{ t('css_th_available') }}</th>
                             <th style="width:10%; text-align:center;">{{ t('css_th_action') }}</th>
                         </tr>
                     </thead>
@@ -748,7 +748,7 @@ function renderProductsPage() {
         row.innerHTML = `
             <td>${product.name}</td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
-            <td style="text-align:center;"><span class="cs-qty-badge" style="${product.system_quantity <= 0 ? 'background:#f08080' : ''}">${product.system_quantity} dona</span></td>
+            <td style="text-align:left;"><span class="cs-qty-badge" style="${product.system_quantity <= 0 ? 'background:#f08080' : ''}">${product.system_quantity} dona</span></td>
             <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
         `;
         
