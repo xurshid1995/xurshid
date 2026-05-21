@@ -68,13 +68,12 @@
     }
     .cs-table th:last-child { border-right: none; }
     .cs-table td {
-        padding: 5px 8px; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f0f0f0;
+        padding: 5px 8px !important; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f0f0f0;
         font-size: 14px !important; font-weight: 500 !important;
-        color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        color: #334155; white-space: normal; word-break: break-word;
         box-sizing: border-box; vertical-align: middle;
     }
     .cs-table td:last-child { border-right: none; }
-    .cs-table td:first-child { white-space: normal; word-break: break-word; }
     .cs-table tbody tr:last-child td { border-bottom: none; }
     .cs-table tbody tr:hover td { background: #f8fafc; }
 
@@ -780,7 +779,7 @@ function renderProductsPage() {
         });
         
         row.innerHTML = `
-            <td><strong>${product.name}</strong></td>
+            <td>${product.name}</td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
             <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
             <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
