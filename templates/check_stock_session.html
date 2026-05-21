@@ -139,6 +139,8 @@
         .cs-page { padding: 10px; }
         .cs-grid { gap: 10px; }
         .cs-box { padding: 12px; }
+        .cs-left-table th:last-child,
+        .cs-left-table td:last-child { display: none; }
     }
     @media (max-width: 480px) {
         .cs-page { padding: 6px; }
@@ -195,12 +197,12 @@
                        class="ps-input" data-results="productsTableBody" autofocus>
             </div>
             <div class="cs-table-wrap">
-                <table class="cs-table">
+                <table class="cs-table cs-left-table">
                     <thead>
                         <tr>
-                            <th style="width:55%; text-align:left;">{{ t('css_th_product') }}</th>
-                            <th style="width:13%; text-align:center;">{{ t('css_th_price') }}</th>
-                            <th style="width:22%; text-align:left;">{{ t('css_th_available') }}</th>
+                            <th style="width:60%; text-align:left;">{{ t('css_th_product') }}</th>
+                            <th style="width:15%; text-align:center;">{{ t('css_th_price') }}</th>
+                            <th style="width:15%; text-align:left;">{{ t('css_th_available') }}</th>
                             <th style="width:10%; text-align:center;">{{ t('css_th_action') }}</th>
                         </tr>
                     </thead>
