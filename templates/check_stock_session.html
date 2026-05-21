@@ -99,10 +99,18 @@
         line-height: 1; padding: 0;
     }
     .cs-btn-action:hover { background: #2563eb; }
-    .cs-btn-del {
-        padding: 5px 8px; background: #ef4444; color: white;
-        border: none; border-radius: 7px; font-size: 12px;
+    .cs-btn-edit {
+        width: 28px; height: 26px; background: #f97316; color: white;
+        border: none; border-radius: 6px; font-size: 12px;
         cursor: pointer; transition: background 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .cs-btn-edit:hover { background: #ea580c; }
+    .cs-btn-del {
+        width: 28px; height: 26px; background: #ef4444; color: white;
+        border: none; border-radius: 6px; font-size: 12px;
+        cursor: pointer; transition: background 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
     }
     .cs-btn-del:hover { background: #dc2626; }
 
@@ -975,7 +983,10 @@ function displayCheckedTable(products) {
             </td>
             <td style="text-align:center;">${statusBadge}</td>
             <td style="text-align:center;">
-                <button class="cs-btn-del" onclick="removeFromChecked(${product.id})">🗑️</button>
+                <div style="display:flex;gap:4px;justify-content:center;">
+                    <button class="cs-btn-edit" onclick="editCheckedProduct(${product.id})" title="Tahrirlash"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="cs-btn-del" onclick="removeFromChecked(${product.id})" title="O'chirish"><i class="fas fa-trash"></i></button>
+                </div>
             </td>
         `;
         
@@ -1020,6 +1031,30 @@ async function updateActualQuantity(productId, actualQty) {
 
     const query = document.getElementById('checkedSearch').value.trim().toLowerCase();
     filterAndDisplayChecked(query);
+}
+
+// Tekshirilgan mahsulotni tahrirlash (modalni qayta ochish)
+function editCheckedProduct(productId) {
+    const product = checkedProducts.find(p => p.id === productId);
+    if (!product) return;
+    currentProduct = {
+        id: product.id,
+        name: product.name,
+        barcode: product.barcode || '',
+        price: product.price,
+        system_quantity: product.system_quantity
+    };
+    document.getElementById('modalProductName').textContent = product.name;
+    document.getElementById('modalSystemQuantity').textContent = product.system_quantity;
+    document.getElementById('actualQuantityInput').value = product.actual_quantity;
+    const modal = document.getElementById('quantityModal');
+    modal.style.display = 'flex';
+    _blockModalEnter = true;
+    setTimeout(() => {
+        document.getElementById('actualQuantityInput').focus();
+        document.getElementById('actualQuantityInput').select();
+        setTimeout(() => { _blockModalEnter = false; }, 300);
+    }, 100);
 }
 
 // Tekshirilganlardan o'chirish
