@@ -35,8 +35,6 @@
 .tv-info-box { background: #e8f4fd; border-left: 3px solid #0066cc; padding: 12px 14px; border-radius: 6px; color: #0c5460; margin-bottom: 12px; font-size: 14px; }
 .tv-save-indicator { font-size: 13px; color: #28a745; margin-left: 12px; opacity: 0; transition: opacity 0.3s; }
 .tv-save-indicator.show { opacity: 1; }
-.tv-back-link { color: #6c757d; text-decoration: none; font-size: 14px; margin-bottom: 12px; display: inline-block; }
-.tv-back-link:hover { color: #007bff; }
 @media (max-width: 700px) {
     .tv-wrap { padding: 12px; }
     .tv-row { grid-template-columns: 1fr; }
