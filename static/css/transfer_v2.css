@@ -22,7 +22,7 @@
 .tv-actions-between { justify-content: space-between; }
 .tv-btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 .tv-btn-primary { background: #007bff; }
-.tv-btn-secondary { background: #6c757d; }
+.tv-btn-secondary { background: #9b7fd4; }
 .tv-btn-success { background: #28a745; }
 .tv-btn-danger { background: #dc3545; }
 .tv-btn-warning { background: #fd7e14; }
