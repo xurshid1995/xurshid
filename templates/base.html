@@ -23,6 +23,43 @@
         .main-content > div { padding-top: 0; }
         /* Barcha sahifalarda page-header margin bir xil */
         .page-header { margin-bottom: 6px !important; }
+        /* Global qidiruv maydoni stili — barcha sahifada bir xil */
+        .ps-input {
+            padding: 9px 14px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            font-size: 13px !important;
+            background: #f8fafc !important;
+            color: #1e293b !important;
+            transition: all 0.2s !important;
+            outline: none !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .ps-input:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1) !important;
+            background: white !important;
+        }
+        /* placeholder="...qidirish..." bo'lgan barcha inputlar */
+        input[placeholder*="qidirish"],
+        input[placeholder*="Qidirish"] {
+            padding: 9px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[placeholder*="qidirish"]:focus,
+        input[placeholder*="Qidirish"]:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            background: white;
+        }
     </style>
 </head>
 <body>
