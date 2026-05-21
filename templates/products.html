@@ -763,8 +763,9 @@
         // Mahsulot sonini yangilash
         const countBadge = document.getElementById('productCountBadge');
         if (countBadge) {
-            countBadge.textContent = filteredProducts.length + ' ta';
-            countBadge.style.display = filteredProducts.length > 0 ? 'inline-block' : 'none';
+            const displayCount = totalProducts > 0 ? totalProducts : filteredProducts.length;
+            countBadge.textContent = displayCount + ' ta';
+            countBadge.style.display = displayCount > 0 ? 'inline-block' : 'none';
         }
 
         if (filteredProducts.length === 0) {
