@@ -66,6 +66,32 @@
             text-decoration: none !important;
         }
     </style>
+    <script>
+    // Global klaviatura navigatsiyasi — ps-input[data-results] uchun
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.ps-input[data-results]').forEach(function(input) {
+            let _idx = -1;
+            function getRows() {
+                const tbody = document.getElementById(input.getAttribute('data-results'));
+                if (!tbody) return [];
+                return Array.from(tbody.querySelectorAll('tr')).filter(r => r.querySelector('button'));
+            }
+            function highlight(rows, i) {
+                rows.forEach((r, j) => { r.style.background = j === i ? '#e3f2fd' : ''; });
+                if (rows[i]) rows[i].scrollIntoView({ block: 'nearest' });
+            }
+            input.addEventListener('input', function() { _idx = -1; });
+            input.addEventListener('keydown', function(e) {
+                const rows = getRows();
+                if (!rows.length) return;
+                if (e.key === 'ArrowDown') { e.preventDefault(); _idx = Math.min(_idx + 1, rows.length - 1); highlight(rows, _idx); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); _idx = Math.max(_idx - 1, 0); highlight(rows, _idx); }
+                else if (e.key === 'Enter' && _idx >= 0) { e.preventDefault(); rows[_idx].querySelector('button').click(); }
+                else if (e.key === 'Escape') { e.preventDefault(); rows.forEach(r => r.style.background = ''); _idx = -1; }
+            });
+        });
+    });
+    </script>
 </head>
 <body>
     <!-- Mobile Navigation Toggle -->

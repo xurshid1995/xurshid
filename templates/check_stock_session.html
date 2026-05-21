@@ -178,7 +178,7 @@
             </div>
             <div style="margin-bottom: 12px;">
                 <input type="text" id="productSearch" placeholder="🔍 {{ t('css_search_product') }}"
-                       class="ps-input" autofocus>
+                       class="ps-input" data-results="productsTableBody" autofocus>
             </div>
             <div class="cs-table-wrap">
                 <table class="cs-table">
@@ -552,12 +552,10 @@ async function loadAllProducts() {
 }
 
 // Mahsulotni qidirish
-let selectedProductIndex = -1; // Klaviatura navigatsiyasi uchun
 let _blockModalEnter = false; // Modal ochilganda Enter bloklanadi
 
 document.getElementById('productSearch').addEventListener('input', function(e) {
     const query = e.target.value.trim().toLowerCase();
-    selectedProductIndex = -1; // Reset selection
     
     if (query.length === 0) {
         displayProducts(allProducts);
@@ -593,54 +591,6 @@ document.getElementById('productSearch').addEventListener('input', function(e) {
         }
     }
 });
-
-// Klaviatura navigatsiyasi
-document.getElementById('productSearch').addEventListener('keydown', function(e) {
-    const tbody = document.getElementById('productsTableBody');
-    const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.querySelector('button'));
-    
-    if (rows.length === 0) return;
-    
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        selectedProductIndex = Math.min(selectedProductIndex + 1, rows.length - 1);
-        highlightRow(rows, selectedProductIndex);
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        selectedProductIndex = Math.max(selectedProductIndex - 1, 0);
-        highlightRow(rows, selectedProductIndex);
-    } else if (e.key === 'Enter' && selectedProductIndex >= 0) {
-        e.preventDefault();
-        const button = rows[selectedProductIndex].querySelector('button');
-        if (button) button.click();
-    } else if (e.key === 'Escape') {
-        e.preventDefault();
-        selectedProductIndex = -1;
-        clearHighlight(rows);
-    }
-});
-
-// Qatorni highlight qilish
-function highlightRow(rows, index) {
-    rows.forEach((row, i) => {
-        if (i === index) {
-            row.style.background = '#e3f2fd';
-            row.style.outline = '';
-            row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-            row.style.background = '';
-            row.style.outline = '';
-        }
-    });
-}
-
-// Highlight tozalash
-function clearHighlight(rows) {
-    rows.forEach(row => {
-        row.style.background = '';
-        row.style.outline = '';
-    });
-}
 
 // Tekshirilganlardan qidirish
 document.getElementById('checkedSearch').addEventListener('input', function(e) {
