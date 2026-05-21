@@ -509,7 +509,7 @@ async function loadCheckedProducts() {
         const data = await response.json();
         
         if (data.success && data.items.length > 0) {
-            checkedProducts = data.items;
+            checkedProducts = data.items.reverse(); // Oxirgi qo'shilgan tepada
             
             // Tekshirilgan mahsulotlarni chap jadvaldan o'chirish
             const checkedIds = data.items.map(item => item.id);
@@ -887,7 +887,7 @@ async function saveQuantity() {
             if (existingIndex >= 0) {
                 checkedProducts[existingIndex] = checkedItem;
             } else {
-                checkedProducts.push(checkedItem);
+                checkedProducts.unshift(checkedItem); // Yangi mahsulot tepaga qo'shiladi
             }
             
             // Chap jadvaldan o'chirish
