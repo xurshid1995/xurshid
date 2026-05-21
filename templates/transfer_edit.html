@@ -469,7 +469,7 @@
             <div class="tr-foot">
                 {% set _st = initial_data.pending_transfer.status if initial_data.pending_transfer else 'draft' %}
                 {% if _st not in ('sent', 'picking') or initial_data.user_role not in ('omborchi', 'admin', 'kassir') %}
-                <button class="tv-btn" id="btnClear" style="background:#495057;color:#fff;border-color:#495057;">🗑 Tozalash</button>
+                <button class="tv-btn" id="btnClear" style="background:#6c757d;color:#fff;border-color:#6c757d;">🗑 Tozalash</button>
                 {% endif %}
                 <button class="tv-btn tv-btn-success" id="btnSend">✅ Transferni yakunlash</button>
             </div>
