@@ -4640,10 +4640,19 @@
                 const htmlSafeProductName = escapeHtml(productName);
                 const costPrice = product.cost_price || 0;
                 
+                // O'lchov birligi
+                const unitType = product.unit_type || 'dona';
+                
+                // Miqdorni format qilish
+                const quantityDisplay = unitType === 'litr'
+                    ? `${parseFloat(quantity).toFixed(2)} L`
+                    : (quantity % 1 === 0 ? `${Math.floor(quantity)} ${SLANG.unit_pcs}` : `${parseFloat(quantity).toFixed(1)} ${SLANG.unit_pcs}`);
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
                 row.setAttribute('data-product-id', product.id);
                 row.setAttribute('data-cost-price', costPrice || 0);
+                row.setAttribute('data-unit-type', unitType);
                 
                 // Highlight qilish o'chirilgan - qidiruv so'zlarini sariq bilan ajratmaslik
                 const fuzzyBadge = product.fuzzy_match
@@ -4667,7 +4676,7 @@
                     <td>${imgHtml}</td>
                     <td style="padding: 6px 8px; font-size: 16px; color: #333;" data-original-text="${htmlSafeProductName}" title="${htmlSafeProductName}">${highlightedName}${fuzzyBadge}</td>
                     <td style="padding: 6px 8px; text-align: left; font-size: 14px;">
-                        <span style="background: ${quantityBadgeColor}; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${quantity}</span>
+                        <span style="background: ${quantityBadgeColor}; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${quantityDisplay}</span>
                     </td>
                     <td style="padding: 6px 8px; text-align: left; font-size: 14px;">
                         <span style="background: #ffc107; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; margin-right: 3px; display: inline-block; font-size: 12px;">$${formatPrice(sellingPrice)}</span>
