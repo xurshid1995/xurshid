@@ -58,7 +58,7 @@
     .cs-table {
         width: 100%; border-collapse: collapse;
         table-layout: fixed; font-size: 14px;
-        min-width: 0 !important;
+        min-width: 0;
     }
     .cs-table th {
         padding: 6px 8px; font-size: 11px; font-weight: 700;
@@ -142,7 +142,9 @@
         .cs-left-table th:last-child,
         .cs-left-table td:last-child { display: none; }
         .cs-right-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .cs-right-wrap .cs-table { min-width: 800px; }
+        .cs-right-wrap .cs-table { min-width: 800px !important; }
+        .cs-right-wrap.cs-table-wrap { overflow-x: auto !important; }
+        .cs-right-box { overflow: visible; }
     }
     @media (max-width: 480px) {
         .cs-page { padding: 6px; }
@@ -228,7 +230,7 @@
         </div>
 
         <!-- O'ng: Tekshirilgan mahsulotlar -->
-        <div class="cs-box">
+        <div class="cs-box cs-right-box">
             <div class="cs-box-header">
                 <span>✅ {{ t('css_checked_products') }}</span>
                 <span class="cs-count-badge"><span id="checkedCount">0</span> {{ t('css_count_suffix') }}</span>
