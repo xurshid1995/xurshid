@@ -557,6 +557,7 @@ let _blockModalEnter = false; // Modal ochilganda Enter bloklanadi
 document.getElementById('actualQuantityInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
+        e.stopPropagation(); // Global modal handler ni to'sish (double-save oldini olish)
         if (!_blockModalEnter) saveQuantity();
     }
 });

@@ -86,7 +86,7 @@
                 if (!rows.length) return;
                 if (e.key === 'ArrowDown') { e.preventDefault(); _idx = Math.min(_idx + 1, rows.length - 1); highlight(rows, _idx); }
                 else if (e.key === 'ArrowUp') { e.preventDefault(); _idx = Math.max(_idx - 1, 0); highlight(rows, _idx); }
-                else if (e.key === 'Enter' && _idx >= 0) { e.preventDefault(); rows[_idx].querySelector('button').click(); }
+                else if (e.key === 'Enter' && _idx >= 0) { e.preventDefault(); e.stopPropagation(); rows[_idx].querySelector('button').click(); }
                 else if (e.key === 'Escape') { e.preventDefault(); rows.forEach(r => r.style.background = ''); _idx = -1; }
             });
         });
