@@ -891,13 +891,14 @@ async function saveQuantity() {
         const data = await response.json();
         
         if (data.success) {
-            // Agar mahsulot allaqachon tekshirilgan bo'lsa
-            if (data.updated) {
+            // Tekshirilganlarga qo'shish yoki yangilash
+            const existingIndex = checkedProducts.findIndex(p => p.id === currentProduct.id);
+            
+            // Alert faqat yangi mahsulot qo'shganda va server updated=true qaytarsa (tahrirlashda emas)
+            if (data.updated && existingIndex < 0) {
                 alert(CSSLANG.already_checked_alert);
             }
             
-            // Tekshirilganlarga qo'shish yoki yangilash
-            const existingIndex = checkedProducts.findIndex(p => p.id === currentProduct.id);
             if (existingIndex >= 0) {
                 checkedProducts[existingIndex] = checkedItem;
             } else {
