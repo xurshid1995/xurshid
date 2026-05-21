@@ -144,6 +144,8 @@
         .cs-right-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .cs-right-wrap .cs-table { min-width: 650px !important; }
         .cs-right-box { overflow: visible; }
+        .cs-filter-btns { flex-wrap: nowrap !important; }
+        .cs-filter-btn { padding: 5px 8px !important; font-size: 11px !important; white-space: nowrap; }
     }
     @media (max-width: 480px) {
         .cs-page { padding: 6px; }
@@ -237,7 +239,7 @@
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center;">
                 <input type="text" id="checkedSearch" placeholder="🔍 {{ t('css_search_checked') }}"
                        class="ps-input" style="flex:1; min-width:120px;">
-                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                <div class="cs-filter-btns" style="display:flex; gap:5px; flex-wrap:nowrap;">
                     <button onclick="filterChecked('all')" id="filterAll" class="cs-filter-btn"
                             style="background:#2563eb; color:white;">
                         📊 {{ t('css_filter_checked') }} <span id="allCount" style="background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:50px; margin-left:3px;">0</span>
