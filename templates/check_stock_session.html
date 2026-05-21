@@ -100,19 +100,23 @@
     }
     .cs-btn-action:hover { background: #2563eb; }
     .cs-btn-edit {
-        width: 28px; height: 26px; background: #f97316; color: white;
-        border: none; border-radius: 6px; font-size: 12px;
-        cursor: pointer; transition: background 0.2s;
-        display: inline-flex; align-items: center; justify-content: center;
+        background: none;
+        border: none;
+        color: #1a6eff;
+        cursor: pointer;
+        font-size: 15px;
+        padding: 2px 4px;
     }
-    .cs-btn-edit:hover { background: #ea580c; }
+    .cs-btn-edit:hover { opacity: 0.75; }
     .cs-btn-del {
-        width: 28px; height: 26px; background: #ef4444; color: white;
-        border: none; border-radius: 6px; font-size: 12px;
-        cursor: pointer; transition: background 0.2s;
-        display: inline-flex; align-items: center; justify-content: center;
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 15px;
+        padding: 2px 4px;
     }
-    .cs-btn-del:hover { background: #dc2626; }
+    .cs-btn-del:hover { opacity: 0.75; }
 
     .cs-pagination {
         display: flex; justify-content: space-between; align-items: center;
@@ -984,8 +988,8 @@ function displayCheckedTable(products) {
             <td style="text-align:center;">${statusBadge}</td>
             <td style="text-align:center;">
                 <div style="display:flex;gap:4px;justify-content:center;">
-                    <button class="cs-btn-edit" onclick="editCheckedProduct(${product.id})" title="Tahrirlash"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="cs-btn-del" onclick="removeFromChecked(${product.id})" title="O'chirish"><i class="fas fa-trash"></i></button>
+                    <button class="cs-btn-edit" onclick="editCheckedProduct(${product.id})" title="Tahrirlash">✏️</button>
+                    <button class="cs-btn-del" onclick="removeFromChecked(${product.id})" title="O'chirish">🗑️</button>
                 </div>
             </td>
         `;
