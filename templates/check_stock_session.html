@@ -45,9 +45,11 @@
         padding: 3px 10px; border-radius: 7px;
     }
     .cs-qty-badge {
-        background: #38bdf8; color: white;
-        font-size: 12px; font-weight: 700;
-        padding: 2px 9px; border-radius: 7px;
+        display: inline-block;
+        background: #6c8ebf; color: #fff;
+        font-size: 12px; font-weight: 600;
+        padding: 2px 7px; border-radius: 4px;
+        white-space: nowrap;
     }
     .cs-table-wrap {
         border: 1px solid #e2e8f0; border-radius: 10px;
@@ -746,7 +748,7 @@ function renderProductsPage() {
         row.innerHTML = `
             <td>${product.name}</td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
-            <td style="text-align:center;"><span class="cs-qty-badge">${product.system_quantity}</span></td>
+            <td style="text-align:center;"><span class="cs-qty-badge" style="${product.system_quantity <= 0 ? 'background:#f08080' : ''}">${product.system_quantity} dona</span></td>
             <td style="text-align:center;"><button class="cs-btn-action">+</button></td>
         `;
         
