@@ -971,8 +971,8 @@ function displayCheckedTable(products) {
         if (product.difference < 0) errorColor = '#ef4444';
         
         // Holat badge
-        let statusBadge = `<span style="background:#64748b;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_normal}</span>`;
-        if (product.difference > 0) statusBadge = `<span style="background:#059669;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_excess}</span>`;
+        let statusBadge = `<span style="background:#16a34a;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_normal}</span>`;
+        if (product.difference > 0) statusBadge = `<span style="background:#3b82f6;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_excess}</span>`;
         if (product.difference < 0) statusBadge = `<span style="background:#ef4444;color:white;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">${CSSLANG.status_deficit}</span>`;
         
         row.innerHTML = `
