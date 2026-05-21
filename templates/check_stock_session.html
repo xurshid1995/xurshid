@@ -979,11 +979,7 @@ function displayCheckedTable(products) {
             <td>${product.name}</td>
             <td style="text-align:center;">${product.price ? product.price.toLocaleString() + '$' : '-'}</td>
             <td style="text-align:center;">${product.system_quantity}</td>
-            <td style="text-align:center;">
-                <input type="number" value="${product.actual_quantity}" 
-                       onchange="updateActualQuantity(${product.id}, this.value)"
-                       style="width:100%;max-width:54px;text-align:center;padding:3px 4px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:12px;box-sizing:border-box;">
-            </td>
+            <td style="text-align:center;">${product.actual_quantity}</td>
             <td style="text-align:center;font-weight:700;color:${errorColor};">
                 ${product.difference > 0 ? '+' : ''}${product.difference}
             </td>
