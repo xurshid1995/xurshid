@@ -33,9 +33,10 @@
     margin-bottom: 14px;
 }
 .tr-box-header .tr-box-title { margin: 0; flex-shrink: 0; }
-.tr-loc-inline { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; flex: 1; overflow: hidden; }
+.tr-loc-inline { display: flex; align-items: flex-end; gap: 10px; flex-wrap: nowrap; flex: 1; overflow: hidden; }
+.tr-loc-inline .tr-loc-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
 .tr-loc-inline label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #64748b;
     white-space: nowrap;
@@ -47,8 +48,7 @@
     font-size: 14px;
     background: white;
     cursor: pointer;
-    width: 0;
-    flex: 1;
+    width: 100%;
     min-width: 0;
 }
 .tr-save-badge {
@@ -284,9 +284,10 @@
     #tr-prod-table tbody tr { cursor: pointer; }
     #tr-prod-table tbody tr:active { background: #eef4ff; }
     .tr-box-header .tr-box-title { display: none; }
-    .tr-box-header .tr-loc-inline { flex-wrap: nowrap; width: 100%; align-items: center; }
-    .tr-box-header .tr-loc-inline label { font-size: 11px; white-space: nowrap; flex-shrink: 0; }
-    .tr-box-header .tr-loc-inline select { flex: 1 1 0; min-width: 0; max-width: none !important; }
+    .tr-box-header .tr-loc-inline { flex-wrap: nowrap; width: 100%; align-items: flex-end; }
+    .tr-box-header .tr-loc-inline .tr-loc-group { flex: 1 1 0; min-width: 0; }
+    .tr-box-header .tr-loc-inline label { font-size: 11px; white-space: nowrap; }
+    .tr-box-header .tr-loc-inline select { min-width: 0; max-width: none !important; width: 100%; }
     .tr-prod-table th:nth-child(1),
     .tr-prod-table td:nth-child(1) { width: 49% !important; }
     .tr-prod-table th:nth-child(2),
@@ -414,11 +415,14 @@
             <div class="tr-box-header">
                 <h3 class="tr-box-title">📦 Mahsulotlar</h3>
                 <div class="tr-loc-inline">
-                    <label>Qayerdan:</label>
-                    <select id="fromLocation"><option value="">Tanlang...</option></select>
-
-                    <label>Qayerga:</label>
-                    <select id="toLocation"><option value="">Tanlang...</option></select>
+                    <div class="tr-loc-group">
+                        <label>Qayerdan:</label>
+                        <select id="fromLocation"><option value="">Tanlang...</option></select>
+                    </div>
+                    <div class="tr-loc-group">
+                        <label>Qayerga:</label>
+                        <select id="toLocation"><option value="">Tanlang...</option></select>
+                    </div>
                 </div>
             </div>
             <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="width:100%; box-sizing:border-box;" />
