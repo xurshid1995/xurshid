@@ -374,7 +374,7 @@
             <input type="number" id="actualQuantityInput" placeholder="{{ t('css_enter_quantity') }}"
                    min="0" step="0.01"
                    style="width: 100%; padding: 11px 14px; border: 1.5px solid #059669; border-radius: 10px; font-size: 15px; box-sizing: border-box; outline: none;"
-                   onkeypress="if(event.key === 'Enter') saveQuantity()">
+                   onkeypress="if(event.key === 'Enter' && !_blockModalEnter) saveQuantity()">
         </div>
         <div style="display: flex; gap: 10px;">
             <button onclick="saveQuantity()" style="flex: 1; background: #059669; color: white; border: none; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -553,6 +553,7 @@ async function loadAllProducts() {
 
 // Mahsulotni qidirish
 let selectedProductIndex = -1; // Klaviatura navigatsiyasi uchun
+let _blockModalEnter = false; // Modal ochilganda Enter bloklanadi
 
 document.getElementById('productSearch').addEventListener('input', function(e) {
     const query = e.target.value.trim().toLowerCase();
@@ -849,11 +850,13 @@ function addToChecked(product) {
     
     const modal = document.getElementById('quantityModal');
     modal.style.display = 'flex';
+    _blockModalEnter = true;
     
     // Focus qilish
     setTimeout(() => {
         document.getElementById('actualQuantityInput').focus();
         document.getElementById('actualQuantityInput').select();
+        setTimeout(() => { _blockModalEnter = false; }, 300);
     }, 100);
 }
 
