@@ -463,11 +463,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Tekshirilgan mahsulotlarni sinxronlashtirish (real-time yangilanish)
 async function syncCheckedProducts() {
+    // Modal ochiq bo'lsa, sinxronlashtirishni o'tkazib yuborish (tahrirlash paytida tartib buzilmasin)
+    const modal = document.getElementById('quantityModal');
+    if (modal && modal.style.display === 'flex') {
+        return;
+    }
+
     // Foydalanuvchi biror input ichida yozayotgan bo'lsa, sinxronlashtirishni o'tkazib yuborish
     const activeEl = document.activeElement;
     if (activeEl && (
         activeEl.id === 'productSearch' ||
         activeEl.id === 'checkedSearch' ||
+        activeEl.id === 'actualQuantityInput' ||
         (activeEl.type === 'number' && activeEl.closest('#checkedTableBody'))
     )) {
         return;
@@ -480,8 +487,8 @@ async function syncCheckedProducts() {
         if (data.success && data.items) {
             const serverCheckedIds = data.items.map(item => item.id);
             
-            // Server bilan sinxronlashtirish
-            checkedProducts = data.items;
+            // Server bilan sinxronlashtirish (reverse - oxirgi qo'shilgan tepada)
+            checkedProducts = data.items.reverse();
             
             // Chap jadvaldan tekshirilganlarni olib tashlash
             allProducts = allProducts.filter(p => !serverCheckedIds.includes(p.id));
