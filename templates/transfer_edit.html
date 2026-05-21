@@ -681,7 +681,7 @@ function renderProducts() {
         return `<tr onclick="if(window.innerWidth<=768&&${p.id})addProduct(${p.id})">
             <td title="${p.name}">${p.name}</td>
             <td style="text-align:left">$${fmtPrice(p.price)}</td>
-            <td style="text-align:left"><span class="tr-stock-badge">${fmtNum(stock)} dona</span></td>
+            <td style="text-align:left"><span class="tr-stock-badge" style="${stock <= 0 ? 'background:#dc3545' : ''}">${fmtNum(stock)} dona</span></td>
             <td class="tr-amal-col" style="text-align:center">
                 ${inCart
                     ? `<span class="tr-in-cart-icon" id="addbtn_${p.id}"><i class="fa-solid fa-circle-check"></i></span>`
