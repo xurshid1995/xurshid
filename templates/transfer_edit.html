@@ -576,7 +576,7 @@ function fmtNum(n) {
     return Number(n || 0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 });
 }
 function fmtPrice(n) {
-    return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 function rebuildSelectOptions(sel, excludeKey, selectedKey) {
