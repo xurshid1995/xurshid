@@ -333,6 +333,7 @@
                 <input type="text" id="productSearch" placeholder="{{ t('placeholder_search') }}" class="ps-input ps-search-input">
                 <button id="clearSearch" class="ps-clear-btn" style="display: none;"><i class="fas fa-times"></i></button>
             </div>
+            <span id="productCountBadge" style="display:none; background:#2563eb; color:white; font-size:13px; font-weight:600; padding:4px 10px; border-radius:6px; white-space:nowrap; align-self:center;"></span>
             <div class="ps-filter-group">
                 <label>Kategoriya</label>
                 <select id="categorySelect" onchange="filterByCategorySelect(this)" class="ps-input" style="min-width:180px;">
@@ -758,6 +759,13 @@
         const emptyState = document.getElementById('emptyState');
         const productsTable = document.getElementById('productsTable');
         const tableBody = document.getElementById('productsTableBody');
+
+        // Mahsulot sonini yangilash
+        const countBadge = document.getElementById('productCountBadge');
+        if (countBadge) {
+            countBadge.textContent = filteredProducts.length + ' ta';
+            countBadge.style.display = filteredProducts.length > 0 ? 'inline-block' : 'none';
+        }
 
         if (filteredProducts.length === 0) {
             emptyState.style.display = 'block';
