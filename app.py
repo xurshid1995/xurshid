@@ -10211,7 +10211,7 @@ def process_transfers():
                 store_stock = StoreStock.query.filter_by(
                     store_id=store_id,
                     product_id=product_id
-                ).first()
+                ).with_for_update().first()  # Row-level lock
 
                 if not store_stock or store_stock.quantity < quantity:
                     return jsonify(
@@ -10226,7 +10226,7 @@ def process_transfers():
                 warehouse_stock = WarehouseStock.query.filter_by(
                     warehouse_id=warehouse_id,
                     product_id=product_id
-                ).first()
+                ).with_for_update().first()  # Row-level lock
 
                 if not warehouse_stock or warehouse_stock.quantity < quantity:
                     return jsonify(
@@ -14848,7 +14848,7 @@ def api_reserve_stock():
             stock = StoreStock.query.filter_by(
                 store_id=location_id,
                 product_id=product_id
-            ).first()
+            ).with_for_update().first()  # Row-level lock: race condition oldini oladi
 
             if not stock:
                 store_obj = Store.query.get(location_id)
@@ -14875,7 +14875,7 @@ def api_reserve_stock():
             stock = WarehouseStock.query.filter_by(
                 warehouse_id=location_id,
                 product_id=product_id
-            ).first()
+            ).with_for_update().first()  # Row-level lock: race condition oldini oladi
 
             if not stock:
                 warehouse_obj = Warehouse.query.get(location_id)
