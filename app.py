@@ -84,6 +84,8 @@ def fuzzy_score(query, name):
 
     return coverage * 60 + max(s1, s2, s3) * 0.4 + digit_bonus
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
 if sys.platform.startswith('win'):
@@ -181,6 +183,14 @@ db = SQLAlchemy(app)
 
 # CSRF himoya - barcha POST/PUT/DELETE so'rovlari uchun
 csrf = CSRFProtect(app)
+
+# Rate limiting - brute-force hujumlaridan himoya
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=[],  # Global limit yo'q - faqat belgilangan routelarda
+    storage_uri="memory://",
+)
 
 # Decimal aniqlik o'rnatish
 getcontext().prec = 10
@@ -15779,6 +15789,7 @@ def login_page():
 
 
 @app.route('/api/login', methods=['POST'])
+@limiter.limit("10 per minute; 50 per hour")
 def api_login():
     try:
         data = request.get_json()
@@ -17017,6 +17028,12 @@ def add_no_cache_headers(response):
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
+    # Xavfsizlik headerlari - barcha javoblarga
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers.pop('Server', None)  # Server versiyasini yashirish
     return response
 
 
