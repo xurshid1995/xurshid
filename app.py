@@ -380,8 +380,18 @@ def calculate_average_cost(product_id, new_quantity, new_batch_cost):
     """
     Og'irlikli o'rtacha tan narxni backend'da hisoblash.
     Formula: (mavjud_qty * mavjud_narx + yangi_qty * yangi_narx) / (mavjud_qty + yangi_qty)
+
+    Race condition himoyasi: Product qatorini SELECT...FOR UPDATE bilan qulflash,
+    shunda bir vaqtning o'zida ikki tranzaksiya noto'g'ri o'rtacha hisoblamasin.
     """
     from sqlalchemy import func as sql_func
+
+    # Avval product qatorini qulflash (boshqa tranzaksiyalar kutadi)
+    product = Product.query.filter_by(id=product_id).with_for_update().first()
+    if product is None:
+        # Mahsulot topilmasa - oddiygina yangi batch narxi
+        return Decimal(str(new_batch_cost)).quantize(Decimal('0.00001'))
+
     warehouse_qty = db.session.query(
         sql_func.sum(WarehouseStock.quantity)
     ).filter_by(product_id=product_id).scalar() or Decimal('0')
@@ -392,8 +402,7 @@ def calculate_average_cost(product_id, new_quantity, new_batch_cost):
 
     total_existing_qty = Decimal(str(warehouse_qty)) + Decimal(str(store_qty))
 
-    product = Product.query.get(product_id)
-    existing_cost = product.cost_price if product else Decimal('0')
+    existing_cost = product.cost_price or Decimal('0')
 
     existing_value = total_existing_qty * existing_cost
     new_value = Decimal(str(new_quantity)) * Decimal(str(new_batch_cost))
@@ -2710,6 +2719,7 @@ def api_search_products_by_location(location_type, location_id):
 
 # API endpoint - joylashuv bo'yicha mahsulotlar (LEGACY - eski usul)
 @app.route('/api/products-by-location/<location_type>/<int:location_id>')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_products_by_location(location_type, location_id):
     """Tanlangan joylashuv bo'yicha mahsulotlar ro'yxatini qaytarish (DEPRECATED)"""
     try:
@@ -3513,6 +3523,7 @@ def api_batch_products():
 
 # Mahsulot qo'shish tarixi API
 @app.route('/api/products/history', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_product_history():
     """Qo'shilgan mahsulotlar tarixini olish - ProductAddHistory jadvalidan"""
     try:
@@ -3567,6 +3578,7 @@ def get_product_history():
 
 # Mahsulot qidirish API
 @app.route('/api/search-product/<product_name>')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def search_product(product_name):
     """Mahsulot nomiga qarab joylashuvlarini topish (partial search)"""
     try:
@@ -3644,6 +3656,7 @@ def search_product(product_name):
 
 # Decimal hisoblash namunasi
 @app.route('/api/calculate')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def calculate_total():
     """Decimal hisoblash misoli - barcha mahsulotlar qiymatini hisoblash"""
     products = Product.query.all()
@@ -6416,6 +6429,7 @@ def api_check_stock_all_location_products():
 
 
 @app.route('/history_details')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def history_details():
     """Tekshiruv tarixi tafsilotlari sahifasi"""
     return render_template('history_details.html')
@@ -6535,6 +6549,7 @@ def add_store():
 
 
 @app.route('/store/<int:store_id>')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def store_detail(store_id):
     """Optimized store detail view - loads only basic info, stock data loaded via AJAX"""
     store = Store.query.get_or_404(store_id)
@@ -6589,6 +6604,7 @@ def store_detail(store_id):
 
 
 @app.route('/api/store/<int:store_id>/stock', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_store_stock(store_id):
     """Store stock API with pagination and filtering"""
     try:
@@ -6729,6 +6745,7 @@ def api_store_stock(store_id):
 
 
 @app.route('/api/store/<int:store_id>/stock/export', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_store_stock_export(store_id):
     """Export ALL store stocks as JSON for Excel download (no pagination)"""
     try:
@@ -6896,6 +6913,7 @@ def edit_store(store_id):
 
 
 @app.route('/api/store/<int:store_id>', methods=['DELETE'])
+@role_required('admin')
 def api_delete_store(store_id):
     try:
         logger.info(f" Dokon o'chirish so'rovi: Store ID: {store_id}")
@@ -7000,6 +7018,7 @@ def api_delete_store(store_id):
 
 
 @app.route('/api/warehouse/<int:warehouse_id>/stock', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_warehouse_stock(warehouse_id):
     """Warehouse stock API with pagination and filtering"""
     try:
@@ -7590,6 +7609,7 @@ def api_transfer_locations():
 
 
 @app.route('/api/warehouse_stats')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_warehouse_stats():
     warehouses = Warehouse.query.all()
     total_stock = sum(wh.current_stock for wh in warehouses)
@@ -7663,6 +7683,7 @@ def api_omborchi_dashboard():
 
 
 @app.route('/api/warehouse/<int:warehouse_id>', methods=['DELETE'])
+@role_required('admin')
 def api_delete_warehouse(warehouse_id):
     try:
         warehouse = Warehouse.query.get_or_404(warehouse_id)
@@ -8851,6 +8872,7 @@ def check_user_status():
 # Stock tahrirlash route
 @app.route('/edit_stock/<int:warehouse_id>/<int:product_id>',
            methods=['GET', 'POST'])
+@role_required('admin', 'manager')
 def edit_stock(warehouse_id, product_id):
     stock = WarehouseStock.query.filter_by(
         warehouse_id=warehouse_id,
@@ -9006,6 +9028,7 @@ def edit_stock(warehouse_id, product_id):
 
 
 @app.route('/warehouse/<int:warehouse_id>')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def warehouse_detail(warehouse_id):
     """Optimized warehouse detail view - loads only basic info, stock data loaded via AJAX"""
     warehouse = Warehouse.query.get_or_404(warehouse_id)
@@ -10037,6 +10060,7 @@ def cleanup_orphan_products():
 
 # Transfer uchun API endpointlar
 @app.route('/api/product/<int:product_id>/locations')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_product_locations(product_id):
     """Mahsulotning barcha joylashuv va miqdorlarini qaytarish"""
     logger.debug(f" get_product_locations called for product_id: {product_id}")
@@ -11568,6 +11592,7 @@ def api_add_customer():
 
 
 @app.route('/api/customer/<int:customer_id>/orders')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_customer_orders(customer_id):
     try:
         sales = Sale.query.filter_by(customer_id=customer_id).order_by(
@@ -11905,13 +11930,27 @@ def upload_user_photo(user_id):
         ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
         if ext not in allowed_ext:
             return jsonify({'error': 'Faqat jpg, jpeg, png, gif, webp formatlari qabul qilinadi'}), 400
+
+        # Xavfsizlik: faylni o'qib, haqiqiy rasm ekanligini PIL bilan tekshirish
+        from PIL import Image as PILImageVerify
+        import io as _io_verify
+        file_bytes = file.read()
+        if len(file_bytes) > 10 * 1024 * 1024:  # 10 MB limit
+            return jsonify({'error': 'Fayl hajmi 10 MB dan oshmasligi kerak'}), 400
+        try:
+            PILImageVerify.open(_io_verify.BytesIO(file_bytes)).verify()
+        except Exception:
+            return jsonify({'error': 'Yaroqsiz rasm fayli'}), 400
+
         filename = f"{user_id}.{ext}"
         # Eski rasmni o'chirish (boshqa extension bo'lsa)
         for old_ext in allowed_ext:
             old_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_id}.{old_ext}")
             if os.path.exists(old_path):
                 os.remove(old_path)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # Tekshirilgan bytes'ni saqlash
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'wb') as _fout:
+            _fout.write(file_bytes)
         user.photo = filename
         db.session.commit()
         # Agar joriy foydalanuvchi o'z rasmini yuklayotgan bo'lsa session'ni yangilash
@@ -13260,6 +13299,7 @@ def reject_sale(sale_id):
 
 
 @app.route('/edit-sale/<int:sale_id>')
+@role_required('admin', 'manager', 'kassir')
 def edit_sale_page(sale_id):
     """Savdoni tahrirlash sahifasi"""
     try:
@@ -15242,6 +15282,7 @@ def api_delete_pending_sale(sale_id):
 
 
 @app.route('/api/currency-rate', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_currency_rate():
     """Joriy valyuta kursini olish"""
     try:
@@ -15328,6 +15369,7 @@ def update_currency_rate():
 
 
 @app.route('/api/currency-rate/history', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_currency_rate_history():
     """Valyuta kursi tarixini olish"""
     try:
@@ -15513,6 +15555,7 @@ def add_currency_column():
 
 
 @app.route('/api/stock-status')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_stock_status():
     """Barcha stock ma'lumotlarini qaytarish API"""
     try:
@@ -15596,6 +15639,7 @@ def api_stock_status():
 
 
 @app.route('/api/unchecked-products-count', methods=['POST'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_unchecked_products_count():
     """Tekshiruv sessiyasi uchun tekshirilmagan mahsulotlar soni (localStorage ma'lumotlari asosida)"""
     try:
@@ -15661,6 +15705,7 @@ def api_unchecked_products_count():
 
 
 @app.route('/api/stock-by-location')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_stock_by_location():
     """Joylashuv bo'yicha stock ma'lumotlarini olish"""
     try:
@@ -16161,6 +16206,7 @@ def logout():
 
 
 @app.route('/api/sales-statistics')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_sales_statistics():
     """Savdo statistikasini qaytarish"""
     try:
@@ -16245,6 +16291,7 @@ def api_sales_statistics():
 
 
 @app.route('/api/sales-chart')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_sales_chart():
     """Savdo grafigi ma'lumotlarini qaytarish"""
     try:
@@ -16483,6 +16530,7 @@ def api_sales_chart():
 
 
 @app.route('/api/location-chart')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_location_chart():
     """Joylashuv grafigi ma'lumotlarini qaytarish"""
     try:
@@ -16539,6 +16587,7 @@ def api_location_chart():
 
 
 @app.route('/api/recent-sales')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_recent_sales():
     """So'nggi savdolar ro'yxatini qaytarish"""
     try:
@@ -16610,6 +16659,7 @@ def api_recent_sales():
 
 
 @app.route('/api/settings', methods=['GET'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_settings():
     """Tizim sozlamalarini olish"""
     try:
