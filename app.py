@@ -43,6 +43,9 @@ def normalize_search(text):
     text = text.replace('_', ' ')
     text = re.sub(r'([a-zA-Z]{2,})(\d)', r'\1 \2', text)
     text = re.sub(r'(\d)([a-zA-Z]{2,})', r'\1 \2', text)
+    # digit->yakka harf->digit: "h11e8" -> "h11 e8", "e8h7" -> "e8 h7"
+    text = re.sub(r'(\d)([a-zA-Z])(\d)', r'\1 \2\3', text)
+    text = re.sub(r'(\d)([a-zA-Z])(\d)', r'\1 \2\3', text)
     return re.sub(r'\s+', ' ', text).lower().strip()
 
 def fuzzy_score(query, name):
