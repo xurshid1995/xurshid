@@ -99,9 +99,9 @@ load_dotenv()
 # Flask app yaratish
 app = Flask(__name__)
 
-# Template cache'ni o'chirish - yangilanishlarni darhol ko'rish uchun
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# Template cache - development uchun True, production uchun False
+app.config['TEMPLATES_AUTO_RELOAD'] = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 if os.getenv('FLASK_DEBUG', 'false').lower() == 'true' else 3600
 
 # Foydalanuvchi rasmlarini yuklash uchun papka
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads', 'users')
@@ -2071,6 +2071,8 @@ class HostingPayment(db.Model):
 # API Test sahifasi
 @app.route('/api_test.html')
 def api_test():
+    if not app.debug:
+        abort(404)
     return """<!DOCTYPE html> <html>
 <head>
     <title>API Test</title>
@@ -3021,6 +3023,7 @@ def check_barcode():
 
 
 @app.route('/api/products', methods=['POST'])
+@role_required('admin', 'manager')
 def api_add_product():
     try:
         data = request.get_json()
@@ -3281,6 +3284,7 @@ def api_add_product():
 
 # Batch mahsulotlar qo'shish API
 @app.route('/api/batch-products', methods=['POST'])
+@role_required('admin', 'manager')
 def api_batch_products():
     try:
         data = request.get_json()
@@ -4780,7 +4784,7 @@ def api_return_product():
                 stock = StoreStock.query.filter_by(
                     store_id=location_id,
                     product_id=product_id
-                ).first()
+                ).with_for_update().first()
 
                 if stock:
                     stock.quantity += return_quantity
@@ -4799,7 +4803,7 @@ def api_return_product():
                 stock = WarehouseStock.query.filter_by(
                     warehouse_id=location_id,
                     product_id=product_id
-                ).first()
+                ).with_for_update().first()
 
                 if stock:
                     stock.quantity += return_quantity
@@ -6480,6 +6484,7 @@ def api_create_store():
 
 
 @app.route('/add_store', methods=['GET', 'POST'])
+@role_required('admin', 'manager')
 def add_store():
     if request.method == 'POST':
         try:
@@ -6839,6 +6844,7 @@ def api_edit_store(store_id):
 
 
 @app.route('/edit_store/<int:store_id>', methods=['GET', 'POST'])
+@role_required('admin', 'manager')
 def edit_store(store_id):
     store = Store.query.get_or_404(store_id)
 
@@ -7217,6 +7223,7 @@ def api_edit_warehouse(warehouse_id):
 
 
 @app.route('/add_warehouse', methods=['GET', 'POST'])
+@role_required('admin', 'manager')
 def add_warehouse():
     if request.method == 'POST':
         try:
@@ -7267,6 +7274,7 @@ def add_warehouse():
 
 
 @app.route('/edit_warehouse/<int:warehouse_id>', methods=['GET', 'POST'])
+@role_required('admin', 'manager')
 def edit_warehouse(warehouse_id):
     warehouse = Warehouse.query.get_or_404(warehouse_id)
 
@@ -9993,6 +10001,7 @@ def debug_stats():
 
 # Yetim mahsulotlarni tozalash API
 @app.route('/api/cleanup-orphan-products', methods=['POST'])
+@role_required('admin')
 def cleanup_orphan_products():
     try:
         # Hech qayerda stock mavjud bo'lmagan mahsulotlarni topish
@@ -10882,19 +10891,19 @@ def receiver_confirm_transfer(pending_id):
 
             # FROM (omborchi joyi) - received_qty kamaytirish
             if from_type == 'store':
-                stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).first()
+                stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
                 stock.quantity -= received_qty
             elif from_type == 'warehouse':
-                stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).first()
+                stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
                 stock.quantity -= received_qty
 
             # TO (sotuvchi joyi) - received_qty qo'shish
             if to_type == 'store':
-                to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).first()
+                to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).with_for_update().first()
                 if to_stock:
                     to_stock.quantity += received_qty
                 else:
@@ -11031,19 +11040,19 @@ def direct_complete_transfer(pending_id):
 
             # FROM stokdan kamaytirish
             if from_type == 'store':
-                stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).first()
+                stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
                 stock.quantity -= qty
             elif from_type == 'warehouse':
-                stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).first()
+                stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
                 stock.quantity -= qty
 
             # TO stokga qo'shish
             if to_type == 'store':
-                to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).first()
+                to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).with_for_update().first()
                 if to_stock:
                     to_stock.quantity += qty
                 else:
@@ -12937,7 +12946,7 @@ def finalize_sale(sale_id):
         if balance_used_fin > 0:
             final_cid = int(customer_id) if customer_id else sale.customer_id
             if final_cid:
-                fin_customer = Customer.query.get(final_cid)
+                fin_customer = Customer.query.filter_by(id=final_cid).with_for_update().first()
                 if fin_customer:
                     old_bal = Decimal(str(fin_customer.balance or 0))
                     fin_customer.balance = max(Decimal('0'), old_bal - Decimal(str(balance_used_fin)))
@@ -13962,7 +13971,7 @@ def create_sale():
         
         # Mijoz balansidan ushbu savdoda ishlatilgan summani ayirish
         if balance_used > 0 and final_customer_id:
-            sale_customer = Customer.query.get(final_customer_id)
+            sale_customer = Customer.query.filter_by(id=final_customer_id).with_for_update().first()
             if sale_customer:
                 old_bal = Decimal(str(sale_customer.balance or 0))
                 deduct = Decimal(str(balance_used))
@@ -15377,6 +15386,8 @@ def clear_currency_rate_history():
 @app.route('/debug_api.html')
 def debug_api():
     """Debug sahifasi"""
+    if not app.debug:
+        abort(404)
     try:
         with open('debug_api.html', 'r', encoding='utf-8') as f:
             return f.read()
@@ -15417,6 +15428,8 @@ def debug_api():
 @app.route('/header_debug.html')
 def header_debug():
     """Header debug sahifasi"""
+    if not app.debug:
+        abort(404)
     try:
         with open('header_debug.html', 'r', encoding='utf-8') as f:
             return f.read()
@@ -15427,6 +15440,8 @@ def header_debug():
 @app.route('/currency_test.html')
 def currency_test():
     """Currency test sahifasi"""
+    if not app.debug:
+        abort(404)
     try:
         with open('currency_test.html', 'r', encoding='utf-8') as f:
             return f.read()
@@ -15441,6 +15456,7 @@ def migrate_page():
 
 
 @app.route('/api/add-currency-column', methods=['POST'])
+@role_required('admin')
 def add_currency_column():
     """Add currency_rate column to sales table"""
     try:
@@ -15938,6 +15954,7 @@ def api_login():
 
 
 @app.route('/api/forgot-password', methods=['POST'])
+@limiter.limit("5 per minute; 20 per hour")
 def api_forgot_password():
     """1-qadam: Telefon raqam orqali OTP yuborish"""
     try:
@@ -15967,9 +15984,8 @@ def api_forgot_password():
                 'message': f'Telegram bog\'lanmagan. Avval @Sergeli143_bot ga /link_account yozing.'
             }), 400
 
-        # 6 raqamli OTP yaratish va DBga saqlash
-        import random as _random
-        code = str(_random.randint(100000, 999999))
+        # 6 raqamli OTP yaratish va DBga saqlash (kriptografik xavfsiz)
+        code = str(secrets.randbelow(900000) + 100000)
         expires_at = datetime.now() + timedelta(minutes=1)
 
         user.reset_code = code
@@ -16001,6 +16017,7 @@ def api_forgot_password():
 
 
 @app.route('/api/verify-reset-code', methods=['POST'])
+@limiter.limit("10 per minute; 30 per hour")
 def api_verify_reset_code():
     """2-qadam: OTP kodni tekshirish va token qaytarish"""
     try:
