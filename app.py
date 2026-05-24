@@ -1324,6 +1324,8 @@ class User(db.Model):
     telegram_chat_id = db.Column(db.BigInteger, nullable=True)  # Parol tiklash uchun Telegram chat ID
     reset_code = db.Column(db.String(6), nullable=True)
     reset_code_expires_at = db.Column(db.DateTime, nullable=True)
+    reset_token = db.Column(db.String(64), nullable=True)           # Parol tiklash tokeni (DB da)
+    reset_token_expires_at = db.Column(db.DateTime, nullable=True)  # Token muddati
     # admin, sotuvchi, kassir, omborchi, ombor_xodimi
     role = db.Column(db.String(50), nullable=False, default='sotuvchi')
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'), nullable=True)
@@ -2253,7 +2255,7 @@ def api_products():
     # Pagination parametrlar
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)  # Default 50
-    per_page = min(per_page, 20000)  # Maximum 20000 limit (transfer uchun barcha mahsulotlar)
+    per_page = min(per_page, 500)  # Maximum 500 limit (DoS oldini olish uchun)
 
     # Search parameter
     search = request.args.get('search', '', type=str).strip()
@@ -11560,7 +11562,7 @@ def api_add_customer():
         elif phone and not store_id:
             existing = Customer.query.filter(
                 Customer.phone == phone,
-                Customer.store_id == None
+                Customer.store_id.is_(None)
             ).first()
             if existing:
                 return jsonify({
@@ -11884,7 +11886,7 @@ def api_add_user():
         if data.get('phone'):
             clean_new = ''.join(filter(str.isdigit, data['phone']))
             if len(clean_new) >= 9:
-                for u in User.query.filter(User.phone != None, User.phone != '').all():
+                for u in User.query.filter(User.phone.isnot(None), User.phone != '').all():
                     if ''.join(filter(str.isdigit, u.phone))[-9:] == clean_new[-9:]:
                         return jsonify({'error': f'Bu telefon raqam allaqachon {u.username} foydalanuvchisiga biriktirilgan'}), 400
 
@@ -12218,7 +12220,7 @@ def update_user(user_id):
         if data.get('phone'):
             clean_new = ''.join(filter(str.isdigit, data['phone']))
             if len(clean_new) >= 9:
-                for u in User.query.filter(User.id != user_id, User.phone != None, User.phone != '').all():
+                for u in User.query.filter(User.id != user_id, User.phone.isnot(None), User.phone != '').all():
                     if ''.join(filter(str.isdigit, u.phone))[-9:] == clean_new[-9:]:
                         return jsonify({'error': f'Bu telefon raqam allaqachon {u.username} foydalanuvchisiga biriktirilgan'}), 400
 
@@ -12410,7 +12412,7 @@ def api_sales_history():
                 if location_conditions:
                     # Ruxsat berilgan joylashuvlardagi savdolar + NULL location'li savdolar
                     # NULL location'li savdolar ham qo'shiladi (eski savdolar uchun)
-                    location_conditions.append(Sale.location_id is None)
+                    location_conditions.append(Sale.location_id.is_(None))
                     query = query.filter(db.or_(*location_conditions))
                     logger.info(f"ğŸ” Sotuvchi uchun {len(location_conditions) - 1} ta joylashuv + NULL location bo'yicha filtrlash")
                 else:
@@ -12533,7 +12535,7 @@ def api_sales_history():
         # Davrdagi qarzli mijozlar soni (debt_usd > 0 bo'lgan unique customerlar)
         debt_customers_count = stats_filtered_query.filter(
             Sale.debt_usd > 0,
-            Sale.customer_id != None
+            Sale.customer_id.isnot(None)
         ).with_entities(func.count(func.distinct(Sale.customer_id))).scalar() or 0
 
         logger.info(f"ğŸ“Š Jami savdolar: {total_sales_count}")
@@ -15875,7 +15877,7 @@ def internal_server_error(e):
 import threading as _threading
 _reset_codes_lock = _threading.Lock()
 _password_reset_codes = {}   # {phone: {code, user_id, username, expires_at}}
-_reset_tokens = {}           # {token: {user_id, username, expires_at}}
+# _reset_tokens endi DB da saqlanadi (users.reset_token) — multi-worker safe
 
 
 def _cleanup_reset_codes():
@@ -15885,9 +15887,6 @@ def _cleanup_reset_codes():
         for k in list(_password_reset_codes.keys()):
             if _password_reset_codes[k]['expires_at'] < now:
                 del _password_reset_codes[k]
-        for k in list(_reset_tokens.keys()):
-            if _reset_tokens[k]['expires_at'] < now:
-                del _reset_tokens[k]
 
 
 @app.route('/login')
@@ -16156,12 +16155,9 @@ def api_verify_reset_code():
         # Kod to'g'ri â€” bir martalik token yaratish va DBga saqlash
         token = secrets.token_urlsafe(32)
         expires_at = datetime.now() + timedelta(minutes=10)
-        with _reset_codes_lock:
-            _reset_tokens[token] = {
-                'user_id': user.id,
-                'username': user.username,
-                'expires_at': expires_at
-            }
+        # DB ga saqlash — multi-worker safe (in-memory dict emas)
+        user.reset_token = token
+        user.reset_token_expires_at = expires_at
         user.reset_code = None
         user.reset_code_expires_at = None
         db.session.commit()
@@ -16190,15 +16186,16 @@ def api_reset_password():
         if not token:
             return jsonify({'success': False, 'message': 'Token topilmadi'}), 400
 
-        with _reset_codes_lock:
-            entry = _reset_tokens.get(token)
+        # Tokenni DB dan qidirish (multi-worker safe)
+        user = User.query.filter_by(reset_token=token).first()
 
-        if not entry:
+        if not user or not user.reset_token_expires_at:
             return jsonify({'success': False, 'message': 'Token noto\'g\'ri yoki muddati o\'tgan'}), 400
 
-        if datetime.now() > entry['expires_at']:
-            with _reset_codes_lock:
-                _reset_tokens.pop(token, None)
+        if datetime.now() > user.reset_token_expires_at:
+            user.reset_token = None
+            user.reset_token_expires_at = None
+            db.session.commit()
             return jsonify({'success': False, 'message': 'Token muddati o\'tgan, qayta boshlang'}), 400
 
         if len(new_password) < 6:
@@ -16207,17 +16204,12 @@ def api_reset_password():
         if new_password != confirm_password:
             return jsonify({'success': False, 'message': 'Parollar mos kelmadi'}), 400
 
-        user = User.query.get(entry['user_id'])
-        if not user:
-            return jsonify({'success': False, 'message': 'Foydalanuvchi topilmadi'}), 404
-
         user.password = hash_password(new_password)
+        user.reset_token = None
+        user.reset_token_expires_at = None
         db.session.commit()
 
-        with _reset_codes_lock:
-            _reset_tokens.pop(token, None)
-
-        logger.info(f"âœ… Parol tiklandi: {user.username}")
+        logger.info(f"✅ Parol tiklandi: {user.username}")
         return jsonify({'success': True, 'message': 'Parol muvaffaqiyatli yangilandi'})
 
     except Exception as e:
