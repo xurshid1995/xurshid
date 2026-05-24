@@ -4106,17 +4106,21 @@ def api_customer_timeline(customer_id):
         events.sort(key=lambda x: x['date'] or '', reverse=True)
 
         # Qarz va balans (legacy eventlar uchun orqaga hisoblash)
-        current_debt = sum(float(s.debt_usd or 0) for s in Sale.query.filter_by(customer_id=customer_id).all() if float(s.debt_usd or 0) > 0)
-        total_paid_usd = sum(float(p.total_usd or 0) for p in DebtPayment.query.filter_by(customer_id=customer_id).all())
+        # OPTIMIZATION: 5 ta query o'rniga 2 ta query (Sale + DebtPayment bir martadan)
+        all_sales = Sale.query.filter_by(customer_id=customer_id).all()
+        all_payments = DebtPayment.query.filter_by(customer_id=customer_id).all()
 
-        all_payments_map = {p.id: float(p.total_usd or 0) for p in DebtPayment.query.filter_by(customer_id=customer_id).all()}
+        current_debt = sum(float(s.debt_usd or 0) for s in all_sales if float(s.debt_usd or 0) > 0)
+        total_paid_usd = sum(float(p.total_usd or 0) for p in all_payments)
+
+        all_payments_map = {p.id: float(p.total_usd or 0) for p in all_payments}
         sale_linked_payments = {}
-        for p in DebtPayment.query.filter_by(customer_id=customer_id).all():
+        for p in all_payments:
             if p.sale_id:
                 sale_linked_payments[p.sale_id] = sale_linked_payments.get(p.sale_id, 0.0) + float(p.total_usd or 0)
 
         all_sales_map = {s.id: float(s.debt_usd or 0) + sale_linked_payments.get(s.id, 0.0)
-                         for s in Sale.query.filter_by(customer_id=customer_id).all()}
+                         for s in all_sales}
 
         rd = current_debt
         rb = float(customer.balance or 0)
@@ -8809,12 +8813,13 @@ def check_user_status():
                          or request.endpoint == 'api_login')):
                 return
 
-            # P3 fix: Har so'rovda DB ga bormaslik - 60 soniyalik cache
+            # P3 fix: Har so'rovda DB ga bormaslik - 10 soniyalik cache
+            # (admin bloklasa, max 10 soniya ichida foydalanuvchi chiqariladi)
             import time as _time
             _now = _time.time()
             _last_checked = session.get('_session_checked_at', 0)
-            if _now - _last_checked < 60:
-                return  # 60 soniya ichida allaqachon tekshirilgan
+            if _now - _last_checked < 10:
+                return  # 10 soniya ichida allaqachon tekshirilgan
             session['_session_checked_at'] = _now
 
             # Session ID mavjudligini tekshirish
@@ -9088,13 +9093,13 @@ def warehouse_detail(warehouse_id):
 @role_required('admin', 'kassir', 'sotuvchi')
 @location_permission_required('store_id')
 def edit_store_stock(store_id, product_id):
-    print(
-        f"ğŸ” DEBUG: edit_store_stock called with store_id={store_id}, product_id={product_id}")
+    logger.debug(
+        f"edit_store_stock called with store_id={store_id}, product_id={product_id}")
     stock = StoreStock.query.filter_by(
         store_id=store_id,
         product_id=product_id
     ).first_or_404()
-    print(f"ğŸ” DEBUG: Stock found: {stock.product.name}, quantity: {stock.quantity}")
+    logger.debug(f"Stock found: {stock.product.name}, quantity: {stock.quantity}")
 
     # Hisob-kitoblar - to'g'ri cost_price va sell_price dan
     cost_price = stock.product.cost_price
@@ -13571,7 +13576,7 @@ def create_sale():
         # Qarz to'lash muddati
         payment_due_date = None
         payment_due_date_str = data.get('payment_due_date')
-        print(f"ğŸ“… DEBUG: payment_due_date_str = '{payment_due_date_str}', type = {type(payment_due_date_str)}, debt_usd = {debt_usd}")
+        logger.debug(f"payment_due_date_str={payment_due_date_str}, debt_usd={debt_usd}")
         if payment_due_date_str and debt_usd > 0:
             try:
                 from datetime import datetime as dt_parse
@@ -15492,8 +15497,9 @@ def currency_test():
 
 
 @app.route('/migrate')
+@role_required('admin')
 def migrate_page():
-    """Database migration page"""
+    """Database migration page (faqat admin)"""
     return render_template('migrate.html')
 
 
@@ -15665,7 +15671,7 @@ def api_unchecked_products_count():
 
         for product in products:
             is_checked = product.get('isChecked', False)
-            print(f"ğŸ” DEBUG: Product {product.get('name', 'Unknown')}: isChecked = {is_checked}")
+            logger.debug(f"Product {product.get('name', 'Unknown')}: isChecked={is_checked}")
 
             if is_checked:
                 checked_products += 1
