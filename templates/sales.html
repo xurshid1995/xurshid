@@ -2094,7 +2094,8 @@
             successDiv.textContent = '✅ ' + SLANG.customer_added_success;
             successDiv.style.display = 'block';
             
-            // Mijozlar ro'yxatini yangilash
+            // Cache'ni tozalash va mijozlar ro'yxatini yangilash
+            customersCache = null;
             await loadCustomers();
             
             // Yangi mijoz - balans 0
