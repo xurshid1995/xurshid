@@ -2264,9 +2264,11 @@ def api_products():
     location_id = request.args.get('location_id', type=int)
 
     # Base query with eager loading to avoid N+1 problem
+    # selectinload: pagination bilan to'g'ri ishlaydi, joinedload kabi cartesian product yaratmaydi
     query = Product.query.options(
-        db.joinedload(Product.warehouse_stocks),
-        db.joinedload(Product.store_stocks)
+        db.selectinload(Product.warehouse_stocks),
+        db.selectinload(Product.store_stocks),
+        db.joinedload(Product.category)
     )
 
     # Search filter - nom yoki barcode bo'yicha qidirish
@@ -2341,20 +2343,21 @@ def api_products():
 
     # Saralash: Eng ko'p sotilgan mahsulotlar birinchi bo'lishi uchun
     from sqlalchemy import desc, func
-    from sqlalchemy import select as sa_select
 
-    # Correlated subquery: har bir mahsulot uchun joylashuvdagi sotuvlar soni
-    sold_sq = sa_select(func.coalesce(func.count(SaleItem.id), 0)).where(
-        SaleItem.product_id == Product.id
+    # LEFT JOIN aggregate: barcha sotuvlarni BIR MARTA COUNT qiladi
+    # (Correlated subquery edi - har mahsulot uchun alohida COUNT = juda sekin!)
+    sale_count_q = db.session.query(
+        SaleItem.product_id,
+        func.count(SaleItem.id).label('cnt')
     )
     if final_loc_type and final_loc_id:
-        sold_sq = sold_sq.where(
+        sale_count_q = sale_count_q.filter(
             SaleItem.source_type == final_loc_type,
             SaleItem.source_id == final_loc_id
         )
-    sold_sq = sold_sq.correlate(Product).scalar_subquery()
-
-    query = query.order_by(desc(sold_sq))
+    sale_count_sq = sale_count_q.group_by(SaleItem.product_id).subquery()
+    query = query.outerjoin(sale_count_sq, Product.id == sale_count_sq.c.product_id)
+    query = query.order_by(desc(func.coalesce(sale_count_sq.c.cnt, 0)))
 
     # Get paginated results
     paginated = query.paginate(
@@ -2375,8 +2378,9 @@ def api_products():
     if search and len(search) >= 2:
         logger.debug(f"ğŸ” Smart sort+fuzzy (api_products): '{search}'")
         base_query = Product.query.options(
-            db.joinedload(Product.warehouse_stocks),
-            db.joinedload(Product.store_stocks)
+            db.selectinload(Product.warehouse_stocks),
+            db.selectinload(Product.store_stocks),
+            db.joinedload(Product.category)
         )
         if final_loc_type and final_loc_id:
             if final_loc_type == 'warehouse':
