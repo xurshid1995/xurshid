@@ -493,8 +493,12 @@
 
     // Sahifa yuklanganda
     document.addEventListener('DOMContentLoaded', function() {
+        // sotuvchi uchun boshlang'ich locationni O'RNATIB OLISH (ikki marta yuklanishini oldini olish)
+        if (userStoreId && userRole === 'sotuvchi') {
+            currentLocation = `store_${userStoreId}`;
+        }
         loadProductCurrencyRate();
-        loadProducts();
+        loadProducts(1, '', currentLocation);
         loadCategoryButtons();
         
         // Qidiruv maydoniga fokus berish
@@ -673,8 +677,8 @@
                 locationButtons.appendChild(button);
             });
             
-            // Agar foydalanuvchi ma'lum dokoniga biriktirilgan bo'lsa VA user o'zi location tanlamagan bo'lsa VA current location 'all' bo'lsa, avtomatik tanlash
-            if (userStoreId && userRole === 'sotuvchi' && !userExplicitlySelectedLocation && currentLocation === 'all' && allProducts.length > 0) {
+            // Sotuvchi uchun tugmani highlight qilish (loadProducts chaqirmasdan - allaqachon to'g'ri location bilan yuklangan)
+            if (userStoreId && userRole === 'sotuvchi' && !userExplicitlySelectedLocation) {
                 const userStoreButton = locationButtons.querySelector(`[data-location="store_${userStoreId}"]`);
                 if (userStoreButton) {
                     // Barcha tugmalardan active classini olib tashlash
@@ -684,15 +688,9 @@
                     
                     // Foydalanuvchi dokonini active qilish
                     userStoreButton.classList.add('active');
+                    currentLocation = `store_${userStoreId}`;
                     
-                    console.log('🎯 Sotuvchi uchun avtomatik dokon tanlandi:', userStoreButton.textContent);
-                    
-                    // Dokon bilan sahifani qayta yuklash
-                    const storeLocation = `store_${userStoreId}`;
-                    currentLocation = storeLocation;
-                    setTimeout(() => {
-                        loadProducts(1, currentSearch, storeLocation);
-                    }, 100);
+                    console.log('🎯 Sotuvchi tugmasi highlight qilindi (qayta yuklanmaydi):', userStoreButton.textContent);
                 } else {
                     // Agar user dokon tugmasi topilmasa, "Barcha joylar"ni active qilish
                     const allButton = locationButtons.querySelector('[data-location="all"]');
