@@ -1,4 +1,6 @@
-﻿/* Modern CSS stillari */
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Modern CSS stillari */
 
 * {
     margin: 0;
@@ -23,7 +25,7 @@ body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #374151;
-    background: #f3f4f8;
+    background: #f0f4ff;
     display: flex;
     margin: 0;
     padding: 0;
