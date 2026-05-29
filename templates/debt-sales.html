@@ -3240,13 +3240,26 @@ function initializeCompactView() {
         } else {
             tableContainer.classList.remove('compact-mode');
             console.log('❌ Compact mode o\'chirildi');
-            // Oddiy formatda qayta yuklash - hozirgi filtrlangan ma'lumotlarni ishlatish
+            // Oddiy formatda qayta yuklash - statistikani o'zgartirmay faqat jadvalni yangilash
             if (filteredSalesData && filteredSalesData.length > 0) {
+                // Statistika elementlarini saqlab qolish
+                const savedTotalSales = document.getElementById('totalSales').textContent;
+                const savedTotalRevenue = document.getElementById('totalRevenue').innerHTML;
+                const totalProfitEl = document.getElementById('totalProfit');
+                const savedTotalProfit = totalProfitEl ? totalProfitEl.innerHTML : null;
+
                 displaySalesData({
                     sales: filteredSalesData,
                     statistics: getCurrentStats(),
                     isFiltered: true
                 });
+
+                // Statistikani tiklash
+                document.getElementById('totalSales').textContent = savedTotalSales;
+                document.getElementById('totalRevenue').innerHTML = savedTotalRevenue;
+                if (totalProfitEl && savedTotalProfit !== null) {
+                    totalProfitEl.innerHTML = savedTotalProfit;
+                }
             } else {
                 loadSalesHistory();
             }
