@@ -52,8 +52,15 @@
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
             <span style="font-size:13px; color:#888; margin-right:2px;">Kategoriya:</span>
-            <button onclick="setCategory('all')" id="cat-all" class="hr-btn hr-btn-active">Hammasi</button>
-            <span id="all-cat-btns"></span>
+            <!-- Desktop: tugmalar -->
+            <div id="cat-btns-desktop" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                <button onclick="setCategory('all')" id="cat-all" class="hr-btn hr-btn-active">Hammasi</button>
+                <span id="all-cat-btns"></span>
+            </div>
+            <!-- Mobil: dropdown -->
+            <select id="cat-mobile-select" onchange="setCategory(this.value)" style="display:none; padding:7px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; background:#f8fafc; color:#1e293b; outline:none; min-width:140px;">
+                <option value="all">Hammasi</option>
+            </select>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
             {% if session.role != 'sotuvchi' %}<button onclick="openSettingsModal()" class="hr-btn" style="padding:7px 12px; font-size:13px; display:flex; align-items:center; gap:5px;" title="Kategoriyalarni boshqarish"><span style="font-size:15px;">⚙️</span> Kategoriya sozlamalari</button>{% endif %}
@@ -355,6 +362,8 @@ function setCategory(cat) {
     document.querySelectorAll('[id^="cat-"]').forEach(b => b.classList.remove('hr-btn-active'));
     const el = document.getElementById('cat-' + cat);
     if (el) el.classList.add('hr-btn-active');
+    const mSel = document.getElementById('cat-mobile-select');
+    if (mSel) mSel.value = cat;
     loadExpenses();
 }
 
@@ -631,7 +640,30 @@ function renderCatButtons() {
         const el = document.getElementById('cat-' + currentCategory);
         if (el) el.classList.add('hr-btn-active');
     }
+    // Mobil dropdown ni yangilash
+    const mSel = document.getElementById('cat-mobile-select');
+    if (mSel) {
+        mSel.innerHTML = '<option value="all">Hammasi</option>';
+        allCategories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = getCatEmoji(cat) + ' ' + cat;
+            mSel.appendChild(opt);
+        });
+        mSel.value = currentCategory;
+    }
+    applyMobileCatView();
 }
+
+function applyMobileCatView() {
+    const isMobile = window.innerWidth < 640;
+    const desk = document.getElementById('cat-btns-desktop');
+    const mob = document.getElementById('cat-mobile-select');
+    if (!desk || !mob) return;
+    desk.style.display = isMobile ? 'none' : 'flex';
+    mob.style.display = isMobile ? 'block' : 'none';
+}
+window.addEventListener('resize', applyMobileCatView);
 
 function renderCategorySelect() {
     const sel = document.getElementById('inp-category');
