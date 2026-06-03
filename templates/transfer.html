@@ -771,7 +771,7 @@
         ];
         const statusOrder = ['draft','sent','picking','dispatched','completed'];
         const currentIdx = statusOrder.indexOf(status);
-        const colors = { done: '#16a34a', active: '#2563eb', pending: '#d1d5db' };
+        const colors = { done: '#16a34a', active: '#1a6eff', pending: '#d1d5db' };
         let barHtml = '';
         steps.forEach((step, i) => {
             const isDone   = i < currentIdx;

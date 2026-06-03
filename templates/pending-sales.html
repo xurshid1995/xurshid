@@ -179,7 +179,7 @@
     width: 18px; height: 18px; background: white; border-radius: 50%;
     transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
-.ps-toggle input:checked + .ps-toggle-slider { background: #2563eb; }
+.ps-toggle input:checked + .ps-toggle-slider { background: #1a6eff; }
 .ps-toggle input:checked + .ps-toggle-slider:before { transform: translateX(20px); }
 .ps-toggle-label { font-size: 13px; color: #64748b; font-weight: 500; }
 
@@ -207,7 +207,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 22px; flex-shrink: 0;
 }
-.ps-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+.ps-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
 .ps-icon-amber { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
 .ps-icon-green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
 .ps-stat-body { display: flex; flex-direction: column; gap: 4px; }
@@ -259,10 +259,10 @@
     padding: 9px 14px; cursor: pointer; font-size: 13px;
     border-bottom: 1px solid #f1f5f9; transition: background 0.15s;
 }
-.customer-option:hover, .location-option:hover { background: #eff6ff; color: #2563eb; }
+.customer-option:hover, .location-option:hover { background: #eff6ff; color: #1a6eff; }
 .customer-option:last-child, .location-option:last-child { border-bottom: none; }
-.customer-option.selected, .location-option.selected { background: #2563eb; color: white; }
-.customer-option.keyboard-focused, .location-option.keyboard-focused { background: #1d4ed8; color: white; }
+.customer-option.selected, .location-option.selected { background: #1a6eff; color: white; }
+.customer-option.keyboard-focused, .location-option.keyboard-focused { background: #1558d6; color: white; }
 .location-group-label {
     padding: 5px 14px; font-size: 10px; font-weight: 700;
     color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;
@@ -273,7 +273,7 @@
 .ps-results-info {
     background: #eff6ff; border: 1px solid #bfdbfe;
     border-radius: 10px; padding: 8px 14px; margin-bottom: 16px;
-    font-size: 13px; color: #1d4ed8; font-weight: 500;
+    font-size: 13px; color: #1558d6; font-weight: 500;
 }
 
 /* ── Table Card ── */
@@ -292,7 +292,7 @@
     display: flex; align-items: center; gap: 10px;
     font-size: 15px; font-weight: 700; color: #1e293b;
 }
-.ps-table-title i { color: #2563eb; font-size: 16px; }
+.ps-table-title i { color: #1a6eff; font-size: 16px; }
 
 .ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
@@ -398,7 +398,7 @@
     font-weight: 500; transition: all 0.2s;
 }
 .pagination-btn:hover:not(.active) { background: #f1f5f9; border-color: #94a3b8; }
-.pagination-btn.active { background: #2563eb; color: white; border-color: #2563eb; font-weight: 700; }
+.pagination-btn.active { background: #1a6eff; color: white; border-color: #1a6eff; font-weight: 700; }
 .pagination-dots { padding: 6px 4px; color: #94a3b8; font-weight: bold; }
 
 /* ── Action buttons ── */
@@ -408,8 +408,8 @@
     transition: all 0.18s; display: flex; align-items: center; justify-content: center;
     width: 30px; height: 28px; line-height: 1;
 }
-.btn-edit   { color: #2563eb; background: rgba(37,99,235,0.08); }
-.btn-edit:hover   { background: #2563eb; color: white; transform: scale(1.1); }
+.btn-edit   { color: #1a6eff; background: rgba(37,99,235,0.08); }
+.btn-edit:hover   { background: #1a6eff; color: white; transform: scale(1.1); }
 .btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
 .btn-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
 .btn-view   { color: #059669; background: rgba(5,150,105,0.08); }
@@ -586,19 +586,19 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     border-radius: 8px; font-size: 14px; box-sizing: border-box; transition: all 0.2s; outline: none;
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    border-color: #1a6eff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 .readonly-field { background: #f8fafc !important; color: #94a3b8 !important; cursor: not-allowed !important; }
 .total-display {
     text-align: center; padding: 14px; background: #eff6ff;
-    border-radius: 8px; margin-top: 14px; font-size: 16px; color: #2563eb; font-weight: 700;
+    border-radius: 8px; margin-top: 14px; font-size: 16px; color: #1a6eff; font-weight: 700;
 }
 .btn {
     padding: 9px 20px; border: none; border-radius: 8px; cursor: pointer;
     font-size: 14px; font-weight: 600; display: inline-block; text-align: center; transition: all 0.2s;
 }
-.btn-primary { background: #2563eb; color: white; }
-.btn-primary:hover { background: #1d4ed8; }
+.btn-primary { background: #1a6eff; color: white; }
+.btn-primary:hover { background: #1558d6; }
 .btn-secondary { background: #e2e8f0; color: #475569; }
 .btn-secondary:hover { background: #cbd5e1; }
 .btn-print { background: #059669; color: white; border: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 5px; transition: background 0.2s; font-weight: 600; }
@@ -608,11 +608,11 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 .sale-main-info {
     display: flex; justify-content: center; align-items: center;
     background: #eff6ff; padding: 14px 20px; border-radius: 10px;
-    margin-bottom: 18px; border-left: 4px solid #2563eb; gap: 8px; flex-wrap: wrap; text-align: center;
+    margin-bottom: 18px; border-left: 4px solid #1a6eff; gap: 8px; flex-wrap: wrap; text-align: center;
 }
 .customer-label, .date-label { font-weight: 500; color: #64748b; font-size: 14px; }
 .date-separator { font-size: 18px; color: #94a3b8; margin: 0 8px; }
-.date-value { font-weight: 700; color: #2563eb; font-size: 15px; }
+.date-value { font-weight: 700; color: #1a6eff; font-size: 15px; }
 .sale-info { background: #f8fafc; padding: 14px; border-radius: 10px; margin-bottom: 16px; }
 .info-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #e2e8f0; }
 .info-row:last-child { border-bottom: none; }

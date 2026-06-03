@@ -1072,7 +1072,7 @@
                                 <div style="margin-bottom: 6px;">${getPaymentStatusBadge(sale)}</div>
                                 <div style="display: flex; flex-direction: column; gap: 3px; font-size: 12px;">
                                     ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">💵 Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.click_usd > 0 ? `<span style="color:#2563eb;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
                                     ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">💳 Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
                                     ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">📝 Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
                                     <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">💰 Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>
@@ -1134,13 +1134,13 @@
                         </div>
 
                         <div style="margin-top: 16px; background: #f8faff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px;">
-                            <div style="font-weight: 600; color: #1e40af; margin-bottom: 12px; font-size: 14px;">💸 Qaytarish turini tanlang:</div>
+                            <div style="font-weight: 600; color: #1557cc; margin-bottom: 12px; font-size: 14px;">💸 Qaytarish turini tanlang:</div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #10b981; background: #ecfdf5; font-weight: 600; color: #065f46; font-size: 14px;">
                                     <input type="radio" name="refundType_${sale.id}" value="cash" style="accent-color: #10b981; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> 💵 Naxt pul
                                 </label>
                                 ${sale.customer_id ? `
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #3b82f6; background: #eff6ff; font-weight: 600; color: #1e40af; font-size: 14px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #3b82f6; background: #eff6ff; font-weight: 600; color: #1557cc; font-size: 14px;">
                                     <input type="radio" name="refundType_${sale.id}" value="balance" style="accent-color: #3b82f6; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> 🏦 Mijoz balansiga
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #dc2626; background: #fef2f2; font-weight: 600; color: #991b1b; font-size: 14px;">
@@ -1656,7 +1656,7 @@
                                 <div style="margin-bottom: 6px;">${getPaymentStatusBadge(sale)}</div>
                                 <div style="display: flex; flex-direction: column; gap: 3px; font-size: 12px;">
                                     ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">💵 Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.click_usd > 0 ? `<span style="color:#2563eb;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
                                     ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">💳 Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
                                     ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">📝 Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
                                     <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">💰 Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>

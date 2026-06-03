@@ -15,7 +15,7 @@
         margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
     }
     .cs-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
-    .cs-title i { color: #2563eb; margin-right: 6px; }
+    .cs-title i { color: #1a6eff; margin-right: 6px; }
     .cs-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .cs-grid {
@@ -100,7 +100,7 @@
         display: inline-flex; align-items: center; justify-content: center;
         line-height: 1; padding: 0;
     }
-    .cs-btn-action:hover { background: #2563eb; }
+    .cs-btn-action:hover { background: #1a6eff; }
     .cs-btn-edit {
         background: none;
         border: none;
@@ -129,7 +129,7 @@
         color: #475569; border-radius: 8px; font-size: 12px; font-weight: 500;
         cursor: pointer; transition: all 0.2s;
     }
-    .cs-page-btn:hover:not(:disabled) { background: #2563eb; color: white; border-color: #2563eb; }
+    .cs-page-btn:hover:not(:disabled) { background: #1a6eff; color: white; border-color: #1a6eff; }
     .cs-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     @media (max-width: 900px) {
@@ -158,7 +158,7 @@
         100% { background-position: 0% 50%; }
     }
     #finishProgressBar {
-        background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb);
+        background: linear-gradient(90deg, #1a6eff, #06b6d4, #1a6eff);
         background-size: 200% 100%;
         animation: progressPulse 1.5s ease infinite;
     }
@@ -241,7 +241,7 @@
                        class="ps-input" style="flex:1; min-width:120px;">
                 <div class="cs-filter-btns" style="display:flex; gap:5px; flex-wrap:nowrap;">
                     <button onclick="filterChecked('all')" id="filterAll" class="cs-filter-btn"
-                            style="background:#2563eb; color:white;">
+                            style="background:#1a6eff; color:white;">
                         📊 {{ t('css_filter_checked') }} <span id="allCount" style="background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:50px; margin-left:3px;">0</span>
                     </button>
                     <button onclick="filterChecked('error')" id="filterError" class="cs-filter-btn"
@@ -294,7 +294,7 @@
             <div style="background:#f8fafc; border-radius:12px; padding:18px; margin-bottom:20px; border:1px solid #e2e8f0;">
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center;">
                     <div style="background:white; border-radius:10px; padding:12px; border:1.5px solid #e2e8f0;">
-                        <div style="font-size:22px; font-weight:800; color:#2563eb;" id="fcTotalCount">0</div>
+                        <div style="font-size:22px; font-weight:800; color:#1a6eff;" id="fcTotalCount">0</div>
                         <div style="font-size:11px; color:#64748b; margin-top:2px; font-weight:600;">TEKSHIRILDI</div>
                     </div>
                     <div style="background:white; border-radius:10px; padding:12px; border:1.5px solid #fee2e2;">
@@ -314,7 +314,7 @@
                 Tekshiruvni yakunlash tizim miqdorlarini haqiqiy miqdorlar bilan yangilaydi. Davom etishni tasdiqlang.
             </p>
             <div style="display:flex; gap:10px;">
-                <button onclick="finishStep2()" style="flex:1; background:#2563eb; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                <button onclick="finishStep2()" style="flex:1; background:#1a6eff; color:white; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
                     Davom etish →
                 </button>
                 <button onclick="closeFinishModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
@@ -366,7 +366,7 @@
             <!-- Foiz va progress bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:12px; color:#64748b;">Jarayon</span>
-                <span id="finishProgressPct" style="font-size:14px; font-weight:700; color:#2563eb;">0%</span>
+                <span id="finishProgressPct" style="font-size:14px; font-weight:700; color:#1a6eff;">0%</span>
             </div>
             <div style="background:#e2e8f0; border-radius:999px; height:10px; overflow:hidden; margin-bottom:18px;">
                 <div id="finishProgressBar" style="height:100%; border-radius:999px; width:0%; transition:width 0.4s ease;"></div>
@@ -1224,7 +1224,7 @@ function showFinishProgress(text, barPct) {
         document.getElementById('finishProgressBar').style.background =
             barPct >= 100 ? '#059669' : '';
         document.getElementById('finishProgressPct').style.color =
-            barPct >= 100 ? '#059669' : '#2563eb';
+            barPct >= 100 ? '#059669' : '#1a6eff';
     }, 50);
 }
 

@@ -149,8 +149,8 @@
     gap: 4px;
 }
 
-.btn-view { background: #2563eb; color: white; }
-.btn-view:hover { background: #1d4ed8; transform: translateY(-1px); }
+.btn-view { background: #1a6eff; color: white; }
+.btn-view:hover { background: #1558d6; transform: translateY(-1px); }
 
 .btn-edit { background: #d97706; color: white; }
 .btn-edit:hover { background: #b45309; transform: translateY(-1px); }
@@ -242,7 +242,7 @@
 }
 .modal-input-group input:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #1a6eff;
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 .modal-input-group input.error { border-color: #ef4444; }
@@ -329,7 +329,7 @@
 <!-- Page Header -->
 <div class="ps-header">
     <h1 class="ps-title"><i class="fas fa-warehouse"></i> {{ t('heading_warehouses') }}</h1>
-    <button onclick="openAddWarehouseModal()" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+    <button onclick="openAddWarehouseModal()" style="background: #1a6eff; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1558d6'" onmouseout="this.style.background='#1a6eff'">
         <span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_add_warehouse') }}
     </button>
 </div>
@@ -406,7 +406,7 @@
 <div id="addWarehouseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
     <div style="background:white; border-radius:16px; padding:28px; width:480px; max-width:92vw; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
-            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-warehouse" style="color:#2563eb; margin-right:8px;"></i>{{ t('heading_add_warehouse') }}</h4>
+            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-warehouse" style="color:#1a6eff; margin-right:8px;"></i>{{ t('heading_add_warehouse') }}</h4>
             <button onclick="closeAddWarehouseModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px;">&times;</button>
         </div>
         <div style="display:flex; flex-direction:column; gap:14px;">
@@ -682,7 +682,7 @@
         const btn  = document.getElementById('awSaveBtn');
         const ok   = name.length > 0 && addr.length > 0 && mgr.length > 0;
         btn.disabled = !ok;
-        btn.style.background = ok ? '#2563eb' : '#94a3b8';
+        btn.style.background = ok ? '#1a6eff' : '#94a3b8';
         btn.style.cursor = ok ? 'pointer' : 'not-allowed';
     }
     function saveNewWarehouse() {

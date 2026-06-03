@@ -1,4 +1,4 @@
-﻿/* Inter font - lokal (Google Fonts CDN ishlatilmaydi) */
+/* Inter font - lokal (Google Fonts CDN ishlatilmaydi) */
 @font-face {
     font-family: 'Inter';
     font-style: normal;
@@ -43,6 +43,44 @@
 }
 
 /* Modern CSS stillari */
+
+/* ============================================================
+   DESIGN TOKENS — markazlashtirilgan rang/masofa o'zgaruvchilari
+   Bir joydan butun sayt dizaynini boshqarish uchun.
+   ============================================================ */
+:root {
+    /* Asosiy ko'k (brand) */
+    --color-primary: #1a6eff;
+    --color-primary-dark: #1558d6;
+    --color-primary-darker: #1557cc;
+    --color-primary-soft: rgba(26, 110, 255, 0.1);
+
+    /* Holat ranglari */
+    --color-success: #059669;
+    --color-danger: #ef4444;
+    --color-warning: #f59e0b;
+    --color-indigo: #6366f1;
+
+    /* Matn va fon */
+    --color-text: #374151;
+    --color-text-dark: #1e293b;
+    --color-sidebar-bg: #0f172a;
+    --color-bg: #f0f4ff;
+
+    /* Masofa shkalasi (4px grid) */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+
+    /* Burchak radiusi */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+}
 
 * {
     margin: 0;
@@ -530,7 +568,7 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: #1a6eff;
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
@@ -675,7 +713,7 @@ input[name="price"] {
     background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 8px;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #1a6eff;
 }
 
 .tip-item h4 {
@@ -696,7 +734,7 @@ input[name="price"] {
 
 .tip-item li::before {
     content: '•';
-    color: #3498db;
+    color: #1a6eff;
     font-weight: bold;
     position: absolute;
     left: 0;
@@ -715,7 +753,7 @@ input[name="price"] {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #1a6eff;
 }
 
 .info-card h4 {
@@ -1057,7 +1095,7 @@ footer {
     align-items: center;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid #1a6eff;
 }
 
 .store-name {
@@ -1109,7 +1147,7 @@ footer {
 }
 
 .btn-view {
-    background-color: #3498db;
+    background-color: #1a6eff;
     color: white;
 }
 
@@ -1772,7 +1810,7 @@ footer {
     
     /* Sale items uchun card style */
     .sales-table tr.sale-group-header {
-        background: #3498db;
+        background: #1a6eff;
         color: white;
     }
     
@@ -1818,7 +1856,7 @@ footer {
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-        border-color: #3498db;
+        border-color: #1a6eff;
         box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
         outline: none;
     }
@@ -2017,7 +2055,7 @@ footer {
         padding: 15px;
         margin-bottom: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-left: 5px solid #3498db;
+        border-left: 5px solid #1a6eff;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;

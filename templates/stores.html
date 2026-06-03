@@ -58,7 +58,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 22px; flex-shrink: 0;
 }
-.ps-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+.ps-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
 .ps-icon-amber { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
 .ps-icon-green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
 .ps-icon-purple { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
@@ -121,7 +121,7 @@
     width: 42px; height: 42px;
     border-radius: 12px;
     background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    color: #2563eb;
+    color: #1a6eff;
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
@@ -200,7 +200,7 @@
 }
 
 .btn-view {
-    background: #2563eb;
+    background: #1a6eff;
     color: white;
 }
 
@@ -298,7 +298,7 @@
 }
 .modal-input-group input:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #1a6eff;
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 .modal-input-group input.error { border-color: #ef4444; }
@@ -393,7 +393,7 @@
 <!-- Page Header -->
 <div class="ps-header">
     <h1 class="ps-title"><i class="fas fa-store"></i> {{ t('heading_stores') }}</h1>
-    <button onclick="openAddStoreModal()" style="background: #2563eb; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+    <button onclick="openAddStoreModal()" style="background: #1a6eff; color: white; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: all 0.2s;" onmouseover="this.style.background='#1558d6'" onmouseout="this.style.background='#1a6eff'">
         <span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_add_store') }}
     </button>
 </div>
@@ -457,7 +457,7 @@
         <i class="fas fa-store"></i>
         <h3>{{ t('empty_stores') }}</h3>
         <p>{{ t('empty_stores_msg') }}</p>
-        <button onclick="openAddStoreModal()" style="background: #2563eb; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <button onclick="openAddStoreModal()" style="background: #1a6eff; color: white; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fas fa-plus"></i> {{ t('btn_add_first_store') }}
         </button>
     </div>
@@ -517,7 +517,7 @@
 <div id="addStoreModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
     <div style="background:white; border-radius:16px; padding:28px; width:480px; max-width:92vw; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
-            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-store" style="color:#2563eb; margin-right:8px;"></i>{{ t('heading_add_store') }}</h4>
+            <h4 style="margin:0; color:#1e293b; font-weight:700; font-size:17px;"><i class="fas fa-store" style="color:#1a6eff; margin-right:8px;"></i>{{ t('heading_add_store') }}</h4>
             <button onclick="closeAddStoreModal()" style="background:#f1f5f9; border:none; font-size:20px; cursor:pointer; color:#64748b; width:34px; height:34px; border-radius:8px;">&times;</button>
         </div>
 
@@ -735,7 +735,7 @@
         const btn = document.getElementById('asSaveBtn');
         const ok = name.length > 0 && address.length > 0 && manager.length > 0;
         btn.disabled = !ok;
-        btn.style.background = ok ? '#2563eb' : '#94a3b8';
+        btn.style.background = ok ? '#1a6eff' : '#94a3b8';
         btn.style.cursor = ok ? 'pointer' : 'not-allowed';
     }
 
@@ -767,7 +767,7 @@
                 errEl.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
-                btn.style.background = '#2563eb';
+                btn.style.background = '#1a6eff';
                 btn.style.cursor = 'pointer';
             }
         } catch (e) {
@@ -776,7 +776,7 @@
             errEl.style.display = 'block';
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
-            btn.style.background = '#2563eb';
+            btn.style.background = '#1a6eff';
             btn.style.cursor = 'pointer';
         }
     }

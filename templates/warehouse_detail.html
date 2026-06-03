@@ -71,7 +71,7 @@
 .ps-icon-slate  { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #475569; }
 .ps-icon-amber  { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
 .ps-icon-green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
-.ps-icon-blue   { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+.ps-icon-blue   { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
 .ps-icon-cyan   { background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891b2; }
 .ps-stat-label  { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 .ps-stat-number { font-size: 1.4rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
@@ -184,7 +184,7 @@
     transition: opacity 0.15s; white-space: nowrap;
 }
 .btn-action:hover { opacity: 0.85; }
-.btn-action-edit   { background: #3498db; color: white; }
+.btn-action-edit   { background: #1a6eff; color: white; }
 .btn-action-delete { background: #e74c3c; color: white; }
 .actions { white-space: nowrap; }
 
@@ -624,7 +624,7 @@
             <tr>
                 <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #1a6eff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
                         ${WDLANG.loading}
                     </div>
                 </td>
@@ -720,7 +720,7 @@
                 <td class="td-left"><strong>${highlightedName}</strong></td>
                 <td style="font-weight:700;">${quantityDisplay}</td>
                 <td style="font-weight:700;color:#d97706;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>
-                <td style="font-weight:700;color:#2563eb;">$${item.stock.product.cost_price.toFixed(2)}</td>
+                <td style="font-weight:700;color:#1a6eff;">$${item.stock.product.cost_price.toFixed(2)}</td>
                 <td style="font-weight:700;">$${item.stock.product.sell_price.toFixed(2)}</td>
                 <td style="font-weight:700;color:#059669;">$${item.unit_profit.toFixed(2)}</td>
                 <td style="font-weight:700;color:#0891b2;">${item.profit_percentage.toFixed(1)}%</td>
