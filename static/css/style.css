@@ -595,22 +595,22 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, #059669, #16a34a);
 }
 
 .btn-danger {
-    background: #e74c3c !important;
-    border-color: #c0392b !important;
+    background: #ef4444 !important;
+    border-color: #dc2626 !important;
 }
 
 .btn-danger:hover {
-    background: #c0392b !important;
-    border-color: #a93226 !important;
+    background: #dc2626 !important;
+    border-color: #b91c1c !important;
 }
 
 .btn-success:hover {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+    background: linear-gradient(135deg, #16a34a, #059669);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 /* Decimal ma'lumotlari */
@@ -925,11 +925,11 @@ input[name="price"] {
     display: inline-block;
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     text-decoration: none;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: all 0.25s ease;
     margin-right: 0.5rem;
 }
 
@@ -945,20 +945,20 @@ input[name="price"] {
 }
 
 .btn-success {
-    background-color: #27ae60;
+    background-color: #059669;
     color: white;
 }
 
 .btn-success:hover {
-    background-color: #229954;
+    background-color: #047857;
 }
 
 .btn-secondary {
-    background: #95a5a6;
+    background: #64748b;
     color: white;
     text-decoration: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
     border: none;
@@ -966,17 +966,17 @@ input[name="price"] {
 }
 
 .btn-secondary:hover {
-    background: #7f8c8d;
+    background: #475569;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-warning {
-    background: #f39c12;
+    background: #f59e0b;
     color: white;
     text-decoration: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
     border: none;
@@ -984,7 +984,7 @@ input[name="price"] {
 }
 
 .btn-warning:hover {
-    background: #e67e22;
+    background: #d97706;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -1152,25 +1152,25 @@ footer {
 }
 
 .btn-view:hover {
-    background-color: #2980b9;
+    background-color: #1558d6;
 }
 
 .btn-edit {
-    background-color: #f39c12;
+    background-color: #f59e0b;
     color: white;
 }
 
 .btn-edit:hover {
-    background-color: #e67e22;
+    background-color: #d97706;
 }
 
 .btn-delete {
-    background-color: #e74c3c;
+    background-color: #ef4444;
     color: white;
 }
 
 .btn-delete:hover {
-    background-color: #c0392b;
+    background-color: #dc2626;
 }
 
 /* CACHE KILLER FOR WAREHOUSE ISSUE - v3.0 FINAL FIX */
@@ -1212,12 +1212,12 @@ footer {
 }
 
 .btn-cancel {
-    background: #95a5a6;
+    background: #64748b;
     color: white;
 }
 
 .btn-cancel:hover {
-    background: #7f8c8d;
+    background: #475569;
     transform: translateY(-2px);
 }
 
