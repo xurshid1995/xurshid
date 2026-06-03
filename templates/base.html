@@ -120,26 +120,26 @@
         <ul class="sidebar-menu">
             <li>
                 <a href="/" {% if request.endpoint == 'index' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/home.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">🏠</span>
                     <span>{{ t('dashboard') }}</span>
                 </a>
             </li>
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/sales" {% if request.endpoint == 'sales' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/shopping-cart.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">🛒</span>
                     <span>{{ t('sales') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/sales-history" {% if request.endpoint == 'sales_history' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/purchase-order.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-total-sales-94.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('sales_history') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/pending-sales" {% if request.endpoint == 'pending_sales' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/hourglass.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">⏳</span>
                     <span>{{ t('pending_sales') }}</span>
                     {% if pending_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_sales_count }}</span>
@@ -148,7 +148,7 @@
             </li>
             <li>
                 <a href="/debt-sales" {% if request.endpoint == 'debt_sales' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/cheque.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">💳</span>
                     <span>{{ t('debt_sales') }}</span>
                     {% if debt_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ debt_sales_count }}</span>
@@ -158,13 +158,13 @@
             {% endif %}
             <li>
                 <a href="/products" {% if request.endpoint == 'products_list' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/parcel.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">📦</span>
                     <span>{{ t('products') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/transfer" {% if request.endpoint == 'transfer' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/transfer.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-transfer-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('transfer') }}</span>
                     {% if pending_transfer_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_transfer_count }}</span>
@@ -174,21 +174,21 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/return-product" {% if request.endpoint == 'return_product' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/return-purchase.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">↩️</span>
                     <span>{{ t('return_product') }}</span>
                 </a>
             </li>
             {% endif %}
             <li>
                 <a href="/operations-history" {% if request.endpoint == 'operations_history' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/activity-history.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">📜</span>
                     <span>{{ t('operations_history') }}</span>
                 </a>
             </li>
             {% if session.role == 'omborchi' or session.role not in ['sotuvchi', 'omborchi'] or (session.role == 'sotuvchi' and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/checklist.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">📋</span>
                     <span>{{ t('check_stock') }}</span>
                     {% if stock_check_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ stock_check_count }}</span>
@@ -198,14 +198,14 @@
             {% endif %}
             <li>
                 <a href="/xarajatlar" {% if request.endpoint == 'xarajatlar' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/money-bag.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">💸</span>
                     <span>Xarajatlar</span>
                 </a>
             </li>
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/hisobot" {% if request.endpoint == 'hisobot' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/combo-chart.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="/static/images/icons8-analytics-fluent-96.png" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('reports') }}</span>
                 </a>
             </li>
@@ -213,7 +213,7 @@
             {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/add_product" {% if request.endpoint in ('add_product', 'add_product_session') %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/add-shopping-cart.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">➕</span>
                     <span>{{ t('add_product') }}</span>
                     {% if pending_product_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_product_count }}</span>
@@ -224,13 +224,13 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/shop.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-shop-94.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('stores') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/warehouses" {% if request.endpoint == 'warehouses' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/warehouse.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-hangar-3d-fluency-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('warehouses') }}</span>
                 </a>
             </li>
@@ -238,13 +238,13 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/refund.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-credit-card-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('debts') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/customers" {% if request.endpoint == 'customers' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/conference.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="https://img.icons8.com/fluency/96/conference.png" alt="Customers" style="width: 20px; height: 20px;"></span>
                     <span>{{ t('customers') }}</span>
                 </a>
             </li>
@@ -252,13 +252,13 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/users" {% if request.endpoint == 'users' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/administrator-male.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="https://img.icons8.com/fluency/96/administrator-male.png" alt="Users" style="width: 20px; height: 20px;"></span>
                     <span>{{ t('users') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/currency-rate" {% if request.endpoint == 'currency_rate' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/currency-exchange.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">💱</span>
                     <span>{{ t('currency_rate') }}</span>
                 </a>
             </li>
@@ -266,7 +266,7 @@
             {% if session.role in ['admin', 'manager'] %}
             <li>
                 <a href="/settings" {% if request.endpoint == 'settings_page' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/settings.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">⚙️</span>
                     <span>{{ t('settings') }}</span>
                 </a>
             </li>
@@ -274,7 +274,7 @@
             {% if session.role == 'admin' %}
             <li>
                 <a href="/hosting" {% if request.endpoint == 'hosting_dashboard' %}class="active"{% endif %}>
-                    <span class="icon"><img src="https://img.icons8.com/fluency/96/server.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon">🖥️</span>
                     <span>Hosting</span>
                 </a>
             </li>
