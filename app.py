@@ -4780,7 +4780,7 @@ def api_return_product():
             # Decimal ga o'tkazish
             try:
                 return_quantity = Decimal(str(return_quantity))
-            except BaseException:
+            except (InvalidOperation, ValueError, TypeError):
                 logger.error(f"âŒ return_quantity Decimal'ga aylantirib bo'lmadi: {return_quantity}")
                 continue
 
@@ -15504,7 +15504,7 @@ def debug_api():
     try:
         with open('debug_api.html', 'r', encoding='utf-8') as f:
             return f.read()
-    except BaseException:
+    except OSError:
         return render_template_string("""<!DOCTYPE html> <html>
 <head>
     <title>API Debug</title>
@@ -15546,7 +15546,7 @@ def header_debug():
     try:
         with open('header_debug.html', 'r', encoding='utf-8') as f:
             return f.read()
-    except BaseException:
+    except OSError:
         return "Header debug file not found"
 
 
@@ -15558,7 +15558,7 @@ def currency_test():
     try:
         with open('currency_test.html', 'r', encoding='utf-8') as f:
             return f.read()
-    except BaseException:
+    except OSError:
         return "Currency test file not found"
 
 
