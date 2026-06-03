@@ -2602,6 +2602,7 @@ def api_all_locations():
 
 # API endpoint - joylashuv bo'yicha mahsulotlarni qidirish (OPTIMIZED)
 @app.route('/api/search-products-by-location/<location_type>/<int:location_id>')
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def api_search_products_by_location(location_type, location_id):
     """Tanlangan joylashuv bo'yicha mahsulotlarni qidirish (lazy loading)"""
     try:
@@ -2804,6 +2805,7 @@ def api_products_by_location(location_type, location_id):
 
 # API endpoint - barcode bo'yicha mahsulot qidirish
 @app.route('/api/search-product-by-barcode', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
 def search_product_by_barcode():
     """Barcode bo'yicha mahsulot qidirish - timeout handling bilan"""
     start_time = time.time()
@@ -2929,6 +2931,8 @@ def search_product_by_barcode():
 
 # API endpoint - mahsulot nomini tekshirish
 @app.route('/api/check-product-name', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+@limiter.limit("60 per minute; 600 per hour")
 def check_product_name():
     """Mahsulot nomini tekshirish - yaxshilangan error handling bilan"""
     start_time = time.time()
@@ -2995,6 +2999,8 @@ def check_product_name():
 
 # API endpoint - barcode mavjudligini tekshirish
 @app.route('/api/check-barcode', methods=['POST'])
+@role_required('admin', 'kassir', 'sotuvchi', 'omborchi')
+@limiter.limit("60 per minute; 600 per hour")
 def check_barcode():
     """Barcode mavjudligini tekshirish - yaxshilangan error handling bilan"""
     start_time = time.time()
