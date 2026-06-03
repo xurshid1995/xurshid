@@ -32,17 +32,17 @@ def main():
         from app import app, db
         from telegram_bot import create_telegram_app, create_reset_bot_app
         from debt_scheduler import init_debt_scheduler
-        
+
         logger.info("🤖 Telegram Bot ishga tushirilmoqda...")
-        
+
         # Scheduler ni ishga tushirish
         logger.info("📅 Scheduler ishga tushirilmoqda...")
         scheduler = init_debt_scheduler(app, db)
-        
+
         # Asosiy bot (@Sergeli143_bot)
         logger.info("📱 Telegram application yaratilmoqda...")
         application = create_telegram_app()
-        
+
         if not application:
             logger.error("❌ Telegram application yaratilmadi!")
             return
@@ -81,7 +81,7 @@ def main():
             application.run_polling(
                 allowed_updates=["message", "callback_query", "inline_query"]
             )
-        
+
     except KeyboardInterrupt:
         logger.info("\n⛔ Bot to'xtatildi (Ctrl+C)")
         if 'scheduler' in locals():

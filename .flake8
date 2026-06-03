@@ -14,3 +14,8 @@ exclude =
     format_code.py
 per-file-ignores =
     __init__.py:F401
+    check_columns.py:E402
+    check_excel.py:E402
+    debt_scheduler.py:E402
+    run_hosting_bot.py:E402
+    run_telegram_bot.py:E402

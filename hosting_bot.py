@@ -155,8 +155,8 @@ class HostingPaymentBot:
 
         if balance <= 0:
             return (
-                f"\n💳 Balans: 0 so'm\n"
-                f"❌ Balans tugagan! To'lov qiling."
+                "\n💳 Balans: 0 so'm\n"
+                "❌ Balans tugagan! To'lov qiling."
             )
         else:
             balance_end = today + timedelta(days=balance_days)

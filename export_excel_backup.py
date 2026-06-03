@@ -25,10 +25,10 @@ except Exception:
 # Avval alohida env o'zgaruvchilardan, keyin DATABASE_URL dan
 if os.getenv('DB_NAME'):
     DB_CONFIG = {
-        'host':     os.getenv('DB_HOST', 'localhost'),
-        'port':     int(os.getenv('DB_PORT', 5432)),
+        'host': os.getenv('DB_HOST', 'localhost'),
+        'port': int(os.getenv('DB_PORT', 5432)),
         'database': os.getenv('DB_NAME', 'xurshid_db'),
-        'user':     os.getenv('DB_USER', 'postgres'),
+        'user': os.getenv('DB_USER', 'postgres'),
         'password': os.getenv('DB_PASSWORD', ''),
     }
 else:
@@ -50,7 +50,7 @@ OUTPUT = f'{OUTPUT_DIR}/hisobot_{DATE}.xlsx'
 # Stil konstantalar
 HEADER_FILL = PatternFill(start_color='1E293B', end_color='1E293B', fill_type='solid')
 HEADER_FONT = Font(color='FFFFFF', bold=True, size=10, name='Calibri')
-ALT_FILL   = PatternFill(start_color='EEF2FF', end_color='EEF2FF', fill_type='solid')
+ALT_FILL = PatternFill(start_color='EEF2FF', end_color='EEF2FF', fill_type='solid')
 THIN_BORDER = Border(
     left=Side(style='thin', color='CBD5E1'),
     right=Side(style='thin', color='CBD5E1'),

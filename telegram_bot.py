@@ -261,7 +261,7 @@ class DebtTelegramBot:
             # Bugungi sana
             from datetime import datetime as dt, date as d_date
             today_str = dt.now().strftime('%d.%m.%Y')
-            
+
             # Muddat sanasini formatlash
             due_date_str = ''
             if payment_due_date:
@@ -269,7 +269,7 @@ class DebtTelegramBot:
                     from datetime import datetime as dtt
                     payment_due_date = dtt.strptime(payment_due_date, '%Y-%m-%d').date()
                 due_date_str = payment_due_date.strftime('%d.%m.%Y')
-                
+
                 # message_type ni avtomatik aniqlash (agar 'general' bo'lsa)
                 if message_type == 'general':
                     today = d_date.today()
@@ -280,7 +280,7 @@ class DebtTelegramBot:
                         message_type = 'due_today'
                     elif diff < 0:
                         message_type = 'overdue'
-            
+
             # Xabar turlariga qarab xabar tuzish
             if message_type == 'pre_reminder' and due_date_str:
                 message = (
@@ -1642,8 +1642,8 @@ async def reset_bot_contact(update, context):
                 user.telegram_chat_id = chat_id
                 db.session.commit()
                 await update.message.reply_text(
-                    f"✅ Muvaffaqiyatli! Hisobingiz Telegram bilan bog'landi.\n\n"
-                    f"Endi sergeli0606.uz saytida parolni tiklashingiz mumkin.",
+                    "✅ Muvaffaqiyatli! Hisobingiz Telegram bilan bog'landi.\n\n"
+                    "Endi sergeli0606.uz saytida parolni tiklashingiz mumkin.",
                     reply_markup=ReplyKeyboardRemove()
                 )
                 logger.info(f"✅ Paroltiklash_bot: user {user.username} chat_id={chat_id} saqlandi")

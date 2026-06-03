@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Excel varaqlaridagi ma'lumotlarni tekshirish"""
-import os, sys
+import os
+import sys
 sys.path.insert(0, '/var/www/xurshid')
 from dotenv import load_dotenv
 load_dotenv('/var/www/xurshid/.env')
@@ -88,7 +89,8 @@ print()
 print("=" * 60)
 
 # Excel faylni tekshirish
-import openpyxl, glob
+import openpyxl
+import glob
 files = sorted(glob.glob('/var/backups/xurshid/hisobot_*.xlsx'))
 if files:
     latest = files[-1]

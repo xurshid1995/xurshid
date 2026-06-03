@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import base64
 import bcrypt
 import io
@@ -10,6 +10,7 @@ import time
 import urllib.parse
 import secrets
 import uuid
+import threading as _threading
 from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation
@@ -31,6 +32,9 @@ from sqlalchemy.exc import (
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash
 from rapidfuzz import process as fuzz_process, fuzz as rfuzz
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import re
 
 def normalize_search(text):
@@ -83,9 +87,7 @@ def fuzzy_score(query, name):
     digit_bonus = len(q_digits & n_digits) * 10
 
     return coverage * 60 + max(s1, s2, s3) * 0.4 + digit_bonus
-from flask_wtf.csrf import CSRFProtect
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+
 
 # Windows console uchun UTF-8 qo'llab-quvvatlash
 if sys.platform.startswith('win'):
@@ -126,12 +128,17 @@ logger = logging.getLogger(__name__)
 # Database konfiguratsiyasi - encoding muammosini hal qilish
 
 # PostgreSQL ulanish parametrlari - .env faylidan olish
+db_password = os.getenv('DB_PASSWORD')
+if not db_password:
+    raise ValueError(
+        "XAVFSIZLIK: DB_PASSWORD o'rnatilmagan! .env faylida DB_PASSWORD ni belgilang."
+    )
 db_params = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': os.getenv('DB_PORT', '5432'),
     'database': os.getenv('DB_NAME', 'sayt_db'),
     'user': os.getenv('DB_USER', 'postgres'),
-    'password': os.getenv('DB_PASSWORD', 'postgres')
+    'password': db_password
 }
 
 # URL-safe qilish
@@ -2658,14 +2665,18 @@ def api_search_products_by_location(location_type, location_id):
             if location_type == 'warehouse':
                 name_rows = db.session.query(
                     WarehouseStock.product_id, WarehouseStock.quantity, Product.name
-                ).join(Product, WarehouseStock.product_id == Product.id
-                ).filter(WarehouseStock.warehouse_id == location_id
+                ).join(
+                    Product, WarehouseStock.product_id == Product.id
+                ).filter(
+                    WarehouseStock.warehouse_id == location_id
                 ).with_entities(Product.id, Product.name, WarehouseStock.quantity).all()
             else:
                 name_rows = db.session.query(
                     StoreStock.product_id, StoreStock.quantity, Product.name
-                ).join(Product, StoreStock.product_id == Product.id
-                ).filter(StoreStock.store_id == location_id
+                ).join(
+                    Product, StoreStock.product_id == Product.id
+                ).filter(
+                    StoreStock.store_id == location_id
                 ).with_entities(Product.id, Product.name, StoreStock.quantity).all()
 
             # Faqat id, name, quantity saqlash (to'liq object emas)
@@ -2698,7 +2709,9 @@ def api_search_products_by_location(location_type, location_id):
                             WarehouseStock.warehouse_id == location_id,
                             WarehouseStock.product_id.in_(fuzzy_product_ids)
                         ).all()
-                        loc_name_attr = lambda s: s.warehouse.name if s.warehouse else "Noma'lum ombor"
+
+                        def loc_name_attr(s):
+                            return s.warehouse.name if s.warehouse else "Noma'lum ombor"
                         loc_type_val = 'warehouse'
                     else:
                         fuzzy_stocks = db.session.query(StoreStock, Product).join(
@@ -2707,7 +2720,9 @@ def api_search_products_by_location(location_type, location_id):
                             StoreStock.store_id == location_id,
                             StoreStock.product_id.in_(fuzzy_product_ids)
                         ).all()
-                        loc_name_attr = lambda s: s.store.name if s.store else "Noma'lum do'kon"
+
+                        def loc_name_attr(s):
+                            return s.store.name if s.store else "Noma'lum do'kon"
                         loc_type_val = 'store'
 
                     for stock, product in fuzzy_stocks:
@@ -4372,7 +4387,6 @@ def api_upload_product_image(product_id):
         # PIL faqat validatsiya uchun ishlatiladi
         from PIL import Image as PILImage2
         file_bytes = file.read()
-        import io
         PILImage2.open(io.BytesIO(file_bytes)).verify()  # rasm ekanligini tekshirish
         save_path = os.path.join(app.config['PRODUCT_UPLOAD_FOLDER'], filename)
         with open(save_path, 'wb') as f_out:
@@ -4981,8 +4995,8 @@ def api_return_product():
                         return jsonify({
                             'success': False,
                             'error': 'no_debt',
-                            'message': f'Bu mijozda hech qanday qarz savdosi yo\'q. '
-                                       f'Iltimos balansga o\'tkazing yoki naqd qaytaring.'
+                            'message': 'Bu mijozda hech qanday qarz savdosi yo\'q. '
+                                       'Iltimos balansga o\'tkazing yoki naqd qaytaring.'
                         }), 400
 
                     for ds in other_debt_sales:
@@ -5022,8 +5036,6 @@ def api_return_product():
                     amount=float(total_returned_usd * sale.currency_rate)
                 )
                 db.session.add(refund_operation)
-
-
 
             if refund_type == 'cash':
                 # Smart Logic: avval qarz, keyin naqd, click, terminal
@@ -12998,10 +13010,10 @@ def finalize_sale(sale_id):
 
         # To'lov ma'lumotlarini yangilash
         balance_used_fin = float(payment.get('balance_used', 0))
-        
+
         # Balansdan foydalanilgan qism alohida saqlanadi (naqd ga qo'shilmaydi)
         cash_usd_fin = float(payment.get('cash_usd', 0))
-        
+
         sale.cash_usd = Decimal(str(cash_usd_fin))
         sale.cash_amount = Decimal(str(payment.get('cash_uzs', 0)))
         sale.click_usd = Decimal(str(payment.get('click_usd', 0)))
@@ -13574,7 +13586,7 @@ def create_sale():
         terminal_usd = float(payment_info.get('terminal_usd', 0))
         debt_usd = float(payment_info.get('debt_usd', 0))
         balance_used = float(payment_info.get('balance_used', 0))
-        
+
         # Balansdan foydalanilgan summa alohida saqlanadi (cash_usd ga qo'shilmaydi)
         # cash_usd faqat haqiqiy naqd to'lovni ko'rsatadi
 
@@ -14061,7 +14073,7 @@ def create_sale():
             amount=float(current_sale.total_amount * current_sale.currency_rate)  # UZS da
         )
         db.session.add(operation)
-        
+
         # Mijoz balansidan ushbu savdoda ishlatilgan summani ayirish
         if balance_used > 0 and final_customer_id:
             sale_customer = Customer.query.filter_by(id=final_customer_id).with_for_update().first()
@@ -14070,7 +14082,7 @@ def create_sale():
                 deduct = Decimal(str(balance_used))
                 sale_customer.balance = max(Decimal('0'), old_bal - deduct)
                 logger.debug(f"ğŸ’³ Mijoz balansidan ${balance_used} ayirildi. Yangi balans: ${float(sale_customer.balance)}")
-        
+
         db.session.commit()
 
         # CustomerTimelineSnapshot yozish (yangi va tahrirlangan savdolar uchun)
@@ -15874,7 +15886,6 @@ def internal_server_error(e):
 
 # ==================== LOGIN SAHIFASI ====================
 # Parol tiklash uchun vaqtinchalik kodlar (xotirada)
-import threading as _threading
 _reset_codes_lock = _threading.Lock()
 _password_reset_codes = {}   # {phone: {code, user_id, username, expires_at}}
 # _reset_tokens endi DB da saqlanadi (users.reset_token) — multi-worker safe
@@ -16077,7 +16088,7 @@ def api_forgot_password():
         if not user.telegram_chat_id:
             return jsonify({
                 'success': False,
-                'message': f'Telegram bog\'lanmagan. Avval @Sergeli143_bot ga /link_account yozing.'
+                'message': 'Telegram bog\'lanmagan. Avval @Sergeli143_bot ga /link_account yozing.'
             }), 400
 
         # 6 raqamli OTP yaratish va DBga saqlash (kriptografik xavfsiz)
@@ -17037,7 +17048,7 @@ def inject_settings():
 
         # Hozirgi tilni olish - ISHONCHLI usul: bazadan o'qish
         current_language = session.get('language', 'uz_latin')
-        
+
         # Bazadan foydalanuvchi tilini tekshirish (session yo'qolishi mumkin)
         user_id = session.get('user_id')
         if user_id:
@@ -17591,8 +17602,8 @@ def api_check_and_send_reminders():
 
         # Bugungi va o'tgan, lekin yuborilmagan eslatmalarni olish
         reminders = DebtReminder.query.filter(
-            DebtReminder.is_active == True,
-            DebtReminder.is_sent == False,
+            DebtReminder.is_active.is_(True),
+            DebtReminder.is_sent.is_(False),
             DebtReminder.reminder_date <= today
         ).all()
 

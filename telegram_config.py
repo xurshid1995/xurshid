@@ -9,17 +9,17 @@ TELEGRAM_CONFIG = {
     # Bot asosiy sozlamalari
     'bot_name': 'Sergeli 143 Qarz Bot',
     'bot_username': '@Sergeli143_bot',  # Yangi bot username
-    
+
     # Xabar yuborish sozlamalari
     'rate_limit': 1,  # Sekundiga 1 ta xabar
     'retry_attempts': 3,  # Qayta urinishlar soni
     'retry_delay': 5,  # Qayta urinish orasidagi kutish (sekund)
-    
+
     # Qarz eslatmalari sozlamalari
     'daily_reminder_time': '10:00',  # Kunlik eslatmalar vaqti (HH:MM)
     'weekly_report_day': 1,  # Haftalik hisobot kuni (0=Yakshanba, 1=Dushanba, ...)
     'minimum_debt_amount': 1.0,  # Minimal qarz miqdori (USD)
-    
+
     # Xabar shablonlari
     'templates': {
         'debt_reminder': {
@@ -42,7 +42,7 @@ TELEGRAM_CONFIG = {
             'title': 'HAFTALIK HISOBOT'
         }
     },
-    
+
     # Xabar limitleri
     'max_message_length': 4096,  # Telegram limit
     'max_debts_per_message': 20,  # Bir xabarda maksimal qarzlar soni
@@ -64,7 +64,7 @@ def format_phone(phone: str) -> str:
     """Telefon raqamini formatlash"""
     if not phone:
         return "Telefon yo'q"
-    
+
     # +998 90 123 45 67 formatiga keltirish
     clean = ''.join(filter(str.isdigit, phone))
     if len(clean) == 12 and clean.startswith('998'):
@@ -209,12 +209,12 @@ if __name__ == "__main__":
     print(f"Bot name: {TELEGRAM_CONFIG['bot_name']}")
     print(f"Daily reminder: {TELEGRAM_CONFIG['daily_reminder_time']}")
     print(f"Minimum debt: ${TELEGRAM_CONFIG['minimum_debt_amount']}")
-    
+
     # Test formatters
     print("\n💵 Currency formatting:")
     print(f"USD: {format_currency_usd(1234.56)}")
     print(f"UZS: {format_currency_uzs(16049280)}")
-    
+
     print("\n📱 Phone formatting:")
     print(format_phone("998901234567"))
     print(format_phone("901234567"))
