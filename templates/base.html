@@ -75,36 +75,25 @@
             text-decoration: none !important;
         }
 
-        /* === Sidebar navigatsiya icon qutilari (Glassmorphism glow) === */
+        /* === Sidebar navigatsiya icon qutilari === */
         .sidebar-menu .icon { width: 38px !important; }
         .nav-icon-box {
             width: 36px; height: 36px;
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 19px; flex-shrink: 0;
-            position: relative;
-            border: 1px solid;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), filter 0.15s ease;
+            color: rgba(255,255,255,0.65);
+            transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), color 0.15s ease;
         }
-        .nav-icon-blue   { background: rgba(59,130,246,0.22);  border-color: rgba(96,165,250,0.45);  color: #93c5fd; box-shadow: 0 4px 16px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-green  { background: rgba(34,197,94,0.22);   border-color: rgba(74,222,128,0.45);  color: #86efac; box-shadow: 0 4px 16px rgba(34,197,94,0.35),  inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-amber  { background: rgba(245,158,11,0.22);  border-color: rgba(252,211,77,0.45);  color: #fde68a; box-shadow: 0 4px 16px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-red    { background: rgba(239,68,68,0.22);   border-color: rgba(248,113,113,0.45); color: #fca5a5; box-shadow: 0 4px 16px rgba(239,68,68,0.35),   inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-purple { background: rgba(168,85,247,0.22);  border-color: rgba(196,132,252,0.45); color: #d8b4fe; box-shadow: 0 4px 16px rgba(168,85,247,0.35), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-teal   { background: rgba(20,184,166,0.22);  border-color: rgba(45,212,191,0.45);  color: #99f6e4; box-shadow: 0 4px 16px rgba(20,184,166,0.35),  inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-indigo { background: rgba(99,102,241,0.22);  border-color: rgba(129,140,248,0.45); color: #c7d2fe; box-shadow: 0 4px 16px rgba(99,102,241,0.35),  inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-gray   { background: rgba(100,116,139,0.22); border-color: rgba(148,163,184,0.45); color: #cbd5e1; box-shadow: 0 4px 16px rgba(100,116,139,0.3), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .nav-icon-orange { background: rgba(249,115,22,0.22);  border-color: rgba(251,146,60,0.45);  color: #fed7aa; box-shadow: 0 4px 16px rgba(249,115,22,0.35),  inset 0 1px 0 rgba(255,255,255,0.12); }
+        .nav-icon-blue, .nav-icon-green, .nav-icon-amber, .nav-icon-red,
+        .nav-icon-purple, .nav-icon-teal, .nav-icon-indigo, .nav-icon-gray,
+        .nav-icon-orange { background: none; border: none; box-shadow: none; color: rgba(255,255,255,0.6); }
         .sidebar-menu a:hover .nav-icon-box {
-            transform: scale(1.1) translateY(-1px);
-            filter: brightness(1.3);
+            transform: scale(1.1);
+            color: #fff;
         }
         .sidebar-menu a.active .nav-icon-box {
-            transform: scale(1.06);
-            filter: brightness(1.2);
-            box-shadow: 0 0 0 2px rgba(255,255,255,0.18), 0 6px 20px rgba(0,0,0,0.3) !important;
+            color: #fff;
         }
     </style>
     <script>
