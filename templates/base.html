@@ -75,43 +75,27 @@
             text-decoration: none !important;
         }
 
-        /* === Sidebar navigatsiya icon qutilari (3D Skeuomorphic) === */
-        .sidebar-menu .icon { width: 40px !important; }
+        /* === Sidebar navigatsiya emoji ikonlari (Windows 11 Fluent) === */
+        .sidebar-menu .icon { width: 36px !important; }
         .nav-icon-box {
-            width: 36px; height: 36px;
-            border-radius: 10px;
+            width: 32px; height: 32px;
+            border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 17px; flex-shrink: 0; color: #fff;
-            position: relative;
-            transition: transform 0.14s cubic-bezier(.34,1.56,.64,1);
+            font-size: 20px; flex-shrink: 0;
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+            filter: grayscale(15%);
+            transition: filter 0.15s ease, transform 0.15s cubic-bezier(.34,1.56,.64,1);
         }
-        .nav-icon-box::before {
-            content: '';
-            position: absolute; inset: 0;
-            border-radius: 10px;
-            background: linear-gradient(160deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%);
-            pointer-events: none;
+        .nav-icon-blue, .nav-icon-green, .nav-icon-amber, .nav-icon-red,
+        .nav-icon-purple, .nav-icon-teal, .nav-icon-indigo, .nav-icon-gray,
+        .nav-icon-orange { background: none; border: none; box-shadow: none; }
+        .sidebar-menu a:hover .nav-icon-box {
+            filter: grayscale(0%) brightness(1.1);
+            transform: scale(1.12) translateY(-1px);
         }
-        .nav-icon-box::after {
-            content: '';
-            position: absolute; inset: 0;
-            border-radius: 10px;
-            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.25), 0 3px 8px rgba(0,0,0,0.4);
-            pointer-events: none;
-        }
-        .nav-icon-blue   { background: linear-gradient(150deg, #5ca8ff 0%, #1a6eff 50%, #1040c1 100%); }
-        .nav-icon-green  { background: linear-gradient(150deg, #5fe097 0%, #1ab954 50%, #0d7a38 100%); }
-        .nav-icon-amber  { background: linear-gradient(150deg, #ffd65a 0%, #f5a623 50%, #c07800 100%); }
-        .nav-icon-red    { background: linear-gradient(150deg, #ff7b7b 0%, #e53e3e 50%, #a01010 100%); }
-        .nav-icon-purple { background: linear-gradient(150deg, #c97aff 0%, #9333ea 50%, #6118b0 100%); }
-        .nav-icon-teal   { background: linear-gradient(150deg, #4adfd2 0%, #0d9488 50%, #086860 100%); }
-        .nav-icon-indigo { background: linear-gradient(150deg, #a0a8ff 0%, #5056e8 50%, #2d33b8 100%); }
-        .nav-icon-gray   { background: linear-gradient(150deg, #8ea3b8 0%, #4e6680 50%, #2e4057 100%); }
-        .nav-icon-orange { background: linear-gradient(150deg, #ffab6a 0%, #f07020 50%, #bf4800 100%); }
-        .sidebar-menu a:hover .nav-icon-box { transform: scale(1.1) translateY(-1px); }
         .sidebar-menu a.active .nav-icon-box {
+            filter: grayscale(0%);
             transform: scale(1.05);
-            box-shadow: 0 0 0 2.5px rgba(255,255,255,0.3);
         }
     </style>
     <script>
@@ -160,26 +144,26 @@
         <ul class="sidebar-menu">
             <li>
                 <a href="/" {% if request.endpoint == 'index' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-blue"><i class="bi bi-house-door-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-blue">🏠</span></span>
                     <span>{{ t('dashboard') }}</span>
                 </a>
             </li>
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/sales" {% if request.endpoint == 'sales' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-green"><i class="bi bi-cart3"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-green">🛒</span></span>
                     <span>{{ t('sales') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/sales-history" {% if request.endpoint == 'sales_history' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-indigo"><i class="bi bi-graph-up"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-indigo">📊</span></span>
                     <span>{{ t('sales_history') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/pending-sales" {% if request.endpoint == 'pending_sales' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-amber"><i class="bi bi-clock-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-amber">⏳</span></span>
                     <span>{{ t('pending_sales') }}</span>
                     {% if pending_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_sales_count }}</span>
@@ -188,7 +172,7 @@
             </li>
             <li>
                 <a href="/debt-sales" {% if request.endpoint == 'debt_sales' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-red"><i class="bi bi-credit-card-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-red">💳</span></span>
                     <span>{{ t('debt_sales') }}</span>
                     {% if debt_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ debt_sales_count }}</span>
@@ -198,13 +182,13 @@
             {% endif %}
             <li>
                 <a href="/products" {% if request.endpoint == 'products_list' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-purple"><i class="bi bi-box-seam-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-purple">📦</span></span>
                     <span>{{ t('products') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/transfer" {% if request.endpoint == 'transfer' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-teal"><i class="bi bi-arrow-left-right"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-teal">🔄</span></span>
                     <span>{{ t('transfer') }}</span>
                     {% if pending_transfer_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_transfer_count }}</span>
@@ -214,21 +198,21 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/return-product" {% if request.endpoint == 'return_product' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-orange"><i class="bi bi-arrow-counterclockwise"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-orange">🔙</span></span>
                     <span>{{ t('return_product') }}</span>
                 </a>
             </li>
             {% endif %}
             <li>
                 <a href="/operations-history" {% if request.endpoint == 'operations_history' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-blue"><i class="bi bi-clock-history"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-blue">📋</span></span>
                     <span>{{ t('operations_history') }}</span>
                 </a>
             </li>
             {% if session.role == 'omborchi' or session.role not in ['sotuvchi', 'omborchi'] or (session.role == 'sotuvchi' and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-green"><i class="bi bi-clipboard2-check-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-green">✅</span></span>
                     <span>{{ t('check_stock') }}</span>
                     {% if stock_check_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ stock_check_count }}</span>
@@ -238,14 +222,14 @@
             {% endif %}
             <li>
                 <a href="/xarajatlar" {% if request.endpoint == 'xarajatlar' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-red"><i class="bi bi-cash-coin"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-red">💸</span></span>
                     <span>Xarajatlar</span>
                 </a>
             </li>
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/hisobot" {% if request.endpoint == 'hisobot' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-indigo"><i class="bi bi-bar-chart-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-indigo">📈</span></span>
                     <span>{{ t('reports') }}</span>
                 </a>
             </li>
@@ -253,7 +237,7 @@
             {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/add_product" {% if request.endpoint in ('add_product', 'add_product_session') %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-green"><i class="bi bi-plus-circle-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-green">➕</span></span>
                     <span>{{ t('add_product') }}</span>
                     {% if pending_product_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_product_count }}</span>
@@ -264,13 +248,13 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-amber"><i class="bi bi-shop-window"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-amber">🏪</span></span>
                     <span>{{ t('stores') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/warehouses" {% if request.endpoint == 'warehouses' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-blue"><i class="bi bi-building-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-blue">🏭</span></span>
                     <span>{{ t('warehouses') }}</span>
                 </a>
             </li>
@@ -278,13 +262,13 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-red"><i class="bi bi-file-earmark-text-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-red">💰</span></span>
                     <span>{{ t('debts') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/customers" {% if request.endpoint == 'customers' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-purple"><i class="bi bi-people-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-purple">👥</span></span>
                     <span>{{ t('customers') }}</span>
                 </a>
             </li>
@@ -292,13 +276,13 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/users" {% if request.endpoint == 'users' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-blue"><i class="bi bi-person-badge-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-blue">👤</span></span>
                     <span>{{ t('users') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/currency-rate" {% if request.endpoint == 'currency_rate' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-teal"><i class="bi bi-currency-exchange"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-teal">💱</span></span>
                     <span>{{ t('currency_rate') }}</span>
                 </a>
             </li>
@@ -306,7 +290,7 @@
             {% if session.role in ['admin', 'manager'] %}
             <li>
                 <a href="/settings" {% if request.endpoint == 'settings_page' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-gray"><i class="bi bi-gear-fill"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-gray">⚙️</span></span>
                     <span>{{ t('settings') }}</span>
                 </a>
             </li>
@@ -314,7 +298,7 @@
             {% if session.role == 'admin' %}
             <li>
                 <a href="/hosting" {% if request.endpoint == 'hosting_dashboard' %}class="active"{% endif %}>
-                    <span class="icon"><span class="nav-icon-box nav-icon-blue"><i class="bi bi-server"></i></span></span>
+                    <span class="icon"><span class="nav-icon-box nav-icon-blue">🖥️</span></span>
                     <span>Hosting</span>
                 </a>
             </li>
