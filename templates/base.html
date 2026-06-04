@@ -74,28 +74,32 @@
             text-decoration: none !important;
         }
 
-        /* === Sidebar navigatsiya icon qutilari === */
-        .sidebar-menu .icon { width: 34px !important; }
+        /* === Sidebar navigatsiya icon qutilari (iOS uslubi) === */
+        .sidebar-menu .icon { width: 36px !important; }
         .nav-icon-box {
-            width: 32px; height: 32px;
-            border-radius: 8px;
+            width: 34px; height: 34px;
+            border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0;
-            transition: filter 0.2s, box-shadow 0.2s;
+            font-size: 15px; flex-shrink: 0; color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
-        .nav-icon-blue   { background: rgba(59,130,246,0.2);   color: #60a5fa; }
-        .nav-icon-green  { background: rgba(16,185,129,0.2);   color: #34d399; }
-        .nav-icon-amber  { background: rgba(245,158,11,0.2);   color: #fbbf24; }
-        .nav-icon-red    { background: rgba(239,68,68,0.2);    color: #f87171; }
-        .nav-icon-purple { background: rgba(139,92,246,0.2);   color: #a78bfa; }
-        .nav-icon-teal   { background: rgba(20,184,166,0.2);   color: #2dd4bf; }
-        .nav-icon-indigo { background: rgba(99,102,241,0.2);   color: #818cf8; }
-        .nav-icon-gray   { background: rgba(148,163,184,0.18); color: #94a3b8; }
-        .nav-icon-orange { background: rgba(249,115,22,0.2);   color: #fb923c; }
-        .sidebar-menu a:hover .nav-icon-box,
+        .nav-icon-blue   { background: linear-gradient(145deg, #3b82f6, #1d4ed8); }
+        .nav-icon-green  { background: linear-gradient(145deg, #22c55e, #15803d); }
+        .nav-icon-amber  { background: linear-gradient(145deg, #f59e0b, #b45309); }
+        .nav-icon-red    { background: linear-gradient(145deg, #ef4444, #b91c1c); }
+        .nav-icon-purple { background: linear-gradient(145deg, #a855f7, #7e22ce); }
+        .nav-icon-teal   { background: linear-gradient(145deg, #14b8a6, #0f766e); }
+        .nav-icon-indigo { background: linear-gradient(145deg, #6366f1, #4338ca); }
+        .nav-icon-gray   { background: linear-gradient(145deg, #64748b, #334155); }
+        .nav-icon-orange { background: linear-gradient(145deg, #f97316, #c2410c); }
+        .sidebar-menu a:hover .nav-icon-box {
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
         .sidebar-menu a.active .nav-icon-box {
-            filter: brightness(1.35);
-            box-shadow: 0 0 8px rgba(255,255,255,0.12);
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 4px 12px rgba(0,0,0,0.4);
         }
     </style>
     <script>
