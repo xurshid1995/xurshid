@@ -292,7 +292,7 @@ body {
 
 .header-left h1 {
     color: #ffffff;
-    font-size: 1.5rem;
+    font-size: 1.4375rem;
     font-weight: 700;
     margin: 0;
     overflow: hidden;
@@ -327,7 +327,7 @@ body {
 .currency-rate {
     color: #ffffff;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8375rem;
     transition: color 0.2s ease;
 }
 
@@ -338,7 +338,7 @@ body {
     padding: 0.3rem 0.6rem;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.7875rem;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -374,7 +374,7 @@ body {
 }
 
 .user-role {
-    font-size: 0.8rem;
+    font-size: 0.7375rem;
     color: rgba(255, 255, 255, 0.75);
     margin-left: 0.5rem;
 }
@@ -391,7 +391,7 @@ body {
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8375rem;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.12);
     backdrop-filter: blur(6px);
@@ -420,11 +420,11 @@ body {
 }
 
 .logout-icon {
-    font-size: 1rem;
+    font-size: 0.9375rem;
 }
 
 .logout-text {
-    font-size: 0.9rem;
+    font-size: 0.8375rem;
     color: #ffffff;
 }
 
