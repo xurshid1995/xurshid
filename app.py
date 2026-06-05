@@ -2415,7 +2415,31 @@ def api_products():
             for pd in products_list:
                 pd['_score'] = scores.get(pd.get('name', ''), 0)
 
-            logger.debug(f"Smart sort: {len(products_list)} ta natija saralandi")
+            # Fuzzy orqali topilgan yangi natijalar qo'shish (DB da yo'qlar)
+            fuzzy_added = 0
+            for name, score in sorted(scores.items(), key=lambda x: -x[1]):
+                if score < CUTOFF:
+                    break
+                product = name_to_product[name]
+                if product.id not in db_product_ids:
+                    pd = product.to_dict()
+                    pd['fuzzy_match'] = True
+                    pd['fuzzy_score'] = round(score)
+                    pd['_score'] = score
+                    products_list.append(pd)
+                    db_product_ids.add(product.id)
+                    fuzzy_added += 1
+                    if fuzzy_added >= 10:
+                        break
+
+            # Barcha natijalarni relevantlik bo'yicha saralash (eng to'g'ri tepada)
+            products_list.sort(key=lambda x: x.get('_score', 0), reverse=True)
+            # Yordamchi maydonni tozalash
+            for pd in products_list:
+                pd.pop('_score', None)
+
+            total_count = len(products_list)
+            logger.debug(f"âœ… Smart sort: {len(products_list)} ta natija saralandi ({fuzzy_added} fuzzy)")
 
     # Return with pagination metadata
     return jsonify({
