@@ -581,9 +581,9 @@
             
             // Server-side pagination data
             if (data.products) {
-                // Fuzzy match natijalarini ko'rsatmaslik
-                allProducts = data.products.filter(p => !p.fuzzy_match);
-                // Alifbo tartibida saralash
+                allProducts = data.products;
+                // Qidiruv bo'lmagan holatda alifbo tartibida saralash
+                // Qidiruv bo'lsa - API dan kelgan relevantlik tartibi saqlanadi (fuzzy/AI tartib)
                 if (!search) {
                     allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
                 }
@@ -802,7 +802,10 @@
                 // Qidiruv matnini highlight qilish
                 const highlightedName = highlightSearchText(product.name, currentSearch);
                 
-                const fuzzyBadge = '';
+                // Fuzzy AI badge
+                const fuzzyBadge = product.fuzzy_match
+                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">✨ AI</span>`
+                    : '';
                 
                 // Barcode tugmasi
                 const barcodeCell = product.barcode 
