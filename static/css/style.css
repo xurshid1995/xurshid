@@ -138,12 +138,12 @@ body {
     width: 70px; /* Oddiy holatda tor */
     background: #0f172a;
     border-right: none;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 55px);
     padding: 0;
     box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
     left: 0;
-    top: 50px;
+    top: 55px;
     z-index: 900;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -273,7 +273,7 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 50px;
+    height: 55px;
     background: #1e293b;
     display: flex;
     justify-content: space-between;
@@ -431,12 +431,12 @@ body {
 /* Main Content - Desktop */
 .main-content {
     margin-left: 70px; /* Sidebar doim 70px, content shu margin da qoladi */
-    margin-top: 50px;
+    margin-top: 55px;
     flex: 1;
     padding: 10px 20px 20px 20px;
     width: calc(100vw - 70px);
     max-width: calc(100vw - 70px);
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 55px);
     box-sizing: border-box;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -1438,7 +1438,7 @@ footer {
     /* Top header mobilda ko'rsatish */
     .top-header {
         display: flex !important;
-        height: 60px;
+        height: 50px;
         padding: 0 0.3rem;
         background: #1e293b;
         box-shadow: 0 2px 12px rgba(15, 23, 42, 0.25);
