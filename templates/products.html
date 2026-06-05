@@ -582,11 +582,8 @@
             // Server-side pagination data
             if (data.products) {
                 allProducts = data.products;
-                // Qidiruv bo'lmagan holatda alifbo tartibida saralash
-                // Qidiruv bo'lsa - API dan kelgan relevantlik tartibi saqlanadi (fuzzy/AI tartib)
-                if (!search) {
-                    allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
-                }
+                // Alifbo tartibida saralash
+                allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
                 filteredProducts = [...allProducts];
                 currentPage = data.pagination.page;
                 totalProducts = data.pagination.total;
