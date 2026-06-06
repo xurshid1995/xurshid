@@ -916,7 +916,7 @@ class StoreStock(db.Model):
             'product_name': self.product.name if self.product else 'Noma\'lum',
             'quantity': float(self.quantity) if self.quantity else 0,
             'min_stock': self.min_stock,
-            'status': 'low' if (self.product and self.product.min_stock > 0 and self.quantity <= self.product.min_stock) else 'normal',
+            'status': 'low' if (self.min_stock > 0 and self.quantity <= self.min_stock) else 'normal',
             'last_updated': self.last_updated.strftime('%Y-%m-%d %H:%M')
         }
 
