@@ -9368,7 +9368,7 @@ def api_edit_store_stock(store_id, product_id):
 
         stock.product.name = new_product_name
         stock.product.barcode = new_barcode if new_barcode else None
-        stock.product.min_stock = new_min_stock
+        stock.min_stock = new_min_stock
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
@@ -9444,7 +9444,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
 
         stock.product.name = new_product_name
         stock.product.barcode = new_barcode if new_barcode else None
-        stock.product.min_stock = new_min_stock
+        stock.min_stock = new_min_stock
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
