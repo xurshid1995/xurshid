@@ -43,7 +43,7 @@ class DebtScheduler:
         self.weekly_report_day = int(os.getenv('WEEKLY_REPORT_DAY', '1'))  # 1 = Dushanba
         self.minimum_debt_amount = float(os.getenv('MINIMUM_DEBT_AMOUNT', '1'))  # USD
 
-        logger.info("âœ… DebtScheduler initialized")
+        logger.info("✅ DebtScheduler initialized")
 
     def _get_customers_with_debt(self) -> List[Dict]:
         """
@@ -53,7 +53,7 @@ class DebtScheduler:
             List[Dict]: Qarzli mijozlar ma'lumotlari
         """
         if not self.app or not self.db:
-            logger.error("âŒ Flask app yoki DB mavjud emas")
+            logger.error("❌ Flask app yoki DB mavjud emas")
             return []
 
         with self.app.app_context():
@@ -114,7 +114,7 @@ class DebtScheduler:
                 return result
 
             except Exception as e:
-                logger.error(f"âŒ Qarzli mijozlarni olishda xatolik: {e}")
+                logger.error(f"❌ Qarzli mijozlarni olishda xatolik: {e}")
                 return []
 
     def _get_reminder_time_from_db(self) -> str:
@@ -143,14 +143,14 @@ class DebtScheduler:
                 import pytz
                 now = datetime.now(pytz.timezone('Asia/Tashkent'))
             if now.hour == hour and now.minute == minute:
-                logger.info(f"📅 Vaqt mos keldi ({reminder_time}) â€” kunlik eslatmalar yuborilmoqda...")
+                logger.info(f"📅 Vaqt mos keldi ({reminder_time}) — kunlik eslatmalar yuborilmoqda...")
                 self.send_daily_reminders()
         except Exception as e:
-            logger.error(f"âŒ Kunlik eslatma tekshirishda xatolik: {e}")
+            logger.error(f"❌ Kunlik eslatma tekshirishda xatolik: {e}")
 
     def send_daily_reminders(self):
         """Kunlik qarz eslatmalarini yuborish (sinxron)"""
-        logger.info("📅 Kunlik qarz eslatmalari â€” muddatli qarzlar tekshirilmoqda...")
+        logger.info("📅 Kunlik qarz eslatmalari — muddatli qarzlar tekshirilmoqda...")
         self.check_due_date_reminders()
 
     def send_weekly_report(self):
@@ -166,9 +166,9 @@ class DebtScheduler:
             finally:
                 loop.close()
         except Exception as e:
-            logger.error(f"âŒ Haftalik hisobot yuborishda xatolik: {e}")
+            logger.error(f"❌ Haftalik hisobot yuborishda xatolik: {e}")
 
-        logger.info("âœ… Haftalik hisobot yuborildi")
+        logger.info("✅ Haftalik hisobot yuborildi")
 
     async def send_instant_reminder(
         self,
@@ -215,7 +215,7 @@ class DebtScheduler:
                 )
 
             except Exception as e:
-                logger.error(f"âŒ Instant reminder yuborishda xatolik: {e}")
+                logger.error(f"❌ Instant reminder yuborishda xatolik: {e}")
                 return False
 
     def send_telegram_debt_reminder_sync(
@@ -257,7 +257,7 @@ class DebtScheduler:
                 )
             )
         except Exception as e:
-            logger.error(f"âŒ Sync telegram xatolik: {e}")
+            logger.error(f"❌ Sync telegram xatolik: {e}")
             return False
 
     async def send_payment_notification(
@@ -305,13 +305,13 @@ class DebtScheduler:
                 )
 
             except Exception as e:
-                logger.error(f"âŒ Payment notification yuborishda xatolik: {e}")
+                logger.error(f"❌ Payment notification yuborishda xatolik: {e}")
                 return False
 
     def start(self):
         """Schedulerni ishga tushirish"""
         try:
-            # Kunlik eslatmalar â€” har daqiqa DB dagi vaqtni tekshiradi
+            # Kunlik eslatmalar — har daqiqa DB dagi vaqtni tekshiradi
             self.scheduler.add_job(
                 self._check_and_run_daily_reminders,
                 CronTrigger(minute='*'),
@@ -320,7 +320,7 @@ class DebtScheduler:
                 replace_existing=True
             )
             reminder_time = self._get_reminder_time_from_db()
-            logger.info(f"âœ… Kunlik eslatmalar: DB dan o'qiladi (hozir: {reminder_time})")
+            logger.info(f"✅ Kunlik eslatmalar: DB dan o'qiladi (hozir: {reminder_time})")
 
             # Individual eslatmalarni tekshirish (har 5 daqiqada)
             self.scheduler.add_job(
@@ -330,15 +330,15 @@ class DebtScheduler:
                 name='Belgilangan eslatmalarni tekshirish',
                 replace_existing=True
             )
-            logger.info("âœ… Belgilangan eslatmalar: har 5 daqiqada tekshiriladi")
-            # 09:20 muddatli eslatmalar olib tashlandi â€” endi 10:00 da send_daily_reminders ichida ishlaydi
+            logger.info("✅ Belgilangan eslatmalar: har 5 daqiqada tekshiriladi")
+            # 09:20 muddatli eslatmalar olib tashlandi — endi 10:00 da send_daily_reminders ichida ishlaydi
 
             # Schedulerni boshlash
             self.scheduler.start()
-            logger.info("âœ… Scheduler ishga tushdi")
+            logger.info("✅ Scheduler ishga tushdi")
 
         except Exception as e:
-            logger.error(f"âŒ Scheduler ishga tushirishda xatolik: {e}")
+            logger.error(f"❌ Scheduler ishga tushirishda xatolik: {e}")
 
     def check_scheduled_reminders(self):
         """Foydalanuvchi belgilagan eslatmalarni tekshirish va yuborish (sinxron)"""
@@ -370,7 +370,7 @@ class DebtScheduler:
                 for reminder in reminders:
                     # Bugungi eslatmalar uchun vaqtni tekshirish
                     if reminder.reminder_date == today and reminder.reminder_time > current_time:
-                        logger.info(f"â³ Hali vaqti kelmagan: {reminder.reminder_date} {reminder.reminder_time}")
+                        logger.info(f"⏳ Hali vaqti kelmagan: {reminder.reminder_date} {reminder.reminder_time}")
                         continue  # Hali vaqti kelmagan
 
                     customer = Customer.query.get(reminder.customer_id)
@@ -390,7 +390,7 @@ class DebtScheduler:
                     remaining_debt = sum(float(s.debt_usd or 0) for s in debt_sales)
 
                     if remaining_debt <= 0:
-                        logger.info(f"âœ… Qarz yo'q, eslatma o'chirildi: {customer.name}")
+                        logger.info(f"✅ Qarz yo'q, eslatma o'chirildi: {customer.name}")
                         reminder.is_sent = True
                         reminder.is_active = False
                         continue
@@ -430,14 +430,14 @@ class DebtScheduler:
                             reminder.is_sent = True
                             reminder.sent_at = get_tashkent_time()
                             sent_count += 1
-                            logger.info(f"âœ… Belgilangan eslatma yuborildi: {customer.name}")
+                            logger.info(f"✅ Belgilangan eslatma yuborildi: {customer.name}")
                         else:
-                            logger.error(f"âŒ Eslatma yuborilmadi (False): {customer.name}")
+                            logger.error(f"❌ Eslatma yuborilmadi (False): {customer.name}")
 
                         time_module.sleep(1)
 
                     except Exception as e:
-                        logger.error(f"âŒ Eslatma yuborishda xatolik ({customer.name}): {e}")
+                        logger.error(f"❌ Eslatma yuborishda xatolik ({customer.name}): {e}")
 
                 self.db.session.commit()
 
@@ -448,7 +448,7 @@ class DebtScheduler:
 
             except Exception as e:
                 self.db.session.rollback()
-                logger.error(f"âŒ Belgilangan eslatmalarni tekshirishda xatolik: {e}")
+                logger.error(f"❌ Belgilangan eslatmalarni tekshirishda xatolik: {e}")
 
     def check_due_date_reminders(self):
         """
@@ -581,14 +581,14 @@ class DebtScheduler:
 
                         if response.status_code == 200:
                             sent_count += 1
-                            logger.info(f"âœ… Muddatli eslatma yuborildi ({message_type}): {customer.name}")
+                            logger.info(f"✅ Muddatli eslatma yuborildi ({message_type}): {customer.name}")
                         else:
-                            logger.error(f"âŒ Telegram xatosi ({customer.name}): {response.status_code}")
+                            logger.error(f"❌ Telegram xatosi ({customer.name}): {response.status_code}")
 
                         time_module.sleep(1)
 
                     except Exception as e:
-                        logger.error(f"âŒ Muddatli eslatma yuborishda xatolik ({customer.name}): {e}")
+                        logger.error(f"❌ Muddatli eslatma yuborishda xatolik ({customer.name}): {e}")
 
                 if sent_count > 0:
                     logger.info(f"📊 Muddatli eslatmalar: {sent_count} ta yuborildi")
@@ -599,7 +599,7 @@ class DebtScheduler:
                 self._send_admin_due_date_summary(debt_sales, today, exchange_rate)
 
             except Exception as e:
-                logger.error(f"âŒ Muddatli eslatmalarni tekshirishda xatolik: {e}")
+                logger.error(f"❌ Muddatli eslatmalarni tekshirishda xatolik: {e}")
 
     def _send_admin_due_date_summary(self, debt_sales, today, exchange_rate):
         """Adminlarga bugungi va muddati o'tgan qarzlar haqida yig'ma xabar yuborish"""
@@ -661,7 +661,7 @@ class DebtScheduler:
                         }, timeout=10)
                         time_module.sleep(0.3)
                     except Exception as e:
-                        logger.error(f"âŒ Admin xabar yuborishda xatolik: {e}")
+                        logger.error(f"❌ Admin xabar yuborishda xatolik: {e}")
 
             # Bugun to'lash muddati kelgan mijozlar
             if due_today_list:
@@ -694,10 +694,10 @@ class DebtScheduler:
                 lines.append(f"\n{'─'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
                 send_to_admins("\n".join(lines))
 
-            logger.info("âœ… Adminlarga yig'ma qarz xabari yuborildi")
+            logger.info("✅ Adminlarga yig'ma qarz xabari yuborildi")
 
         except Exception as e:
-            logger.error(f"âŒ Admin yig'ma xabar yuborishda xatolik: {e}")
+            logger.error(f"❌ Admin yig'ma xabar yuborishda xatolik: {e}")
 
     def stop(self):
         """Schedulerni to'xtatish"""
@@ -733,7 +733,7 @@ def init_debt_scheduler(app, db):
     import atexit
     atexit.register(lambda: scheduler.stop())
 
-    logger.info("âœ… Debt Scheduler Flask app bilan integratsiya qilindi")
+    logger.info("✅ Debt Scheduler Flask app bilan integratsiya qilindi")
     return scheduler
 
 
