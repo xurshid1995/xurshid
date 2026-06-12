@@ -201,7 +201,7 @@ class DebtScheduler:
                 customer = Customer.query.get(customer_id)
                 if not customer or not customer.telegram_chat_id:
                     logger.warning(
-                        f"âš ï¸ Mijoz {customer_id} uchun telegram_chat_id yo'q"
+                        f"⚠️ Mijoz {customer_id} uchun telegram_chat_id yo'q"
                     )
                     return False
 
@@ -343,7 +343,7 @@ class DebtScheduler:
     def check_scheduled_reminders(self):
         """Foydalanuvchi belgilagan eslatmalarni tekshirish va yuborish (sinxron)"""
         if not self.app or not self.db:
-            logger.warning("âš ï¸ check_scheduled_reminders: app yoki db mavjud emas")
+            logger.warning("⚠️ check_scheduled_reminders: app yoki db mavjud emas")
             return
 
         with self.app.app_context():
@@ -375,7 +375,7 @@ class DebtScheduler:
 
                     customer = Customer.query.get(reminder.customer_id)
                     if not customer or not customer.telegram_chat_id:
-                        logger.warning(f"âš ï¸ Mijoz topilmadi yoki telegram_chat_id yo'q: customer_id={reminder.customer_id}")
+                        logger.warning(f"⚠️ Mijoz topilmadi yoki telegram_chat_id yo'q: customer_id={reminder.customer_id}")
                         reminder.is_active = False
                         continue
 
@@ -458,7 +458,7 @@ class DebtScheduler:
         3. Muddat o'tgan - har kuni eslatma (qarz to'lanmaguncha)
         """
         if not self.app or not self.db:
-            logger.warning("âš ï¸ check_due_date_reminders: app yoki db mavjud emas")
+            logger.warning("⚠️ check_due_date_reminders: app yoki db mavjud emas")
             return
 
         with self.app.app_context():
@@ -528,42 +528,42 @@ class DebtScheduler:
 
                         if message_type == 'pre_reminder':
                             message = (
-                                f"âš ï¸ <b>QARZ ESLATMASI</b>\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n\n"
+                                f"⚠️ <b>QARZ ESLATMASI</b>\n"
+                                f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
                                 f"ğŸ“ {location_name} dokonidan\n\n"
-                                f"ğŸ’µ Qarzingiz: <b>{debt_usd_str}</b>\n\n"
+                                f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
                                 f"ğŸ“… Qarzingizni to'lash muddati <b>ertaga ({due_date_str})</b>\n\n"
                                 f"Iltimos, ertaga qarzingizni to'lashni unutmang!\n\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+                                f"────────────────────\n"
                                 f"Qarz bu sizga omonat ğŸ¤\n"
                                 f"Rahmat! ğŸ™"
                             )
                         elif message_type == 'due_today':
                             message = (
-                                f"ğŸ’° <b>QARZ TO'LASH MUDDATI BUGUN!</b>\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n\n"
+                                f"💰 <b>QARZ TO'LASH MUDDATI BUGUN!</b>\n"
+                                f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
                                 f"ğŸ“ {location_name} dokonidan\n\n"
-                                f"ğŸ’µ Qarzingiz: <b>{debt_usd_str}</b>\n\n"
+                                f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
                                 f"ğŸ“… Qarzingizni to'lash muddati <b>bugun ({today_str})</b>\n"
                                 f"ğŸ”” Iltimos, qarzingizni bugunoq to'lang!\n\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+                                f"────────────────────\n"
                                 f"Qarz bu sizga omonat ğŸ¤\n"
                                 f"Rahmat! ğŸ™"
                             )
                         elif message_type == 'overdue':
                             days_overdue = (today - due_date).days
                             message = (
-                                f"ğŸ”´ <b>DIQQAT! QARZ MUDDATI O'TGAN!</b>\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n\n"
+                                f"🔴 <b>DIQQAT! QARZ MUDDATI O'TGAN!</b>\n"
+                                f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
                                 f"ğŸ“ {location_name} dokonidan\n\n"
-                                f"ğŸ’µ Qarzingiz: <b>{debt_usd_str}</b>\n\n"
+                                f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
                                 f"ğŸ“… To'lash muddati: <b>{due_date_str}</b>\n"
-                                f"â— Muddatdan <b>{days_overdue} kun</b> o'tgan!\n\n"
+                                f"❗ Muddatdan <b>{days_overdue} kun</b> o'tgan!\n\n"
                                 f"ğŸš¨ Iltimos, qarzingizni imkon qadar tezroq to'lang!\n\n"
-                                f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+                                f"────────────────────\n"
                                 f"Qarz bu sizga omonat ğŸ¤\n"
                                 f"Rahmat! ğŸ™"
                             )
@@ -634,7 +634,7 @@ class DebtScheduler:
 
                 entry = {
                     'name': customer.name,
-                    'phone': customer.phone or 'â€”',
+                    'phone': customer.phone or '—',
                     'debt_usd': debt_usd,
                     'location': location_name,
                     'due_date': due_date,
@@ -665,33 +665,33 @@ class DebtScheduler:
 
             # Bugun to'lash muddati kelgan mijozlar
             if due_today_list:
-                lines = [f"ğŸ’° <b>BUGUN TO'LOV MUDDATI KELGAN MIJOZLAR</b>\n<b>Sana: {today.strftime('%d.%m.%Y')}</b>\n{'â”'*22}"]
+                lines = [f"💰 <b>BUGUN TO'LOV MUDDATI KELGAN MIJOZLAR</b>\n<b>Sana: {today.strftime('%d.%m.%Y')}</b>\n{'─'*22}"]
                 total = 0
                 for i, e in enumerate(due_today_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   ğŸ“ {e['phone']}\n   ğŸ’µ ${e['debt_usd']:,.2f} | ğŸª {e['location']}")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
                     total += e['debt_usd']
-                lines.append(f"\n{'â”'*22}\nJami: <b>{len(due_today_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(due_today_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
                 send_to_admins("\n".join(lines))
 
             # Ertaga muddati keluvchi mijozlar
             if pre_reminder_list:
-                lines = [f"âš ï¸ <b>ERTAGA TO'LOV MUDDATI KELADI</b>\n<b>Sana: {tomorrow.strftime('%d.%m.%Y')}</b>\n{'â”'*22}"]
+                lines = [f"⚠️ <b>ERTAGA TO'LOV MUDDATI KELADI</b>\n<b>Sana: {tomorrow.strftime('%d.%m.%Y')}</b>\n{'─'*22}"]
                 total = 0
                 for i, e in enumerate(pre_reminder_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   ğŸ“ {e['phone']}\n   ğŸ’µ ${e['debt_usd']:,.2f} | ğŸª {e['location']}")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
                     total += e['debt_usd']
-                lines.append(f"\n{'â”'*22}\nJami: <b>{len(pre_reminder_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(pre_reminder_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
                 send_to_admins("\n".join(lines))
 
             # Muddati o'tgan mijozlar
             if overdue_list:
                 overdue_list.sort(key=lambda x: x['days_overdue'], reverse=True)
-                lines = [f"ğŸ”´ <b>MUDDATI O'TGAN QARZLAR</b>\n{'â”'*22}"]
+                lines = [f"🔴 <b>MUDDATI O'TGAN QARZLAR</b>\n{'─'*22}"]
                 total = 0
                 for i, e in enumerate(overdue_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   ğŸ“ {e['phone']}\n   ğŸ’µ ${e['debt_usd']:,.2f} | ğŸª {e['location']}\n   â— {e['days_overdue']} kun o'tgan ({e['due_date'].strftime('%d.%m.%Y')})")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}\n   ❗ {e['days_overdue']} kun o'tgan ({e['due_date'].strftime('%d.%m.%Y')})")
                     total += e['debt_usd']
-                lines.append(f"\n{'â”'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
                 send_to_admins("\n".join(lines))
 
             logger.info("âœ… Adminlarga yig'ma qarz xabari yuborildi")
@@ -740,7 +740,7 @@ def init_debt_scheduler(app, db):
 if __name__ == "__main__":
     # Test
     print("ğŸ§ª Debt Scheduler test")
-    print("âš ï¸ Flask app bilan ishlatish kerak")
+    print("⚠️ Flask app bilan ishlatish kerak")
 
     # Test uchun:
     # from app import app, db
