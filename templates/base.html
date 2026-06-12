@@ -11,6 +11,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#1e293b">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Diamond">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <title>{% block title %}DOKON{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260402-1000">
@@ -1377,6 +1382,20 @@
             if (tbody) clearHighlight(tbody);
         }, true);
     })();
+    </script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                .then(function(reg) {
+                    console.log('SW ro\'yxatdan o\'tdi:', reg.scope);
+                })
+                .catch(function(err) {
+                    console.log('SW xatosi:', err);
+                });
+        });
+    }
     </script>
 
 </body>

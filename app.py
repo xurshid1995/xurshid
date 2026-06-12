@@ -2147,6 +2147,27 @@ def favicon():
     )
 
 
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'manifest.json',
+        mimetype='application/manifest+json'
+    )
+
+
+@app.route('/service-worker.js')
+def service_worker():
+    response = send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'service-worker.js',
+        mimetype='application/javascript'
+    )
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
+
 # Asosiy sahifa - login sahifasiga yo'naltirish
 @app.route('/')
 def index():
