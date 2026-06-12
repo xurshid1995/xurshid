@@ -2948,8 +2948,8 @@
                 
                 // Miqdorni format qilish
                 const quantityDisplay = unitType === 'litr' 
-                    ? `${parseFloat(quantity).toFixed(2)} L` 
-                    : (quantity % 1 === 0 ? `${Math.floor(quantity)} ${SLANG.unit_pcs}` : `${parseFloat(quantity).toFixed(1)} ${SLANG.unit_pcs}`);
+                    ? `${parseFloat(quantity).toFixed(2)}` 
+                    : (quantity % 1 === 0 ? `${Math.floor(quantity)}` : `${parseFloat(quantity).toFixed(1)}`);
                 
                 const productName = product.name || `${SLANG.product_prefix} ${product.id}`;
                 const safeProductName = productName.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -4647,8 +4647,8 @@
                 
                 // Miqdorni format qilish
                 const quantityDisplay = unitType === 'litr'
-                    ? `${parseFloat(quantity).toFixed(2)} L`
-                    : (quantity % 1 === 0 ? `${Math.floor(quantity)} ${SLANG.unit_pcs}` : `${parseFloat(quantity).toFixed(1)} ${SLANG.unit_pcs}`);
+                    ? `${parseFloat(quantity).toFixed(2)}`
+                    : (quantity % 1 === 0 ? `${Math.floor(quantity)}` : `${parseFloat(quantity).toFixed(1)}`);
                 
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #f0f0f0';
