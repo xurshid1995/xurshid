@@ -1438,7 +1438,7 @@ footer {
     /* Top header mobilda ko'rsatish */
     .top-header {
         display: flex !important;
-        height: 50px;
+        height: 70px;
         padding: 0 0.3rem;
         background: #1e293b;
         box-shadow: 0 2px 12px rgba(15, 23, 42, 0.25);
@@ -1587,7 +1587,7 @@ footer {
     /* Bildirishnoma paneli - mobilda markazda */
     #notifPanel {
         position: fixed !important;
-        top: 68px !important;
+        top: 88px !important;
         left: 50% !important;
         right: auto !important;
         transform: translateX(-50%) !important;
@@ -1720,11 +1720,11 @@ footer {
     /* Main content adjustments */
     .main-content {
         margin-left: 0 !important;
-        margin-top: 60px !important; /* Top header balandligi */
+        margin-top: 70px !important; /* Top header balandligi */
         width: 100% !important;
         max-width: 100vw !important;
         padding: 15px;
-        min-height: calc(100vh - 60px);
+        min-height: calc(100vh - 70px);
         background: transparent;
         box-sizing: border-box;
         overflow-x: hidden;
