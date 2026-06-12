@@ -110,7 +110,7 @@ class DebtScheduler:
                         'sale_date': debt.sale_date
                     })
 
-                logger.info(f"ğŸ“Š {len(result)} ta qarzli mijoz topildi")
+                logger.info(f"📊 {len(result)} ta qarzli mijoz topildi")
                 return result
 
             except Exception as e:
@@ -143,19 +143,19 @@ class DebtScheduler:
                 import pytz
                 now = datetime.now(pytz.timezone('Asia/Tashkent'))
             if now.hour == hour and now.minute == minute:
-                logger.info(f"ğŸ“… Vaqt mos keldi ({reminder_time}) â€” kunlik eslatmalar yuborilmoqda...")
+                logger.info(f"📅 Vaqt mos keldi ({reminder_time}) â€” kunlik eslatmalar yuborilmoqda...")
                 self.send_daily_reminders()
         except Exception as e:
             logger.error(f"âŒ Kunlik eslatma tekshirishda xatolik: {e}")
 
     def send_daily_reminders(self):
         """Kunlik qarz eslatmalarini yuborish (sinxron)"""
-        logger.info("ğŸ“… Kunlik qarz eslatmalari â€” muddatli qarzlar tekshirilmoqda...")
+        logger.info("📅 Kunlik qarz eslatmalari â€” muddatli qarzlar tekshirilmoqda...")
         self.check_due_date_reminders()
 
     def send_weekly_report(self):
         """Haftalik hisobot yuborish (sinxron)"""
-        logger.info("ğŸ“Š Haftalik hisobot yuborilmoqda...")
+        logger.info("📊 Haftalik hisobot yuborilmoqda...")
 
         debts = self._get_customers_with_debt()
         try:
@@ -354,7 +354,7 @@ class DebtScheduler:
                 today = now.date()
                 current_time = now.time()
 
-                logger.info(f"ğŸ” Eslatmalar tekshirilmoqda: {today} {current_time}")
+                logger.info(f"🔍 Eslatmalar tekshirilmoqda: {today} {current_time}")
 
                 # Vaqti kelgan eslatmalarni olish
                 reminders = DebtReminder.query.filter(
@@ -363,7 +363,7 @@ class DebtScheduler:
                     DebtReminder.reminder_date <= today
                 ).all()
 
-                logger.info(f"ğŸ“‹ Topilgan eslatmalar soni: {len(reminders)}")
+                logger.info(f"📋 Topilgan eslatmalar soni: {len(reminders)}")
 
                 sent_count = 0
 
@@ -413,7 +413,7 @@ class DebtScheduler:
                     exchange_rate = float(rate.rate) if rate else 13000
                     debt_uzs = remaining_debt * exchange_rate
 
-                    logger.info(f"ğŸ“¨ Eslatma yuborilmoqda: {customer.name}, qarz: ${remaining_debt}, joy: {location_name}")
+                    logger.info(f"📨 Eslatma yuborilmoqda: {customer.name}, qarz: ${remaining_debt}, joy: {location_name}")
 
                     # Telegram yuborish
                     try:
@@ -442,9 +442,9 @@ class DebtScheduler:
                 self.db.session.commit()
 
                 if sent_count > 0:
-                    logger.info(f"ğŸ“Š Belgilangan eslatmalar: {sent_count} ta yuborildi")
+                    logger.info(f"📊 Belgilangan eslatmalar: {sent_count} ta yuborildi")
                 else:
-                    logger.info("ğŸ“Š Yuborish kerak bo'lgan eslatma yo'q")
+                    logger.info("📊 Yuborish kerak bo'lgan eslatma yo'q")
 
             except Exception as e:
                 self.db.session.rollback()
@@ -469,7 +469,7 @@ class DebtScheduler:
                 today = now.date()
                 tomorrow = today + timedelta(days=1)
 
-                logger.info(f"ğŸ“… Muddatli qarz eslatmalari tekshirilmoqda: {today}")
+                logger.info(f"📅 Muddatli qarz eslatmalari tekshirilmoqda: {today}")
 
                 # Qarzli savdolarni olish (payment_due_date belgilangan)
                 debt_sales = Sale.query.filter(
@@ -479,7 +479,7 @@ class DebtScheduler:
                     Sale.customer_id.isnot(None)
                 ).all()
 
-                logger.info(f"ğŸ“‹ Muddatli qarzlar: {len(debt_sales)} ta")
+                logger.info(f"📋 Muddatli qarzlar: {len(debt_sales)} ta")
 
                 # Kurs
                 rate = CurrencyRate.query.order_by(CurrencyRate.id.desc()).first()
@@ -531,26 +531,26 @@ class DebtScheduler:
                                 f"⚠️ <b>QARZ ESLATMASI</b>\n"
                                 f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
-                                f"ğŸ“ {location_name} dokonidan\n\n"
+                                f"📍 {location_name} dokonidan\n\n"
                                 f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
-                                f"ğŸ“… Qarzingizni to'lash muddati <b>ertaga ({due_date_str})</b>\n\n"
+                                f"📅 Qarzingizni to'lash muddati <b>ertaga ({due_date_str})</b>\n\n"
                                 f"Iltimos, ertaga qarzingizni to'lashni unutmang!\n\n"
                                 f"────────────────────\n"
-                                f"Qarz bu sizga omonat ğŸ¤\n"
-                                f"Rahmat! ğŸ™"
+                                f"Qarz bu sizga omonat 🤝\n"
+                                f"Rahmat! 🙏"
                             )
                         elif message_type == 'due_today':
                             message = (
                                 f"💰 <b>QARZ TO'LASH MUDDATI BUGUN!</b>\n"
                                 f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
-                                f"ğŸ“ {location_name} dokonidan\n\n"
+                                f"📍 {location_name} dokonidan\n\n"
                                 f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
-                                f"ğŸ“… Qarzingizni to'lash muddati <b>bugun ({today_str})</b>\n"
-                                f"ğŸ”” Iltimos, qarzingizni bugunoq to'lang!\n\n"
+                                f"📅 Qarzingizni to'lash muddati <b>bugun ({today_str})</b>\n"
+                                f"🔔 Iltimos, qarzingizni bugunoq to'lang!\n\n"
                                 f"────────────────────\n"
-                                f"Qarz bu sizga omonat ğŸ¤\n"
-                                f"Rahmat! ğŸ™"
+                                f"Qarz bu sizga omonat 🤝\n"
+                                f"Rahmat! 🙏"
                             )
                         elif message_type == 'overdue':
                             days_overdue = (today - due_date).days
@@ -558,14 +558,14 @@ class DebtScheduler:
                                 f"🔴 <b>DIQQAT! QARZ MUDDATI O'TGAN!</b>\n"
                                 f"────────────────────\n\n"
                                 f"Hurmatli <b>{customer.name}</b>!\n\n"
-                                f"ğŸ“ {location_name} dokonidan\n\n"
+                                f"📍 {location_name} dokonidan\n\n"
                                 f"💵 Qarzingiz: <b>{debt_usd_str}</b>\n\n"
-                                f"ğŸ“… To'lash muddati: <b>{due_date_str}</b>\n"
+                                f"📅 To'lash muddati: <b>{due_date_str}</b>\n"
                                 f"❗ Muddatdan <b>{days_overdue} kun</b> o'tgan!\n\n"
-                                f"ğŸš¨ Iltimos, qarzingizni imkon qadar tezroq to'lang!\n\n"
+                                f"🚨 Iltimos, qarzingizni imkon qadar tezroq to'lang!\n\n"
                                 f"────────────────────\n"
-                                f"Qarz bu sizga omonat ğŸ¤\n"
-                                f"Rahmat! ğŸ™"
+                                f"Qarz bu sizga omonat 🤝\n"
+                                f"Rahmat! 🙏"
                             )
 
                         # Telegram yuborish
@@ -591,9 +591,9 @@ class DebtScheduler:
                         logger.error(f"âŒ Muddatli eslatma yuborishda xatolik ({customer.name}): {e}")
 
                 if sent_count > 0:
-                    logger.info(f"ğŸ“Š Muddatli eslatmalar: {sent_count} ta yuborildi")
+                    logger.info(f"📊 Muddatli eslatmalar: {sent_count} ta yuborildi")
                 else:
-                    logger.info("ğŸ“Š Muddatli eslatma yuborish kerak emas")
+                    logger.info("📊 Muddatli eslatma yuborish kerak emas")
 
                 # Adminlarga yig'ma xabar yuborish
                 self._send_admin_due_date_summary(debt_sales, today, exchange_rate)
@@ -703,7 +703,7 @@ class DebtScheduler:
         """Schedulerni to'xtatish"""
         if self.scheduler.running:
             self.scheduler.shutdown()
-            logger.info("ğŸ›‘ Scheduler to'xtatildi")
+            logger.info("🛑 Scheduler to'xtatildi")
 
 
 # Singleton instance
@@ -739,7 +739,7 @@ def init_debt_scheduler(app, db):
 
 if __name__ == "__main__":
     # Test
-    print("ğŸ§ª Debt Scheduler test")
+    print("🧪 Debt Scheduler test")
     print("⚠️ Flask app bilan ishlatish kerak")
 
     # Test uchun:
