@@ -736,6 +736,39 @@
     .sales-tab.active .tab-badge {
         background: #1558d6;
     }
+
+    /* ---- Mobile tab layout ---- */
+    @media (max-width: 768px) {
+        .sales-tabs-header {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 6px 8px;
+            gap: 6px;
+        }
+
+        .tabs-container {
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .sales-tab {
+            min-width: unset;
+            width: 100%;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-new-sale {
+            width: 100%;
+            padding: 7px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+            align-self: stretch;
+            margin-bottom: 0;
+        }
+    }
 </style>
 {% endblock %}
 
