@@ -14910,31 +14910,44 @@ def get_current_currency_rate():
         return None  # Xatolik bo'lsa None qaytarish
 
 
-# Oxirgi operatsiyalarni saqlash (memory cache)
-_last_operations = {}
+# ============================================================
+# Stock idempotency - DB asosida (3 Gunicorn worker uchun UMUMIY)
+# ------------------------------------------------------------
+# Eski yechim xotiradagi lug'at (dict) edi. Har bir worker o'z
+# xotirasiga ega bo'lgani uchun, bir so'rov 1-worker'ga, uning
+# dublikati 2-worker'ga tushsa dedupe ISHLAMAS edi -> stock ikki
+# marta o'zgarib, ombor qoldig'i xato bo'lardi.
+# Endi ApiOperation jadvali (umumiy PostgreSQL) ishlatiladi:
+# idempotency_key ustunidagi UNIQUE constraint tufayli faqat BITTA
+# so'rov operatsiyani bajaradi.
+# ============================================================
 
-# Idempotency keys - qayta bajarilmasligi uchun (1 soat saqlanadi)
-_processed_idempotency_keys = {}
+def _claim_stock_operation(idempotency_key, operation_type):
+    """Idempotency key'ni atomik ravishda 'band' qiladi.
 
-def _check_idempotency(key):
-    """Agar bu key allaqachon bajarilgan bo'lsa True qaytaradi"""
-    if not key:
-        return False
-    if key in _processed_idempotency_keys:
+    Returns:
+        True  -> birinchi marta: operatsiyani BAJARING
+        False -> allaqachon bajarilgan: operatsiyani O'TKAZIB YUBORING
+
+    ApiOperation yozuvi shu yerda session'ga qo'shiladi va asosiy stock
+    o'zgarishi bilan BIR commit'da saqlanadi (atomik). Agar key allaqachon
+    mavjud bo'lsa, UNIQUE constraint IntegrityError beradi -> False.
+    """
+    if not idempotency_key:
+        return True  # Key bo'lmasa dedupe qilib bo'lmaydi, davom etamiz
+
+    from sqlalchemy.exc import IntegrityError
+    try:
+        db.session.add(ApiOperation(
+            idempotency_key=idempotency_key,
+            operation_type=operation_type,
+            status='completed'
+        ))
+        db.session.flush()  # INSERT shu yerda -> unique violation darhol chiqadi
         return True
-    return False
-
-def _mark_idempotency(key):
-    """Keyni bajarilgan deb belgilash"""
-    if not key:
-        return
-    _processed_idempotency_keys[key] = get_tashkent_time()
-    # Eski keylarni tozalash (1000 dan oshsa)
-    if len(_processed_idempotency_keys) > 1000:
-        cutoff = get_tashkent_time() - timedelta(hours=1)
-        expired = [k for k, t in _processed_idempotency_keys.items() if t < cutoff]
-        for k in expired:
-            del _processed_idempotency_keys[k]
+    except IntegrityError:
+        db.session.rollback()  # Key allaqachon mavjud -> dublikat
+        return False
 
 # API endpoint - Real-time stock rezerv qilish (korzinaga qo'shilganda)
 @app.route('/api/reserve-stock', methods=['POST'])
@@ -14949,8 +14962,8 @@ def api_reserve_stock():
         location_type = data.get('location_type')
         idempotency_key = data.get('idempotency_key')
 
-        # Idempotency tekshiruvi - bir xil so'rov ikki marta bajarilmaydi
-        if _check_idempotency(idempotency_key):
+        # Idempotency: atomik claim (DB orqali - 3 worker uchun ham xavfsiz)
+        if not _claim_stock_operation(idempotency_key, 'reserve_stock'):
             logger.debug(f"✅ IDEMPOTENCY: {idempotency_key} allaqachon bajarilgan, qaytarish")
             return jsonify({'success': True, 'already_processed': True}), 200
 
@@ -14965,18 +14978,10 @@ def api_reserve_stock():
         logger.debug(f"   Timestamp: {get_tashkent_time()}")
         logger.debug(f"{'=' * 80}\n")
 
-        # Duplicate operatsiyani oldini olish
-        operation_key = f"reserve_{product_id}_{location_id}_{location_type}_{quantity}"
-        current_time = get_tashkent_time()
-
-        if operation_key in _last_operations:
-            last_time = _last_operations[operation_key]
-            time_diff = (current_time - last_time).total_seconds()
-            if time_diff < 2:  # 2 sekund ichida bir xil operatsiya
-                logger.debug(f"⚠️ DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
-                return jsonify({'success': True, 'message': 'Duplicate operatsiya blocked', 'blocked': True}), 200
-
-        _last_operations[operation_key] = current_time
+        # ESLATMA: Eski param-asosidagi 2 soniyalik "duplicate block" olib
+        # tashlandi - u bir xil mahsulotni turli savatlarga qo'shishni xato
+        # bloklab, stock'ni kam ayirardi. Endi dedupe faqat idempotency_key
+        # orqali (yuqorida _claim_stock_operation) aniq bajariladi.
 
         # Mahsulotni tekshirish
         product = Product.query.get(product_id)
@@ -15043,12 +15048,9 @@ def api_reserve_stock():
             return jsonify(
                 {'success': False, 'error': 'Noto\'g\'ri joylashuv turi'}), 400
 
-        # O'zgarishlarni saqlash
+        # O'zgarishlarni saqlash (stock + idempotency claim BIR commit'da)
         db.session.commit()
         logger.debug("💾 DB COMMIT: Stock o'zgarish saqlandi\n")
-
-        # Idempotency keyni bajarilgan deb belgilash
-        _mark_idempotency(idempotency_key)
 
         return jsonify({
             'success': True,
@@ -15075,8 +15077,8 @@ def api_return_stock():
         location_type = data.get('location_type')
         idempotency_key = data.get('idempotency_key')
 
-        # Idempotency tekshiruvi - bir xil so'rov ikki marta bajarilmaydi
-        if _check_idempotency(idempotency_key):
+        # Idempotency: atomik claim (DB orqali - 3 worker uchun ham xavfsiz)
+        if not _claim_stock_operation(idempotency_key, 'return_stock'):
             logger.debug(f"✅ IDEMPOTENCY: {idempotency_key} allaqachon bajarilgan, qaytarish")
             return jsonify({'success': True, 'already_processed': True}), 200
 
@@ -15089,18 +15091,9 @@ def api_return_stock():
         logger.debug(f"   Timestamp: {get_tashkent_time()}")
         logger.debug(f"{'=' * 80}\n")
 
-        # Duplicate operatsiyani oldini olish
-        operation_key = f"return_{product_id}_{location_id}_{location_type}_{quantity}"
-        current_time = get_tashkent_time()
-
-        if operation_key in _last_operations:
-            last_time = _last_operations[operation_key]
-            time_diff = (current_time - last_time).total_seconds()
-            if time_diff < 2:  # 2 sekund ichida bir xil operatsiya
-                logger.debug(f"⚠️ DUPLICATE OPERATION BLOCKED: {time_diff:.2f} sekund oldin bajarilgan")
-                return jsonify({'success': True, 'message': 'Duplicate operatsiya blocked', 'blocked': True}), 200
-
-        _last_operations[operation_key] = current_time
+        # ESLATMA: Eski param-asosidagi 2 soniyalik "duplicate block" olib
+        # tashlandi. Dedupe endi faqat idempotency_key orqali (yuqorida
+        # _claim_stock_operation) aniq bajariladi.
 
         # Mahsulotni tekshirish
         product = Product.query.get(product_id)
@@ -15167,12 +15160,9 @@ def api_return_stock():
             return jsonify(
                 {'success': False, 'error': 'Noto\'g\'ri joylashuv turi'}), 400
 
-        # O'zgarishlarni saqlash
+        # O'zgarishlarni saqlash (stock + idempotency claim BIR commit'da)
         db.session.commit()
         logger.debug("💾 DB COMMIT: Stock qaytarish saqlandi\n")
-
-        # Idempotency keyni bajarilgan deb belgilash
-        _mark_idempotency(idempotency_key)
 
         return jsonify({
             'success': True,
