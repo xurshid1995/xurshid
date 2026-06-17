@@ -198,6 +198,14 @@
                 </a>
             </li>
             {% endif %}
+            {% if session.role != 'omborchi' %}
+            <li>
+                <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-bank-cards-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span>{{ t('debts') }}</span>
+                </a>
+            </li>
+            {% endif %}
             <li>
                 <a href="/operations-history" {% if request.endpoint == 'operations_history' %}class="active"{% endif %}>
                     <span class="icon">📜</span>
@@ -241,12 +249,6 @@
             </li>
             {% endif %}
             {% if session.role != 'omborchi' %}
-            <li>
-                <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-bank-cards-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
-                    <span>{{ t('debts') }}</span>
-                </a>
-            </li>
             <li>
                 <a href="/customers" {% if request.endpoint == 'customers' %}class="active"{% endif %}>
                     <span class="icon"><img src="https://img.icons8.com/fluency/96/conference.png" alt="Customers" style="width: 20px; height: 20px;"></span>
