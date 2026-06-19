@@ -3111,7 +3111,7 @@
             const totalPages = Math.ceil(totalProducts / itemsPerPage);
             const paginationDiv = document.getElementById(`productsPagination_tab${tabId}`);
             if (totalPages > 1) {
-                let paginationHTML = `<span style="color: #666; font-size: 14px;">${totalProducts} ta mahsulot (${currentPage} / ${totalPages} bet)</span>`;
+                let paginationHTML = '';
                 
                 // Oldingi tugma
                 if (currentPage > 1) {
