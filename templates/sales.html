@@ -839,10 +839,33 @@
             border-radius: 3px !important;
         }
     }
+
+    /* Custom toast ogohlantirish */
+    #salesToast {
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99999;
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffc107;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        max-width: 90vw;
+        text-align: center;
+        display: none;
+        pointer-events: none;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Custom toast -->
+<div id="salesToast"></div>
 <!-- Offline banner -->
 <div id="offlineBanner" style="display:none; position:sticky; top:0; z-index:10000; background:#dc3545; color:white; text-align:center; padding:10px 20px; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
     ⚠️ Internet aloqasi yo'q — savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
@@ -2932,7 +2955,27 @@
         
         addToCart(productId, productName, quantity, price, costPrice, unitType, imageUrl);
     }
-    
+
+    // Mobilda alert() ishlamaydi - custom toast ishlatamiz
+    let _toastTimer = null;
+    function showToast(msg, type = 'warning', duration = 3000) {
+        const el = document.getElementById('salesToast');
+        if (!el) return;
+        clearTimeout(_toastTimer);
+        const styles = {
+            warning: { bg: '#fff3cd', color: '#856404', border: '#ffc107' },
+            error:   { bg: '#f8d7da', color: '#721c24', border: '#dc3545' },
+            success: { bg: '#d1e7dd', color: '#0a3622', border: '#198754' },
+        };
+        const s = styles[type] || styles.warning;
+        el.style.background = s.bg;
+        el.style.color = s.color;
+        el.style.border = `1px solid ${s.border}`;
+        el.textContent = msg;
+        el.style.display = 'block';
+        _toastTimer = setTimeout(() => { el.style.display = 'none'; }, duration);
+    }
+
     // Mahsulotlarni yuklash
     // Pagination o'zgaruvchilari
     let currentPage = 1;
@@ -3826,7 +3869,7 @@
         // Mahsulot allaqachon savatda borligini tekshirish
         const existingItem = cart.find(item => item.id === currentProduct.id);
         if (existingItem) {
-            alert('⚠️ ' + SLANG.already_in_cart + '\n\n' + SLANG.already_in_cart_hint);
+            showToast('⚠️ ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
             closeModal();
             return;
         }
