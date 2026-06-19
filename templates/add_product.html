@@ -142,6 +142,63 @@
     .addp-table { font-size: 12px; }
     .addp-table th, .addp-table td { padding: 8px 6px; }
 }
+
+/* Qidiruv */
+.addp-search-wrap {
+    padding: 12px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.addp-search-box {
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 420px;
+}
+.addp-search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+    pointer-events: none;
+}
+.addp-search-input {
+    width: 100%;
+    padding: 8px 32px 8px 32px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.addp-search-input:focus { border-color: #1a6eff; }
+.addp-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 0 2px;
+    display: none;
+}
+.addp-search-count {
+    background: #1a6eff;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    display: none;
+}
+.search-highlight { background: #fef08a; border-radius: 2px; font-weight: 600; }
 </style>
 {% endblock %}
 
@@ -191,6 +248,14 @@
                 style="margin-left:auto; padding:5px 14px; background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; font-size:12px; font-weight:600; color:#475569; cursor:pointer;">
                 🔄 {{ t('ap_refresh') }}
             </button>
+        </div>
+        <div class="addp-search-wrap">
+            <div class="addp-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="historySearch" class="addp-search-input" placeholder="Mahsulot nomi bo'yicha qidirish..." oninput="filterHistory(this.value)">
+                <button class="addp-search-clear" id="historySearchClear" onclick="clearHistorySearch()"><i class="fas fa-times"></i></button>
+            </div>
+            <span class="addp-search-count" id="historySearchCount"></span>
         </div>
         <div id="historyLoading" style="text-align:center; padding:24px; color:#94a3b8;">
             <p>{{ t('ap_history_loading') }}</p>
@@ -288,21 +353,48 @@ async function loadProductHistory() {
     }
 }
 
-function displayProductHistory(history) {
+let _historyData = [];
+
+function highlightText(text, term) {
+    if (!term) return text;
+    const words = term.trim().split(/\s+/).filter(w => w.length > 0);
+    if (!words.length) return text;
+    const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    return text.replace(new RegExp(`(${pattern})`, 'gi'), '<span class="search-highlight">$1</span>');
+}
+
+function displayProductHistory(history, searchTerm = '') {
+    _historyData = history;
     const tbody = document.getElementById('productHistoryBody');
     tbody.innerHTML = '';
     if (!history || history.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#64748b; padding:2rem;">📝 Hech qanday mahsulot qo\'shilmagan</td></tr>';
         return;
     }
-    history.forEach(product => {
+    const term = searchTerm.trim().toLowerCase();
+    const filtered = term ? history.filter(p => p.name.toLowerCase().includes(term)) : history;
+
+    const countEl = document.getElementById('historySearchCount');
+    if (term) {
+        countEl.textContent = filtered.length + ' / ' + history.length;
+        countEl.style.display = 'inline-block';
+    } else {
+        countEl.style.display = 'none';
+    }
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#64748b; padding:2rem;">🔍 "' + searchTerm + '" bo\'yicha natija topilmadi</td></tr>';
+        return;
+    }
+
+    filtered.forEach(product => {
         const date = product.created_date ? new Date(product.created_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' }) : '—';
         const locations = product.locations.map(l => `${l.name} (${l.quantity} ta)`).join(', ') || '—';
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="font-size:12px;">${date}</td>
             <td style="font-size:12px; color:#64748b;">${locations}</td>
-            <td style="font-weight:600;">${product.name}</td>
+            <td style="font-weight:600;">${highlightText(product.name, searchTerm)}</td>
             <td>${product.total_quantity} ta</td>
             <td style="text-align:right; color:#dc2626;">$${product.cost_price.toLocaleString('uz-UZ')}</td>
             <td style="text-align:right; color:#059669;">$${product.sell_price.toLocaleString('uz-UZ')}</td>
@@ -311,6 +403,19 @@ function displayProductHistory(history) {
         `;
         tbody.appendChild(row);
     });
+}
+
+function filterHistory(value) {
+    const clearBtn = document.getElementById('historySearchClear');
+    clearBtn.style.display = value ? 'block' : 'none';
+    displayProductHistory(_historyData, value);
+}
+
+function clearHistorySearch() {
+    const inp = document.getElementById('historySearch');
+    inp.value = '';
+    inp.focus();
+    filterHistory('');
 }
 
 async function refreshHistory() {
