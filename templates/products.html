@@ -576,8 +576,25 @@
             // Server-side pagination data
             if (data.products) {
                 allProducts = data.products;
-                // Alifbo tartibida saralash
-                allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
+                // Tartiblash: qidiruv bo'lsa relevantlik, aks holda alifbo
+                const searchLower = (search || '').toLowerCase().trim();
+                if (searchLower) {
+                    allProducts.sort((a, b) => {
+                        const an = (a.name || '').toLowerCase();
+                        const bn = (b.name || '').toLowerCase();
+                        // 0 = nom boshida, 1 = so'z boshida, 2 = ichida
+                        const rank = n => {
+                            if (n.startsWith(searchLower)) return 0;
+                            if (n.split(/\s+/).some(w => w.startsWith(searchLower))) return 1;
+                            return 2;
+                        };
+                        const ra = rank(an), rb = rank(bn);
+                        if (ra !== rb) return ra - rb;
+                        return an.localeCompare(bn, 'uz-UZ', { numeric: true, sensitivity: 'base' });
+                    });
+                } else {
+                    allProducts.sort((a, b) => a.name.localeCompare(b.name, 'uz-UZ', { numeric: true, sensitivity: 'base' }));
+                }
                 filteredProducts = [...allProducts];
                 currentPage = data.pagination.page;
                 totalProducts = data.pagination.total;
