@@ -954,7 +954,7 @@ def api_products():
         norm_search = normalize_search(search)
         search_words = [w for w in norm_search.split() if w]
         if search_words:
-            # Har bir so'z uchun OR sharti: har qanday so'z bo'lsa topadi
+            # Har bir so'z uchun AND sharti: barcha so'zlar bo'lsa topadi (qisman so'z qidiruv)
             word_conditions = [
                 db.or_(
                     Product.name.ilike(f'%{word}%'),
@@ -962,7 +962,7 @@ def api_products():
                 )
                 for word in search_words
             ]
-            query = query.filter(db.or_(*word_conditions))
+            query = query.filter(db.and_(*word_conditions))
 
     # Saralash uchun location ma'lumotlarini saqlash
     final_loc_type = None
@@ -1231,7 +1231,7 @@ def api_search_products_by_location(location_type, location_id):
             if search_term:
                 search_words = [w for w in normalize_search(search_term).split() if w]
                 if search_words:
-                    query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
+                    query = query.filter(db.and_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
             stocks = query.limit(limit).all()
 
@@ -1253,7 +1253,7 @@ def api_search_products_by_location(location_type, location_id):
             if search_term:
                 search_words = [w for w in normalize_search(search_term).split() if w]
                 if search_words:
-                    query = query.filter(db.or_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
+                    query = query.filter(db.and_(*[Product.name.ilike(f'%{w}%') for w in search_words]))
 
             stocks = query.limit(limit).all()
 
