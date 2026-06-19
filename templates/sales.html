@@ -3115,7 +3115,7 @@
                 
                 // Oldingi tugma
                 if (currentPage > 1) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">&#8592; Oldingi</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage - 1})" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">&#8592; Oldingi</button>`;
                 }
                 
                 // Sahifa raqamlari (faqat yaqin sahifalarni ko'rsatish)
@@ -3136,16 +3136,16 @@
                 
                 pagesToShow.forEach(page => {
                     if (page === '...') {
-                        paginationHTML += `<span style="padding: 8px 12px; color: #999;">...</span>`;
+                        paginationHTML += `<span style="padding: 4px 8px; font-size: 12px; color: #999;">...</span>`;
                     } else {
                         const isActive = page === currentPage;
-                        paginationHTML += `<button onclick="loadProducts(${page})" style="padding: 8px 12px; border: 1px solid ${isActive ? '#007bff' : '#ddd'}; background: ${isActive ? '#007bff' : 'white'}; color: ${isActive ? 'white' : '#333'}; cursor: pointer; border-radius: 4px; font-weight: ${isActive ? 'bold' : 'normal'};">${page}</button>`;
+                        paginationHTML += `<button onclick="loadProducts(${page})" style="padding: 4px 8px; font-size: 12px; border: 1px solid ${isActive ? '#007bff' : '#ddd'}; background: ${isActive ? '#007bff' : 'white'}; color: ${isActive ? 'white' : '#333'}; cursor: pointer; border-radius: 4px; font-weight: ${isActive ? 'bold' : 'normal'};">${page}</button>`;
                     }
                 });
                 
                 // Keyingi tugma
                 if (currentPage < totalPages) {
-                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi &#8594;</button>`;
+                    paginationHTML += `<button onclick="loadProducts(${currentPage + 1})" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">Keyingi &#8594;</button>`;
                 }
                 
                 paginationDiv.innerHTML = paginationHTML;
