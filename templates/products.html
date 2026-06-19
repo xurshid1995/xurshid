@@ -2,13 +2,7 @@
 
 {% block title %}{{ t('pr_page_title') }}{% endblock %}
 
-{% block extra_css %}
-<style>
-/* ====================================================
-   NESTDRAX CRM - MAHSULOTLAR SAHIFASI DIZAYNI
-   ==================================================== */
-
-/* Page wrapper */
+{% block extra_css %}{% endblock %}
 .ps-page {
     padding: 28px 28px 40px;
     background: #f5f6fa;
@@ -298,12 +292,6 @@
         padding: 1px 8px;
         border-radius: 12px;
     }
-    #prodOpsPopup .op-date { color: #555; font-size: 0.82rem; font-weight: 600; white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; text-align: right; line-height: 1.3; }
-    #prodOpsPopup .op-loc { color: #555; font-size: 0.78rem; background: #f0f0f0; border-radius: 4px; padding: 1px 6px; margin-left: 4px; }
-    #prodOpsPopup .op-desc { color: #222; line-height: 1.4; font-size: 0.95rem; font-weight: 600; }
-    #prodOpsPopup .op-user { color: #222; font-size: 0.77rem; background: #eef0ff; border-radius: 4px; padding: 1px 6px; }
-</style>
-{% endblock %}
 
 {% block content %}
 <div id="prodOpsBackdrop" onclick="closeProductOps()"></div>
