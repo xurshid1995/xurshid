@@ -153,12 +153,6 @@
 .stock-medium { color: #ef4444; font-weight: 700; }
 .stock-out    { color: #1e293b; font-weight: 700; }
 
-/* ── Search highlight ── */
-.search-highlight {
-    background: #fef08a; padding: 1px 2px;
-    border-radius: 3px; font-weight: 700;
-}
-
 /* ── Pagination ── */
 .ps-pagination {
     display: flex; justify-content: center; align-items: center;
@@ -796,8 +790,8 @@
                 const quantityZeroClass = totalStock === 0 ? ' quantity-zero' : '';
                 const quantityDisplay = `<span class="quantity-value${quantityZeroClass}">${quantityValue}</span> <span class="quantity-unit">${unitText}</span>`;
                 
-                // Qidiruv matnini highlight qilish
-                const highlightedName = highlightSearchText(product.name, currentSearch);
+                // Mahsulot nomi
+                const highlightedName = product.name;
                 
                 const fuzzyBadge = '';
                 
