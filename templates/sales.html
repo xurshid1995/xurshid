@@ -1964,7 +1964,7 @@
             timestamp: Date.now()
         };
         
-        tabStates.set(tabId, tabData);
+        tabStates[tabId] = tabData;
         saveTabsToLocalStorage();
     }
     
