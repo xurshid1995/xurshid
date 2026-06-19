@@ -49,14 +49,14 @@
    Bir joydan butun sayt dizaynini boshqarish uchun.
    ============================================================ */
 :root {
-    /* Asosiy ko'k (brand) */
-    --color-primary: #1a6eff;
-    --color-primary-dark: #1558d6;
-    --color-primary-darker: #1557cc;
-    --color-primary-soft: rgba(26, 110, 255, 0.1);
+    /* Asosiy indigo (brand) */
+    --color-primary: #6366f1;
+    --color-primary-dark: #4f46e5;
+    --color-primary-darker: #4338ca;
+    --color-primary-soft: rgba(99, 102, 241, 0.1);
 
     /* Holat ranglari */
-    --color-success: #059669;
+    --color-success: #10b981;
     --color-danger: #ef4444;
     --color-warning: #f59e0b;
     --color-indigo: #6366f1;
@@ -65,7 +65,7 @@
     --color-text: #374151;
     --color-text-dark: #1e293b;
     --color-sidebar-bg: #0f172a;
-    --color-bg: #f0f4ff;
+    --color-bg: #f5f4ff;
 
     /* Masofa shkalasi (4px grid) */
     --space-1: 4px;
@@ -105,7 +105,10 @@ body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #374151;
-    background: #f0f4ff;
+    background:
+        radial-gradient(ellipse at 15% 15%, rgba(99,102,241,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 85%, rgba(16,185,129,0.05) 0%, transparent 50%),
+        #f5f4ff;
     display: flex;
     margin: 0;
     padding: 0;
@@ -136,11 +139,11 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: #0f172a;
+    background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
     border-right: none;
     height: calc(100vh - 55px);
     padding: 0;
-    box-shadow: 2px 0 12px rgba(15,23,42,0.3);
+    box-shadow: 2px 0 16px rgba(99,102,241,0.18);
     position: fixed;
     left: 0;
     top: 55px;
@@ -237,17 +240,18 @@ body {
 
 
 .sidebar-menu a:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(99,102,241,0.18);
     color: #ffffff;
     transform: translateX(2px);
 }
 
 .sidebar-menu a.active {
-    background: rgba(255,255,255,0.22);
+    background: linear-gradient(135deg, rgba(99,102,241,0.38), rgba(99,102,241,0.14));
     color: #ffffff;
     font-weight: 600;
     border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    border-left: 3px solid #818cf8;
+    box-shadow: 0 3px 14px rgba(99,102,241,0.22);
     margin: 2px 4px;
 }
 
@@ -274,13 +278,13 @@ body {
     left: 0;
     right: 0;
     height: 55px;
-    background: #1e293b;
+    background: linear-gradient(90deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
     z-index: 999;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 1px 0 rgba(99,102,241,0.15), 0 4px 20px rgba(15, 23, 42, 0.22);
     border-bottom: none;
 }
 
@@ -568,13 +572,13 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #1a6eff;
+    border-color: #6366f1;
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 /* Tugmalar */
 .btn {
-    background: linear-gradient(135deg, #1a6eff, #1557cc);
+    background: linear-gradient(135deg, #6366f1, #4338ca);
     color: white;
     padding: 0.8rem 2rem;
     border: none;
@@ -589,7 +593,7 @@ body {
 }
 
 .btn:hover {
-    background: linear-gradient(135deg, #1557cc, #1043aa);
+    background: linear-gradient(135deg, #4338ca, #1043aa);
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(26, 110, 255, 0.3);
 }
@@ -713,7 +717,7 @@ input[name="price"] {
     background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 8px;
-    border-left: 4px solid #1a6eff;
+    border-left: 4px solid #6366f1;
 }
 
 .tip-item h4 {
@@ -734,7 +738,7 @@ input[name="price"] {
 
 .tip-item li::before {
     content: '•';
-    color: #1a6eff;
+    color: #6366f1;
     font-weight: bold;
     position: absolute;
     left: 0;
@@ -753,7 +757,7 @@ input[name="price"] {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #1a6eff;
+    border-left: 4px solid #6366f1;
 }
 
 .info-card h4 {
@@ -934,13 +938,13 @@ input[name="price"] {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #1a6eff, #1557cc);
+    background: linear-gradient(135deg, #6366f1, #4338ca);
     color: white;
     border-radius: 8px;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #1557cc, #1043aa);
+    background: linear-gradient(135deg, #4338ca, #1043aa);
     box-shadow: 0 4px 12px rgba(26,110,255,0.28);
 }
 
@@ -1095,7 +1099,7 @@ footer {
     align-items: center;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #1a6eff;
+    border-bottom: 2px solid #6366f1;
 }
 
 .store-name {
@@ -1147,12 +1151,12 @@ footer {
 }
 
 .btn-view {
-    background-color: #1a6eff;
+    background-color: #6366f1;
     color: white;
 }
 
 .btn-view:hover {
-    background-color: #1558d6;
+    background-color: #4f46e5;
 }
 
 .btn-edit {
@@ -1199,14 +1203,14 @@ footer {
 }
 
 .submit-btn {
-    background: linear-gradient(135deg, #1a6eff, #1557cc);
+    background: linear-gradient(135deg, #6366f1, #4338ca);
     color: white;
     flex: 2;
     border-radius: 8px;
 }
 
 .submit-btn:hover {
-    background: linear-gradient(135deg, #1557cc, #1043aa);
+    background: linear-gradient(135deg, #4338ca, #1043aa);
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(26,110,255,0.28);
 }
@@ -1810,7 +1814,7 @@ footer {
     
     /* Sale items uchun card style */
     .sales-table tr.sale-group-header {
-        background: #1a6eff;
+        background: #6366f1;
         color: white;
     }
     
@@ -1856,7 +1860,7 @@ footer {
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-        border-color: #1a6eff;
+        border-color: #6366f1;
         box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
         outline: none;
     }
@@ -2055,7 +2059,7 @@ footer {
         padding: 15px;
         margin-bottom: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-left: 5px solid #1a6eff;
+        border-left: 5px solid #6366f1;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
