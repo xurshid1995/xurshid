@@ -3327,7 +3327,13 @@
     // Modal ochish
     function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
         console.log('?? addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
-        
+
+        // Mahsulot allaqachon korzinada bo'lsa — modal ochmasdan ogohlantir
+        if (cart.find(item => item.id === productId)) {
+            showToast('⚠️ ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
+            return;
+        }
+
         // Miqdori 0 bo'lsa xabar chiqarish
         if (quantity <= 0) {
             alert(SLANG.product_out_of_stock_msg);
@@ -3866,7 +3872,7 @@
             return;
         }
         
-        // Mahsulot allaqachon savatda borligini tekshirish
+        // Mahsulot allaqachon savatda borligini tekshirish (addToCart da ham tekshiriladi, bu qo'shimcha himoya)
         const existingItem = cart.find(item => item.id === currentProduct.id);
         if (existingItem) {
             showToast('⚠️ ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
