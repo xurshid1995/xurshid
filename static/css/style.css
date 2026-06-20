@@ -97,7 +97,7 @@ html {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow-x: auto; /* Gorizontal scroll ruxsat berish */
+    overflow-x: hidden; /* Sahifani gorizontal scroll qilishdan to'xtatish */
     scroll-behavior: smooth;
 }
 
