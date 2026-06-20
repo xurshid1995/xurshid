@@ -280,8 +280,8 @@
 
 /* Table styles */
 .ps-table {
-    width: 100%; min-width: 1000px;
-    border-collapse: collapse; font-size: 14px; table-layout: auto;
+    width: 100%;
+    border-collapse: collapse; font-size: 14px; table-layout: fixed;
 }
 .ps-table thead tr { background: #e53e3e; }
 .ps-table th {
@@ -290,7 +290,7 @@
     color: #ffffff !important; background: #e53e3e !important;
     text-transform: uppercase; letter-spacing: 0.5px;
     border: none !important; border-bottom: 1px solid #c53030 !important;
-    white-space: nowrap;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .ps-table td {
     padding: 5px 10px !important; font-size: 13px !important;

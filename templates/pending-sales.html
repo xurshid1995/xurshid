@@ -311,8 +311,8 @@
 
 /* ── Table styles ── */
 .ps-table {
-    width: 100%; min-width: 1000px;
-    border-collapse: collapse; font-size: 14px; table-layout: auto;
+    width: 100%;
+    border-collapse: collapse; font-size: 14px; table-layout: fixed;
 }
 .ps-table thead tr { background: #FFF9C4; }
 .ps-table th {
@@ -327,8 +327,9 @@
     border: none !important;
     border-bottom: 1px solid #dde3ec !important;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.ps-table td {
     padding: 5px 10px !important;
     font-size: 13px !important;
     color: #374151;
