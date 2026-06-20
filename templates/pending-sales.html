@@ -285,7 +285,7 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    overflow: visible;
+    overflow: hidden;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -301,7 +301,13 @@
 }
 .ps-table-title i { color: #1a6eff; font-size: 16px; }
 
-.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ps-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
 
 /* ── Table styles ── */
 .ps-table {
