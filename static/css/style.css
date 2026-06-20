@@ -436,10 +436,11 @@ body {
     padding: 10px 20px 20px 20px;
     width: calc(100vw - 70px);
     max-width: calc(100vw - 70px);
+    min-width: 0; /* flex item min-width: auto ni bekor qilish — overflow to'g'ri ishlaydi */
     min-height: calc(100vh - 55px);
     box-sizing: border-box;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    overflow-y: auto;
     background: transparent;
     transition: none; /* Sidebar kengayganda content qisqarmasin */
 }
