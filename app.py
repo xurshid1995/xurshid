@@ -11566,10 +11566,9 @@ def finalize_sale(sale_id):
                 logger.info(f"📅 Finalize: payment_due_date saqlandi: {sale.payment_due_date}")
             except (ValueError, TypeError) as e:
                 logger.warning(f"⚠️ Finalize: payment_due_date parse xatolik: {e}")
-        elif payment_status in ('partial', 'debt') and sale.debt_usd > 0:
-            # Qarz bor lekin muddat berilmagan - 7 kun default
-            sale.payment_due_date = (get_tashkent_time() + timedelta(days=7)).date()
-            logger.info(f"📅 Finalize: default 7 kun muddat: {sale.payment_due_date}")
+        else:
+            # Muddat berilmagan - None qoldirish (foydalanuvchi o'zi belgilaydi)
+            sale.payment_due_date = None
 
         # Mijoz ID ni yangilash (agar kiritilgan bo'lsa)
         if customer_id:
