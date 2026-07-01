@@ -2679,6 +2679,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                     body {
                         width: 80mm;
                     }
+                    #shareBtn { display: none !important; }
                 }
             </style>
         </head>
@@ -2752,9 +2753,39 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
             </div>
             
             <div class="qr-code">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://t.me/DIAMONDCARAccesories" alt="QR Code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://t.me/DIAMONDCARAccesories" alt="QR Code" crossorigin="anonymous">
                 <div class="qr-text">Telegram: @DIAMONDCARAccesories</div>
             </div>
+            <button id="shareBtn" onclick="shareReceipt()" style="display:block;width:100%;margin-top:4mm;padding:10px 0;background:#1a6eff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;">&#128279; Ulashish (Telegram / WhatsApp)</button>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+            <script>
+            function shareReceipt() {
+                var btn = document.getElementById('shareBtn');
+                btn.textContent = 'Yuklanmoqda...';
+                btn.disabled = true;
+                html2canvas(document.body, {scale:2, backgroundColor:'#ffffff', useCORS:true, logging:false})
+                .then(function(canvas) {
+                    canvas.toBlob(function(blob) {
+                        btn.textContent = '\u{1F517} Ulashish (Telegram / WhatsApp)';
+                        btn.disabled = false;
+                        var file = new File([blob], 'chek.png', {type:'image/png'});
+                        if (navigator.canShare && navigator.canShare({files:[file]})) {
+                            navigator.share({files:[file], title:'Chek'}).catch(function(){});
+                        } else {
+                            var url = URL.createObjectURL(blob);
+                            var a = document.createElement('a');
+                            a.href = url; a.download = 'chek.png';
+                            document.body.appendChild(a); a.click();
+                            document.body.removeChild(a); URL.revokeObjectURL(url);
+                        }
+                    }, 'image/png');
+                }).catch(function(e) {
+                    btn.textContent = '\u{1F517} Ulashish (Telegram / WhatsApp)';
+                    btn.disabled = false;
+                    alert('Xatolik: ' + e.message);
+                });
+            }
+            <\/script>
         </body>
         </html>
     `;
