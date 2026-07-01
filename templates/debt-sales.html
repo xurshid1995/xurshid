@@ -2684,6 +2684,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
             </style>
         </head>
         <body>
+            <div id="receiptWrap">
             <div class="header">
                 <div class="shop-name">${sale.store_name || DSLANG.store}</div>
                 <div style="border-top: 1px solid #000; padding-top: 2mm; margin-top: 2mm;">
@@ -2756,6 +2757,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://t.me/DIAMONDCARAccesories" alt="QR Code" crossorigin="anonymous">
                 <div class="qr-text">Telegram: @DIAMONDCARAccesories</div>
             </div>
+            </div>
             <button id="shareBtn" onclick="shareReceipt()" style="display:block;width:100%;margin-top:4mm;padding:10px 0;background:#1a6eff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;">&#128279; Ulashish (Telegram / WhatsApp)</button>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
             <script>
@@ -2763,7 +2765,7 @@ function generatePrintableReceipt(sale, currency = 'uzs') {
                 var btn = document.getElementById('shareBtn');
                 btn.textContent = 'Yuklanmoqda...';
                 btn.disabled = true;
-                html2canvas(document.body, {scale:2, backgroundColor:'#ffffff', useCORS:true, logging:false})
+                html2canvas(document.getElementById('receiptWrap'), {scale:2, backgroundColor:'#ffffff', useCORS:true, logging:false})
                 .then(function(canvas) {
                     canvas.toBlob(function(blob) {
                         btn.textContent = '\u{1F517} Ulashish (Telegram / WhatsApp)';
