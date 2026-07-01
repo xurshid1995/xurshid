@@ -1060,45 +1060,44 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Mobile da modal responsive */
 @media (max-width: 768px) {
+    /* Bottom sheet style */
+    .sale-details-modal {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
     .sale-details-content {
-        max-width: 100%;
-        width: 95%;
-        margin: 10px;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 20px 20px 0 0 !important;
+        max-height: 92vh !important;
+        animation: slideUpModal 0.28s ease-out !important;
     }
-    
-    .modal-content {
-        max-width: 100%;
-        width: 95%;
-        margin: 10px;
+    @keyframes slideUpModal {
+        from { transform: translateY(60px); opacity: 0; }
+        to   { transform: translateY(0);   opacity: 1; }
     }
-    
-    /* Mobile uchun yangi layout */
-    .sale-main-info {
-        gap: 6px;
-        padding: 12px 15px;
-        text-align: center;
+    .sale-details-content .modal-header {
+        padding: 14px 14px 10px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    
-    .customer-label, .date-label {
-        font-size: 14px;
-    }
-    
-    .customer-name {
-        font-size: 15px;
-    }
-    
-    .customer-phone {
-        font-size: 14px;
-    }
-    
-    .date-separator {
-        font-size: 16px;
-        margin: 0 8px;
-    }
-    
-    .date-value {
-        font-size: 15px;
-    }
+    .sale-details-content .modal-header h3 { font-size: 13px; flex: 1; }
+    .modal-header-actions { flex-wrap: wrap; gap: 6px; width: 100%; }
+    .sale-details-content .btn-print  { font-size: 11px !important; padding: 6px 10px !important; flex: 1; }
+    .sale-details-content .btn-excel  { font-size: 11px !important; padding: 6px 8px !important; }
+    .sale-details-content .close-btn  { width: 30px; height: 30px; font-size: 18px; }
+    .sale-details-content .modal-body { padding: 12px 14px; }
+    .sale-details-content .sale-main-info { padding: 10px 12px; gap: 4px; font-size: 12px; }
+    .sale-details-content .customer-name  { font-size: 13px; }
+    .sale-details-content .customer-label,
+    .sale-details-content .date-label     { font-size: 11px; }
+    .sale-details-content .customer-phone { font-size: 11px; }
+    .sale-details-content .products-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .sale-details-content .modal-table    { font-size: 12px; min-width: 380px; }
+    .sale-details-content .modal-table th,
+    .sale-details-content .modal-table td { padding: 8px 10px; }
+    .modal-content { max-width: 100%; width: 95%; margin: 10px; }
 }
 
 /* Sotuvchi roli uchun foyda ustunini yashirish */
