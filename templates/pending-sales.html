@@ -863,7 +863,16 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     .sale-details-content .date-label     { font-size: 11px; }
     .sale-details-content .customer-phone { font-size: 11px; }
     .sale-details-content .products-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .sale-details-content .modal-table    { font-size: 12px; min-width: 380px; }
+    .sale-details-content .modal-table    { font-size: 12px; min-width: 500px; table-layout: auto !important; }
+    .sale-details-content .modal-table th { white-space: nowrap; }
+    .sale-details-content .modal-table th:nth-child(1),
+    .sale-details-content .modal-table td:nth-child(1) { width: auto !important; }
+    .sale-details-content .modal-table th:nth-child(2),
+    .sale-details-content .modal-table td:nth-child(2) { width: auto !important; text-align: center; }
+    .sale-details-content .modal-table th:nth-child(3),
+    .sale-details-content .modal-table td:nth-child(3) { width: auto !important; }
+    .sale-details-content .modal-table th:nth-child(4),
+    .sale-details-content .modal-table td:nth-child(4) { width: auto !important; }
     .sale-details-content .modal-table th,
     .sale-details-content .modal-table td { padding: 8px 10px; }
     .modal-content { max-width: 100%; width: 95%; margin: 10px; }
