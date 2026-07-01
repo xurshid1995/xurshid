@@ -841,26 +841,6 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     font-size: 12px;
 }
 
-.btn-share {
-    display: none;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.15s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-}
-.btn-share:hover { filter: brightness(1.1); }
-@media (max-width: 768px) {
-    .btn-share { display: flex !important; }
-    .sale-details-content .btn-print { display: none !important; }
-}
-
 .btn-excel {
     background: #17a2b8;
     color: white;
@@ -1137,7 +1117,6 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // Translation dictionary
 const DSLANG = {
@@ -2079,12 +2058,6 @@ function showSaleDetailsModal(sale) {
                         <button class="btn-print" onclick="printSaleReceipt('usd')" title="${DSLANG.print_usd}" style="background: #17a2b8;">
                             <i class="fas fa-print"></i> ${DSLANG.print_usd}
                         </button>
-                        <button class="btn-share" onclick="shareReceiptAsImage(this,'uzs')" title="UZS ulashish" style="background:#28a745;">
-                            <i class="fas fa-share-alt"></i> UZS
-                        </button>
-                        <button class="btn-share" onclick="shareReceiptAsImage(this,'usd')" title="USD ulashish" style="background:#17a2b8;">
-                            <i class="fas fa-share-alt"></i> USD
-                        </button>
                         <button class="btn-excel" onclick="exportSaleToExcel()" title="Excel">
                             <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width:18px;height:18px;"> Excel
                         </button>
@@ -2439,83 +2412,6 @@ function printSaleReceipt(currency = 'uzs') {
     
     console.log('Chop etish: Savdo ID', currentSaleData.id, 'Valyuta:', currency);
     generatePrintableReceipt(currentSaleData, currency);
-}
-
-// Chekni rasm sifatida ulashish (mobil uchun)
-async function shareReceiptAsImage(btn, currency) {
-    if (!currentSaleData) return;
-    const sale = currentSaleData;
-    const origHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    try {
-        const rate = sale.currency_rate || 12000;
-        let itemsHTML = '';
-        (sale.items || []).forEach(item => {
-            const p = parseFloat(item.unit_price) || 0;
-            const d = currency === 'uzs'
-                ? Math.round(p * rate).toLocaleString('uz-UZ') + ' so\'m'
-                : '$' + p.toFixed(2);
-            itemsHTML += '<tr>'
-                + '<td style="padding:5px 4px;border-bottom:1px solid #eee;word-break:break-word;">' + item.product_name + '</td>'
-                + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;">' + item.quantity + '</td>'
-                + '<td style="padding:5px 4px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">' + d + '</td>'
-                + '</tr>';
-        });
-        const tot = parseFloat(sale.total_amount) || 0;
-        const totDisp = currency === 'uzs'
-            ? Math.round(tot * rate).toLocaleString('uz-UZ') + ' so\'m'
-            : '$' + tot.toFixed(2);
-        const dt = new Date(sale.sale_date).toLocaleString('uz-UZ', {timeZone: 'Asia/Tashkent'});
-        const pay = sale.payment_details
-            ? formatPaymentDetails(sale.payment_details, currency, rate).replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
-            : '';
-        const el = document.createElement('div');
-        el.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;background:#fff;padding:20px 16px;'
-            + 'font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#000;line-height:1.5;';
-        el.innerHTML = '<div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:12px;">'
-            + '<div style="font-size:17px;font-weight:700;">' + (sale.store_name || 'Diamond Car Accessories') + '</div>'
-            + '<div style="font-size:10px;color:#555;margin-top:4px;">Chek #' + sale.id + ' | ' + dt + '</div></div>'
-            + '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;">'
-            + '<div><div style="font-weight:700;">Mijoz:</div><div>' + (sale.customer_name || 'Naqd mijoz') + '</div>'
-            + (sale.customer_phone ? '<div style="color:#666;">' + sale.customer_phone + '</div>' : '') + '</div>'
-            + '<div style="text-align:right;"><div style="font-weight:700;">Sotuvchi:</div><div>' + (sale.seller_name || '') + '</div>'
-            + (sale.seller_phone ? '<div style="color:#666;">' + sale.seller_phone + '</div>' : '') + '</div></div>'
-            + '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px;">'
-            + '<thead><tr style="background:#f0f0f0;">'
-            + '<th style="padding:5px 4px;text-align:left;border-bottom:2px solid #000;font-size:10px;">Mahsulot</th>'
-            + '<th style="padding:5px 6px;text-align:center;border-bottom:2px solid #000;font-size:10px;">Dona</th>'
-            + '<th style="padding:5px 4px;text-align:right;border-bottom:2px solid #000;font-size:10px;">Narx</th>'
-            + '</tr></thead><tbody>' + itemsHTML + '</tbody></table>'
-            + '<div style="text-align:right;font-size:14px;font-weight:700;border-top:2px solid #000;padding-top:8px;">Jami: ' + totDisp + '</div>'
-            + (pay ? '<div style="margin-top:10px;padding:8px 10px;background:#f5f5f5;border-radius:6px;font-size:11px;white-space:pre-line;">'
-                + '<div style="font-weight:700;margin-bottom:3px;">To\'lov:</div><div>' + pay + '</div></div>' : '')
-            + '<div style="text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid #ddd;font-size:10px;color:#777;">'
-            + '<div>Xarid uchun rahmat!</div><div>@DIAMONDCARAccesories</div></div>';
-        document.body.appendChild(el);
-        const canvas = await html2canvas(el, {scale: 2, backgroundColor: '#ffffff', useCORS: false, logging: false});
-        document.body.removeChild(el);
-        canvas.toBlob(async blob => {
-            const file = new File([blob], 'chek-' + sale.id + '.png', {type: 'image/png'});
-            if (navigator.canShare && navigator.canShare({files: [file]})) {
-                await navigator.share({files: [file], title: 'Chek #' + sale.id});
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'chek-' + sale.id + '.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-        }, 'image/png');
-    } catch (e) {
-        alert('Ulashishda xatolik: ' + e.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = origHTML;
-    }
 }
 
 // To'lov turlarini formatlash funksiyasi
