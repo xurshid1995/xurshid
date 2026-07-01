@@ -422,8 +422,8 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 
 /* Customer cell */
 .customer-info { display: flex; flex-direction: column; gap: 2px; word-wrap: break-word; max-width: 150px; }
-.customer-name { font-weight: 600; color: #1e293b; font-size: 13px !important; }
-.customer-phone { font-size: 12px !important; color: #94a3b8; white-space: nowrap; overflow: hidden; }
+.customer-name { font-weight: 600; color: #1e293b; font-size: 11px !important; }
+.customer-phone { font-size: 10px !important; color: #94a3b8; white-space: nowrap; overflow: hidden; }
 
 /* Profit colors */
 .profit-positive { color: #059669; font-weight: 600; }
@@ -1618,8 +1618,8 @@ function displaySalesData(data) {
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-seller col-seller">
                     <div style="line-height: 1.4;">
-                        <div style="font-size: 14px; font-weight: 600; color: #495057;">${sale.seller_name || 'Admin'}</div>
-                        ${sale.seller_phone ? `<div style="font-size: 12px; color: #6c757d; font-style: italic;">${formatPhoneNumber(sale.seller_phone)}</div>` : ''}
+                        <div style="font-size: 11px; font-weight: 600; color: #495057;">${sale.seller_name || 'Admin'}</div>
+                        ${sale.seller_phone ? `<div style="font-size: 10px; color: #6c757d; font-style: italic;">${formatPhoneNumber(sale.seller_phone)}</div>` : ''}
                     </div>
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-location col-location">
@@ -3380,8 +3380,8 @@ function updateTableForCompactView() {
                     </td>
                     <td class="col-seller">
                         <div style="line-height: 1.4;">
-                            <div style="font-size: 14px; font-weight: 600; color: #495057;">${firstItem.seller_name || 'Admin'}</div>
-                            ${firstItem.seller_phone ? `<div style="font-size: 12px; color: #6c757d; font-style: italic;">${formatPhoneNumber(firstItem.seller_phone)}</div>` : ''}
+                            <div style="font-size: 11px; font-weight: 600; color: #495057;">${firstItem.seller_name || 'Admin'}</div>
+                            ${firstItem.seller_phone ? `<div style="font-size: 10px; color: #6c757d; font-style: italic;">${formatPhoneNumber(firstItem.seller_phone)}</div>` : ''}
                         </div>
                     </td>
                     <td class="col-location">${firstItem.items && firstItem.items.length > 0 ? firstItem.items[0].location_name : (firstItem.store_name || '🚫 O\'chirilgan do\'kon')}</td>
