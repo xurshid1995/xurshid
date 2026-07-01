@@ -620,7 +620,13 @@
     }
 
     // To'lovni tasdiqlash
+    let _paymentSubmitting = false;
+    let _paymentIdempotencyKey = crypto.randomUUID();
+
     async function submitPayment() {
+        // Ikki marta bosilishdan himoya
+        if (_paymentSubmitting) return;
+
         // Har bir to'lov turini olish (to'liq 10 kasrli qiymat)
         const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
         const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
@@ -643,6 +649,16 @@
             if (!confirm(confirmMsg)) return;
         }
 
+        // Tugmani bloklash
+        _paymentSubmitting = true;
+        const submitBtn = document.querySelector('.ps-btn-submit');
+        const originalText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Yuklanmoqda...';
+            submitBtn.style.opacity = '0.6';
+        }
+
         // Joriy sanani olish
         const today = new Date().toISOString().split('T')[0];
 
@@ -652,7 +668,8 @@
             click_usd: clickUSD,
             terminal_usd: terminalUSD,
             exchange_rate: currentRate,
-            payment_date: today
+            payment_date: today,
+            idempotency_key: _paymentIdempotencyKey
         };
 
         try {
@@ -677,10 +694,26 @@
                 location.reload();
             } else {
                 alert('❌ ' + CDDLANG.unknown_error + ': ' + (result.error || CDDLANG.unknown_error));
+                // Xatolikda tugmani qaytarish
+                _paymentSubmitting = false;
+                _paymentIdempotencyKey = crypto.randomUUID();
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.opacity = '1';
+                }
             }
         } catch (error) {
             console.error('Xatolik:', error);
             alert('❌ ' + CDDLANG.payment_error);
+            // Tarmoq xatoligida tugmani qaytarish
+            _paymentSubmitting = false;
+            _paymentIdempotencyKey = crypto.randomUUID();
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                submitBtn.style.opacity = '1';
+            }
         }
     }
 
