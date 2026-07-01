@@ -1734,7 +1734,7 @@ function displaySalesData(data) {
                 <td rowspan="${items.length}" class="group-cell group-seller col-seller">
                     <div style="line-height: 1.4;">
                         <div style="font-size: 11px; font-weight: 600; color: #495057;">${sale.seller_name || 'Admin'}</div>
-                        ${sale.seller_phone ? `<div style="font-size: 10px; color: #6c757d; font-style: italic;">${formatPhoneNumber(sale.seller_phone)}</div>` : ''}
+                        ${sale.seller_phone ? `<div class="customer-phone">${formatPhoneNumber(sale.seller_phone)}</div>` : ''}
                     </div>
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-location col-location">
