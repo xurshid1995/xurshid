@@ -439,7 +439,7 @@ body {
     min-width: 0; /* flex item min-width: auto ni bekor qilish — overflow to'g'ri ishlaydi */
     min-height: calc(100vh - 55px);
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: auto;
     background: transparent;
     transition: none; /* Sidebar kengayganda content qisqarmasin */
