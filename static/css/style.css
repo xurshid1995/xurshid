@@ -2499,13 +2499,13 @@ table:not(.cart-table) {
     width: 100%; min-width: 900px;
     border-collapse: collapse; font-size: 14px;
 }
-.ps-table thead tr { background: #1a6eff; }
+.ps-table thead tr { background: #059669; }
 .ps-table th {
     padding: 12px 14px !important; text-align: center;
     font-size: 11px !important; font-weight: 700 !important;
-    color: #ffffff !important; background: #1a6eff !important;
+    color: #ffffff !important; background: #059669 !important;
     text-transform: uppercase; letter-spacing: 0.5px;
-    border: none !important; border-bottom: 1px solid #1558d6 !important;
+    border: none !important; border-bottom: 1px solid #047857 !important;
     white-space: nowrap;
 }
 .ps-table td {
@@ -2629,7 +2629,7 @@ table:not(.cart-table) {
     .ps-pagination { padding: 12px; }
     .pagination-btn { padding: 5px 8px; font-size: 12px; min-width: 30px; }
     .ps-table .col-name { position: sticky; left: 0; z-index: 2; background: white; box-shadow: 2px 0 5px rgba(0,0,0,0.07); }
-    .ps-table thead th.col-name { background: #1a6eff !important; z-index: 3; }
+    .ps-table thead th.col-name { background: #059669 !important; z-index: 3; }
     .cat-badge { display: none !important; }
 }
 
