@@ -3094,7 +3094,8 @@ function updateTableForCompactView() {
                         </div>
                     </td>
                     <td class="col-customer">
-                        ${firstItem.customer_name ? `<div class="customer-name">${firstItem.customer_name}</div>${firstItem.customer_phone ? `<div class="customer-phone">${firstItem.customer_phone}</div>` : ''}` : ''}
+                        <div class="customer-name">${firstItem.customer_name || 'Noma\'lum'}</div>
+                        ${firstItem.customer_phone ? `<div class="customer-phone">${firstItem.customer_phone}</div>` : ''}
                     </td>
                     <td class="col-seller">
                         <div style="line-height: 1.4;">
