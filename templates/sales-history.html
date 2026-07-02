@@ -1742,7 +1742,8 @@ function displaySalesData(data) {
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-customer col-customer">
                     <div class="customer-info">
-                        ${sale.customer_name ? `<div class="customer-name">${sale.customer_name}</div>${sale.customer_phone ? `<div class="customer-phone">${sale.customer_phone}</div>` : ''}` : ''}
+                        <div class="customer-name">${sale.customer_name || 'Noma\'lum'}</div>
+                        <div class="customer-phone">${sale.customer_phone || ''}</div>
                     </div>
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-seller col-seller">
