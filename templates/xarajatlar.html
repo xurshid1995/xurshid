@@ -410,7 +410,7 @@ function setPeriod(period) {
     const ms = document.getElementById('xrMonthSelect');
     if (ms) { ms.value = ''; ms.classList.remove('active'); }
     const ys = document.getElementById('xrYearSelect');
-    if (ys) { ys.value = ''; ys.classList.remove('active'); }
+    if (ys) { ys.classList.remove('active'); }
 
     document.querySelectorAll('.hr-btn').forEach(b => {
         if (['btn-today','btn-week','btn-month'].includes(b.id)) b.classList.remove('hr-btn-active');

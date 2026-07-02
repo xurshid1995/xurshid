@@ -332,7 +332,7 @@ function setPeriod(period) {
     const ms = document.getElementById('hrMonthSelect');
     if (ms) { ms.value = ''; ms.classList.remove('active'); }
     const ys = document.getElementById('hrYearSelect');
-    if (ys) { ys.value = ''; ys.classList.remove('active'); }
+    if (ys) { ys.classList.remove('active'); }
 
     const today = new Date();
 
