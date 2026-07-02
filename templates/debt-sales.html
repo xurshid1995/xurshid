@@ -1219,6 +1219,14 @@ function convertToUZS(usdAmount, saleRate = null) {
     return (parseFloat(usdAmount) * rate).toFixed(0);
 }
 
+// Joylashuv rangini formatlash
+function formatLocation(loc) {
+    if (!loc) return '—';
+    if (loc.startsWith("Do'kon:")) return `<span style="color:#1a6eff;font-weight:600;">${loc}</span>`;
+    if (loc.startsWith('Ombor:'))  return `<span style="color:#059669;font-weight:600;">${loc}</span>`;
+    return loc;
+}
+
 // Telefon raqamini formatlash +998(91) 406-47-49
 function formatPhoneNumber(phone) {
     if (!phone) return '';
@@ -3434,7 +3442,7 @@ function updateTableForCompactView() {
                             ${firstItem.seller_phone ? `<div class="customer-phone">${formatPhoneNumber(firstItem.seller_phone)}</div>` : ''}
                         </div>
                     </td>
-                    <td class="col-location">${firstItem.items && firstItem.items.length > 0 ? firstItem.items[0].location_name : (firstItem.store_name || '🚫 O\'chirilgan do\'kon')}</td>
+                    <td class="col-location">${formatLocation(firstItem.items && firstItem.items.length > 0 ? firstItem.items[0].location_name : (firstItem.store_name || '🚫 O\'chirilgan do\'kon'))}</td>
                     <td class="col-product">${firstItem.items ? firstItem.items.length : 0} ta mahsulot</td>
                     <td class="col-quantity compact-hide" style="display: none;"></td>
                     <td class="col-price compact-hide" style="display: none;"></td>
