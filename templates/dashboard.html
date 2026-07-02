@@ -23,6 +23,21 @@
                         <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
                         <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
                         <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
+                        <select id="monthSelect" class="db-month-select" onchange="selectMonthFilter(this)">
+                            <option value="">📅 Oy...</option>
+                            <option value="1">Yanvar</option>
+                            <option value="2">Fevral</option>
+                            <option value="3">Mart</option>
+                            <option value="4">Aprel</option>
+                            <option value="5">May</option>
+                            <option value="6">Iyun</option>
+                            <option value="7">Iyul</option>
+                            <option value="8">Avgust</option>
+                            <option value="9">Sentabr</option>
+                            <option value="10">Oktabr</option>
+                            <option value="11">Noyabr</option>
+                            <option value="12">Dekabr</option>
+                        </select>
                         <span class="db-tf-sep">|</span>
                         <div class="db-daterange">
                             <input type="date" id="customDateFrom" class="db-date-input" title="{{ t('date_from') }}" onchange="applyCustomRange()">
@@ -230,6 +245,32 @@
     color: #94a3b8;
     font-size: 14px;
     user-select: none;
+}
+.db-month-select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #475569;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+.db-month-select:focus { border-color: #1a6eff; }
+.db-month-select.active {
+    border-color: #1a6eff;
+    background-color: #eff4ff;
+    color: #1a6eff;
+    font-weight: 600;
 }
 
 /* Location buttons */
@@ -610,6 +651,10 @@ function selectTimePeriod(clickedButton, period) {
     clickedButton.classList.add('active');
     currentPeriod = period;
 
+    // Month dropdown reset
+    const ms = document.getElementById('monthSelect');
+    if (ms) { ms.value = ''; ms.classList.remove('active'); }
+
     // Custom date inputlarni tozalash
     const df = document.getElementById('customDateFrom');
     const dt = document.getElementById('customDateTo');
@@ -627,6 +672,10 @@ function applyCustomRange() {
     const dateTo = document.getElementById('customDateTo')?.value || '';
     if (!dateFrom && !dateTo) return;
 
+    // Month dropdown reset
+    const ms = document.getElementById('monthSelect');
+    if (ms) { ms.value = ''; ms.classList.remove('active'); }
+
     // Period tugmalarini deaktiv qilish
     document.querySelectorAll('.db-tf-btn').forEach(btn => btn.classList.remove('active'));
     currentPeriod = 'custom';
@@ -636,6 +685,34 @@ function applyCustomRange() {
     const dt = document.getElementById('customDateTo');
     if (df) df.classList.toggle('active', !!dateFrom);
     if (dt) dt.classList.toggle('active', !!dateTo);
+
+    const activeLocationBtn = document.querySelector('.db-loc-btn.active');
+    const activeLocation = activeLocationBtn?.getAttribute('data-location') || '';
+    const activeLocationType = activeLocationBtn?.getAttribute('data-location-type') || null;
+    loadSalesChart(activeLocation, 'custom', activeLocationType);
+}
+
+function selectMonthFilter(sel) {
+    const month = sel.value;
+    if (!month) return;
+
+    const year = new Date().getFullYear();
+    const m = parseInt(month);
+    const dateFrom = `${year}-${String(m).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, m, 0).getDate();
+    const dateTo = `${year}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    // Period tugmalarini deaktiv qilish
+    document.querySelectorAll('.db-tf-btn').forEach(btn => btn.classList.remove('active'));
+    currentPeriod = 'custom';
+
+    // Custom inputlarga set qilish
+    const df = document.getElementById('customDateFrom');
+    const dt = document.getElementById('customDateTo');
+    if (df) { df.value = dateFrom; df.classList.add('active'); }
+    if (dt) { dt.value = dateTo; dt.classList.add('active'); }
+
+    sel.classList.add('active');
 
     const activeLocationBtn = document.querySelector('.db-loc-btn.active');
     const activeLocation = activeLocationBtn?.getAttribute('data-location') || '';
