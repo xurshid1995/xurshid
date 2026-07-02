@@ -1222,8 +1222,14 @@ function convertToUZS(usdAmount, saleRate = null) {
 // Joylashuv rangini formatlash
 function formatLocation(loc) {
     if (!loc) return '—';
-    if (loc.startsWith('Dokon:') || loc.startsWith("Do'kon:")) return `<span style="color:#1a6eff;font-weight:600;">${loc}</span>`;
-    if (loc.startsWith('Ombor:'))  return `<span style="color:#059669;font-weight:600;">${loc}</span>`;
+    if (loc.startsWith('Dokon:') || loc.startsWith("Do'kon:")) {
+        const name = loc.replace(/^Do['']?kon:\s*/, '');
+        return `<span style="color:#1a6eff;font-weight:700;">Do'kon:</span> ${name}`;
+    }
+    if (loc.startsWith('Ombor:')) {
+        const name = loc.replace(/^Ombor:\s*/, '');
+        return `<span style="color:#059669;font-weight:700;">Ombor:</span> ${name}`;
+    }
     return loc;
 }
 
