@@ -23,6 +23,9 @@
                         <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
                         <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
                         <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
+                        <select id="yearSelect" class="db-month-select" onchange="selectMonthFilter()">
+                            <option value="">📆 Yil...</option>
+                        </select>
                         <select id="monthSelect" class="db-month-select" onchange="selectMonthFilter()">
                             <option value="">📅 Oy...</option>
                             <option value="1">Yanvar</option>
@@ -37,9 +40,6 @@
                             <option value="10">Oktabr</option>
                             <option value="11">Noyabr</option>
                             <option value="12">Dekabr</option>
-                        </select>
-                        <select id="yearSelect" class="db-month-select" onchange="selectMonthFilter()">
-                            <option value="">📆 Yil...</option>
                         </select>
                         <span class="db-tf-sep">|</span>
                         <div class="db-daterange">
