@@ -1625,8 +1625,7 @@ function displaySalesData(data) {
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-customer col-customer">
                     <div class="customer-info">
-                        <div class="customer-name">${sale.customer_name || '� Noma\'lum'}</div>
-                        <div class="customer-phone">${sale.customer_phone || '+998 XX XXX XX XX'}</div>
+                        ${sale.customer_name ? `<div class="customer-name">${sale.customer_name}</div>${sale.customer_phone ? `<div class="customer-phone">${sale.customer_phone}</div>` : ''}` : ''}
                     </div>
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-seller col-seller">
@@ -3421,8 +3420,7 @@ function updateTableForCompactView() {
                         </div>
                     </td>
                     <td class="col-customer">
-                        <div class="customer-name">${firstItem.customer_name || 'Noma\'lum'}</div>
-                        ${firstItem.customer_phone ? `<div class="customer-phone">${firstItem.customer_phone}</div>` : ''}
+                        ${firstItem.customer_name ? `<div class="customer-name">${firstItem.customer_name}</div>${firstItem.customer_phone ? `<div class="customer-phone">${firstItem.customer_phone}</div>` : ''}` : ''}
                     </td>
                     <td class="col-seller">
                         <div style="line-height: 1.4;">
