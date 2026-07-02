@@ -1737,8 +1737,7 @@ function highlightProductNames() {
 
 // SaleItem dan joylashuv nomini olish funksiyasi
 function getLocationName(item) {
-    // Backend dan location_name maydoni keladi
-    return item.location_name || 'Noma\'lum joylashuv';
+    return formatLocation(item.location_name || 'Noma\'lum joylashuv');
 }
 
 function editSaleGroup(saleId) {
