@@ -18,6 +18,24 @@
         <button onclick="setPeriod('today')" id="btn-today" class="hr-btn hr-btn-active">Bugun</button>
         <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
         <button onclick="setPeriod('month')" id="btn-month" class="hr-btn">Bu oy</button>
+        <select id="xrYearSelect" class="hr-month-select" onchange="selectXarajatMonthFilter()">
+            <option value="">📆 Yil...</option>
+        </select>
+        <select id="xrMonthSelect" class="hr-month-select" onchange="selectXarajatMonthFilter()">
+            <option value="">📅 Oy...</option>
+            <option value="1">Yanvar</option>
+            <option value="2">Fevral</option>
+            <option value="3">Mart</option>
+            <option value="4">Aprel</option>
+            <option value="5">May</option>
+            <option value="6">Iyun</option>
+            <option value="7">Iyul</option>
+            <option value="8">Avgust</option>
+            <option value="9">Sentabr</option>
+            <option value="10">Oktabr</option>
+            <option value="11">Noyabr</option>
+            <option value="12">Dekabr</option>
+        </select>
         <input type="date" id="dateFrom" class="hr-date" onchange="setPeriod('custom')">
         <span style="color:#999;">—</span>
         <input type="date" id="dateTo" class="hr-date" onchange="setPeriod('custom')">
@@ -222,6 +240,26 @@
     color: #333;
     outline: none;
 }
+.hr-month-select {
+    padding: 6px 28px 6px 10px;
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #555;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+    font-weight: 500;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+.hr-month-select:focus { border-color: #1a6eff; }
+.hr-month-select.active { border-color: #1a6eff; background-color: #eff4ff; color: #1a6eff; font-weight: 600; }
 .hr-card {
     background: #fff;
     border: 1px solid #eef0f4;
@@ -267,6 +305,43 @@
 <script>
 let CURRENT_RATE = 13000;
 fetch('/api/currency-rate').then(r=>r.json()).then(d=>{ if(d.success && d.rate) CURRENT_RATE = parseFloat(d.rate.rate) || 13000; }).catch(()=>{});
+
+// Yil dropdownni to'ldirish
+(function fillXrYearSelect() {
+    const sel = document.getElementById('xrYearSelect');
+    if (!sel) return;
+    const curYear = new Date().getFullYear();
+    for (let y = curYear; y >= curYear - 3; y--) {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        sel.appendChild(opt);
+    }
+})();
+
+function selectXarajatMonthFilter() {
+    const monthSel = document.getElementById('xrMonthSelect');
+    const yearSel = document.getElementById('xrYearSelect');
+    const month = monthSel ? monthSel.value : '';
+    const year = yearSel && yearSel.value ? parseInt(yearSel.value) : new Date().getFullYear();
+    if (!month) return;
+
+    const m = parseInt(month);
+    const dateFrom = `${year}-${String(m).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, m, 0).getDate();
+    const dateTo = `${year}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    document.querySelectorAll('.hr-btn').forEach(b => {
+        if (['btn-today','btn-week','btn-month'].includes(b.id)) b.classList.remove('hr-btn-active');
+    });
+
+    document.getElementById('dateFrom').value = dateFrom;
+    document.getElementById('dateTo').value = dateTo;
+
+    if (monthSel) monthSel.classList.add('active');
+    if (yearSel && yearSel.value) yearSel.classList.add('active');
+
+    loadExpenses();
+}
 
 const STORES = {{ stores | tojson }};
 const WAREHOUSES = {{ warehouses | tojson }};
@@ -330,6 +405,12 @@ function fmtUzs(v) {
 }
 
 function setPeriod(period) {
+    // Dropdown reset
+    const ms = document.getElementById('xrMonthSelect');
+    if (ms) { ms.value = ''; ms.classList.remove('active'); }
+    const ys = document.getElementById('xrYearSelect');
+    if (ys) { ys.value = ''; ys.classList.remove('active'); }
+
     document.querySelectorAll('.hr-btn').forEach(b => {
         if (['btn-today','btn-week','btn-month'].includes(b.id)) b.classList.remove('hr-btn-active');
     });
