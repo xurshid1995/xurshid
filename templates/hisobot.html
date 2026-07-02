@@ -276,9 +276,9 @@ let exchangeRate = 12100;
     for (let y = curYear; y >= curYear - 3; y--) {
         const opt = document.createElement('option');
         opt.value = y; opt.textContent = y;
-        if (y === curYear) opt.selected = true;
         sel.appendChild(opt);
     }
+    sel.value = String(curYear);
 })();
 
 function selectHisobotMonthFilter() {
