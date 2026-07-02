@@ -558,7 +558,7 @@ let currentPeriod = 'today';
     const sel = document.getElementById('yearSelect');
     if (!sel) return;
     const curYear = new Date().getFullYear();
-    for (let y = curYear; y >= curYear - 3; y--) {
+    for (let y = curYear; y >= 2020; y--) {
         const opt = document.createElement('option');
         opt.value = y;
         opt.textContent = y;
