@@ -562,7 +562,7 @@ let currentPeriod = 'today';
         const opt = document.createElement('option');
         opt.value = y;
         opt.textContent = y;
-        if (y === curYear) opt.selected = false;
+        if (y === curYear) opt.selected = true;
         sel.appendChild(opt);
     }
 })();
