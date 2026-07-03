@@ -1,4 +1,4 @@
-const CACHE_NAME = 'diamond-v2';
+const CACHE_NAME = 'diamond-v3';
 const STATIC_ASSETS = [
   '/static/css/style.css',
   '/static/icons/icon-192.png',
@@ -45,7 +45,9 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => {
-          return caches.match(event.request);
+          return caches.match(event.request).then(cached => {
+            return cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+          });
         })
     );
     return;
@@ -62,7 +64,9 @@ self.addEventListener('fetch', event => {
         }
         return response;
       }).catch(() => {
-        return caches.match(event.request);
+        return caches.match(event.request).then(cached => {
+          return cached || new Response('', { status: 503, statusText: 'Service Unavailable' });
+        });
       });
     })
   );
