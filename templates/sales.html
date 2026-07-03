@@ -145,7 +145,7 @@
     #spt-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 99999; align-items: center; justify-content: center; cursor: zoom-out; }
     #spt-lightbox.active { display: flex; }
     #spt-lightbox img { max-width: 90vw; max-height: 88vh; border-radius: 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); object-fit: contain; pointer-events: none; }
-    #spt-lightbox-close { position: fixed; top: 18px; right: 24px; font-size: 32px; color: #fff; cursor: pointer; line-height: 1; user-select: none; z-index: 100000; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+    #spt-lightbox-close { position: fixed; top: 18px; right: 24px; font-size: 32px; color: #fff; cursor: pointer; line-height: 1; -webkit-user-select: none; user-select: none; z-index: 100000; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
     
     .cart-table {
         width: 100%;
@@ -668,6 +668,7 @@
         font-weight: 500;
         color: #1a6eff;
         white-space: nowrap;
+        -webkit-user-select: none;
         user-select: none;
         min-width: 120px;
         justify-content: space-between;

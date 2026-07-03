@@ -634,6 +634,7 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 1.5rem;
     border-radius: 8px;
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
@@ -2154,6 +2155,7 @@ table:not(.cart-table) {
     /* Viewport metani tekshirish uchun */
     body {
         -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
         text-size-adjust: 100%;
     }
     

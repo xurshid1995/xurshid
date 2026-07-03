@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DOKON - Professional Omborxona va Savdo Boshqaruv Tizimi">
     <meta name="keywords" content="omborxona, savdo, boshqaruv, inventory, warehouse, management">
     <meta name="author" content="DOKON Team">
@@ -108,7 +108,7 @@
 </head>
 <body>
     <!-- Mobile Navigation Toggle -->
-    <button class="mobile-nav-toggle" onclick="toggleMobileNav()">
+    <button class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Menyuni ochish">
         <i class="fas fa-bars"></i>
     </button>
     
@@ -138,7 +138,7 @@
             </li>
             <li>
                 <a href="/sales-history" {% if request.endpoint == 'sales_history' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-increase-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-increase-fluent-96.png') }}" alt="Savdo tarixi" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('sales_history') }}</span>
                 </a>
             </li>
@@ -153,7 +153,7 @@
             </li>
             <li>
                 <a href="/debt-sales" {% if request.endpoint == 'debt_sales' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-increase-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-increase-96.png') }}" alt="Qarzlar" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('debt_sales') }}</span>
                     {% if debt_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ debt_sales_count }}</span>
@@ -169,7 +169,7 @@
             </li>
             <li>
                 <a href="/transfer" {% if request.endpoint == 'transfer' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-transfer-fluent-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-transfer-fluent-96.png') }}" alt="Transfer" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('transfer') }}</span>
                     {% if pending_transfer_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_transfer_count }}</span>
@@ -193,7 +193,7 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/hisobot" {% if request.endpoint == 'hisobot' %}class="active"{% endif %}>
-                    <span class="icon"><img src="/static/images/icons8-analytics-fluent-96.png" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="/static/images/icons8-analytics-fluent-96.png" alt="Hisobot" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('reports') }}</span>
                 </a>
             </li>
@@ -201,7 +201,7 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/debts" {% if request.endpoint == 'debts' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-bank-cards-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-bank-cards-96.png') }}" alt="Qarzlar" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('debts') }}</span>
                 </a>
             </li>
@@ -237,13 +237,13 @@
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-shop-94.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-shop-94.png') }}" alt="Do'konlar" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('stores') }}</span>
                 </a>
             </li>
             <li>
                 <a href="/warehouses" {% if request.endpoint == 'warehouses' %}class="active"{% endif %}>
-                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-hangar-3d-fluency-96.png') }}" style="width:22px;height:22px;vertical-align:middle;"></span>
+                    <span class="icon"><img src="{{ url_for('static', filename='images/icons8-hangar-3d-fluency-96.png') }}" alt="Omborlar" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('warehouses') }}</span>
                 </a>
             </li>
@@ -1104,7 +1104,7 @@
     <!-- QR Code Modal -->
     <div id="qrModal" onclick="if(event.target===this) this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
         <div style="background:white; border-radius:16px; padding:30px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: qrZoomIn 0.3s ease; position:relative; max-width:350px;">
-            <button onclick="document.getElementById('qrModal').style.display='none'" style="position:absolute; top:10px; right:14px; background:none; border:none; font-size:22px; cursor:pointer; color:#999; line-height:1;">&times;</button>
+            <button onclick="document.getElementById('qrModal').style.display='none'" aria-label="Yopish" style="position:absolute; top:10px; right:14px; background:none; border:none; font-size:22px; cursor:pointer; color:#999; line-height:1;">&times;</button>
             <div style="margin-bottom:16px;">
                 <img src="https://img.icons8.com/fluency/120/telegram-app.png" alt="Telegram" style="width:48px; height:48px;">
                 <h3 id="modal-group-name" style="margin:8px 0 4px; color:#333; font-size:18px;">DiamondCarAccesories</h3>
@@ -1122,7 +1122,7 @@
     <!-- QR Code Modal - Bot -->
     <div id="qrModalBot" onclick="if(event.target===this) this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
         <div style="background:white; border-radius:16px; padding:30px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: qrZoomIn 0.3s ease; position:relative; max-width:350px;">
-            <button onclick="document.getElementById('qrModalBot').style.display='none'" style="position:absolute; top:10px; right:14px; background:none; border:none; font-size:22px; cursor:pointer; color:#999; line-height:1;">&times;</button>
+            <button onclick="document.getElementById('qrModalBot').style.display='none'" aria-label="Yopish" style="position:absolute; top:10px; right:14px; background:none; border:none; font-size:22px; cursor:pointer; color:#999; line-height:1;">&times;</button>
             <div style="margin-bottom:16px;">
                 <img src="https://img.icons8.com/fluency/120/telegram-app.png" alt="Telegram" style="width:48px; height:48px;">
                 <h3 id="modal-bot-name" style="margin:8px 0 4px; color:#333; font-size:18px;">@Sergeli143_bot</h3>
