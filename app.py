@@ -189,10 +189,11 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 
 # Session xavfsizligi
-_secure = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
-app.config['SESSION_COOKIE_SECURE'] = _secure  # Production HTTPS uchun .env da True qiling
+_debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+_secure = not _debug  # Production (HTTPS) da True, development da False
+app.config['SESSION_COOKIE_SECURE'] = _secure
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # JavaScript orqali o'qib bo'lmaydi
-app.config['SESSION_COOKIE_SAMESITE'] = 'None' if _secure else 'Lax'  # Cross-site uchun None, HTTP uchun Lax
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF himoyasi uchun
 app.config['PERMANENT_SESSION_LIFETIME'] = 7200  # 2 soat
 app.config['SESSION_COOKIE_DOMAIN'] = None  # Subdomen muammosini hal qilish
 app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken']  # AJAX CSRF header
