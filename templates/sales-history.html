@@ -65,15 +65,15 @@
             <div class="ps-search-box">
                 <i class="fas fa-search ps-search-icon"></i>
                 <input type="text" id="searchInput" placeholder="{{ t('placeholder_search') }}" class="ps-input ps-search-input">
-                <button id="clearSearch" class="ps-clear-btn" style="display: none;"><i class="fas fa-times"></i></button>
+                <button id="clearSearch" class="ps-clear-btn" aria-label="Qidiruvni tozalash" style="display: none;"><i class="fas fa-times"></i></button>
             </div>
             <div class="ps-filter-group">
                 <label>{{ t('date_from') }}</label>
-                <input type="date" id="dateFromFilter" class="ps-input filter-input" value="">
+                <input type="date" id="dateFromFilter" class="ps-input filter-input" aria-label="{{ t('date_from') }}" value="">
             </div>
             <div class="ps-filter-group">
                 <label>{{ t('date_to') }}</label>
-                <input type="date" id="dateToFilter" class="ps-input filter-input" value="">
+                <input type="date" id="dateToFilter" class="ps-input filter-input" aria-label="{{ t('date_to') }}" value="">
             </div>
             <div class="ps-filter-group">
                 <label>{{ t('header_customer') }}</label>

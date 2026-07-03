@@ -1614,6 +1614,7 @@ footer {
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.3) transparent;
         padding: 70px 0 0 0 !important;
         box-sizing: border-box !important;
     }
@@ -1623,6 +1624,11 @@ footer {
         width: 300px !important;
         left: -100% !important;
     }
+
+    /* Safari webkit scrollbar fallback for mobile sidebar */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
     
     .sidebar.active {
         left: 0 !important;
