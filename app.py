@@ -15666,14 +15666,13 @@ def inject_settings():
 def add_no_cache_headers(response):
     """HTML javoblarni keshlamaslik - til tarjimasi to'g'ri ishlashi uchun"""
     if response.content_type and 'text/html' in response.content_type:
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        # Faqat Cache-Control ishlatamiz (Pragma va Expires deprecated)
+        response.headers['Cache-Control'] = 'no-cache'
     # Xavfsizlik headerlari - barcha javoblarga
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    # X-Frame-Options olib tashlandi — nginx CSP frame-ancestors orqali hal qiladi
+    # X-XSS-Protection olib tashlandi — zamonaviy brauzerlar uchun keraksiz/zararli
     response.headers.pop('Server', None)  # Server versiyasini yashirish
     return response
 
