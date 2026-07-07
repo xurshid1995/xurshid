@@ -135,11 +135,11 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    background: #0f172a;
+    border-right: none;
     height: calc(100vh - 55px);
     padding: 0;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+    box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
     left: 0;
     top: 55px;
@@ -198,7 +198,7 @@ body {
     align-items: center;
     padding: 10px 10px;
     justify-content: flex-start;
-    color: #475569;
+    color: rgba(255,255,255,0.75);
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-left: none;
@@ -236,24 +236,24 @@ body {
 
 
 .sidebar-menu a:hover {
-    background: #f1f5f9;
-    color: #1a6eff;
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
     transform: translateX(2px);
 }
 
 .sidebar-menu a.active {
-    background: #eff6ff;
-    color: #1a6eff;
+    background: rgba(255,255,255,0.22);
+    color: #ffffff;
     font-weight: 600;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(26,110,255,0.15);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
     margin: 2px 4px;
 }
 
 /* Aktiv icon animatsiya */
 .sidebar-menu a.active .icon {
     transform: scale(1.1);
-    filter: drop-shadow(0 0 6px rgba(26, 110, 255, 0.4));
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
     animation: none;
 }
 
@@ -273,14 +273,14 @@ body {
     left: 0;
     right: 0;
     height: 55px;
-    background: #ffffff;
+    background: #1e293b;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
     z-index: 999;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 20px rgba(0, 0, 0, 0.08);
-    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(15, 23, 42, 0.18);
+    border-bottom: none;
 }
 
 .header-left {
@@ -290,7 +290,7 @@ body {
 }
 
 .header-left h1 {
-    color: #1e293b;
+    color: #ffffff;
     font-size: 1.4375rem;
     font-weight: 700;
     margin: 0;
@@ -324,16 +324,16 @@ body {
 }
 
 .currency-rate {
-    color: #374151;
+    color: #ffffff;
     font-weight: 600;
     font-size: 0.8375rem;
     transition: color 0.2s ease;
 }
 
 .edit-rate-btn {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.15);
     border: none;
-    color: #374151;
+    color: #ffffff;
     padding: 0.3rem 0.6rem;
     border-radius: 50%;
     cursor: pointer;
@@ -347,7 +347,7 @@ body {
 }
 
 .edit-rate-btn:hover {
-    background: #e2e8f0;
+    background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -356,7 +356,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #374151;
+    color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     padding: 0.5rem 1rem;
     border-radius: 25px;
@@ -364,17 +364,17 @@ body {
 }
 
 .user-info:hover {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .user-name {
     font-weight: 600;
-    color: #1e293b;
+    color: #ffffff;
 }
 
 .user-role {
     font-size: 0.7375rem;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.75);
     margin-left: 0.5rem;
 }
 
@@ -383,9 +383,9 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #f8fafc;
-    color: #374151;
-    border: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 0.6rem 1rem;
     border-radius: 10px;
     cursor: pointer;
