@@ -104,7 +104,7 @@ body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #374151;
-    background: linear-gradient(135deg, #EEF4F0 0%, #F5F5F0 50%, #F0EEE8 100%);
+    background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 50%, #EFF6FF 100%);
     background-attachment: fixed;
     display: flex;
     margin: 0;
@@ -136,11 +136,11 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: #1a2d20;
+    background: #1e1b4b;
     border-right: none;
     height: calc(100vh - 55px);
     padding: 0;
-    box-shadow: 2px 0 12px rgba(26,45,32,0.3);
+    box-shadow: 2px 0 16px rgba(30,27,75,0.35);
     position: fixed;
     left: 0;
     top: 55px;
@@ -274,7 +274,7 @@ body {
     left: 0;
     right: 0;
     height: 55px;
-    background: #243d2a;
+    background: #2d2b55;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2454,7 +2454,7 @@ table:not(.cart-table) {
 
 .ps-page {
     padding: 28px 28px 40px;
-    background: linear-gradient(135deg, #EEF4F0 0%, #F5F5F0 50%, #F0EEE8 100%);
+    background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 50%, #EFF6FF 100%);
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
