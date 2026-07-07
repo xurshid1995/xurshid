@@ -5104,6 +5104,10 @@
                     if (customerSearchInput) customerSearchInput.value = displayText;
                     if (selectedCustomerIdInput) selectedCustomerIdInput.value = sale.customer_id;
                     
+                    // Mijoz balansini o'rnatish (to'lov modalida ko'rsatish uchun)
+                    currentCustomerBalance = parseFloat(sale.customer_balance) || 0;
+                    console.log(`?? Mijoz balansi o'rnatildi: $${currentCustomerBalance}`);
+                    
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
                     const customerDisplay = sale.customer_phone ? `🛒 ${sale.customer_name} ${sale.customer_phone}` : `🛒 ${sale.customer_name}`;
@@ -5222,6 +5226,10 @@
                     
                     if (customerSearchInput) customerSearchInput.value = displayText;
                     if (selectedCustomerIdInput) selectedCustomerIdInput.value = sale.customer_id;
+                    
+                    // Mijoz balansini o'rnatish (to'lov modalida ko'rsatish uchun)
+                    currentCustomerBalance = parseFloat(sale.customer_balance) || 0;
+                    console.log(`?? Mijoz balansi o'rnatildi: $${currentCustomerBalance}`);
                     
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');

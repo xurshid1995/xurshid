@@ -1030,6 +1030,7 @@ class Sale(db.Model):
             'customer_id': self.customer_id,
             'customer_name': customer_name,
             'customer_phone': customer_phone,
+            'customer_balance': float(self.customer.balance or 0) if self.customer else 0.0,
             'store_id': self.store_id,
             'store_name': self.store.name if self.store else '🚫 O\'chirilgan do\'kon',
             'location_id': self.location_id if self.location_id else self.store_id,

@@ -12238,6 +12238,7 @@ def create_sale():
             current_sale.click_usd = Decimal(str(click_usd))
             current_sale.terminal_usd = Decimal(str(terminal_usd))
             current_sale.debt_usd = Decimal(str(debt_usd))
+            current_sale.balance_usd = Decimal(str(balance_used))
             current_sale.notes = f'Tahrirlandi - {len(items)} ta mahsulot' if multi_location else 'Tahrirlandi'
             current_sale.currency_rate = current_rate
             current_sale.payment_due_date = payment_due_date
