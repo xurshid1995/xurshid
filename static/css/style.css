@@ -136,11 +136,11 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: #0f172a;
+    background: #1a2d20;
     border-right: none;
     height: calc(100vh - 55px);
     padding: 0;
-    box-shadow: 2px 0 12px rgba(15,23,42,0.3);
+    box-shadow: 2px 0 12px rgba(26,45,32,0.3);
     position: fixed;
     left: 0;
     top: 55px;
@@ -274,7 +274,7 @@ body {
     left: 0;
     right: 0;
     height: 55px;
-    background: #1e293b;
+    background: #243d2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
