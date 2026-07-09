@@ -47,13 +47,14 @@
         </div>
     </div>
 
-    <!-- Karta qatori 1: Asosiy raqamlar -->
+    <!-- Asosiy statistika kartochkalari (o'sish badge bilan birlashtirilgan) -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:24px;">
         <div class="hr-card">
             <div class="hr-card-icon" style="background:#e8f4ff;">📦</div>
             <div>
                 <div class="hr-card-label">Jami savdolar</div>
                 <div class="hr-card-val" id="totalSales">—</div>
+                <div class="hr-growth-badge" id="gc-sales-badge"></div>
             </div>
         </div>
         <div class="hr-card">
@@ -62,6 +63,7 @@
                 <div class="hr-card-label">Jami savdo summasi</div>
                 <div class="hr-card-val green" id="totalRevenue">—</div>
                 <div class="hr-card-sub" id="totalRevenueUzs">—</div>
+                <div class="hr-growth-badge" id="gc-revenue-badge"></div>
             </div>
         </div>
         <div class="hr-card">
@@ -70,6 +72,7 @@
                 <div class="hr-card-label">Nasiya (davr)</div>
                 <div class="hr-card-val" style="color:#e53e3e;" id="totalDebt">—</div>
                 <div class="hr-card-sub" id="totalDebtCount">—</div>
+                <div class="hr-growth-badge" id="gc-debt-badge"></div>
             </div>
         </div>
         {% if session.role != 'sotuvchi' %}
@@ -79,6 +82,7 @@
                 <div class="hr-card-label">Jami foyda</div>
                 <div class="hr-card-val" style="color:#16a34a;" id="totalProfit">—</div>
                 <div class="hr-card-sub" id="totalProfitUzs">—</div>
+                <div class="hr-growth-badge" id="gc-profit-badge"></div>
             </div>
         </div>
         <div class="hr-card">
@@ -104,42 +108,6 @@
                 <div class="hr-card-label">Kirim (tan narx)</div>
                 <div class="hr-card-val" id="totalCost">—</div>
                 <div class="hr-card-sub" id="totalCostSub">—</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- O'sish ko'rsatkichi (joriy davr vs oldingi davr) -->
-    <div id="growthCardsRow" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:20px;">
-        <div class="hr-card hr-growth-card" id="gc-sales">
-            <div class="hr-card-icon" style="background:#e8f4ff;">📦</div>
-            <div style="flex:1">
-                <div class="hr-card-label">Savdolar o'sishi</div>
-                <div class="hr-card-val" id="gc-sales-val">—</div>
-                <div class="hr-growth-badge" id="gc-sales-badge"></div>
-            </div>
-        </div>
-        <div class="hr-card hr-growth-card" id="gc-revenue">
-            <div class="hr-card-icon" style="background:#e8fff0;">💵</div>
-            <div style="flex:1">
-                <div class="hr-card-label">Tushum o'sishi</div>
-                <div class="hr-card-val" id="gc-revenue-val">—</div>
-                <div class="hr-growth-badge" id="gc-revenue-badge"></div>
-            </div>
-        </div>
-        <div class="hr-card hr-growth-card" id="gc-profit">
-            <div class="hr-card-icon" style="background:#fff8e8;">📈</div>
-            <div style="flex:1">
-                <div class="hr-card-label">Foyda o'sishi</div>
-                <div class="hr-card-val" id="gc-profit-val">—</div>
-                <div class="hr-growth-badge" id="gc-profit-badge"></div>
-            </div>
-        </div>
-        <div class="hr-card hr-growth-card" id="gc-debt">
-            <div class="hr-card-icon" style="background:#fff0f0;">💳</div>
-            <div style="flex:1">
-                <div class="hr-card-label">Nasiya o'zgarishi</div>
-                <div class="hr-card-val" id="gc-debt-val">—</div>
-                <div class="hr-growth-badge" id="gc-debt-badge"></div>
             </div>
         </div>
     </div>
@@ -415,29 +383,22 @@ async function loadExtra() {
     const data = await res.json();
     if (!data.success) return;
 
-    // --- O'sish ko'rsatkichi ---
+    // --- O'sish ko'rsatkichi (badge ni mos kartochka ichiga) ---
     const g = data.growth;
-    function renderGrowth(elVal, elBadge, cur, pct, isDebt) {
-        document.getElementById(elVal).textContent = fmtUsd(cur);
-        const badge = document.getElementById(elBadge);
-        if (pct === null) { badge.textContent = '—'; badge.className = 'hr-growth-badge hr-growth-flat'; return; }
+    function renderBadge(badgeId, pct, isDebt) {
+        const badge = document.getElementById(badgeId);
+        if (!badge) return;
+        if (pct === null) { badge.textContent = ''; badge.className = 'hr-growth-badge'; return; }
         const up = isDebt ? pct < 0 : pct > 0;
         const flat = pct === 0;
         const arrow = flat ? '→' : (pct > 0 ? '▲' : '▼');
-        badge.innerHTML = `${arrow} ${Math.abs(pct)}% <span style="opacity:.7;font-weight:400">(${g.prev_label})</span>`;
+        badge.innerHTML = `${arrow} ${Math.abs(pct)}% <span style="opacity:.7;font-weight:400;font-size:10px">${g.prev_label}</span>`;
         badge.className = 'hr-growth-badge ' + (flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down');
     }
-    document.getElementById('gc-sales-val').textContent = fmtNum(g.sales.cur);
-    const sb = document.getElementById('gc-sales-badge');
-    if (g.sales.pct === null) { sb.textContent = '—'; sb.className='hr-growth-badge hr-growth-flat'; }
-    else {
-        const up = g.sales.pct > 0; const flat = g.sales.pct === 0;
-        sb.innerHTML = `${flat?'→':up?'▲':'▼'} ${Math.abs(g.sales.pct)}% <span style="opacity:.7;font-weight:400">(${g.prev_label})</span>`;
-        sb.className = 'hr-growth-badge ' + (flat?'hr-growth-flat':up?'hr-growth-up':'hr-growth-down');
-    }
-    renderGrowth('gc-revenue-val','gc-revenue-badge', g.revenue.cur, g.revenue.pct, false);
-    renderGrowth('gc-profit-val', 'gc-profit-badge',  g.profit.cur,  g.profit.pct,  false);
-    renderGrowth('gc-debt-val',   'gc-debt-badge',    g.debt.cur,    g.debt.pct,    true);
+    renderBadge('gc-sales-badge',   g.sales.pct,   false);
+    renderBadge('gc-revenue-badge', g.revenue.pct, false);
+    renderBadge('gc-profit-badge',  g.profit.pct,  false);
+    renderBadge('gc-debt-badge',    g.debt.pct,    true);
 
     // --- Top mijozlar ---
     const custDiv = document.getElementById('topCustomers');
