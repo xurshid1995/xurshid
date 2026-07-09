@@ -595,11 +595,112 @@ class DebtScheduler:
                 else:
                     logger.info("📊 Muddatli eslatma yuborish kerak emas")
 
-                # Adminlarga yig'ma xabar yuborish
+                # Adminlarga yig'ma xabar yuborish (muddatli qarzlar)
                 self._send_admin_due_date_summary(debt_sales, today, exchange_rate)
+                # Adminlarga BARCHA qarzli mijozlar ro'yxati yuborish
+                self._send_admin_all_debts_summary(today, exchange_rate)
 
             except Exception as e:
                 logger.error(f"❌ Muddatli eslatmalarni tekshirishda xatolik: {e}")
+
+    def _send_admin_all_debts_summary(self, today, exchange_rate):
+        """Adminlarga BARCHA qarzli mijozlar ro'yxatini yuborish (umumiy qarz summasi bilan)"""
+        if not self.bot or not self.bot.admin_chat_ids:
+            return
+
+        try:
+            from app import Sale, Customer
+
+            # Barcha qarzli mijozlarni customer_id bo'yicha guruhlash
+            rows = self.db.session.query(
+                Sale.customer_id,
+                self.db.func.sum(Sale.debt_usd).label('total_debt_usd'),
+                self.db.func.sum(Sale.debt_amount).label('total_debt_uzs'),
+                self.db.func.min(Sale.payment_due_date).label('earliest_due')
+            ).filter(
+                Sale.debt_usd > 0,
+                Sale.payment_status.in_(['partial', 'pending']),
+                Sale.customer_id.isnot(None)
+            ).group_by(Sale.customer_id).order_by(
+                self.db.func.sum(Sale.debt_usd).desc()
+            ).all()
+
+            if not rows:
+                return
+
+            import requests
+
+            def send_to_admins(text):
+                url = f"https://api.telegram.org/bot{self.bot.token}/sendMessage"
+                for chat_id in self.bot.admin_chat_ids:
+                    try:
+                        requests.post(url, json={
+                            'chat_id': chat_id,
+                            'text': text,
+                            'parse_mode': 'HTML'
+                        }, timeout=10)
+                        time_module.sleep(0.3)
+                    except Exception as e:
+                        logger.error(f"❌ Admin xabar (barcha qarzlar) yuborishda xatolik: {e}")
+
+            # Ro'yxatni 30 tadan bo'lib yuborish (Telegram limit)
+            CHUNK = 30
+            total_customers = len(rows)
+            grand_total_usd = sum(float(r.total_debt_usd or 0) for r in rows)
+            grand_total_uzs = grand_total_usd * exchange_rate
+
+            for chunk_start in range(0, total_customers, CHUNK):
+                chunk = rows[chunk_start:chunk_start + CHUNK]
+                is_last = (chunk_start + CHUNK) >= total_customers
+
+                if chunk_start == 0:
+                    header = (
+                        f"📋 <b>BARCHA QARZLI MIJOZLAR RO'YXATI</b>\n"
+                        f"<b>Sana: {today.strftime('%d.%m.%Y')}</b>\n"
+                        f"{'─' * 24}"
+                    )
+                else:
+                    header = f"📋 <b>DAVOM ({chunk_start + 1}–{min(chunk_start + CHUNK, total_customers)})</b>\n{'─' * 24}"
+
+                lines = [header]
+                for i, row in enumerate(chunk, chunk_start + 1):
+                    customer = Customer.query.get(row.customer_id)
+                    if not customer:
+                        continue
+                    debt_usd = float(row.total_debt_usd or 0)
+                    debt_uzs = debt_usd * exchange_rate
+                    due_str = ''
+                    if row.earliest_due:
+                        if row.earliest_due < today:
+                            days = (today - row.earliest_due).days
+                            due_str = f"\n   ❗ Muddat {days} kun o'tgan ({row.earliest_due.strftime('%d.%m.%Y')})"
+                        elif row.earliest_due == today:
+                            due_str = f"\n   🔔 Muddat bugun ({row.earliest_due.strftime('%d.%m.%Y')})"
+                        else:
+                            due_str = f"\n   📅 Muddat: {row.earliest_due.strftime('%d.%m.%Y')}"
+                    phone = customer.phone or '—'
+                    lines.append(
+                        f"\n{i}. <b>{customer.name}</b>\n"
+                        f"   📞 {phone}\n"
+                        f"   💵 ${debt_usd:,.2f} ({debt_uzs:,.0f} so'm)"
+                        f"{due_str}"
+                    )
+
+                if is_last:
+                    lines.append(
+                        f"\n{'─' * 24}\n"
+                        f"<b>Jami: {total_customers} ta mijoz</b>\n"
+                        f"<b>Umumiy qarz: ${grand_total_usd:,.2f}</b>\n"
+                        f"<b>({grand_total_uzs:,.0f} so'm)</b>"
+                    )
+
+                send_to_admins("\n".join(lines))
+                time_module.sleep(1)
+
+            logger.info(f"✅ Adminlarga barcha qarzli mijozlar ro'yxati yuborildi ({total_customers} ta)")
+
+        except Exception as e:
+            logger.error(f"❌ Admin barcha qarzlar xabari yuborishda xatolik: {e}")
 
     def _send_admin_due_date_summary(self, debt_sales, today, exchange_rate):
         """Adminlarga bugungi va muddati o'tgan qarzlar haqida yig'ma xabar yuborish"""
