@@ -302,9 +302,9 @@
 .hr-card-val.green { color: #22c55e; }
 .hr-card-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
 .hr-card-prev {
-    font-size: 14px;
-    font-weight: 600;
-    color: #94a3b8;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
     margin-top: 1px;
 }
 .hr-section {
@@ -456,11 +456,12 @@ async function loadExtra() {
             `<span style="font-size:12px;font-weight:700">${icon} ${sign}${Math.abs(pct)}% ${verb}</span>` +
             `<span class="hr-badge-sub">${nisbatan}</span>`;
     }
-    function renderPrev(prevId, prevVal, fmtFn) {
+    function renderPrev(prevId, prevVal, fmtFn, color) {
         const el = document.getElementById(prevId);
         if (!el) return;
         if (prevVal === undefined || prevVal === null || !fmtFn) { el.textContent = ''; return; }
         el.textContent = `${g.prev_label}: ${fmtFn(prevVal)}`;
+        if (color) el.style.color = color;
     }
     renderBadge('gc-sales-badge',      g.sales.pct,      false);
     renderBadge('gc-revenue-badge',    g.revenue.pct,    false);
@@ -469,13 +470,13 @@ async function loadExtra() {
     renderBadge('gc-netprofit-badge',  g.net_profit.pct, false);
     renderBadge('gc-expense-badge',    g.expense.pct,    true);
     renderBadge('gc-cost-badge',       g.cost.pct,       false);
-    renderPrev('gc-sales-prev',      g.sales.prev,      v => fmtNum(v) + ' ta');
-    renderPrev('gc-revenue-prev',    g.revenue.prev,    fmtUsd);
-    renderPrev('gc-profit-prev',     g.profit.prev,     fmtUsd);
-    renderPrev('gc-debt-prev',       g.debt.prev,       fmtUsd);
-    renderPrev('gc-netprofit-prev',  g.net_profit.prev, fmtUsd);
-    renderPrev('gc-expense-prev',    g.expense.prev,    fmtUsd);
-    renderPrev('gc-cost-prev',       g.cost.prev,       fmtUsd);
+    renderPrev('gc-sales-prev',      g.sales.prev,      v => fmtNum(v) + ' ta', '#1a1a2e');
+    renderPrev('gc-revenue-prev',    g.revenue.prev,    fmtUsd,                 '#22c55e');
+    renderPrev('gc-profit-prev',     g.profit.prev,     fmtUsd,                 '#16a34a');
+    renderPrev('gc-debt-prev',       g.debt.prev,       fmtUsd,                 '#e53e3e');
+    renderPrev('gc-netprofit-prev',  g.net_profit.prev, fmtUsd,                 '#0f766e');
+    renderPrev('gc-expense-prev',    g.expense.prev,    fmtUsd,                 '#e53e3e');
+    renderPrev('gc-cost-prev',       g.cost.prev,       fmtUsd,                 '#1a1a2e');
 
     // --- Top mijozlar ---
     const custDiv = document.getElementById('topCustomers');
