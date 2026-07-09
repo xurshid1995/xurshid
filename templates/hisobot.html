@@ -749,10 +749,9 @@ async function loadAll() {
 
     if (lpb.length > 0) {
         // Donut SVG generator
-        function buildDonutSvg(segments, size, centerText) {
-            // segments: [{color, pct}], r=15.9 → circum≈100
+        function buildDonutSvg(segments, size, centerText, fontSize) {
             const r = 15.9, cx = 18, cy = 18, strokeW = 5;
-            let offset = 25; // start from top
+            let offset = 25;
             const circles = segments.map(seg => {
                 const da = `${seg.pct} ${100 - seg.pct}`;
                 const circle = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
@@ -762,8 +761,9 @@ async function loadAll() {
                 offset -= seg.pct;
                 return circle;
             }).join('');
+            const fs = fontSize || 5;
             const label = centerText
-                ? `<text x="${cx}" y="${cy + 2}" text-anchor="middle" font-size="5" font-weight="700" fill="#1a1a2e">${centerText}</text>`
+                ? `<text x="${cx}" y="${cy + 2}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#1a1a2e">${centerText}</text>`
                 : '';
             return `<svg width="${size}" height="${size}" viewBox="0 0 36 36">${circles}${label}</svg>`;
         }
@@ -788,13 +788,10 @@ async function loadAll() {
                 pct: locTotal > 0 ? parseFloat((v / locTotal * 100).toFixed(1)) : 0
             }));
             // Sezilarli joylanishga: pct summasi = 100
-            // Qisqa summa formatlash: $25k, $1.2M
-            const shortAmt = locTotal >= 1000000
-                ? '$' + (locTotal/1000000).toFixed(1) + 'M'
-                : locTotal >= 1000
-                    ? '$' + (locTotal/1000).toFixed(0) + 'k'
-                    : '$' + locTotal.toFixed(0);
-            const donutSvg = buildDonutSvg(segments, 88, shortAmt);
+            // Donut markazi uchun summa ($ belgisiz, tiyinsiz, font katta-kichikligini avtomatik)
+            const centerNum = '$' + Math.round(locTotal).toLocaleString('uz-UZ').replace(/,/g, ' ');
+            const fontSize = centerNum.length <= 5 ? 5.5 : centerNum.length <= 7 ? 4.5 : 3.8;
+            const donutSvg = buildDonutSvg(segments, 88, centerNum, fontSize);
 
             // Legend rows
             const legendRows = pmSorted.map(([k, v]) => {
