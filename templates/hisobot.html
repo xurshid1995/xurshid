@@ -459,9 +459,10 @@ async function loadExtra() {
     function renderPrev(prevId, prevVal, fmtFn, color) {
         const el = document.getElementById(prevId);
         if (!el) return;
-        if (prevVal === undefined || prevVal === null || !fmtFn) { el.textContent = ''; return; }
-        el.textContent = `${g.prev_label}: ${fmtFn(prevVal)}`;
-        if (color) el.style.color = color;
+        if (prevVal === undefined || prevVal === null || !fmtFn) { el.innerHTML = ''; return; }
+        el.innerHTML =
+            `<span style="font-size:11px;font-weight:500;color:#888;">${g.prev_label}:</span> ` +
+            `<span style="color:${color||'#1a1a2e'}">${fmtFn(prevVal)}</span>`;
     }
     renderBadge('gc-sales-badge',      g.sales.pct,      false);
     renderBadge('gc-revenue-badge',    g.revenue.pct,    false);
