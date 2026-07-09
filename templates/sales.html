@@ -4704,6 +4704,25 @@
         window.editingOriginalQuantity = item.quantity; // Eski miqdorni saqlash (farqni hisoblash uchun)
         
         console.log('?? Tahrirlash rejimi: index =', index, ', eski miqdor =', item.quantity);
+        
+        // Enter / Escape klavish tugmalarini ulash (addToCart bilan bir xil)
+        setTimeout(() => {
+            const qInput = getActiveTabElement('modalQuantity');
+            const pUSDInput = getActiveTabElement('modalPriceUSD');
+            const pUZSInput = getActiveTabElement('modalPriceUZS');
+            
+            [qInput, pUSDInput, pUZSInput].forEach(el => {
+                if (!el) return;
+                el.addEventListener('keydown', function handleEditEnter(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        confirmAddToCart();
+                        el.removeEventListener('keydown', handleEditEnter);
+                    }
+                });
+            });
+        }, 100);
     }
     
     // Mahsulotni savatga qo'shish (eski)
@@ -7198,7 +7217,15 @@ function closeSptLightbox() {
     document.body.style.overflow = '';
 }
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeSptLightbox();
+    if (e.key === 'Escape') {
+        // Savdo miqdor modali ochiq bo'lsa — yopish
+        const qModal = getActiveTabElement('quantityModal');
+        if (qModal && qModal.style.display === 'flex') {
+            closeModal();
+            return;
+        }
+        closeSptLightbox();
+    }
 });
 </script>
 {% endblock %}
