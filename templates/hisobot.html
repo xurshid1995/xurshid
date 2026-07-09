@@ -56,6 +56,7 @@
                 <div class="hr-card-label">Jami savdolar</div>
             </div>
             <div class="hr-card-val" id="totalSales">—</div>
+            <div class="hr-card-prev" id="gc-sales-prev"></div>
             <div class="hr-growth-badge" id="gc-sales-badge"></div>
         </div>
         <div class="hr-card">
@@ -65,6 +66,7 @@
             </div>
             <div class="hr-card-val green" id="totalRevenue">—</div>
             <div class="hr-card-sub" id="totalRevenueUzs">—</div>
+            <div class="hr-card-prev" id="gc-revenue-prev"></div>
             <div class="hr-growth-badge" id="gc-revenue-badge"></div>
         </div>
         <div class="hr-card">
@@ -74,6 +76,7 @@
             </div>
             <div class="hr-card-val" style="color:#e53e3e;" id="totalDebt">—</div>
             <div class="hr-card-sub" id="totalDebtCount">—</div>
+            <div class="hr-card-prev" id="gc-debt-prev"></div>
             <div class="hr-growth-badge" id="gc-debt-badge"></div>
         </div>
         {% if session.role != 'sotuvchi' %}
@@ -84,6 +87,7 @@
             </div>
             <div class="hr-card-val" style="color:#16a34a;" id="totalProfit">—</div>
             <div class="hr-card-sub" id="totalProfitUzs">—</div>
+            <div class="hr-card-prev" id="gc-profit-prev"></div>
             <div class="hr-growth-badge" id="gc-profit-badge"></div>
         </div>
         <div class="hr-card">
@@ -93,6 +97,7 @@
             </div>
             <div class="hr-card-val" style="color:#0f766e;" id="totalNetProfit">—</div>
             <div class="hr-card-sub" id="totalNetProfitUzs">—</div>
+            <div class="hr-card-prev" id="gc-netprofit-prev"></div>
             <div class="hr-growth-badge" id="gc-netprofit-badge"></div>
         </div>
         {% endif %}
@@ -103,6 +108,7 @@
             </div>
             <div class="hr-card-val" style="color:#e53e3e;" id="totalExpenseCard">—</div>
             <div class="hr-card-sub" id="totalExpenseCardUzs">—</div>
+            <div class="hr-card-prev" id="gc-expense-prev"></div>
             <div class="hr-growth-badge" id="gc-expense-badge"></div>
         </div>
         <div class="hr-card">
@@ -112,6 +118,7 @@
             </div>
             <div class="hr-card-val" id="totalCost">—</div>
             <div class="hr-card-sub" id="totalCostSub">—</div>
+            <div class="hr-card-prev" id="gc-cost-prev"></div>
             <div class="hr-growth-badge" id="gc-cost-badge"></div>
         </div>
     </div>
@@ -294,6 +301,12 @@
 .hr-card-val { font-size: 20px; font-weight: 700; color: #1a1a2e; }
 .hr-card-val.green { color: #22c55e; }
 .hr-card-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+.hr-card-prev {
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-top: 1px;
+}
 .hr-section {
     background: #fff;
     border: 1px solid #eef0f4;
@@ -437,22 +450,32 @@ async function loadExtra() {
         const icon  = flat ? '→' : (pct > 0 ? '▲' : '▼');
         const verb  = flat ? "o'zgarmadi" : (pct > 0 ? 'oshdi' : 'tushdi');
         const cls   = flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down';
-        const prevStr = (prevVal !== undefined && prevVal !== null && fmtFn)
-            ? `<span class="hr-badge-prev">${g.prev_label}: ${fmtFn(prevVal)}</span>`
-            : '';
+        const prevStr = '';
         badge.className = 'hr-growth-badge ' + cls;
         badge.innerHTML =
             `<span style="font-size:12px;font-weight:700">${icon} ${sign}${Math.abs(pct)}% ${verb}</span>` +
-            `<span class="hr-badge-sub">${nisbatan}</span>` +
-            prevStr;
+            `<span class="hr-badge-sub">${nisbatan}</span>`;
     }
-    renderBadge('gc-sales-badge',      g.sales.pct,      false, g.sales.prev,      v => fmtNum(v) + ' ta');
-    renderBadge('gc-revenue-badge',    g.revenue.pct,    false, g.revenue.prev,    fmtUsd);
-    renderBadge('gc-profit-badge',     g.profit.pct,     false, g.profit.prev,     fmtUsd);
-    renderBadge('gc-debt-badge',       g.debt.pct,       true,  g.debt.prev,       fmtUsd);
-    renderBadge('gc-netprofit-badge',  g.net_profit.pct, false, g.net_profit.prev, fmtUsd);
-    renderBadge('gc-expense-badge',    g.expense.pct,    true,  g.expense.prev,    fmtUsd);
-    renderBadge('gc-cost-badge',       g.cost.pct,       false, g.cost.prev,       fmtUsd);
+    function renderPrev(prevId, prevVal, fmtFn) {
+        const el = document.getElementById(prevId);
+        if (!el) return;
+        if (prevVal === undefined || prevVal === null || !fmtFn) { el.textContent = ''; return; }
+        el.textContent = `${g.prev_label}: ${fmtFn(prevVal)}`;
+    }
+    renderBadge('gc-sales-badge',      g.sales.pct,      false);
+    renderBadge('gc-revenue-badge',    g.revenue.pct,    false);
+    renderBadge('gc-profit-badge',     g.profit.pct,     false);
+    renderBadge('gc-debt-badge',       g.debt.pct,       true);
+    renderBadge('gc-netprofit-badge',  g.net_profit.pct, false);
+    renderBadge('gc-expense-badge',    g.expense.pct,    true);
+    renderBadge('gc-cost-badge',       g.cost.pct,       false);
+    renderPrev('gc-sales-prev',      g.sales.prev,      v => fmtNum(v) + ' ta');
+    renderPrev('gc-revenue-prev',    g.revenue.prev,    fmtUsd);
+    renderPrev('gc-profit-prev',     g.profit.prev,     fmtUsd);
+    renderPrev('gc-debt-prev',       g.debt.prev,       fmtUsd);
+    renderPrev('gc-netprofit-prev',  g.net_profit.prev, fmtUsd);
+    renderPrev('gc-expense-prev',    g.expense.prev,    fmtUsd);
+    renderPrev('gc-cost-prev',       g.cost.prev,       fmtUsd);
 
     // --- Top mijozlar ---
     const custDiv = document.getElementById('topCustomers');
