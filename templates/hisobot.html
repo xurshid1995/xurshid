@@ -108,6 +108,42 @@
         </div>
     </div>
 
+    <!-- O'sish ko'rsatkichi (joriy davr vs oldingi davr) -->
+    <div id="growthCardsRow" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:20px;">
+        <div class="hr-card hr-growth-card" id="gc-sales">
+            <div class="hr-card-icon" style="background:#e8f4ff;">📦</div>
+            <div style="flex:1">
+                <div class="hr-card-label">Savdolar o'sishi</div>
+                <div class="hr-card-val" id="gc-sales-val">—</div>
+                <div class="hr-growth-badge" id="gc-sales-badge"></div>
+            </div>
+        </div>
+        <div class="hr-card hr-growth-card" id="gc-revenue">
+            <div class="hr-card-icon" style="background:#e8fff0;">💵</div>
+            <div style="flex:1">
+                <div class="hr-card-label">Tushum o'sishi</div>
+                <div class="hr-card-val" id="gc-revenue-val">—</div>
+                <div class="hr-growth-badge" id="gc-revenue-badge"></div>
+            </div>
+        </div>
+        <div class="hr-card hr-growth-card" id="gc-profit">
+            <div class="hr-card-icon" style="background:#fff8e8;">📈</div>
+            <div style="flex:1">
+                <div class="hr-card-label">Foyda o'sishi</div>
+                <div class="hr-card-val" id="gc-profit-val">—</div>
+                <div class="hr-growth-badge" id="gc-profit-badge"></div>
+            </div>
+        </div>
+        <div class="hr-card hr-growth-card" id="gc-debt">
+            <div class="hr-card-icon" style="background:#fff0f0;">💳</div>
+            <div style="flex:1">
+                <div class="hr-card-label">Nasiya o'zgarishi</div>
+                <div class="hr-card-val" id="gc-debt-val">—</div>
+                <div class="hr-growth-badge" id="gc-debt-badge"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Qo'shimcha bo'limlar uchun tab tugmalari -->
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
         <button onclick="switchHrTab('payments')" id="hr-tab-btn-payments"
@@ -118,9 +154,21 @@
             class="hr-tab-btn">
             🏆 Top mahsulotlar
         </button>
+        <button onclick="switchHrTab('topcust')" id="hr-tab-btn-topcust"
+            class="hr-tab-btn">
+            👤 Top mijozlar
+        </button>
+        <button onclick="switchHrTab('margin')" id="hr-tab-btn-margin"
+            class="hr-tab-btn">
+            💹 Foydali mahsulotlar
+        </button>
+        <button onclick="switchHrTab('lowstock')" id="hr-tab-btn-lowstock"
+            class="hr-tab-btn">
+            ⚠️ Kam stok (<span id="lowStockCount">0</span>)
+        </button>
         <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
             class="hr-tab-btn">
-            ⚠️ Qarzlar (<span id="debtListCount">0</span>)
+            🔴 Qarzlar (<span id="debtListCount">0</span>)
         </button>
     </div>
 
@@ -149,10 +197,50 @@
         </div>
     </div>
 
-    <!-- Tab 3: Qarzli mijozlar -->
+    <!-- Tab 2: Top mahsulotlar -->
+    <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
+            <div id="topProducts">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 4: Top mijozlar -->
+    <div id="hr-tab-topcust" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">👤 Top 10 mijoz (xarid summasi bo'yicha)</div>
+            <div id="topCustomers">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 5: Eng foydali mahsulotlar -->
+    <div id="hr-tab-margin" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">💹 Eng foydali mahsulotlar (foyda % bo'yicha)</div>
+            <div id="topMarginProducts">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 6: Kam stok -->
+    <div id="hr-tab-lowstock" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">⚠️ Kam qolgan mahsulotlar (<span id="lowStockCountInner">0</span> ta)</div>
+            <div id="lowStockList">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 7: Qarzli mijozlar -->
     <div id="hr-tab-debts" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">⚠️ Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
+            <div class="hr-section-title">🔴 Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -258,6 +346,19 @@
 }
 .hr-tab-btn:hover { border-color: #1a6eff; color: #1a6eff; background: #f0f5ff; }
 .hr-tab-active { background: #1a6eff !important; color: #fff !important; border-color: #1a6eff !important; box-shadow: 0 3px 10px rgba(26,110,255,0.25); }
+.hr-growth-badge {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 7px;
+    border-radius: 99px;
+}
+.hr-growth-up   { background:#dcfce7; color:#16a34a; }
+.hr-growth-down { background:#fee2e2; color:#dc2626; }
+.hr-growth-flat { background:#f1f5f9; color:#64748b; }
 .hr-row {
     display: flex;
     align-items: center;
@@ -299,11 +400,123 @@
 
 <script>
 function switchHrTab(tab) {
-    ['payments','products','debts'].forEach(t => {
+    ['payments','products','topcust','margin','lowstock','debts'].forEach(t => {
         document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-tab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
     });
+}
+
+async function loadExtra() {
+    const res = await fetch(
+        `/api/hisobot-extra?date_from=${currentDateFrom}&date_to=${currentDateTo}` +
+        (currentLocFilter ? `&location_filter=${currentLocFilter}` : '')
+    );
+    const data = await res.json();
+    if (!data.success) return;
+
+    // --- O'sish ko'rsatkichi ---
+    const g = data.growth;
+    function renderGrowth(elVal, elBadge, cur, pct, isDebt) {
+        document.getElementById(elVal).textContent = fmtUsd(cur);
+        const badge = document.getElementById(elBadge);
+        if (pct === null) { badge.textContent = '—'; badge.className = 'hr-growth-badge hr-growth-flat'; return; }
+        const up = isDebt ? pct < 0 : pct > 0;
+        const flat = pct === 0;
+        const arrow = flat ? '→' : (pct > 0 ? '▲' : '▼');
+        badge.innerHTML = `${arrow} ${Math.abs(pct)}% <span style="opacity:.7;font-weight:400">(${g.prev_label})</span>`;
+        badge.className = 'hr-growth-badge ' + (flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down');
+    }
+    document.getElementById('gc-sales-val').textContent = fmtNum(g.sales.cur);
+    const sb = document.getElementById('gc-sales-badge');
+    if (g.sales.pct === null) { sb.textContent = '—'; sb.className='hr-growth-badge hr-growth-flat'; }
+    else {
+        const up = g.sales.pct > 0; const flat = g.sales.pct === 0;
+        sb.innerHTML = `${flat?'→':up?'▲':'▼'} ${Math.abs(g.sales.pct)}% <span style="opacity:.7;font-weight:400">(${g.prev_label})</span>`;
+        sb.className = 'hr-growth-badge ' + (flat?'hr-growth-flat':up?'hr-growth-up':'hr-growth-down');
+    }
+    renderGrowth('gc-revenue-val','gc-revenue-badge', g.revenue.cur, g.revenue.pct, false);
+    renderGrowth('gc-profit-val', 'gc-profit-badge',  g.profit.cur,  g.profit.pct,  false);
+    renderGrowth('gc-debt-val',   'gc-debt-badge',    g.debt.cur,    g.debt.pct,    true);
+
+    // --- Top mijozlar ---
+    const custDiv = document.getElementById('topCustomers');
+    if (data.top_customers.length === 0) {
+        custDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+    } else {
+        const maxT = data.top_customers[0].total || 1;
+        custDiv.innerHTML = data.top_customers.map((c, i) => {
+            const pct = Math.round(c.total / maxT * 100);
+            return `<div class="hr-row">
+                <div class="hr-rank">${i+1}</div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.name)}</div>
+                    <div style="font-size:11px;color:#888">${escHtml(c.phone)} · ${c.sales_count} ta xarid</div>
+                    <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:#1a6eff;"></div></div>
+                </div>
+                <div style="text-align:right;padding-left:10px;flex-shrink:0">
+                    <div style="font-weight:700;color:#1a6eff;font-size:13px">${fmtUsd(c.total)}</div>
+                    ${c.debt > 0 ? `<div style="font-size:11px;color:#ef4444">Qarz: ${fmtUsd(c.debt)}</div>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // --- Eng foydali mahsulotlar (foyda %) ---
+    const marginDiv = document.getElementById('topMarginProducts');
+    if (data.top_profit_products.length === 0) {
+        marginDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+    } else {
+        const maxM = data.top_profit_products[0].margin_pct || 1;
+        marginDiv.innerHTML = data.top_profit_products.map((p, i) => {
+            const pct = Math.round(p.margin_pct / maxM * 100);
+            const color = p.margin_pct >= 30 ? '#16a34a' : p.margin_pct >= 15 ? '#ca8a04' : '#64748b';
+            return `<div class="hr-row">
+                <div class="hr-rank">${i+1}</div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
+                    <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ta sotildi · Tushum: ${fmtUsd(p.revenue)}</div>
+                    <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:${color};"></div></div>
+                </div>
+                <div style="text-align:right;padding-left:10px;flex-shrink:0">
+                    <div style="font-weight:700;color:${color};font-size:14px">${p.margin_pct}%</div>
+                    <div style="font-size:11px;color:#888">+${fmtUsd(p.profit)}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // --- Kam stok ---
+    const stockDiv = document.getElementById('lowStockList');
+    const count = data.low_stock.length;
+    document.getElementById('lowStockCount').textContent = count;
+    const lsInner = document.getElementById('lowStockCountInner');
+    if (lsInner) lsInner.textContent = count;
+    if (count === 0) {
+        stockDiv.innerHTML = '<div class="hr-loading">✅ Barcha mahsulotlar yetarli</div>';
+    } else {
+        stockDiv.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">` +
+        data.low_stock.map(s => {
+            const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
+            const pct = s.min_qty > 0 ? Math.round(s.qty / s.min_qty * 100) : 0;
+            const color = s.qty === 0 ? '#dc2626' : s.qty <= s.min_qty * 0.3 ? '#ea580c' : '#ca8a04';
+            return `<div style="background:#fff;border:1.5px solid ${color}30;border-radius:10px;padding:12px 14px;">
+                <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escHtml(s.product)}</div>
+                <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escHtml(s.location)}</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="flex:1;height:8px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                        <div style="width:${Math.min(pct,100)}%;height:100%;background:${color};border-radius:99px;"></div>
+                    </div>
+                    <span style="font-weight:700;color:${color};font-size:13px;white-space:nowrap">${s.qty} / ${s.min_qty}</span>
+                </div>
+                ${s.qty === 0 ? '<div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">⛔ Tugagan!</div>' : ''}
+            </div>`;
+        }).join('') + `</div>`;
+    }
+}
+
+function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 let currentPeriod = 'today';
@@ -441,7 +654,7 @@ function fmtNum(v) {
 }
 
 async function loadAll() {
-    // Parallel: history (stats+top products+locations+debt_customers) + chart (profit+payments)
+    // Parallel: history + chart + extra
     const [histRes, chartRes] = await Promise.all([
         fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1${currentLocFilter ? '&location_filter='+currentLocFilter : ''}`),
         fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom${currentLocFilter ? '&location_id='+currentLocFilter.split('_')[1]+'&location_type='+currentLocFilter.split('_')[0] : ''}`)
@@ -451,6 +664,9 @@ async function loadAll() {
     const chart = await chartRes.json();
 
     const stats = (hist.data && hist.data.statistics) || {};
+
+    // Extra statistika parallel yuklash
+    loadExtra();
 
     // --- Jami savdolar, tushum, o'rtacha ---
     document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);

@@ -15390,6 +15390,199 @@ def dashboard():
     return render_template('dashboard.html', current_user=current_user)
 
 
+@app.route('/api/hisobot-extra')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_extra():
+    """
+    Qo'shimcha hisobot statistikasi:
+    - O'sish ko'rsatkichi (joriy vs oldingi davr)
+    - Top mijozlar
+    - Eng foydali mahsulotlar (foyda % bo'yicha)
+    - Kam qolgan stok
+    """
+    try:
+        date_from_str = request.args.get('date_from')
+        date_to_str = request.args.get('date_to')
+        location_filter = request.args.get('location_filter')  # e.g. 'store_1' or 'warehouse_2'
+
+        if not date_from_str or not date_to_str:
+            today = get_tashkent_time().date()
+            date_from_str = date_to_str = today.isoformat()
+
+        from datetime import date as dt_date, timedelta
+        date_from = dt_date.fromisoformat(date_from_str)
+        date_to = dt_date.fromisoformat(date_to_str)
+        period_days = (date_to - date_from).days + 1
+
+        # Oldingi davr (xuddi shuncha kun)
+        prev_to = date_from - timedelta(days=1)
+        prev_from = prev_to - timedelta(days=period_days - 1)
+
+        # Location filter
+        loc_type = loc_id = None
+        if location_filter and '_' in location_filter:
+            parts = location_filter.split('_', 1)
+            loc_type, loc_id = parts[0], int(parts[1])
+
+        def base_q(d_from, d_to):
+            q = db.session.query(Sale).filter(
+                Sale.payment_status.in_(['paid', 'partial']),
+                db.func.date(Sale.sale_date) >= d_from,
+                db.func.date(Sale.sale_date) <= d_to
+            )
+            if loc_type and loc_id:
+                q = q.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+            return q
+
+        # --- O'sish ko'rsatkichi ---
+        def period_totals(d_from, d_to):
+            rows = base_q(d_from, d_to).with_entities(
+                db.func.count(Sale.id),
+                db.func.coalesce(db.func.sum(Sale.total_amount), 0),
+                db.func.coalesce(db.func.sum(Sale.total_profit), 0),
+                db.func.coalesce(db.func.sum(Sale.debt_usd), 0)
+            ).first()
+            return {
+                'sales': int(rows[0] or 0),
+                'revenue': float(rows[1] or 0),
+                'profit': float(rows[2] or 0),
+                'debt': float(rows[3] or 0),
+            }
+
+        cur = period_totals(date_from, date_to)
+        prv = period_totals(prev_from, prev_to)
+
+        def pct_change(cur_v, prv_v):
+            if prv_v == 0:
+                return None
+            return round((cur_v - prv_v) / prv_v * 100, 1)
+
+        growth = {
+            'sales': {'cur': cur['sales'], 'prev': prv['sales'], 'pct': pct_change(cur['sales'], prv['sales'])},
+            'revenue': {'cur': cur['revenue'], 'prev': prv['revenue'], 'pct': pct_change(cur['revenue'], prv['revenue'])},
+            'profit': {'cur': cur['profit'], 'prev': prv['profit'], 'pct': pct_change(cur['profit'], prv['profit'])},
+            'debt': {'cur': cur['debt'], 'prev': prv['debt'], 'pct': pct_change(cur['debt'], prv['debt'])},
+            'prev_label': f"{prev_from.strftime('%d.%m')} – {prev_to.strftime('%d.%m')}"
+        }
+
+        # --- Top 10 mijozlar (tanlangan davr) ---
+        cust_rows = base_q(date_from, date_to).filter(
+            Sale.customer_id.isnot(None)
+        ).with_entities(
+            Sale.customer_id,
+            db.func.count(Sale.id).label('cnt'),
+            db.func.sum(Sale.total_amount).label('total'),
+            db.func.sum(Sale.total_profit).label('profit'),
+            db.func.sum(Sale.debt_usd).label('debt')
+        ).group_by(Sale.customer_id).order_by(
+            db.func.sum(Sale.total_amount).desc()
+        ).limit(10).all()
+
+        top_customers = []
+        for row in cust_rows:
+            cust = Customer.query.get(row.customer_id)
+            if not cust:
+                continue
+            top_customers.append({
+                'name': cust.name,
+                'phone': cust.phone or '',
+                'sales_count': int(row.cnt or 0),
+                'total': float(row.total or 0),
+                'profit': float(row.profit or 0),
+                'debt': float(row.debt or 0),
+            })
+
+        # --- Eng foydali mahsulotlar foyda % bo'yicha (top 10) ---
+        item_rows = db.session.query(
+            SaleItem.product_id,
+            db.func.sum(SaleItem.quantity).label('qty'),
+            db.func.sum(SaleItem.total_price).label('revenue'),
+            db.func.sum(SaleItem.profit).label('profit')
+        ).join(Sale, SaleItem.sale_id == Sale.id).filter(
+            Sale.payment_status.in_(['paid', 'partial']),
+            db.func.date(Sale.sale_date) >= date_from,
+            db.func.date(Sale.sale_date) <= date_to,
+            SaleItem.product_id.isnot(None)
+        )
+        if loc_type and loc_id:
+            item_rows = item_rows.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+        item_rows = item_rows.group_by(SaleItem.product_id).having(
+            db.func.sum(SaleItem.total_price) > 0
+        ).all()
+
+        top_profit_pct = []
+        for row in item_rows:
+            prod = Product.query.get(row.product_id)
+            if not prod:
+                continue
+            revenue = float(row.revenue or 0)
+            profit = float(row.profit or 0)
+            pct = round(profit / revenue * 100, 1) if revenue > 0 else 0
+            top_profit_pct.append({
+                'name': prod.name,
+                'qty': float(row.qty or 0),
+                'revenue': revenue,
+                'profit': profit,
+                'margin_pct': pct
+            })
+        top_profit_pct.sort(key=lambda x: x['margin_pct'], reverse=True)
+        top_profit_pct = top_profit_pct[:10]
+
+        # --- Kam qolgan stok ---
+        low_store = db.session.query(StoreStock).join(
+            Product, StoreStock.product_id == Product.id
+        ).filter(
+            StoreStock.min_stock > 0,
+            StoreStock.quantity <= StoreStock.min_stock
+        ).order_by(StoreStock.quantity.asc()).limit(30).all()
+
+        low_wh = db.session.query(WarehouseStock).join(
+            Product, WarehouseStock.product_id == Product.id
+        ).filter(
+            WarehouseStock.min_stock > 0,
+            WarehouseStock.quantity <= WarehouseStock.min_stock
+        ).order_by(WarehouseStock.quantity.asc()).limit(30).all()
+
+        low_stock = []
+        for s in low_store:
+            if not s.product:
+                continue
+            store_obj = Store.query.get(s.store_id)
+            low_stock.append({
+                'product': s.product.name,
+                'location': store_obj.name if store_obj else 'Do\'kon',
+                'location_type': 'store',
+                'qty': float(s.quantity),
+                'min_qty': float(s.min_stock),
+                'diff': float(s.min_stock - s.quantity)
+            })
+        for s in low_wh:
+            if not s.product:
+                continue
+            wh_obj = Warehouse.query.get(s.warehouse_id)
+            low_stock.append({
+                'product': s.product.name,
+                'location': wh_obj.name if wh_obj else 'Ombor',
+                'location_type': 'warehouse',
+                'qty': float(s.quantity),
+                'min_qty': float(s.min_stock),
+                'diff': float(s.min_stock - s.quantity)
+            })
+        low_stock.sort(key=lambda x: x['qty'])
+
+        return jsonify({
+            'success': True,
+            'growth': growth,
+            'top_customers': top_customers,
+            'top_profit_products': top_profit_pct,
+            'low_stock': low_stock
+        })
+
+    except Exception as e:
+        logger.error(f"hisobot-extra API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""
