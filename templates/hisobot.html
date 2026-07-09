@@ -91,6 +91,7 @@
                 <div class="hr-card-label">Sof foyda</div>
                 <div class="hr-card-val" style="color:#0f766e;" id="totalNetProfit">—</div>
                 <div class="hr-card-sub" id="totalNetProfitUzs">—</div>
+                <div class="hr-growth-badge" id="gc-netprofit-badge"></div>
             </div>
         </div>
         {% endif %}
@@ -100,6 +101,7 @@
                 <div class="hr-card-label">Jami xarajat</div>
                 <div class="hr-card-val" style="color:#e53e3e;" id="totalExpenseCard">—</div>
                 <div class="hr-card-sub" id="totalExpenseCardUzs">—</div>
+                <div class="hr-growth-badge" id="gc-expense-badge"></div>
             </div>
         </div>
         <div class="hr-card">
@@ -108,6 +110,7 @@
                 <div class="hr-card-label">Kirim (tan narx)</div>
                 <div class="hr-card-val" id="totalCost">—</div>
                 <div class="hr-card-sub" id="totalCostSub">—</div>
+                <div class="hr-growth-badge" id="gc-cost-badge"></div>
             </div>
         </div>
     </div>
@@ -395,10 +398,13 @@ async function loadExtra() {
         badge.innerHTML = `${arrow} ${Math.abs(pct)}% <span style="opacity:.7;font-weight:400;font-size:10px">${g.prev_label}</span>`;
         badge.className = 'hr-growth-badge ' + (flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down');
     }
-    renderBadge('gc-sales-badge',   g.sales.pct,   false);
-    renderBadge('gc-revenue-badge', g.revenue.pct, false);
-    renderBadge('gc-profit-badge',  g.profit.pct,  false);
-    renderBadge('gc-debt-badge',    g.debt.pct,    true);
+    renderBadge('gc-sales-badge',      g.sales.pct,      false);
+    renderBadge('gc-revenue-badge',    g.revenue.pct,    false);
+    renderBadge('gc-profit-badge',     g.profit.pct,     false);
+    renderBadge('gc-debt-badge',       g.debt.pct,       true);
+    renderBadge('gc-netprofit-badge',  g.net_profit.pct, false);
+    renderBadge('gc-expense-badge',    g.expense.pct,    true);
+    renderBadge('gc-cost-badge',       g.cost.pct,       false);
 
     // --- Top mijozlar ---
     const custDiv = document.getElementById('topCustomers');

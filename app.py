@@ -15440,13 +15440,27 @@ def api_hisobot_extra():
                 db.func.count(Sale.id),
                 db.func.coalesce(db.func.sum(Sale.total_amount), 0),
                 db.func.coalesce(db.func.sum(Sale.total_profit), 0),
-                db.func.coalesce(db.func.sum(Sale.debt_usd), 0)
+                db.func.coalesce(db.func.sum(Sale.debt_usd), 0),
+                db.func.coalesce(db.func.sum(Sale.total_cost), 0)
             ).first()
+            # Xarajatlar (shu davrdagi)
+            from app import Expense
+            exp_total = db.session.query(
+                db.func.coalesce(db.func.sum(Expense.amount_usd), 0)
+            ).filter(
+                db.func.date(Expense.expense_date) >= d_from,
+                db.func.date(Expense.expense_date) <= d_to
+            ).scalar() or 0
+            profit = float(rows[2] or 0)
+            expense = float(exp_total or 0)
             return {
                 'sales': int(rows[0] or 0),
                 'revenue': float(rows[1] or 0),
-                'profit': float(rows[2] or 0),
+                'profit': profit,
                 'debt': float(rows[3] or 0),
+                'cost': float(rows[4] or 0),
+                'expense': expense,
+                'net_profit': profit - expense,
             }
 
         cur = period_totals(date_from, date_to)
@@ -15462,6 +15476,9 @@ def api_hisobot_extra():
             'revenue': {'cur': cur['revenue'], 'prev': prv['revenue'], 'pct': pct_change(cur['revenue'], prv['revenue'])},
             'profit': {'cur': cur['profit'], 'prev': prv['profit'], 'pct': pct_change(cur['profit'], prv['profit'])},
             'debt': {'cur': cur['debt'], 'prev': prv['debt'], 'pct': pct_change(cur['debt'], prv['debt'])},
+            'net_profit': {'cur': cur['net_profit'], 'prev': prv['net_profit'], 'pct': pct_change(cur['net_profit'], prv['net_profit'])},
+            'expense': {'cur': cur['expense'], 'prev': prv['expense'], 'pct': pct_change(cur['expense'], prv['expense'])},
+            'cost': {'cur': cur['cost'], 'prev': prv['cost'], 'pct': pct_change(cur['cost'], prv['cost'])},
             'prev_label': f"{prev_from.strftime('%d.%m')} – {prev_to.strftime('%d.%m')}"
         }
 
