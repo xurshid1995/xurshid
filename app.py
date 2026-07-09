@@ -15410,13 +15410,29 @@ def api_hisobot_extra():
             date_from_str = date_to_str = today.isoformat()
 
         from datetime import date as dt_date, timedelta
+        from calendar import monthrange as cal_monthrange
         date_from = dt_date.fromisoformat(date_from_str)
         date_to = dt_date.fromisoformat(date_to_str)
         period_days = (date_to - date_from).days + 1
 
-        # Oldingi davr (xuddi shuncha kun)
-        prev_to = date_from - timedelta(days=1)
-        prev_from = prev_to - timedelta(days=period_days - 1)
+        # Smart taqqoslash: to'liq kalendar oy bo'lsa → oldingi to'liq oy
+        is_full_month = (
+            date_from.day == 1 and
+            date_from.month == date_to.month and
+            date_from.year == date_to.year and
+            date_to.day == cal_monthrange(date_to.year, date_to.month)[1]
+        )
+        if is_full_month:
+            if date_from.month == 1:
+                prev_month, prev_year = 12, date_from.year - 1
+            else:
+                prev_month, prev_year = date_from.month - 1, date_from.year
+            prev_from = dt_date(prev_year, prev_month, 1)
+            prev_to = dt_date(prev_year, prev_month, cal_monthrange(prev_year, prev_month)[1])
+        else:
+            # Boshqa hollarda: xuddi shuncha kun oldin
+            prev_to = date_from - timedelta(days=1)
+            prev_from = prev_to - timedelta(days=period_days - 1)
 
         # Location filter
         loc_type = loc_id = None
