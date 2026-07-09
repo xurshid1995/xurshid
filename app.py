@@ -15441,15 +15441,22 @@ def api_hisobot_extra():
                 db.func.coalesce(db.func.sum(Sale.total_amount), 0),
                 db.func.coalesce(db.func.sum(Sale.total_profit), 0),
                 db.func.coalesce(db.func.sum(Sale.debt_usd), 0),
-                db.func.coalesce(db.func.sum(Sale.total_cost), 0)
             ).first()
-            # Xarajatlar (shu davrdagi)
-            from app import Expense
+            # Xarajatlar
             exp_total = db.session.query(
                 db.func.coalesce(db.func.sum(Expense.amount_usd), 0)
             ).filter(
                 db.func.date(Expense.expense_date) >= d_from,
                 db.func.date(Expense.expense_date) <= d_to
+            ).scalar() or 0
+            # Kirim (tan narx) — ProductAddHistory dan (main karta bilan bir xil manba)
+            cost_total = db.session.query(
+                db.func.coalesce(
+                    db.func.sum(ProductAddHistory.cost_price * ProductAddHistory.quantity), 0
+                )
+            ).filter(
+                db.func.date(ProductAddHistory.added_date) >= d_from,
+                db.func.date(ProductAddHistory.added_date) <= d_to
             ).scalar() or 0
             profit = float(rows[2] or 0)
             expense = float(exp_total or 0)
@@ -15458,7 +15465,7 @@ def api_hisobot_extra():
                 'revenue': float(rows[1] or 0),
                 'profit': profit,
                 'debt': float(rows[3] or 0),
-                'cost': float(rows[4] or 0),
+                'cost': float(cost_total),
                 'expense': expense,
                 'net_profit': profit - expense,
             }
