@@ -108,8 +108,24 @@
         </div>
     </div>
 
-    <!-- Joylashuv × To'lov usullari kombinatsiya -->
-    <div style="margin-bottom:24px;">
+    <!-- Qo'shimcha bo'limlar uchun tab tugmalari -->
+    <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button onclick="switchHrTab('payments')" id="hr-tab-btn-payments"
+            class="hr-tab-btn hr-tab-active">
+            🏪💳 To'lovlar
+        </button>
+        <button onclick="switchHrTab('products')" id="hr-tab-btn-products"
+            class="hr-tab-btn">
+            🏆 Top mahsulotlar
+        </button>
+        <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
+            class="hr-tab-btn">
+            ⚠️ Qarzlar (<span id="debtListCount">0</span>)
+        </button>
+    </div>
+
+    <!-- Tab 1: Joylashuv × To'lov usullari -->
+    <div id="hr-tab-payments" style="margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title">🏪💳 Joylashuv bo'yicha to'lov usullari</div>
             <div id="locBreakdownGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -123,17 +139,20 @@
         </div>
     </div>
 
-    <!-- Top mahsulotlar + Qarzli mijozlar -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+    <!-- Tab 2: Top mahsulotlar -->
+    <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
             <div id="topProducts">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
+    </div>
 
+    <!-- Tab 3: Qarzli mijozlar -->
+    <div id="hr-tab-debts" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">⚠️ Qarzli mijozlar (<span id="debtListCount">0</span> ta)</div>
+            <div class="hr-section-title">⚠️ Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -223,6 +242,22 @@
     border-bottom: 1px solid #f0f2f5;
 }
 .hr-loading { color: #bbb; font-size: 13px; text-align: center; padding: 20px; }
+.hr-tab-btn {
+    padding: 9px 18px;
+    border: 1.5px solid #dde1e7;
+    background: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.hr-tab-btn:hover { border-color: #1a6eff; color: #1a6eff; background: #f0f5ff; }
+.hr-tab-active { background: #1a6eff !important; color: #fff !important; border-color: #1a6eff !important; box-shadow: 0 3px 10px rgba(26,110,255,0.25); }
 .hr-row {
     display: flex;
     align-items: center;
@@ -263,6 +298,14 @@
 </style>
 
 <script>
+function switchHrTab(tab) {
+    ['payments','products','debts'].forEach(t => {
+        document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
+        const btn = document.getElementById('hr-tab-btn-' + t);
+        if (btn) btn.classList.toggle('hr-tab-active', t === tab);
+    });
+}
+
 let currentPeriod = 'today';
 let currentDateFrom = '';
 let currentDateTo = '';
@@ -605,6 +648,8 @@ async function loadAll() {
 
     const debtDiv = document.getElementById('debtList');
     document.getElementById('debtListCount').textContent = debtCustCount;
+    const debtInner = document.getElementById('debtListCountInner');
+    if (debtInner) debtInner.textContent = debtCustCount;
     if (debts.length === 0) {
         debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
     } else {
