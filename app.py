@@ -13562,6 +13562,7 @@ def api_reserve_stock():
         })
 
     except Exception as e:
+        db.session.rollback()
         logger.error(f" Stock tekshirishda xatolik: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -13610,7 +13611,7 @@ def api_return_stock():
             stock = StoreStock.query.filter_by(
                 store_id=location_id,
                 product_id=product_id
-            ).first()
+            ).with_for_update().first()
 
             if not stock:
                 # Agar stock yo'q bo'lsa, yangi stock yaratish
@@ -13637,7 +13638,7 @@ def api_return_stock():
             stock = WarehouseStock.query.filter_by(
                 warehouse_id=location_id,
                 product_id=product_id
-            ).first()
+            ).with_for_update().first()
 
             if not stock:
                 # Agar stock yo'q bo'lsa, yangi stock yaratish

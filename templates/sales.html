@@ -3825,13 +3825,14 @@
                     });
                     if (!result.success && !result.already_processed) {
                         console.error('Stokka qaytarishda xatolik:', result.error);
-                        // Bu xatolik critical emas, davom etamiz
+                        alert(result.error || SLANG.stock_return_error);
+                        return; // Stok qaytarilmadi — savatni o'zgartirmaymiz
                     } else {
                         console.log('? Ortiqcha stokka qaytarildi:', Math.abs(quantityDifference), 'dona');
                     }
                 } catch (error) {
                     console.error('Stok qaytarish xatosi (navbatga qo\'shildi):', error);
-                    // Davom etamiz
+                    // Navbatga qo'shildi — stok keyinroq qaytariladi, davom etamiz
                 }
             }
             // Agar farq == 0: hech narsa qilmaslik (faqat narx o'zgargan bo'lishi mumkin)
