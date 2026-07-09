@@ -749,7 +749,7 @@ async function loadAll() {
 
     if (lpb.length > 0) {
         // Donut SVG generator
-        function buildDonutSvg(segments, size) {
+        function buildDonutSvg(segments, size, centerText) {
             // segments: [{color, pct}], r=15.9 → circum≈100
             const r = 15.9, cx = 18, cy = 18, strokeW = 5;
             let offset = 25; // start from top
@@ -762,7 +762,10 @@ async function loadAll() {
                 offset -= seg.pct;
                 return circle;
             }).join('');
-            return `<svg width="${size}" height="${size}" viewBox="0 0 36 36">${circles}</svg>`;
+            const label = centerText
+                ? `<text x="${cx}" y="${cy + 2}" text-anchor="middle" font-size="5" font-weight="700" fill="#1a1a2e">${centerText}</text>`
+                : '';
+            return `<svg width="${size}" height="${size}" viewBox="0 0 36 36">${circles}${label}</svg>`;
         }
 
         comboDiv.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">` +
@@ -785,7 +788,13 @@ async function loadAll() {
                 pct: locTotal > 0 ? parseFloat((v / locTotal * 100).toFixed(1)) : 0
             }));
             // Sezilarli joylanishga: pct summasi = 100
-            const donutSvg = buildDonutSvg(segments, 88);
+            // Qisqa summa formatlash: $25k, $1.2M
+            const shortAmt = locTotal >= 1000000
+                ? '$' + (locTotal/1000000).toFixed(1) + 'M'
+                : locTotal >= 1000
+                    ? '$' + (locTotal/1000).toFixed(0) + 'k'
+                    : '$' + locTotal.toFixed(0);
+            const donutSvg = buildDonutSvg(segments, 88, shortAmt);
 
             // Legend rows
             const legendRows = pmSorted.map(([k, v]) => {
