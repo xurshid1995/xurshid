@@ -423,7 +423,7 @@ async function loadExtra() {
     }
     const nisbatan = periodLabel(g.prev_label);
 
-    function renderBadge(badgeId, pct, isDebt) {
+    function renderBadge(badgeId, pct, isDebt, prevVal, fmtFn) {
         const badge = document.getElementById(badgeId);
         if (!badge) return;
         if (pct === null || pct === undefined) {
@@ -437,18 +437,22 @@ async function loadExtra() {
         const icon  = flat ? '→' : (pct > 0 ? '▲' : '▼');
         const verb  = flat ? "o'zgarmadi" : (pct > 0 ? 'oshdi' : 'tushdi');
         const cls   = flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down';
+        const prevStr = (prevVal !== undefined && prevVal !== null && fmtFn)
+            ? `<span class="hr-badge-prev">${g.prev_label}: ${fmtFn(prevVal)}</span>`
+            : '';
         badge.className = 'hr-growth-badge ' + cls;
         badge.innerHTML =
             `<span style="font-size:12px;font-weight:700">${icon} ${sign}${Math.abs(pct)}% ${verb}</span>` +
-            `<span class="hr-badge-sub">${nisbatan}</span>`;
+            `<span class="hr-badge-sub">${nisbatan}</span>` +
+            prevStr;
     }
-    renderBadge('gc-sales-badge',      g.sales.pct,      false);
-    renderBadge('gc-revenue-badge',    g.revenue.pct,    false);
-    renderBadge('gc-profit-badge',     g.profit.pct,     false);
-    renderBadge('gc-debt-badge',       g.debt.pct,       true);
-    renderBadge('gc-netprofit-badge',  g.net_profit.pct, false);
-    renderBadge('gc-expense-badge',    g.expense.pct,    true);
-    renderBadge('gc-cost-badge',       g.cost.pct,       false);
+    renderBadge('gc-sales-badge',      g.sales.pct,      false, g.sales.prev,      v => fmtNum(v) + ' ta');
+    renderBadge('gc-revenue-badge',    g.revenue.pct,    false, g.revenue.prev,    fmtUsd);
+    renderBadge('gc-profit-badge',     g.profit.pct,     false, g.profit.prev,     fmtUsd);
+    renderBadge('gc-debt-badge',       g.debt.pct,       true,  g.debt.prev,       fmtUsd);
+    renderBadge('gc-netprofit-badge',  g.net_profit.pct, false, g.net_profit.prev, fmtUsd);
+    renderBadge('gc-expense-badge',    g.expense.pct,    true,  g.expense.prev,    fmtUsd);
+    renderBadge('gc-cost-badge',       g.cost.pct,       false, g.cost.prev,       fmtUsd);
 
     // --- Top mijozlar ---
     const custDiv = document.getElementById('topCustomers');
