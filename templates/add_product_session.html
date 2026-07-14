@@ -469,7 +469,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     <button onclick="clearTempList()" class="ap-btn-danger">
                         🗑️ {{ t('ap_delete_all') }}
                     </button>
-                    <button onclick="submitAllProducts()" class="ap-btn-success">
+                    <button id="btnSaveAll" onclick="submitAllProducts()" class="ap-btn-success">
                         💾 {{ t('ap_save_all') }}
                     </button>
                 </div>
@@ -2279,6 +2279,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 return;
             }
             
+            // Double-submit himoyasi
+            const saveBtn = document.getElementById('btnSaveAll');
+            if (saveBtn && saveBtn.disabled) return;
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saqlanmoqda...'; }
+            
             const requestBody = {
                 products: tempProducts.map(product => {
                     // Location formatini parsing qilish
@@ -2366,13 +2371,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     deletePendingBatch();
                     tempProducts = [];
                     updateTempList();
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
                 } else {
                     alert(data.error || APLANG.save_error);
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
                 }
             })
             .catch(error => {
                 console.error('Saqlashda xatolik:', error);
                 alert(APLANG.save_error);
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
             });
         }
 

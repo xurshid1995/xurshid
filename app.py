@@ -1992,7 +1992,12 @@ def api_batch_products():
                 ).first()
 
                 if stock:
-                    stock.quantity += quantity
+                    # Race condition oldini olish - atomic UPDATE
+                    db.session.execute(
+                        text("UPDATE warehouse_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
+                        {'qty': quantity, 'stock_id': stock.id}
+                    )
+                    db.session.refresh(stock)
                 else:
                     stock = WarehouseStock(
                         warehouse_id=location_id,
@@ -2012,7 +2017,12 @@ def api_batch_products():
                 ).first()
 
                 if stock:
-                    stock.quantity += quantity
+                    # Race condition oldini olish - atomic UPDATE
+                    db.session.execute(
+                        text("UPDATE store_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
+                        {'qty': quantity, 'stock_id': stock.id}
+                    )
+                    db.session.refresh(stock)
                 else:
                     stock = StoreStock(
                         store_id=location_id,
@@ -7014,6 +7024,190 @@ def api_update_due_date():
 
     except Exception as e:
         db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/debt-payments/reverse', methods=['POST'])
+@role_required('admin', 'kassir')
+def api_reverse_debt_payment():
+    """Adashib qilingan qarz to'lovini bekor qilish.
+
+    Body: { "customer_id": int, "payment_date": "ISO datetime string" }
+    Bir xil (customer_id, payment_date) bilan bog'liq barcha DebtPayment
+    yozuvlarini topib, ularda kiritilgan to'lovni savdolardan qaytaradi.
+    """
+    try:
+        data = request.get_json()
+        customer_id = data.get('customer_id')
+        payment_date_str = data.get('payment_date')  # ISO format: 2026-07-14T10:30:00
+
+        if not customer_id or not payment_date_str:
+            return jsonify({'success': False, 'error': 'customer_id va payment_date talab qilinadi'}), 400
+
+        # ISO string dan datetime'ga o'girish (mikrosekund bilan)
+        from datetime import datetime as _dt
+        try:
+            # Turli formatlarni qo'llab-quvvatlash
+            for fmt in ('%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S'):
+                try:
+                    payment_dt = _dt.strptime(payment_date_str, fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                return jsonify({'success': False, 'error': 'Noto\'g\'ri sana formati'}), 400
+        except Exception:
+            return jsonify({'success': False, 'error': 'Noto\'g\'ri sana formati'}), 400
+
+        # Shu tranzaksiyaga tegishli barcha DebtPayment yozuvlarini topish
+        # payment_date ±1 sekund oralig'ida (float precision uchun)
+        from datetime import timedelta
+        dt_from = payment_dt - timedelta(seconds=1)
+        dt_to   = payment_dt + timedelta(seconds=1)
+
+        payments = DebtPayment.query.filter(
+            DebtPayment.customer_id == customer_id,
+            DebtPayment.payment_date >= dt_from,
+            DebtPayment.payment_date <= dt_to
+        ).all()
+
+        if not payments:
+            return jsonify({'success': False, 'error': 'Bu to\'lov topilmadi'}), 404
+
+        total_reversed = Decimal('0')
+        balance_to_deduct = Decimal('0')
+
+        for dp in payments:
+            reversed_amount = Decimal(str(dp.total_usd or 0))
+            total_reversed += reversed_amount
+
+            # Agar savdoga bog'liq bo'lsa, savdo qarzini tiklash
+            if dp.sale_id:
+                sale = Sale.query.with_for_update().get(dp.sale_id)
+                if sale:
+                    # Savdoga qaytarish
+                    sale.debt_usd  = (sale.debt_usd  or Decimal('0')) + reversed_amount
+                    sale_rate = sale.currency_rate or Decimal('12000')
+                    sale.debt_amount = sale.debt_usd * sale_rate
+
+                    # To'lov turlarini kamaytirish (manfiyga ketmasligi uchun)
+                    cash_back = min(Decimal(str(dp.cash_usd or 0)), sale.cash_usd or Decimal('0'))
+                    click_back = min(Decimal(str(dp.click_usd or 0)), sale.click_usd or Decimal('0'))
+                    terminal_back = min(Decimal(str(dp.terminal_usd or 0)), sale.terminal_usd or Decimal('0'))
+
+                    sale.cash_usd     = (sale.cash_usd     or Decimal('0')) - cash_back
+                    sale.cash_amount  = sale.cash_usd * sale_rate
+                    sale.click_usd    = (sale.click_usd    or Decimal('0')) - click_back
+                    sale.click_amount = sale.click_usd * sale_rate
+                    sale.terminal_usd    = (sale.terminal_usd    or Decimal('0')) - terminal_back
+                    sale.terminal_amount = sale.terminal_usd * sale_rate
+
+                    # Payment status tiklash
+                    if sale.debt_usd > 0:
+                        sale.payment_status = 'partial'
+                    sale.updated_at = get_tashkent_time()
+
+            # Agar notes'da "balansga o'tkazildi" bo'lsa, balansdan ham qaytarish
+            if dp.notes and 'balansga' in dp.notes:
+                import re as _re
+                match = _re.search(r'\$([0-9]+(?:\.[0-9]+)?)\s*balansga', dp.notes)
+                if match:
+                    balance_to_deduct += Decimal(str(match.group(1)))
+
+        # Mijoz balansini tuzatish
+        customer = Customer.query.with_for_update().get(customer_id)
+        if customer:
+            if balance_to_deduct > 0:
+                old_bal = Decimal(str(customer.balance or 0))
+                customer.balance = max(Decimal('0'), old_bal - balance_to_deduct)
+
+            # last_debt_payment maydonlarini yangilash
+            remaining_total = db.session.query(db.func.sum(Sale.debt_usd)).filter(
+                Sale.customer_id == customer_id,
+                Sale.debt_usd > 0
+            ).scalar() or 0
+
+            if Decimal(str(remaining_total)) == 0:
+                customer.last_debt_payment_usd  = 0
+                customer.last_debt_payment_date = None
+                customer.last_debt_payment_rate = 0
+            # Agar qarz qolgan bo'lsa — last_payment ni o'zgartirsak yangi to'lov kabi ko'rinadi,
+            # shuning uchun faqat 0 holatida tozalaymiz.
+
+        # OperationHistory yozuvi
+        current_user_rev = get_current_user()
+        op = OperationHistory(
+            operation_type='debt_payment_reverse',
+            table_name='debt_payments',
+            record_id=payments[0].id,
+            user_id=session.get('user_id'),
+            username=session.get('username', 'Unknown'),
+            description=(f"Qarz to'lovi bekor qilindi: {customer.name if customer else customer_id} "
+                         f"- ${float(total_reversed):.2f} ({len(payments)} ta yozuv)"),
+            old_data={'payment_date': payment_date_str, 'total_usd': float(total_reversed)},
+            new_data={'reversed_by': session.get('username', 'Unknown')},
+            ip_address=request.remote_addr
+        )
+        db.session.add(op)
+
+        # DebtPayment yozuvlarini o'chirish
+        for dp in payments:
+            db.session.delete(dp)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'reversed_amount': float(total_reversed),
+            'payments_count': len(payments),
+            'message': f"${float(total_reversed):.2f} miqdordagi to'lov muvaffaqiyatli bekor qilindi"
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Qarz to'lovini bekor qilishda xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/debt-payments/by-customer/<int:customer_id>')
+@role_required('admin', 'kassir', 'sotuvchi')
+def api_debt_payments_by_customer(customer_id):
+    """Bitta mijoz uchun qarz to'lovlari tarixi (reverse uchun ISO sana bilan)"""
+    try:
+        rows = db.session.execute(text("""
+            SELECT
+                MIN(dp.id)              AS id,
+                dp.payment_date,
+                dp.received_by,
+                dp.notes,
+                SUM(dp.cash_usd)        AS cash_usd,
+                SUM(dp.click_usd)       AS click_usd,
+                SUM(dp.terminal_usd)    AS terminal_usd,
+                SUM(dp.total_usd)       AS total_usd,
+                MAX(dp.currency_rate)   AS currency_rate
+            FROM debt_payments dp
+            WHERE dp.customer_id = :cid
+            GROUP BY dp.payment_date, dp.received_by, dp.notes
+            ORDER BY dp.payment_date DESC
+        """), {'cid': customer_id})
+
+        payments = []
+        for r in rows:
+            payments.append({
+                'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
+                'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
+                'received_by': r.received_by or '',
+                'notes':       r.notes or '',
+                'cash_usd':     float(r.cash_usd    or 0),
+                'click_usd':    float(r.click_usd   or 0),
+                'terminal_usd': float(r.terminal_usd or 0),
+                'total_usd':    float(r.total_usd   or 0),
+                'currency_rate': float(r.currency_rate) if r.currency_rate else 0,
+            })
+
+        return jsonify({'success': True, 'payments': payments})
+    except Exception as e:
+        logger.error(f"Mijoz to'lovlari tarixida xatolik: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
