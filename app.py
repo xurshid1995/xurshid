@@ -2541,6 +2541,27 @@ def api_customer_timeline(customer_id):
         # Snapshot savdolarini qayta ishlash (payment_status immutable)
         for snap in snapshots:
             sd = snap.snapshot_data or {}
+            if snap.event_type == 'payment_reverse':
+                events.append({
+                    'type': 'payment_reverse',
+                    'id': snap.event_id,
+                    'date': snap.event_date.strftime('%Y-%m-%d %H:%M:%S') if snap.event_date else None,
+                    'total_usd': float(sd.get('total_reversed', 0)),
+                    'cash_usd': float(sd.get('cash_usd', 0)),
+                    'click_usd': float(sd.get('click_usd', 0)),
+                    'terminal_usd': float(sd.get('terminal_usd', 0)),
+                    'currency_rate': float(sd.get('currency_rate', 0)),
+                    'reversed_by': sd.get('reversed_by', ''),
+                    'original_payment_date': sd.get('original_payment_date', ''),
+                    'payments_count': sd.get('payments_count', 1),
+                    'sale_ids': sd.get('sale_ids', []),
+                    'debt_before': float(snap.debt_before or 0),
+                    'debt_after': float(snap.debt_after or 0),
+                    'balance_before': float(snap.balance_before or 0),
+                    'balance_after': float(snap.balance_after or 0),
+                    'has_snapshot': True,
+                })
+                continue
             if snap.event_type == 'sale':
                 items_list = [
                     {
@@ -7077,10 +7098,29 @@ def api_reverse_debt_payment():
 
         total_reversed = Decimal('0')
         balance_to_deduct = Decimal('0')
+        reversed_cash = Decimal('0')
+        reversed_click = Decimal('0')
+        reversed_terminal = Decimal('0')
+        reversed_sale_ids = []
+        reversed_currency_rate = Decimal('12000')
+
+        # Bekor qilishdan OLDIN joriy qarzni saqlash (snapshot uchun)
+        debt_before_query = db.session.query(db.func.sum(Sale.debt_usd)).filter(
+            Sale.customer_id == customer_id,
+            Sale.debt_usd > 0
+        ).scalar() or 0
+        debt_before_val = Decimal(str(debt_before_query))
 
         for dp in payments:
             reversed_amount = Decimal(str(dp.total_usd or 0))
             total_reversed += reversed_amount
+            reversed_cash     += Decimal(str(dp.cash_usd or 0))
+            reversed_click    += Decimal(str(dp.click_usd or 0))
+            reversed_terminal += Decimal(str(dp.terminal_usd or 0))
+            if dp.currency_rate:
+                reversed_currency_rate = Decimal(str(dp.currency_rate))
+            if dp.sale_id and dp.sale_id not in reversed_sale_ids:
+                reversed_sale_ids.append(dp.sale_id)
 
             # Agar savdoga bog'liq bo'lsa, savdo qarzini tiklash
             if dp.sale_id:
@@ -7156,6 +7196,37 @@ def api_reverse_debt_payment():
             db.session.delete(dp)
 
         db.session.commit()
+
+        # CustomerTimelineSnapshot: payment_reverse yozuvi (commit dan keyin alohida)
+        try:
+            debt_after_val = debt_before_val + total_reversed
+            bal_now = Decimal(str(customer.balance if customer else 0))
+            rev_snap = CustomerTimelineSnapshot(
+                customer_id=customer_id,
+                event_type='payment_reverse',
+                event_id=op.id,   # OperationHistory ID
+                event_date=get_tashkent_time(),
+                snapshot_data={
+                    'total_reversed': float(total_reversed),
+                    'cash_usd':     float(reversed_cash),
+                    'click_usd':    float(reversed_click),
+                    'terminal_usd': float(reversed_terminal),
+                    'currency_rate': float(reversed_currency_rate),
+                    'sale_ids':     reversed_sale_ids,
+                    'reversed_by':  session.get('username', 'Unknown'),
+                    'original_payment_date': payment_date_str,
+                    'payments_count': len(payments),
+                },
+                debt_before=Decimal(str(round(float(debt_before_val), 2))),
+                debt_after=Decimal(str(round(float(debt_after_val), 2))),
+                balance_before=bal_now,
+                balance_after=bal_now,
+            )
+            db.session.add(rev_snap)
+            db.session.commit()
+        except Exception as snap_err:
+            logger.warning(f"payment_reverse snapshot xatolik: {snap_err}")
+            db.session.rollback()
 
         return jsonify({
             'success': True,

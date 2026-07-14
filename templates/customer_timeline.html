@@ -48,6 +48,7 @@
 .tl-type-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
 .tl-type-sale { background: #dbeafe; color: #1558d6; }
 .tl-type-payment { background: #dcfce7; color: #15803d; }
+.tl-type-payment-reverse { background: #fee2e2; color: #b91c1c; }
 .tl-date { font-size: 12px; color: #94a3b8; }
 .tl-time-badge { background: #1a6eff; color: #ffffff; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
 .tl-amount { font-size: 16px; font-weight: 700; }
@@ -198,7 +199,10 @@ function renderTimeline() {
         html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;margin-top:4px;letter-spacing:0.5px;">${formatDay(day)}</div>`;
         html += '<div class="tl-container">';
         groups[day].forEach(e => {
-        html += e.type === 'sale' ? renderSale(e) : e.type === 'payment' ? renderPayment(e) : renderReturn(e);
+        html += e.type === 'sale' ? renderSale(e)
+               : e.type === 'payment' ? renderPayment(e)
+               : e.type === 'payment_reverse' ? renderPaymentReverse(e)
+               : renderReturn(e);
         });
         html += '</div>';
     });
@@ -240,6 +244,32 @@ function afterRow(e) {
     if (bal !== null) html += `<span class="${balCls}">Balans: $${bal.toFixed(2)}</span>`;
     html += `</div>`;
     return html;
+}
+
+function renderPaymentReverse(e) {
+    const chips = [];
+    if (e.cash_usd > 0)     chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
+    if (e.click_usd > 0)    chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
+    if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
+    if (e.currency_rate > 0) chips.push(`📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
+    if (e.reversed_by)       chips.push(`👤 Bekor qildi: ${e.reversed_by}`);
+    if (e.sale_ids && e.sale_ids.length) chips.push(`🔗 Savdolar: ${e.sale_ids.join(', ')}`);
+    if (e.original_payment_date) chips.push(`🗓 Asl to'lov sanasi: ${e.original_payment_date.substring(0,16)}`);
+    const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
+    return `<div class="tl-item">
+        <div class="tl-dot tl-dot-return"></div>
+        <div class="tl-card tl-card-return" style="border-left:3px solid #ef4444;">
+            <div class="tl-card-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="tl-time-badge">${timeOnly(e.date)}</span>
+                    <span class="tl-type-badge tl-type-payment-reverse">↩ To'lov bekor qilindi</span>
+                </div>
+                <div><span class="tl-amount" style="color:#ef4444;">-$${e.total_usd.toFixed(2)}</span></div>
+            </div>
+            <div class="tl-details">${chipsHtml}</div>
+            ${afterRow(e)}
+        </div>
+    </div>`;
 }
 
 function renderReturn(e) {
