@@ -1121,6 +1121,18 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mijozning mavjud qarzi (faqat qarz > 0 bo'lsa ko'rinadi) -->
+        <div id="paymentExistingDebtSection" style="display:none; margin-bottom: 12px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 20px;">⚠️</span>
+                <div style="flex: 1; min-width: 180px;">
+                    <div style="font-weight: 700; color: #b91c1c; font-size: 14px;">Mijozning mavjud qarzi: <span id="paymentExistingDebtUSD">$0.00</span></div>
+                    <div style="font-size: 12px; color: #991b1b;" id="paymentExistingDebtUZS"></div>
+                </div>
+                <div id="paymentExistingDebtDetails" style="font-size: 11px; color: #7f1d1d; line-height: 1.5;"></div>
+            </div>
+        </div>
         
         <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -5857,6 +5869,35 @@
             if (balanceInput) balanceInput.value = '';
             if (paymentCashUSD) fvSet(paymentCashUSD, totalUSD);
             if (paymentCashUZS) paymentCashUZS.value = Math.round(totalUZS);
+        }
+
+        // Mijozning mavjud qarzini ko'rsatish
+        const existingDebtSection = document.getElementById('paymentExistingDebtSection');
+        if (existingDebtSection) existingDebtSection.style.display = 'none';
+        const customerIdForDebt = getActiveTabElement('selectedCustomerId');
+        if (customerIdForDebt && customerIdForDebt.value) {
+            fetch(`/api/debts/${customerIdForDebt.value}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(d => {
+                    if (!d || !d.total_debt) return;
+                    const debt = parseFloat(d.total_debt || d.remaining_debt || 0);
+                    if (debt > 0.001 && existingDebtSection) {
+                        document.getElementById('paymentExistingDebtUSD').textContent = `$${debt.toFixed(2)}`;
+                        const debtUzs = Math.round(debt * (d.currency_rate || exchangeRate || 12000));
+                        document.getElementById('paymentExistingDebtUZS').textContent =
+                            `≈ ${debtUzs.toLocaleString('uz-UZ')} so'm`;
+                        // Savdolar bo'yicha tafsilot
+                        const details = document.getElementById('paymentExistingDebtDetails');
+                        if (details && d.history && d.history.length) {
+                            const debtSales = d.history.filter(h => parseFloat(h.debt_usd || 0) > 0).slice(0, 5);
+                            details.innerHTML = debtSales.map(h =>
+                                `📦 Savdo #${h.sale_id} — $${parseFloat(h.debt_usd).toFixed(2)}`
+                            ).join('<br>');
+                        }
+                        existingDebtSection.style.display = 'block';
+                    }
+                })
+                .catch(() => {});
         }
         
         if (paymentClickUSD) paymentClickUSD.value = '';
