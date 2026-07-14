@@ -6873,6 +6873,7 @@ def api_debt_payment_history():
                 'customer_id': row.customer_id,
                 'customer_name': row.customer_name or 'Unknown',
                 'payment_date': row.payment_date.strftime('%Y-%m-%d %H:%M') if row.payment_date else None,
+                'payment_date_iso': row.payment_date.isoformat() if row.payment_date else None,
                 'received_by': row.received_by or '',
                 'cash_usd': float(row.cash_usd or 0),
                 'click_usd': float(row.click_usd or 0),

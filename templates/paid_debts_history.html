@@ -343,11 +343,14 @@
                             <th>SUMMA (UZS)</th>
                             <th>{{ t('pdh_th_payment_type') }}</th>
                             <th>{{ t('pdh_th_received_by') }}</th>
+                            {% if current_user.role in ['admin', 'kassir'] %}
+                            <th>⚙️</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
                         <tr>
-                            <td colspan="7" class="no-data">⏳ {{ t('pdh_loading') }}</td>
+                            <td colspan="8" class="no-data">⏳ {{ t('pdh_loading') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -367,6 +370,7 @@
         terminal: {{ t("pdh_terminal")|tojson }},
         not_found: {{ t("pdh_not_found")|tojson }}
     };
+    const IS_ADMIN = {{ 'true' if current_user.role in ('admin', 'kassir') else 'false' }};
 
     let paidDebts = [];
     let exchangeRate = 13000;
@@ -502,6 +506,13 @@
                 : exchangeRate;
             const totalUZS = Math.round(totalAmount * paymentRate);
             
+            const reverseCell = IS_ADMIN
+                ? `<td><button onclick="openReverseModal('${debt.payment_date_iso}', ${debt.customer_id}, '${(debt.customer_name||'').replace(/'/g,"'")}', ${totalAmount}, '${debt.payment_date}')"
+                       style="padding:5px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; white-space:nowrap;">
+                       ↩ Bekor
+                   </button></td>`
+                : '';
+
             row.innerHTML = `
                 <td style="text-align:center;color:#94a3b8;font-size:12px;">${index + 1}</td>
                 <td style="color:#475569;font-size:12px;">${debt.payment_date || '-'}</td>
@@ -510,6 +521,7 @@
                 <td><span class="pdh-amount-uzs">${totalUZS.toLocaleString('ru-RU')} UZS</span></td>
                 <td>${paymentTypes.join(' ')}</td>
                 <td><span class="pdh-receiver">👨‍💼 ${debt.received_by || ''}</span></td>
+                ${reverseCell}
             `;
             
             tbody.appendChild(row);
@@ -559,7 +571,7 @@
             if (!existingNoResult) {
                 const noResultRow = document.createElement('tr');
                 noResultRow.className = 'no-result-row';
-                noResultRow.innerHTML = '<td colspan="7" class="no-data">🔍 ' + PDHLANG.not_found + '</td>';
+                noResultRow.innerHTML = '<td colspan="8" class="no-data">🔍 ' + PDHLANG.not_found + '</td>';
                 tbody.appendChild(noResultRow);
             }
         } else {
@@ -568,5 +580,63 @@
             }
         }
     }
+
+    // ========== TO'LOV BEKOR QILISH ==========
+    let reverseTarget = null;
+
+    function openReverseModal(paymentDateIso, customerId, customerName, totalUsd, paymentDateDisplay) {
+        reverseTarget = { payment_date: paymentDateIso, customer_id: customerId };
+        document.getElementById('reverseModalInfo').innerHTML =
+            `<strong>Mijoz:</strong> ${customerName}<br>
+             <strong>Sana:</strong> ${paymentDateDisplay}<br>
+             <strong>Summa:</strong> <span style="color:#dc3545;font-size:16px;font-weight:700;">$${totalUsd.toFixed ? totalUsd.toFixed(2) : totalUsd}</span>`;
+        document.getElementById('reverseModal').style.display = 'flex';
+    }
+
+    function closeReverseModal() {
+        document.getElementById('reverseModal').style.display = 'none';
+        reverseTarget = null;
+    }
+
+    async function confirmReverse() {
+        if (!reverseTarget) return;
+        const btn = document.getElementById('reverseConfirmBtn');
+        btn.disabled = true;
+        btn.textContent = 'Bajarilmoqda...';
+        try {
+            const res = await fetch('/api/debt-payments/reverse', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(reverseTarget)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                closeReverseModal();
+                loadPaidDebts();
+            } else {
+                alert('❌ ' + (data.error || 'Xatolik'));
+            }
+        } catch (e) {
+            alert('❌ Server bilan bog\'lanib bo\'lmadi');
+        }
+        btn.disabled = false;
+        btn.textContent = '✅ Ha, bekor qilish';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReverseModal(); });
 </script>
+
+<!-- Bekor qilish modali -->
+<div id="reverseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:12px; padding:30px; width:420px; max-width:92%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+        <h3 style="margin:0 0 15px 0; color:#dc3545;"><i class="fas fa-undo"></i> To'lovni bekor qilish</h3>
+        <div id="reverseModalInfo" style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin-bottom:16px; font-size:14px; line-height:1.7;"></div>
+        <p style="color:#6c757d; font-size:13px; margin-bottom:20px;">⚠️ Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="closeReverseModal()" style="padding:10px 20px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">Bekor</button>
+            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">✅ Ha, bekor qilish</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
