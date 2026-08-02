@@ -793,66 +793,65 @@ async function loadAll() {
         lpb.map((loc, i) => {
             const pmOrder = ['cash', 'click', 'terminal', 'debt'];
             const pmDefs = {
-                cash:     { label: '💵 Naqd',     color: '#eab308', bg: '#fefce8', bc: '#fde047' },
-                click:    { label: '📱 Click',    color: '#f59e0b', bg: '#fff7ed', bc: '#fdba74' },
-                terminal: { label: '💳 Terminal', color: '#f97316', bg: '#fff7ed', bc: '#fdba74' },
-                debt:     { label: '📋 Nasiya',   color: '#ef4444', bg: '#fef2f2', bc: '#fca5a5' }
+                cash:     { label: '💵 Naqd',     color: '#eab308' },
+                click:    { label: '📱 Click',    color: '#f59e0b' },
+                terminal: { label: '💳 Terminal', color: '#f97316' },
+                debt:     { label: '📋 Nasiya',   color: '#ef4444' }
             };
             const pmSorted = pmOrder.map(k => [k, parseFloat(loc.payments?.[k] || 0)]).filter(([, v]) => v > 0);
             const locTotal = pmSorted.reduce((s, [, v]) => s + v, 0);
             const locProfit = parseFloat(loc.profit || 0);
             const locExpense = parseFloat(loc.expense || 0);
 
-            // Donut segments
-            const segments = pmSorted.map(([k, v]) => ({
-                color: pmDefs[k].color,
-                pct: locTotal > 0 ? parseFloat((v / locTotal * 100).toFixed(1)) : 0
-            }));
-            // Sezilarli joylanishga: pct summasi = 100
-            // Donut markazi uchun summa ($ belgisiz, tiyinsiz, font katta-kichikligini avtomatik)
-            const centerNum = '$' + Math.round(locTotal).toLocaleString('uz-UZ').replace(/,/g, ' ');
-            const fontSize = centerNum.length <= 5 ? 5.5 : centerNum.length <= 7 ? 4.5 : 3.8;
-            const donutSvg = buildDonutSvg(segments, 88, centerNum, fontSize);
+            const locTypeTag = loc.location_type === 'warehouse'
+                ? `<span style="font-size:10px;font-weight:700;background:#16a34a;color:#fff;padding:2px 7px;border-radius:99px;">&#x1F3ED; Ombor</span>`
+                : `<span style="font-size:10px;font-weight:700;background:#1558d6;color:#fff;padding:2px 7px;border-radius:99px;">&#x1F3EA; Do'kon</span>`;
 
-            // Legend rows
-            const legendRows = pmSorted.map(([k, v]) => {
-                const d = pmDefs[k];
-                const pct = locTotal > 0 ? Math.round(v / locTotal * 100) : 0;
-                return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
-                    <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0;"></div>
-                    <span style="font-size:11.5px;color:#555;flex:1;">${d.label}</span>
-                    <span style="font-weight:700;color:${d.color};font-size:12px;">${fmtUsd(v)}</span>
-                    <span style="background:${d.color}22;color:${d.color};font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px;">${pct}%</span>
-                </div>`;
-            }).join('');
-
-            // Stacked bar (ingichka)
+            // Stacked bar
             const stackedBar = pmSorted.map(([k, v]) => {
                 const pct = locTotal > 0 ? (v / locTotal * 100).toFixed(1) : 0;
                 return `<div style="width:${pct}%;height:100%;background:${pmDefs[k].color};"></div>`;
             }).join('');
 
-            const locTypeTag = loc.location_type === 'warehouse'
-                ? `<span style="font-size:10px;font-weight:700;background:#16a34a;color:#fff;padding:2px 7px;border-radius:99px;">&#x1F3ED; Ombor</span>`
-                : `<span style="font-size:10px;font-weight:700;background:#1558d6;color:#fff;padding:2px 7px;border-radius:99px;">&#x1F3EA; Do'kon</span>`;
+            // To'lov usullari: to'liq kenglikdagi gorizontal barlar
+            const maxVal = Math.max(locTotal, locProfit, locExpense, 0.01);
+            const barRows = pmSorted.map(([k, v]) => {
+                const d = pmDefs[k];
+                const pct = locTotal > 0 ? Math.round(v / locTotal * 100) : 0;
+                const barW = (v / maxVal * 100).toFixed(1);
+                return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+                    <span style="font-size:11.5px;color:#555;width:90px;flex-shrink:0;">${d.label}</span>
+                    <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                        <div style="width:${barW}%;height:100%;background:${d.color};border-radius:99px;"></div>
+                    </div>
+                    <span style="font-weight:700;color:${d.color};font-size:12px;width:80px;text-align:right;flex-shrink:0;">${fmtUsd(v)}</span>
+                    <span style="background:${d.color}22;color:${d.color};font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;width:36px;text-align:center;flex-shrink:0;">${pct}%</span>
+                </div>`;
+            }).join('');
 
             const profitPct = locTotal > 0 ? (locProfit / locTotal * 100).toFixed(1) : 0;
             const expPct    = locTotal > 0 ? (locExpense / locTotal * 100).toFixed(1) : 0;
+            const profitBarW = (locProfit / maxVal * 100).toFixed(1);
+            const expBarW    = (locExpense / maxVal * 100).toFixed(1);
             const extraRows = `
-                <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;padding-top:7px;border-top:1px dashed #bbf7d0;">
-                    <div style="width:10px;height:10px;border-radius:50%;background:#16a34a;flex-shrink:0;"></div>
-                    <span style="font-size:11.5px;color:#166534;flex:1;">&#x1F4C8; Foyda</span>
-                    <span style="font-weight:700;color:#16a34a;font-size:12px;">${fmtUsd(locProfit)}</span>
-                    <span style="background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px;">${profitPct}%</span>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:8px;border-top:1px dashed #bbf7d0;margin-bottom:7px;">
+                    <span style="font-size:11.5px;color:#166534;width:90px;flex-shrink:0;">📈 Foyda</span>
+                    <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                        <div style="width:${profitBarW}%;height:100%;background:#16a34a;border-radius:99px;"></div>
+                    </div>
+                    <span style="font-weight:700;color:#16a34a;font-size:12px;width:80px;text-align:right;flex-shrink:0;">${fmtUsd(locProfit)}</span>
+                    <span style="background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;width:36px;text-align:center;flex-shrink:0;">${profitPct}%</span>
                 </div>
-                ${locExpense > 0 ? `<div style="display:flex;align-items:center;gap:7px;padding-top:4px;border-top:1px dashed #fecaca;">
-                    <div style="width:10px;height:10px;border-radius:50%;background:#b91c1c;flex-shrink:0;"></div>
-                    <span style="font-size:11.5px;color:#b91c1c;flex:1;">&#x1F4B8; Xarajat</span>
-                    <span style="font-weight:700;color:#b91c1c;font-size:12px;">${fmtUsd(locExpense)}</span>
-                    <span style="background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px;">${expPct}%</span>
+                ${locExpense > 0 ? `<div style="display:flex;align-items:center;gap:8px;padding-top:4px;border-top:1px dashed #fecaca;">
+                    <span style="font-size:11.5px;color:#b91c1c;width:90px;flex-shrink:0;">💸 Xarajat</span>
+                    <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
+                        <div style="width:${expBarW}%;height:100%;background:#b91c1c;border-radius:99px;"></div>
+                    </div>
+                    <span style="font-weight:700;color:#b91c1c;font-size:12px;width:80px;text-align:right;flex-shrink:0;">${fmtUsd(locExpense)}</span>
+                    <span style="background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;width:36px;text-align:center;flex-shrink:0;">${expPct}%</span>
                 </div>` : ''}`;
 
-            return `<div style="border:1px solid #eef0f4;border-radius:14px;padding:14px;">
+            return `<div style="border:1px solid #eef0f4;border-radius:14px;padding:14px 16px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:12px;font-weight:700;color:#64748b">${i+1}</span>
@@ -861,16 +860,11 @@ async function loadAll() {
                     </div>
                     <span style="font-weight:800;color:#1a6eff;font-size:15px;">${fmtUsd(loc.total)}</span>
                 </div>
-                <div style="height:7px;border-radius:99px;overflow:hidden;display:flex;margin-bottom:12px;background:#f0f2f5;">
+                <div style="height:8px;border-radius:99px;overflow:hidden;display:flex;margin-bottom:14px;background:#f0f2f5;">
                     ${stackedBar}
                 </div>
-                <div style="display:flex;gap:14px;align-items:center;">
-                    <div style="flex-shrink:0;">${donutSvg}</div>
-                    <div style="flex:1;">
-                        ${legendRows}
-                        ${extraRows}
-                    </div>
-                </div>
+                ${barRows}
+                ${extraRows}
             </div>`;
         }).join('') + `</div>`;
     } else {
