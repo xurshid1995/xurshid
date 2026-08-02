@@ -243,12 +243,23 @@
 .hr-btn:hover { border-color: #1a6eff; color: #1a6eff; }
 .hr-btn-active { background: #1a6eff; color: #fff !important; border-color: #1a6eff !important; }
 .hr-date {
-    padding: 6px 10px;
-    border: 1px solid #dde1e7;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #333;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #475569;
+    background: transparent;
+    cursor: pointer;
     outline: none;
+    transition: border-color 0.2s;
+    width: 130px;
+    font-family: inherit;
+}
+.hr-date.active {
+    border-color: #1a6eff;
+    background: #eff4ff;
+    color: #1a6eff;
+    font-weight: 600;
 }
 .hr-month-select {
     padding: 6px 28px 6px 10px;
@@ -574,7 +585,7 @@ let exchangeRate = 12100;
         opt.value = y; opt.textContent = y;
         sel.appendChild(opt);
     }
-    sel.value = String(curYear);
+    // value bo'sh qolsin — setPeriod() to'g'ri o'rnatadi
 })();
 
 function selectHisobotMonthFilter() {
@@ -624,40 +635,50 @@ function setPeriod(period) {
     currentPeriod = period;
     document.querySelectorAll('#btn-today, #btn-week, #btn-month').forEach(b => b.classList.remove('hr-btn-active'));
 
-    // Dropdown reset
     const ms = document.getElementById('hrMonthSelect');
-    if (ms) { ms.value = ''; ms.classList.remove('active'); }
     const ys = document.getElementById('hrYearSelect');
-    if (ys) { ys.classList.remove('active'); }
-
+    const df = document.getElementById('dateFrom');
+    const dt = document.getElementById('dateTo');
     const today = new Date();
+    const curYear = today.getFullYear();
+    const curMonth = today.getMonth() + 1;
 
     if (period === 'today') {
         currentDateFrom = fmtDate(today);
         currentDateTo = fmtDate(today);
         document.getElementById('btn-today').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = currentDateFrom; df.classList.add('active'); }
+        if (dt) { dt.value = currentDateTo; dt.classList.add('active'); }
     } else if (period === 'week') {
         const mon = new Date(today);
-        // getDay(): 0=Yak, 1=Du ... Dushanba qilish
         const diff = (today.getDay() + 6) % 7;
         mon.setDate(today.getDate() - diff);
         currentDateFrom = fmtDate(mon);
         currentDateTo = fmtDate(today);
         document.getElementById('btn-week').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = currentDateFrom; df.classList.add('active'); }
+        if (dt) { dt.value = currentDateTo; dt.classList.add('active'); }
     } else if (period === 'month') {
-        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        const first = new Date(curYear, today.getMonth(), 1);
         currentDateFrom = fmtDate(first);
         currentDateTo = fmtDate(today);
         document.getElementById('btn-month').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = currentDateFrom; df.classList.add('active'); }
+        if (dt) { dt.value = currentDateTo; dt.classList.add('active'); }
     } else if (period === 'custom') {
-        currentDateFrom = document.getElementById('dateFrom').value;
-        currentDateTo = document.getElementById('dateTo').value;
+        // custom: dropdown tozalanadi
+        if (ms) { ms.value = ''; ms.classList.remove('active'); }
+        if (ys) { ys.value = ''; ys.classList.remove('active'); }
+        currentDateFrom = df ? df.value : '';
+        currentDateTo = dt ? dt.value : '';
         if (!currentDateFrom || !currentDateTo) return;
     }
-
-    if (period !== 'custom') {
-        document.getElementById('dateFrom').value = currentDateFrom;
-        document.getElementById('dateTo').value = currentDateTo;
     }
 
     loadAll();
