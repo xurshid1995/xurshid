@@ -771,7 +771,7 @@ async function loadAll() {
     if (lpb.length > 0) {
         // Donut SVG generator
         function buildDonutSvg(segments, size, centerText, fontSize) {
-            const r = 15.9, cx = 18, cy = 18, strokeW = 5;
+            const r = 15.9, cx = 18, cy = 18, strokeW = 8;
             let offset = 25;
             const circles = segments.map(seg => {
                 const da = `${seg.pct} ${100 - seg.pct}`;
