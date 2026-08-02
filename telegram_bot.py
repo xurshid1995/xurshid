@@ -527,16 +527,15 @@ class DebtTelegramBot:
                 try:
                     from app import app, db
                     with app.app_context():
-                        # Barcha qarzlarni (shu savdogacha) hisoblash - debt_usd va debt_uzs
+                        # Barcha qarzlarni hisoblash - debt_amount = UZS, debt_usd = USD
                         total_debt_result = db.session.execute(
                             text("""
-                                SELECT 
+                                SELECT
                                     COALESCE(SUM(debt_usd), 0) as total_debt_usd,
-                                    COALESCE(SUM(debt_uzs), 0) as total_debt_uzs
+                                    COALESCE(SUM(debt_amount), 0) as total_debt_uzs
                                 FROM sales
                                 WHERE customer_id = :customer_id
-                                AND payment_status = 'partial'
-                                AND (debt_usd > 0 OR debt_uzs > 0)
+                                AND (debt_usd > 0 OR debt_amount > 0)
                             """),
                             {"customer_id": customer_id}
                         ).fetchone()
