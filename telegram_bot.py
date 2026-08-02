@@ -520,29 +520,36 @@ class DebtTelegramBot:
             # Oldingi va jami qarzni hisoblash (database'dan) - har doim ko'rsatish
             previous_debt_usd = 0
             total_debt_usd = 0
+            previous_debt_uzs = 0
+            total_debt_uzs = 0
 
             if customer_id:
                 try:
                     from app import app, db
                     with app.app_context():
-                        # Barcha qarzlarni (shu savdogacha) hisoblash - debt_usd dan
+                        # Barcha qarzlarni (shu savdogacha) hisoblash - debt_usd va debt_uzs
                         total_debt_result = db.session.execute(
                             text("""
-                                SELECT COALESCE(SUM(debt_usd), 0) as total_debt_usd
+                                SELECT 
+                                    COALESCE(SUM(debt_usd), 0) as total_debt_usd,
+                                    COALESCE(SUM(debt_uzs), 0) as total_debt_uzs
                                 FROM sales
                                 WHERE customer_id = :customer_id
                                 AND payment_status = 'partial'
-                                AND debt_usd > 0
+                                AND (debt_usd > 0 OR debt_uzs > 0)
                             """),
                             {"customer_id": customer_id}
                         ).fetchone()
 
-                        total_debt_usd = float(total_debt_result[0] or 0) if total_debt_result else 0
+                        if total_debt_result:
+                            total_debt_usd = float(total_debt_result[0] or 0)
+                            total_debt_uzs = float(total_debt_result[1] or 0)
 
                         # Oldingi qarz = Jami qarz - Joriy savdo qarzi
                         previous_debt_usd = total_debt_usd - debt_usd
+                        previous_debt_uzs = total_debt_uzs - debt_uzs
 
-                        logger.info(f"💰 Qarz hisoblandi: previous=${previous_debt_usd:.2f}, total=${total_debt_usd:.2f}, current=${debt_usd:.2f}")
+                        logger.info(f"💰 Qarz hisoblandi: previous=${previous_debt_usd:.2f}/{previous_debt_uzs:,.0f}so'm, total=${total_debt_usd:.2f}/{total_debt_uzs:,.0f}so'm")
 
                 except Exception as db_error:
                     logger.error(f"❌ Jami qarzni olishda xatolik: {db_error}", exc_info=True)
@@ -594,6 +601,8 @@ class DebtTelegramBot:
                         'terminal_uzs': terminal_uzs,
                         'debt_uzs': debt_uzs,
                         'balance_uzs': balance_uzs,
+                        'previous_debt_uzs': previous_debt_uzs,
+                        'total_debt_uzs': total_debt_uzs,
                         'total_amount': total_amount_uzs,
                         'paid_amount': paid_uzs,
                         'cash': cash_uzs,
@@ -619,6 +628,8 @@ class DebtTelegramBot:
                         'terminal_usd': terminal_usd,
                         'debt_usd': debt_usd,
                         'balance_usd': balance_usd,
+                        'previous_debt_usd': previous_debt_usd,
+                        'total_debt_usd': total_debt_usd,
                         'total_amount': total_amount_usd,
                         'paid_amount': paid_usd,
                         'cash': cash_usd,

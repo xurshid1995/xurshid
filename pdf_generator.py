@@ -318,6 +318,36 @@ def generate_sale_receipt_pdf(
         c.setFillColor(colors.black)
         y -= 6*mm
 
+    # Oldingi va jami qarz
+    previous_debt_key = 'previous_debt_usd' if currency == 'usd' else 'previous_debt_uzs'
+    total_debt_key = 'total_debt_usd' if currency == 'usd' else 'total_debt_uzs'
+    previous_debt = sale_data.get(previous_debt_key, 0)
+    total_debt = sale_data.get(total_debt_key, 0)
+
+    if previous_debt > 0 or total_debt > 0:
+        y -= 2*mm
+        c.setFont("Helvetica-Bold", 9)
+        c.setFillColor(colors.Color(0.8, 0.2, 0.2))
+        
+        if previous_debt > 0:
+            c.drawString(table_left, y, "📋 OLDINGI QARZ:")
+            if currency == 'usd':
+                c.drawRightString(table_right, y, fmt_usd(previous_debt))
+            else:
+                c.drawRightString(table_right, y, f"{previous_debt:,.0f} {currency_symbol}")
+            y -= 5*mm
+        
+        if total_debt > 0:
+            c.setFont("Helvetica-Bold", 10)
+            c.drawString(table_left, y, "💳 JAMI QARZ:")
+            if currency == 'usd':
+                c.drawRightString(table_right, y, fmt_usd(total_debt))
+            else:
+                c.drawRightString(table_right, y, f"{total_debt:,.0f} {currency_symbol}")
+            y -= 6*mm
+        
+        c.setFillColor(colors.black)
+
     # Footer
     y -= 5*mm
     c.setLineWidth(0.5)
