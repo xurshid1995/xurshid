@@ -566,10 +566,30 @@ let currentPeriod = 'today';
         opt.textContent = y;
         sel.appendChild(opt);
     }
-    sel.value = String(curYear);
+    // value bo'sh qolsin — initTodayFilters() to'g'ri o'rnatadi
 })();
 
+function initTodayFilters() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+    const todayStr = now.toISOString().slice(0, 10);
+
+    const ys = document.getElementById('yearSelect');
+    const ms = document.getElementById('monthSelect');
+    const df = document.getElementById('customDateFrom');
+    const dt = document.getElementById('customDateTo');
+
+    if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+    if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+    if (df) { df.value = todayStr; df.classList.add('active'); }
+    if (dt) { dt.value = todayStr; dt.classList.add('active'); }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Sahifa ochilganda "Bugun" aktiv bo'lgani uchun yil/oy/sana ham ko'rsatiladi
+    initTodayFilters();
+
     if (userRole === 'omborchi') {
         loadOmborchiDashboard();
     } else {
@@ -670,17 +690,20 @@ function selectTimePeriod(clickedButton, period) {
     clickedButton.classList.add('active');
     currentPeriod = period;
 
-    // Month/Year dropdown reset
-    const ms = document.getElementById('monthSelect');
-    if (ms) { ms.value = ''; ms.classList.remove('active'); }
-    const ys = document.getElementById('yearSelect');
-    if (ys) { ys.value = ''; ys.classList.remove('active'); }
-
-    // Custom date inputlarni tozalash
-    const df = document.getElementById('customDateFrom');
-    const dt = document.getElementById('customDateTo');
-    if (df) { df.value = ''; df.classList.remove('active'); }
-    if (dt) { dt.value = ''; dt.classList.remove('active'); }
+    if (period === 'today') {
+        // Bugun tanlanganda joriy yil/oy/sana ko'rsatiladi
+        initTodayFilters();
+    } else {
+        // Boshqa periodlarda yil/oy/sana tozalanadi
+        const ms = document.getElementById('monthSelect');
+        if (ms) { ms.value = ''; ms.classList.remove('active'); }
+        const ys = document.getElementById('yearSelect');
+        if (ys) { ys.value = ''; ys.classList.remove('active'); }
+        const df = document.getElementById('customDateFrom');
+        const dt = document.getElementById('customDateTo');
+        if (df) { df.value = ''; df.classList.remove('active'); }
+        if (dt) { dt.value = ''; dt.classList.remove('active'); }
+    }
 
     const activeLocationBtn = document.querySelector('.db-loc-btn.active');
     const activeLocation = activeLocationBtn?.getAttribute('data-location') || '';
