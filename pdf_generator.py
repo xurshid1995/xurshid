@@ -302,50 +302,45 @@ def generate_sale_receipt_pdf(
                 c.drawRightString(table_right, y, f"{sale_data[balance_key]:,.0f} {currency_symbol}")
             y -= 4*mm
 
-    # Qarz (valyutaga qarab)
+    # Joriy, oldingi va jami qarz
     debt_key = 'debt_usd' if currency == 'usd' else 'debt_uzs'
-    debt_amount = sale_data.get(debt_key, sale_data.get('debt', 0))
-
-    if debt_amount > 0:
-        y -= 2*mm
-        c.setFont("Helvetica-Bold", 10)
-        c.setFillColor(colors.red)
-        c.drawString(table_left, y, "QARZ:")
-        if currency == 'usd':
-            c.drawRightString(table_right, y, fmt_usd(debt_amount))
-        else:
-            c.drawRightString(table_right, y, f"{debt_amount:,.0f} {currency_symbol}")
-        c.setFillColor(colors.black)
-        y -= 6*mm
-
-    # Oldingi va jami qarz
+    current_debt = sale_data.get(debt_key, sale_data.get('debt', 0))
     previous_debt_key = 'previous_debt_usd' if currency == 'usd' else 'previous_debt_uzs'
     total_debt_key = 'total_debt_usd' if currency == 'usd' else 'total_debt_uzs'
     previous_debt = sale_data.get(previous_debt_key, 0)
     total_debt = sale_data.get(total_debt_key, 0)
 
-    if previous_debt > 0 or total_debt > 0:
+    if current_debt > 0 or previous_debt > 0 or total_debt > 0:
         y -= 2*mm
-        c.setFont("Helvetica-Bold", 9)
         c.setFillColor(colors.Color(0.8, 0.2, 0.2))
-        
+
+        if current_debt > 0:
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(table_left, y, "JORIY QARZ:")
+            if currency == 'usd':
+                c.drawRightString(table_right, y, fmt_usd(current_debt))
+            else:
+                c.drawRightString(table_right, y, f"{current_debt:,.0f} {currency_symbol}")
+            y -= 5*mm
+
         if previous_debt > 0:
-            c.drawString(table_left, y, "📋 OLDINGI QARZ:")
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(table_left, y, "OLDINGI QARZ:")
             if currency == 'usd':
                 c.drawRightString(table_right, y, fmt_usd(previous_debt))
             else:
                 c.drawRightString(table_right, y, f"{previous_debt:,.0f} {currency_symbol}")
             y -= 5*mm
-        
+
         if total_debt > 0:
             c.setFont("Helvetica-Bold", 10)
-            c.drawString(table_left, y, "💳 JAMI QARZ:")
+            c.drawString(table_left, y, "JAMI QARZ:")
             if currency == 'usd':
                 c.drawRightString(table_right, y, fmt_usd(total_debt))
             else:
                 c.drawRightString(table_right, y, f"{total_debt:,.0f} {currency_symbol}")
             y -= 6*mm
-        
+
         c.setFillColor(colors.black)
 
     # Footer
