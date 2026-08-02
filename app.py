@@ -12037,7 +12037,7 @@ def finalize_sale(sale_id):
                 db.session.rollback()
 
         # Chek uchun mijoz qarz ma'lumotlari
-        fin_debt = {'previous_debt_usd': 0.0, 'previous_debt_uzs': 0.0, 'total_debt_usd': 0.0, 'total_debt_uzs': 0.0}
+        fin_debt = {'current_debt_usd': 0.0, 'current_debt_uzs': 0.0, 'previous_debt_usd': 0.0, 'previous_debt_uzs': 0.0, 'total_debt_usd': 0.0, 'total_debt_uzs': 0.0}
         if sale.customer_id:
             try:
                 d_row = db.session.execute(db.text(
@@ -12046,8 +12046,10 @@ def finalize_sale(sale_id):
                 if d_row:
                     fin_debt['total_debt_usd'] = float(d_row[0] or 0)
                     fin_debt['total_debt_uzs'] = float(d_row[1] or 0)
-                    fin_debt['previous_debt_usd'] = fin_debt['total_debt_usd'] - float(sale.debt_usd or 0)
-                    fin_debt['previous_debt_uzs'] = fin_debt['total_debt_uzs'] - float(sale.debt_amount or 0)
+                    fin_debt['current_debt_usd'] = float(sale.debt_usd or 0)
+                    fin_debt['current_debt_uzs'] = float(sale.debt_amount or 0)
+                    fin_debt['previous_debt_usd'] = fin_debt['total_debt_usd'] - fin_debt['current_debt_usd']
+                    fin_debt['previous_debt_uzs'] = fin_debt['total_debt_uzs'] - fin_debt['current_debt_uzs']
             except Exception as e:
                 logger.warning(f'Finalize qarz hisoblashda xatolik: {e}')
 
@@ -12997,6 +12999,8 @@ def create_sale():
             'message': f'Savdo {action_text} - {len(items)} ta mahsulot',
             'sale_id': current_sale.id,
             'sale': {
+                'current_debt_usd': float(current_sale.debt_usd or 0),
+                'current_debt_uzs': float(current_sale.debt_amount or 0),
                 'previous_debt_usd': receipt_prev_debt_usd,
                 'previous_debt_uzs': receipt_prev_debt_uzs,
                 'total_debt_usd': receipt_total_debt_usd,

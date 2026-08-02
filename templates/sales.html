@@ -6687,6 +6687,8 @@
                     store_name: locationName,
                     total_amount: totalUSD,
                     payment_details: paymentDetails.join(' ### '),
+                    current_debt_usd: result.sale ? result.sale.current_debt_usd : 0,
+                    current_debt_uzs: result.sale ? result.sale.current_debt_uzs : 0,
                     previous_debt_usd: result.sale ? result.sale.previous_debt_usd : 0,
                     previous_debt_uzs: result.sale ? result.sale.previous_debt_uzs : 0,
                     total_debt_usd: result.sale ? result.sale.total_debt_usd : 0,
@@ -7192,8 +7194,23 @@
                     const totalDebtUSD = parseFloat(sale.total_debt_usd || 0);
                     const totalDebtUZS = parseFloat(sale.total_debt_uzs || 0);
                     
-                    if (prevDebtUSD > 0 || prevDebtUZS > 0 || totalDebtUSD > 0 || totalDebtUZS > 0) {
+                    const currDebtUSD = parseFloat(sale.current_debt_usd || 0);
+                    const currDebtUZS = parseFloat(sale.current_debt_uzs || 0);
+                    if (currDebtUSD > 0 || currDebtUZS > 0 || prevDebtUSD > 0 || prevDebtUZS > 0 || totalDebtUSD > 0 || totalDebtUZS > 0) {
                         let debtHtml = '<div style="margin-top:3mm;padding-top:2mm;border-top:1px dashed #ccc;">';
+                        
+                        if (currDebtUSD > 0 || currDebtUZS > 0) {
+                            debtHtml += '<div style="display:flex;justify-content:space-between;margin-bottom:2mm;color:#d32f2f;font-size:9pt;font-weight:bold;">';
+                            debtHtml += '<span>📌 JORIY QARZ:</span>';
+                            if (currency === 'both') {
+                                debtHtml += '<span>$' + currDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(currDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
+                            } else if (currency === 'uzs') {
+                                debtHtml += '<span>' + Math.round(currDebtUZS).toLocaleString('uz-UZ') + ' so\'m</span>';
+                            } else {
+                                debtHtml += '<span>$' + currDebtUSD.toFixed(2) + '</span>';
+                            }
+                            debtHtml += '</div>';
+                        }
                         
                         if (prevDebtUSD > 0 || prevDebtUZS > 0) {
                             debtHtml += '<div style="display:flex;justify-content:space-between;margin-bottom:2mm;color:#d32f2f;font-size:9pt;font-weight:bold;">';
