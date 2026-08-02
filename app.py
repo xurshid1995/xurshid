@@ -12036,11 +12036,27 @@ def finalize_sale(sale_id):
                 logger.warning(f'Finalize snapshot xatolik: {snap_err}')
                 db.session.rollback()
 
+        # Chek uchun mijoz qarz ma'lumotlari
+        fin_debt = {'previous_debt_usd': 0.0, 'previous_debt_uzs': 0.0, 'total_debt_usd': 0.0, 'total_debt_uzs': 0.0}
+        if sale.customer_id:
+            try:
+                d_row = db.session.execute(db.text(
+                    "SELECT COALESCE(SUM(debt_usd),0), COALESCE(SUM(debt_amount),0) FROM sales WHERE customer_id=:c AND (debt_usd>0 OR debt_amount>0)"
+                ), {"c": sale.customer_id}).fetchone()
+                if d_row:
+                    fin_debt['total_debt_usd'] = float(d_row[0] or 0)
+                    fin_debt['total_debt_uzs'] = float(d_row[1] or 0)
+                    fin_debt['previous_debt_usd'] = fin_debt['total_debt_usd'] - float(sale.debt_usd or 0)
+                    fin_debt['previous_debt_uzs'] = fin_debt['total_debt_uzs'] - float(sale.debt_amount or 0)
+            except Exception as e:
+                logger.warning(f'Finalize qarz hisoblashda xatolik: {e}')
+
         return jsonify({
             'success': True,
             'message': 'Savdo muvaffaqiyatli yakunlandi',
             'sale_id': sale_id,
-            'payment_status': payment_status
+            'payment_status': payment_status,
+            'sale': fin_debt
         })
 
     except Exception as e:
