@@ -200,7 +200,12 @@
     <!-- Tab 5: Eng foydali mahsulotlar -->
     <div id="hr-tab-margin" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">💹 Eng foydali mahsulotlar (foyda % bo'yicha)</div>
+            <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
+                💹 Eng
+                <input type="number" id="topMarginNInput" value="10" min="1" max="500"
+                    style="width:58px; padding:2px 6px; border:1.5px solid #16a34a; border-radius:8px; font-size:13px; font-weight:700; color:#16a34a; text-align:center; background:#f0fdf4; outline:none; cursor:pointer;">
+                foydali mahsulotlar (foyda % bo'yicha)
+            </div>
             <div id="topMarginProducts">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -425,8 +430,9 @@ function switchHrTab(tab) {
 
 async function loadExtra() {
     const topCustN = parseInt(document.getElementById('topCustNInput')?.value || 10);
+    const topMarginN = parseInt(document.getElementById('topMarginNInput')?.value || 10);
     const res = await fetch(
-        `/api/hisobot-extra?date_from=${currentDateFrom}&date_to=${currentDateTo}&top_cust_n=${topCustN}` +
+        `/api/hisobot-extra?date_from=${currentDateFrom}&date_to=${currentDateTo}&top_cust_n=${topCustN}&top_margin_n=${topMarginN}` +
         (currentLocFilter ? `&location_filter=${currentLocFilter}` : '')
     );
     const data = await res.json();
@@ -1000,6 +1006,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (topCustEl) {
         topCustEl.addEventListener('change', () => { loadExtra(); });
         topCustEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); loadExtra(); }
+        });
+    }
+    const topMarginEl = document.getElementById('topMarginNInput');
+    if (topMarginEl) {
+        topMarginEl.addEventListener('change', () => { loadExtra(); });
+        topMarginEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); loadExtra(); }
         });
     }

@@ -15836,7 +15836,9 @@ def api_hisobot_extra():
                 'margin_pct': pct
             })
         top_profit_pct.sort(key=lambda x: x['margin_pct'], reverse=True)
-        top_profit_pct = top_profit_pct[:10]
+        top_margin_n = request.args.get('top_margin_n', 10, type=int)
+        top_margin_n = max(1, min(top_margin_n, 500))
+        top_profit_pct = top_profit_pct[:top_margin_n]
 
         # --- Kam qolgan stok ---
         low_store = db.session.query(StoreStock).join(
