@@ -570,20 +570,58 @@ let currentPeriod = 'today';
 })();
 
 function initTodayFilters() {
+    // selectTimePeriod logikasini qayta ishlatamiz
+    const todayBtn = document.querySelector('.db-tf-btn[data-period="today"]');
+    if (todayBtn) selectTimePeriodFilters('today');
+    else {
+        // fallback: to'g'ridan-to'g'ri set qilish (DOMContentLoaded oldidan)
+        const now = new Date();
+        const todayStr = now.toISOString().slice(0, 10);
+        const ys = document.getElementById('yearSelect');
+        const ms = document.getElementById('monthSelect');
+        const df = document.getElementById('customDateFrom');
+        const dt = document.getElementById('customDateTo');
+        if (ys) { ys.value = String(now.getFullYear()); ys.classList.add('active'); }
+        if (ms) { ms.value = String(now.getMonth() + 1); ms.classList.add('active'); }
+        if (df) { df.value = todayStr; df.classList.add('active'); }
+        if (dt) { dt.value = todayStr; dt.classList.add('active'); }
+    }
+}
+
+// Filtr maydonlarini yangilash (loadSalesChart chaqirmasdan)
+function selectTimePeriodFilters(period) {
     const now = new Date();
     const curYear = now.getFullYear();
     const curMonth = now.getMonth() + 1;
-    const todayStr = now.toISOString().slice(0, 10);
-
     const ys = document.getElementById('yearSelect');
     const ms = document.getElementById('monthSelect');
     const df = document.getElementById('customDateFrom');
     const dt = document.getElementById('customDateTo');
 
-    if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
-    if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
-    if (df) { df.value = todayStr; df.classList.add('active'); }
-    if (dt) { dt.value = todayStr; dt.classList.add('active'); }
+    if (period === 'today') {
+        const todayStr = now.toISOString().slice(0, 10);
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = todayStr; df.classList.add('active'); }
+        if (dt) { dt.value = todayStr; dt.classList.add('active'); }
+    } else if (period === 'week') {
+        const day = now.getDay() || 7;
+        const monday = new Date(now); monday.setDate(now.getDate() - day + 1);
+        const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+        const fmt = d => d.toISOString().slice(0, 10);
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = fmt(monday); df.classList.add('active'); }
+        if (dt) { dt.value = fmt(sunday); dt.classList.add('active'); }
+    } else if (period === 'month') {
+        const firstDay = `${curYear}-${String(curMonth).padStart(2, '0')}-01`;
+        const lastDay = new Date(curYear, curMonth, 0).getDate();
+        const lastDayStr = `${curYear}-${String(curMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = firstDay; df.classList.add('active'); }
+        if (dt) { dt.value = lastDayStr; dt.classList.add('active'); }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -690,20 +728,7 @@ function selectTimePeriod(clickedButton, period) {
     clickedButton.classList.add('active');
     currentPeriod = period;
 
-    if (period === 'today') {
-        // Bugun tanlanganda joriy yil/oy/sana ko'rsatiladi
-        initTodayFilters();
-    } else {
-        // Boshqa periodlarda yil/oy/sana tozalanadi
-        const ms = document.getElementById('monthSelect');
-        if (ms) { ms.value = ''; ms.classList.remove('active'); }
-        const ys = document.getElementById('yearSelect');
-        if (ys) { ys.value = ''; ys.classList.remove('active'); }
-        const df = document.getElementById('customDateFrom');
-        const dt = document.getElementById('customDateTo');
-        if (df) { df.value = ''; df.classList.remove('active'); }
-        if (dt) { dt.value = ''; dt.classList.remove('active'); }
-    }
+    selectTimePeriodFilters(period);
 
     const activeLocationBtn = document.querySelector('.db-loc-btn.active');
     const activeLocation = activeLocationBtn?.getAttribute('data-location') || '';
