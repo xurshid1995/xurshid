@@ -170,17 +170,12 @@
     <!-- Tab 2: Top mahsulotlar -->
     <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
-            <div id="topProducts">
-                <div class="hr-loading">Yuklanmoqda...</div>
+            <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
+                🏆 Top
+                <input type="number" id="topNInput" value="10" min="1" max="500"
+                    style="width:58px; padding:2px 6px; border:1.5px solid #8b5cf6; border-radius:8px; font-size:13px; font-weight:700; color:#8b5cf6; text-align:center; background:#f5f3ff; outline:none; cursor:pointer;">
+                mahsulot (savdo soni)
             </div>
-        </div>
-    </div>
-
-    <!-- Tab 2: Top mahsulotlar -->
-    <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
-        <div class="hr-section">
-            <div class="hr-section-title">🏆 Top 10 mahsulot (savdo soni)</div>
             <div id="topProducts">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -716,8 +711,9 @@ function fmtNum(v) {
 
 async function loadAll() {
     // Parallel: history + chart + extra
+    const topN = parseInt(document.getElementById('topNInput')?.value || 10);
     const [histRes, chartRes] = await Promise.all([
-        fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1${currentLocFilter ? '&location_filter='+currentLocFilter : ''}`),
+        fetch(`/api/sales-history?start_date=${currentDateFrom}&end_date=${currentDateTo}&per_page=1&top_n=${topN}${currentLocFilter ? '&location_filter='+currentLocFilter : ''}`),
         fetch(`/api/sales-chart?date_from=${currentDateFrom}&date_to=${currentDateTo}&period=custom${currentLocFilter ? '&location_id='+currentLocFilter.split('_')[1]+'&location_type='+currentLocFilter.split('_')[0] : ''}`)
     ]);
 
@@ -983,6 +979,18 @@ async function loadAll() {
         }).join('');
     }
 }
+
+// Top-N input: qiymat o'zgarganda qayta yuklash
+let topNTimer = null;
+document.addEventListener('DOMContentLoaded', () => {
+    const topNEl = document.getElementById('topNInput');
+    if (topNEl) {
+        topNEl.addEventListener('change', () => { loadAll(); });
+        topNEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); loadAll(); }
+        });
+    }
+});
 
 // Boshlash
 (async () => {

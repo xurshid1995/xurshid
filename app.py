@@ -11472,6 +11472,8 @@ def api_sales_history():
         # Top selling products - subquery bilan optimizatsiya
         top_products = []
         Product_alias = aliased(Product)
+        top_n = request.args.get('top_n', 10, type=int)
+        top_n = max(1, min(top_n, 500))  # 1-500 oralig'ida cheklash
 
         # ✅ Subquery ishlatish - list o'rniga
         top_products_query = db.session.query(
@@ -11486,7 +11488,7 @@ def api_sales_history():
             Product_alias.name
         ).order_by(
             func.sum(SaleItem.quantity).desc()
-        ).limit(10)
+        ).limit(top_n)
 
         for name, quantity, revenue in top_products_query.all():
             top_products.append({
