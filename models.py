@@ -1025,6 +1025,39 @@ class Sale(db.Model):
             # Mijoz o'chirilgan
             customer_name = '🚫 O\'chirilgan mijoz'
             customer_phone = ''
+
+        # Oldingi va jami qarzni hisoblash
+        previous_debt_usd = 0.0
+        previous_debt_uzs = 0.0
+        total_debt_usd = 0.0
+        total_debt_uzs = 0.0
+
+        if self.customer_id:
+            try:
+                # Jami qarzni hisoblash
+                total_debt_result = db.session.execute(
+                    db.text("""
+                        SELECT
+                            COALESCE(SUM(debt_usd), 0) as total_debt_usd,
+                            COALESCE(SUM(debt_amount), 0) as total_debt_uzs
+                        FROM sales
+                        WHERE customer_id = :customer_id
+                        AND payment_status = 'partial'
+                        AND (debt_usd > 0 OR debt_amount > 0)
+                    """),
+                    {"customer_id": self.customer_id}
+                ).fetchone()
+
+                if total_debt_result:
+                    total_debt_usd = float(total_debt_result[0] or 0)
+                    total_debt_uzs = float(total_debt_result[1] or 0)
+
+                # Oldingi qarz = Jami qarz - Joriy savdo qarzi
+                previous_debt_usd = total_debt_usd - float(self.debt_usd or 0)
+                previous_debt_uzs = total_debt_uzs - float(self.debt_amount or 0)
+            except Exception:
+                pass  # Xatolik bo'lsa 0 qoldiramiz
+
         result = {
             'id': self.id,
             'customer_id': self.customer_id,
@@ -1058,6 +1091,11 @@ class Sale(db.Model):
             'terminal_usd': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
             'debt_usd': float(self.debt_usd) if self.debt_usd is not None else 0.0,
             'balance_usd': float(self.balance_usd) if self.balance_usd is not None else 0.0,
+            # Qarz ma'lumotlari
+            'previous_debt_usd': previous_debt_usd,
+            'previous_debt_uzs': previous_debt_uzs,
+            'total_debt_usd': total_debt_usd,
+            'total_debt_uzs': total_debt_uzs,
             'payment_details': {
                 'cash': float(self.cash_usd) if self.cash_usd is not None else 0.0,
                 'click': float(self.click_usd) if self.click_usd is not None else 0.0,

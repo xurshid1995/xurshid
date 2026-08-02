@@ -12959,12 +12959,16 @@ def create_sale():
         return jsonify({
             'success': True,
             'message': f'Savdo {action_text} - {len(items)} ta mahsulot',
+            'sale_id': current_sale.id,
+            'sale': current_sale.to_dict(include_items=False),
             'data': {
                 'sale_id': current_sale.id,
                 'items_count': len(items),
                 'total_revenue': total_revenue,
                 'total_profit': total_profit,
-                'store_name': store.name
+                'store_name': store.name,
+                'seller_name': f'{current_user.first_name} {current_user.last_name}',
+                'seller_phone': current_user.phone if current_user.phone else None,
             }
         })
 
