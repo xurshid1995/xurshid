@@ -316,7 +316,7 @@ fetch('/api/currency-rate').then(r=>r.json()).then(d=>{ if(d.success && d.rate) 
         opt.value = y; opt.textContent = y;
         sel.appendChild(opt);
     }
-    sel.value = String(curYear);
+    // value bo'sh qolsin — setPeriod() to'g'ri o'rnatadi
 })();
 
 function selectXarajatMonthFilter() {
@@ -406,37 +406,55 @@ function fmtUzs(v) {
 }
 
 function setPeriod(period) {
-    // Dropdown reset
     const ms = document.getElementById('xrMonthSelect');
-    if (ms) { ms.value = ''; ms.classList.remove('active'); }
     const ys = document.getElementById('xrYearSelect');
-    if (ys) { ys.classList.remove('active'); }
+    const df = document.getElementById('dateFrom');
+    const dt = document.getElementById('dateTo');
 
     document.querySelectorAll('.hr-btn').forEach(b => {
         if (['btn-today','btn-week','btn-month'].includes(b.id)) b.classList.remove('hr-btn-active');
     });
+
     const today = new Date();
+    const curYear = today.getFullYear();
+    const curMonth = today.getMonth() + 1;
     let from, to;
+
     if (period === 'today') {
         from = fmtDate(today); to = fmtDate(today);
         document.getElementById('btn-today').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = from; df.classList.add('active'); }
+        if (dt) { dt.value = to; dt.classList.add('active'); }
     } else if (period === 'week') {
         const mon = new Date(today);
         mon.setDate(today.getDate() - (today.getDay() + 6) % 7);
         from = fmtDate(mon); to = fmtDate(today);
         document.getElementById('btn-week').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = from; df.classList.add('active'); }
+        if (dt) { dt.value = to; dt.classList.add('active'); }
     } else if (period === 'month') {
-        from = fmtDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        from = fmtDate(new Date(curYear, today.getMonth(), 1));
         to = fmtDate(today);
         document.getElementById('btn-month').classList.add('hr-btn-active');
+        if (ys) { ys.value = String(curYear); ys.classList.add('active'); }
+        if (ms) { ms.value = String(curMonth); ms.classList.add('active'); }
+        if (df) { df.value = from; df.classList.add('active'); }
+        if (dt) { dt.value = to; dt.classList.add('active'); }
     } else {
-        from = document.getElementById('dateFrom').value;
-        to = document.getElementById('dateTo').value;
+        // custom: dropdown tozalanadi
+        if (ms) { ms.value = ''; ms.classList.remove('active'); }
+        if (ys) { ys.value = ''; ys.classList.remove('active'); }
+        from = df ? df.value : '';
+        to = dt ? dt.value : '';
         if (!from || !to) return;
     }
     if (period !== 'custom') {
-        document.getElementById('dateFrom').value = from;
-        document.getElementById('dateTo').value = to;
+        if (df) df.value = from;
+        if (dt) dt.value = to;
     }
     loadExpenses();
 }
