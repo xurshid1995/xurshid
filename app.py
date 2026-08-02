@@ -12956,11 +12956,36 @@ def create_sale():
                 logger.warning(f'Sale snapshot xatolik (savdo saqlangan): {snap_err}')
                 db.session.rollback()
 
+        # Mijozning jami va oldingi qarzini hisoblash (chek uchun)
+        receipt_prev_debt_usd = 0.0
+        receipt_prev_debt_uzs = 0.0
+        receipt_total_debt_usd = 0.0
+        receipt_total_debt_uzs = 0.0
+        if final_customer_id:
+            try:
+                debt_row = db.session.execute(db.text("""
+                    SELECT COALESCE(SUM(debt_usd), 0), COALESCE(SUM(debt_amount), 0)
+                    FROM sales
+                    WHERE customer_id = :cid AND (debt_usd > 0 OR debt_amount > 0)
+                """), {"cid": final_customer_id}).fetchone()
+                if debt_row:
+                    receipt_total_debt_usd = float(debt_row[0] or 0)
+                    receipt_total_debt_uzs = float(debt_row[1] or 0)
+                    receipt_prev_debt_usd = receipt_total_debt_usd - float(current_sale.debt_usd or 0)
+                    receipt_prev_debt_uzs = receipt_total_debt_uzs - float(current_sale.debt_amount or 0)
+            except Exception as e:
+                logger.warning(f'Qarz hisoblashda xatolik: {e}')
+
         return jsonify({
             'success': True,
             'message': f'Savdo {action_text} - {len(items)} ta mahsulot',
             'sale_id': current_sale.id,
-            'sale': current_sale.to_dict(include_items=False),
+            'sale': {
+                'previous_debt_usd': receipt_prev_debt_usd,
+                'previous_debt_uzs': receipt_prev_debt_uzs,
+                'total_debt_usd': receipt_total_debt_usd,
+                'total_debt_uzs': receipt_total_debt_uzs,
+            },
             'data': {
                 'sale_id': current_sale.id,
                 'items_count': len(items),
