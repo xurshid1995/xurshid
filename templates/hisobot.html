@@ -185,7 +185,12 @@
     <!-- Tab 4: Top mijozlar -->
     <div id="hr-tab-topcust" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">👤 Top 10 mijoz (xarid summasi bo'yicha)</div>
+            <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
+                👤 Top
+                <input type="number" id="topCustNInput" value="10" min="1" max="500"
+                    style="width:58px; padding:2px 6px; border:1.5px solid #0ea5e9; border-radius:8px; font-size:13px; font-weight:700; color:#0ea5e9; text-align:center; background:#f0f9ff; outline:none; cursor:pointer;">
+                mijoz (xarid summasi bo'yicha)
+            </div>
             <div id="topCustomers">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -419,8 +424,9 @@ function switchHrTab(tab) {
 }
 
 async function loadExtra() {
+    const topCustN = parseInt(document.getElementById('topCustNInput')?.value || 10);
     const res = await fetch(
-        `/api/hisobot-extra?date_from=${currentDateFrom}&date_to=${currentDateTo}` +
+        `/api/hisobot-extra?date_from=${currentDateFrom}&date_to=${currentDateTo}&top_cust_n=${topCustN}` +
         (currentLocFilter ? `&location_filter=${currentLocFilter}` : '')
     );
     const data = await res.json();
@@ -980,7 +986,7 @@ async function loadAll() {
     }
 }
 
-// Top-N input: qiymat o'zgarganda qayta yuklash
+// Top-N inputlar: qiymat o'zgarganda qayta yuklash
 let topNTimer = null;
 document.addEventListener('DOMContentLoaded', () => {
     const topNEl = document.getElementById('topNInput');
@@ -988,6 +994,13 @@ document.addEventListener('DOMContentLoaded', () => {
         topNEl.addEventListener('change', () => { loadAll(); });
         topNEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); loadAll(); }
+        });
+    }
+    const topCustEl = document.getElementById('topCustNInput');
+    if (topCustEl) {
+        topCustEl.addEventListener('change', () => { loadExtra(); });
+        topCustEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); loadExtra(); }
         });
     }
 });

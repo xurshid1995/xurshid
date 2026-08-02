@@ -15773,7 +15773,9 @@ def api_hisobot_extra():
             'prev_label': f"{prev_from.strftime('%d.%m')} – {prev_to.strftime('%d.%m')}"
         }
 
-        # --- Top 10 mijozlar (tanlangan davr) ---
+        # --- Top mijozlar (tanlangan davr) ---
+        top_cust_n = request.args.get('top_cust_n', 10, type=int)
+        top_cust_n = max(1, min(top_cust_n, 500))
         cust_rows = base_q(date_from, date_to).filter(
             Sale.customer_id.isnot(None)
         ).with_entities(
@@ -15784,7 +15786,7 @@ def api_hisobot_extra():
             db.func.sum(Sale.debt_usd).label('debt')
         ).group_by(Sale.customer_id).order_by(
             db.func.sum(Sale.total_amount).desc()
-        ).limit(10).all()
+        ).limit(top_cust_n).all()
 
         top_customers = []
         for row in cust_rows:
