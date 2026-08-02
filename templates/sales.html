@@ -6687,6 +6687,10 @@
                     store_name: locationName,
                     total_amount: totalUSD,
                     payment_details: paymentDetails.join(' ### '),
+                    previous_debt_usd: result.sale ? result.sale.previous_debt_usd : 0,
+                    previous_debt_uzs: result.sale ? result.sale.previous_debt_uzs : 0,
+                    total_debt_usd: result.sale ? result.sale.total_debt_usd : 0,
+                    total_debt_uzs: result.sale ? result.sale.total_debt_uzs : 0,
                     items: cart.map(item => ({
                         product_name: item.name || item.productName,
                         quantity: item.quantity,
@@ -7181,6 +7185,47 @@
                 </div>
                 
                 ${sale.payment_details ? '<div class="payment-info"><div class="payment-label">To\'lov:</div><div class="payment-details">' + sale.payment_details.replace(/ ### /g, '<br>') + '</div></div>' : ''}
+                
+                ${(() => {
+                    const prevDebtUSD = parseFloat(sale.previous_debt_usd || 0);
+                    const prevDebtUZS = parseFloat(sale.previous_debt_uzs || 0);
+                    const totalDebtUSD = parseFloat(sale.total_debt_usd || 0);
+                    const totalDebtUZS = parseFloat(sale.total_debt_uzs || 0);
+                    
+                    if (prevDebtUSD > 0 || prevDebtUZS > 0 || totalDebtUSD > 0 || totalDebtUZS > 0) {
+                        let debtHtml = '<div style="margin-top:3mm;padding-top:2mm;border-top:1px dashed #ccc;">';
+                        
+                        if (prevDebtUSD > 0 || prevDebtUZS > 0) {
+                            debtHtml += '<div style="display:flex;justify-content:space-between;margin-bottom:2mm;color:#d32f2f;font-size:9pt;font-weight:bold;">';
+                            debtHtml += '<span>📋 OLDINGI QARZ:</span>';
+                            if (currency === 'both') {
+                                debtHtml += '<span>$' + prevDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(prevDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
+                            } else if (currency === 'uzs') {
+                                debtHtml += '<span>' + Math.round(prevDebtUZS).toLocaleString('uz-UZ') + ' so\'m</span>';
+                            } else {
+                                debtHtml += '<span>$' + prevDebtUSD.toFixed(2) + '</span>';
+                            }
+                            debtHtml += '</div>';
+                        }
+                        
+                        if (totalDebtUSD > 0 || totalDebtUZS > 0) {
+                            debtHtml += '<div style="display:flex;justify-content:space-between;color:#d32f2f;font-size:10pt;font-weight:bold;">';
+                            debtHtml += '<span>💳 JAMI QARZ:</span>';
+                            if (currency === 'both') {
+                                debtHtml += '<span>$' + totalDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(totalDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
+                            } else if (currency === 'uzs') {
+                                debtHtml += '<span>' + Math.round(totalDebtUZS).toLocaleString('uz-UZ') + ' so\'m</span>';
+                            } else {
+                                debtHtml += '<span>$' + totalDebtUSD.toFixed(2) + '</span>';
+                            }
+                            debtHtml += '</div>';
+                        }
+                        
+                        debtHtml += '</div>';
+                        return debtHtml;
+                    }
+                    return '';
+                })()}
                 
                 <div class="footer">
                     <div>Rahmat!</div>
