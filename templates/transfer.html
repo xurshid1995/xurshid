@@ -291,6 +291,29 @@
                 </tbody>
             </table>
         </div>
+        <!-- Pagination -->
+        <div id="transferPaginationContainer" style="display:none; padding: 16px 20px; border-top: 1px solid #f1f5f9; background: #fafbfc;">
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                <div style="color: #64748b; font-size: 13px; font-weight: 600;">
+                    <span id="transferPageInfo"></span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button id="transferPrevPageBtn" onclick="changeTransferPage(-1)" 
+                        style="padding: 6px 12px; background: white; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';"
+                        onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                        ← Oldingi
+                    </button>
+                    <div id="transferPageNumbers" style="display: flex; gap: 4px;"></div>
+                    <button id="transferNextPageBtn" onclick="changeTransferPage(1)" 
+                        style="padding: 6px 12px; background: white; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';"
+                        onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                        Keyingi →
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -618,16 +641,67 @@
         }
     }
     
+    // Transfer tarixi uchun pagination o'zgaruvchilari
+    let allTransfers = [];
+    let currentTransferPage = 1;
+    const transferItemsPerPage = 50;
+    
     // Transfer tarixini yuklash
     async function loadTransferHistory() {
         try {
             const response = await fetch('/api/transfer-history');
             const data = await response.json();
             
-            const tbody = document.getElementById('transferHistoryBody');
-            
             if (data.transfers && data.transfers.length > 0) {
-                tbody.innerHTML = data.transfers.map(transfer => {
+                allTransfers = data.transfers;
+                displayTransferHistory();
+                document.getElementById('transferPaginationContainer').style.display = allTransfers.length > transferItemsPerPage ? 'block' : 'none';
+            } else {
+                allTransfers = [];
+                const tbody = document.getElementById('transferHistoryBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
+                            📭 ${TR1LANG.empty_history}
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('transferPaginationContainer').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error loading transfer history:', error);
+            document.getElementById('transferHistoryBody').innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #ef4444;">
+                        ❌ ${TR1LANG.error}
+                    </td>
+                </tr>
+            `;
+        }
+    }
+    
+    // Transfer tarixini sahifalab ko'rsatish
+    function displayTransferHistory() {
+        const tbody = document.getElementById('transferHistoryBody');
+        
+        if (!allTransfers || allTransfers.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
+                        📭 ${TR1LANG.empty_history}
+                    </td>
+                </tr>
+            `;
+            document.getElementById('transferPaginationContainer').style.display = 'none';
+            return;
+        }
+        
+        // Sahifalash uchun ma'lumotlarni kesish
+        const startIndex = (currentTransferPage - 1) * transferItemsPerPage;
+        const endIndex = startIndex + transferItemsPerPage;
+        const pagedTransfers = allTransfers.slice(startIndex, endIndex);
+        
+        tbody.innerHTML = pagedTransfers.map(transfer => {
                     const date = new Date(transfer.created_at);
                     
                     // Sana va vaqtni alohida formatlash
@@ -666,48 +740,84 @@
                         </tr>
                     `;
                 }).join('');
-            } else {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
-                            📭 ${TR1LANG.empty_history}
-                        </td>
-                    </tr>
-                `;
-            }
-        } catch (error) {
-            console.error('Error loading transfer history:', error);
-            document.getElementById('transferHistoryBody').innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 20px; color: #ef4444;">
-                        ❌ ${TR1LANG.error}
-                    </td>
-                </tr>
+        
+        // Pagination ma'lumotlarini yangilash
+        updateTransferPagination();
+    }
+    
+    function updateTransferPagination() {
+        const totalPages = Math.ceil(allTransfers.length / transferItemsPerPage);
+        const startItem = (currentTransferPage - 1) * transferItemsPerPage + 1;
+        const endItem = Math.min(currentTransferPage * transferItemsPerPage, allTransfers.length);
+        
+        // Sahifa ma'lumotini ko'rsatish
+        document.getElementById('transferPageInfo').textContent = `${startItem}-${endItem} / ${allTransfers.length} transfer`;
+        
+        // Tugmalarni faol/nofaol qilish
+        document.getElementById('transferPrevPageBtn').disabled = currentTransferPage === 1;
+        document.getElementById('transferNextPageBtn').disabled = currentTransferPage === totalPages;
+        
+        // Sahifa raqamlarini ko'rsatish
+        const pageNumbers = document.getElementById('transferPageNumbers');
+        pageNumbers.innerHTML = '';
+        
+        // 5 tagacha sahifa raqamlarini ko'rsatish
+        let startPage = Math.max(1, currentTransferPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.onclick = () => goToTransferPage(i);
+            btn.style.cssText = `
+                padding: 6px 10px;
+                background: ${i === currentTransferPage ? '#1a6eff' : 'white'};
+                color: ${i === currentTransferPage ? 'white' : '#475569'};
+                border: 1.5px solid ${i === currentTransferPage ? '#1a6eff' : '#e2e8f0'};
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
             `;
+            if (i !== currentTransferPage) {
+                btn.onmouseover = function() {
+                    this.style.background = '#f8fafc';
+                    this.style.borderColor = '#cbd5e1';
+                };
+                btn.onmouseout = function() {
+                    this.style.background = 'white';
+                    this.style.borderColor = '#e2e8f0';
+                };
+            }
+            pageNumbers.appendChild(btn);
         }
     }
     
-    // Qidiruv funksiyasi - qisman so'zlar bilan
-    document.getElementById('historySearch')?.addEventListener('input', function(e) {
-        const searchText = e.target.value.toLowerCase().trim();
-        const rows = document.querySelectorAll('#transferHistoryTable tbody tr');
-        
-        if (!searchText) {
-            // Qidiruv bo'sh bo'lsa, barcha qatorlarni ko'rsatish
-            rows.forEach(row => row.style.display = '');
-            return;
+    function changeTransferPage(delta) {
+        const totalPages = Math.ceil(allTransfers.length / transferItemsPerPage);
+        const newPage = currentTransferPage + delta;
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentTransferPage = newPage;
+            displayTransferHistory();
+            // Jadvalning boshiga scroll qilish
+            document.getElementById('transferHistoryTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
-        // Qidiruv so'zlarini bo'laklarga ajratish
-        const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            // Barcha so'zlar matnda bo'lishi kerak
-            const matches = searchWords.every(word => text.includes(word));
-            row.style.display = matches ? '' : 'none';
-        });
-    });
+    }
+    
+    function goToTransferPage(page) {
+        currentTransferPage = page;
+        displayTransferHistory();
+        // Jadvalning boshiga scroll qilish
+        document.getElementById('transferHistoryTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Qidiruv funksiyasi - qisman so'zlar bilan
+    let allTransfersBackup = [];\n    document.getElementById('historySearch')?.addEventListener('input', function(e) {\n        const searchText = e.target.value.toLowerCase().trim();\n        \n        // Backup saqlab qo'yish\n        if (!allTransfersBackup.length && allTransfers.length) {\n            allTransfersBackup = [...allTransfers];\n        }\n        \n        if (!searchText) {\n            // Qidiruv bo'sh bo'lsa, asl ma'lumotlarni qaytarish\n            allTransfers = [...allTransfersBackup];\n            currentTransferPage = 1;\n            displayTransferHistory();\n            document.getElementById('transferPaginationContainer').style.display = allTransfers.length > transferItemsPerPage ? 'block' : 'none';\n            return;\n        }\n        \n        // Qidiruv so'zlarini bo'laklarga ajratish\n        const searchWords = searchText.split(/\\s+/).filter(word => word.length > 0);\n        \n        // Ma'lumotlarni filtrlash\n        allTransfers = allTransfersBackup.filter(transfer => {\n            const text = `${transfer.from_location} ${transfer.to_location} ${transfer.user_name} ${transfer.products.map(p => p.name).join(' ')}`.toLowerCase();\n            // Barcha so'zlar matnda bo'lishi kerak\n            return searchWords.every(word => text.includes(word));\n        });\n        \n        currentTransferPage = 1;\n        displayTransferHistory();\n        document.getElementById('transferPaginationContainer').style.display = allTransfers.length > transferItemsPerPage ? 'block' : 'none';\n    });
     
     // Transfer Excel export
     function exportTransferExcel() {
