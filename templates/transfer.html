@@ -654,11 +654,8 @@
             
             if (data.transfers && data.transfers.length > 0) {
                 allTransfers = data.transfers;
-                console.log('✅ Transfer tarixlari yuklandi:', allTransfers.length, 'ta');
                 displayTransferHistory();
-                const shouldShowPagination = allTransfers.length > transferItemsPerPage;
-                console.log('Pagination ko\'rsatish kerakmi?', shouldShowPagination, '(50 tadan ko\'p:', allTransfers.length > 50, ')');
-                document.getElementById('transferPaginationContainer').style.display = shouldShowPagination ? 'block' : 'none';
+                document.getElementById('transferPaginationContainer').style.display = allTransfers.length >= transferItemsPerPage ? 'block' : 'none';
             } else {
                 allTransfers = [];
                 const tbody = document.getElementById('transferHistoryBody');
@@ -850,7 +847,7 @@
         
         currentTransferPage = 1;
         displayTransferHistory();
-        document.getElementById('transferPaginationContainer').style.display = allTransfers.length > transferItemsPerPage ? 'block' : 'none';
+        document.getElementById('transferPaginationContainer').style.display = allTransfers.length >= transferItemsPerPage ? 'block' : 'none';
     });
     
     // Transfer Excel export

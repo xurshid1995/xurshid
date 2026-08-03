@@ -338,7 +338,7 @@ async function loadProductHistory() {
             displayProductHistory();
             document.getElementById('historyLoading').style.display = 'none';
             document.getElementById('historyTableContainer').style.display = 'block';
-            document.getElementById('paginationContainer').style.display = allHistory.length > itemsPerPage ? 'block' : 'none';
+            document.getElementById('paginationContainer').style.display = allHistory.length >= itemsPerPage ? 'block' : 'none';
         } else {
             document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;">📝 Hech qanday tarix mavjud emas</p>';
         }
