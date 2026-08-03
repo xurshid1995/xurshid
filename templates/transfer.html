@@ -120,36 +120,47 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    min-width: 900px;
 }
 .transfer1-table thead tr { background: #1a6eff; }
 .transfer1-table th {
     background: #1a6eff !important;
     color: #ffffff !important;
-    padding: 11px 10px;
+    padding: 12px 10px;
     text-align: center;
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: none !important;
-    border-bottom: 1px solid #1558d6 !important;
+    border-bottom: 2px solid #1558d6 !important;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 .transfer1-table .pending-thead th {
     background: #fef3c7 !important;
     color: #92400e !important;
-    border-bottom: 1px solid #f59e0b !important;
+    border-bottom: 2px solid #f59e0b !important;
 }
 .transfer1-table td {
     padding: 10px 10px;
     border: none !important;
     border-bottom: 1px solid #f1f5f9 !important;
-    font-size: 14px;
+    font-size: 13px;
     vertical-align: middle;
     text-align: center;
     color: #374151;
+    line-height: 1.5;
 }
-.transfer1-table tbody tr:hover { background: #f8faff; }
+.transfer1-table tbody tr {
+    transition: all 0.15s ease;
+}
+.transfer1-table tbody tr:hover {
+    background: #f8faff;
+    box-shadow: 0 2px 8px rgba(26, 110, 255, 0.08);
+}
 .transfer1-table tbody tr:last-child td { border-bottom: none !important; }
 
 /* Badges */
