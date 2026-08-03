@@ -242,6 +242,29 @@ tbody tr.sale-group-start:first-child { border-top: none; }
                 <tbody id="productHistoryBody"></tbody>
             </table>
         </div>
+        <!-- Pagination -->
+        <div id="paginationContainer" style="display:none; padding: 16px 20px; border-top: 1px solid #f1f5f9; background: #fafbfc;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="color: #64748b; font-size: 13px; font-weight: 600;">
+                    <span id="pageInfo"></span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button id="prevPageBtn" onclick="changePage(-1)" 
+                        style="padding: 6px 12px; background: white; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';"
+                        onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                        ← Oldingi
+                    </button>
+                    <div id="pageNumbers" style="display: flex; gap: 4px;"></div>
+                    <button id="nextPageBtn" onclick="changePage(1)" 
+                        style="padding: 6px 12px; background: white; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';"
+                        onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                        Keyingi →
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -301,15 +324,21 @@ async function deleteBatch(id) {
     }
 }
 
-// === Product history ===
+// === Product history with pagination ===
+let allHistory = [];
+let currentPage = 1;
+const itemsPerPage = 50;
+
 async function loadProductHistory() {
     try {
-        const res = await fetch('/api/products/history?limit=50');
+        const res = await fetch('/api/products/history?limit=1000');
         const data = await res.json();
         if (data.success && data.history) {
-            displayProductHistory(data.history);
+            allHistory = data.history;
+            displayProductHistory();
             document.getElementById('historyLoading').style.display = 'none';
             document.getElementById('historyTableContainer').style.display = 'block';
+            document.getElementById('paginationContainer').style.display = allHistory.length > itemsPerPage ? 'block' : 'none';
         } else {
             document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;">📝 Hech qanday tarix mavjud emas</p>';
         }
@@ -318,19 +347,26 @@ async function loadProductHistory() {
     }
 }
 
-function displayProductHistory(history) {
+function displayProductHistory() {
     const tbody = document.getElementById('productHistoryBody');
     tbody.innerHTML = '';
-    if (!history || history.length === 0) {
+    
+    if (!allHistory || allHistory.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:2rem;">📝 Hech qanday mahsulot qo\'shilmagan</td></tr>';
+        document.getElementById('paginationContainer').style.display = 'none';
         return;
     }
+    
+    // Sahifalash uchun ma'lumotlarni kesish
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pagedHistory = allHistory.slice(startIndex, endIndex);
     
     // Mahsulotlarni vaqt va foydalanuvchi bo'yicha guruhlab chiqish
     const groups = [];
     let currentGroup = null;
     
-    history.forEach((product, index) => {
+    pagedHistory.forEach((product, index) => {
         const date = product.created_date ? new Date(product.created_date) : null;
         const userId = product.added_by || 'Noma\'lum';
         
@@ -412,6 +448,80 @@ function displayProductHistory(history) {
             tbody.appendChild(row);
         });
     });
+    
+    // Pagination ma'lumotlarini yangilash
+    updatePagination();
+}
+
+function updatePagination() {
+    const totalPages = Math.ceil(allHistory.length / itemsPerPage);
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, allHistory.length);
+    
+    // Sahifa ma'lumotini ko'rsatish
+    document.getElementById('pageInfo').textContent = `${startItem}-${endItem} / ${allHistory.length} mahsulot`;
+    
+    // Tugmalarni faol/nofaol qilish
+    document.getElementById('prevPageBtn').disabled = currentPage === 1;
+    document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+    
+    // Sahifa raqamlarini ko'rsatish
+    const pageNumbers = document.getElementById('pageNumbers');
+    pageNumbers.innerHTML = '';
+    
+    // 5 tagacha sahifa raqamlarini ko'rsatish
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.onclick = () => goToPage(i);
+        btn.style.cssText = `
+            padding: 6px 10px;
+            background: ${i === currentPage ? '#1a6eff' : 'white'};
+            color: ${i === currentPage ? 'white' : '#475569'};
+            border: 1.5px solid ${i === currentPage ? '#1a6eff' : '#e2e8f0'};
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        if (i !== currentPage) {
+            btn.onmouseover = function() {
+                this.style.background = '#f8fafc';
+                this.style.borderColor = '#cbd5e1';
+            };
+            btn.onmouseout = function() {
+                this.style.background = 'white';
+                this.style.borderColor = '#e2e8f0';
+            };
+        }
+        pageNumbers.appendChild(btn);
+    }
+}
+
+function changePage(delta) {
+    const totalPages = Math.ceil(allHistory.length / itemsPerPage);
+    const newPage = currentPage + delta;
+    if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        displayProductHistory();
+        // Jadvalning boshiga scroll qilish
+        document.getElementById('historyTableContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function goToPage(page) {
+    currentPage = page;
+    displayProductHistory();
+    // Jadvalning boshiga scroll qilish
+    document.getElementById('historyTableContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function refreshHistory() {
