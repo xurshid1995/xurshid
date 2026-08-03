@@ -329,7 +329,7 @@ function displayProductHistory(history) {
         }
         
         const locations = product.locations.map(l => 
-            `<span style="background: rgba(59,130,246,0.1); color: #1a6eff; padding: 2px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; margin: 1px;">${l.name} (${l.quantity} ta)</span>`
+            `<span style="background: rgba(59,130,246,0.1); color: #1a6eff; padding: 2px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; margin: 1px;">${l.name}</span>`
         ).join(' ') || '—';
         
         const row = document.createElement('tr');
