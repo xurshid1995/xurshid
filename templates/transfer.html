@@ -649,7 +649,7 @@
     // Transfer tarixini yuklash
     async function loadTransferHistory() {
         try {
-            const response = await fetch('/api/transfer-history');
+            const response = await fetch('/api/transfer-history?limit=1000');
             const data = await response.json();
             
             if (data.transfers && data.transfers.length > 0) {

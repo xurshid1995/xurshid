@@ -9373,12 +9373,12 @@ def get_transfer_history_formatted():
     """Transfer tarixini formatlangan ko'rinishda qaytarish"""
     try:
         limit = request.args.get('limit', 50, type=int)
-        limit = min(limit, 200)  # Maximum 200
+        limit = min(limit, 1000)  # Maximum 1000
 
         # So'nggi transferlarni olish
         transfers = Transfer.query.order_by(
             Transfer.created_at.desc()
-        ).limit(limit * 10).all()  # Ko'proq olish, keyin guruhlash
+        ).limit(limit * 5).all()  # Guruhlash uchun ko'proq olish
 
         # M7 fix: N+1 oldini olish - barcha store/warehouse/product IDlarini bir marta yuklaymiz
         warehouse_ids = {t.from_location_id for t in transfers if t.from_location_type == 'warehouse'} | \
