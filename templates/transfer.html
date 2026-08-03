@@ -629,32 +629,47 @@
             if (data.transfers && data.transfers.length > 0) {
                 tbody.innerHTML = data.transfers.map(transfer => {
                     const date = new Date(transfer.created_at);
-                    const formattedDate = date.toLocaleString('uz-UZ', {
+                    
+                    // Sana va vaqtni alohida formatlash
+                    const formattedDate = date.toLocaleDateString('uz-UZ', {
                         year: 'numeric',
                         month: '2-digit',
-                        day: '2-digit',
+                        day: '2-digit'
+                    }).replace(/\//g, '.');
+                    
+                    const formattedTime = date.toLocaleTimeString('uz-UZ', {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
                     
-                    const products = transfer.products.map(p => p.name).join('<br>');
-                    const quantities = transfer.products.map(p => p.quantity).join('<br>');
+                    const products = transfer.products.map(p => 
+                        `<span style="color: #1e293b; font-weight: 500;">${p.name}</span>`
+                    ).join('<br>');
+                    
+                    const quantities = transfer.products.map(p => 
+                        `<span style="color: #374151; font-weight: 600;">${p.quantity}</span>`
+                    ).join('<br>');
                     
                     return `
                         <tr>
-                            <td style="white-space: nowrap;">${formattedDate}</td>
-                            <td>${transfer.from_location}</td>
-                            <td>${transfer.to_location}</td>
+                            <td style="white-space: nowrap;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+                                    <span style="font-weight: 600; font-size: 11px; color: #1e293b;">${formattedDate}</span>
+                                    <span style="font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block;">${formattedTime}</span>
+                                </div>
+                            </td>
+                            <td><span style="background: rgba(59,130,246,0.1); color: #1a6eff; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; display: inline-block;">${transfer.from_location}</span></td>
+                            <td><span style="background: rgba(16,185,129,0.1); color: #059669; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; display: inline-block;">${transfer.to_location}</span></td>
                             <td style="text-align: left;">${products}</td>
                             <td>${quantities}</td>
-                            <td>${transfer.user_name}</td>
+                            <td><span style="color: #374151; font-weight: 600; font-size: 13px;">${transfer.user_name}</span></td>
                         </tr>
                     `;
                 }).join('');
             } else {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
                             📭 ${TR1LANG.empty_history}
                         </td>
                     </tr>
@@ -664,7 +679,7 @@
             console.error('Error loading transfer history:', error);
             document.getElementById('transferHistoryBody').innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px; color: #dc3545;">
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #ef4444;">
                         ❌ ${TR1LANG.error}
                     </td>
                 </tr>
