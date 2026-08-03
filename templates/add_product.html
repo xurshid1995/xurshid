@@ -213,7 +213,7 @@
                     <tr>
                         <th>{{ t('ap_th_date') }}</th>
                         <th>{{ t('ap_th_location') }}</th>
-                        <th>{{ t('ap_th_product') }}</th>
+                        <th style="text-align:left;">{{ t('ap_th_product') }}</th>
                         <th>{{ t('ap_th_quantity') }}</th>
                         <th style="text-align:right;">{{ t('ap_th_cost_price') }}</th>
                         <th style="text-align:right;">{{ t('ap_th_sell_price') }}</th>
@@ -336,7 +336,7 @@ function displayProductHistory(history) {
         row.innerHTML = `
             <td>${dateHtml}</td>
             <td>${locations}</td>
-            <td style="font-weight:600; color:#1e293b;">${product.name}</td>
+            <td style="text-align:left; font-weight:600; color:#1e293b;">${product.name}</td>
             <td><span style="color:#374151; font-weight:600;">${product.total_quantity} ta</span></td>
             <td style="text-align:right; color:#dc2626; font-weight:600;">$${product.cost_price.toLocaleString('uz-UZ')}</td>
             <td style="text-align:right; color:#059669; font-weight:600;">$${product.sell_price.toLocaleString('uz-UZ')}</td>
