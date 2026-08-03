@@ -361,15 +361,15 @@ function displayProductHistory(history) {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit'
-            }).replace(/\\//g, '.');
+            }).replace(/\//g, '.');
             const formattedTime = group.date.toLocaleTimeString('uz-UZ', {
                 hour: '2-digit',
                 minute: '2-digit'
             });
             dateHtml = `
-                <div style=\"display: flex; flex-direction: column; align-items: center; gap: 3px;\">
-                    <span style=\"font-weight: 600; font-size: 11px; color: #1e293b;\">${formattedDate}</span>
-                    <span style=\"font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block;\">${formattedTime}</span>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+                    <span style="font-weight: 600; font-size: 11px; color: #1e293b;">${formattedDate}</span>
+                    <span style="font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block;">${formattedTime}</span>
                 </div>
             `;
         }
@@ -379,7 +379,7 @@ function displayProductHistory(history) {
             const isLastInGroup = productIndex === group.products.length - 1;
             
             const locations = product.locations.map(l => 
-                `<span style=\"background: rgba(59,130,246,0.1); color: #1a6eff; padding: 2px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; margin: 1px;\">${l.name}</span>`
+                `<span style="background: rgba(59,130,246,0.1); color: #1a6eff; padding: 2px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; margin: 1px;">${l.name}</span>`
             ).join(' ') || '—';
             
             const row = document.createElement('tr');
@@ -390,22 +390,22 @@ function displayProductHistory(history) {
             
             // Birinchi qatorda sana va foydalanuvchini ko'rsatish (rowspan bilan)
             if (isFirstInGroup) {
-                html += `<td rowspan=\"${rowCount}\" class=\"group-cell group-datetime\" style=\"background: white; border-right: 1px solid #f1f5f9;\">${dateHtml}</td>`;
-                html += `<td rowspan=\"${rowCount}\" class=\"group-cell group-location\" style=\"background: white; border-right: 1px solid #f1f5f9;\">${locations}</td>`;
+                html += `<td rowspan="${rowCount}" class="group-cell group-datetime" style="background: white; border-right: 1px solid #f1f5f9;">${dateHtml}</td>`;
+                html += `<td rowspan="${rowCount}" class="group-cell group-location" style="background: white; border-right: 1px solid #f1f5f9;">${locations}</td>`;
             }
             
             // Har bir qatorda mahsulot ma'lumotlari
             html += `
-                <td style=\"text-align:left; font-weight:600; color:#1e293b; padding-left: ${isFirstInGroup ? '14px' : '24px'};\">${product.name}</td>
-                <td><span style=\"color:#374151; font-weight:600;\">${product.total_quantity} ta</span></td>
-                <td style=\"text-align:right; color:#dc2626; font-weight:600;\">$${product.cost_price.toLocaleString('uz-UZ')}</td>
-                <td style=\"text-align:right; color:#059669; font-weight:600;\">$${product.sell_price.toLocaleString('uz-UZ')}</td>
-                <td style=\"text-align:right; font-weight:700; color:#1e293b;\">$${product.total_value.toLocaleString('uz-UZ')}</td>
+                <td style="text-align:left; font-weight:600; color:#1e293b; padding-left: ${isFirstInGroup ? '14px' : '24px'};">${product.name}</td>
+                <td><span style="color:#374151; font-weight:600;">${product.total_quantity} ta</span></td>
+                <td style="text-align:right; color:#dc2626; font-weight:600;">$${product.cost_price.toLocaleString('uz-UZ')}</td>
+                <td style="text-align:right; color:#059669; font-weight:600;">$${product.sell_price.toLocaleString('uz-UZ')}</td>
+                <td style="text-align:right; font-weight:700; color:#1e293b;">$${product.total_value.toLocaleString('uz-UZ')}</td>
             `;
             
             // Birinchi qatorda foydalanuvchini ko'rsatish (rowspan bilan)
             if (isFirstInGroup) {
-                html += `<td rowspan=\"${rowCount}\" class=\"group-cell group-user\" style=\"background: white; border-left: 1px solid #f1f5f9;\"><span style=\"color:#374151; font-weight:600; font-size:13px;\">👤 ${group.user}</span></td>`;
+                html += `<td rowspan="${rowCount}" class="group-cell group-user" style="background: white; border-left: 1px solid #f1f5f9;"><span style="color:#374151; font-weight:600; font-size:13px;">👤 ${group.user}</span></td>`;
             }
             
             row.innerHTML = html;
