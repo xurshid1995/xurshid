@@ -140,7 +140,7 @@
     .sales-product-table td:nth-child(4) { width: 24%; text-align: center; }
     .sales-product-table td:nth-child(5) { width: 8%; text-align: center; }
     .spt-img { width: 34px; height: 34px; object-fit: cover; border-radius: 4px; display: block; margin: 0 auto; cursor: zoom-in; }
-    .spt-img-placeholder { width: 34px; height: 34px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin: 0 auto; }
+    .spt-img-placeholder { width: 34px; height: 34px; background: #e8eaed; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #9aa0a6; margin: 0 auto; }
     /* Lightbox */
     #spt-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 99999; align-items: center; justify-content: center; cursor: zoom-out; }
     #spt-lightbox.active { display: flex; }
@@ -3140,8 +3140,8 @@
                 
                 const imgHtml = product.image_url
                     ? `<img src="${product.image_url}" class="spt-img" alt="" loading="eager" onclick="openSptLightbox(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                       <div class="spt-img-placeholder" style="display:none;">📦</div>`
-                    : `<div class="spt-img-placeholder">📦</div>`;
+                       <div class="spt-img-placeholder" style="display:none;"><i class="fas fa-camera"></i></div>`
+                    : `<div class="spt-img-placeholder"><i class="fas fa-camera"></i></div>`;
 
                 row.innerHTML = `
                     <td>${imgHtml}</td>
@@ -4856,8 +4856,8 @@
                 
                 const imgHtml = product.image_url
                     ? `<img src="${product.image_url}" class="spt-img" alt="" loading="eager" onclick="openSptLightbox(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                       <div class="spt-img-placeholder" style="display:none;">📦</div>`
-                    : `<div class="spt-img-placeholder">📦</div>`;
+                       <div class="spt-img-placeholder" style="display:none;"><i class="fas fa-camera"></i></div>`
+                    : `<div class="spt-img-placeholder"><i class="fas fa-camera"></i></div>`;
 
                 row.innerHTML = `
                     <td>${imgHtml}</td>
