@@ -268,11 +268,18 @@ body {
     line-height: normal;
 }
 
-/* Mobil va planşetda barcha matnlar ko'rinadi */
+/* Mobil va planşetda ham sidebar yopiq (faqat icon va badge) */
 @media (max-width: 1024px) {
-    .sidebar-menu a span:not(.icon) {
-        opacity: 1 !important;
+    .sidebar-menu a span:not(.icon):not(.menu-badge) {
+        opacity: 0 !important;
         display: inline !important;
+    }
+    
+    /* Badge mobilda ham ko'rinadi */
+    .sidebar-menu a .menu-badge {
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
     }
 }
 
@@ -1639,21 +1646,20 @@ footer {
         z-index: 99999 !important;
     }
 
-    /* Mobile sidebar - To'liq ekranni qoplash */
+    /* Mobile sidebar - Yopiq holatda (faqat iconlar) */
     .sidebar {
         position: fixed;
-        left: -100% !important;
+        left: -80px !important;
         top: 0 !important;
         height: 100vh !important;
         max-height: 100vh !important;
-        width: 300px !important;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+        width: 70px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         z-index: 1250 !important;
-        background: #0f172a !important;
+        background: rgba(20, 50, 100, 0.9) !important;
         box-shadow: none !important;
         border-radius: 0;
-        overflow-y: scroll !important;
-        overflow-x: hidden !important;
+        overflow: visible !important;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
         scrollbar-color: rgba(255,255,255,0.3) transparent;
@@ -1661,25 +1667,18 @@ footer {
         box-sizing: border-box !important;
     }
     
-    /* Hover effekti mobilda o'chiriladi */
-    .sidebar:hover {
-        width: 300px !important;
-        left: -100% !important;
-    }
-
-    /* Safari webkit scrollbar fallback for mobile sidebar */
-    .sidebar::-webkit-scrollbar { width: 4px; }
-    .sidebar::-webkit-scrollbar-track { background: transparent; }
-    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
-    
+    /* Sidebar ochiq holatda */
     .sidebar.active {
         left: 0 !important;
+        width: 70px !important;
         box-shadow: 4px 0 24px rgba(20, 184, 166, 0.15) !important;
     }
     
+    /* Hover effekti mobilda ham ishlaydi */
+    .sidebar:hover,
     .sidebar.active:hover {
-        left: 0 !important;
         width: 300px !important;
+        left: 0 !important;
     }
     
     .sidebar-overlay {
@@ -1731,18 +1730,26 @@ footer {
     }
     
     .sidebar-menu li a {
-        padding: 15px 20px;
-        font-size: 1rem;
+        padding: 10px 10px;
+        font-size: 14px;
         font-weight: 500;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: none;
         display: flex;
         align-items: center;
-        min-height: 50px;
+        min-height: 42px;
         transition: all 0.3s ease;
         color: rgba(255,255,255,0.75);
-        white-space: normal !important;
+        white-space: nowrap !important;
         overflow: visible !important;
         flex-wrap: nowrap;
+        margin: 2px 4px;
+        border-radius: 12px;
+    }
+    
+    /* Sidebar kengayganida padding oshadi */
+    .sidebar:hover .sidebar-menu li a,
+    .sidebar.active:hover .sidebar-menu li a {
+        padding: 10px 20px;
     }
     
     .sidebar-menu li a:hover {
