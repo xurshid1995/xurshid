@@ -228,13 +228,19 @@ body {
 .sidebar-menu a .menu-badge {
     opacity: 1 !important;
     display: inline-block !important;
+    visibility: visible !important;
     position: static;
     margin-left: 3px;
     padding: 2px 5px;
+    background: #e53e3e;
+    color: #fff;
     font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
     min-width: 16px;
     height: 16px;
     line-height: 12px;
+    text-align: center;
     flex-shrink: 0;
 }
 
@@ -247,6 +253,7 @@ body {
 .sidebar:hover .sidebar-menu a .menu-badge {
     opacity: 1 !important;
     display: inline-block !important;
+    visibility: visible !important;
     margin-left: auto;
     padding: 1px 7px;
     font-size: 11px;

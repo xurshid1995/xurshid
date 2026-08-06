@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <title>{% block title %}DOKON{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-1817">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-1820">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     {% block extra_css %}{% endblock %}
     <style>
@@ -156,7 +156,7 @@
                     <span class="icon"><img src="{{ url_for('static', filename='images/icons8-increase-96.png') }}" alt="Qarzlar" style="width:22px;height:22px;vertical-align:middle;"></span>
                     <span>{{ t('debt_sales') }}</span>
                     {% if debt_sales_count > 0 %}
-                    <span class="menu-badge" style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ debt_sales_count }}</span>
+                    <span class="menu-badge">{{ debt_sales_count }}</span>
                     {% endif %}
                 </a>
             </li>
