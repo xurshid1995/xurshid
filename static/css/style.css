@@ -356,6 +356,39 @@ body {
     white-space: nowrap;
 }
 
+/* Header Logo */
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.logo-badge {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+}
+
+.logo-diamond {
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.logo-crm {
+    color: #10b981;
+    font-weight: 700;
+}
+
 .header-right {
     display: flex;
     align-items: center;
