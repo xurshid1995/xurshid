@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('csv_title') }}{% endblock %}
 
@@ -6,7 +6,7 @@
 <style>
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -102,7 +102,7 @@
     font-size: 11px; font-weight: 700;
     padding: 1px 6px; border-radius: 6px; min-width: 20px; text-align: center;
 }
-/* Default (non-active) colors per button — oq matn uchun yetarli kontrast */
+/* Default (non-active) colors per button � oq matn uchun yetarli kontrast */
 #filterAll     { background: #74b0f5 !important; border-color: #74b0f5 !important; color: #fff !important; }
 #filterAll:hover { background: #5b9cf0 !important; border-color: #5b9cf0 !important; color: #fff !important; }
 #filterChecked { background: #45c97a !important; border-color: #45c97a !important; color: #fff !important; }
@@ -111,7 +111,7 @@
 #filterUnchecked:hover { background: #7d93a8 !important; border-color: #7d93a8 !important; color: #fff !important; }
 #filterError   { background: #ed7474 !important; border-color: #ed7474 !important; color: #fff !important; }
 #filterError:hover { background: #e85c5c !important; border-color: #e85c5c !important; color: #fff !important; }
-/* Active (bosilgan) state — to'q rang */
+/* Active (bosilgan) state � to'q rang */
 #filterAll.active-all        { background: #1e4fc2 !important; border-color: #1e4fc2 !important; box-shadow: 0 3px 10px rgba(30,79,194,0.5); color: #fff !important; }
 #filterChecked.active-checked { background: #157a3b !important; border-color: #157a3b !important; box-shadow: 0 3px 10px rgba(21,122,59,0.5); color: #fff !important; }
 #filterUnchecked.active-unchecked { background: #3e5060 !important; border-color: #3e5060 !important; box-shadow: 0 3px 10px rgba(62,80,96,0.5); color: #fff !important; }
@@ -216,7 +216,7 @@
         {% if check_session.completed_by %}
         <span><strong>{{ t('csv_completed_by') }}</strong> {{ check_session.completed_by.first_name }} {{ check_session.completed_by.last_name }}</span>
         {% endif %}
-        <span><strong>{{ t('csv_location') }}</strong> {{ '🏪' if check_session.location_type == 'store' else '📦' }} {{ check_session.location_name }}</span>
+        <span><strong>{{ t('csv_location') }}</strong> {{ '??' if check_session.location_type == 'store' else '??' }} {{ check_session.location_name }}</span>
     </div>
 
     <!-- Stat Cards -->
@@ -450,7 +450,7 @@ function filterAndDisplay() {
 
 function exportToExcel() {
     if (typeof XLSX === 'undefined') {
-        alert('❌ Excel kutubxonasi yuklanmadi');
+        alert('? Excel kutubxonasi yuklanmadi');
         return;
     }
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -462,7 +462,7 @@ function exportToExcel() {
     if (words.length) data = data.filter(p => words.every(w => (p.name + ' ' + (p.barcode || '')).toLowerCase().includes(w)));
 
     const rows = data.map((p, i) => ({
-        '№': i + 1,
+        '?': i + 1,
         'Mahsulot nomi': p.name,
         'Narx ($)': p.price ? parseFloat(p.price).toFixed(2) : '',
         'Tizimda': p.system_quantity ?? 0,
@@ -532,7 +532,7 @@ function renderPagination(total, totalPages) {
 
     const start = (currentPage - 1) * PAGE_SIZE + 1;
     const end = Math.min(currentPage * PAGE_SIZE, total);
-    let html = `<span class="ps-pag-info">${start}–${end} / ${total} ta</span><div class="ps-pag-btns">`;
+    let html = `<span class="ps-pag-info">${start}�${end} / ${total} ta</span><div class="ps-pag-btns">`;
 
     html += `<button class="ps-pag-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#8249;</button>`;
 
@@ -543,7 +543,7 @@ function renderPagination(total, totalPages) {
         else if (pages[pages.length - 1] !== '...') pages.push('...');
     }
     pages.forEach(p => {
-        if (p === '...') html += `<span class="ps-pag-btn" style="cursor:default;">…</span>`;
+        if (p === '...') html += `<span class="ps-pag-btn" style="cursor:default;">�</span>`;
         else html += `<button class="ps-pag-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
     });
 

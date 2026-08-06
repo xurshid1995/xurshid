@@ -1,4 +1,4 @@
-Ôªø{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ store.name }} - {{ t('sd_title_suffix') }}{% endblock %}
 
@@ -10,12 +10,12 @@
 
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* ‚îÄ‚îÄ Header ‚îÄ‚îÄ */
+/* ¶¶ Header ¶¶ */
 .ps-header {
     display: flex;
     align-items: center;
@@ -43,7 +43,7 @@
     gap: 5px;
 }
 
-/* ‚îÄ‚îÄ Stat Cards ‚îÄ‚îÄ */
+/* ¶¶ Stat Cards ¶¶ */
 .ps-stats {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -76,7 +76,7 @@
 .ps-stat-label  { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 .ps-stat-number { font-size: 1.4rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
 
-/* ‚îÄ‚îÄ Filter Panel ‚îÄ‚îÄ */
+/* ¶¶ Filter Panel ¶¶ */
 .ps-filter-panel {
     background: white;
     border-radius: 16px;
@@ -130,7 +130,7 @@
 }
 .ps-excel-btn:hover { background: transparent; }
 
-/* ‚îÄ‚îÄ Table Card ‚îÄ‚îÄ */
+/* ¶¶ Table Card ¶¶ */
 .ps-table-card {
     background: white;
     border-radius: 16px;
@@ -188,7 +188,7 @@
 .btn-action-delete { background: #e74c3c; color: white; }
 .actions { white-space: nowrap; }
 
-/* ‚îÄ‚îÄ Edit Modal ‚îÄ‚îÄ */
+/* ¶¶ Edit Modal ¶¶ */
 .edit-modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.45); z-index: 9999;
@@ -259,7 +259,7 @@
 .em-btn-save:hover { opacity: 0.85; }
 .em-btn-save:disabled { opacity: 0.5; cursor: default; }
 
-/* ‚îÄ‚îÄ Pagination ‚îÄ‚îÄ */
+/* ¶¶ Pagination ¶¶ */
 .ps-pagination {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 20px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 10px;
@@ -284,7 +284,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* ‚îÄ‚îÄ Responsive ‚îÄ‚îÄ */
+/* ¶¶ Responsive ¶¶ */
 @media (max-width: 1200px) {
     .ps-stats { grid-template-columns: repeat(5, 1fr); }
 }
@@ -371,7 +371,7 @@
                        placeholder="{{ t('sd_search') }}" oninput="filterTable(); var b=document.getElementById('search-clear-btn'); b.style.display=this.value?'flex':'none';" onkeyup="filterTable()">
                 <button type="button" id="search-clear-btn" class="ps-clear-btn" style="display:none;" onclick="var i=document.getElementById('search-input'); i.value=''; this.style.display='none'; filterTable(); i.focus();">&#10005;</button>
             </div>
-            <span id="product-count-badge" style="background:#6aa3ff;color:#fff;font-weight:600;font-size:13px;padding:4px 12px;border-radius:8px;white-space:nowrap;">‚Äî ta</span>
+            <span id="product-count-badge" style="background:#6aa3ff;color:#fff;font-weight:600;font-size:13px;padding:4px 12px;border-radius:8px;white-space:nowrap;">ó ta</span>
         </div>
         <div class="ps-selects-row" style="display:flex;gap:8px;">
             <select id="category-filter" class="ps-select" onchange="handleFilterChange()" style="min-width:160px;">
@@ -482,25 +482,25 @@
                 </div>
                 <div class="em-group em-half-mob">
                     <label class="em-label">Asl tan narx (oxirgi partiya)</label>
-                    <div class="em-profit" id="em-lastBatchDisplay" style="color:#d97706;">‚Äî</div>
+                    <div class="em-profit" id="em-lastBatchDisplay" style="color:#d97706;">ó</div>
                 </div>
                 <div class="em-group full em-half-mob">
                     <label class="em-label">Kategoriya</label>
                     <select class="em-input" id="em-category">
-                        <option value="">‚Äî Kategoriyasiz ‚Äî</option>
+                        <option value="">ó Kategoriyasiz ó</option>
                     </select>
                 </div>
                 <div class="em-group full">
                     <label class="em-label">Rasm</label>
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div id="em-img-preview" onclick="emImgClick()" style="width:60px;height:60px;border-radius:8px;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in;flex-shrink:0;">
-                            <span id="em-img-placeholder" style="color:#94a3b8;font-size:22px;">üì∑</span>
+                            <span id="em-img-placeholder" style="color:#94a3b8;font-size:22px;">??</span>
                             <img id="em-img-thumb" src="" alt="" style="display:none;width:60px;height:60px;object-fit:cover;border-radius:6px;">
                         </div>
                         <div style="display:flex;flex-direction:column;gap:5px;">
                             <input type="file" id="em-img-file" accept="image/*" style="display:none;" onchange="emPreviewImage(this)">
-                            <button type="button" onclick="document.getElementById('em-img-file').click()" style="padding:5px 14px;border:1.5px solid #1a6eff;background:#eff6ff;color:#1a6eff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">üìÅ Rasm tanlash</button>
-                            <button type="button" id="em-img-delete-btn" onclick="emDeleteImage()" style="padding:5px 14px;border:1.5px solid #ef4444;background:#fef2f2;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:none;">üóëÔ∏è Rasmni o'chirish</button>
+                            <button type="button" onclick="document.getElementById('em-img-file').click()" style="padding:5px 14px;border:1.5px solid #1a6eff;background:#eff6ff;color:#1a6eff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">?? Rasm tanlash</button>
+                            <button type="button" id="em-img-delete-btn" onclick="emDeleteImage()" style="padding:5px 14px;border:1.5px solid #ef4444;background:#fef2f2;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:none;">??? Rasmni o'chirish</button>
                         </div>
                     </div>
                 </div>
@@ -518,23 +518,23 @@
 <div id="emCropModal" onclick="if(event.target===this)emCropCancel()">
     <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:16px;width:min(520px,96vw);max-height:95vh;display:flex;flex-direction:column;box-shadow:0 12px 48px #0008;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
-            <span style="font-weight:700;font-size:15px;">‚úÇÔ∏è Rasmni qirqish</span>
-            <button onclick="emCropCancel()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">‚úï</button>
+            <span style="font-weight:700;font-size:15px;">?? Rasmni qirqish</span>
+            <button onclick="emCropCancel()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">?</button>
         </div>
         <div style="flex:1;overflow:hidden;border-radius:10px;background:#1e293b;min-height:0;">
             <img id="emCropImage" src="" alt="" style="max-width:100%;display:block;">
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 4px;flex-shrink:0;">
             <button onclick="_emCropper&&_emCropper.zoom(0.1)" title="Kattalashtirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">+</button>
-            <button onclick="_emCropper&&_emCropper.zoom(-0.1)" title="Kichraytirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;">‚àí</button>
-            <button onclick="_emCropper&&_emCropper.rotate(-90)" title="Chapga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">‚Ü∫</button>
-            <button onclick="_emCropper&&_emCropper.rotate(90)" title="O'ngga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">‚Üª</button>
-            <button onclick="_emCropper&&_emCropper.reset()" title="Qayta boshlash" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;">‚Ü∫‚Ü∫</button>
+            <button onclick="_emCropper&&_emCropper.zoom(-0.1)" title="Kichraytirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;">-</button>
+            <button onclick="_emCropper&&_emCropper.rotate(-90)" title="Chapga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">?</button>
+            <button onclick="_emCropper&&_emCropper.rotate(90)" title="O'ngga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">?</button>
+            <button onclick="_emCropper&&_emCropper.reset()" title="Qayta boshlash" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;">??</button>
         </div>
-        <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;text-align:center;flex-shrink:0;">Siljiting ‚Ä¢ Scroll bilan zoom ‚Ä¢ Kvadrat doim 800√ó800 bo'lib saqlanadi</p>
+        <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;text-align:center;flex-shrink:0;">Siljiting ï Scroll bilan zoom ï Kvadrat doim 800◊800 bo'lib saqlanadi</p>
         <div style="display:flex;gap:10px;flex-shrink:0;">
             <button onclick="emCropCancel()" style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:14px;font-weight:600;">Bekor</button>
-            <button onclick="emCropSave()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">‚úì Tasdiqlash</button>
+            <button onclick="emCropSave()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">? Tasdiqlash</button>
         </div>
     </div>
 </div>
@@ -723,7 +723,7 @@
             
             return `
             <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">üì∑</div>`}</td>
+                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">??</div>`}</td>
                 <td style="padding: 5px; text-align: center; color: #666; font-family: monospace; width: 90px;">${item.stock.product.barcode || '-'}</td>
                 <td style="padding: 5px; text-align: left;"><strong>${highlightedName}</strong></td>
                 <td style="padding: 5px; text-align: center; font-weight: bold; width: 80px;">${quantityDisplay}</td>
@@ -733,16 +733,16 @@
                 <td style="padding: 5px; text-align: center; color: #27ae60; font-weight: bold; width: 100px;">$${item.unit_profit.toFixed(2)}</td>
                 <td style="padding: 5px; text-align: center; color: #1a6eff; font-weight: bold; width: 90px;">${item.profit_percentage.toFixed(1)}%</td>
                 <td style="padding: 5px; text-align: center; width: 110px;">
-                    ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;">üö´ ${SDLANG.status_out}</span>` :
-                      item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">‚ö†Ô∏è ${SDLANG.status_low}</span>` :
-                      `<span style="color: #27ae60; font-weight: bold;">‚úì ${SDLANG.status_enough}</span>`}
+                    ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;">?? ${SDLANG.status_out}</span>` :
+                      item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">?? ${SDLANG.status_low}</span>` :
+                      `<span style="color: #27ae60; font-weight: bold;">? ${SDLANG.status_enough}</span>`}
                 </td>
                 <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
                     <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}); return false;"
-                       class="btn-action btn-action-edit">‚úèÔ∏è ${SDLANG.edit}</a>
+                       class="btn-action btn-action-edit">?? ${SDLANG.edit}</a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
                             data-product-name="${item.stock.product.name}"
-                            class="btn-action btn-action-delete">üóëÔ∏è ${SDLANG.delete}</button>
+                            class="btn-action btn-action-delete">??? ${SDLANG.delete}</button>
                 </td>
             </tr>
         `;
@@ -763,7 +763,7 @@
         
         // Oldingi sahifa tugmasi
         if (currentPage > 1) {
-            buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">‚Äπ ${SDLANG.prev}</button>`;
+            buttonsHTML += `<button onclick="loadStockData(${currentPage - 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">ã ${SDLANG.prev}</button>`;
         }
         
         // Sahifa raqamlari
@@ -777,7 +777,7 @@
         
         // Keyingi sahifa tugmasi
         if (currentPage < totalPages) {
-            buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">${SDLANG.next} ‚Ä∫</button>`;
+            buttonsHTML += `<button onclick="loadStockData(${currentPage + 1}, document.querySelector('#search-input').value, document.querySelector('#status-filter').value, document.querySelector('#category-filter').value)" class="pagination-btn">${SDLANG.next} õ</button>`;
         }
         
         paginationButtons.innerHTML = buttonsHTML;
@@ -806,7 +806,7 @@
     // Excel export funksiyasi
     function exportToExcel() {
         if (typeof XLSX === 'undefined') {
-            alert('‚ùå ' + SDLANG.excel_not_loaded);
+            alert('? ' + SDLANG.excel_not_loaded);
             return;
         }
 
@@ -841,11 +841,11 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, SDLANG.store_info);
                 XLSX.writeFile(wb, "{{ store.name }}_mahsulotlar.xlsx");
-                console.log(`‚úÖ Excel: ${res.total} ta mahsulot eksport qilindi`);
+                console.log(`? Excel: ${res.total} ta mahsulot eksport qilindi`);
             })
             .catch(error => {
                 console.error('Excel eksport xatoligi:', error);
-                alert('‚ùå ' + SDLANG.excel_error + error.message);
+                alert('? ' + SDLANG.excel_error + error.message);
             })
             .finally(() => {
                 if (btn) btn.disabled = false;
@@ -869,19 +869,19 @@
                     const searchValue = document.querySelector('#search-input').value;
                     const statusValue = document.querySelector('#status-filter').value;
                     loadStockData(currentPage, searchValue, statusValue);
-                    alert('‚úÖ ' + result.data.message);
+                    alert('? ' + result.data.message);
                 } else {
                     throw new Error(result.data.error || 'O\'chirishda xatolik');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('‚ùå ' + SDLANG.delete_error + '\n\n' + error.message);
+                alert('? ' + SDLANG.delete_error + '\n\n' + error.message);
             });
         }
     }
 
-    // ‚îÄ‚îÄ Edit Modal funksiyalari ‚îÄ‚îÄ
+    // ¶¶ Edit Modal funksiyalari ¶¶
     function openEditModal(storeId, productId) {
         const d = stockItemMap[productId];
         if (!d) return;
@@ -915,7 +915,7 @@
         if (d.lastBatchCost && d.lastBatchCost > 0) {
             lbEl.textContent = '$' + parseFloat(d.lastBatchCost).toFixed(2);
         } else {
-            lbEl.textContent = '‚Äî';
+            lbEl.textContent = 'ó';
         }
         emUpdateProfit();
         document.getElementById('editModalOverlay').classList.add('active');
@@ -1091,11 +1091,11 @@
                 const categoryValue = document.querySelector('#category-filter').value;
                 loadStockData(currentPage, searchValue, statusValue, categoryValue);
             } else {
-                errorEl.textContent = '‚ùå ' + data.error;
+                errorEl.textContent = '? ' + data.error;
                 errorEl.style.display = 'block';
             }
         } catch (err) {
-            errorEl.textContent = '‚ùå Xatolik: ' + err.message;
+            errorEl.textContent = '? Xatolik: ' + err.message;
             errorEl.style.display = 'block';
         } finally {
             saveBtn.disabled = false;

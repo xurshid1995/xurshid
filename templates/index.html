@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block extra_css %}
 <!-- Font Awesome for icons -->
@@ -14,12 +14,12 @@
 
 <!-- Decimal ma'lumotlari -->
 <div class="decimal-info">
-    <h2>💰 {{ t('idx_decimal_title') }}</h2>
+    <h2>?? {{ t('idx_decimal_title') }}</h2>
     <p>{{ t('idx_decimal_desc') }}</p>
     
     <div class="decimal-pros-cons">
         <div class="pros">
-            <h4>✅ {{ t('idx_advantages') }}</h4>
+            <h4>? {{ t('idx_advantages') }}</h4>
             <ul>
                 <li>{{ t('idx_adv1') }}</li>
                 <li>{{ t('idx_adv2') }}</li>
@@ -29,7 +29,7 @@
             </ul>
         </div>
         <div class="cons">
-            <h4>⚠️ {{ t('idx_disadvantages') }}</h4>
+            <h4>?? {{ t('idx_disadvantages') }}</h4>
             <ul>
                 <li>{{ t('idx_dis1') }}</li>
                 <li>{{ t('idx_dis2') }}</li>
@@ -43,7 +43,7 @@
 
 <!-- Mahsulotlar Grid -->
 <div class="card">
-    <h2>📦 {{ t('idx_products_title') }}</h2>
+    <h2>?? {{ t('idx_products_title') }}</h2>
     <p>{{ t('idx_products_desc') }}</p>
     
     <div class="product-grid">
@@ -52,7 +52,7 @@
             <h3>{{ product.name }}</h3>
             <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
             <p class="product-description">{{ product.description or t('idx_no_description') }}</p>
-            <span class="product-stock">📦 {{ product.stock_quantity }} {{ t('idx_stock_count') }}</span>
+            <span class="product-stock">?? {{ product.stock_quantity }} {{ t('idx_stock_count') }}</span>
         </div>
         {% else %}
         <div class="product-card">
@@ -65,7 +65,7 @@
     <!-- Jami qiymat hisoblash -->
     <div style="text-align: center; margin-top: 2rem;">
         <button class="btn" onclick="calculateTotal()">
-            💰 {{ t('idx_calc_total') }}
+            ?? {{ t('idx_calc_total') }}
         </button>
         <div id="total-result" style="margin-top: 1rem; font-size: 1.2rem; font-weight: bold;"></div>
     </div>
@@ -73,7 +73,7 @@
 
 <!-- API ma'lumotlari -->
 <div class="card">
-    <h2>🔗 {{ t('idx_api_title') }}</h2>
+    <h2>?? {{ t('idx_api_title') }}</h2>
     <p>{{ t('idx_api_desc') }}</p>
     <ul style="margin-top: 1rem;">
         <li><strong>GET /api/products</strong> - {{ t('idx_api1') }}</li>
@@ -97,8 +97,8 @@
             .then(data => {
                 document.getElementById('total-result').innerHTML = `
                     <div style="background: #27ae60; color: white; padding: 1rem; border-radius: 6px;">
-                        💰 ${IDXLANG.total_value}: <strong>${data.total_value} ${data.currency}</strong><br>
-                        🎯 ${IDXLANG.exact_value}: <strong>${data.precision}</strong>
+                        ?? ${IDXLANG.total_value}: <strong>${data.total_value} ${data.currency}</strong><br>
+                        ?? ${IDXLANG.exact_value}: <strong>${data.precision}</strong>
                     </div>
                 `;
             })
@@ -106,7 +106,7 @@
                 console.error('Error:', error);
                 document.getElementById('total-result').innerHTML = `
                     <div style="background: #e74c3c; color: white; padding: 1rem; border-radius: 6px;">
-                        ❌ ${IDXLANG.calc_error}: ${error.message}
+                        ? ${IDXLANG.calc_error}: ${error.message}
                     </div>
                 `;
             });

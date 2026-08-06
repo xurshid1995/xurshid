@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -59,7 +59,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🗑️ Dokon O'chirish Test Sahifasi</h1>
+        <h1>??? Dokon O'chirish Test Sahifasi</h1>
         <p>Bu sahifa dokon o'chirish funksiyasini test qilish uchun.</p>
 
         <div id="storesContainer">
@@ -85,17 +85,17 @@
         // Dokonlarni yuklash
         async function loadStores() {
             try {
-                addLog('🔄 Dokonlarni yuklash boshlandi...');
+                addLog('?? Dokonlarni yuklash boshlandi...');
                 
                 const response = await fetch('/api/stores');
-                addLog(`📡 API response: ${response.status} ${response.statusText}`);
+                addLog(`?? API response: ${response.status} ${response.statusText}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                addLog(`📦 Olingan ma'lumot: ${JSON.stringify(data)}`);
+                addLog(`?? Olingan ma'lumot: ${JSON.stringify(data)}`);
                 
                 const container = document.getElementById('storesContainer');
                 
@@ -106,42 +106,42 @@
                         const storeCard = document.createElement('div');
                         storeCard.className = 'store-card';
                         storeCard.innerHTML = `
-                            <h3>🏪 ${store.name} (ID: ${store.id})</h3>
-                            <p>📍 ${store.address || 'Manzil ko\\'rsatilmagan'}</p>
-                            <p>👤 ${store.manager_name || 'Manager nomi yo\\'q'}</p>
+                            <h3>?? ${store.name} (ID: ${store.id})</h3>
+                            <p>?? ${store.address || 'Manzil ko\\'rsatilmagan'}</p>
+                            <p>?? ${store.manager_name || 'Manager nomi yo\\'q'}</p>
                             <button onclick="testDeleteStore(${store.id}, '${store.name}')">
-                                🗑️ Test O'chirish
+                                ??? Test O'chirish
                             </button>
                         `;
                         container.appendChild(storeCard);
                     });
                     
-                    addLog(`✅ ${data.stores.length} ta dokon yuklandi`, 'success');
+                    addLog(`? ${data.stores.length} ta dokon yuklandi`, 'success');
                 } else {
-                    container.innerHTML = '<p>❌ Dokonlar topilmadi</p>';
-                    addLog('⚠️ Dokonlar ro\\'yxati bo\\'sh', 'error');
+                    container.innerHTML = '<p>? Dokonlar topilmadi</p>';
+                    addLog('?? Dokonlar ro\\'yxati bo\\'sh', 'error');
                 }
                 
             } catch (error) {
-                addLog(`❌ Dokonlarni yuklashda xatolik: ${error.message}`, 'error');
-                document.getElementById('storesContainer').innerHTML = `<p>❌ Xatolik: ${error.message}</p>`;
+                addLog(`? Dokonlarni yuklashda xatolik: ${error.message}`, 'error');
+                document.getElementById('storesContainer').innerHTML = `<p>? Xatolik: ${error.message}</p>`;
             }
         }
 
         // Dokonni o'chirish test funksiyasi
         async function testDeleteStore(storeId, storeName) {
             try {
-                addLog(`🗑️ Dokon o'chirish test boshlandi: ID=${storeId}, Name="${storeName}"`);
+                addLog(`??? Dokon o'chirish test boshlandi: ID=${storeId}, Name="${storeName}"`);
                 
                 const confirmResult = confirm(`Haqiqatan ham "${storeName}" do'konini o'chirmoqchimisiz?\\n\\nDiqqat: Bu test!`);
-                addLog(`🤔 Foydalanuvchi tasdiqlaganmi: ${confirmResult}`);
+                addLog(`?? Foydalanuvchi tasdiqlaganmi: ${confirmResult}`);
                 
                 if (!confirmResult) {
-                    addLog('❌ Foydalanuvchi bekor qildi');
+                    addLog('? Foydalanuvchi bekor qildi');
                     return;
                 }
                 
-                addLog(`📡 DELETE so'rovi yuborilmoqda: /api/store/${storeId}`);
+                addLog(`?? DELETE so'rovi yuborilmoqda: /api/store/${storeId}`);
                 
                 const response = await fetch(`/api/store/${storeId}`, {
                     method: 'DELETE',
@@ -150,47 +150,47 @@
                     }
                 });
                 
-                addLog(`📨 Server javobi: ${response.status} ${response.statusText}`);
+                addLog(`?? Server javobi: ${response.status} ${response.statusText}`);
                 
                 const responseText = await response.text();
-                addLog(`📄 Response body: ${responseText}`);
+                addLog(`?? Response body: ${responseText}`);
                 
                 if (response.ok) {
                     try {
                         const result = JSON.parse(responseText);
-                        addLog(`✅ O'chirish muvaffaqiyatli: ${JSON.stringify(result)}`, 'success');
-                        addLog('🔄 Sahifani qayta yuklash...');
+                        addLog(`? O'chirish muvaffaqiyatli: ${JSON.stringify(result)}`, 'success');
+                        addLog('?? Sahifani qayta yuklash...');
                         setTimeout(() => {
                             loadStores(); // Sahifani qayta yuklash o'rniga faqat dokonlarni qayta yuklash
                         }, 1000);
                     } catch (e) {
-                        addLog(`✅ O'chirish muvaffaqiyatli (JSON parse xatosi: ${e.message})`, 'success');
+                        addLog(`? O'chirish muvaffaqiyatli (JSON parse xatosi: ${e.message})`, 'success');
                     }
                 } else {
-                    addLog(`❌ Server xatosi: ${response.status}`, 'error');
+                    addLog(`? Server xatosi: ${response.status}`, 'error');
                     try {
                         const errorData = JSON.parse(responseText);
-                        addLog(`❌ Xato tafsilotlari: ${JSON.stringify(errorData)}`, 'error');
+                        addLog(`? Xato tafsilotlari: ${JSON.stringify(errorData)}`, 'error');
                     } catch (e) {
-                        addLog(`❌ Xato matni: ${responseText}`, 'error');
+                        addLog(`? Xato matni: ${responseText}`, 'error');
                     }
                 }
                 
             } catch (error) {
-                addLog(`💥 Kutilmagan xatolik: ${error.message}`, 'error');
+                addLog(`?? Kutilmagan xatolik: ${error.message}`, 'error');
                 console.error('Full error:', error);
             }
         }
 
         // Sahifa yuklanganda dokonlarni yuklash
         document.addEventListener('DOMContentLoaded', function() {
-            addLog('🚀 Sahifa yuklandi, dokonlarni olish...');
+            addLog('?? Sahifa yuklandi, dokonlarni olish...');
             loadStores();
         });
 
         // Window error handler
         window.addEventListener('error', function(e) {
-            addLog(`💥 JavaScript xatosi: ${e.message} (${e.filename}:${e.lineno})`, 'error');
+            addLog(`?? JavaScript xatosi: ${e.message} (${e.filename}:${e.lineno})`, 'error');
         });
     </script>
 </body>

@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block head %}
 {{ super() }}
@@ -16,7 +16,7 @@
    ==================================================== */
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -373,7 +373,7 @@
         <div class="modal-body">
             <p><strong>{{ t('delete') }}:</strong></p>
             <div class="customer-name-highlight" id="modalCustomerName"></div>
-            <p style="color: #e74c3c; font-weight: bold;">⚠️ Bu amal qaytarib bo'lmaydi!</p>
+            <p style="color: #e74c3c; font-weight: bold;">?? Bu amal qaytarib bo'lmaydi!</p>
             <p>{{ t('header_customer_name') }}:</p>
             
             <div class="modal-input-group">
@@ -389,10 +389,10 @@
         </div>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
-                ❌ {{ t('btn_cancel_payment') }}
+                ? {{ t('btn_cancel_payment') }}
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn" disabled>
-                🗑️ {{ t('btn_delete_item') }}
+                ??? {{ t('btn_delete_item') }}
             </button>
         </div>
     </div>
@@ -444,7 +444,7 @@
                 </select>
             </div>
             <div style="display:flex; gap:10px;">
-                <button type="button" onclick="closeAddCustomerModal()" style="flex:1; padding:11px; background:#f1f5f9; color:#374151; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">❌ {{ t('btn_cancel') }}</button>
+                <button type="button" onclick="closeAddCustomerModal()" style="flex:1; padding:11px; background:#f1f5f9; color:#374151; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">? {{ t('btn_cancel') }}</button>
                 <button type="submit" id="acmSubmitBtn" style="flex:2; padding:11px; background:linear-gradient(135deg,#1a6eff,#1557cc); color:white; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;"><i class="fas fa-user-plus"></i> {{ t('btn_add_customer') }}</button>
             </div>
         </form>
@@ -498,7 +498,7 @@
                 </select>
             </div>
             <div style="display:flex; gap:10px;">
-                <button type="button" onclick="closeEditCustomerModal()" style="flex:1; padding:11px; background:#f1f5f9; color:#374151; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">❌ {{ t('btn_cancel') }}</button>
+                <button type="button" onclick="closeEditCustomerModal()" style="flex:1; padding:11px; background:#f1f5f9; color:#374151; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">? {{ t('btn_cancel') }}</button>
                 <button type="submit" id="ecmSubmitBtn" style="flex:2; padding:11px; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;"><i class="fas fa-save"></i> Saqlash</button>
             </div>
         </form>
@@ -618,9 +618,9 @@
     // Mijozlarni yuklash
     async function loadCustomers() {
         try {
-            console.log('🔍 Mijozlarni yuklayapti... currentTimeFilter:', currentTimeFilter);
+            console.log('?? Mijozlarni yuklayapti... currentTimeFilter:', currentTimeFilter);
             const url = `/api/customers?time_filter=${currentTimeFilter}`;
-            console.log('📡 API URL:', url);
+            console.log('?? API URL:', url);
             const response = await fetch(url);
             
             if (!response.ok) {
@@ -812,7 +812,7 @@
             button.className = 'store-filter-btn';
             button.setAttribute('data-store-id', store.id.toString());
             button.onclick = () => filterByStore(store.id.toString());
-            button.innerHTML = `🏪 ${store.name}`;
+            button.innerHTML = `?? ${store.name}`;
             storeButtonsContainer.appendChild(button);
         });
     }
@@ -835,11 +835,11 @@
     function deleteCustomer(customerId, customerName) {
         // Faqat admin o'chira oladi
         if (userRole !== 'admin') {
-            alert('⚠️ Mijozni o\'chirish uchun admin huquqi kerak!');
+            alert('?? Mijozni o\'chirish uchun admin huquqi kerak!');
             return;
         }
         
-        console.log('🎯 YANGI deleteCustomer FUNKSIYASI CHAQIRILDI!');
+        console.log('?? YANGI deleteCustomer FUNKSIYASI CHAQIRILDI!');
         console.log('O\'chirish funksiyasi chaqirildi:', customerId, customerName);
         
         currentCustomerId = customerId;
@@ -852,7 +852,7 @@
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         
         if (!modal) {
-            console.error('❌ Modal topilmadi!');
+            console.error('? Modal topilmadi!');
             alert('Xatolik: Modal oyna topilmadi!');
             return;
         }
@@ -864,7 +864,7 @@
         confirmInput.classList.remove('error');
         
         modal.style.display = 'flex';
-        console.log('✅ Modal ochildi');
+        console.log('? Modal ochildi');
         
         // Input'ga fokus - darhol va qaytadan
         confirmInput.focus();
@@ -937,7 +937,7 @@
         // Tugmani o'chirish
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '⏳ O\'chirilmoqda...';
+        confirmBtn.textContent = '? O\'chirilmoqda...';
         
         fetch(`/api/customers/${currentCustomerId}`, {
             method: 'DELETE',
@@ -957,14 +957,14 @@
             } else {
                 alert('Xatolik yuz berdi! Mijozni o\'chirib bo\'lmadi.');
                 confirmBtn.disabled = false;
-                confirmBtn.textContent = '🗑️ O\'chirish';
+                confirmBtn.textContent = '??? O\'chirish';
             }
         })
         .catch(error => {
             console.error('Fetch xatosi:', error);
             alert('Aloqa xatosi! Qaytadan urinib ko\'ring.');
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '🗑️ O\'chirish';
+            confirmBtn.textContent = '??? O\'chirish';
         });
     }
 
@@ -972,7 +972,7 @@
     function showError(message) {
         const loadingState = document.getElementById('loadingState');
         loadingState.innerHTML = `
-            <h3 style="color: #e74c3c;">❌ Xatolik</h3>
+            <h3 style="color: #e74c3c;">? Xatolik</h3>
             <p>${message}</p>
         `;
     }
@@ -1110,7 +1110,7 @@
         }
         const btn = document.getElementById('acmSubmitBtn');
         btn.disabled = true;
-        btn.innerHTML = '⏳ {{ t("adding") }}';
+        btn.innerHTML = '? {{ t("adding") }}';
         document.getElementById('acModalError').style.display = 'none';
         try {
             const res = await fetch('/api/customers', {
@@ -1126,7 +1126,7 @@
             });
             const data = await res.json();
             if (res.ok) {
-                document.getElementById('acModalSuccess').textContent = '✅ {{ t("customer_added_success") }}';
+                document.getElementById('acModalSuccess').textContent = '? {{ t("customer_added_success") }}';
                 document.getElementById('acModalSuccess').style.display = 'block';
                 setTimeout(() => {
                     closeAddCustomerModal();
@@ -1192,7 +1192,7 @@
         const customerId = document.getElementById('ecm_id').value;
         const btn = document.getElementById('ecmSubmitBtn');
         btn.disabled = true;
-        btn.innerHTML = '⏳ Saqlanmoqda...';
+        btn.innerHTML = '? Saqlanmoqda...';
         document.getElementById('ecModalError').style.display = 'none';
         try {
             const res = await fetch(`/api/customers/${customerId}`, {
@@ -1208,7 +1208,7 @@
             });
             const data = await res.json();
             if (res.ok) {
-                document.getElementById('ecModalSuccess').textContent = '✅ Mijoz muvaffaqiyatli yangilandi!';
+                document.getElementById('ecModalSuccess').textContent = '? Mijoz muvaffaqiyatli yangilandi!';
                 document.getElementById('ecModalSuccess').style.display = 'block';
                 setTimeout(() => {
                     closeEditCustomerModal();

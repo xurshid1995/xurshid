@@ -1,21 +1,21 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}📊 Hisobot{% endblock %}
+{% block title %}?? Hisobot{% endblock %}
 
 {% block content %}
 <div>
 
     <!-- Sarlavha + Joylashuv filtri + Sana filtri -->
     <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">📊 Hisobot</h2>
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">?? Hisobot</h2>
         <span style="color:#ddd;">|</span>
         <div id="loc-filter-bar" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
             <button onclick="setLocFilter(null)" id="loc-btn-all" class="hr-btn hr-btn-active">Barchasi</button>
             {% for s in stores %}
-            <button onclick="setLocFilter('store_{{ s.id }}')" id="loc-btn-store-{{ s.id }}" class="hr-btn">🏪 {{ s.name }}</button>
+            <button onclick="setLocFilter('store_{{ s.id }}')" id="loc-btn-store-{{ s.id }}" class="hr-btn">?? {{ s.name }}</button>
             {% endfor %}
             {% for w in warehouses %}
-            <button onclick="setLocFilter('warehouse_{{ w.id }}')" id="loc-btn-wh-{{ w.id }}" class="hr-btn">🏭 {{ w.name }}</button>
+            <button onclick="setLocFilter('warehouse_{{ w.id }}')" id="loc-btn-wh-{{ w.id }}" class="hr-btn">?? {{ w.name }}</button>
             {% endfor %}
         </div>
         <span style="color:#ddd;">|</span>
@@ -24,10 +24,10 @@
             <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
             <button onclick="setPeriod('month')" id="btn-month" class="hr-btn">Bu oy</button>
             <select id="hrYearSelect" class="hr-month-select" onchange="selectHisobotMonthFilter()">
-                <option value="">📆 Yil...</option>
+                <option value="">?? Yil...</option>
             </select>
             <select id="hrMonthSelect" class="hr-month-select" onchange="selectHisobotMonthFilter()">
-                <option value="">📅 Oy...</option>
+                <option value="">?? Oy...</option>
                 <option value="1">Yanvar</option>
                 <option value="2">Fevral</option>
                 <option value="3">Mart</option>
@@ -42,7 +42,7 @@
                 <option value="12">Dekabr</option>
             </select>
             <input type="date" id="dateFrom" class="hr-date" onchange="setPeriod('custom')">
-            <span style="color:#999;">—</span>
+            <span style="color:#999;">�</span>
             <input type="date" id="dateTo" class="hr-date" onchange="setPeriod('custom')">
         </div>
     </div>
@@ -55,7 +55,7 @@
                 <div class="hr-card-icon" style="background:#e8f4ff;">&#x1F6D2;</div>
                 <div class="hr-card-label">Jami savdolar</div>
             </div>
-            <div class="hr-card-val" id="totalSales">—</div>
+            <div class="hr-card-val" id="totalSales">�</div>
             <div class="hr-growth-badge" id="gc-sales-badge"></div>
             <div class="hr-card-prev" id="gc-sales-prev"></div>
         </div>
@@ -64,8 +64,8 @@
                 <div class="hr-card-icon" style="background:#e8fff0;">&#x1F4B5;</div>
                 <div class="hr-card-label">Jami savdo summasi</div>
             </div>
-            <div class="hr-card-val green" id="totalRevenue">—</div>
-            <div class="hr-card-sub" id="totalRevenueUzs">—</div>
+            <div class="hr-card-val green" id="totalRevenue">�</div>
+            <div class="hr-card-sub" id="totalRevenueUzs">�</div>
             <div class="hr-growth-badge" id="gc-revenue-badge"></div>
             <div class="hr-card-prev" id="gc-revenue-prev"></div>
         </div>
@@ -74,8 +74,8 @@
                 <div class="hr-card-icon" style="background:#fff0f0;">&#x1F4B3;</div>
                 <div class="hr-card-label">Nasiya (davr)</div>
             </div>
-            <div class="hr-card-val" style="color:#e53e3e;" id="totalDebt">—</div>
-            <div class="hr-card-sub" id="totalDebtCount">—</div>
+            <div class="hr-card-val" style="color:#e53e3e;" id="totalDebt">�</div>
+            <div class="hr-card-sub" id="totalDebtCount">�</div>
             <div class="hr-growth-badge" id="gc-debt-badge"></div>
             <div class="hr-card-prev" id="gc-debt-prev"></div>
         </div>
@@ -85,8 +85,8 @@
                 <div class="hr-card-icon" style="background:#fff8e8;">&#x1F4C8;</div>
                 <div class="hr-card-label">Jami foyda</div>
             </div>
-            <div class="hr-card-val" style="color:#16a34a;" id="totalProfit">—</div>
-            <div class="hr-card-sub" id="totalProfitUzs">—</div>
+            <div class="hr-card-val" style="color:#16a34a;" id="totalProfit">�</div>
+            <div class="hr-card-sub" id="totalProfitUzs">�</div>
             <div class="hr-growth-badge" id="gc-profit-badge"></div>
             <div class="hr-card-prev" id="gc-profit-prev"></div>
         </div>
@@ -95,8 +95,8 @@
                 <div class="hr-card-icon" style="background:#e8fff0;">&#x1F4B0;</div>
                 <div class="hr-card-label">Sof foyda</div>
             </div>
-            <div class="hr-card-val" style="color:#0f766e;" id="totalNetProfit">—</div>
-            <div class="hr-card-sub" id="totalNetProfitUzs">—</div>
+            <div class="hr-card-val" style="color:#0f766e;" id="totalNetProfit">�</div>
+            <div class="hr-card-sub" id="totalNetProfitUzs">�</div>
             <div class="hr-growth-badge" id="gc-netprofit-badge"></div>
             <div class="hr-card-prev" id="gc-netprofit-prev"></div>
         </div>
@@ -106,8 +106,8 @@
                 <div class="hr-card-icon" style="background:#fff0f0;">&#x1F4B8;</div>
                 <div class="hr-card-label">Jami xarajat</div>
             </div>
-            <div class="hr-card-val" style="color:#e53e3e;" id="totalExpenseCard">—</div>
-            <div class="hr-card-sub" id="totalExpenseCardUzs">—</div>
+            <div class="hr-card-val" style="color:#e53e3e;" id="totalExpenseCard">�</div>
+            <div class="hr-card-sub" id="totalExpenseCardUzs">�</div>
             <div class="hr-growth-badge" id="gc-expense-badge"></div>
             <div class="hr-card-prev" id="gc-expense-prev"></div>
         </div>
@@ -116,8 +116,8 @@
                 <div class="hr-card-icon" style="background:#f0e8ff;">&#x1F4E6;</div>
                 <div class="hr-card-label">Kirim (tan narx)</div>
             </div>
-            <div class="hr-card-val" id="totalCost">—</div>
-            <div class="hr-card-sub" id="totalCostSub">—</div>
+            <div class="hr-card-val" id="totalCost">�</div>
+            <div class="hr-card-sub" id="totalCostSub">�</div>
             <div class="hr-growth-badge" id="gc-cost-badge"></div>
             <div class="hr-card-prev" id="gc-cost-prev"></div>
         </div>
@@ -128,34 +128,34 @@
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
         <button onclick="switchHrTab('payments')" id="hr-tab-btn-payments"
             class="hr-tab-btn hr-tab-active">
-            🏪💳 To'lovlar
+            ???? To'lovlar
         </button>
         <button onclick="switchHrTab('products')" id="hr-tab-btn-products"
             class="hr-tab-btn">
-            🏆 Top mahsulotlar
+            ?? Top mahsulotlar
         </button>
         <button onclick="switchHrTab('topcust')" id="hr-tab-btn-topcust"
             class="hr-tab-btn">
-            👤 Top mijozlar
+            ?? Top mijozlar
         </button>
         <button onclick="switchHrTab('margin')" id="hr-tab-btn-margin"
             class="hr-tab-btn">
-            💹 Foydali mahsulotlar
+            ?? Foydali mahsulotlar
         </button>
         <button onclick="switchHrTab('lowstock')" id="hr-tab-btn-lowstock"
             class="hr-tab-btn">
-            ⚠️ Kam stok (<span id="lowStockCount">0</span>)
+            ?? Kam stok (<span id="lowStockCount">0</span>)
         </button>
         <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
             class="hr-tab-btn">
-            🔴 Qarzlar (<span id="debtListCount">0</span>)
+            ?? Qarzlar (<span id="debtListCount">0</span>)
         </button>
     </div>
 
-    <!-- Tab 1: Joylashuv × To'lov usullari -->
+    <!-- Tab 1: Joylashuv � To'lov usullari -->
     <div id="hr-tab-payments" style="margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">🏪💳 Joylashuv bo'yicha to'lov usullari</div>
+            <div class="hr-section-title">???? Joylashuv bo'yicha to'lov usullari</div>
             <div id="locBreakdownGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div id="locPaymentCombo" style="padding:4px 0;">
                     <div class="hr-loading">Yuklanmoqda...</div>
@@ -171,7 +171,7 @@
     <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                🏆 Top
+                ?? Top
                 <input type="number" id="topNInput" value="10" min="1" max="500"
                     style="width:58px; padding:2px 6px; border:1.5px solid #8b5cf6; border-radius:8px; font-size:13px; font-weight:700; color:#8b5cf6; text-align:center; background:#f5f3ff; outline:none; cursor:pointer;">
                 mahsulot (savdo soni)
@@ -186,7 +186,7 @@
     <div id="hr-tab-topcust" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                👤 Top
+                ?? Top
                 <input type="number" id="topCustNInput" value="10" min="1" max="500"
                     style="width:58px; padding:2px 6px; border:1.5px solid #0ea5e9; border-radius:8px; font-size:13px; font-weight:700; color:#0ea5e9; text-align:center; background:#f0f9ff; outline:none; cursor:pointer;">
                 mijoz (xarid summasi bo'yicha)
@@ -201,7 +201,7 @@
     <div id="hr-tab-margin" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                💹 Eng
+                ?? Eng
                 <input type="number" id="topMarginNInput" value="10" min="1" max="500"
                     style="width:58px; padding:2px 6px; border:1.5px solid #16a34a; border-radius:8px; font-size:13px; font-weight:700; color:#16a34a; text-align:center; background:#f0fdf4; outline:none; cursor:pointer;">
                 foydali mahsulotlar (foyda % bo'yicha)
@@ -215,7 +215,7 @@
     <!-- Tab 6: Kam stok -->
     <div id="hr-tab-lowstock" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">⚠️ Kam qolgan mahsulotlar (<span id="lowStockCountInner">0</span> ta)</div>
+            <div class="hr-section-title">?? Kam qolgan mahsulotlar (<span id="lowStockCountInner">0</span> ta)</div>
             <div id="lowStockList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -225,7 +225,7 @@
     <!-- Tab 7: Qarzli mijozlar -->
     <div id="hr-tab-debts" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title">🔴 Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
+            <div class="hr-section-title">?? Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -465,7 +465,7 @@ async function loadExtra() {
         const up   = isDebt ? pct < 0 : pct > 0;
         const flat = pct === 0;
         const sign  = flat ? '' : (pct > 0 ? '+' : '');
-        const icon  = flat ? '→' : (pct > 0 ? '▲' : '▼');
+        const icon  = flat ? '�' : (pct > 0 ? '^' : '�');
         const verb  = flat ? "o'zgarmadi" : (pct > 0 ? 'oshdi' : 'tushdi');
         const cls   = flat ? 'hr-growth-flat' : up ? 'hr-growth-up' : 'hr-growth-down';
         const prevStr = '';
@@ -509,7 +509,7 @@ async function loadExtra() {
                 <div class="hr-rank">${i+1}</div>
                 <div style="flex:1;min-width:0">
                     <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.name)}</div>
-                    <div style="font-size:11px;color:#888">${escHtml(c.phone)} · ${c.sales_count} ta xarid</div>
+                    <div style="font-size:11px;color:#888">${escHtml(c.phone)} � ${c.sales_count} ta xarid</div>
                     <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:#1a6eff;"></div></div>
                 </div>
                 <div style="text-align:right;padding-left:10px;flex-shrink:0">
@@ -533,7 +533,7 @@ async function loadExtra() {
                 <div class="hr-rank">${i+1}</div>
                 <div style="flex:1;min-width:0">
                     <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
-                    <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ta sotildi · Tushum: ${fmtUsd(p.revenue)}</div>
+                    <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ta sotildi � Tushum: ${fmtUsd(p.revenue)}</div>
                     <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:${color};"></div></div>
                 </div>
                 <div style="text-align:right;padding-left:10px;flex-shrink:0">
@@ -551,11 +551,11 @@ async function loadExtra() {
     const lsInner = document.getElementById('lowStockCountInner');
     if (lsInner) lsInner.textContent = count;
     if (count === 0) {
-        stockDiv.innerHTML = '<div class="hr-loading">✅ Barcha mahsulotlar yetarli</div>';
+        stockDiv.innerHTML = '<div class="hr-loading">? Barcha mahsulotlar yetarli</div>';
     } else {
         stockDiv.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">` +
         data.low_stock.map(s => {
-            const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
+            const icon = s.location_type === 'warehouse' ? '??' : '??';
             const pct = s.min_qty > 0 ? Math.round(s.qty / s.min_qty * 100) : 0;
             const color = s.qty === 0 ? '#dc2626' : s.qty <= s.min_qty * 0.3 ? '#ea580c' : '#ca8a04';
             return `<div style="background:#fff;border:1.5px solid ${color}30;border-radius:10px;padding:12px 14px;">
@@ -567,7 +567,7 @@ async function loadExtra() {
                     </div>
                     <span style="font-weight:700;color:${color};font-size:13px;white-space:nowrap">${s.qty} / ${s.min_qty}</span>
                 </div>
-                ${s.qty === 0 ? '<div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">⛔ Tugagan!</div>' : ''}
+                ${s.qty === 0 ? '<div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">? Tugagan!</div>' : ''}
             </div>`;
         }).join('') + `</div>`;
     }
@@ -592,7 +592,7 @@ let exchangeRate = 12100;
         opt.value = y; opt.textContent = y;
         sel.appendChild(opt);
     }
-    // value bo'sh qolsin — setPeriod() to'g'ri o'rnatadi
+    // value bo'sh qolsin � setPeriod() to'g'ri o'rnatadi
 })();
 
 function selectHisobotMonthFilter() {
@@ -764,10 +764,10 @@ async function loadAll() {
             if (netProfitUzsEl) netProfitUzsEl.textContent = fmtUzs(netProfit);
         }    }
 
-    // --- Joylashuv × To'lov usullari kombinatsiya ---
+    // --- Joylashuv � To'lov usullari kombinatsiya ---
     const comboDiv = document.getElementById('locPaymentCombo');
     const lpb = stats.location_payment_breakdown || [];
-    const pmLabels = { cash: '💵 Naqd', click: '📱 Click', terminal: '💳 Terminal', debt: '📋 Nasiya' };
+    const pmLabels = { cash: '?? Naqd', click: '?? Click', terminal: '?? Terminal', debt: '?? Nasiya' };
     const pmColors = { cash: '#eab308', click: '#f59e0b', terminal: '#f97316', debt: '#ef4444' };
     const pmGradients = {
         cash: 'linear-gradient(90deg,#ca8a04,#facc15)',
@@ -801,10 +801,10 @@ async function loadAll() {
         lpb.map((loc, i) => {
             const pmOrder = ['cash', 'click', 'terminal', 'debt'];
             const pmDefs = {
-                cash:     { label: '💵 Naqd',     color: '#eab308' },
-                click:    { label: '📱 Click',    color: '#f59e0b' },
-                terminal: { label: '💳 Terminal', color: '#f97316' },
-                debt:     { label: '📋 Nasiya',   color: '#ef4444' }
+                cash:     { label: '?? Naqd',     color: '#eab308' },
+                click:    { label: '?? Click',    color: '#f59e0b' },
+                terminal: { label: '?? Terminal', color: '#f97316' },
+                debt:     { label: '?? Nasiya',   color: '#ef4444' }
             };
             const pmSorted = pmOrder.map(k => [k, parseFloat(loc.payments?.[k] || 0)]).filter(([, v]) => v > 0);
             const locTotal = pmSorted.reduce((s, [, v]) => s + v, 0);
@@ -843,7 +843,7 @@ async function loadAll() {
             const expBarW    = (locExpense / maxVal * 100).toFixed(1);
             const extraRows = `
                 <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:8px;border-top:1px dashed #bbf7d0;margin-bottom:7px;">
-                    <span style="font-size:11.5px;color:#166534;width:90px;flex-shrink:0;">📈 Foyda</span>
+                    <span style="font-size:11.5px;color:#166534;width:90px;flex-shrink:0;">?? Foyda</span>
                     <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
                         <div style="width:${profitBarW}%;height:100%;background:#16a34a;border-radius:99px;"></div>
                     </div>
@@ -851,7 +851,7 @@ async function loadAll() {
                     <span style="background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;width:36px;text-align:center;flex-shrink:0;">${profitPct}%</span>
                 </div>
                 ${locExpense > 0 ? `<div style="display:flex;align-items:center;gap:8px;padding-top:4px;border-top:1px dashed #fecaca;">
-                    <span style="font-size:11.5px;color:#b91c1c;width:90px;flex-shrink:0;">💸 Xarajat</span>
+                    <span style="font-size:11.5px;color:#b91c1c;width:90px;flex-shrink:0;">?? Xarajat</span>
                     <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
                         <div style="width:${expBarW}%;height:100%;background:#b91c1c;border-radius:99px;"></div>
                     </div>
@@ -892,10 +892,10 @@ async function loadAll() {
         const totalRevenue = totalCash + totalClick + totalTerminal + totalDebt;
 
         const pmEntries = [
-            { key: 'cash', label: '💵 Naqd', color: '#eab308', val: totalCash },
-            { key: 'click', label: '📱 Click', color: '#f59e0b', val: totalClick },
-            { key: 'terminal', label: '💳 Terminal', color: '#f97316', val: totalTerminal },
-            { key: 'debt', label: '📋 Nasiya', color: '#ef4444', val: totalDebt },
+            { key: 'cash', label: '?? Naqd', color: '#eab308', val: totalCash },
+            { key: 'click', label: '?? Click', color: '#f59e0b', val: totalClick },
+            { key: 'terminal', label: '?? Terminal', color: '#f97316', val: totalTerminal },
+            { key: 'debt', label: '?? Nasiya', color: '#ef4444', val: totalDebt },
         ].filter(e => e.val > 0);
 
         const maxVal = Math.max(...pmEntries.map(e => e.val), totalProfit, totalExpense, 0.01);
@@ -905,7 +905,7 @@ async function loadAll() {
         <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px;">Umumiy ko'rsatkichlar</div>
         <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:12px;color:#1a6eff;font-weight:600;">💰 Jami tushum</span>
+                <span style="font-size:12px;color:#1a6eff;font-weight:600;">?? Jami tushum</span>
                 <span style="font-size:15px;font-weight:800;color:#1a6eff;">${fmtUsd(totalRevenue)}</span>
             </div>
             <div style="height:14px;border-radius:99px;overflow:hidden;background:#e5e7eb;">
@@ -977,7 +977,7 @@ async function loadAll() {
     const debtInner = document.getElementById('debtListCountInner');
     if (debtInner) debtInner.textContent = debtCustCount;
     if (debts.length === 0) {
-        debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
+        debtDiv.innerHTML = '<div class="hr-loading">? Qarz yo\'q</div>';
     } else {
         const maxDebt = parseFloat(debts[0]?.total_debt || 1);
         debtDiv.innerHTML = debts.map((d, i) => {

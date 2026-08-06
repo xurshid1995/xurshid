@@ -1,14 +1,14 @@
-Ôªø{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ t('heading_add_product') }} - DOKON{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <style>
-/* ‚îÄ‚îÄ Add Product Page ‚îÄ‚îÄ */
+/* ¶¶ Add Product Page ¶¶ */
 .ap-page {
     padding: 24px 24px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -207,7 +207,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
     <!-- Header -->
     <div class="ap-header">
         <h1 class="ap-title"><i class="fas fa-box-open"></i> {{ t('heading_add_product') }}</h1>
-        <a href="{{ url_for('add_product') }}" class="ps-back-btn">‚Üê Orqaga</a>
+        <a href="{{ url_for('add_product') }}" class="ps-back-btn">ã Orqaga</a>
     </div>
 
     <!-- Two panels -->
@@ -302,7 +302,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             <label class="ap-label" for="category_id">Kategoriya</label>
                             <div style="display:flex; gap:6px; align-items:center;">
                                 <select id="category_id" name="category_id" class="ap-input" style="flex:1;">
-                                    <option value="">‚Äî Kategoriyasiz ‚Äî</option>
+                                    <option value="">ó Kategoriyasiz ó</option>
                                 </select>
                                 <button type="button" onclick="openCategorySettingsModal()"
                                         style="padding:8px 12px; background:#1a6eff; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px; white-space:nowrap;" title="Kategoriya sozlamalari">
@@ -317,10 +317,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 <!-- Header -->
                                 <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid #e2e8f0;">
                                     <div style="display:flex;align-items:center;gap:10px;">
-                                        <span style="font-size:22px;">‚öôÔ∏è</span>
+                                        <span style="font-size:22px;">??</span>
                                         <span style="font-weight:700;font-size:17px;color:#1e293b;">Kategoriya sozlamalari</span>
                                     </div>
-                                    <button onclick="closeCategorySettingsModal()" style="background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1;">‚úï</button>
+                                    <button onclick="closeCategorySettingsModal()" style="background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1;">?</button>
                                 </div>
                                 <!-- Kategoriyalar ro'yxati -->
                                 <div id="catSettingsList" style="flex:1;overflow-y:auto;padding:12px 16px;"></div>
@@ -334,7 +334,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                         <button type="button" id="catConfirmYesBtn" disabled
                                             onclick="catConfirmExecute()"
                                             style="flex:1;padding:9px;background:#ef4444;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;opacity:0.4;" id="catConfirmYesBtn">
-                                            ‚úì Tasdiqlash
+                                            ? Tasdiqlash
                                         </button>
                                         <button type="button" onclick="catConfirmCancel()"
                                             style="flex:1;padding:9px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
@@ -390,7 +390,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 <input type="file" id="product_image_camera" accept="image/*" capture="environment" style="display:none;" onchange="previewProductImage(this)">
                                 <div id="imagePreviewWrap" style="display:none; position:relative;">
                                     <img id="imagePreview" src="" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;">
-                                    <button type="button" onclick="clearProductImage()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:#ef4444;color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‚úï</button>
+                                    <button type="button" onclick="clearProductImage()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:#ef4444;color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">?</button>
                                 </div>
                             </div>
                         </div>
@@ -441,7 +441,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     <!-- Qo'shish tugmasi -->
                     <div style="margin-top:14px;">
                         <button type="button" id="addToListBtn" onclick="addToTempList()" class="ap-btn-primary">
-                            ‚ûï {{ t('ap_add_to_list') }}
+                            ? {{ t('ap_add_to_list') }}
                         </button>
                     </div>
                 </form>
@@ -460,17 +460,17 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 </div>
                 <div id="tempProductsList">
                     <div class="ap-empty">
-                        <div class="ap-empty-icon">üìã</div>
+                        <div class="ap-empty-icon">??</div>
                         <p>{{ t('ap_empty_state') }}</p>
                         <p>{{ t('ap_empty_state_hint') }}</p>
                     </div>
                 </div>
                 <div class="ap-final-actions" id="finalActions" style="display:none;">
                     <button onclick="clearTempList()" class="ap-btn-danger">
-                        üóëÔ∏è {{ t('ap_delete_all') }}
+                        ??? {{ t('ap_delete_all') }}
                     </button>
                     <button id="btnSaveAll" onclick="submitAllProducts()" class="ap-btn-success">
-                        üíæ {{ t('ap_save_all') }}
+                        ?? {{ t('ap_save_all') }}
                     </button>
                 </div>
             </div>
@@ -485,15 +485,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
     <div style="background:#fff;border-radius:18px;padding:24px 20px 18px;width:min(320px,92vw);box-shadow:0 12px 48px #0009;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
             <span style="font-weight:700;font-size:16px;color:#1e293b;">Rasm qo'shish</span>
-            <button type="button" onclick="closeImageSourceModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">‚úï</button>
+            <button type="button" onclick="closeImageSourceModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">?</button>
         </div>
         <div style="display:flex;gap:12px;">
             <button type="button" onclick="chooseCamera()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 10px;background:#f0f9ff;border:2px solid #38bdf8;border-radius:14px;cursor:pointer;font-size:13px;font-weight:600;color:#0369a1;">
-                <span style="font-size:36px;">üì∑</span>
+                <span style="font-size:36px;">??</span>
                 Kamera
             </button>
             <button type="button" onclick="chooseGallery()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 10px;background:#f0fdf4;border:2px solid #4ade80;border-radius:14px;cursor:pointer;font-size:13px;font-weight:600;color:#166534;">
-                <span style="font-size:36px;">üñºÔ∏è</span>
+                <span style="font-size:36px;">???</span>
                 Galereya
             </button>
         </div>
@@ -504,8 +504,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
     <div style="background:#fff;border-radius:16px;padding:16px;width:min(520px,96vw);max-height:95vh;display:flex;flex-direction:column;box-shadow:0 12px 48px #0008;">
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
-            <span style="font-weight:700;font-size:15px;">‚úÇÔ∏è Rasmni qirqish</span>
-            <button onclick="cancelCrop()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">‚úï</button>
+            <span style="font-weight:700;font-size:15px;">?? Rasmni qirqish</span>
+            <button onclick="cancelCrop()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">?</button>
         </div>
         <!-- Crop area -->
         <div style="flex:1;overflow:hidden;border-radius:10px;background:#1e293b;min-height:0;">
@@ -514,16 +514,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
         <!-- Controls -->
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 4px;flex-shrink:0;">
             <button onclick="_cropperInstance&&_cropperInstance.zoom(0.1)" title="Kattalashtirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">+</button>
-            <button onclick="_cropperInstance&&_cropperInstance.zoom(-0.1)" title="Kichraytirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;">‚àí</button>
-            <button onclick="_cropperInstance&&_cropperInstance.rotate(-90)" title="Chapga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">‚Ü∫</button>
-            <button onclick="_cropperInstance&&_cropperInstance.rotate(90)" title="O'ngga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">‚Üª</button>
-            <button onclick="_cropperInstance&&_cropperInstance.reset()" title="Qayta boshlash" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;">‚Ü∫‚Ü∫</button>
+            <button onclick="_cropperInstance&&_cropperInstance.zoom(-0.1)" title="Kichraytirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;">-</button>
+            <button onclick="_cropperInstance&&_cropperInstance.rotate(-90)" title="Chapga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">?</button>
+            <button onclick="_cropperInstance&&_cropperInstance.rotate(90)" title="O'ngga aylantirish" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:16px;">?</button>
+            <button onclick="_cropperInstance&&_cropperInstance.reset()" title="Qayta boshlash" style="width:38px;height:38px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;">??</button>
         </div>
-        <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;text-align:center;flex-shrink:0;">Siljiting ‚Ä¢ Scroll bilan zoom ‚Ä¢ Kvadrat doim 800√ó800 bo'lib saqlanadi</p>
+        <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;text-align:center;flex-shrink:0;">Siljiting ï Scroll bilan zoom ï Kvadrat doim 800◊800 bo'lib saqlanadi</p>
         <!-- Action buttons -->
         <div style="display:flex;gap:10px;flex-shrink:0;">
             <button onclick="cancelCrop()" style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:14px;font-weight:600;">Bekor</button>
-            <button onclick="confirmCrop()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">‚úì Tasdiqlash</button>
+            <button onclick="confirmCrop()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">? Tasdiqlash</button>
         </div>
     </div>
 </div>
@@ -541,7 +541,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function checkXLSXLoaded() {
             if (typeof XLSX !== 'undefined') {
                 xlsxLoaded = true;
-                console.log('‚úÖ XLSX kutubxonasi muvaffaqiyatli yuklandi');
+                console.log('? XLSX kutubxonasi muvaffaqiyatli yuklandi');
                 return true;
             }
             return false;
@@ -555,7 +555,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 xlsxLoaded = checkXLSXLoaded();
             };
             script.onerror = function() {
-                console.error('‚ùå Backup XLSX kutubxonasi ham yuklanmadi');
+                console.error('? Backup XLSX kutubxonasi ham yuklanmadi');
             };
             document.head.appendChild(script);
         }
@@ -564,7 +564,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         window.addEventListener('load', function() {
             setTimeout(function() {
                 if (!checkXLSXLoaded()) {
-                    console.warn('‚ö†Ô∏è XLSX kutubxonasi yuklanmagan, backup yuklash...');
+                    console.warn('?? XLSX kutubxonasi yuklanmagan, backup yuklash...');
                     loadXLSXBackup();
                 }
             }, 1000);
@@ -663,7 +663,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     currentPendingBatchId = data.batch.id;
                     tempProducts = data.batch.items;
                     updateTempList();
-                    console.log(`‚úÖ Pending batch yuklandi: ${tempProducts.length} ta mahsulot`);
+                    console.log(`? Pending batch yuklandi: ${tempProducts.length} ta mahsulot`);
                 }
             } catch (e) {
                 console.warn('Pending batch yuklanmadi:', e);
@@ -761,7 +761,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 // Faylni yuklash
                 XLSX.writeFile(wb, 'mahsulot_import_namuna.xlsx');
                 
-                console.log('‚úÖ Excel namuna fayl yuklandi');
+                console.log('? Excel namuna fayl yuklandi');
             } catch (error) {
                 console.error('Excel namuna yaratishda xatolik:', error);
                 alert(APLANG.excel_template_error + '\n\n' + error.message);
@@ -778,12 +778,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 return;
             }
 
-            console.log('üìÅ Excel fayl tanlandi:', file.name);
+            console.log('?? Excel fayl tanlandi:', file.name);
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    console.log('üìñ Excel fayl o\'qilmoqda...');
+                    console.log('?? Excel fayl o\'qilmoqda...');
                     
                     // SheetJS kutubxonasi orqali Excel faylni o'qish
                     const data = new Uint8Array(e.target.result);
@@ -798,7 +798,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     const worksheet = workbook.Sheets[firstSheetName];
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                    console.log('üìä O\'qilgan ma\'lumotlar:', jsonData);
+                    console.log('?? O\'qilgan ma\'lumotlar:', jsonData);
 
                     if (jsonData.length === 0) {
                         alert(APLANG.excel_no_data);
@@ -824,8 +824,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             let errorCount = 0;
             const errors = [];
 
-            console.log('üìä Excel ma\'lumotlari:', data);
-            console.log('üìä Jami qatorlar soni:', data.length);
+            console.log('?? Excel ma\'lumotlari:', data);
+            console.log('?? Jami qatorlar soni:', data.length);
             
             // Joylashuv tanlanganini tekshirish
             const locationSelect = document.getElementById('location');
@@ -834,13 +834,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 return;
             }
             
-            console.log('üìç Tanlangan joylashuv:', locationSelect.options[locationSelect.selectedIndex].textContent);
+            console.log('?? Tanlangan joylashuv:', locationSelect.options[locationSelect.selectedIndex].textContent);
 
             data.forEach((row, index) => {
                 try {
                     // Excel qatoridagi ustun nomlarini ko'rsatish
-                    console.log(`üìã Qator ${index + 1} ustunlari:`, Object.keys(row));
-                    console.log(`üìã Qator ${index + 1} ma'lumotlari:`, row);
+                    console.log(`?? Qator ${index + 1} ustunlari:`, Object.keys(row));
+                    console.log(`?? Qator ${index + 1} ma'lumotlari:`, row);
                     
                     // Excel ustun nomlarini tekshirish - sizning fayl formatiga mos
                     const name = row['Mahsulot nomi'] || row['mahsulot nomi'] || row['Nomi'] || row['nomi'];
@@ -863,9 +863,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     const costPrice = parseFloat(costPriceRaw) || 0;
                     const sellPrice = parseFloat(sellPriceRaw) || 0;
                     
-                    console.log(`ÔøΩ Qator ${index + 2} ustunlari:`, Object.keys(row));
-                    console.log(`üìù Olingan ma'lumotlar: Nomi="${name}", Barcode="${barcode}", Miqdor=${quantity}, MinStock=${minStock}, TanNarx=${costPrice}, SotishNarx=${sellPrice}`);
-                    console.log(`üí∞ Hisoblangan qiymatlar: Foyda=${sellPrice - costPrice}, UmumiyQiymat=${costPrice * quantity}`);
+                    console.log(`? Qator ${index + 2} ustunlari:`, Object.keys(row));
+                    console.log(`?? Olingan ma'lumotlar: Nomi="${name}", Barcode="${barcode}", Miqdor=${quantity}, MinStock=${minStock}, TanNarx=${costPrice}, SotishNarx=${sellPrice}`);
+                    console.log(`?? Hisoblangan qiymatlar: Foyda=${sellPrice - costPrice}, UmumiyQiymat=${costPrice * quantity}`);
 
                     // Majburiy maydonlarni tekshirish
                     if (!name || name.trim() === '') {
@@ -921,7 +921,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         locationType = dataType || 'store'; // default: store
                     }
                     
-                    console.log(`üìç Joylashuv ma'lumotlari: ${locationName} (${locationType}) - ID: ${locationId}`);
+                    console.log(`?? Joylashuv ma'lumotlari: ${locationName} (${locationType}) - ID: ${locationId}`);
 
                     // Vaqtinchalik mahsulotlar ro'yxatiga qo'shish
                     const tempProduct = {
@@ -944,10 +944,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     tempProducts.push(tempProduct);
                     successCount++;
                     
-                    console.log(`‚úÖ Import qilindi: ${name} - ${quantity} ta`);
+                    console.log(`? Import qilindi: ${name} - ${quantity} ta`);
 
                 } catch (error) {
-                    console.error(`‚ùå Import xatoligi qator ${index + 2}:`, error);
+                    console.error(`? Import xatoligi qator ${index + 2}:`, error);
                     errors.push(`Qator ${index + 2}: ${error.message}`);
                     errorCount++;
                 }
@@ -956,14 +956,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Natijalarni ko'rsatish
             const locationName = document.getElementById('location').options[document.getElementById('location').selectedIndex].textContent;
             
-            let message = `üìä Excel import natijasi:\n\n`;
-            message += `üìç Joylashuv: ${locationName}\n`;
-            message += `üìÅ Jami qatorlar: ${data.length}\n`;
-            message += `‚úÖ Muvaffaqiyatli import: ${successCount} ta mahsulot\n`;
+            let message = `?? Excel import natijasi:\n\n`;
+            message += `?? Joylashuv: ${locationName}\n`;
+            message += `?? Jami qatorlar: ${data.length}\n`;
+            message += `? Muvaffaqiyatli import: ${successCount} ta mahsulot\n`;
             
             if (errorCount > 0) {
-                message += `‚ùå Xatoliklar: ${errorCount} ta\n\n`;
-                message += `üìã Talab qilinadigan ustunlar:\n`;
+                message += `? Xatoliklar: ${errorCount} ta\n\n`;
+                message += `?? Talab qilinadigan ustunlar:\n`;
                 message += `1. Mahsulot nomi (majburiy)\n`;
                 message += `2. Barcode\n`;
                 message += `3. O'lchov birligi (dona/litr, default: dona)\n`;
@@ -977,14 +977,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     }
                 }
             } else if (successCount === 0) {
-                message += `\n‚ö†Ô∏è Hech qanday mahsulot import qilinmadi.\n`;
+                message += `\n?? Hech qanday mahsulot import qilinmadi.\n`;
                 message += `Excel fayldagi ustun nomlarini tekshiring:\n`;
-                message += `‚Ä¢ Mahsulot nomi\n`;
-                message += `‚Ä¢ Barcode\n`;
-                message += `‚Ä¢ O'lchov birligi (dona/litr)\n`;
-                message += `‚Ä¢ Miqdor\n`;
-                message += `‚Ä¢ Tan narx\n`;
-                message += `‚Ä¢ Sotish narxi`;
+                message += `ï Mahsulot nomi\n`;
+                message += `ï Barcode\n`;
+                message += `ï O'lchov birligi (dona/litr)\n`;
+                message += `ï Miqdor\n`;
+                message += `ï Tan narx\n`;
+                message += `ï Sotish narxi`;
             }
 
             alert(message);
@@ -1111,7 +1111,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                         border-radius: 6px;
                                         display: inline-block;
                                     ">
-                                        ‚ö†Ô∏è ${data.product.name} - ${APLANG.barcode_exists_in}
+                                        ?? ${data.product.name} - ${APLANG.barcode_exists_in}
                                     </div>
                                 `;
                             }
@@ -1408,7 +1408,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (!selectedLocation) {
                 resultDiv.innerHTML = `
                     <div style="padding: 15px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 1rem;">
-                        <strong>‚ö†Ô∏è Diqqat!</strong> Iltimos, avval joylashuvni tanlang
+                        <strong>?? Diqqat!</strong> Iltimos, avval joylashuvni tanlang
                     </div>
                 `;
                 resultDiv.style.display = 'block';
@@ -1418,7 +1418,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Loading ko'rsatish
             resultDiv.innerHTML = `
                 <div style="padding: 15px; background: #e7f3ff; color: #0066cc; border-radius: 4px; font-size: 1rem; text-align: center;">
-                    <strong>üîç Qidirilmoqda...</strong>
+                    <strong>?? Qidirilmoqda...</strong>
                 </div>
             `;
             resultDiv.style.display = 'block';
@@ -1432,38 +1432,38 @@ optgroup option { font-weight: normal; color: #1e293b; }
         // Asl qidiruv funksiyasi
         function performSearch(productName, selectedLocation, locationSelect, resultDiv) {
             console.log('=== QIDIRUV BOSHLANDI ===');
-            console.log('üìù Mahsulot nomi:', productName);
-            console.log('üìç Joylashuv select value:', selectedLocation);
+            console.log('?? Mahsulot nomi:', productName);
+            console.log('?? Joylashuv select value:', selectedLocation);
             console.log('=== QIDIRUV BOSHLANDI ===');
-            console.log('üìù Mahsulot nomi:', productName);
-            console.log('üìç Joylashuv select value:', selectedLocation);
+            console.log('?? Mahsulot nomi:', productName);
+            console.log('?? Joylashuv select value:', selectedLocation);
             
-            console.log(`üîç "${productName}" qidirilmoqda...`);
-            console.log(`üìç Tanlangan joylashuv: "${selectedLocation}"`);
+            console.log(`?? "${productName}" qidirilmoqda...`);
+            console.log(`?? Tanlangan joylashuv: "${selectedLocation}"`);
             
             fetch('/api/search-product/' + encodeURIComponent(productName))
                 .then(response => {
-                    console.log('üì° API response status:', response.status);
-                    console.log('üì° API response ok:', response.ok);
+                    console.log('?? API response status:', response.status);
+                    console.log('?? API response ok:', response.ok);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('üì¶ API javob:', data);
-                    console.log('üì¶ data.exists:', data.exists);
-                    console.log('üì¶ data.products:', data.products);
+                    console.log('?? API javob:', data);
+                    console.log('?? data.exists:', data.exists);
+                    console.log('?? data.products:', data.products);
                     
                     if (data.exists && data.products) {
-                        console.log(`üì¶ ${data.products.length} ta mahsulot topildi`);
+                        console.log(`?? ${data.products.length} ta mahsulot topildi`);
                         
                         let html = '';
                         
                         // Har bir topilgan mahsulot uchun
                         data.products.forEach(productData => {
-                            console.log('üì¶ Product data:', productData);
-                            console.log('üè∑Ô∏è Barcode:', productData.product.barcode);
+                            console.log('?? Product data:', productData);
+                            console.log('??? Barcode:', productData.product.barcode);
                             
                             // Tanlangan joylashuvdagi miqdorni topish
                             let quantityText = 'Miqdor: 0 ta';
@@ -1482,22 +1482,22 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                     locationId = parseInt(selectedLocation.replace('store_', ''));
                                 }
                                 
-                                console.log(`üîç Qidiruv: type="${locationType}", id="${locationId}"`);
-                                console.log(`üìç Joylashuvlar:`, productData.locations);
+                                console.log(`?? Qidiruv: type="${locationType}", id="${locationId}"`);
+                                console.log(`?? Joylashuvlar:`, productData.locations);
                                 
                                 const locationData = productData.locations.find(loc => {
-                                    console.log(`üÜö Taqqoslash: loc.type="${loc.type}", loc.id="${loc.id}"`);
+                                    console.log(`?? Taqqoslash: loc.type="${loc.type}", loc.id="${loc.id}"`);
                                     return loc.id == locationId && loc.type === locationType;
                                 });
                                 
                                 if (locationData) {
                                     quantityText = `Mavjud (${locationData.quantity} ta)`;
                                     quantityBgColor = '#28a745';
-                                    console.log(`‚úÖ Topildi: ${locationData.quantity} ta`);
+                                    console.log(`? Topildi: ${locationData.quantity} ta`);
                                 } else {
                                     quantityText = 'Yangi';
                                     quantityBgColor = '#ffc107';
-                                    console.log(`‚ùå Topilmadi, yangi mahsulot`);
+                                    console.log(`? Topilmadi, yangi mahsulot`);
                                 }
                             }
                             
@@ -1516,7 +1516,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                         <span style="color: #dc3545; font-weight: 600;">Ortacha: $${productData.product.cost_price.toFixed(2)}</span> | 
                                         <span style="color: #28a745; font-weight: 600;">Sotish: $${productData.product.sell_price.toFixed(2)}</span> | 
                                         ${locationQuantity}
-                                        <span style="color: #007bff; float: right; font-size: 1.1rem;">‚Üí</span>
+                                        <span style="color: #007bff; float: right; font-size: 1.1rem;">õ</span>
                                     </div>
                                 </div>
                             `;
@@ -1524,9 +1524,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         
                         resultDiv.innerHTML = html;
                         resultDiv.style.display = 'block';
-                        console.log('‚úÖ HTML yaratildi va ko\'rsatildi');
+                        console.log('? HTML yaratildi va ko\'rsatildi');
                     } else {
-                        console.log('‚ö†Ô∏è Mahsulot topilmadi yoki data.exists false');
+                        console.log('?? Mahsulot topilmadi yoki data.exists false');
                         resultDiv.innerHTML = `
                             <div style="padding: 15px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 1rem;">
                                 <strong style="font-size: 1.1rem;">Yangi mahsulot</strong> - Bu mahsulot hali mavjud emas
@@ -1536,8 +1536,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     }
                 })
                 .catch(error => {
-                    console.error('‚ùå Qidiruv xatoligi:', error);
-                    console.error('‚ùå Error stack:', error.stack);
+                    console.error('? Qidiruv xatoligi:', error);
+                    console.error('? Error stack:', error.stack);
                     resultDiv.innerHTML = `
                         <div style="padding: 15px; background: #f8d7da; color: #721c24; border-radius: 4px; font-size: 1rem;">
                             <strong style="font-size: 1.1rem;">Xatolik</strong> - ${error.message || 'Qidiruv amalga oshmadi'}
@@ -1556,7 +1556,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function saveCostPriceOnFocus() {
             // Focus qilganda eski qiymatni tozalash - yangi kiritish uchun tayyorgarlik
             userEnteredCostPrice = null;
-            console.log(`üéØ Tan narx maydoniga kirildi - yangi qiymat kutilmoqda`);
+            console.log(`?? Tan narx maydoniga kirildi - yangi qiymat kutilmoqda`);
         }
         
         // Yangi kiritilgan tan narxni "Asl tan narx" maydoniga ko'rsatish
@@ -1569,14 +1569,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 // Faqat yangi mahsulot uchun - oddiy ko'rsatish
                 if (!selectedProductData || !selectedProductData.lastBatchCost) {
                     originalCostField.value = `$${costPrice.toFixed(2)}`;
-                    console.log(`üè∑Ô∏è Tan narx o'rnatildi: $${costPrice.toFixed(2)}`);
+                    console.log(`??? Tan narx o'rnatildi: $${costPrice.toFixed(2)}`);
                 }
                 // Mavjud mahsulot uchun comparePrices() funksiyasi o'zgartirib beradi
             }
         }
         
         function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode, categoryId, imageUrl) {
-            console.log('‚úÖ selectProduct chaqirildi:');
+            console.log('? selectProduct chaqirildi:');
             console.log('   name:', name);
             console.log('   barcode:', barcode);
             console.log('   categoryId:', categoryId);
@@ -1634,7 +1634,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 autoGenerateBtn.style.cursor = 'not-allowed';
                 autoGenerateBtn.title = 'Barcode mavjud - generatsiya mumkin emas';
                 
-                console.log('üîí Barcode mavjud - readonly, Auto disabled');
+                console.log('?? Barcode mavjud - readonly, Auto disabled');
             } else {
                 barcodeInput.removeAttribute('readonly');
                 barcodeInput.style.backgroundColor = '#fff'; // Oq fon
@@ -1645,10 +1645,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 autoGenerateBtn.style.cursor = 'pointer';
                 autoGenerateBtn.title = 'Avtomatik barcode yaratish';
                 
-                console.log('‚úèÔ∏è Barcode yo\'q - yozish mumkin, Auto enabled');
+                console.log('?? Barcode yo\'q - yozish mumkin, Auto enabled');
             }
             
-            console.log('üìù Barcode maydoniga yozildi:', barcodeInput.value);
+            console.log('?? Barcode maydoniga yozildi:', barcodeInput.value);
             
             // Asl tan narxni ko'rsatish (oxirgi partiya narxi)
             const originalCostField = document.getElementById('original_cost');
@@ -1839,7 +1839,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const finalCostPrice = costPriceFromField; // Tan narx maydonidagi qiymat (ortacha)
             const finalLastBatchCost = userEnteredCostPrice || costPriceFromField; // Foydalanuvchi kiritgan qiymat
             
-            console.log(`üìä To'g'ri ajratish:`);
+            console.log(`?? To'g'ri ajratish:`);
             console.log(`   Tan narx (cost_price - ortacha): $${finalCostPrice}`);
             console.log(`   Asl tan narx (last_batch_cost - kiritilgan): $${finalLastBatchCost}`);
             
@@ -1897,7 +1897,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const locationName = getLocationName(location);
             const locationType = getLocationType(location);
             
-            console.log('üìç addToTempList joylashuv ma\'lumotlari:');
+            console.log('?? addToTempList joylashuv ma\'lumotlari:');
             console.log('  Location value:', location);
             console.log('  Location name:', locationName);
             console.log('  Location type:', locationType);
@@ -1923,7 +1923,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 _imageFile: imageFile
             };
             
-            console.log('üì¶ Yaratilgan mahsulot:', product);
+            console.log('?? Yaratilgan mahsulot:', product);
             console.log(`   cost_price (ortacha): $${product.cost_price}`);
             console.log(`   last_batch_cost (kiritilgan): $${product.last_batch_cost}`);
             
@@ -1941,7 +1941,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (tempProducts.length === 0) {
                 listContainer.innerHTML = `
                     <div class="empty-state">
-                        <p>üéØ Hozircha hech qanday mahsulot qo'shilmagan</p>
+                        <p>?? Hozircha hech qanday mahsulot qo'shilmagan</p>
                         <p>Chap paneldagi formani to'ldiring va "Ro'yxatga qo'shish" tugmasini bosing</p>
                     </div>
                 `;
@@ -1977,10 +1977,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             <td style="text-align: center;">
                                 <button onclick="editTempProduct(${product.id})" 
                                         style="background: transparent; color: #555; border: none; padding: 4px 6px; cursor: pointer; font-size: 16px; margin-right: 2px;"
-                                        title="Tahrirlash">‚úèÔ∏è</button>
+                                        title="Tahrirlash">??</button>
                                 <button onclick="removeFromTempList(${product.id})" 
                                         style="background: transparent; color: #e53e3e; border: none; padding: 4px 6px; cursor: pointer; font-size: 16px; font-weight: bold;"
-                                        title="O'chirish">‚úï</button>
+                                        title="O'chirish">?</button>
                             </td>
                         </tr>
                     `;
@@ -2092,7 +2092,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 });
             };
             reader.readAsDataURL(file);
-            // input ni tozalash ‚Äî qayta xuddi faylni tanla—Å–∞ ham trigger bo'lsin
+            // input ni tozalash ó qayta xuddi faylni tanla?? ham trigger bo'lsin
             input.value = '';
         }
 
@@ -2161,7 +2161,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Global o'zgaruvchilarni tozalash
             selectedProductData = null;
             userEnteredCostPrice = null;
-            console.log('üßπ Forma tozalandi (joylashuv saqlab qolindi)');
+            console.log('?? Forma tozalandi (joylashuv saqlab qolindi)');
             
             // Fokusni mahsulot nomi maydoniga qaytarish
             setTimeout(() => {
@@ -2188,7 +2188,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 .filter(p => p.barcode && p.barcode.trim() !== '')
                 .map(p => p.barcode.trim());
             
-            console.log('üìã Vaqtinchalik ro\'yxatdagi barcode\'lar:', tempBarcodes);
+            console.log('?? Vaqtinchalik ro\'yxatdagi barcode\'lar:', tempBarcodes);
             
             // API ga vaqtinchalik barcode'larni ham yuborish
             fetch('/api/next-barcode', {
@@ -2217,16 +2217,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             barcodeInput.style.background = 'white';
                         }, 500);
                         
-                        console.log('‚úÖ Avtomatik barcode yaratildi:', barcode);
+                        console.log('? Avtomatik barcode yaratildi:', barcode);
                         if (data.is_gap_filled) {
-                            console.log('üîç O\'rtada qolgan barcode to\'ldirildi');
+                            console.log('?? O\'rtada qolgan barcode to\'ldirildi');
                         }
                         if (data.max_barcode) {
-                            console.log('üìä Eng katta barcode:', data.max_barcode);
+                            console.log('?? Eng katta barcode:', data.max_barcode);
                         }
-                        console.log('üìà Jami ishlatilgan barcode:', data.total_used);
+                        console.log('?? Jami ishlatilgan barcode:', data.total_used);
                         if (data.temp_barcodes_count > 0) {
-                            console.log('üì¶ Vaqtinchalik ro\'yxatda:', data.temp_barcodes_count, 'ta barcode');
+                            console.log('?? Vaqtinchalik ro\'yxatda:', data.temp_barcodes_count, 'ta barcode');
                         }
                     } else {
                         alert(APLANG.barcode_generate_error + ' ' + data.error);
@@ -2236,7 +2236,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     }
                 })
                 .catch(error => {
-                    console.error('‚ùå API xatolik:', error);
+                    console.error('? API xatolik:', error);
                     alert(APLANG.barcode_generate_error);
                     barcodeInput.value = '';
                     barcodeInput.disabled = false;
@@ -2282,14 +2282,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Double-submit himoyasi
             const saveBtn = document.getElementById('btnSaveAll');
             if (saveBtn && saveBtn.disabled) return;
-            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '‚è≥ Saqlanmoqda...'; }
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '? Saqlanmoqda...'; }
             
             const requestBody = {
                 products: tempProducts.map(product => {
                     // Location formatini parsing qilish
                     let locationType, locationId;
                     
-                    console.log('üîç Product location ma\'lumotlari:', {
+                    console.log('?? Product location ma\'lumotlari:', {
                         location: product.location,
                         location_id: product.location_id,
                         location_type: product.location_type
@@ -2306,7 +2306,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         } else {
                             locationType = product.location_type; // to'g'ridan-to'g'ri
                         }
-                        console.log('‚úÖ Excel location parsed:', {locationType, locationId});
+                        console.log('? Excel location parsed:', {locationType, locationId});
                     }
                     // Qo'lda qo'shish: product.location "warehouse_1" yoki "store_2" formatida
                     else if (product.location && product.location.includes('_')) {
@@ -2314,9 +2314,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         locationType = locationParts[0]; // "warehouse" yoki "store"
                         locationId = parseInt(locationParts[1]); // ID raqami
                         
-                        console.log('‚úÖ Manual location parsed:', {locationType, locationId});
+                        console.log('? Manual location parsed:', {locationType, locationId});
                     } else {
-                        console.error('‚ùå Location format noto\'g\'ri:', product);
+                        console.error('? Location format noto\'g\'ri:', product);
                         // Fallback
                         locationType = 'store';
                         locationId = parseInt(product.location) || 0;
@@ -2336,13 +2336,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         categoryId: product.categoryId || null
                     };
                     
-                    console.log('üì¶ API ga yuborilayotgan mahsulot:', productData);
+                    console.log('?? API ga yuborilayotgan mahsulot:', productData);
                     
                     return productData;
                 })
             };
             
-            console.log('üì° API ga yuborilayotgan request:', requestBody);
+            console.log('?? API ga yuborilayotgan request:', requestBody);
             
             fetch('/api/batch-products', {
                 method: 'POST',
@@ -2371,16 +2371,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     deletePendingBatch();
                     tempProducts = [];
                     updateTempList();
-                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'üíæ ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '?? ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
                 } else {
                     alert(data.error || APLANG.save_error);
-                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'üíæ ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '?? ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
                 }
             })
             .catch(error => {
                 console.error('Saqlashda xatolik:', error);
                 alert(APLANG.save_error);
-                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'üíæ ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '?? ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
             });
         }
 
@@ -2398,7 +2398,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Foydalanuvchi kiritgan qiymatni saqlash (blur qilishdan oldin)
             if (!userEnteredCostPrice || userEnteredCostPrice === 0) {
                 userEnteredCostPrice = newCostPrice;
-                console.log(`üíæ Foydalanuvchi kiritgan qiymat saqlandi: $${userEnteredCostPrice}`);
+                console.log(`?? Foydalanuvchi kiritgan qiymat saqlandi: $${userEnteredCostPrice}`);
             }
             
             fetch('/api/search-product/' + encodeURIComponent(productName))
@@ -2445,7 +2445,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             comparisonHTML += '<thead style="background: #e9ecef;">';
                             comparisonHTML += '<tr>';
                             comparisonHTML += '<th style="padding: 4px 6px; text-align: center; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6; width: 60px;">Tur</th>';
-                            comparisonHTML += '<th style="padding: 4px 6px; text-align: left; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6;">üìç Joylashuv</th>';
+                            comparisonHTML += '<th style="padding: 4px 6px; text-align: left; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6;">?? Joylashuv</th>';
                             comparisonHTML += '<th style="padding: 4px 6px; text-align: center; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6;">Miqdor</th>';
                             comparisonHTML += '<th style="padding: 4px 6px; text-align: center; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6;">Tan narx</th>';
                             comparisonHTML += '<th style="padding: 4px 6px; text-align: right; font-weight: 600; color: #495057; border-bottom: 1px solid #dee2e6;">Jami qiymat</th>';
@@ -2524,12 +2524,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 const finalValue = totalOldValueCheck + (newQuantity * newCostPrice);
                                 const finalAveragePrice = finalQuantity > 0 ? finalValue / finalQuantity : newCostPrice;
                                 comparisonHTML += '<span>Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
-                                comparisonHTML += '<span style="color:#aaa;">‚Üí</span>';
+                                comparisonHTML += '<span style="color:#aaa;">õ</span>';
                                 comparisonHTML += '<span>Yangi partiya narxi: <span style="background: #17a2b8; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + newCostPrice.toFixed(2) + '</span></span>';
-                                comparisonHTML += '<span style="color:#aaa;">‚Üí</span>';
+                                comparisonHTML += '<span style="color:#aaa;">õ</span>';
                                 comparisonHTML += '<span>Ortacha tan narx: <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + finalAveragePrice.toFixed(2) + '</span></span>';
                             } else {
-                                comparisonHTML += '<span>üí° Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span>?? Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
                             }
                             comparisonHTML += '</div>';
                             
@@ -2558,7 +2558,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             // 3. Foyda qayta hisoblash
                             calculateProfit();
                             
-                            console.log(`üìä Siz kiritgan: $${userEnteredCostPrice.toFixed(2)}, Ortacha: $${averagePrice.toFixed(2)} ‚Üí Tan narx maydoniga yozildi`);
+                            console.log(`?? Siz kiritgan: $${userEnteredCostPrice.toFixed(2)}, Ortacha: $${averagePrice.toFixed(2)} õ Tan narx maydoniga yozildi`);
                         }
                     } else {
                         priceComparisonDiv.style.display = 'none';
@@ -2593,7 +2593,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 font-weight: 600;
                 font-size: 1rem;
             `;
-            notification.innerHTML = '‚úÖ Tan narx o\'rtacha narx bilan yangilandi!';
+            notification.innerHTML = '? Tan narx o\'rtacha narx bilan yangilandi!';
             document.body.appendChild(notification);
             
             // 3 soniyadan keyin xabarni o'chirish
@@ -2656,7 +2656,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             loadCategories();
         });
 
-        // ‚îÄ‚îÄ‚îÄ Kategoriyalar ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+        // ¶¶¶ Kategoriyalar ¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶
         function loadCategories() {
             fetch('/api/categories')
                 .then(r => r.json())
@@ -2664,7 +2664,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     if (!data.success) return;
                     const sel = document.getElementById('category_id');
                     const prev = sel.value;
-                    sel.innerHTML = '<option value="">‚Äî Kategoriyasiz ‚Äî</option>';
+                    sel.innerHTML = '<option value="">ó Kategoriyasiz ó</option>';
                     data.categories.forEach(cat => {
                         const opt = document.createElement('option');
                         opt.value = cat.id;
@@ -2677,7 +2677,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 .catch(() => {});
         }
 
-        // ‚îÄ‚îÄ Kategoriya sozlamalari modal ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+        // ¶¶ Kategoriya sozlamalari modal ¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶
         let _catSettingsData = [];
         let _selectedCatColor = '#6366f1';
 
@@ -2710,11 +2710,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             <div id="cat-actions-${cat.id}" style="display:flex;gap:6px;align-items:center;">
                                 <button type="button" onclick="catEditConfirm(${cat.id},'${cat.name.replace(/'/g,"\\'")}','${cat.color}')"
                                     style="padding:5px 12px;background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                                    ‚úèÔ∏è Tahrirlash
+                                    ?? Tahrirlash
                                 </button>
                                 <button type="button" onclick="catDeleteConfirm(${cat.id},'${cat.name.replace(/'/g,"\\'")}',this)"
                                     style="padding:5px 12px;background:#fff1f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                                    üóë O'chirish
+                                    ?? O'chirish
                                 </button>
                             </div>
                         </div>`).join('');
@@ -2733,7 +2733,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             _catConfirmName = name;
             _catConfirmColor = color;
             _showCatConfirmPanel(
-                '‚úèÔ∏è <span style="color:#3b82f6;">"' + name + '"</span> kategoriyasini tahrirlashni tasdiqlang ‚Äî nomini to\'liq yozing:',
+                '?? <span style="color:#3b82f6;">"' + name + '"</span> kategoriyasini tahrirlashni tasdiqlang ó nomini to\'liq yozing:',
                 '#3b82f6', '#eff6ff', '#bfdbfe'
             );
         }
@@ -2743,7 +2743,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             _catConfirmId = id;
             _catConfirmName = name;
             _showCatConfirmPanel(
-                'üóë <span style="color:#ef4444;">"' + name + '"</span> kategoriyasini o\'chirishni tasdiqlang ‚Äî nomini to\'liq yozing:',
+                '?? <span style="color:#ef4444;">"' + name + '"</span> kategoriyasini o\'chirishni tasdiqlang ó nomini to\'liq yozing:',
                 '#ef4444', '#fff5f5', '#fca5a5'
             );
         }
@@ -2785,7 +2785,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             } else if (_catConfirmAction === 'delete') {
                 const yesBtn = document.getElementById('catConfirmYesBtn');
                 yesBtn.disabled = true;
-                yesBtn.textContent = '‚è≥ O\'chirilmoqda...';
+                yesBtn.textContent = '? O\'chirilmoqda...';
                 fetch(`/api/categories/${_catConfirmId}`, { method: 'DELETE', headers: {'X-CSRFToken': getCSRFToken()} })
                     .then(r => r.json())
                     .then(data => {
@@ -2808,7 +2808,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 .catch(() => { renderCatSettingsList(); });
         }
 
-        // ‚îÄ‚îÄ Kategoriya qo'shish / tahrirlash modal ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+        // ¶¶ Kategoriya qo'shish / tahrirlash modal ¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶
         function openAddCategoryForm() {
             document.getElementById('catEditId').value = '';
             document.getElementById('catEditName').value = '';

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ 'ru' if current_language == 'ru' else 'uz' }}" data-current-lang="{{ current_language }}" translate="no" class="notranslate">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-    /* Inter font style.css orqali lokal yuklanadi — CDN import kerak emas */
+    /* Inter font style.css orqali lokal yuklanadi � CDN import kerak emas */
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -28,7 +28,7 @@
         overflow: hidden;
     }
 
-    /* ── Language selector ── */
+    /* �� Language selector �� */
     .login-lang-selector {
         position: fixed;
         top: 18px;
@@ -79,7 +79,7 @@
     .login-lang-option:hover { background: #f3f4f6; }
     .login-lang-option.active { background: #eff6ff; color: #1a6eff; }
 
-    /* ── Main card ── */
+    /* �� Main card �� */
     .login-card {
         display: flex;
         width: 880px;
@@ -91,7 +91,7 @@
         position: relative;
     }
 
-    /* ── LEFT: Form side ── */
+    /* �� LEFT: Form side �� */
     .lc-form {
         flex: 1;
         background: #fff;
@@ -283,7 +283,7 @@
     }
     .btn-login.runaway:hover { transform: none; }
 
-    /* ── RIGHT: Info side ── */
+    /* �� RIGHT: Info side �� */
     .lc-info {
         width: 340px;
         flex-shrink: 0;
@@ -421,7 +421,7 @@
         z-index: 2;
     }
 
-    /* ── Responsive ── */
+    /* �� Responsive �� */
     @media (max-width: 860px) {
         .lc-info { display: none; }
         .lc-form { padding: 40px 32px; }
@@ -440,23 +440,23 @@
     <div class="login-lang-selector">
         <button type="button" class="login-lang-btn" id="loginLangBtn" onclick="toggleLoginLang()">
             {% if current_language == 'uz_cyrillic' %}
-            <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> <span>Ўзбекча</span>
+            <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> <span>???????</span>
             {% elif current_language == 'ru' %}
-            <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> <span>Русский</span>
+            <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> <span>???????</span>
             {% else %}
             <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> <span>O'zbekcha</span>
             {% endif %}
-            <span style="font-size:10px;">▼</span>
+            <span style="font-size:10px;">�</span>
         </button>
         <div class="login-lang-menu" id="loginLangMenu">
             <div class="login-lang-option{% if current_language == 'uz_latin' %} active{% endif %}" onclick="changeLoginLang('uz_latin')">
                 <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> O'zbekcha
             </div>
             <div class="login-lang-option{% if current_language == 'uz_cyrillic' %} active{% endif %}" onclick="changeLoginLang('uz_cyrillic')">
-                <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> Ўзбекча
+                <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> ???????
             </div>
             <div class="login-lang-option{% if current_language == 'ru' %} active{% endif %}" onclick="changeLoginLang('ru')">
-                <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> Русский
+                <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> ???????
             </div>
         </div>
     </div>
@@ -567,7 +567,7 @@
                 </ul>
             </div>
 
-            <div class="info-footer">© 2026 DiamondCar Accessories</div>
+            <div class="info-footer">� 2026 DiamondCar Accessories</div>
         </div>
 
     </div>
@@ -720,8 +720,8 @@
 <!-- ===== PAROL TIKLASH MODALI ===== -->
 <div id="resetModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:none;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:16px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;margin:16px;">
-    <button onclick="closeResetModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;">✕</button>
-    <h2 style="margin:0 0 6px;font-size:20px;color:#1e293b;">🔐 Parolni tiklash</h2>
+    <button onclick="closeResetModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;">?</button>
+    <h2 style="margin:0 0 6px;font-size:20px;color:#1e293b;">?? Parolni tiklash</h2>
     <p style="margin:0 0 20px;font-size:13px;color:#64748b;" id="resetSubtitle">Telefon raqamingizni kiriting, Telegram orqali kod yuboramiz</p>
 
     <!-- Alert -->
@@ -748,7 +748,7 @@
              oninput="formatResetPhone(this)" maxlength="17">
       <button onclick="sendResetCode()"
               style="width:100%;padding:12px;background:#1a6eff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;"
-              id="sendCodeBtn">📨 Kod yuborish</button>
+              id="sendCodeBtn">?? Kod yuborish</button>
     </div>
 
     <!-- Step 2: Kod -->
@@ -758,14 +758,14 @@
              style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:22px;letter-spacing:8px;text-align:center;margin:6px 0 16px;box-sizing:border-box;outline:none;"
              onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#e2e8f0'">
       <button onclick="verifyResetCode()"
-              style="width:100%;padding:12px;background:#1a6eff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">✅ Tasdiqlash</button>
-      <button onclick="showResetStep(1)" style="width:100%;padding:10px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;margin-top:8px;">← Orqaga</button>
+              style="width:100%;padding:12px;background:#1a6eff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">? Tasdiqlash</button>
+      <button onclick="showResetStep(1)" style="width:100%;padding:10px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;margin-top:8px;">� Orqaga</button>
     </div>
 
     <!-- Step 3: Yangi parol -->
     <div id="resetStep3" style="display:none;">
       <p style="font-size:13px;color:#16a34a;background:#dcfce7;padding:8px 12px;border-radius:8px;margin-bottom:14px;">
-        ✅ Tasdiqlandi! Login: <b id="confirmedUsername"></b>
+        ? Tasdiqlandi! Login: <b id="confirmedUsername"></b>
       </p>
       <label style="font-size:12px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;">Yangi parol</label>
       <div style="position:relative;margin:6px 0 12px;">
@@ -782,7 +782,7 @@
         <button type="button" onclick="toggleResetPass('confirmPassword','eyeConfirm')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fas fa-eye" id="eyeConfirm"></i></button>
       </div>
       <button onclick="doResetPassword()"
-              style="width:100%;padding:12px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">💾 Parolni saqlash</button>
+              style="width:100%;padding:12px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">?? Parolni saqlash</button>
     </div>
   </div>
 </div>
@@ -835,7 +835,7 @@ async function sendResetCode() {
     const phone = document.getElementById('resetPhone').value.trim();
     if (!phone) { resetAlert('Telefon raqam kiritilmadi'); return; }
     const btn = document.getElementById('sendCodeBtn');
-    btn.disabled = true; btn.textContent = '⏳ Yuborilmoqda...';
+    btn.disabled = true; btn.textContent = '? Yuborilmoqda...';
     resetAlert('');
     try {
         const r = await fetch('/api/forgot-password', {
@@ -846,12 +846,12 @@ async function sendResetCode() {
         if (d.success) {
             _resetPhone = phone;
             showResetStep(2);
-            resetAlert('Telegram ga kod yuborildi ✅', 'success');
+            resetAlert('Telegram ga kod yuborildi ?', 'success');
         } else {
             resetAlert(d.message || 'Xatolik yuz berdi');
         }
     } catch(e) { resetAlert('Server bilan aloqa uzildi'); }
-    btn.disabled = false; btn.textContent = '📨 Kod yuborish';
+    btn.disabled = false; btn.textContent = '?? Kod yuborish';
 }
 
 async function verifyResetCode() {
@@ -891,7 +891,7 @@ async function doResetPassword() {
         });
         const d = await r.json();
         if (d.success) {
-            resetAlert('✅ Parol muvaffaqiyatli yangilandi! Tizimga kirish uchun foydalaning.', 'success');
+            resetAlert('? Parol muvaffaqiyatli yangilandi! Tizimga kirish uchun foydalaning.', 'success');
             setTimeout(() => closeResetModal(), 2500);
         } else {
             resetAlert(d.message || 'Xatolik yuz berdi');
@@ -906,12 +906,12 @@ function toggleResetPass(inputId, iconId) {
     else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
 }
 
-// Modal tashqarisiga bosish — yopish
+// Modal tashqarisiga bosish � yopish
 document.getElementById('resetModal').addEventListener('click', function(e) {
     if (e.target === this) closeResetModal();
 });
 
-// ── Qochuvchi tugma ──
+// �� Qochuvchi tugma ��
 (function() {
     const btn = document.getElementById('loginBtn');
     const usernameInput = document.getElementById('username') || document.querySelector('input[name="username"]');
@@ -978,15 +978,15 @@ document.getElementById('resetModal').addEventListener('click', function(e) {
             const hitBot   = newTop  > maxTop;
 
             if ((hitLeft || hitRight) && !(hitTop || hitBot)) {
-                // Chap/o'ng devorga tegdi — yuqori/pastga siljit
+                // Chap/o'ng devorga tegdi � yuqori/pastga siljit
                 newLeft = Math.max(margin, Math.min(maxLeft, newLeft));
                 newTop  = btnRect.top + (dy > 0 ? -flee : flee);
             } else if ((hitTop || hitBot) && !(hitLeft || hitRight)) {
-                // Yuqori/past devorga tegdi — chap/o'ngga siljit
+                // Yuqori/past devorga tegdi � chap/o'ngga siljit
                 newTop  = Math.max(margin, Math.min(maxTop, newTop));
                 newLeft = btnRect.left + (dx > 0 ? -flee : flee);
             } else if (hitLeft || hitRight || hitTop || hitBot) {
-                // Burchak — markazga qarab qoch
+                // Burchak � markazga qarab qoch
                 const cx = window.innerWidth  / 2;
                 const cy = window.innerHeight / 2;
                 const toCX = cx - btnCX;

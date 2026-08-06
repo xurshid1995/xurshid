@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('operations_history') }}{% endblock %}
 
@@ -86,7 +86,7 @@
             </div>
             <div class="ps-filter-group" style="display:flex; align-items:flex-end;">
                 <button id="clearFilterBtn" onclick="clearFilters()" style="display:none; padding: 8px 16px; background: #64748b; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; align-items: center; gap: 6px;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#64748b'">
-                    ✕ Tozalash
+                    ? Tozalash
                 </button>
             </div>
             <div class="ps-filter-group" style="display:flex; align-items:flex-end;">
@@ -135,7 +135,7 @@
 <style>
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }

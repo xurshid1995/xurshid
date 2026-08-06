@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('heading_edit_user') }} - Sayt 2025{% endblock %}
 
@@ -9,12 +9,12 @@
    ============================================================ */
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* ── Header ── */
+/* �� Header �� */
 .ps-header {
     display: flex;
     align-items: center;
@@ -29,7 +29,7 @@
 }
 .ps-title i { color: #1a6eff; margin-right: 8px; }
 
-/* ── Layout ── */
+/* �� Layout �� */
 .form-layout {
     display: flex;
     gap: 24px;
@@ -37,7 +37,7 @@
     width: 100%;
 }
 
-/* ── Cards ── */
+/* �� Cards �� */
 .form-section,
 .info-section {
     flex: 1;
@@ -61,7 +61,7 @@
 }
 .card-title i { color: #1a6eff; }
 
-/* ── Form groups ── */
+/* �� Form groups �� */
 .form-group {
     margin-bottom: 18px;
 }
@@ -117,7 +117,7 @@
 }
 .form-row .form-group { flex: 1; }
 
-/* ── Success / Error messages ── */
+/* �� Success / Error messages �� */
 .success-message {
     background: #d1fae5;
     color: #065f46;
@@ -145,7 +145,7 @@
     display: none;
 }
 
-/* ── Action buttons ── */
+/* �� Action buttons �� */
 .form-actions {
     display: flex;
     gap: 10px;
@@ -187,7 +187,7 @@
 .required { color: #ef4444; }
 .loading { opacity: 0.6; pointer-events: none; }
 
-/* ── Permissions section ── */
+/* �� Permissions section �� */
 .permissions-control { margin-top: 4px; }
 .permission-group {
     margin-bottom: 16px;
@@ -259,7 +259,7 @@
     font-size: 13px;
 }
 
-/* ── Password toggle ── */
+/* �� Password toggle �� */
 .password-input-container {
     position: relative;
     display: flex;
@@ -291,7 +291,7 @@
 }
 .password-toggle:hover { color: #1a6eff; }
 
-/* ── Loading state ── */
+/* �� Loading state �� */
 .loading-state {
     text-align: center;
     padding: 60px 20px;
@@ -301,7 +301,7 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-/* ── Responsive ── */
+/* �� Responsive �� */
 @media (max-width: 1024px) {
     .ps-page { padding: 18px; }
 }
@@ -312,7 +312,7 @@
     .ps-header { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 
-/* ── Photo Upload ── */
+/* �� Photo Upload �� */
 .photo-upload-section {
     display: flex;
     align-items: center;
@@ -467,8 +467,8 @@
                 <div class="form-group">
                     <label for="password">{{ t('eu_new_password') }}</label>
                     <div class="password-input-container" style="position: relative;">
-                        <input type="password" id="password" name="password" autocomplete="new-password" value="••••••••" data-sentinel="true" placeholder="{{ t('eu_password_placeholder') }}" style="padding-right: 40px; background-color: white !important; border: 1px solid #ddd;" onfocus="if(this.dataset.sentinel==='true'){this.value='';this.dataset.sentinel='false';}" onblur="if(this.value===''){this.value='••••••••';this.dataset.sentinel='true';}">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #666;">👁️</button>
+                        <input type="password" id="password" name="password" autocomplete="new-password" value="��������" data-sentinel="true" placeholder="{{ t('eu_password_placeholder') }}" style="padding-right: 40px; background-color: white !important; border: 1px solid #ddd;" onfocus="if(this.dataset.sentinel==='true'){this.value='';this.dataset.sentinel='false';}" onblur="if(this.value===''){this.value='��������';this.dataset.sentinel='true';}">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #666;">???</button>
                     </div>
                     <div class="error-message" id="passwordError"></div>
                 </div>
@@ -513,7 +513,7 @@
                 
                 <!-- 1. Savdo qilish huquqi -->
                 <div class="permission-group">
-                    <h4>🛍️ {{ t('perm_sales_title') }}</h4>
+                    <h4>??? {{ t('perm_sales_title') }}</h4>
                     <div class="permission-info">
                         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                             {{ t('perm_sales_desc') }}
@@ -526,7 +526,7 @@
                     </label>
                     
                     <div class="location-selection" id="salesLocations" style="margin-left: 20px; margin-top: 10px; display: none;">
-                        <h5>📍 {{ t('perm_allowed_locations') }}</h5>
+                        <h5>?? {{ t('perm_allowed_locations') }}</h5>
                         <div style="margin-bottom: 10px;">
                             <label class="permission-item">
                                 <input type="checkbox" id="selectAllSalesLocations" onchange="toggleAllSalesLocations()">
@@ -541,7 +541,7 @@
 
                 <!-- 2. Transfer qilish huquqi -->
                 <div class="permission-group">
-                    <h4>🔄 {{ t('perm_transfer_title') }}</h4>
+                    <h4>?? {{ t('perm_transfer_title') }}</h4>
                     <div class="permission-info">
                         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                             {{ t('perm_transfer_desc') }}
@@ -554,7 +554,7 @@
                     </label>
                     
                     <div class="location-selection" id="transferLocations" style="margin-left: 20px; margin-top: 10px; display: none;">
-                        <h5>📍 {{ t('perm_transfer_locations') }}</h5>
+                        <h5>?? {{ t('perm_transfer_locations') }}</h5>
                         <div style="margin-bottom: 10px;">
                             <label class="permission-item">
                                 <input type="checkbox" id="selectAllTransferLocations" onchange="toggleAllTransferLocations()">
@@ -569,7 +569,7 @@
 
                 <!-- 3. Qoldiqni tekshirish huquqi -->
                 <div class="permission-group">
-                    <h4>📊 {{ t('perm_stock_check_title') }}</h4>
+                    <h4>?? {{ t('perm_stock_check_title') }}</h4>
                     <div class="permission-info">
                         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                             {{ t('perm_stock_check_desc') }}
@@ -582,7 +582,7 @@
                     </label>
                     
                     <div class="location-selection" id="stockCheckLocations" style="margin-left: 20px; margin-top: 10px; display: none;">
-                        <h5>📍 {{ t('perm_stock_check_locations') }}</h5>
+                        <h5>?? {{ t('perm_stock_check_locations') }}</h5>
                         <div style="margin-bottom: 10px;">
                             <label class="permission-item">
                                 <input type="checkbox" id="selectAllStockCheckLocations" onchange="toggleAllStockCheckLocations()">
@@ -597,7 +597,7 @@
 
                 <!-- 4. Asosiy dokon/ombor -->
                 <div class="permission-group">
-                    <h4>🏪 {{ t('primary_location_title') }}</h4>
+                    <h4>?? {{ t('primary_location_title') }}</h4>
                     <div class="permission-info">
                         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                             {{ t('primary_location_desc') }}
@@ -729,10 +729,10 @@
                 return response.json();
             })
             .then(user => {
-                console.log('🌟 API RESPONSE - Full user data:', JSON.stringify(user, null, 2));
-                console.log('🌟 Permissions:', user.permissions);
-                console.log('🌟 Allowed locations:', user.allowed_locations);
-                console.log('🌟 Transfer locations:', user.transfer_locations);
+                console.log('?? API RESPONSE - Full user data:', JSON.stringify(user, null, 2));
+                console.log('?? Permissions:', user.permissions);
+                console.log('?? Allowed locations:', user.allowed_locations);
+                console.log('?? Transfer locations:', user.transfer_locations);
                 currentUser = user;
                 populateForm(user);
                 document.getElementById('loadingState').style.display = 'none';
@@ -746,7 +746,7 @@
 
     // Formani to'ldirish
     function populateForm(user) {
-        console.log('🔄 populateForm called with user:', user);
+        console.log('?? populateForm called with user:', user);
         document.getElementById('first_name').value = user.first_name || '';
         document.getElementById('last_name').value = user.last_name || '';
         document.getElementById('username').value = user.username || '';
@@ -783,22 +783,22 @@
 
     // Huquqlarni formaga to'ldirish
     function populatePermissions(permissions) {
-        console.log('🔄 populatePermissions called with:', permissions);
-        console.log('🔄 currentUser:', currentUser);
-        console.log('🔑 permissions keys:', Object.keys(permissions));
-        console.log('🔑 can_transfer value:', permissions.can_transfer);
-        console.log('📍 transfer_locations:', currentUser.transfer_locations);
-        console.log('📍 allowed_locations:', currentUser.allowed_locations);
+        console.log('?? populatePermissions called with:', permissions);
+        console.log('?? currentUser:', currentUser);
+        console.log('?? permissions keys:', Object.keys(permissions));
+        console.log('?? can_transfer value:', permissions.can_transfer);
+        console.log('?? transfer_locations:', currentUser.transfer_locations);
+        console.log('?? allowed_locations:', currentUser.allowed_locations);
         
         // Savdo qilish huquqi
         if (permissions.can_sell) {
-            console.log('✅ Setting can_sell to true');
+            console.log('? Setting can_sell to true');
             document.getElementById('canSell').checked = true;
             toggleSalesLocations();
             
             // Savdo joylashuvlarini belgilash (currentUser.allowed_locations dan)
             if (currentUser.allowed_locations && Array.isArray(currentUser.allowed_locations)) {
-                console.log('🔄 Setting sales locations from allowed_locations:', currentUser.allowed_locations);
+                console.log('?? Setting sales locations from allowed_locations:', currentUser.allowed_locations);
                 currentUser.allowed_locations.forEach(location => {
                     let locationId, locationType;
                     
@@ -807,14 +807,14 @@
                         // Yangi format: {id: 1, type: 'store'}
                         locationId = location.id;
                         locationType = location.type;
-                        console.log('🆕 New format location:', locationId, locationType);
+                        console.log('?? New format location:', locationId, locationType);
                     } else if (typeof location === 'number') {
                         // Eski format: 1, 2, 3...
                         locationId = location;
                         // Type'ni har ikkisidan ham izlaymiz
-                        console.log('🔢 Old format location ID:', locationId);
+                        console.log('?? Old format location ID:', locationId);
                     } else {
-                        console.log('⚠️ Unknown location format:', location);
+                        console.log('?? Unknown location format:', location);
                         return;
                     }
                     
@@ -824,9 +824,9 @@
                         const checkbox = document.querySelector(`#salesLocationsList input[value="${locationId}"][data-type="${locationType}"]`);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`✅ Sales ${locationType} location checked:`, locationId);
+                            console.log(`? Sales ${locationType} location checked:`, locationId);
                         } else {
-                            console.log('❌ Sales location checkbox not found:', locationId, locationType);
+                            console.log('? Sales location checkbox not found:', locationId, locationType);
                             console.log('   Available checkboxes:', document.querySelectorAll('#salesLocationsList input').length);
                             console.log('   Full list:', Array.from(document.querySelectorAll('#salesLocationsList input')).map(cb => `${cb.value}:${cb.getAttribute('data-type')}`));
                         }
@@ -837,12 +837,12 @@
                         
                         if (storeCheckbox) {
                             storeCheckbox.checked = true;
-                            console.log('✅ Sales store location checked:', locationId);
+                            console.log('? Sales store location checked:', locationId);
                         } else if (warehouseCheckbox) {
                             warehouseCheckbox.checked = true;
-                            console.log('✅ Sales warehouse location checked:', locationId);
+                            console.log('? Sales warehouse location checked:', locationId);
                         } else {
-                            console.log('❌ Sales location checkbox not found:', locationId);
+                            console.log('? Sales location checkbox not found:', locationId);
                             console.log('   Available checkboxes:', document.querySelectorAll('#salesLocationsList input').length);
                         }
                     }
@@ -852,13 +852,13 @@
         
         // Transfer qilish huquqi - 'can_transfer' yoki 'transfer' kalitini tekshirish
         if (permissions.can_transfer || permissions.transfer) {
-            console.log('✅ Setting can_transfer to true (can_transfer:', permissions.can_transfer, ', transfer:', permissions.transfer, ')');
+            console.log('? Setting can_transfer to true (can_transfer:', permissions.can_transfer, ', transfer:', permissions.transfer, ')');
             document.getElementById('canTransfer').checked = true;
             toggleTransferLocations();
             
             // Transfer joylashuvlarini belgilash
             if (currentUser.transfer_locations && Array.isArray(currentUser.transfer_locations)) {
-                console.log('🔄 Setting transfer locations:', currentUser.transfer_locations);
+                console.log('?? Setting transfer locations:', currentUser.transfer_locations);
                 currentUser.transfer_locations.forEach(location => {
                     let locationId, locationType;
                     
@@ -866,12 +866,12 @@
                     if (typeof location === 'object' && location.id && location.type) {
                         locationId = location.id;
                         locationType = location.type;
-                        console.log('🆕 Transfer new format location:', locationId, locationType);
+                        console.log('?? Transfer new format location:', locationId, locationType);
                     } else if (typeof location === 'number') {
                         locationId = location;
-                        console.log('🔢 Transfer old format location ID:', locationId);
+                        console.log('?? Transfer old format location ID:', locationId);
                     } else {
-                        console.log('⚠️ Unknown transfer location format:', location);
+                        console.log('?? Unknown transfer location format:', location);
                         return;
                     }
                     
@@ -880,9 +880,9 @@
                         const checkbox = document.querySelector(`#transferLocationsList input[value="${locationId}"][data-type="${locationType}"]`);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`✅ Transfer ${locationType} location checked:`, locationId);
+                            console.log(`? Transfer ${locationType} location checked:`, locationId);
                         } else {
-                            console.log('❌ Transfer location checkbox not found:', locationId, locationType);
+                            console.log('? Transfer location checkbox not found:', locationId, locationType);
                             console.log('   Available:', document.querySelectorAll('#transferLocationsList input').length);
                         }
                     } else {
@@ -891,18 +891,18 @@
                         
                         if (storeCheckbox) {
                             storeCheckbox.checked = true;
-                            console.log('✅ Transfer store location checked:', locationId);
+                            console.log('? Transfer store location checked:', locationId);
                         } else if (warehouseCheckbox) {
                             warehouseCheckbox.checked = true;
-                            console.log('✅ Transfer warehouse location checked:', locationId);
+                            console.log('? Transfer warehouse location checked:', locationId);
                         } else {
-                            console.log('❌ Transfer location checkbox not found:', locationId);
+                            console.log('? Transfer location checkbox not found:', locationId);
                         }
                     }
                 });
             } else if (currentUser.allowed_locations && Array.isArray(currentUser.allowed_locations)) {
                 // Agar transfer_locations yo'q bo'lsa, allowed_locations'ni ishlatish
-                console.log('🔄 Using allowed_locations for transfer:', currentUser.allowed_locations);
+                console.log('?? Using allowed_locations for transfer:', currentUser.allowed_locations);
                 currentUser.allowed_locations.forEach(location => {
                     let locationId, locationType;
                     
@@ -930,7 +930,7 @@
         
         // Qoldiqni tekshirish huquqi
         if (permissions.stock_check) {
-            console.log('✅ Setting stock_check to true');
+            console.log('? Setting stock_check to true');
             document.getElementById('canStockCheck').checked = true;
             toggleStockCheckLocations();
             
@@ -938,7 +938,7 @@
             const stockCheckLocs = (currentUser.stock_check_locations && currentUser.stock_check_locations.length > 0)
                 ? currentUser.stock_check_locations
                 : (currentUser.allowed_locations || []);
-            console.log('🔄 Setting stock check locations from:', stockCheckLocs);
+            console.log('?? Setting stock check locations from:', stockCheckLocs);
             stockCheckLocs.forEach(location => {
                     let locationId, locationType;
                     
@@ -966,18 +966,18 @@
 
     // Do'konlar va omborlarni yuklash
     function loadStoresAndWarehouses() {
-        console.log('🔄 Loading stores and warehouses...');
+        console.log('?? Loading stores and warehouses...');
         fetch('/api/stores-warehouses')
             .then(response => {
-                console.log('📡 API response status:', response.status);
+                console.log('?? API response status:', response.status);
                 return response.json();
             })
             .then(data => {
-                console.log('📦 API data received:', data);
+                console.log('?? API data received:', data);
                 allStores = data.stores || [];
                 allWarehouses = data.warehouses || [];
-                console.log('🏪 Stores loaded:', allStores.length);
-                console.log('🏭 Warehouses loaded:', allWarehouses.length);
+                console.log('?? Stores loaded:', allStores.length);
+                console.log('?? Warehouses loaded:', allWarehouses.length);
                 
                 // Checkboxlarni yaratish
                 populateLocationCheckboxes();
@@ -985,10 +985,10 @@
                 
                 // populateLocationCheckboxes() ichida populatePermissions() chaqiriladi
                 // Shuning uchun bu yerda qayta chaqirish shart emas
-                console.log('✅ Checkboxlar yaratildi, populatePermissions() avtomatik chaqiriladi');
+                console.log('? Checkboxlar yaratildi, populatePermissions() avtomatik chaqiriladi');
             })
             .catch(error => {
-                console.error('❌ Error loading locations:', error);
+                console.error('? Error loading locations:', error);
             });
     }
 
@@ -998,7 +998,7 @@
         
         const submitBtn = document.getElementById('submitBtn');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '⏳ ' + EULANG.eu_updating;
+        submitBtn.innerHTML = '? ' + EULANG.eu_updating;
         submitBtn.disabled = true;
 
         const formData = {
@@ -1024,7 +1024,7 @@
             const [locationType, locationId] = primaryLocationSelect.value.split('_');
             // Hozircha faqat store_id ishlatamiz, warehouse uchun ham store_id ga saqlaymiz
             formData.store_id = parseInt(locationId);
-            console.log('🏪 Primary location set:', primaryLocationSelect.value, 'Type:', locationType, 'ID:', locationId);
+            console.log('?? Primary location set:', primaryLocationSelect.value, 'Type:', locationType, 'ID:', locationId);
         }
 
         // Sotuvchi va omborchi huquqlarini yig'ish
@@ -1044,7 +1044,7 @@
                         type: checkbox.getAttribute('data-type')
                     });
                 });
-                console.log('✅ Allowed locations collected:', formData.allowed_locations);
+                console.log('? Allowed locations collected:', formData.allowed_locations);
             }
             
             // Transfer qilish huquqi
@@ -1060,7 +1060,7 @@
                         type: checkbox.getAttribute('data-type')
                     });
                 });
-                console.log('✅ Transfer locations collected:', formData.transfer_locations);
+                console.log('? Transfer locations collected:', formData.transfer_locations);
             }
             
             // Qoldiqni tekshirish huquqi
@@ -1076,13 +1076,13 @@
                         type: checkbox.getAttribute('data-type')
                     });
                 });
-                console.log('✅ Stock check locations collected:', formData.stock_check_locations);
+                console.log('? Stock check locations collected:', formData.stock_check_locations);
             }
 
-            console.log('📦 Final formData permissions:', formData.permissions);
-            console.log('📦 Final formData allowed_locations:', formData.allowed_locations);
-            console.log('📦 Final formData transfer_locations:', formData.transfer_locations);
-            console.log('📦 Final formData stock_check_locations:', formData.stock_check_locations);
+            console.log('?? Final formData permissions:', formData.permissions);
+            console.log('?? Final formData allowed_locations:', formData.allowed_locations);
+            console.log('?? Final formData transfer_locations:', formData.transfer_locations);
+            console.log('?? Final formData stock_check_locations:', formData.stock_check_locations);
         }
 
         fetch(`/api/users/${userId}`, {
@@ -1139,16 +1139,16 @@
             .then(response => {
                 if (response.ok) {
                     return response.json().then(data => {
-                        alert('✅ ' + (data.message || EULANG.eu_deleted_success));
+                        alert('? ' + (data.message || EULANG.eu_deleted_success));
                         window.location.href = '/users';
                     });
                 } else {
-                    alert('❌ ' + EULANG.eu_delete_error);
+                    alert('? ' + EULANG.eu_delete_error);
                 }
             })
             .catch(error => {
                 console.error('Error deleting user:', error);
-                alert('❌ ' + EULANG.eu_delete_fetch_error);
+                alert('? ' + EULANG.eu_delete_fetch_error);
             });
         }
     }
@@ -1270,7 +1270,7 @@
         // Fallback agar elementlar topilmasa
         if (!errorState || !errorMessage) {
             console.error('Error elements not found:', message);
-            alert('❌ ' + message);
+            alert('? ' + message);
         }
     }
 
@@ -1298,16 +1298,16 @@
         const salesLocations = document.getElementById('salesLocations');
         const locationsList = document.getElementById('salesLocationsList');
         
-        console.log('🔄 toggleSalesLocations called, canSell:', canSell);
-        console.log('📦 salesLocations div:', salesLocations);
-        console.log('📦 salesLocationsList div:', locationsList);
+        console.log('?? toggleSalesLocations called, canSell:', canSell);
+        console.log('?? salesLocations div:', salesLocations);
+        console.log('?? salesLocationsList div:', locationsList);
         
         if (canSell) {
             salesLocations.style.display = 'block';
-            console.log('✅ Sales locations shown');
+            console.log('? Sales locations shown');
         } else {
             salesLocations.style.display = 'none';
-            console.log('❌ Sales locations hidden');
+            console.log('? Sales locations hidden');
             // Checkboxlarni tozalash
             document.querySelectorAll('#salesLocationsList input[type="checkbox"]').forEach(cb => cb.checked = false);
         }
@@ -1319,16 +1319,16 @@
         const transferLocations = document.getElementById('transferLocations');
         const locationsList = document.getElementById('transferLocationsList');
         
-        console.log('🔄 toggleTransferLocations called, canTransfer:', canTransfer);
-        console.log('📦 transferLocations div:', transferLocations);
-        console.log('📦 transferLocationsList div:', locationsList);
+        console.log('?? toggleTransferLocations called, canTransfer:', canTransfer);
+        console.log('?? transferLocations div:', transferLocations);
+        console.log('?? transferLocationsList div:', locationsList);
         
         if (canTransfer) {
             transferLocations.style.display = 'block';
-            console.log('✅ Transfer locations shown');
+            console.log('? Transfer locations shown');
         } else {
             transferLocations.style.display = 'none';
-            console.log('❌ Transfer locations hidden');
+            console.log('? Transfer locations hidden');
             // Checkboxlarni tozalash
             document.querySelectorAll('#transferLocationsList input[type="checkbox"]').forEach(cb => cb.checked = false);
         }
@@ -1336,19 +1336,19 @@
 
     // Joylashuvlar checkbox larini yaratish
     function populateLocationCheckboxes() {
-        console.log('🔄 Populating location checkboxes...');
+        console.log('?? Populating location checkboxes...');
         const salesLocationsList = document.getElementById('salesLocationsList');
         const transferLocationsList = document.getElementById('transferLocationsList');
         const stockCheckLocationsList = document.getElementById('stockCheckLocationsList');
         
-        console.log('📍 Sales locations element:', salesLocationsList);
-        console.log('📍 Transfer locations element:', transferLocationsList);
-        console.log('📍 Stock check locations element:', stockCheckLocationsList);
-        console.log('🏪 Stores to add:', allStores.length);
-        console.log('🏭 Warehouses to add:', allWarehouses.length);
+        console.log('?? Sales locations element:', salesLocationsList);
+        console.log('?? Transfer locations element:', transferLocationsList);
+        console.log('?? Stock check locations element:', stockCheckLocationsList);
+        console.log('?? Stores to add:', allStores.length);
+        console.log('?? Warehouses to add:', allWarehouses.length);
         
         if (!salesLocationsList || !transferLocationsList || !stockCheckLocationsList) {
-            console.error('❌ Location list elements not found!');
+            console.error('? Location list elements not found!');
             return;
         }
         
@@ -1359,7 +1359,7 @@
         
         // Do'konlar
         allStores.forEach(store => {
-            console.log('➕ Adding store checkbox:', store.name);
+            console.log('? Adding store checkbox:', store.name);
             const salesCheckbox = createLocationCheckbox(store, 'store');
             const transferCheckbox = createLocationCheckbox(store, 'store');
             const stockCheckCheckbox = createLocationCheckbox(store, 'store');
@@ -1371,7 +1371,7 @@
         
         // Omborlar
         allWarehouses.forEach(warehouse => {
-            console.log('➕ Adding warehouse checkbox:', warehouse.name);
+            console.log('? Adding warehouse checkbox:', warehouse.name);
             const salesCheckbox = createLocationCheckbox(warehouse, 'warehouse');
             const transferCheckbox = createLocationCheckbox(warehouse, 'warehouse');
             const stockCheckCheckbox = createLocationCheckbox(warehouse, 'warehouse');
@@ -1381,19 +1381,19 @@
             stockCheckLocationsList.appendChild(stockCheckCheckbox);
         });
         
-        console.log('✅ Location checkboxes populated');
-        console.log('📊 Total checkboxes created:');
+        console.log('? Location checkboxes populated');
+        console.log('?? Total checkboxes created:');
         console.log('   Sales:', document.querySelectorAll('#salesLocationsList input').length);
         console.log('   Transfer:', document.querySelectorAll('#transferLocationsList input').length);
         console.log('   Stock Check:', document.querySelectorAll('#stockCheckLocationsList input').length);
         
         // Agar user ma'lumotlari allaqachon yuklangan bo'lsa, permissions'ni qayta to'ldirish
         if (currentUser && currentUser.permissions) {
-            console.log('🔄 Re-populating permissions after locations loaded');
+            console.log('?? Re-populating permissions after locations loaded');
             // MUHIM: 300ms timeout - DOM'ga elementlar to'liq qo'shilishi uchun yetarli vaqt
             // Browser rendering cycle, reflow, repaint uchun kutish
             setTimeout(() => {
-                console.log('⏱️ 300ms o\'tdi, endi huquqlarni to\'ldirish boshlash');
+                console.log('?? 300ms o\'tdi, endi huquqlarni to\'ldirish boshlash');
                 populatePermissions(currentUser.permissions);
             }, 300);
         }
@@ -1424,30 +1424,30 @@
 
     // Asosiy joylashuvlarni yuklash
     function loadPrimaryLocations() {
-        console.log('🔄 Loading primary locations...');
+        console.log('?? Loading primary locations...');
         const primaryLocationSelect = document.getElementById('primaryLocation');
-        console.log('🎯 Primary location select element:', primaryLocationSelect);
-        console.log('🏪 Available stores:', allStores.length);
-        console.log('🏭 Available warehouses:', allWarehouses.length);
+        console.log('?? Primary location select element:', primaryLocationSelect);
+        console.log('?? Available stores:', allStores.length);
+        console.log('?? Available warehouses:', allWarehouses.length);
         
         if (primaryLocationSelect && (allStores.length > 0 || allWarehouses.length > 0)) {
             primaryLocationSelect.innerHTML = '<option value="">' + EULANG.select_option + '</option>';
             
             // Do'konlarni qo'shish
             allStores.forEach(store => {
-                console.log('➕ Adding store:', store.name);
+                console.log('? Adding store:', store.name);
                 const option = document.createElement('option');
                 option.value = `store_${store.id}`;
-                option.textContent = `🏪 ${store.name}`;
+                option.textContent = `?? ${store.name}`;
                 primaryLocationSelect.appendChild(option);
             });
             
             // Omborlarni qo'shish
             allWarehouses.forEach(warehouse => {
-                console.log('➕ Adding warehouse:', warehouse.name);
+                console.log('? Adding warehouse:', warehouse.name);
                 const option = document.createElement('option');
                 option.value = `warehouse_${warehouse.id}`;
-                option.textContent = `🏭 ${warehouse.name}`;
+                option.textContent = `?? ${warehouse.name}`;
                 primaryLocationSelect.appendChild(option);
             });
             
@@ -1459,16 +1459,16 @@
                 
                 if (store) {
                     primaryLocationSelect.value = `store_${currentUser.store_id}`;
-                    console.log('✅ Primary store selected:', store.name);
+                    console.log('? Primary store selected:', store.name);
                 } else if (warehouse) {
                     primaryLocationSelect.value = `warehouse_${currentUser.store_id}`;
-                    console.log('✅ Primary warehouse selected:', warehouse.name);
+                    console.log('? Primary warehouse selected:', warehouse.name);
                 }
             }
             
-            console.log('✅ Primary locations loaded:', allStores.length + allWarehouses.length, 'items');
+            console.log('? Primary locations loaded:', allStores.length + allWarehouses.length, 'items');
         } else {
-            console.log('❌ Primary location select not found or no stores/warehouses available');
+            console.log('? Primary location select not found or no stores/warehouses available');
             console.log('   - Element found:', !!primaryLocationSelect);
             console.log('   - Stores count:', allStores.length);
             console.log('   - Warehouses count:', allWarehouses.length);
@@ -1489,7 +1489,7 @@
                     label.className = 'permission-item';
                     label.innerHTML = `
                         <input type="checkbox" name="location_${location.id}" value="${location.id}">
-                        <span>${location.type === 'store' ? '🏪' : '🏭'} ${location.name}</span>
+                        <span>${location.type === 'store' ? '??' : '??'} ${location.name}</span>
                     `;
                     locationDiv.appendChild(label);
                 });
@@ -1580,11 +1580,11 @@
                 // Bu faqat UI/UX yaxshilash uchun ishlatiladi
             }
 
-            console.log('🔍 Seller permissions collected:', userData.permissions);
-            console.log('🔍 Selected sales locations:', checkedSalesLocations.length);
-            console.log('🔍 Selected transfer locations:', userData.transfer_locations);
-            console.log('🔍 Combined allowed locations:', userData.allowed_locations);
-            console.log('🔍 Primary location:', userData.primary_location, 'Store ID:', userData.store_id);
+            console.log('?? Seller permissions collected:', userData.permissions);
+            console.log('?? Selected sales locations:', checkedSalesLocations.length);
+            console.log('?? Selected transfer locations:', userData.transfer_locations);
+            console.log('?? Combined allowed locations:', userData.allowed_locations);
+            console.log('?? Primary location:', userData.primary_location, 'Store ID:', userData.store_id);
         }
 
         // Validatsiya
@@ -1685,7 +1685,7 @@
     function showSuccess(message) {
         const successElement = document.getElementById('successMessage');
         if (successElement) {
-            successElement.textContent = '✅ ' + message;
+            successElement.textContent = '? ' + message;
             successElement.style.display = 'block';
             
             setTimeout(() => {
@@ -1693,7 +1693,7 @@
             }, 5000);
         } else {
             console.error('successMessage element not found');
-            alert('✅ ' + message); // Fallback
+            alert('? ' + message); // Fallback
         }
     }
 
@@ -1716,11 +1716,11 @@
         
         if (loading) {
             form.classList.add('loading');
-            submitBtn.textContent = '⏳ Saqlanmoqda...';
+            submitBtn.textContent = '? Saqlanmoqda...';
             submitBtn.disabled = true;
         } else {
             form.classList.remove('loading');
-            submitBtn.textContent = '💾 Saqlash';
+            submitBtn.textContent = '?? Saqlash';
             submitBtn.disabled = false;
         }
     }
@@ -1781,11 +1781,11 @@
         
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            toggleButton.textContent = '🙈'; // Yashirish ikonkasi
+            toggleButton.textContent = '??'; // Yashirish ikonkasi
             toggleButton.title = 'Parolni yashirish';
         } else {
             passwordInput.type = 'password';
-            toggleButton.textContent = '👁️'; // Ko'rish ikonkasi
+            toggleButton.textContent = '???'; // Ko'rish ikonkasi
             toggleButton.title = 'Parolni ko\'rish';
         }
     }

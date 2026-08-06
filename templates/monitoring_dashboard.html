@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}Server Monitoring{% endblock %}
 
@@ -113,17 +113,17 @@
 
 {% block content %}
 <div class="container">
-    <h1>🔍 Server Monitoring Dashboard</h1>
+    <h1>?? Server Monitoring Dashboard</h1>
     
     <div class="refresh-info">
-        <button class="btn-refresh" onclick="refreshData()">🔄 Yangilash</button>
+        <button class="btn-refresh" onclick="refreshData()">?? Yangilash</button>
         <span id="last-update">Oxirgi yangilanish: ---</span>
     </div>
     
     <div class="monitoring-grid">
         <!-- Server Resources -->
         <div class="monitor-card">
-            <h3>💻 Server Resurslari</h3>
+            <h3>?? Server Resurslari</h3>
             <div class="metric">
                 <span class="metric-label">CPU:</span>
                 <span class="metric-value" id="cpu-usage">---</span>
@@ -151,7 +151,7 @@
         
         <!-- Database Status -->
         <div class="monitor-card">
-            <h3>🗄️ Database Holati</h3>
+            <h3>??? Database Holati</h3>
             <div class="metric">
                 <span class="metric-label">Holat:</span>
                 <span class="metric-value" id="db-status">
@@ -171,7 +171,7 @@
         
         <!-- Application Status -->
         <div class="monitor-card">
-            <h3>📱 Ilova Holati</h3>
+            <h3>?? Ilova Holati</h3>
             <div class="metric">
                 <span class="metric-label">Uptime:</span>
                 <span class="metric-value" id="app-uptime">---</span>
@@ -188,7 +188,7 @@
         
         <!-- Network Stats -->
         <div class="monitor-card">
-            <h3>🌐 Network</h3>
+            <h3>?? Network</h3>
             <div class="metric">
                 <span class="metric-label">Yuborildi:</span>
                 <span class="metric-value" id="net-sent">---</span>
@@ -202,7 +202,7 @@
     
     <!-- Recent Errors -->
     <div class="monitor-card" style="margin-top: 20px;">
-        <h3>⚠️ Oxirgi Xatolar</h3>
+        <h3>?? Oxirgi Xatolar</h3>
         <div class="error-log" id="error-log">
             <pre>Xatolar yuklanmoqda...</pre>
         </div>
@@ -273,7 +273,7 @@ function updateUI(data) {
             '<pre>' + errors.join('\n') + '</pre>';
     } else {
         document.getElementById('error-log').innerHTML = 
-            '<pre>Xatolar topilmadi ✅</pre>';
+            '<pre>Xatolar topilmadi ?</pre>';
     }
     
     // Network

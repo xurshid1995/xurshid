@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ stock.product.name }} - {{ t('es_edit_product') }}{% endblock %}
 
@@ -78,7 +78,7 @@
         {% if stock.product.barcode %}
         <button onclick="printBarcode('{{ stock.product.name }}', '{{ stock.product.barcode }}')" 
                 style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            🖨️ {{ t('es_print_barcode') }}
+            ??? {{ t('es_print_barcode') }}
         </button>
         {% endif %}
     </div>
@@ -99,7 +99,7 @@
     <div class="edit-card">
         {% if error %}
         <div class="error-message">
-            ⚠️ {{ error }}
+            ?? {{ error }}
         </div>
         {% endif %}
 
@@ -111,7 +111,7 @@
                     <input type="text" id="productName" name="productName" value="{{ stock.product.name }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="barcode">📷 {{ t('es_barcode_label') }}</label>
+                    <label for="barcode">?? {{ t('es_barcode_label') }}</label>
                     <input type="text" id="barcode" name="barcode" value="{{ stock.product.barcode or '' }}" 
                            placeholder="{{ t('es_barcode_opt') }}" 
                            style="border: 2px solid #28a745;">
@@ -185,7 +185,7 @@ function calculateProfit() {
         sellPriceInput.style.borderColor = '#e74c3c';
         sellPriceInput.style.backgroundColor = '#fdf2f2';
         profitInfoInput.style.color = '#e74c3c';
-        profitInfoInput.value = '⚠️ ' + ESLANG.sell_below_cost;
+        profitInfoInput.value = '?? ' + ESLANG.sell_below_cost;
     } else {
         // Normal rang
         sellPriceInput.style.borderColor = '#ddd';
@@ -259,7 +259,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
         const nameInput = document.getElementById('productName');
         if (nameInput.style.borderColor === 'rgb(231, 76, 60)') {
             e.preventDefault();
-            alert('⚠️ ' + ESLANG.name_exists);
+            alert('?? ' + ESLANG.name_exists);
             return false;
         }
     }
@@ -267,19 +267,19 @@ document.querySelector('form').addEventListener('submit', function(e) {
     // Sotish narxi tekshiruvi
     if (sellPrice < costPrice && sellPrice > 0 && costPrice > 0) {
         e.preventDefault();
-        alert('⚠️ ' + ESLANG.sell_below_cost_err);
+        alert('?? ' + ESLANG.sell_below_cost_err);
         return false;
     }
     
     if (quantity < 0) {
         e.preventDefault();
-        alert('⚠️ ' + ESLANG.quantity_negative);
+        alert('?? ' + ESLANG.quantity_negative);
         return false;
     }
     
     if (costPrice < 0 || sellPrice < 0) {
         e.preventDefault();
-        alert('⚠️ ' + ESLANG.price_negative);
+        alert('?? ' + ESLANG.price_negative);
         return false;
     }
 });

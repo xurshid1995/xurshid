@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('settings') }}{% endblock %}
 
@@ -341,7 +341,7 @@
             <div class="setting-card-header">
                 <div class="setting-icon amber"><i class="fas fa-coins"></i></div>
                 <div class="setting-card-meta">
-                    <p class="card-title">💵 1 USD = UZS kursi</p>
+                    <p class="card-title">?? 1 USD = UZS kursi</p>
                     <p class="card-desc">Joriy valyuta kursini ko'rish va yangilash</p>
                 </div>
             </div>
@@ -383,7 +383,7 @@
             <div class="setting-card-header">
                 <div class="setting-icon" style="background:#e8f4fd;"><i class="fab fa-telegram" style="color:#0088cc;"></i></div>
                 <div class="setting-card-meta">
-                    <p class="card-title">🤖 Telegram Bot sozlamalari</p>
+                    <p class="card-title">?? Telegram Bot sozlamalari</p>
                     <p class="card-desc">Qarz eslatmalari uchun Telegram bot token va sozlamalarini boshqarish</p>
                 </div>
             </div>
@@ -497,7 +497,7 @@
                     const data = await response.json();
                     if (data.success && data.rate && data.rate.rate) {
                         const formattedRate = parseFloat(data.rate.rate).toLocaleString('uz-UZ');
-                        document.querySelector('.currency-rate').textContent = `💵 1 USD = ${formattedRate} UZS`;
+                        document.querySelector('.currency-rate').textContent = `?? 1 USD = ${formattedRate} UZS`;
                     }
                 }
             } catch (error) {
@@ -573,14 +573,14 @@
 
         // Sozlamalarni serverdan olish
         async function loadSettings() {
-            console.log('🔄 Sozlamalarni yuklash boshlandi...');
+            console.log('?? Sozlamalarni yuklash boshlandi...');
             try {
                 const response = await fetch('/api/settings');
-                console.log('📡 API javob:', response.status, response.statusText);
+                console.log('?? API javob:', response.status, response.statusText);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('📊 Olingan sozlamalar:', data);
+                    console.log('?? Olingan sozlamalar:', data);
                     // Faqat kerakli sozlamalarni olish (language va user_language kalitlarini olib tashlash)
                     const { language, ...filteredData } = data;
                     const cleanData = {};
@@ -591,14 +591,14 @@
                     }
                     settings = { ...settings, ...cleanData };
                     updateUI();
-                    console.log('✅ Sozlamalar muvaffaqiyatli yuklandi');
+                    console.log('? Sozlamalar muvaffaqiyatli yuklandi');
                 } else {
-                    console.error('❌ API xatolik:', response.status, response.statusText);
+                    console.error('? API xatolik:', response.status, response.statusText);
                     // Standart sozlamalarni ishlatish
                     updateUI();
                 }
             } catch (error) {
-                console.error('🚨 Sozlamalarni yuklashda xato:', error);
+                console.error('?? Sozlamalarni yuklashda xato:', error);
                 updateUI();
             }
         }
@@ -659,8 +659,8 @@
                 const languageSelect = document.getElementById('languageSelect');
                 const selectedLanguage = languageSelect ? languageSelect.value : '{{ current_language }}';
                 
-                console.log('💾 Saqlanayotgan sozlamalar:', settings);
-                console.log('🌐 Tanlangan til:', selectedLanguage);
+                console.log('?? Saqlanayotgan sozlamalar:', settings);
+                console.log('?? Tanlangan til:', selectedLanguage);
                 
                 // Avval tilni saqlash (alohida endpoint orqali)
                 const langResponse = await fetch('/api/settings/language', {

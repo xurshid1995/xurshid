@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ t('dashboard') }}{% endblock %}
 
@@ -20,14 +20,14 @@
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
                     <div id="timeFilters" class="db-time-filters">
-                        <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
-                        <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
-                        <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
+                        <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">?? {{ t('today') }}</button>
+                        <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">?? {{ t('this_week') }}</button>
+                        <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">?? {{ t('this_month') }}</button>
                         <select id="yearSelect" class="db-month-select" onchange="selectMonthFilter()">
-                            <option value="">📆 Yil...</option>
+                            <option value="">?? Yil...</option>
                         </select>
                         <select id="monthSelect" class="db-month-select" onchange="selectMonthFilter()">
-                            <option value="">📅 Oy...</option>
+                            <option value="">?? Oy...</option>
                             <option value="1">Yanvar</option>
                             <option value="2">Fevral</option>
                             <option value="3">Mart</option>
@@ -44,25 +44,25 @@
                         <span class="db-tf-sep">|</span>
                         <div class="db-daterange">
                             <input type="date" id="customDateFrom" class="db-date-input" title="{{ t('date_from') }}" onchange="applyCustomRange()">
-                            <span class="db-date-sep">—</span>
+                            <span class="db-date-sep">�</span>
                             <input type="date" id="customDateTo" class="db-date-input" title="{{ t('date_to') }}" onchange="applyCustomRange()">
                         </div>
                     </div>
                 </div>
                 <div class="db-location-row">
                     <div id="locationButtons" class="db-loc-btns">
-                        <button class="db-loc-btn active" data-location="" onclick="selectLocation(this, '')">🏢 {{ t('all') }}</button>
+                        <button class="db-loc-btn active" data-location="" onclick="selectLocation(this, '')">?? {{ t('all') }}</button>
                     </div>
                 </div>
                 <!-- ===== Horizontal Stats Bar ===== -->
                 <div class="db-hstats">
                     <div class="db-hs-item">
-                        <span class="db-hs-label">📊 {{ t('total_sales') }}</span>
+                        <span class="db-hs-label">?? {{ t('total_sales') }}</span>
                         <span class="db-hs-val" id="totalSales">0</span>
                     </div>
                     <div class="db-hs-sep">|</div>
                     <div class="db-hs-item">
-                        <span class="db-hs-label">💰 {{ t('total_amount') }}</span>
+                        <span class="db-hs-label">?? {{ t('total_amount') }}</span>
                         <div style="display:flex;flex-direction:column;align-items:flex-start;">
                             <span class="db-hs-val green" id="totalAmount">$0</span>
                             <span class="db-hs-sub" id="totalAmountUZS">0 UZS</span>
@@ -76,7 +76,7 @@
                     {% if session.role != 'sotuvchi' %}
                     <div class="db-hs-sep">|</div>
                     <div class="db-hs-item">
-                        <span class="db-hs-label">💵 {{ t('profit') }}</span>
+                        <span class="db-hs-label">?? {{ t('profit') }}</span>
                         <div style="display:flex;flex-direction:column;align-items:flex-start;">
                             <span class="db-hs-val blue" id="totalProfit">$0</span>
                             <span class="db-hs-sub" id="totalProfitUZS">0 UZS</span>
@@ -98,8 +98,8 @@
         <div class="col-12">
             <div class="db-card">
                 <div class="db-card-head">
-                    <span class="db-card-label">🏭 Omborlar holati</span>
-                    <button onclick="loadOmborchiDashboard()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
+                    <span class="db-card-label">?? Omborlar holati</span>
+                    <button onclick="loadOmborchiDashboard()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">?? Yangilash</button>
                 </div>
                 <div id="warehouseCardsContainer" style="display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;"></div>
             </div>
@@ -108,7 +108,7 @@
         <div class="col-12 col-lg-6">
             <div class="db-card">
                 <div class="db-card-head">
-                    <span class="db-card-label">⚠️ Kam qolgan mahsulotlar</span>
+                    <span class="db-card-label">?? Kam qolgan mahsulotlar</span>
                     <span id="lowStockCount" style="background:#fee2e2;color:#dc2626;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;">0</span>
                 </div>
                 <div id="lowStockList" style="max-height:400px;overflow-y:auto;"></div>
@@ -118,7 +118,7 @@
         <div class="col-12 col-lg-6">
             <div class="db-card">
                 <div class="db-card-head">
-                    <span class="db-card-label">🔄 So\'nggi transferlar</span>
+                    <span class="db-card-label">?? So\'nggi transferlar</span>
                 </div>
                 <div id="recentTransfersList" style="max-height:400px;overflow-y:auto;"></div>
             </div>
@@ -566,7 +566,7 @@ let currentPeriod = 'today';
         opt.textContent = y;
         sel.appendChild(opt);
     }
-    // value bo'sh qolsin — initTodayFilters() to'g'ri o'rnatadi
+    // value bo'sh qolsin � initTodayFilters() to'g'ri o'rnatadi
 })();
 
 function initTodayFilters() {
@@ -647,31 +647,31 @@ async function waitForCurrencyRate() {
         attempts++;
     }
     if (window.currentExchangeRate) {
-        console.log('✅ Valyuta kursi tayyor:', window.currentExchangeRate);
+        console.log('? Valyuta kursi tayyor:', window.currentExchangeRate);
     } else {
-        console.warn('⚠️ Valyuta kursi yuklanmadi, UZS qiymatlari ko\'rsatilmaydi');
+        console.warn('?? Valyuta kursi yuklanmadi, UZS qiymatlari ko\'rsatilmaydi');
     }
 }
 
 async function loadLocations() {
     try {
-        console.log('🔍 Joylashuvlarni yuklash boshlandi...');
+        console.log('?? Joylashuvlarni yuklash boshlandi...');
         const response = await fetch('/api/stores-warehouses');
-        console.log('📡 API javobi:', response.status, response.statusText);
+        console.log('?? API javobi:', response.status, response.statusText);
         
         const data = await response.json();
-        console.log('📊 Joylashuvlar ma\'lumoti:', data);
+        console.log('?? Joylashuvlar ma\'lumoti:', data);
         
         const buttonsContainer = document.getElementById('locationButtons');
-        console.log('📦 Tugmalar kontayneri:', buttonsContainer);
+        console.log('?? Tugmalar kontayneri:', buttonsContainer);
         
         // "Barchasi" tugmasi CSS orqali boshqariladi
         
         const locations = data.locations || [];
-        console.log('📍 Jami joylashuvlar:', locations.length);
+        console.log('?? Jami joylashuvlar:', locations.length);
         
         locations.forEach((location, index) => {
-            console.log(`✅ Joylashuv #${index + 1}:`, location.name, location.type, location.id);
+            console.log(`? Joylashuv #${index + 1}:`, location.name, location.type, location.id);
             
             const button = document.createElement('button');
             button.className = 'db-loc-btn';
@@ -681,26 +681,26 @@ async function loadLocations() {
             
             // Tugma stili CSS orqali boshqariladi
             
-            const icon = location.type === 'store' ? '🏪' : '🏭';
+            const icon = location.type === 'store' ? '??' : '??';
             button.innerHTML = `${icon} ${location.name}`;
             
             buttonsContainer.appendChild(button);
-            console.log(`🔘 Tugma qo'shildi: ${location.name}`);
+            console.log(`?? Tugma qo'shildi: ${location.name}`);
         });
         
-        console.log('✅ Barcha joylashuvlar yuklandi!');
+        console.log('? Barcha joylashuvlar yuklandi!');
         
         // Sotuvchi roli uchun ham "Barchasi" tugmasi fokusda qolsin
         // (Eski kod: birinchi joylashuvni avtomatik tanlash - olib tashlandi)
         
     } catch (error) {
-        console.error('❌ Joylashuvlarni yuklashda xatolik:', error);
-        console.error('❌ Xatolik detallaridokon:', error.stack);
+        console.error('? Joylashuvlarni yuklashda xatolik:', error);
+        console.error('? Xatolik detallaridokon:', error.stack);
     }
 }
 
 function selectLocation(clickedButton, locationId, locationType = null) {
-    console.log('🔘 Joylashuv tanlandi:', {
+    console.log('?? Joylashuv tanlandi:', {
         locationId: locationId,
         locationType: locationType,
         buttonText: clickedButton.textContent.trim()
@@ -711,13 +711,13 @@ function selectLocation(clickedButton, locationId, locationType = null) {
     });
     
     clickedButton.classList.add('active');
-    console.log('✅ Tugma aktiv qilindi');
+    console.log('? Tugma aktiv qilindi');
     
     // Aktiv vaqt filtrini ham yuboramiz
     const activePeriod = document.querySelector('.db-tf-btn.active')?.getAttribute('data-period') || currentPeriod || 'today';
-    console.log('📅 Aktiv vaqt:', activePeriod);
+    console.log('?? Aktiv vaqt:', activePeriod);
     
-    console.log('📊 loadSalesChart chaqirilmoqda...');
+    console.log('?? loadSalesChart chaqirilmoqda...');
     loadSalesChart(locationId, activePeriod, locationType);
 }
 
@@ -829,11 +829,11 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
         const data = await response.json();
         
         // Debug uchun API javobini to'liq ko'ramiz
-        console.log('🔍 API parametrlari:', params.toString());
-        console.log('📊 API javobi:', data);
-        console.log('📊 Savdolar soni (values):', data.values);
-        console.log('📊 Savdo summalari (amounts):', data.amounts);
-        console.log('💰 To\'lov turlari:', data.payment_totals);
+        console.log('?? API parametrlari:', params.toString());
+        console.log('?? API javobi:', data);
+        console.log('?? Savdolar soni (values):', data.values);
+        console.log('?? Savdo summalari (amounts):', data.amounts);
+        console.log('?? To\'lov turlari:', data.payment_totals);
         
         currentSalesData = data;
         
@@ -887,7 +887,7 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                 plugins: {
                     title: {
                         display: true,
-                        text: `📊 ${selectedLocationName}`,
+                        text: `?? ${selectedLocationName}`,
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -965,8 +965,8 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 if (!exchangeRateTooltip) {
                                     // Kurs yo'q bo'lsa, faqat USD ko'rsatish
                                     return [
-                                        `📊 ${DLANG.sales_count}: ${savdoSoni}`,
-                                        `💰 ${DLANG.sales_amount}: ${Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} $`
+                                        `?? ${DLANG.sales_count}: ${savdoSoni}`,
+                                        `?? ${DLANG.sales_amount}: ${Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} $`
                                     ];
                                 }
                                 const formattedAmount = Math.floor(savdoSummasi).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -983,29 +983,29 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 const formattedTerminalUZS = Math.floor(terminal * exchangeRateTooltip).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                                 
                                 const tooltipLines = [
-                                    `📊 ${DLANG.sales_count}: ${savdoSoni}`,
-                                    `💰 ${DLANG.sales_amount}: ${formattedAmount} $`,
+                                    `?? ${DLANG.sales_count}: ${savdoSoni}`,
+                                    `?? ${DLANG.sales_amount}: ${formattedAmount} $`,
                                     `   (${formattedAmountUZS} UZS)`,
                                     '' // Bo'sh qator
                                 ];
                                 
                                 // To'lov ma'lumotlarini ko'rsatish
                                 if (naqdPul > 0 || click > 0 || terminal > 0 || qarzSummasi > 0) {
-                                    tooltipLines.push(`💳 ${DLANG.payments}:`);
+                                    tooltipLines.push(`?? ${DLANG.payments}:`);
                                     if (naqdPul > 0) {
-                                        tooltipLines.push(`   💵 ${DLANG.cash}: ${formattedCash} $`);
+                                        tooltipLines.push(`   ?? ${DLANG.cash}: ${formattedCash} $`);
                                         tooltipLines.push(`      (${formattedCashUZS} UZS)`);
                                     }
                                     if (click > 0) {
-                                        tooltipLines.push(`   📱 ${DLANG.click}: ${formattedClick} $`);
+                                        tooltipLines.push(`   ?? ${DLANG.click}: ${formattedClick} $`);
                                         tooltipLines.push(`      (${formattedClickUZS} UZS)`);
                                     }
                                     if (terminal > 0) {
-                                        tooltipLines.push(`   💳 ${DLANG.terminal}: ${formattedTerminal} $`);
+                                        tooltipLines.push(`   ?? ${DLANG.terminal}: ${formattedTerminal} $`);
                                         tooltipLines.push(`      (${formattedTerminalUZS} UZS)`);
                                     }
                                     if (qarzSummasi > 0) {
-                                        tooltipLines.push(`   📝 ${DLANG.debt}: ${formattedDebt} $`);
+                                        tooltipLines.push(`   ?? ${DLANG.debt}: ${formattedDebt} $`);
                                         tooltipLines.push(`      (${formattedDebtUZS} UZS)`);
                                     }
                                     tooltipLines.push(''); // Bo'sh qator
@@ -1013,7 +1013,7 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
                                 
                                 // Faqat sotuvchi emas bo'lsa foydani ko'rsatish
                                 if (userRole !== 'sotuvchi') {
-                                    tooltipLines.push(`💵 ${DLANG.profit}: ${formattedProfit} $`);
+                                    tooltipLines.push(`?? ${DLANG.profit}: ${formattedProfit} $`);
                                     tooltipLines.push(`   (${formattedProfitUZS} UZS)`);
                                 }
                                 
@@ -1150,29 +1150,29 @@ function updateStatistics(data) {
     
     // To'lov turlarini ko'rsatish
     if (data.payment_totals && exchangeRate) {
-        console.log('💰 To\'lov turlari yangilanmoqda:', data.payment_totals);
+        console.log('?? To\'lov turlari yangilanmoqda:', data.payment_totals);
         const payments = [];
         if (data.payment_totals.cash > 0) {
             const cashUZS = data.payment_totals.cash_uzs > 0 ? Math.round(data.payment_totals.cash_uzs) : Math.round(data.payment_totals.cash * exchangeRate);
-            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #28a745; font-size: 14px;">💵 ${DLANG.cash}: <strong>${formatUSD(data.payment_totals.cash)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(cashUZS)}</span></span>`);
+            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #28a745; font-size: 14px;">?? ${DLANG.cash}: <strong>${formatUSD(data.payment_totals.cash)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(cashUZS)}</span></span>`);
         }
         if (data.payment_totals.click > 0) {
             const clickUZS = data.payment_totals.click_uzs > 0 ? Math.round(data.payment_totals.click_uzs) : Math.round(data.payment_totals.click * exchangeRate);
-            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #007bff; font-size: 14px;">📱 ${DLANG.click}: <strong>${formatUSD(data.payment_totals.click)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(clickUZS)}</span></span>`);
+            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #007bff; font-size: 14px;">?? ${DLANG.click}: <strong>${formatUSD(data.payment_totals.click)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(clickUZS)}</span></span>`);
         }
         if (data.payment_totals.terminal > 0) {
             const termUZS = data.payment_totals.terminal_uzs > 0 ? Math.round(data.payment_totals.terminal_uzs) : Math.round(data.payment_totals.terminal * exchangeRate);
-            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #17a2b8; font-size: 14px;">💳 ${DLANG.terminal}: <strong>${formatUSD(data.payment_totals.terminal)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(termUZS)}</span></span>`);
+            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #17a2b8; font-size: 14px;">?? ${DLANG.terminal}: <strong>${formatUSD(data.payment_totals.terminal)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(termUZS)}</span></span>`);
         }
         if (data.payment_totals.debt > 0) {
             const debtUZS = data.payment_totals.debt_uzs > 0 ? Math.round(data.payment_totals.debt_uzs) : Math.round(data.payment_totals.debt * exchangeRate);
-            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #dc3545; font-size: 14px;">📝 ${DLANG.debt}: <strong>${formatUSD(data.payment_totals.debt)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(debtUZS)}</span></span>`);
+            payments.push(`<span style="display: inline-block; background: #f8f9fa; padding: 4px 10px; margin-right: 8px; border-radius: 4px; border-left: 3px solid #dc3545; font-size: 14px;">?? ${DLANG.debt}: <strong>${formatUSD(data.payment_totals.debt)}</strong><br><span style="font-size: 11px; color: #666;">${formatUZS(debtUZS)}</span></span>`);
         }
         
         document.getElementById('paymentMethods').innerHTML = payments.length > 0 ? payments.join('') : '-';
-        console.log('✅ HTML yangilandi:', payments.length, 'ta tolov turi');
+        console.log('? HTML yangilandi:', payments.length, 'ta tolov turi');
     } else {
-        console.log('⚠️ payment_totals kelmagandi!');
+        console.log('?? payment_totals kelmagandi!');
         document.getElementById('paymentMethods').innerHTML = '-';
     }
     
@@ -1186,7 +1186,7 @@ function updateStatistics(data) {
         }
     }
     
-    console.log('📈 Statistikalar yangilandi:', {
+    console.log('?? Statistikalar yangilandi:', {
         totalSales: totalSales,
         totalAmount: totalAmount, 
         totalProfit: totalProfit
@@ -1216,10 +1216,10 @@ function renderWarehouseCards(warehouses) {
     }
     container.innerHTML = warehouses.map(wh => `
         <div style="flex:1;min-width:200px;background:#f8fafc;border-radius:12px;padding:16px 20px;border-left:4px solid ${wh.low_stock_count > 0 ? '#f59e0b' : '#14b8a6'};">
-            <div style="font-size:13px;color:#64748b;margin-bottom:4px;">🏭 ${wh.name}</div>
+            <div style="font-size:13px;color:#64748b;margin-bottom:4px;">?? ${wh.name}</div>
             <div style="font-size:22px;font-weight:800;color:#1e293b;">${wh.product_count} <span style="font-size:13px;font-weight:500;color:#64748b;">mahsulot turi</span></div>
             <div style="font-size:13px;color:#475569;margin-top:4px;">Jami: ${wh.total_qty.toLocaleString()} dona</div>
-            ${wh.low_stock_count > 0 ? `<div style="margin-top:6px;font-size:12px;color:#d97706;font-weight:600;">⚠️ ${wh.low_stock_count} ta kam qolgan</div>` : `<div style="margin-top:6px;font-size:12px;color:#0d9488;font-weight:600;">✅ Zaxira yetarli</div>`}
+            ${wh.low_stock_count > 0 ? `<div style="margin-top:6px;font-size:12px;color:#d97706;font-weight:600;">?? ${wh.low_stock_count} ta kam qolgan</div>` : `<div style="margin-top:6px;font-size:12px;color:#0d9488;font-weight:600;">? Zaxira yetarli</div>`}
         </div>
     `).join('');
 }
@@ -1230,15 +1230,15 @@ function renderLowStocks(items) {
     if (!list) return;
     if (countEl) countEl.textContent = items.length;
     if (!items.length) {
-        list.innerHTML = '<div style="padding:20px;text-align:center;color:#0d9488;font-size:14px;">✅ Barcha mahsulotlar yetarli darajada</div>';
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#0d9488;font-size:14px;">? Barcha mahsulotlar yetarli darajada</div>';
         return;
     }
     list.innerHTML = items.map(item => `
         <div style="display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid #f1f5f9;gap:12px;">
-            <span style="font-size:18px;">${item.status === 'critical' ? '🚨' : '⚠️'}</span>
+            <span style="font-size:18px;">${item.status === 'critical' ? '??' : '??'}</span>
             <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.product_name}</div>
-                <div style="font-size:11px;color:#64748b;">${item.warehouse_name}${item.barcode ? ' • ' + item.barcode : ''}</div>
+                <div style="font-size:11px;color:#64748b;">${item.warehouse_name}${item.barcode ? ' � ' + item.barcode : ''}</div>
             </div>
             <div style="text-align:right;">
                 <div style="font-size:14px;font-weight:700;color:${item.status === 'critical' ? '#dc2626' : '#d97706'}">${item.quantity}</div>
@@ -1261,10 +1261,10 @@ function renderRecentTransfers(transfers) {
         const isOut = t.from_location_type === 'warehouse';
         return `
         <div style="display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid #f1f5f9;gap:12px;">
-            <span style="font-size:18px;">${isOut ? '📤' : '📥'}</span>
+            <span style="font-size:18px;">${isOut ? '??' : '??'}</span>
             <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.product_name}</div>
-                <div style="font-size:11px;color:#64748b;">${t.from_location_name} → ${t.to_location_name}</div>
+                <div style="font-size:11px;color:#64748b;">${t.from_location_name} � ${t.to_location_name}</div>
             </div>
             <div style="text-align:right;">
                 <div style="font-size:14px;font-weight:700;color:#1e293b;">${t.quantity}</div>

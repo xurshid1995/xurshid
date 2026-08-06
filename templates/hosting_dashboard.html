@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ t('hd2_title') }} - DOKON{% endblock %}
 
@@ -97,7 +97,7 @@
 <div class="hosting-container">
     <!-- Header -->
     <div class="hosting-header">
-        <h2>🖥️ {{ t('hd2_title') }}</h2>
+        <h2>??? {{ t('hd2_title') }}</h2>
         <div>
             <button class="btn-hosting btn-primary" onclick="showAddClientModal()">
                 <i class="fas fa-plus"></i> {{ t('hd2_add_client') }}
@@ -126,9 +126,9 @@
 
     <!-- Tabs -->
     <div class="hosting-tabs">
-        <button class="hosting-tab active" onclick="switchTab('clients')">👥 {{ t('hd2_tab_clients') }}</button>
-        <button class="hosting-tab" onclick="switchTab('orders')">📋 {{ t('hd2_tab_orders') }}</button>
-        <button class="hosting-tab" onclick="switchTab('payments')">💰 {{ t('hd2_tab_payments') }}</button>
+        <button class="hosting-tab active" onclick="switchTab('clients')">?? {{ t('hd2_tab_clients') }}</button>
+        <button class="hosting-tab" onclick="switchTab('orders')">?? {{ t('hd2_tab_orders') }}</button>
+        <button class="hosting-tab" onclick="switchTab('payments')">?? {{ t('hd2_tab_payments') }}</button>
     </div>
 
     <!-- Clients Tab -->
@@ -206,7 +206,7 @@
 <!-- Add/Edit Client Modal -->
 <div class="modal-overlay" id="clientModal">
     <div class="modal-box">
-        <h3 id="clientModalTitle">➕ {{ t('hd2_new_client') }}</h3>
+        <h3 id="clientModalTitle">? {{ t('hd2_new_client') }}</h3>
         <input type="hidden" id="edit-client-id">
 
         <div class="form-group">
@@ -265,16 +265,16 @@
         </div>
 
         <div class="form-group" id="widget-code-group" style="display:none;">
-            <label>📋 {{ t('hd2_widget_code') }}</label>
+            <label>?? {{ t('hd2_widget_code') }}</label>
             <div style="position:relative;">
                 <textarea id="widget-code" readonly rows="3" style="font-family:monospace;font-size:12px;background:#1a1a2e;color:#0f0;padding:10px;border-radius:8px;width:100%;resize:none;"></textarea>
-                <button type="button" onclick="copyWidgetCode()" style="position:absolute;top:5px;right:5px;background:#4361ee;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;">📋 {{ t('hd2_copy') }}</button>
+                <button type="button" onclick="copyWidgetCode()" style="position:absolute;top:5px;right:5px;background:#4361ee;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;">?? {{ t('hd2_copy') }}</button>
             </div>
         </div>
 
         <div class="modal-actions">
             <button class="btn-hosting btn-outline" onclick="closeClientModal()">{{ t('hd2_cancel') }}</button>
-            <button class="btn-hosting btn-primary" onclick="saveClient()">💾 {{ t('hd2_save') }}</button>
+            <button class="btn-hosting btn-primary" onclick="saveClient()">?? {{ t('hd2_save') }}</button>
         </div>
     </div>
 </div>
@@ -282,7 +282,7 @@
 <!-- Manual Payment Modal -->
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box">
-        <h3>💰 {{ t('hd2_manual_payment') }}</h3>
+        <h3>?? {{ t('hd2_manual_payment') }}</h3>
         <input type="hidden" id="pay-client-id">
 
         <div class="form-group">
@@ -307,7 +307,7 @@
 
         <div class="modal-actions">
             <button class="btn-hosting btn-outline" onclick="closePaymentModal()">{{ t('hd2_cancel') }}</button>
-            <button class="btn-hosting btn-success-hosting" onclick="saveManualPayment()">✅ {{ t('hd2_save_payment') }}</button>
+            <button class="btn-hosting btn-success-hosting" onclick="saveManualPayment()">? {{ t('hd2_save_payment') }}</button>
         </div>
     </div>
 </div>
@@ -315,7 +315,7 @@
 <!-- DO Droplets Modal -->
 <div class="modal-overlay" id="dropletsModal">
     <div class="modal-box" style="max-width: 700px;">
-        <h3>☁️ {{ t('hd2_do_servers') }}</h3>
+        <h3>?? {{ t('hd2_do_servers') }}</h3>
         <div id="droplets-list" style="max-height: 400px; overflow-y: auto;">
             <p style="text-align: center; color: #888;">{{ t('hd2_loading') }}</p>
         </div>
@@ -432,22 +432,22 @@ async function loadClients() {
                     return `<span class="badge badge-ok">${c.balance_end_date}${HD2LANG.until}</span>
                             <br><small style="color:#888">${c.days_left} ${HD2LANG.days_left}</small>`;
                 } else if (c.payment_status === 'warning') {
-                    return `<span class="badge badge-warning">⚠️ ${c.balance_end_date}${HD2LANG.until}</span>
+                    return `<span class="badge badge-warning">?? ${c.balance_end_date}${HD2LANG.until}</span>
                             <br><small style="color:#e67e22">${c.days_left} ${HD2LANG.days_left}</small>`;
                 } else if (c.payment_status === 'overdue') {
-                    return `<span class="badge badge-overdue">❌ ${HD2LANG.deadline_passed}</span>
+                    return `<span class="badge badge-overdue">? ${HD2LANG.deadline_passed}</span>
                             <br><small style="color:#e74c3c">${c.next_payment_date || HD2LANG.pay_now}</small>`;
                 } else if (c.payment_status === 'never_paid') {
                     return '<span class="badge badge-never-paid">' + HD2LANG.never_paid + '</span>';
                 } else {
-                    return '<span class="badge">—</span>';
+                    return '<span class="badge">�</span>';
                 }
             })();
 
             return `<tr>
                 <td><strong>${c.name}</strong>${c.telegram_username ? '<br><small style="color:#888">' + c.telegram_username + '</small>' : ''}</td>
-                <td>${c.droplet_name || '—'}</td>
-                <td><code>${c.server_ip || '—'}</code></td>
+                <td>${c.droplet_name || '�'}</td>
+                <td><code>${c.server_ip || '�'}</code></td>
                 <td class="money">${formatMoney(c.monthly_price_uzs)}</td>
                 <td>${statusBadge}</td>
                 <td>${payBadge}</td>
@@ -506,18 +506,18 @@ async function loadOrders() {
 
         tbody.innerHTML = data.orders.map(o => {
             const [statusText, statusClass] = statusMap[o.status] || [o.status, ''];
-            const date = o.created_at ? new Date(o.created_at).toLocaleDateString('uz-UZ') : '—';
+            const date = o.created_at ? new Date(o.created_at).toLocaleDateString('uz-UZ') : '�';
 
             return `<tr>
                 <td><strong>#${o.order_code}</strong></td>
-                <td>${o.client_name || '—'}</td>
+                <td>${o.client_name || '�'}</td>
                 <td class="money">${formatMoney(o.amount_uzs)} so'm</td>
                 <td>${o.months} oy</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>${date}</td>
                 <td>
                     ${['client_confirmed', 'payment_matched'].includes(o.status) ?
-                        `<button class="btn-hosting btn-sm btn-success-hosting" onclick="approveOrder(${o.id})">✅ ${HD2LANG.approve}</button>` : ''}
+                        `<button class="btn-hosting btn-sm btn-success-hosting" onclick="approveOrder(${o.id})">? ${HD2LANG.approve}</button>` : ''}
                 </td>
             </tr>`;
         }).join('');
@@ -539,15 +539,15 @@ async function loadPayments() {
 
         tbody.innerHTML = data.payments.map(p => {
             const period = p.period_start && p.period_end ?
-                `${new Date(p.period_start).toLocaleDateString('uz-UZ')} → ${new Date(p.period_end).toLocaleDateString('uz-UZ')}` : '—';
+                `${new Date(p.period_start).toLocaleDateString('uz-UZ')} � ${new Date(p.period_end).toLocaleDateString('uz-UZ')}` : '�';
 
             return `<tr>
-                <td>${p.payment_date || '—'}</td>
-                <td>${p.client_name || '—'}</td>
+                <td>${p.payment_date || '�'}</td>
+                <td>${p.client_name || '�'}</td>
                 <td class="money">${formatMoney(p.amount_uzs)} so'm</td>
                 <td>${p.months_paid} oy</td>
                 <td>${period}</td>
-                <td>${p.confirmed_by || '—'}</td>
+                <td>${p.confirmed_by || '�'}</td>
             </tr>`;
         }).join('');
     } catch (e) {
@@ -624,7 +624,7 @@ function switchTab(tab) {
 let clientsCache = {};
 
 function showAddClientModal() {
-    document.getElementById('clientModalTitle').textContent = '➕ ' + HD2LANG.new_client;
+    document.getElementById('clientModalTitle').textContent = '? ' + HD2LANG.new_client;
     document.getElementById('edit-client-id').value = '';
     document.getElementById('client-name').value = '';
     document.getElementById('client-phone').value = '';
@@ -650,7 +650,7 @@ async function editClient(id) {
         const c = data.clients.find(x => x.id === id);
         if (!c) return;
 
-        document.getElementById('clientModalTitle').textContent = '✏️ ' + HD2LANG.edit_client;
+        document.getElementById('clientModalTitle').textContent = '?? ' + HD2LANG.edit_client;
         document.getElementById('edit-client-id').value = c.id;
         document.getElementById('client-name').value = c.name || '';
         document.getElementById('client-phone').value = c.phone || '';
@@ -771,7 +771,7 @@ async function saveManualPayment() {
             closePaymentModal();
             loadClients();
             loadStats();
-            alert('✅ ' + HD2LANG.payment_success);
+            alert('? ' + HD2LANG.payment_success);
         } else {
             alert(HD2LANG.error_prefix + ': ' + (result.error || HD2LANG.error_unknown));
         }
@@ -798,7 +798,7 @@ async function approveOrder(orderId) {
             loadOrders();
             loadStats();
             loadClients();
-            let msg = '✅ ' + HD2LANG.order_approved;
+            let msg = '? ' + HD2LANG.order_approved;
             if (result.server_msg) msg += '\n' + result.server_msg;
             alert(msg);
         } else {
@@ -816,10 +816,10 @@ async function deleteClient(clientId, clientName) {
     const msg = HD2LANG.confirm_delete.replace('{name}', clientName);
     if (!confirm(msg)) return;
 
-    const inputName = prompt(`🔴 ${HD2LANG.confirm_name}\n\n"${clientName}"`);
+    const inputName = prompt(`?? ${HD2LANG.confirm_name}\n\n"${clientName}"`);
     if (inputName === null) return;
     if (inputName.trim() !== clientName.trim()) {
-        alert('❌ ' + HD2LANG.name_mismatch);
+        alert('? ' + HD2LANG.name_mismatch);
         return;
     }
 
@@ -846,12 +846,12 @@ async function toggleServer(dropletId, currentStatus, clientName) {
     const action = currentStatus === 'active' ? 'off' : 'on';
     const actionText = action === 'on' ? HD2LANG.action_on : HD2LANG.action_off;
 
-    if (!confirm(`⚠️ "${clientName}" ${HD2LANG.confirm_toggle_text.replace('{action}', actionText)}`)) return;
+    if (!confirm(`?? "${clientName}" ${HD2LANG.confirm_toggle_text.replace('{action}', actionText)}`)) return;
 
-    const inputName = prompt(`🔴 ${HD2LANG.confirm_name}\n\n"${clientName}"`);
+    const inputName = prompt(`?? ${HD2LANG.confirm_name}\n\n"${clientName}"`);
     if (inputName === null) return;
     if (inputName.trim() !== clientName.trim()) {
-        alert('❌ ' + HD2LANG.name_mismatch);
+        alert('? ' + HD2LANG.name_mismatch);
         return;
     }
 
@@ -864,7 +864,7 @@ async function toggleServer(dropletId, currentStatus, clientName) {
         const result = await res.json();
 
         if (result.success) {
-            alert(`✅ ${HD2LANG.server_turning.replace('{action}', actionText)}`);
+            alert(`? ${HD2LANG.server_turning.replace('{action}', actionText)}`);
             loadClients();
             loadStats();
             setTimeout(() => { loadClients(); loadStats(); }, 3000);
@@ -904,9 +904,9 @@ async function loadDroplets() {
             return `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
                 <div>
                     <strong>${d.name}</strong>
-                    <br><small style="color:#888;">ID: ${d.id} | IP: ${d.ip_address || '—'} | ${d.memory}MB | ${d.vcpus}vCPU | ${d.region}</small>
+                    <br><small style="color:#888;">ID: ${d.id} | IP: ${d.ip_address || '�'} | ${d.memory}MB | ${d.vcpus}vCPU | ${d.region}</small>
                 </div>
-                <span style="color:${statusColor}; font-weight:600;">● ${d.status}</span>
+                <span style="color:${statusColor}; font-weight:600;">? ${d.status}</span>
             </div>`;
         }).join('');
     } catch (e) {

@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Yig'ish{% endblock %}
 
@@ -52,7 +52,7 @@
 
 {% block content %}
 <div class="tv-wrap" style="max-width: 100%; width: 100%; padding: 0 12px;">
-    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
+    <a href="/transfer" class="tv-back-link">� Transferlar ro'yxati</a>
     <div id="tvRoot"></div>
 </div>
 
@@ -89,17 +89,17 @@ function render() {
         <div class="te-topbar">
             <div>
                 <div class="label">Qayerdan (ombor)</div>
-                <div class="loc-name">🏭 ${FROM_NAME}</div>
+                <div class="loc-name">?? ${FROM_NAME}</div>
             </div>
-            <div class="arrow">➜</div>
+            <div class="arrow">?</div>
             <div>
                 <div class="label">Qayerga (do'kon)</div>
-                <div class="loc-name">🔄 ${TO_NAME}</div>
+                <div class="loc-name">?? ${TO_NAME}</div>
             </div>
             <div style="text-align:right;min-width:120px;">
                 <div class="label">Holat</div>
-                <span class="tv-status tv-status-picking">⚙️ Yig'ilmoqda</span>
-                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">✓ Saqlandi</span>
+                <span class="tv-status tv-status-picking">?? Yig'ilmoqda</span>
+                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">? Saqlandi</span>
             </div>
         </div>
 
@@ -107,15 +107,15 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-left">
                     <div>
-                        <h3 class="te-panel-title">📦 Ombor: ${FROM_NAME}</h3>
-                        <span class="te-panel-subtitle">— Mavjud mahsulotlar, qo'shing yoki yig'ing</span>
+                        <h3 class="te-panel-title">?? Ombor: ${FROM_NAME}</h3>
+                        <span class="te-panel-subtitle">� Mavjud mahsulotlar, qo'shing yoki yig'ing</span>
                     </div>
-                    <span class="te-from-badge" id="fromCount">⏳</span>
+                    <span class="te-from-badge" id="fromCount">?</span>
                 </div>
                 <div class="te-panel-body">
-                    <input type="text" id="productSearch" class="te-search-input" placeholder="🔎 Nomi yoki barcode..." />
+                    <input type="text" id="productSearch" class="te-search-input" placeholder="?? Nomi yoki barcode..." />
                     <div class="te-product-list" id="productList">
-                        <div class="te-selected-empty">⏳ Yuklanmoqda...</div>
+                        <div class="te-selected-empty">? Yuklanmoqda...</div>
                     </div>
                 </div>
             </div>
@@ -123,8 +123,8 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-right">
                     <div>
-                        <h3 class="te-panel-title">🔄 Yig'ish: ${TO_NAME} uchun</h3>
-                        <span class="te-panel-subtitle">— Sotuvchi so'ragan + to'g'irlashlar</span>
+                        <h3 class="te-panel-title">?? Yig'ish: ${TO_NAME} uchun</h3>
+                        <span class="te-panel-subtitle">� Sotuvchi so'ragan + to'g'irlashlar</span>
                     </div>
                     <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
                 </div>
@@ -143,7 +143,7 @@ function render() {
 
         <div class="te-actions-bar">
             <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
-            <button class="tv-btn tv-btn-success" id="btnDispatch">📦 Jo'natdim (sotuvchiga yuborish)</button>
+            <button class="tv-btn tv-btn-success" id="btnDispatch">?? Jo'natdim (sotuvchiga yuborish)</button>
         </div>
     `;
 
@@ -165,7 +165,7 @@ async function loadProducts() {
         document.getElementById('fromCount').textContent = `${allProducts.length} ta`;
         renderProductList();
     } catch (e) {
-        document.getElementById('productList').innerHTML = '<div class="te-selected-empty">⚠️ Xato: ' + e.message + '</div>';
+        document.getElementById('productList').innerHTML = '<div class="te-selected-empty">?? Xato: ' + e.message + '</div>';
     }
 }
 
@@ -189,9 +189,9 @@ function renderProductList() {
             <div class="te-product-row" data-pid="${p.id}">
                 <div>
                     <div class="te-product-name">${p.name}</div>
-                    <div class="te-product-meta">📦 ${fmtNum(stock)} dona • 💰 ${fmtNum(p.price)}</div>
+                    <div class="te-product-meta">?? ${fmtNum(stock)} dona � ?? ${fmtNum(p.price)}</div>
                 </div>
-                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓ ro\'yxatda' : '+ qo\'shish'}</button>
+                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '? ro\'yxatda' : '+ qo\'shish'}</button>
             </div>`;
     }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidiring.</div>` : '');
     list.querySelectorAll('.te-product-row').forEach(row => {
@@ -227,13 +227,13 @@ function renderSelected() {
                 <td>${it.name}</td>
                 <td>
                     <div class="te-qty-cell">
-                        <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+                        <button class="te-qty-btn" onclick="changeQty(${idx}, -1)">-</button>
                         <input type="number" class="te-qty-input" value="${it.quantity}" min="0" step="0.01" onchange="setQty(${idx}, this.value)" />
                         <button class="te-qty-btn" onclick="changeQty(${idx}, 1)">+</button>
                         ${origHint}
                     </div>
                 </td>
-                <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+                <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})">???</button></td>
             </tr>`;
     }).join('');
 }
@@ -296,17 +296,17 @@ async function dispatchTransfer() {
         });
         const data = await res.json();
         if (data.success) {
-            alert('✅ ' + data.message);
+            alert('? ' + data.message);
             window.location.href = '/transfer';
         } else {
             alert('Xato: ' + (data.error || 'Noma\'lum'));
             btn.disabled = false;
-            btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+            btn.textContent = '?? Jo\'natdim (sotuvchiga yuborish)';
         }
     } catch (e) {
         alert('Tarmoq: ' + e.message);
         btn.disabled = false;
-        btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+        btn.textContent = '?? Jo\'natdim (sotuvchiga yuborish)';
     }
 }
 

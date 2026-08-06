@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Database Migration Tool</title>
@@ -67,16 +67,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚙️ Database Management Tool</h1>
+        <h1>?? Database Management Tool</h1>
         
         <div class="warning">
-            <strong>⚠️ Diqqat!</strong> Ma'lumotlar bazasini tozalash qaytarilmas jarayon. Barcha ma'lumotlar o'chib ketadi!
+            <strong>?? Diqqat!</strong> Ma'lumotlar bazasini tozalash qaytarilmas jarayon. Barcha ma'lumotlar o'chib ketadi!
         </div>
 
-        <h3>�️ Ma'lumotlar bazasini tozalash</h3>
+        <h3>?? Ma'lumotlar bazasini tozalash</h3>
         <button class="btn-danger" onclick="confirmClearDatabase()">Ma'lumotlar bazasini tozalash</button>
         
-        <h3>🔧 Migration</h3>
+        <h3>?? Migration</h3>
         <button class="btn-warning" onclick="addCurrencyColumn()">Add Currency Rate Column</button>
         
         <div id="result"></div>
@@ -84,12 +84,12 @@
     
     <script>
     async function confirmClearDatabase() {
-        const confirmation = confirm('⚠️ DIQQAT! Bu amalni bajarish barcha ma\'lumotlarni o\'chiradi:\n\n' +
-            '• Barcha savdolar\n' +
-            '• Barcha mijozlar\n' +
-            '• Barcha mahsulotlar\n' +
-            '• Barcha qarzlar\n' +
-            '• Barcha to\'lovlar\n\n' +
+        const confirmation = confirm('?? DIQQAT! Bu amalni bajarish barcha ma\'lumotlarni o\'chiradi:\n\n' +
+            '� Barcha savdolar\n' +
+            '� Barcha mijozlar\n' +
+            '� Barcha mahsulotlar\n' +
+            '� Barcha qarzlar\n' +
+            '� Barcha to\'lovlar\n\n' +
             'Bu jarayonni qaytarib bo\'lmaydi!\n\n' +
             'Davom etishni xohlaysizmi?');
         
@@ -103,7 +103,7 @@
         }
         
         try {
-            document.getElementById('result').innerHTML = '⏳ Ma\'lumotlar bazasi tozalanmoqda...';
+            document.getElementById('result').innerHTML = '? Ma\'lumotlar bazasi tozalanmoqda...';
             
             const response = await fetch('/api/clear-database', {
                 method: 'POST',
@@ -114,16 +114,16 @@
             
             if (data.success) {
                 document.getElementById('result').innerHTML = 
-                    '✅ Ma\'lumotlar bazasi muvaffaqiyatli tozalandi!\n\n' +
+                    '? Ma\'lumotlar bazasi muvaffaqiyatli tozalandi!\n\n' +
                     JSON.stringify(data, null, 2);
             } else {
                 document.getElementById('result').innerHTML = 
-                    '❌ Xatolik yuz berdi:\n\n' + 
+                    '? Xatolik yuz berdi:\n\n' + 
                     JSON.stringify(data, null, 2);
             }
         } catch (error) {
             document.getElementById('result').innerHTML = 
-                '❌ Xatolik: ' + error.message;
+                '? Xatolik: ' + error.message;
         }
     }
     

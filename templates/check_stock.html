@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('cs_title') }}{% endblock %}
 
@@ -41,7 +41,7 @@
                 <tbody id="activeSessionsTable">
                     <tr>
                         <td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">
-                            <div style="font-size: 40px; margin-bottom: 8px;">📋</div>
+                            <div style="font-size: 40px; margin-bottom: 8px;">??</div>
                             <div>{{ t('cs_no_active') }}</div>
                         </td>
                     </tr>
@@ -69,7 +69,7 @@
                 <tbody id="completedSessionsTable">
                     <tr>
                         <td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">
-                            <div style="font-size: 40px; margin-bottom: 8px;">✅</div>
+                            <div style="font-size: 40px; margin-bottom: 8px;">?</div>
                             <div>{{ t('cs_no_completed') }}</div>
                         </td>
                     </tr>
@@ -86,7 +86,7 @@
 <style>
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -181,7 +181,7 @@ const CSLANG = {
 
 // Foydalanuvchi roli
 const userRole = "{{ session.role }}";
-console.log("👤 User role:", userRole);
+console.log("?? User role:", userRole);
 
 // Jarayondagi tekshiruvlar ro'yxati
 let checkSessions = [];
@@ -270,7 +270,7 @@ async function loadActiveSessions() {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
-                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">📋</div>
+                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">??</div>
                         <div>${CSLANG.no_active}</div>
                     </td>
                 </tr>
@@ -282,7 +282,7 @@ async function loadActiveSessions() {
         data.sessions.forEach((session, index) => {
             const row = document.createElement('tr');
             
-            const locationIcon = session.location_type === 'store' ? '🏪' : '📦';
+            const locationIcon = session.location_type === 'store' ? '??' : '??';
             
             // Progress foizini hisoblash
             const progressPercent = session.progress_percent || 0;
@@ -359,7 +359,7 @@ async function loadCompletedSessions(page = 1) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
-                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">✅</div>
+                        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">?</div>
                         <div>${CSLANG.no_completed}</div>
                     </td>
                 </tr>
@@ -376,7 +376,7 @@ async function loadCompletedSessions(page = 1) {
         data.sessions.forEach((session, index) => {
             const row = document.createElement('tr');
             
-            const locationIcon = session.location_type === 'store' ? '🏪' : '📦';
+            const locationIcon = session.location_type === 'store' ? '??' : '??';
             const globalIndex = (currentCompletedPage - 1) * 50 + index + 1;
             
             row.innerHTML = `
@@ -434,7 +434,7 @@ function renderCompletedPagination(pagination) {
     // Oldingi sahifa tugmasi
     const prevBtn = document.createElement('button');
     prevBtn.className = 'pagination-btn';
-    prevBtn.innerHTML = '« ' + CSLANG.prev;
+    prevBtn.innerHTML = '� ' + CSLANG.prev;
     prevBtn.disabled = !pagination.has_prev;
     prevBtn.onclick = () => loadCompletedSessions(pagination.page - 1);
     container.appendChild(prevBtn);
@@ -490,7 +490,7 @@ function renderCompletedPagination(pagination) {
     // Keyingi sahifa tugmasi
     const nextBtn = document.createElement('button');
     nextBtn.className = 'pagination-btn';
-    nextBtn.innerHTML = CSLANG.next + ' »';
+    nextBtn.innerHTML = CSLANG.next + ' �';
     nextBtn.disabled = !pagination.has_next;
     nextBtn.onclick = () => loadCompletedSessions(pagination.page + 1);
     container.appendChild(nextBtn);
@@ -519,14 +519,14 @@ async function deleteSession(sessionId) {
         const data = await response.json();
         
         if (data.success) {
-            alert('✅ ' + CSLANG.delete_success);
+            alert('? ' + CSLANG.delete_success);
             loadCompletedSessions(currentCompletedPage);
         } else {
-            alert('❌ ' + (data.message || CSLANG.delete_error));
+            alert('? ' + (data.message || CSLANG.delete_error));
         }
     } catch (error) {
         console.error('Tekshiruvni o\'chirishda xatolik:', error);
-        alert('❌ ' + CSLANG.server_error);
+        alert('? ' + CSLANG.server_error);
     }
 }
 

@@ -1,4 +1,4 @@
-﻿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}Savdo Tarixi{% endblock %}
 
@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- 🔍 DEBUG: Session Role = {{ session.role }} -->
+<!-- ?? DEBUG: Session Role = {{ session.role }} -->
 {% endblock %}
 
 {% block content %}
@@ -1624,7 +1624,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Role-based profit column hiding (backup - already handled by server-side template)
             const profitElements = document.querySelectorAll('.col-profit, th.col-profit, td.col-profit, [class*="col-profit"]');
             profitElements.forEach((el, index) => {
-                console.log(`🔍 DEBUG: Element ${index}:`, el.tagName, el.className, el.textContent);
+                console.log(`?? DEBUG: Element ${index}:`, el.tagName, el.className, el.textContent);
                 el.style.display = 'none';
                 el.style.visibility = 'hidden';
                 el.remove(); // Butunlay o'chirish
@@ -1638,11 +1638,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (node.nodeType === 1) { // Element node
                         const profitEls = node.querySelectorAll ? node.querySelectorAll('.col-profit, th.col-profit, td.col-profit') : [];
                         profitEls.forEach(el => {
-                            console.log('🔍 DEBUG: Yangi col-profit element topildi va o\'chirildi');
+                            console.log('?? DEBUG: Yangi col-profit element topildi va o\'chirildi');
                             el.remove();
                         });
                         if (node.classList && node.classList.contains('col-profit')) {
-                            console.log('🔍 DEBUG: col-profit node o\'zi qo\'shildi va o\'chirildi');
+                            console.log('?? DEBUG: col-profit node o\'zi qo\'shildi va o\'chirildi');
                             node.remove();
                         }
                     }
@@ -1693,7 +1693,7 @@ function clearTable() {
 
 function forceRefresh() {
     // Majburiy yangilash - cache'ni tozalash
-    console.log('🔄 Majburiy yangilash...');
+    console.log('?? Majburiy yangilash...');
     clearTable();
     
     // Browser cache'ni tozalash
@@ -1715,7 +1715,7 @@ async function loadSalesHistory(page = 1) {
         clearTable();
         
         // Cache va localStorage tozalash
-        console.log('🧹 Cache va localStorage tozalanmoqda...');
+        console.log('?? Cache va localStorage tozalanmoqda...');
         if ('caches' in window) {
             caches.keys().then(names => {
                 names.forEach(name => {
@@ -1724,16 +1724,16 @@ async function loadSalesHistory(page = 1) {
             });
         }
         
-        console.log('🔄 Real API ma\'lumotlari yuklanmoqda...');
+        console.log('?? Real API ma\'lumotlari yuklanmoqda...');
         
         // Sana filtrlarini olish
         const dateFromInput = document.getElementById('dateFromFilter');
         const dateToInput = document.getElementById('dateToFilter');
         
-        console.log('📅 DEBUG: dateFromInput:', dateFromInput);
-        console.log('📅 DEBUG: dateFromInput.value:', dateFromInput?.value);
-        console.log('📅 DEBUG: dateToInput:', dateToInput);
-        console.log('📅 DEBUG: dateToInput.value:', dateToInput?.value);
+        console.log('?? DEBUG: dateFromInput:', dateFromInput);
+        console.log('?? DEBUG: dateFromInput.value:', dateFromInput?.value);
+        console.log('?? DEBUG: dateToInput:', dateToInput);
+        console.log('?? DEBUG: dateToInput.value:', dateToInput?.value);
         
         const dateFrom = dateFromInput?.value || '';
         const dateTo = dateToInput?.value || '';
@@ -1746,27 +1746,27 @@ async function loadSalesHistory(page = 1) {
         // Mijoz filtri qo'shish
         if (selectedCustomerId) {
             apiUrl += `&customer_id=${selectedCustomerId}`;
-            console.log('👤 Mijoz filtri qo\'shildi:', selectedCustomerId);
+            console.log('?? Mijoz filtri qo\'shildi:', selectedCustomerId);
         }
         
         // Qidiruv filtri qo'shish
         const searchTerm = document.getElementById('searchInput')?.value.trim();
         if (searchTerm) {
             apiUrl += `&search_term=${encodeURIComponent(searchTerm)}`;
-            console.log('🔍 Qidiruv filtri qo\'shildi:', searchTerm);
+            console.log('?? Qidiruv filtri qo\'shildi:', searchTerm);
         }
         
         // Joylashuv filtri qo'shish
         const locationFilter = document.getElementById('locationFilter')?.value;
         if (locationFilter) {
             apiUrl += `&location_filter=${encodeURIComponent(locationFilter)}`;
-            console.log('📍 Joylashuv filtri qo\'shildi:', locationFilter);
+            console.log('?? Joylashuv filtri qo\'shildi:', locationFilter);
         }
         
         apiUrl += `&nocache=` + new Date().getTime();
         
-        console.log('📅 API URL:', apiUrl);
-        console.log('📅 Sana filtrlari:', { dateFrom, dateTo });
+        console.log('?? API URL:', apiUrl);
+        console.log('?? Sana filtrlari:', { dateFrom, dateTo });
         
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -1783,13 +1783,13 @@ async function loadSalesHistory(page = 1) {
         }
         
         const data = await response.json();
-        console.log('🔍 Real API Response:', data);
-        console.log('🔍 API Success:', data.success);
-        console.log('🔍 API Data:', data.data);
+        console.log('?? Real API Response:', data);
+        console.log('?? API Success:', data.success);
+        console.log('?? API Data:', data.data);
         
         // Ma'lumotlarni chuqur debug qilish
         if (data.data && data.data.sales) {
-            console.log('📅 Birinchi 5 ta savdo sanasi:');
+            console.log('?? Birinchi 5 ta savdo sanasi:');
             data.data.sales.slice(0, 5).forEach((sale, index) => {
                 console.log(`   ${index + 1}. ID: ${sale.id}, Sana: ${sale.sale_date}, Format: ${typeof sale.sale_date}`);
             });
@@ -1797,8 +1797,8 @@ async function loadSalesHistory(page = 1) {
         
         // Faqat real API'dan kelayotgan ma'lumotlarni ko'rsatish
         if (data.success && data.data) {
-            console.log('📊 Real Sales Array:', data.data.sales);
-            console.log('📊 Real Sales Length:', data.data.sales ? data.data.sales.length : 0);
+            console.log('?? Real Sales Array:', data.data.sales);
+            console.log('?? Real Sales Length:', data.data.sales ? data.data.sales.length : 0);
             
             // Pagination ma'lumotlarini saqlash
             allSalesData = data.data.sales || [];
@@ -1815,7 +1815,7 @@ async function loadSalesHistory(page = 1) {
             displaySalesData(data.data);
             updatePaginationButtons();
         } else {
-            console.log('❌ API format noto\'g\'ri:', data);
+            console.log('? API format noto\'g\'ri:', data);
             // Agar format noto'g'ri bo'lsa, bo'sh jadval ko'rsatish
             document.getElementById('salesTableBody').innerHTML = 
                 '<tr><td colspan="9" class="loading">Real savdo ma\'lumotlari topilmadi</td></tr>';
@@ -1845,15 +1845,15 @@ function displaySalesData(data) {
         allSalesData = sortedSales;
         filteredSalesData = [...sortedSales];
         
-        console.log('🔄 Ma\'lumotlar sortlandi, birinchi 3 ta sana:', 
+        console.log('?? Ma\'lumotlar sortlandi, birinchi 3 ta sana:', 
             sortedSales.slice(0, 3).map(s => s.sale_date));
         
         // Joylashuvlar ro'yxatini yangilash
         loadLocationsForFilter();
     }
     
-    console.log('📈 Statistikalar:', stats);
-    console.log('📋 Savdolar:', salesData);
+    console.log('?? Statistikalar:', stats);
+    console.log('?? Savdolar:', salesData);
     
     // Statistikalarni yangilash (0 ham to'g'ri qiymat, shuning uchun ?? ishlatamiz)
     document.getElementById('totalSales').textContent = stats.total_sales ?? salesData.length;
@@ -1888,10 +1888,10 @@ function displaySalesData(data) {
         
         // DEBUG: Birinchi savdoni tekshirish
         if (salesData.indexOf(sale) === 0) {
-            console.log('🔍 DEBUG - Birinchi savdo:', sale);
-            console.log('🔍 DEBUG - Items:', items);
+            console.log('?? DEBUG - Birinchi savdo:', sale);
+            console.log('?? DEBUG - Items:', items);
             if (items.length > 0) {
-                console.log('🔍 DEBUG - Birinchi item unit_price:', items[0].unit_price);
+                console.log('?? DEBUG - Birinchi item unit_price:', items[0].unit_price);
             }
         }
         
@@ -1940,7 +1940,7 @@ function displaySalesData(data) {
                 </td>
                 <td rowspan="${items.length}" class="group-cell group-customer">
                     <div class="customer-info">
-                        <div class="customer-name">${sale.customer_name || '� Noma\'lum'}</div>
+                        <div class="customer-name">${sale.customer_name || '? Noma\'lum'}</div>
                         <div class="customer-phone">${sale.customer_phone || '+998 XX XXX XX XX'}</div>
                     </div>
                 </td>
@@ -2000,7 +2000,7 @@ function displaySalesData(data) {
     // Compact mode holatini tekshirish va qo'llash
     const compactToggle = document.getElementById('compactViewToggle');
     if (compactToggle && compactToggle.checked) {
-        console.log('🔄 Ma\'lumotlar yuklangandan keyin compact mode yoqilmoqda');
+        console.log('?? Ma\'lumotlar yuklangandan keyin compact mode yoqilmoqda');
         updateTableForCompactView();
     }
     
@@ -2016,15 +2016,15 @@ function displaySalesData(data) {
 // Mahsulot nomlarini highlight qilish
 function highlightProductNames() {
     const searchTerm = document.getElementById('searchInput')?.value;
-    console.log('🔍 highlightProductNames ishga tushdi, searchTerm:', searchTerm);
+    console.log('?? highlightProductNames ishga tushdi, searchTerm:', searchTerm);
     
     if (!searchTerm || !searchTerm.trim()) {
-        console.log('⚠️ searchTerm bo\'sh, highlight qilinmaydi');
+        console.log('?? searchTerm bo\'sh, highlight qilinmaydi');
         return;
     }
     
     const productCells = document.querySelectorAll('.product-cell');
-    console.log('📦 Topilgan .product-cell: ', productCells.length);
+    console.log('?? Topilgan .product-cell: ', productCells.length);
     
     productCells.forEach((cell, index) => {
         const originalText = cell.textContent;
@@ -2033,7 +2033,7 @@ function highlightProductNames() {
         cell.innerHTML = highlightedHTML;
     });
     
-    console.log('✅ Highlight bajarildi');
+    console.log('? Highlight bajarildi');
 }
 
 // SaleItem dan joylashuv nomini olish funksiyasi
@@ -2044,7 +2044,7 @@ function getLocationName(item) {
 
 function editSaleGroup(saleId) {
     // Savdo guruhini tahrirlash funksiyasi - Sales sahifasiga yo'naltirish
-    console.log(`✏️ Savdo ${saleId} tahrirlash uchun sales sahifasiga yo'naltirmoqda...`);
+    console.log(`?? Savdo ${saleId} tahrirlash uchun sales sahifasiga yo'naltirmoqda...`);
     
     // Sales sahifasiga edit parametri bilan yo'naltirish
     window.location.href = `/sales?edit_group=${saleId}`;
@@ -2052,7 +2052,7 @@ function editSaleGroup(saleId) {
 
 function editSale(saleId) {
     // Bitta savdoni tahrirlash funksiyasi - Sales sahifasiga yo'naltirish
-    console.log(`✏️ Savdo ${saleId} tahrirlash uchun sales sahifasiga yo'naltirmoqda...`);
+    console.log(`?? Savdo ${saleId} tahrirlash uchun sales sahifasiga yo'naltirmoqda...`);
     
     // Sales sahifasiga edit parametri bilan yo'naltirish
     window.location.href = `/sales?edit=${saleId}`;
@@ -2184,23 +2184,23 @@ function saveEditedSale() {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            alert('✅ Savdo muvaffaqiyatli yangilandi!');
+            alert('? Savdo muvaffaqiyatli yangilandi!');
             closeEditModal();
             forceRefresh(); // Jadvalni yangilash
         } else {
-            alert('❌ Savdoni yangilashda xatolik: ' + result.error);
+            alert('? Savdoni yangilashda xatolik: ' + result.error);
         }
     })
     .catch(error => {
         console.error('Update error:', error);
-        alert('❌ Tarmoq xatoligi: ' + error.message);
+        alert('? Tarmoq xatoligi: ' + error.message);
     });
 }
 
 function deleteGroup(saleId) {
     // Savdo guruhini o'chirish funksiyasi
     if (confirm(`Bu savdoni to'liq o'chirishni xohlaysizmi?`)) {
-        console.log(`🗑️ Savdo o'chirilmoqda: ${saleId}`);
+        console.log(`??? Savdo o'chirilmoqda: ${saleId}`);
         
         fetch('/api/sales/' + saleId, {
             method: 'DELETE',
@@ -2213,16 +2213,16 @@ function deleteGroup(saleId) {
             console.log('Delete result:', result);
             
             if (result.success) {
-                alert('✅ Savdo muvaffaqiyatli o\'chirildi');
+                alert('? Savdo muvaffaqiyatli o\'chirildi');
                 forceRefresh(); // Jadvalni majburan yangilash
             } else {
-                alert('❌ Savdoni o\'chirishda xatolik: ' + result.error);
+                alert('? Savdoni o\'chirishda xatolik: ' + result.error);
                 forceRefresh(); // Baribir yangilash
             }
         })
         .catch(error => {
             console.error('Delete group error:', error);
-            alert('❌ Savdo guruhini o\'chirishda xatolik: ' + error.message);
+            alert('? Savdo guruhini o\'chirishda xatolik: ' + error.message);
         });
     }
 }
@@ -2230,7 +2230,7 @@ function deleteGroup(saleId) {
 function deleteSale(saleId) {
     // Savdoni o'chirish funksiyasi (eski funksiya, hozir ishlatilmaydi)
     if (confirm('Bu savdoni o\'chirishni xohlaysizmi?')) {
-        console.log(`🗑️ Savdo ${saleId} o'chirilmoqda...`);
+        console.log(`??? Savdo ${saleId} o'chirilmoqda...`);
         
         fetch('/api/sales/' + saleId, {
             method: 'DELETE',
@@ -2246,15 +2246,15 @@ function deleteSale(saleId) {
             console.log('Delete response:', data);
             
             if (data.success) {
-                alert('✅ Savdo muvaffaqiyatli o\'chirildi');
+                alert('? Savdo muvaffaqiyatli o\'chirildi');
                 forceRefresh(); // Jadvalni majburan yangilash
             } else {
-                alert('❌ Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+                alert('? Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
             }
         })
         .catch(error => {
             console.error('Delete xatolik:', error);
-            alert('❌ Tarmoq xatoligi: ' + error.message);
+            alert('? Tarmoq xatoligi: ' + error.message);
         });
     }
 }
@@ -2275,7 +2275,7 @@ function updatePaginationButtons() {
     
     // Oldingi sahifa tugmasi
     if (currentPage > 1) {
-        buttonsHtml += `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})">← Oldingi</button>`;
+        buttonsHtml += `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})">� Oldingi</button>`;
     }
     
     // Sahifa raqamlari
@@ -2312,7 +2312,7 @@ function updatePaginationButtons() {
     
     // Keyingi sahifa tugmasi
     if (currentPage < totalPages) {
-        buttonsHtml += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})">Keyingi →</button>`;
+        buttonsHtml += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})">Keyingi �</button>`;
     }
     
     paginationContainer.innerHTML = buttonsHtml;
@@ -2341,12 +2341,12 @@ function viewSaleDetails(saleId) {
             if (data.success && data.sale) {
                 showSaleDetailsModal(data.sale);
             } else {
-                alert('❌ Savdo tafsilotlarini olishda xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+                alert('? Savdo tafsilotlarini olishda xatolik: ' + (data.error || 'Noma\'lum xatolik'));
             }
         })
         .catch(error => {
             console.error('Savdo tafsilotlari xatolik:', error);
-            alert('❌ Tarmoq xatoligi: ' + error.message);
+            alert('? Tarmoq xatoligi: ' + error.message);
         });
 }
 
@@ -2374,9 +2374,9 @@ function showSaleDetailsModal(sale) {
                     <!-- Asosiy ma'lumotlar bir qatorda -->
                     <div class="sale-main-info">
                         <span class="customer-label">Mijoz:</span>
-                        <span class="customer-name">${sale.customer_name || '� Noma\'lum'}</span>
+                        <span class="customer-name">${sale.customer_name || '? Noma\'lum'}</span>
                         ${sale.customer_phone ? `<span class="customer-phone">(${sale.customer_phone})</span>` : ''}
-                        <span class="date-separator">•</span>
+                        <span class="date-separator">�</span>
                         <span class="date-label">Savdo sanasi:</span>
                         <span class="date-value">${new Date(sale.sale_date).toLocaleString('uz-UZ', { 
                             timeZone: 'Asia/Tashkent',
@@ -2439,10 +2439,10 @@ function closeSaleDetailsModal() {
 // To'lov turi matnini olish
 function getPaymentMethodText(method) {
     switch (method) {
-        case 'cash': return '💵 Naqd pul';
-        case 'click': return '📱 Click';
-        case 'terminal': return '💳 Terminal';
-        case 'debt': return '📝 Qarz';
+        case 'cash': return '?? Naqd pul';
+        case 'click': return '?? Click';
+        case 'terminal': return '?? Terminal';
+        case 'debt': return '?? Qarz';
         default: return method || 'Naqd pul';
     }
 }
@@ -2464,10 +2464,10 @@ function generatePaymentDetailsHTML(sale) {
     const debtUZS = debtUSD * rate;
     
     const payments = [
-        { name: '💵 Naqd pul', usd: cashUSD, uzs: cashUZS },
-        { name: '📱 Click', usd: clickUSD, uzs: clickUZS },
-        { name: '💳 Terminal', usd: terminalUSD, uzs: terminalUZS },
-        { name: '📝 Qarz', usd: debtUSD, uzs: debtUZS }
+        { name: '?? Naqd pul', usd: cashUSD, uzs: cashUZS },
+        { name: '?? Click', usd: clickUSD, uzs: clickUZS },
+        { name: '?? Terminal', usd: terminalUSD, uzs: terminalUZS },
+        { name: '?? Qarz', usd: debtUSD, uzs: debtUZS }
     ];
     
     // Faqat 0 dan katta to'lovlarni ko'rsatish
@@ -2526,7 +2526,7 @@ function getPaymentStatusText(status) {
 // Excel export funksiyasi
 function exportSaleToExcel() {
     if (!currentSaleData) {
-        alert('❌ Savdo ma\'lumotlari topilmadi!');
+        alert('? Savdo ma\'lumotlari topilmadi!');
         return;
     }
     
@@ -2627,7 +2627,7 @@ function generateExcelHTML(sale) {
 // Chop etish funksiyasi - Mini X90 printer uchun
 function printSaleReceipt() {
     if (!currentSaleData) {
-        alert('❌ Savdo ma\'lumotlari topilmadi!');
+        alert('? Savdo ma\'lumotlari topilmadi!');
         return;
     }
     
@@ -2738,14 +2738,14 @@ function generatePrintableReceipt(sale) {
         </head>
         <body>
             <div class="header">
-                <div class="shop-name">${sale.store_name || '🚫 O\'chirilgan do\'kon'}</div>
+                <div class="shop-name">${sale.store_name || '?? O\'chirilgan do\'kon'}</div>
                 <div class="receipt-info">
                     <div>Chek ID ${sale.id}</div>
                     <div>${new Date(sale.sale_date).toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}</div>
                     <div>Sotuvchi: ${sale.seller_name || 'Admin'}</div>
                     ${sale.seller_phone ? `<div>Tel: ${sale.seller_phone}</div>` : ''}
                     <div style="margin-top: 2mm; border-top: 1px dashed #ccc; padding-top: 2mm;">
-                        <div><strong>Mijoz:</strong> ${sale.customer_name || '� Noma\'lum'}</div>
+                        <div><strong>Mijoz:</strong> ${sale.customer_name || '? Noma\'lum'}</div>
                         ${sale.customer_phone && sale.customer_phone !== '+998 XX XXX XX XX' ? 
                             `<div><strong>Tel:</strong> ${sale.customer_phone}</div>` : ''}
                     </div>
@@ -2909,16 +2909,16 @@ async function loadCustomersForFilter() {
 // Joylashuvlar ro'yxatini yuklash (barcha do'konlar va omborlar)
 async function loadLocationsForFilter() {
     try {
-        console.log('📍 ===== JOYLASHUVLAR YUKLASH BOSHLANDI =====');
+        console.log('?? ===== JOYLASHUVLAR YUKLASH BOSHLANDI =====');
         
         // Backend'dan foydalanuvchi ruxsatlari bo'yicha joylashuvlarni olish
-        console.log('🔄 API so\'rovlari yuborilmoqda...');
+        console.log('?? API so\'rovlari yuborilmoqda...');
         const [storesResponse, warehousesResponse] = await Promise.all([
             fetch('/api/stores'),  // Foydalanuvchi huquqlari bo'yicha filterlangan
             fetch('/api/warehouses')  // Foydalanuvchi huquqlari bo'yicha filterlangan
         ]);
         
-        console.log('✅ API javoblari olindi:', {
+        console.log('? API javoblari olindi:', {
             storesStatus: storesResponse.status,
             storesOk: storesResponse.ok,
             warehousesStatus: warehousesResponse.status,
@@ -2927,50 +2927,50 @@ async function loadLocationsForFilter() {
         
         // Response'larni tekshirish
         if (!storesResponse.ok) {
-            console.error('❌ Stores API xatosi:', storesResponse.status, storesResponse.statusText);
+            console.error('? Stores API xatosi:', storesResponse.status, storesResponse.statusText);
         }
         if (!warehousesResponse.ok) {
-            console.error('❌ Warehouses API xatosi:', warehousesResponse.status, warehousesResponse.statusText);
+            console.error('? Warehouses API xatosi:', warehousesResponse.status, warehousesResponse.statusText);
         }
         
         const stores = await storesResponse.json();
         const warehouses = await warehousesResponse.json();
         
-        console.log('🏪 Do\'konlar (raw data):', stores);
-        console.log('🏪 Do\'konlar soni:', stores?.length || 0);
-        console.log('🏭 Omborlar (raw data):', warehouses);
-        console.log('🏭 Omborlar soni:', warehouses?.length || 0);
+        console.log('?? Do\'konlar (raw data):', stores);
+        console.log('?? Do\'konlar soni:', stores?.length || 0);
+        console.log('?? Omborlar (raw data):', warehouses);
+        console.log('?? Omborlar soni:', warehouses?.length || 0);
         
         // Do'konlar va omborlar ma'lumotlarini global o'zgaruvchilarda saqlash
         window.storesData = stores;
         window.warehousesData = warehouses;
         
         // Select elementini yangilash
-        console.log('🔍 locationFilter elementini qidirish...');
+        console.log('?? locationFilter elementini qidirish...');
         const locationSelect = document.getElementById('locationFilter');
         
         if (!locationSelect) {
-            console.error('❌ locationFilter elementi topilmadi!');
-            console.log('🔍 Mavjud elementlar:', document.querySelectorAll('select'));
+            console.error('? locationFilter elementi topilmadi!');
+            console.log('?? Mavjud elementlar:', document.querySelectorAll('select'));
             return;
         }
         
-        console.log('✅ locationFilter elementi topildi:', locationSelect);
-        console.log('🔍 Hozirgi select tarkibi:', locationSelect.innerHTML);
+        console.log('? locationFilter elementi topildi:', locationSelect);
+        console.log('?? Hozirgi select tarkibi:', locationSelect.innerHTML);
         
         // Avvalgi optionlarni tozalash
         locationSelect.innerHTML = '<option value="">Barcha joylashuvlar</option>';
-        console.log('🧹 Select tozalandi, yangi tarkib:', locationSelect.innerHTML);
+        console.log('?? Select tozalandi, yangi tarkib:', locationSelect.innerHTML);
         
         // Do'konlarni qo'shish
-        console.log('🏪 Do\'konlarni qo\'shish jarayoni...');
+        console.log('?? Do\'konlarni qo\'shish jarayoni...');
         if (stores && stores.length > 0) {
-            console.log(`✅ ${stores.length} ta do'kon topildi`);
+            console.log(`? ${stores.length} ta do'kon topildi`);
             const storeGroup = document.createElement('optgroup');
-            storeGroup.label = '🏪 Do\'konlar';
+            storeGroup.label = '?? Do\'konlar';
             
             stores.forEach((store, index) => {
-                console.log(`🏪 Do'kon ${index + 1}:`, {
+                console.log(`?? Do'kon ${index + 1}:`, {
                     id: store.id,
                     name: store.name,
                     address: store.address,
@@ -2982,29 +2982,29 @@ async function loadLocationsForFilter() {
                 option.textContent = `${store.name} (Do'kon)`;
                 storeGroup.appendChild(option);
                 
-                console.log(`   ➕ Option yaratildi: "${option.textContent}" = "${option.value}"`);
+                console.log(`   ? Option yaratildi: "${option.textContent}" = "${option.value}"`);
             });
             
-            console.log(`🏪 StoreGroup yaratildi, children: ${storeGroup.children.length}`);
+            console.log(`?? StoreGroup yaratildi, children: ${storeGroup.children.length}`);
             if (storeGroup.children.length > 0) {
                 locationSelect.appendChild(storeGroup);
-                console.log('✅ Do\'konlar guruhi select\'ga qo\'shildi');
+                console.log('? Do\'konlar guruhi select\'ga qo\'shildi');
             } else {
-                console.warn('⚠️ StoreGroup bo\'sh, qo\'shilmadi');
+                console.warn('?? StoreGroup bo\'sh, qo\'shilmadi');
             }
         } else {
-            console.warn('⚠️ Do\'konlar yo\'q yoki bo\'sh array');
+            console.warn('?? Do\'konlar yo\'q yoki bo\'sh array');
         }
         
         // Omborlarni qo'shish
-        console.log('🏭 Omborlarni qo\'shish jarayoni...');
+        console.log('?? Omborlarni qo\'shish jarayoni...');
         if (warehouses && warehouses.length > 0) {
-            console.log(`✅ ${warehouses.length} ta ombor topildi`);
+            console.log(`? ${warehouses.length} ta ombor topildi`);
             const warehouseGroup = document.createElement('optgroup');
-            warehouseGroup.label = '🏭 Omborlar';
+            warehouseGroup.label = '?? Omborlar';
             
             warehouses.forEach((warehouse, index) => {
-                console.log(`🏭 Ombor ${index + 1}:`, {
+                console.log(`?? Ombor ${index + 1}:`, {
                     id: warehouse.id,
                     name: warehouse.name,
                     address: warehouse.address,
@@ -3016,28 +3016,28 @@ async function loadLocationsForFilter() {
                 option.textContent = `${warehouse.name} (Ombor)`;
                 warehouseGroup.appendChild(option);
                 
-                console.log(`   ➕ Option yaratildi: "${option.textContent}" = "${option.value}"`);
+                console.log(`   ? Option yaratildi: "${option.textContent}" = "${option.value}"`);
             });
             
-            console.log(`🏭 WarehouseGroup yaratildi, children: ${warehouseGroup.children.length}`);
+            console.log(`?? WarehouseGroup yaratildi, children: ${warehouseGroup.children.length}`);
             locationSelect.appendChild(warehouseGroup);
-            console.log('✅ Omborlar guruhi select\'ga qo\'shildi');
+            console.log('? Omborlar guruhi select\'ga qo\'shildi');
         } else {
-            console.warn('⚠️ Omborlar yo\'q yoki bo\'sh array');
+            console.warn('?? Omborlar yo\'q yoki bo\'sh array');
         }
         
         // Final natija
-        console.log('🔍 FINAL SELECT TARKIBI:');
+        console.log('?? FINAL SELECT TARKIBI:');
         console.log('   innerHTML:', locationSelect.innerHTML);
         console.log('   Children soni:', locationSelect.children.length);
         console.log('   Options soni:', locationSelect.querySelectorAll('option').length);
-        console.log('📍 ===== JOYLASHUVLAR YUKLASH TUGADI =====');
+        console.log('?? ===== JOYLASHUVLAR YUKLASH TUGADI =====');
         
     } catch (error) {
         console.error('Joylashuvlarni yuklashda xatolik:', error);
         
         // Xato holatida eski mantiqni ishlatish
-        console.log('⚠️ Backend xatosi, savdo ma\'lumotlaridan joylashuvlar olinadi...');
+        console.log('?? Backend xatosi, savdo ma\'lumotlaridan joylashuvlar olinadi...');
         if (allSalesData && allSalesData.length > 0) {
             const uniqueLocations = [...new Set(
                 allSalesData.flatMap(sale => 
@@ -3153,7 +3153,7 @@ function selectCustomer(customerId, customerName, customerPhone) {
 
 // Qidiruv va filtrlarni qo'llash - serverdan qayta yuklash
 function applySearchAndFilters() {
-    console.log('🔍 Filtrlar qo\'llanmoqda - serverdan ma\'lumot yuklanadi');
+    console.log('?? Filtrlar qo\'llanmoqda - serverdan ma\'lumot yuklanadi');
     
     // Birinchi sahifadan boshlab serverdan filtrlab olish
     currentPage = 1;
@@ -3219,7 +3219,7 @@ function highlightWarehouseLocations() {
         
         // Ombor, warehouse va shunga o'xshash so'zlarni tekshirish
         if (cellText.includes('ombor') || cellText.includes('warehouse') || 
-            cellText.includes('склад') || cellText.includes('омбор')) {
+            cellText.includes('?????') || cellText.includes('?????')) {
             cell.classList.add('warehouse-location');
         }
     });
@@ -3227,21 +3227,21 @@ function highlightWarehouseLocations() {
 
 // Compact view toggle funksiyasi
 function initializeCompactView() {
-    console.log('🚀 initializeCompactView ishga tushdi');
+    console.log('?? initializeCompactView ishga tushdi');
     
     const compactToggle = document.getElementById('compactViewToggle');
     const tableContainer = document.querySelector('.table-container');
     
-    console.log('🔍 compactToggle element:', compactToggle);
-    console.log('🔍 tableContainer element:', tableContainer);
+    console.log('?? compactToggle element:', compactToggle);
+    console.log('?? tableContainer element:', tableContainer);
     
     if (!compactToggle) {
-        console.error('❌ compactViewToggle elementi topilmadi!');
+        console.error('? compactViewToggle elementi topilmadi!');
         return;
     }
     
     if (!tableContainer) {
-        console.error('❌ table-container elementi topilmadi!');
+        console.error('? table-container elementi topilmadi!');
         return;
     }
 
@@ -3249,7 +3249,7 @@ function initializeCompactView() {
     const savedCompactState = localStorage.getItem('compactViewEnabled');
     const isCompactEnabled = savedCompactState === 'true';
     
-    console.log('💾 Saqlangan compact holati:', savedCompactState);
+    console.log('?? Saqlangan compact holati:', savedCompactState);
     
     // Toggle holatini o'rnatish
     compactToggle.checked = isCompactEnabled;
@@ -3257,19 +3257,19 @@ function initializeCompactView() {
     // Agar compact mode yoqilgan bo'lsa, darhol qo'llash
     if (isCompactEnabled) {
         tableContainer.classList.add('compact-mode');
-        console.log('✅ Saqlangan compact mode yoqildi');
+        console.log('? Saqlangan compact mode yoqildi');
     }
     
     compactToggle.addEventListener('change', function() {
-        console.log('🔄 Compact view toggle:', this.checked);
+        console.log('?? Compact view toggle:', this.checked);
         
         // Holatni localStorage da saqlash
         localStorage.setItem('compactViewEnabled', this.checked.toString());
-        console.log('💾 Compact holati saqlandi:', this.checked);
+        console.log('?? Compact holati saqlandi:', this.checked);
         
         if (this.checked) {
             tableContainer.classList.add('compact-mode');
-            console.log('✅ Compact mode yoqildi');
+            console.log('? Compact mode yoqildi');
             // Ma'lumotlarni yangi savdolar birinchi bo'lishi uchun sortlash
             if (filteredSalesData && filteredSalesData.length > 0) {
                 filteredSalesData = [...filteredSalesData].sort((a, b) => {
@@ -3277,13 +3277,13 @@ function initializeCompactView() {
                     const dateB = new Date(b.sale_date || b.created_at || b.date);
                     return dateB - dateA; // DESC tartib
                 });
-                console.log('🔄 Compact mode uchun ma\'lumotlar sortlandi');
+                console.log('?? Compact mode uchun ma\'lumotlar sortlandi');
             }
             // Jadval ma'lumotlarini qayta yuklash compact formatda
             updateTableForCompactView();
         } else {
             tableContainer.classList.remove('compact-mode');
-            console.log('❌ Compact mode o\'chirildi');
+            console.log('? Compact mode o\'chirildi');
             // Oddiy formatda qayta yuklash - hozirgi filtrlangan ma'lumotlarni ishlatish
             if (filteredSalesData && filteredSalesData.length > 0) {
                 displaySalesData({
@@ -3300,8 +3300,8 @@ function initializeCompactView() {
 
 // Compact view uchun jadval ma'lumotlarini yangilash
 function updateTableForCompactView() {
-    console.log('🔄 updateTableForCompactView ishga tushdi');
-    console.log('📊 filteredSalesData:', filteredSalesData);
+    console.log('?? updateTableForCompactView ishga tushdi');
+    console.log('?? filteredSalesData:', filteredSalesData);
     
     // Hozirgi ma'lumotlardan foydalanib compact formatda ko'rsatish
     if (filteredSalesData && filteredSalesData.length > 0) {
@@ -3311,7 +3311,7 @@ function updateTableForCompactView() {
             const dateA = new Date(a.sale_date || a.created_at || a.date);
             const dateB = new Date(b.sale_date || b.created_at || b.date);
             
-            console.log('🔄 Sortlash:', {
+            console.log('?? Sortlash:', {
                 a_date: a.sale_date, 
                 b_date: b.sale_date,
                 a_parsed: dateA,
@@ -3321,14 +3321,14 @@ function updateTableForCompactView() {
             
             // Agar sanalar noto'g'ri bo'lsa, ID bo'yicha sort qilish
             if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                console.log('❌ Noto\'g\'ri sana, ID bo\'yicha sortlash');
+                console.log('? Noto\'g\'ri sana, ID bo\'yicha sortlash');
                 return (b.id || 0) - (a.id || 0); // Yangi ID'lar birinchi
             }
             
             return dateB - dateA; // Yangi savdolar birinchi (DESC)
         });
         
-        console.log('✅ Ma\'lumotlar sortlandi:', sortedData.map(s => s.sale_date).slice(0, 5));
+        console.log('? Ma\'lumotlar sortlandi:', sortedData.map(s => s.sale_date).slice(0, 5));
         
         // Sortlangan ma'lumotlardan foydalanish
         filteredSalesData = sortedData;
@@ -3338,10 +3338,10 @@ function updateTableForCompactView() {
         // Har bir savdo uchun bitta qator (savdo ID bo'yicha guruhlash)
         const salesGroups = {};
         
-        console.log('🔍 filteredSalesData sample:', filteredSalesData[0]);
+        console.log('?? filteredSalesData sample:', filteredSalesData[0]);
         
         filteredSalesData.forEach(sale => {
-            console.log('🔍 Sale obyekti:', {
+            console.log('?? Sale obyekti:', {
                 id: sale.id,
                 items: sale.items,
                 items_count: sale.items ? sale.items.length : 'items yo\'q'
@@ -3355,14 +3355,14 @@ function updateTableForCompactView() {
         });
         
         // Har bir savdo guruhi uchun bitta qator yaratish
-        console.log('🔢 Savdo guruhlari soni:', Object.values(salesGroups).length);
+        console.log('?? Savdo guruhlari soni:', Object.values(salesGroups).length);
         
         Object.values(salesGroups).forEach((items, index) => {
             if (items.length > 0) {
-                console.log(`📝 ${index + 1}-qator yaratilmoqda:`, items[0]);
+                console.log(`?? ${index + 1}-qator yaratilmoqda:`, items[0]);
                 
                 const firstItem = items[0];
-                console.log('🔍 firstItem tafsilotlari:', {
+                console.log('?? firstItem tafsilotlari:', {
                     sale_date: firstItem.sale_date,
                     location_name: firstItem.location_name,
                     store_name: firstItem.store_name,
@@ -3375,11 +3375,11 @@ function updateTableForCompactView() {
                 const totalProfit = parseFloat(firstItem.total_profit || 0);
                 const profitClass = totalProfit > 0 ? 'profit-positive' : totalProfit < 0 ? 'profit-negative' : 'profit-zero';
                 
-                console.log('🔍 DEBUG: Row yaratilmoqda, userRole =', userRole);
-                console.log('🔍 DEBUG: userRole type =', typeof userRole);
-                console.log('🔍 DEBUG: userRole length =', userRole.length);
-                console.log('🔍 DEBUG: userRole === "sotuvchi"? =', userRole === 'sotuvchi');
-                console.log('🔍 DEBUG: Profit cell will be created? =', userRole !== 'sotuvchi');
+                console.log('?? DEBUG: Row yaratilmoqda, userRole =', userRole);
+                console.log('?? DEBUG: userRole type =', typeof userRole);
+                console.log('?? DEBUG: userRole length =', userRole.length);
+                console.log('?? DEBUG: userRole === "sotuvchi"? =', userRole === 'sotuvchi');
+                console.log('?? DEBUG: Profit cell will be created? =', userRole !== 'sotuvchi');
                 
                 const row = document.createElement('tr');
                 row.className = 'compact-row';
@@ -3395,7 +3395,7 @@ function updateTableForCompactView() {
                         ${firstItem.customer_phone ? `<div class="customer-phone">${firstItem.customer_phone}</div>` : ''}
                     </td>
                     <td class="col-seller">${firstItem.seller_name || 'Admin'}</td>
-                    <td class="col-location">${firstItem.items && firstItem.items.length > 0 ? firstItem.items[0].location_name : (firstItem.store_name || '🚫 O\'chirilgan do\'kon')}</td>
+                    <td class="col-location">${firstItem.items && firstItem.items.length > 0 ? firstItem.items[0].location_name : (firstItem.store_name || '?? O\'chirilgan do\'kon')}</td>
                     <td class="col-product compact-hide" style="display: none;">${firstItem.items ? firstItem.items.length : 0} ta mahsulot</td>
                     <td class="col-quantity compact-hide" style="display: none;"></td>
                     <td class="col-price compact-hide" style="display: none;"></td>
@@ -3452,24 +3452,24 @@ function getCurrentStats() {
 
 // Sana formatlash funksiyasi
 function formatDate(dateString) {
-    console.log('📅 formatDate chaqirildi:', dateString, typeof dateString);
+    console.log('?? formatDate chaqirildi:', dateString, typeof dateString);
     if (!dateString) {
-        console.log('❌ dateString bo\'sh');
+        console.log('? dateString bo\'sh');
         return 'Noma\'lum';
     }
     
     try {
         const date = new Date(dateString);
-        console.log('📅 Date object yaratildi:', date, 'Valid:', !isNaN(date.getTime()));
+        console.log('?? Date object yaratildi:', date, 'Valid:', !isNaN(date.getTime()));
         if (isNaN(date.getTime())) {
-            console.log('❌ Noto\'g\'ri sana');
+            console.log('? Noto\'g\'ri sana');
             return 'Noma\'lum';
         }
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
         const result = `${day}.${month}.${year}`;
-        console.log('✅ formatDate natijasi:', {
+        console.log('? formatDate natijasi:', {
             input: dateString,
             parsed: date,
             day: day,
@@ -3479,33 +3479,33 @@ function formatDate(dateString) {
         });
         return result;
     } catch (e) {
-        console.log('❌ formatDate xatosi:', e);
+        console.log('? formatDate xatosi:', e);
         return 'Noma\'lum';
     }
 }
 
 // Vaqt formatlash funksiyasi
 function formatTime(dateString) {
-    console.log('🕐 formatTime chaqirildi:', dateString);
+    console.log('?? formatTime chaqirildi:', dateString);
     if (!dateString) {
-        console.log('❌ dateString bo\'sh (time)');
+        console.log('? dateString bo\'sh (time)');
         return '';
     }
     
     try {
         const date = new Date(dateString);
-        console.log('🕐 Date object yaratildi (time):', date);
+        console.log('?? Date object yaratildi (time):', date);
         if (isNaN(date.getTime())) {
-            console.log('❌ Noto\'g\'ri sana (time)');
+            console.log('? Noto\'g\'ri sana (time)');
             return '';
         }
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
         const result = `${hours}:${minutes}`;
-        console.log('✅ formatTime natijasi:', result);
+        console.log('? formatTime natijasi:', result);
         return result;
     } catch (e) {
-        console.log('❌ formatTime xatosi:', e);
+        console.log('? formatTime xatosi:', e);
         return '';
     }
 }
@@ -3513,28 +3513,28 @@ function formatTime(dateString) {
 // Valyuta kursini olish
 async function loadCurrencyRate() {
     try {
-        console.log('🔄 Sales History: valyuta kursini yuklayapman...');
+        console.log('?? Sales History: valyuta kursini yuklayapman...');
         const response = await fetch('/api/currency-rate');
         const data = await response.json();
         
-        console.log('📊 Sales History API javob:', data);
+        console.log('?? Sales History API javob:', data);
         
         if (data.success && data.rate) {
             const oldRate = USD_TO_UZS_RATE;
             USD_TO_UZS_RATE = data.rate.rate;
-            console.log(`✅ Sales History: ${oldRate} → ${USD_TO_UZS_RATE} UZS`);
+            console.log(`? Sales History: ${oldRate} � ${USD_TO_UZS_RATE} UZS`);
         } else {
-            console.error('❌ Sales History: API dan xato javob:', data);
+            console.error('? Sales History: API dan xato javob:', data);
         }
     } catch (error) {
-        console.error('❌ Sales History: valyuta yuklashda xatolik:', error);
+        console.error('? Sales History: valyuta yuklashda xatolik:', error);
     }
 }
 
 // Header dan valyuta kursi yangilanganda
 window.addEventListener('currencyRateUpdated', function(event) {
     USD_TO_UZS_RATE = event.detail.newRate;
-    console.log(`🔄 Sales History - Valyuta kursi yangilandi: 1 USD = ${USD_TO_UZS_RATE} UZS`);
+    console.log(`?? Sales History - Valyuta kursi yangilandi: 1 USD = ${USD_TO_UZS_RATE} UZS`);
     
     // Sahifani qayta yuklash (narxlar yangilansin)
     loadSalesHistory();

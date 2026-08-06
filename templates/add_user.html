@@ -1,4 +1,4 @@
-ï»¿{% extends "base_with_sidebar.html" %}
+{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('heading_add_user') }} - Sayt 2025{% endblock %}
 
@@ -9,12 +9,12 @@
    ============================================================ */
 .ps-page {
     padding: 28px 28px 40px;
-    background: #f5f6fa;
+    background: transparent;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* â”€â”€ Header â”€â”€ */
+/* ¦¦ Header ¦¦ */
 .ps-header {
     display: flex;
     align-items: center;
@@ -29,7 +29,7 @@
 }
 .ps-title i { color: #1a6eff; margin-right: 8px; }
 
-/* â”€â”€ Layout â”€â”€ */
+/* ¦¦ Layout ¦¦ */
 .form-layout {
     display: flex;
     gap: 24px;
@@ -37,7 +37,7 @@
     width: 100%;
 }
 
-/* â”€â”€ Cards â”€â”€ */
+/* ¦¦ Cards ¦¦ */
 .form-section,
 .info-section {
     flex: 1;
@@ -61,7 +61,7 @@
 }
 .card-title i { color: #1a6eff; }
 
-/* â”€â”€ Form groups â”€â”€ */
+/* ¦¦ Form groups ¦¦ */
 .form-group {
     margin-bottom: 18px;
 }
@@ -117,7 +117,7 @@
 }
 .form-row .form-group { flex: 1; }
 
-/* â”€â”€ Success / Error messages â”€â”€ */
+/* ¦¦ Success / Error messages ¦¦ */
 .success-message {
     background: #d1fae5;
     color: #065f46;
@@ -136,7 +136,7 @@
     display: none;
 }
 
-/* â”€â”€ Action buttons â”€â”€ */
+/* ¦¦ Action buttons ¦¦ */
 .form-actions {
     display: flex;
     gap: 10px;
@@ -177,7 +177,7 @@
 .required { color: #ef4444; }
 .loading { opacity: 0.6; pointer-events: none; }
 
-/* â”€â”€ Permissions section â”€â”€ */
+/* ¦¦ Permissions section ¦¦ */
 .permissions-control { margin-top: 4px; }
 .permission-group {
     margin-bottom: 16px;
@@ -240,7 +240,7 @@
     font-size: 13px;
 }
 
-/* â”€â”€ Responsive â”€â”€ */
+/* ¦¦ Responsive ¦¦ */
 @media (max-width: 1024px) {
     .ps-page { padding: 18px; }
 }
@@ -251,7 +251,7 @@
     .ps-header { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 
-/* â”€â”€ Photo Upload â”€â”€ */
+/* ¦¦ Photo Upload ¦¦ */
 .photo-upload-section {
     display: flex;
     align-items: center;
@@ -729,7 +729,7 @@
                     label.className = 'permission-item';
                     label.innerHTML = `
                         <input type="checkbox" name="sales_location_${location.id}" value="${location.id}" data-type="${location.type}">
-                        <span>${location.type === 'store' ? 'ğŸª' : 'ğŸ­'} ${location.name}</span>
+                        <span>${location.type === 'store' ? '??' : '??'} ${location.name}</span>
                     `;
                     salesLocationsList.appendChild(label);
                 });
@@ -767,7 +767,7 @@
             data.locations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = `${location.type}_${location.id}`;
-                option.textContent = `${location.type === 'store' ? 'ğŸª' : 'ğŸ­'} ${location.name}`;
+                option.textContent = `${location.type === 'store' ? '??' : '??'} ${location.name}`;
                 primaryLocationSelect.appendChild(option);
             });
         }
@@ -798,7 +798,7 @@
                     label.className = 'permission-item';
                     label.innerHTML = `
                         <input type="checkbox" name="transfer_location_${location.id}" value="${location.id}" data-type="${location.type}">
-                        <span>${location.type === 'store' ? 'ğŸª' : 'ğŸ­'} ${location.name}</span>
+                        <span>${location.type === 'store' ? '??' : '??'} ${location.name}</span>
                     `;
                     transferLocationsList.appendChild(label);
                 });
@@ -847,7 +847,7 @@
                     label.className = 'permission-item';
                     label.innerHTML = `
                         <input type="checkbox" name="stock_check_location_${location.id}" value="${location.id}" data-type="${location.type}">
-                        <span>${location.type === 'store' ? 'ğŸª' : 'ğŸ­'} ${location.name}</span>
+                        <span>${location.type === 'store' ? '??' : '??'} ${location.name}</span>
                     `;
                     stockCheckLocationsList.appendChild(label);
                 });
@@ -883,7 +883,7 @@
                     label.className = 'permission-item';
                     label.innerHTML = `
                         <input type="checkbox" name="location_${location.id}" value="${location.id}">
-                        <span>${location.type === 'store' ? 'ğŸª' : 'ğŸ­'} ${location.name}</span>
+                        <span>${location.type === 'store' ? '??' : '??'} ${location.name}</span>
                     `;
                     locationDiv.appendChild(label);
                 });
@@ -990,11 +990,11 @@
                 // Bu faqat UI/UX yaxshilash uchun ishlatiladi
             }
 
-            console.log('ğŸ” Seller permissions collected:', userData.permissions);
-            console.log('ğŸ” Selected sales locations:', checkedSalesLocations.length);
-            console.log('ğŸ” Selected transfer locations:', userData.transfer_locations);
-            console.log('ğŸ” Combined allowed locations:', userData.allowed_locations);
-            console.log('ğŸ” Primary location:', userData.primary_location, 'Store ID:', userData.store_id);
+            console.log('?? Seller permissions collected:', userData.permissions);
+            console.log('?? Selected sales locations:', checkedSalesLocations.length);
+            console.log('?? Selected transfer locations:', userData.transfer_locations);
+            console.log('?? Combined allowed locations:', userData.allowed_locations);
+            console.log('?? Primary location:', userData.primary_location, 'Store ID:', userData.store_id);
         }
 
         // Validatsiya
