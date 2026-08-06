@@ -532,7 +532,7 @@
         }
         
         .location-customer-grid {
-            grid-template-columns: 0.7fr 1.3fr !important;
+            grid-template-columns: 0.6fr 0.4fr !important;
             gap: 6px !important;
             margin-bottom: 6px !important;
             align-items: end !important;
@@ -589,7 +589,7 @@
         }
         
         .location-customer-grid {
-            grid-template-columns: 0.7fr 1.3fr !important;
+            grid-template-columns: 0.6fr 0.4fr !important;
             gap: 4px !important;
             margin-bottom: 6px !important;
         }
@@ -911,21 +911,21 @@
         <!-- Birinchi layout -->
         <div class="sales-layout-box" style="background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); box-sizing: border-box;">
             <!-- Joylashuv va Mijoz tanlash -->
-            <div class="location-customer-grid" style="display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 15px; margin-bottom: 15px;">
+            <div class="location-customer-grid" style="display: grid; grid-template-columns: 0.6fr 0.4fr; gap: 12px; margin-bottom: 12px;">
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #495057;">{{ t('label_select_location') }}</label>
-                    <select id="locationSelect" onchange="loadProducts()" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                    <label style="display: block; margin-bottom: 3px; font-size: 13px; font-weight: 500; color: #495057;">{{ t('label_select_location') }}</label>
+                    <select id="locationSelect" onchange="loadProducts()" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 8px; font-size: 13px; background: white; cursor: pointer;">
                         <option value="">{{ t('select_placeholder') }}</option>
                     </select>
                 </div>
                 <div style="position: relative;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <label style="font-size: 14px; font-weight: 500; color: #495057;">👤 {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                        <label style="font-size: 13px; font-weight: 500; color: #495057;">👤 {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
                         <button id="addCustomerBtn" class="add-customer-btn" onclick="openAddCustomerModal()" style="padding: 3px 8px; background: linear-gradient(135deg, #3b82f6, #1a6eff); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 8px rgba(59, 130, 246,0.3);">
                             <span style="color: white; font-size: 14px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_new') }}
                         </button>
                     </div>
-                    <input type="text" id="customerSearch" placeholder="{{ t('placeholder_customer_name') }}" autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px;">
+                    <input type="text" id="customerSearch" placeholder="{{ t('placeholder_customer_name') }}" autocomplete="off" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 8px; font-size: 13px;">
                     <div id="customerDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                     <input type="hidden" id="selectedCustomerId" value="">
                 </div>
