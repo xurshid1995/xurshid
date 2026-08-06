@@ -131,9 +131,9 @@
                     <td class="col-seller">&nbsp;</td>
                     <td class="col-location">&nbsp;</td>
                     <td class="col-product">&nbsp;</td>
-                    <td class="col-quantity" style="display: table-cell !important;">&nbsp;</td>
-                    <td class="col-price" style="display: table-cell !important;">&nbsp;</td>
-                    <td class="col-subtotal" style="display: table-cell !important;">&nbsp;</td>
+                    <td class="col-quantity loading-cell">&nbsp;</td>
+                    <td class="col-price loading-cell">&nbsp;</td>
+                    <td class="col-subtotal loading-cell">&nbsp;</td>
                     <td class="col-total" style="text-align:center; color: #999;">{{ t('data_loading') }}</td>
                     {% if session.role != 'sotuvchi' %}<td class="col-profit">&nbsp;</td>{% endif %}
                     <td class="col-actions">&nbsp;</td>
@@ -350,7 +350,8 @@
 .ps-table .col-actions  { width: 50px; }
 
 /* Compact view */
-.compact-mode .compact-hide { display: none !important; }
+.loading-cell { display: table-cell !important; }
+.compact-mode .compact-hide:not(.loading-cell) { display: none !important; }
 .compact-mode .col-product { display: table-cell !important; }
 .compact-mode .ps-table { min-width: 1200px; }
 .compact-mode .ps-table th {
@@ -1492,9 +1493,9 @@ function clearTable() {
             <td class="col-seller">&nbsp;</td>
             <td class="col-location">&nbsp;</td>
             <td class="col-product">&nbsp;</td>
-            <td class="col-quantity" style="display: table-cell !important;">&nbsp;</td>
-            <td class="col-price" style="display: table-cell !important;">&nbsp;</td>
-            <td class="col-subtotal" style="display: table-cell !important;">&nbsp;</td>
+            <td class="col-quantity loading-cell">&nbsp;</td>
+            <td class="col-price loading-cell">&nbsp;</td>
+            <td class="col-subtotal loading-cell">&nbsp;</td>
             <td class="col-total" style="text-align:center; color: #999;">${SHLANG.loading}</td>
             <td class="col-actions">&nbsp;</td>
            </tr>`
@@ -1504,9 +1505,9 @@ function clearTable() {
             <td class="col-seller">&nbsp;</td>
             <td class="col-location">&nbsp;</td>
             <td class="col-product">&nbsp;</td>
-            <td class="col-quantity" style="display: table-cell !important;">&nbsp;</td>
-            <td class="col-price" style="display: table-cell !important;">&nbsp;</td>
-            <td class="col-subtotal" style="display: table-cell !important;">&nbsp;</td>
+            <td class="col-quantity loading-cell">&nbsp;</td>
+            <td class="col-price loading-cell">&nbsp;</td>
+            <td class="col-subtotal loading-cell">&nbsp;</td>
             <td class="col-total" style="text-align:center; color: #999;">${SHLANG.loading}</td>
             <td class="col-profit">&nbsp;</td>
             <td class="col-actions">&nbsp;</td>
