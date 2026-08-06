@@ -135,7 +135,7 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: rgba(20, 50, 100, 0.5);
+    background: rgba(20, 50, 100, 0.75);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-right: none;
