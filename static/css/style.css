@@ -255,7 +255,8 @@ body {
 }
 
 /* Sidebar kengayganida badge o'ng tomonga o'tadi */
-.sidebar:hover .sidebar-menu a .menu-badge {
+.sidebar:hover .sidebar-menu a .menu-badge,
+.sidebar.active .sidebar-menu a .menu-badge {
     opacity: 1 !important;
     display: flex !important;
     visibility: visible !important;
@@ -266,6 +267,7 @@ body {
     min-width: 20px;
     height: auto;
     line-height: normal;
+    transform: none;
 }
 
 /* Mobil va planşetda ham sidebar yopiq (faqat icon va badge) */
