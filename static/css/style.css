@@ -227,6 +227,7 @@ body {
 /* Badge har doim ko'rinadi, icon yonida */
 .sidebar-menu a .menu-badge {
     opacity: 1 !important;
+    display: inline-block !important;
     position: static;
     margin-left: 3px;
     padding: 2px 5px;
@@ -244,6 +245,8 @@ body {
 
 /* Sidebar kengayganida badge o'ng tomonga o'tadi */
 .sidebar:hover .sidebar-menu a .menu-badge {
+    opacity: 1 !important;
+    display: inline-block !important;
     margin-left: auto;
     padding: 1px 7px;
     font-size: 11px;
