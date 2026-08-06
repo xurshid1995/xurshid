@@ -270,9 +270,16 @@ body {
 
 /* Mobil va planşetda ham sidebar yopiq (faqat icon va badge) */
 @media (max-width: 1024px) {
+    /* Sidebar yopiq holatda matnlar yashirin */
     .sidebar-menu a span:not(.icon):not(.menu-badge) {
         opacity: 0 !important;
         display: inline !important;
+    }
+    
+    /* Sidebar ochiq yoki hover holatda matnlar ko'rinadi */
+    .sidebar.active .sidebar-menu a span:not(.icon):not(.menu-badge),
+    .sidebar:hover .sidebar-menu a span:not(.icon):not(.menu-badge) {
+        opacity: 1 !important;
     }
     
     /* Badge mobilda ham ko'rinadi */
@@ -1667,11 +1674,13 @@ footer {
         box-sizing: border-box !important;
     }
     
-    /* Sidebar ochiq holatda */
+    /* Sidebar ochiq holatda - to'liq kengayadi */
     .sidebar.active {
         left: 0 !important;
-        width: 70px !important;
+        width: 300px !important;
         box-shadow: 4px 0 24px rgba(20, 184, 166, 0.15) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
     
     /* Hover effekti mobilda ham ishlaydi */
