@@ -11,6 +11,7 @@ import urllib.parse
 import secrets
 import uuid
 import threading as _threading
+import requests
 from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation
@@ -15693,7 +15694,6 @@ def test_telegram_token():
             return jsonify({'success': False, 'error': 'Token kiritilmagan'}), 400
         
         # Telegram API orqali tokenni tekshirish
-        import requests
         response = requests.get(f'https://api.telegram.org/bot{token}/getMe', timeout=10)
         
         if response.status_code == 200:
