@@ -127,7 +127,17 @@
                 </thead>
                 <tbody id="salesTableBody">
                     <tr>
-                        <td colspan="{% if session.role == 'sotuvchi' %}10{% else %}11{% endif %}" class="loading">{{ t('data_loading') }}</td>
+                        <td class="col-datetime">&nbsp;</td>
+                        <td class="col-customer">&nbsp;</td>
+                        <td class="col-seller">&nbsp;</td>
+                        <td class="col-location">&nbsp;</td>
+                        <td class="col-product">&nbsp;</td>
+                        <td class="col-quantity compact-hide">&nbsp;</td>
+                        <td class="col-price compact-hide">&nbsp;</td>
+                        <td class="col-subtotal compact-hide">&nbsp;</td>
+                        <td class="col-total" style="text-align:center; color: #999;">{{ t('data_loading') }}</td>
+                        {% if session.role != 'sotuvchi' %}<td class="col-profit">&nbsp;</td>{% endif %}
+                        <td class="col-actions">&nbsp;</td>
                     </tr>
                 </tbody>
             </table>
@@ -292,8 +302,6 @@
     box-sizing: border-box;
 }
 .ps-table-wrap {
-    display: inline-block;
-    min-width: 1200px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -1486,10 +1494,35 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function clearTable() {
-    // Jadval va statistikalarni tozalash
-    const colspan = userRole === 'sotuvchi' ? '10' : '11';
-    document.getElementById('salesTableBody').innerHTML = 
-        `<tr><td colspan="${colspan}" class="loading">${SHLANG.loading}</td></tr>`;
+    // Jadval va statistikalarni tozalash - har bir column uchun alohida cell bilan
+    const loadingRow = userRole === 'sotuvchi' 
+        ? `<tr>
+            <td class="col-datetime">&nbsp;</td>
+            <td class="col-customer">&nbsp;</td>
+            <td class="col-seller">&nbsp;</td>
+            <td class="col-location">&nbsp;</td>
+            <td class="col-product">&nbsp;</td>
+            <td class="col-quantity compact-hide">&nbsp;</td>
+            <td class="col-price compact-hide">&nbsp;</td>
+            <td class="col-subtotal compact-hide">&nbsp;</td>
+            <td class="col-total" style="text-align:center; color: #999;">${SHLANG.loading}</td>
+            <td class="col-actions">&nbsp;</td>
+           </tr>`
+        : `<tr>
+            <td class="col-datetime">&nbsp;</td>
+            <td class="col-customer">&nbsp;</td>
+            <td class="col-seller">&nbsp;</td>
+            <td class="col-location">&nbsp;</td>
+            <td class="col-product">&nbsp;</td>
+            <td class="col-quantity compact-hide">&nbsp;</td>
+            <td class="col-price compact-hide">&nbsp;</td>
+            <td class="col-subtotal compact-hide">&nbsp;</td>
+            <td class="col-total" style="text-align:center; color: #999;">${SHLANG.loading}</td>
+            <td class="col-profit">&nbsp;</td>
+            <td class="col-actions">&nbsp;</td>
+           </tr>`;
+    
+    document.getElementById('salesTableBody').innerHTML = loadingRow;
     document.getElementById('totalSales').textContent = '0';
     document.getElementById('totalRevenue').textContent = '$0';
     
