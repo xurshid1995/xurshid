@@ -211,11 +211,12 @@ body {
 }
 
 .logo-text {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: white;
     white-space: nowrap;
-    opacity: 0;
+    opacity: 1;
+    letter-spacing: 0.5px;
     transition: opacity 0.25s ease;
 }
 
