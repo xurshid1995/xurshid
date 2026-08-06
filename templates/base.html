@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <title>{% block title %}DOKON{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-2117">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-2120">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     {% block extra_css %}{% endblock %}
     <style>
@@ -363,7 +363,7 @@
                 <span class="user-role">({{ session.role or t('role') }})</span>
             </div>
             <button class="logout-btn" onclick="logout()" title="{{ t('exit_system') }}">
-                <span class="logout-icon">➡️</span>
+                <img src="{{ url_for('static', filename='images/icons8-back-96.png') }}" alt="logout" class="logout-icon" style="width: 20px; height: 20px; transform: scaleX(-1);">
                 <span class="logout-text">{{ t('logout') }}</span>
             </button>
         </div>
