@@ -219,14 +219,38 @@ body {
 }
 
 /* Oddiy holatda matn yashirin (desktop) */
-.sidebar-menu a span:not(.icon) {
+.sidebar-menu a span:not(.icon):not(.menu-badge) {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
+/* Badge har doim ko'rinadi */
+.sidebar-menu a .menu-badge {
+    opacity: 1 !important;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    padding: 2px 5px;
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    line-height: 14px;
+}
+
 /* Hover qilganda matn ko'rinadi (desktop) */
-.sidebar:hover .sidebar-menu a span:not(.icon) {
+.sidebar:hover .sidebar-menu a span:not(.icon):not(.menu-badge) {
     opacity: 1;
+}
+
+/* Sidebar kengayganida badge normalga qaytadi */
+.sidebar:hover .sidebar-menu a .menu-badge {
+    position: static;
+    margin-left: auto;
+    padding: 1px 7px;
+    font-size: 11px;
+    min-width: 20px;
+    height: auto;
+    line-height: normal;
 }
 
 /* Mobil va planşetda barcha matnlar ko'rinadi */
