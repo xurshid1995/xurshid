@@ -378,29 +378,6 @@
             </div>
         </div>
 
-        <!-- Telegram havolalari -->
-        <div class="setting-card" style="grid-column: 1 / -1;">
-            <div class="setting-card-header">
-                <div class="setting-icon" style="background:#e8f4fd;"><i class="fab fa-telegram" style="color:#0088cc;"></i></div>
-                <div class="setting-card-meta">
-                    <p class="card-title">Telegram havolalari</p>
-                    <p class="card-desc">Header da ko'rinadigan Telegram guruh nom va linkini tahrirlash</p>
-                </div>
-            </div>
-            <div class="setting-card-body">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:block; margin-bottom:4px;">Guruh nomi</label>
-                        <input type="text" id="tg-group-name" class="card-input" placeholder="DiamondCarAccesories" style="width:100%; box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:block; margin-bottom:4px;">Guruh linki</label>
-                        <input type="text" id="tg-group-link" class="card-input" placeholder="https://t.me/..." style="width:100%; box-sizing:border-box;">
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Telegram Bot sozlamalari -->
         <div class="setting-card" style="grid-column: 1 / -1;">
             <div class="setting-card-header">
@@ -657,12 +634,6 @@
             if (reminderInput) reminderInput.value = reminderTime;
             if (reminderCurrent) reminderCurrent.textContent = reminderTime;
 
-            // Telegram havolalari
-            const tgGN = document.getElementById('tg-group-name');
-            const tgGL = document.getElementById('tg-group-link');
-            if (tgGN) tgGN.value = settings.telegram_group_name || 'DiamondCarAccesories';
-            if (tgGL) tgGL.value = settings.telegram_group_link || 'https://t.me/DiamondCarAccesories';
-
             // Telegram Bot sozlamalari
             const tgToken = document.getElementById('tg-bot-token');
             const tgAdminIds = document.getElementById('tg-admin-ids');
@@ -710,12 +681,6 @@
                 if (reminderInput && reminderInput.value) {
                     settings.default_reminder_time = reminderInput.value;
                 }
-
-                // Telegram havolalarini olish
-                const tgGN = document.getElementById('tg-group-name');
-                const tgGL = document.getElementById('tg-group-link');
-                if (tgGN && tgGN.value.trim()) settings.telegram_group_name = tgGN.value.trim();
-                if (tgGL && tgGL.value.trim()) settings.telegram_group_link = tgGL.value.trim();
 
                 // Telegram Bot sozlamalarini olish
                 const tgToken = document.getElementById('tg-bot-token');
