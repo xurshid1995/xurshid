@@ -273,7 +273,9 @@ body {
     left: 0;
     right: 0;
     height: 55px;
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-between;
     align-items: center;
