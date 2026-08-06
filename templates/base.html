@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <title>{% block title %}DOKON{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-2135">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260806-2140">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     {% block extra_css %}{% endblock %}
     <style>
@@ -322,7 +322,7 @@
             </div>
             <!-- ===== VALYUTA KURSI ===== -->
             <div class="currency-display" title="{{ t('exchange_rate') }}">
-                <span class="currency-rate"><span class="currency-label">💵 1 USD = </span><span class="currency-value">... UZS</span></span>
+                <span class="currency-rate"><span class="currency-label"><img src="{{ url_for('static', filename='images/icons8-us-dollar-circled-96.png') }}" alt="$" style="width: 18px; height: 18px; margin-right: 3px; vertical-align: middle;"> 1 USD = </span><span class="currency-value">... UZS</span></span>
                 <button class="edit-rate-btn" onclick="editCurrency()" title="{{ t('rate_change') }}">
                     <span>✏️</span>
                 </button>
@@ -651,7 +651,7 @@
                 if (valueEl) {
                     valueEl.textContent = `${formattedRate} UZS`;
                 } else {
-                    currencyElement.innerHTML = `<span class="currency-label">💵 1 USD = </span><span class="currency-value">${formattedRate} UZS</span>`;
+                    currencyElement.innerHTML = `<span class="currency-label"><img src="{{ url_for('static', filename='images/icons8-us-dollar-circled-96.png') }}" alt="$" style="width: 18px; height: 18px; margin-right: 3px; vertical-align: middle;"> 1 USD = </span><span class="currency-value">${formattedRate} UZS</span>`;
                 }
                 currencyElement.title = `Oxirgi yangilanish: ${new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}`;
                 console.log('🔄 Header valyuta kursi yangilandi:', formattedRate);
