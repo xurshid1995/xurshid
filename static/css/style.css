@@ -224,17 +224,17 @@ body {
     transition: opacity 0.3s ease;
 }
 
-/* Badge har doim ko'rinadi */
+/* Badge har doim ko'rinadi, icon yonida */
 .sidebar-menu a .menu-badge {
     opacity: 1 !important;
-    position: absolute;
-    top: 2px;
-    right: 2px;
+    position: static;
+    margin-left: 3px;
     padding: 2px 5px;
     font-size: 10px;
-    min-width: 18px;
-    height: 18px;
-    line-height: 14px;
+    min-width: 16px;
+    height: 16px;
+    line-height: 12px;
+    flex-shrink: 0;
 }
 
 /* Hover qilganda matn ko'rinadi (desktop) */
@@ -242,9 +242,8 @@ body {
     opacity: 1;
 }
 
-/* Sidebar kengayganida badge normalga qaytadi */
+/* Sidebar kengayganida badge o'ng tomonga o'tadi */
 .sidebar:hover .sidebar-menu a .menu-badge {
-    position: static;
     margin-left: auto;
     padding: 1px 7px;
     font-size: 11px;
