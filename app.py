@@ -15721,6 +15721,76 @@ def test_telegram_token():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/telegram/test-bot', methods=['POST'])
+@role_required('admin', 'manager')
+def test_telegram_bot():
+    """Telegram botga test xabar yuborish"""
+    try:
+        data = request.get_json()
+        token = data.get('token', '').strip()
+        admin_ids = data.get('admin_ids', '').strip()
+        
+        if not token:
+            return jsonify({'success': False, 'error': 'Token kiritilmagan'}), 400
+        
+        if not admin_ids:
+            return jsonify({'success': False, 'error': 'Admin Chat ID lari kiritilmagan'}), 400
+        
+        # Admin ID larni ajratish
+        chat_ids = [id.strip() for id in admin_ids.split(',') if id.strip()]
+        
+        if not chat_ids:
+            return jsonify({'success': False, 'error': 'Admin Chat ID lari noto\'g\'ri formatda'}), 400
+        
+        # Test xabarni yuborish
+        test_message = "✅ <b>Hammasi joyida!</b>\n\n🤖 Bot mukammal ishlayapti.\n📊 Sergeli 143 Hisobot tizimi"
+        success_count = 0
+        failed_chats = []
+        
+        for chat_id in chat_ids:
+            try:
+                response = requests.post(
+                    f'https://api.telegram.org/bot{token}/sendMessage',
+                    json={
+                        'chat_id': chat_id,
+                        'text': test_message,
+                        'parse_mode': 'HTML'
+                    },
+                    timeout=10
+                )
+                
+                if response.status_code == 200 and response.json().get('ok'):
+                    success_count += 1
+                else:
+                    failed_chats.append(chat_id)
+            except Exception as e:
+                logger.error(f"Chat {chat_id} ga xabar yuborishda xato: {e}")
+                failed_chats.append(chat_id)
+        
+        if success_count == len(chat_ids):
+            return jsonify({
+                'success': True,
+                'message': f'✅ Barcha adminlarga ({success_count}ta) xabar yuborildi'
+            })
+        elif success_count > 0:
+            return jsonify({
+                'success': True,
+                'message': f'⚠️ {success_count}/{len(chat_ids)} ta adminga xabar yuborildi',
+                'warning': f'Xato: {", ".join(failed_chats)}'
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Hech bir adminga xabar yuborilmadi'}), 400
+            
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Timeout: Server javob bermadi'}), 408
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Telegram bot test xabar yuborishda xato: {e}")
+        return jsonify({'success': False, 'error': 'Server bilan bog\'lanishda xatolik'}), 500
+    except Exception as e:
+        logger.error(f"Bot test xabar yuborishda xato: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # Sozlamalar sahifasi
 
 
