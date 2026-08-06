@@ -142,7 +142,7 @@ body {
     border-radius: 10px;
     height: calc(100vh - 20px);
     padding: 0;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), 0 8px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
     left: 10px;
     top: 10px;
