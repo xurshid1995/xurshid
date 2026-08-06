@@ -15683,7 +15683,7 @@ def save_settings():
 
 # Telegram Bot API endpointlari
 @app.route('/api/telegram/test-token', methods=['POST'])
-@login_required
+@role_required('admin', 'manager')
 def test_telegram_token():
     """Telegram bot tokenni tekshirish"""
     try:
