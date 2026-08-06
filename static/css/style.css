@@ -209,7 +209,7 @@ body {
     margin: 2px 4px;
     font-size: 14px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     white-space: nowrap;
 }
 
@@ -227,10 +227,13 @@ body {
 /* Badge har doim ko'rinadi, icon yonida */
 .sidebar-menu a .menu-badge {
     opacity: 1 !important;
-    display: inline-block !important;
+    display: flex !important;
     visibility: visible !important;
-    position: static;
-    margin-left: 3px;
+    position: absolute;
+    top: 6px;
+    left: 34px;
+    align-items: center;
+    justify-content: center;
     padding: 2px 5px;
     background: #e53e3e;
     color: #fff;
@@ -239,9 +242,10 @@ body {
     border-radius: 10px;
     min-width: 16px;
     height: 16px;
-    line-height: 12px;
+    line-height: 1;
     text-align: center;
     flex-shrink: 0;
+    z-index: 10;
 }
 
 /* Hover qilganda matn ko'rinadi (desktop) */
@@ -252,8 +256,9 @@ body {
 /* Sidebar kengayganida badge o'ng tomonga o'tadi */
 .sidebar:hover .sidebar-menu a .menu-badge {
     opacity: 1 !important;
-    display: inline-block !important;
+    display: flex !important;
     visibility: visible !important;
+    position: static;
     margin-left: auto;
     padding: 1px 7px;
     font-size: 11px;
