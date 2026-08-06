@@ -108,40 +108,38 @@
 
     <!-- Table Card -->
     <div class="ps-table-card">
-        <div class="ps-table-wrap">
-            <table class="ps-table sales-table">
-                <thead>
-                    <tr>
-                        <th class="col-datetime">{{ t('header_date_time') }}</th>
-                        <th class="col-customer">{{ t('header_customer') }}</th>
-                        <th class="col-seller">{{ t('header_seller') }}</th>
-                        <th class="col-location">{{ t('header_location') }}</th>
-                        <th class="col-product">{{ t('header_product_col') }}</th>
-                        <th class="col-quantity compact-hide">{{ t('quantity') }}</th>
-                        <th class="col-price compact-hide">{{ t('price') }}</th>
-                        <th class="col-subtotal compact-hide">{{ t('total') }}</th>
-                        <th class="col-total">{{ t('total_sum') }}</th>
-                        {% if session.role != 'sotuvchi' %}<th class="col-profit">{{ t('total_profit') }}</th>{% endif %}
-                        <th class="col-actions">{{ t('header_action') }}</th>
-                    </tr>
-                </thead>
-                <tbody id="salesTableBody">
-                    <tr>
-                        <td class="col-datetime">&nbsp;</td>
-                        <td class="col-customer">&nbsp;</td>
-                        <td class="col-seller">&nbsp;</td>
-                        <td class="col-location">&nbsp;</td>
-                        <td class="col-product">&nbsp;</td>
-                        <td class="col-quantity compact-hide">&nbsp;</td>
-                        <td class="col-price compact-hide">&nbsp;</td>
-                        <td class="col-subtotal compact-hide">&nbsp;</td>
-                        <td class="col-total" style="text-align:center; color: #999;">{{ t('data_loading') }}</td>
-                        {% if session.role != 'sotuvchi' %}<td class="col-profit">&nbsp;</td>{% endif %}
-                        <td class="col-actions">&nbsp;</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class="ps-table sales-table">
+            <thead>
+                <tr>
+                    <th class="col-datetime">{{ t('header_date_time') }}</th>
+                    <th class="col-customer">{{ t('header_customer') }}</th>
+                    <th class="col-seller">{{ t('header_seller') }}</th>
+                    <th class="col-location">{{ t('header_location') }}</th>
+                    <th class="col-product">{{ t('header_product_col') }}</th>
+                    <th class="col-quantity compact-hide">{{ t('quantity') }}</th>
+                    <th class="col-price compact-hide">{{ t('price') }}</th>
+                    <th class="col-subtotal compact-hide">{{ t('total') }}</th>
+                    <th class="col-total">{{ t('total_sum') }}</th>
+                    {% if session.role != 'sotuvchi' %}<th class="col-profit">{{ t('total_profit') }}</th>{% endif %}
+                    <th class="col-actions">{{ t('header_action') }}</th>
+                </tr>
+            </thead>
+            <tbody id="salesTableBody">
+                <tr>
+                    <td class="col-datetime">&nbsp;</td>
+                    <td class="col-customer">&nbsp;</td>
+                    <td class="col-seller">&nbsp;</td>
+                    <td class="col-location">&nbsp;</td>
+                    <td class="col-product">&nbsp;</td>
+                    <td class="col-quantity compact-hide">&nbsp;</td>
+                    <td class="col-price compact-hide">&nbsp;</td>
+                    <td class="col-subtotal compact-hide">&nbsp;</td>
+                    <td class="col-total" style="text-align:center; color: #999;">{{ t('data_loading') }}</td>
+                    {% if session.role != 'sotuvchi' %}<td class="col-profit">&nbsp;</td>{% endif %}
+                    <td class="col-actions">&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
         <div class="ps-pagination" id="pagination" style="display: none;">
             <div id="paginationButtons"></div>
         </div>
@@ -297,13 +295,6 @@
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     overflow-x: auto;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-.ps-table-wrap {
-    width: 100%;
-    box-sizing: border-box;
 }
 
 /* ── Table styles ── */
@@ -476,7 +467,6 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 /* ── Profit colors ── */
 .profit-positive { color: #059669; font-weight: 600; }
 .profit-negative { color: #ef4444; font-weight: 600; }
-.loading { text-align: center; color: #94a3b8; font-style: italic; padding: 24px; }
 
 /* ── Mobile ── */
 .mobile-sales-cards { display: none; }
