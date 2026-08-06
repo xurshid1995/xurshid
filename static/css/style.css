@@ -139,12 +139,12 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-right: none;
-    height: calc(100vh - 55px);
+    height: 100vh;
     padding: 0;
     box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
     left: 0;
-    top: 55px;
+    top: 0;
     z-index: 1000;
     overflow-y: scroll;
     overflow-x: hidden;
