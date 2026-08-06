@@ -230,7 +230,8 @@ body {
     display: flex !important;
     visibility: visible !important;
     position: absolute;
-    top: 6px;
+    top: 50%;
+    transform: translateY(-50%);
     left: 34px;
     align-items: center;
     justify-content: center;
