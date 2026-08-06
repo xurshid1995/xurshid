@@ -139,7 +139,7 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-right: none;
-    border-bottom-right-radius: 6px;
+    border-bottom-right-radius: 10px;
     height: 100vh;
     padding: 0;
     box-shadow: 2px 0 12px rgba(15,23,42,0.3);
