@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('pdh_title') }} - Dokon{% endblock %}
 
@@ -7,7 +7,7 @@
     /* ===== PDH - Paid Debts History ===== */
     .pdh-page {
         padding: 24px;
-        background: transparent;
+        background: #f5f6fa;
         min-height: 100vh;
     }
 
@@ -296,7 +296,7 @@
     <div id="locationButtons" class="pdh-location-bar">
         {% if current_user.role in ['admin', 'kassir'] %}
         <button class="location-btn active" data-location="" onclick="selectLocation(this, '')">
-            ?? {{ t('pdh_all') }}
+            🏢 {{ t('pdh_all') }}
         </button>
         {% endif %}
     </div>
@@ -323,10 +323,10 @@
                     >
                 </div>
                 <div style="display:flex; align-items:center; gap:4px;">
-                    <label style="font-size:12px; color:#64748b; white-space:nowrap;">?? Sana:</label>
+                    <label style="font-size:12px; color:#64748b; white-space:nowrap;">📅 Sana:</label>
                     <input type="date" id="dateFromInput" oninput="searchPayments()"
                         style="padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#334155; background:#f8fafc; height:38px;">
-                    <span style="color:#94a3b8; font-size:12px;">�</span>
+                    <span style="color:#94a3b8; font-size:12px;">—</span>
                     <input type="date" id="dateToInput" oninput="searchPayments()"
                         style="padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#334155; background:#f8fafc; height:38px;">
                 </div>
@@ -344,13 +344,13 @@
                             <th>{{ t('pdh_th_payment_type') }}</th>
                             <th>{{ t('pdh_th_received_by') }}</th>
                             {% if current_user.role in ['admin', 'kassir'] %}
-                            <th>??</th>
+                            <th>⚙️</th>
                             {% endif %}
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
                         <tr>
-                            <td colspan="8" class="no-data">? {{ t('pdh_loading') }}</td>
+                            <td colspan="8" class="no-data">⏳ {{ t('pdh_loading') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -400,7 +400,7 @@
             allButton.className = 'location-btn active';
             allButton.setAttribute('data-location', '');
             allButton.onclick = () => selectLocation(allButton, '');
-            allButton.textContent = '?? {{ t("pdh_all") }}';
+            allButton.textContent = '🏢 {{ t("pdh_all") }}';
             container.appendChild(allButton);
             {% endif %}
             
@@ -462,7 +462,7 @@
         } catch (error) {
             console.error('Xatolik:', error);
             document.getElementById('historyTableBody').innerHTML = 
-                '<tr><td colspan="7" class="no-data">? ' + PDHLANG.load_error + '</td></tr>';
+                '<tr><td colspan="7" class="no-data">❌ ' + PDHLANG.load_error + '</td></tr>';
         }
     }
 
@@ -471,7 +471,7 @@
         const tbody = document.getElementById('historyTableBody');
         
         if (paidDebts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">?? ' + PDHLANG.no_data + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data">📭 ' + PDHLANG.no_data + '</td></tr>';
             return;
         }
 
@@ -487,15 +487,15 @@
             const paymentTypes = [];
             if (debt.cash_usd > 0) {
                 const v = parseFloat(debt.cash_usd.toFixed(5)).toString();
-                paymentTypes.push(`<span class="payment-badge payment-cash">?? ${PDHLANG.cash}: ${v}</span>`);
+                paymentTypes.push(`<span class="payment-badge payment-cash">💵 ${PDHLANG.cash}: ${v}</span>`);
             }
             if (debt.click_usd > 0) {
                 const v2 = parseFloat(debt.click_usd.toFixed(5)).toString();
-                paymentTypes.push(`<span class="payment-badge payment-click">?? ${PDHLANG.click}: ${v2}</span>`);
+                paymentTypes.push(`<span class="payment-badge payment-click">📱 ${PDHLANG.click}: ${v2}</span>`);
             }
             if (debt.terminal_usd > 0) {
                 const v3 = parseFloat(debt.terminal_usd.toFixed(5)).toString();
-                paymentTypes.push(`<span class="payment-badge payment-terminal">?? ${PDHLANG.terminal}: ${v3}</span>`);
+                paymentTypes.push(`<span class="payment-badge payment-terminal">💳 ${PDHLANG.terminal}: ${v3}</span>`);
             }
             
             const totalAmount = (debt.cash_usd || 0) + (debt.click_usd || 0) + (debt.terminal_usd || 0);
@@ -509,7 +509,7 @@
             const reverseCell = IS_ADMIN
                 ? `<td><button onclick="openReverseModal('${debt.payment_date_iso}', ${debt.customer_id}, '${(debt.customer_name||'').replace(/'/g,"'")}', ${totalAmount}, '${debt.payment_date}')"
                        style="padding:5px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; white-space:nowrap;">
-                       ? Bekor
+                       ↩ Bekor
                    </button></td>`
                 : '';
 
@@ -520,7 +520,7 @@
                 <td><span class="pdh-amount">${parseFloat(totalAmount.toFixed(5)).toString()} USD</span></td>
                 <td><span class="pdh-amount-uzs">${totalUZS.toLocaleString('ru-RU')} UZS</span></td>
                 <td>${paymentTypes.join(' ')}</td>
-                <td><span class="pdh-receiver">????? ${debt.received_by || ''}</span></td>
+                <td><span class="pdh-receiver">👨‍💼 ${debt.received_by || ''}</span></td>
                 ${reverseCell}
             `;
             
@@ -571,7 +571,7 @@
             if (!existingNoResult) {
                 const noResultRow = document.createElement('tr');
                 noResultRow.className = 'no-result-row';
-                noResultRow.innerHTML = '<td colspan="8" class="no-data">?? ' + PDHLANG.not_found + '</td>';
+                noResultRow.innerHTML = '<td colspan="8" class="no-data">🔍 ' + PDHLANG.not_found + '</td>';
                 tbody.appendChild(noResultRow);
             }
         } else {
@@ -611,17 +611,17 @@
             });
             const data = await res.json();
             if (data.success) {
-                alert('? ' + data.message);
+                alert('✅ ' + data.message);
                 closeReverseModal();
                 loadPaidDebts();
             } else {
-                alert('? ' + (data.error || 'Xatolik'));
+                alert('❌ ' + (data.error || 'Xatolik'));
             }
         } catch (e) {
-            alert('? Server bilan bog\'lanib bo\'lmadi');
+            alert('❌ Server bilan bog\'lanib bo\'lmadi');
         }
         btn.disabled = false;
-        btn.textContent = '? Ha, bekor qilish';
+        btn.textContent = '✅ Ha, bekor qilish';
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReverseModal(); });
@@ -632,10 +632,10 @@
     <div style="background:#fff; border-radius:12px; padding:30px; width:420px; max-width:92%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
         <h3 style="margin:0 0 15px 0; color:#dc3545;"><i class="fas fa-undo"></i> To'lovni bekor qilish</h3>
         <div id="reverseModalInfo" style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin-bottom:16px; font-size:14px; line-height:1.7;"></div>
-        <p style="color:#6c757d; font-size:13px; margin-bottom:20px;">?? Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
+        <p style="color:#6c757d; font-size:13px; margin-bottom:20px;">⚠️ Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
         <div style="display:flex; gap:10px; justify-content:flex-end;">
             <button onclick="closeReverseModal()" style="padding:10px 20px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">Bekor</button>
-            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">? Ha, bekor qilish</button>
+            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">✅ Ha, bekor qilish</button>
         </div>
     </div>
 </div>

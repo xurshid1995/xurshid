@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('return_product_title') }} - DOKON{% endblock %}
 
@@ -20,12 +20,12 @@
                                autocomplete="off" disabled oninput="searchProducts()"
                                onkeydown="handleSearchKeydown(event)"
                                class="rp-search-input" style="padding-right:36px;">
-                        <button id="clearProductBtn" onclick="clearProductSelection()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; font-size:16px; line-height:1; padding:2px 4px;" title="Tozalash">?</button>
+                        <button id="clearProductBtn" onclick="clearProductSelection()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; font-size:16px; line-height:1; padding:2px 4px;" title="Tozalash">✕</button>
                         <div id="productSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; max-height: 300px; overflow-y: auto; z-index: 1000;"></div>
                     </div>
                 </div>
                 <div class="rp-location-wrap">
-                    <label>?? {{ t('return_location_label') }}</label>
+                    <label>📍 {{ t('return_location_label') }}</label>
                     <select id="returnLocationSelect" onchange="handleLocationChange()" class="rp-location-select">
                         <option value="">{{ t('select_location_placeholder') }}</option>
                     </select>
@@ -40,7 +40,7 @@
             <strong>{{ t('selected_product_label') }}</strong>
             <span id="selectedProductName"></span>
         </div>
-        <button onclick="clearProductSelection()" class="rp-btn-cancel-sel">? {{ t('btn_cancel_selection') }}</button>
+        <button onclick="clearProductSelection()" class="rp-btn-cancel-sel">✕ {{ t('btn_cancel_selection') }}</button>
     </div>
 
     <!-- Mahsulot bor savdolar jadvali -->
@@ -63,7 +63,7 @@
                 <div class="rp-filter-row-bottom">
                     <input type="date" id="saleDateFrom" oninput="filterProductSales(); updateClearFilterBtn()" class="rp-filter-input" title="Dan" style="width:140px;">
                     <input type="date" id="saleDateTo" oninput="filterProductSales(); updateClearFilterBtn()" class="rp-filter-input" title="Gacha" style="width:140px;">
-                    <button id="clearFilterBtn" onclick="clearProductSaleFilters()" class="rp-btn-clear" style="display:none;">? Tozalash</button>
+                    <button id="clearFilterBtn" onclick="clearProductSaleFilters()" class="rp-btn-clear" style="display:none;">✕ Tozalash</button>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@
             </div>
             <div style="padding:16px 20px; text-align:right; border-top:1px solid #f0f2f5;">
                 <button onclick="confirmReturnOld()" id="returnBtn" class="rp-btn rp-btn-confirm" style="padding:12px 36px; font-size:15px;">
-                    ? {{ t('btn_confirm_return') }}
+                    ✅ {{ t('btn_confirm_return') }}
                 </button>
             </div>
         </div>
@@ -152,7 +152,7 @@
                 <tbody id="historyTableBody">
                     <tr>
                         <td colspan="8" style="padding:24px; text-align:center; color:#9ca3af;">
-                            ? {{ t('loading') }}...
+                            ⏳ {{ t('loading') }}...
                         </td>
                     </tr>
                 </tbody>
@@ -167,20 +167,20 @@
 <!-- Qaytarish turi tanlash modali (confirmReturnOld uchun) -->
 <div id="refundTypeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:14px; padding:32px 28px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.25);">
-        <h3 style="margin:0 0 8px 0; color:#1e293b; font-size:17px; font-weight:700;">?? Qaytarish turi</h3>
+        <h3 style="margin:0 0 8px 0; color:#1e293b; font-size:17px; font-weight:700;">💸 Qaytarish turi</h3>
         <p style="margin:0 0 24px 0; color:#64748b; font-size:14px;">Qaytarilgan pul qanday qaytarilsin?</p>
         <div style="display:flex; flex-direction:column; gap:12px;">
             <button id="refundCashBtn" onclick="resolveRefundType('cash')"
                 style="padding:14px 20px; background:#10b981; color:white; border:none; border-radius:10px; cursor:pointer; font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px;">
-                ?? Naxt pul qaytarish
+                💵 Naxt pul qaytarish
             </button>
             <button id="refundBalanceBtn" onclick="resolveRefundType('balance')"
                 style="padding:14px 20px; background:#3b82f6; color:white; border:none; border-radius:10px; cursor:pointer; font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px;">
-                ?? Mijoz balansiga qo'shish
+                🏦 Mijoz balansiga qo'shish
             </button>
             <button onclick="resolveRefundType(null)"
                 style="padding:10px 20px; background:#f1f5f9; color:#64748b; border:none; border-radius:10px; cursor:pointer; font-size:14px;">
-                ? Bekor qilish
+                ❌ Bekor qilish
             </button>
         </div>
     </div>
@@ -190,7 +190,7 @@
 /* ===== RETURN PRODUCT PAGE - SALES HISTORY STYLE ===== */
 .return-page {
     padding: 28px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     width: 100%;
@@ -597,18 +597,18 @@
 
             // Do'konlar
             if (stores && stores.length > 0) {
-                html += '<optgroup label="?? Do\'konlar">';
+                html += '<optgroup label="🏬 Do\'konlar">';
                 stores.forEach(store => {
-                    html += `<option value="store_${store.id}">?? ${store.name}</option>`;
+                    html += `<option value="store_${store.id}">🏬 ${store.name}</option>`;
                 });
                 html += '</optgroup>';
             }
 
             // Omborlar
             if (warehouses && warehouses.length > 0) {
-                html += '<optgroup label="?? Omborlar">';
+                html += '<optgroup label="🏭 Omborlar">';
                 warehouses.forEach(warehouse => {
-                    html += `<option value="warehouse_${warehouse.id}">?? ${warehouse.name}</option>`;
+                    html += `<option value="warehouse_${warehouse.id}">🏭 ${warehouse.name}</option>`;
                 });
                 html += '</optgroup>';
             }
@@ -623,20 +623,20 @@
                 const loc = locations[0];
                 const locationValue = `${loc.type}_${loc.id}`;
                 locationSelect.value = locationValue;
-                console.log('? Bitta joylashuv avtomatik tanlandi:', loc.name);
+                console.log('✅ Bitta joylashuv avtomatik tanlandi:', loc.name);
                 handleLocationChange();
             } else if (locations.length > 1) {
                 // Agar bir nechta bo'lsa, birinchi do'konni yoki birinchi joylashuvni tanlash
                 const firstStore = stores.length > 0 ? stores[0] : locations[0];
                 const locationValue = `${firstStore.type}_${firstStore.id}`;
                 locationSelect.value = locationValue;
-                console.log('? Birinchi joylashuv avtomatik tanlandi:', firstStore.name);
+                console.log('✅ Birinchi joylashuv avtomatik tanlandi:', firstStore.name);
                 handleLocationChange();
             }
             {% endif %}
         } catch (error) {
             console.error('Joylashuvlarni yuklashda xatolik:', error);
-            showMessage('? Joylashuvlarni yuklashda xatolik!', 'error');
+            showMessage('❌ Joylashuvlarni yuklashda xatolik!', 'error');
         }
     }
 
@@ -683,7 +683,7 @@
 
         // Joylashuv tanlanganligini tekshirish
         if (!returnLocationId || !returnLocationType) {
-            showMessage('?? Avval qaytarish joyini tanlang!', 'warning');
+            showMessage('⚠️ Avval qaytarish joyini tanlang!', 'warning');
             document.getElementById('productSuggestions').style.display = 'none';
             return;
         }
@@ -710,7 +710,7 @@
                 } else if (data.success && data.products) {
                     displayProductSuggestions(data.products);
                 } else {
-                    console.warn('?? Mahsulotlar topilmadi yoki noto\'g\'ri format');
+                    console.warn('⚠️ Mahsulotlar topilmadi yoki noto\'g\'ri format');
                     displayProductSuggestions([]);
                 }
             } catch (error) {
@@ -726,14 +726,14 @@
         console.log('suggestionsDiv elementi:', suggestionsDiv);
         
         if (!suggestionsDiv) {
-            console.error('? productSuggestions elementi topilmadi!');
+            console.error('❌ productSuggestions elementi topilmadi!');
             return;
         }
         
         if (products.length === 0) {
             suggestionsDiv.innerHTML = '<div style="padding: 15px; text-align: center; color: #666;">Mahsulot topilmadi</div>';
             suggestionsDiv.style.display = 'block';
-            console.log('? "Mahsulot topilmadi" xabari ko\'rsatildi');
+            console.log('✅ "Mahsulot topilmadi" xabari ko\'rsatildi');
             return;
         }
 
@@ -759,7 +759,7 @@
         console.log('HTML yaratildi, uzunlik:', html.length);
         suggestionsDiv.innerHTML = html;
         suggestionsDiv.style.display = 'block';
-        console.log('? Mahsulotlar ko\'rsatildi, display:', suggestionsDiv.style.display);
+        console.log('✅ Mahsulotlar ko\'rsatildi, display:', suggestionsDiv.style.display);
     }
 
     // Keyboard navigation uchun o'zgaruvchi
@@ -834,13 +834,13 @@
 
     async function loadSalesByProduct(productId) {
         try {
-            console.log('?? Mahsulot bo\'yicha savdolar yuklanmoqda, productId:', productId);
+            console.log('📦 Mahsulot bo\'yicha savdolar yuklanmoqda, productId:', productId);
             
             const response = await fetch(`/api/sales-by-product/${productId}`);
             const data = await response.json();
 
             if (!data.success || !data.sales) {
-                showMessage('? Bu mahsulot bor savdolar topilmadi!', 'warning');
+                showMessage('❌ Bu mahsulot bor savdolar topilmadi!', 'warning');
                 return;
             }
 
@@ -860,7 +860,7 @@
 
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Server bilan bog\'lanishda xatolik!', 'error');
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
         }
     }
 
@@ -897,10 +897,10 @@
                         <td style="padding: 12px; text-align: center;">${statusBadge}</td>
                         <td style="padding: 12px; text-align: center;">
                             <button onclick="viewSaleDetails(${sale.id})" class="rp-btn rp-btn-view" style="margin-right:4px;">
-                                ??? Ko'rish
+                                👁️ Ko'rish
                             </button>
                             <button onclick="selectSaleForReturn(${sale.id}, ${productId})" class="rp-btn rp-btn-return">
-                                ?? Qaytarish
+                                ↩️ Qaytarish
                             </button>
                         </td>
                     </tr>
@@ -917,7 +917,7 @@
         const dropdown = document.getElementById('customerFilterDropdown');
         const term = input.value.trim().toLowerCase();
 
-        // Agar foydalanuvchi o'chirsa � filterni ham tozala
+        // Agar foydalanuvchi o'chirsa — filterni ham tozala
         if (!input.value.trim()) {
             selectedCustomerName = '';
             filterProductSales();
@@ -931,7 +931,7 @@
             return;
         }
 
-        // Mijoz nomi � telefon xaritasi
+        // Mijoz nomi → telefon xaritasi
         const customerMap = {};
         allProductSalesData.forEach(s => {
             if (s.customer_name && !customerMap[s.customer_name]) {
@@ -997,7 +997,7 @@
     }
 
     function buildCustomerDropdown(sales) {
-        // Dropdown avtomatik quriladi � hech narsa qilish shart emas
+        // Dropdown avtomatik quriladi — hech narsa qilish shart emas
     }
 
     function clearProductSaleFilters() {
@@ -1026,7 +1026,7 @@
             const data = await response.json();
 
             if (!data.success) {
-                showMessage('? Savdo topilmadi!', 'error');
+                showMessage('❌ Savdo topilmadi!', 'error');
                 return;
             }
 
@@ -1048,8 +1048,8 @@
                 <div id="returnProductModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
                     <div style="background: white; border-radius: 10px; padding: 30px; max-width: 1200px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
-                            <h2 style="margin: 0; color: #333;">?? Mahsulotni qaytarish - Savdo ID ${sale.id}</h2>
-                            <button onclick="closeReturnModal()" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px;">�</button>
+                            <h2 style="margin: 0; color: #333;">↩️ Mahsulotni qaytarish - Savdo ID ${sale.id}</h2>
+                            <button onclick="closeReturnModal()" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px;">×</button>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
@@ -1060,27 +1060,27 @@
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Mijoz</div>
                                 <div style="font-weight: 600; color: #333;">${sale.customer_name || 'Noma\'lum'}</div>
-                                ${sale.customer_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">?? ${sale.customer_phone}</div>` : ''}
+                                ${sale.customer_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">📞 ${sale.customer_phone}</div>` : ''}
                             </div>
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Sotuvchi</div>
                                 <div style="font-weight: 600; color: #333;">${sale.seller_name || 'Admin'}</div>
-                                ${sale.seller_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">?? ${sale.seller_phone}</div>` : ''}
+                                ${sale.seller_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">📞 ${sale.seller_phone}</div>` : ''}
                             </div>
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Holat</div>
                                 <div style="margin-bottom: 6px;">${getPaymentStatusBadge(sale)}</div>
                                 <div style="display: flex; flex-direction: column; gap: 3px; font-size: 12px;">
-                                    ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">?? Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">?? Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">?? Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">?? Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
-                                    <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">?? Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>
+                                    ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">💵 Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">💳 Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">📝 Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
+                                    <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">💰 Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <h3 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">?? Mahsulotlar</h3>
+                        <h3 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">📦 Mahsulotlar</h3>
                         <div style="overflow-x: auto; margin-bottom: 20px;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <thead>
@@ -1118,7 +1118,7 @@
                             <button id="returnBtn_${item.product_id}" onclick="confirmReturn(${sale.id}, ${item.product_id}, '${item.product_name.replace(/'/g, "\\'")}', ${item.quantity})" 
                                     disabled
                                     style="padding: 5px 12px; background: #9ca3af; color: white; border: none; border-radius: 4px; cursor: not-allowed; font-size: 13px; opacity: 0.6;">
-                                ?? Qaytarish
+                                ↩️ Qaytarish
                             </button>
                         </div>`;
                 } else {
@@ -1134,17 +1134,17 @@
                         </div>
 
                         <div style="margin-top: 16px; background: #f8faff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px;">
-                            <div style="font-weight: 600; color: #1557cc; margin-bottom: 12px; font-size: 14px;">?? Qaytarish turini tanlang:</div>
+                            <div style="font-weight: 600; color: #1557cc; margin-bottom: 12px; font-size: 14px;">💸 Qaytarish turini tanlang:</div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #10b981; background: #ecfdf5; font-weight: 600; color: #065f46; font-size: 14px;">
-                                    <input type="radio" name="refundType_${sale.id}" value="cash" style="accent-color: #10b981; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> ?? Naxt pul
+                                    <input type="radio" name="refundType_${sale.id}" value="cash" style="accent-color: #10b981; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> 💵 Naxt pul
                                 </label>
                                 ${sale.customer_id ? `
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #3b82f6; background: #eff6ff; font-weight: 600; color: #1557cc; font-size: 14px;">
-                                    <input type="radio" name="refundType_${sale.id}" value="balance" style="accent-color: #3b82f6; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> ?? Mijoz balansiga
+                                    <input type="radio" name="refundType_${sale.id}" value="balance" style="accent-color: #3b82f6; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> 🏦 Mijoz balansiga
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 18px; border-radius: 8px; border: 2px solid #dc2626; background: #fef2f2; font-weight: 600; color: #991b1b; font-size: 14px;">
-                                    <input type="radio" name="refundType_${sale.id}" value="debt" style="accent-color: #dc2626; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> ?? Qarzdan sondir
+                                    <input type="radio" name="refundType_${sale.id}" value="debt" style="accent-color: #dc2626; width:16px; height:16px;" onchange="enableReturnBtn(${productId})"> 💳 Qarzdan sondir
                                 </label>` : ''}
                             </div>
                         </div>
@@ -1155,7 +1155,7 @@
             
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Server bilan bog\'lanishda xatolik!', 'error');
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
         }
     }
 
@@ -1179,26 +1179,26 @@
     async function confirmReturn(saleId, productId, productName, maxQuantity) {
         // Joylashuv tekshiruvi
         if (!returnLocationId || !returnLocationType) {
-            showMessage('? Iltimos avval qaytarish joyini tanlang!', 'error');
+            showMessage('❌ Iltimos avval qaytarish joyini tanlang!', 'error');
             return;
         }
 
         const qtyInput = document.getElementById(`returnQty_${productId}`);
         if (!qtyInput) {
             console.error('Input topilmadi:', `returnQty_${productId}`);
-            showMessage('? Xatolik yuz berdi!', 'error');
+            showMessage('❌ Xatolik yuz berdi!', 'error');
             return;
         }
 
         const returnQty = parseFloat(qtyInput.value);
 
         if (!returnQty || returnQty <= 0) {
-            showMessage('? Qaytarish miqdorini kiriting!', 'error');
+            showMessage('❌ Qaytarish miqdorini kiriting!', 'error');
             return;
         }
 
         if (returnQty > maxQuantity) {
-            showMessage(`? Maksimal ${maxQuantity} qaytarish mumkin!`, 'error');
+            showMessage(`❌ Maksimal ${maxQuantity} qaytarish mumkin!`, 'error');
             return;
         }
 
@@ -1237,10 +1237,10 @@
 
             if (data.success) {
                 const msg = refundType === 'balance'
-                    ? '? Mahsulot qaytarildi! Pul mijoz balansiga qo\'shildi.'
+                    ? '✅ Mahsulot qaytarildi! Pul mijoz balansiga qo\'shildi.'
                     : refundType === 'debt'
-                    ? '? Mahsulot qaytarildi! Qarz kamaytirildi.'
-                    : '? Mahsulot muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
+                    ? '✅ Mahsulot qaytarildi! Qarz kamaytirildi.'
+                    : '✅ Mahsulot muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
                 showMessage(msg, 'success');
                 closeReturnModal();
                 
@@ -1252,22 +1252,22 @@
                 // Tarixni yangilash
                 await loadReturnHistory();
             } else if (data.error === 'no_debt') {
-                // Modal ochiq � xabarni modal ichida ko'rsat
+                // Modal ochiq — xabarni modal ichida ko'rsat
                 const modal = document.getElementById('returnProductModal');
                 const existingAlert = document.getElementById('noDebtAlert');
                 if (existingAlert) existingAlert.remove();
                 if (modal) {
                     const innerDiv = modal.querySelector('div');
-                    innerDiv.insertAdjacentHTML('afterbegin', `<div id="noDebtAlert" style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:14px;">?? ${data.message}</div>`);
+                    innerDiv.insertAdjacentHTML('afterbegin', `<div id="noDebtAlert" style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:14px;">⚠️ ${data.message}</div>`);
                 } else {
-                    showMessage(`?? ${data.message}`, 'error');
+                    showMessage(`⚠️ ${data.message}`, 'error');
                 }
             } else {
-                showMessage(`? Xatolik: ${data.error}`, 'error');
+                showMessage(`❌ Xatolik: ${data.error}`, 'error');
             }
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Server bilan bog\'lanishda xatolik!', 'error');
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
         }
     }
 
@@ -1352,10 +1352,10 @@
         // Agar sale obyekt bo'lmasa (eski format), oddiy statusni qaytarish
         if (typeof sale === 'string') {
             const badges = {
-                'paid': '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">? To\'langan</span>',
-                'partial': '<span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">?? Qisman</span>',
-                'pending': '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">? Kutilmoqda</span>',
-                'debt': '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">?? Qarzda</span>'
+                'paid': '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✅ To\'langan</span>',
+                'partial': '<span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ Qisman</span>',
+                'pending': '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⏳ Kutilmoqda</span>',
+                'debt': '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">💳 Qarzda</span>'
             };
             return badges[sale] || sale;
         }
@@ -1370,24 +1370,24 @@
         
         // Holat aniqlash
         if (sale.payment_status === 'paid' || debtUSD === 0) {
-            return '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">? To\'langan</span>';
+            return '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✅ To\'langan</span>';
         } else if (debtUSD > 0 && paidAmount > 0) {
             // Qisman qarz - bir qism to'langan, bir qism qarzda
-            return '<span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">?? Qisman qarz</span>';
+            return '<span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ Qisman qarz</span>';
         } else if (debtUSD > 0 && paidAmount === 0) {
             // To'liq qarz - hech narsa to'lanmagan
-            return '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">? To\'liq qarz</span>';
+            return '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">❌ To\'liq qarz</span>';
         } else if (sale.payment_status === 'cancelled') {
-            return '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">?? Bekor qilingan</span>';
+            return '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🚫 Bekor qilingan</span>';
         }
         
-        return '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">? Noma\'lum</span>';
+        return '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">❓ Noma\'lum</span>';
     }
 
     async function searchSale() {
         const saleId = document.getElementById('saleIdInput').value;
         if (!saleId) {
-            showMessage('?? Savdo ID ni kiriting!', 'warning');
+            showMessage('⚠️ Savdo ID ni kiriting!', 'warning');
             return;
         }
 
@@ -1396,17 +1396,17 @@
             const data = await response.json();
 
             if (!data.success) {
-                showMessage('? Savdo topilmadi!', 'error');
+                showMessage('❌ Savdo topilmadi!', 'error');
                 return;
             }
 
             currentSale = data.sale;
             displaySaleDetails();
             document.getElementById('saleDetails').style.display = 'block';
-            showMessage('? Savdo muvaffaqiyatli yuklandi!', 'success');
+            showMessage('✅ Savdo muvaffaqiyatli yuklandi!', 'success');
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Server bilan bog\'lanishda xatolik!', 'error');
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
         }
     }
 
@@ -1482,7 +1482,7 @@
         const maxQty = returnItems[index].sold_quantity;
         
         if (qty > maxQty) {
-            showMessage(`?? Qaytarish miqdori sotilgan miqdordan oshmasligi kerak! (Max: ${maxQty})`, 'warning');
+            showMessage(`⚠️ Qaytarish miqdori sotilgan miqdordan oshmasligi kerak! (Max: ${maxQty})`, 'warning');
             document.getElementById(`return_${index}`).value = maxQty;
             returnItems[index].return_quantity = maxQty;
         } else {
@@ -1518,7 +1518,7 @@
     async function confirmReturnOld() {
         // Joylashuvni tekshirish
         if (!returnLocationId || !returnLocationType) {
-            showMessage('?? Iltimos, avval qaytarish joyini tanlang!', 'warning');
+            showMessage('⚠️ Iltimos, avval qaytarish joyini tanlang!', 'warning');
             return;
         }
 
@@ -1526,11 +1526,11 @@
         const itemsToReturn = returnItems.filter(item => item.return_quantity > 0);
         
         if (itemsToReturn.length === 0) {
-            showMessage('?? Hech qanday mahsulot tanlanmagan!', 'warning');
+            showMessage('⚠️ Hech qanday mahsulot tanlanmagan!', 'warning');
             return;
         }
 
-        // Qaytarish turi � alohida modal o'rniga askRefundType ishlatiladi (bu funksiya sahifa formasidan chaqiriladi)
+        // Qaytarish turi — alohida modal o'rniga askRefundType ishlatiladi (bu funksiya sahifa formasidan chaqiriladi)
         const refundType = await askRefundType();
         if (!refundType) return; // Bekor qilindi
 
@@ -1553,10 +1553,10 @@
 
             if (data.success) {
                 const msg = refundType === 'balance'
-                    ? '? Mahsulotlar qaytarildi! Pul mijoz balansiga qo\'shildi.'
+                    ? '✅ Mahsulotlar qaytarildi! Pul mijoz balansiga qo\'shildi.'
                     : refundType === 'debt'
-                    ? '? Mahsulotlar qaytarildi! Qarz kamaytirildi.'
-                    : '? Mahsulotlar muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
+                    ? '✅ Mahsulotlar qaytarildi! Qarz kamaytirildi.'
+                    : '✅ Mahsulotlar muvaffaqiyatli qaytarildi! Naxt pul qaytarildi.';
                 showMessage(msg, 'success');
                 // Formani tozalash
                 setTimeout(() => {
@@ -1566,22 +1566,22 @@
                     returnItems = [];
                 }, 2000);
             } else if (data.error === 'no_debt') {
-                showMessage(`?? ${data.message}`, 'error');
+                showMessage(`⚠️ ${data.message}`, 'error');
             } else {
-                showMessage('? Xatolik: ' + data.error, 'error');
+                showMessage('❌ Xatolik: ' + data.error, 'error');
             }
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Server bilan bog\'lanishda xatolik!', 'error');
+            showMessage('❌ Server bilan bog\'lanishda xatolik!', 'error');
         }
     }
 
     function getPaymentStatusText(status) {
         const statuses = {
-            'paid': '? To\'langan',
-            'partial': '?? Qisman to\'langan',
-            'pending': '? Kutilmoqda',
-            'debt': '?? Qarzda'
+            'paid': '✅ To\'langan',
+            'partial': '⚠️ Qisman to\'langan',
+            'pending': '⏳ Kutilmoqda',
+            'debt': '💳 Qarzda'
         };
         return statuses[status] || status;
     }
@@ -1605,7 +1605,7 @@
             const data = await response.json();
 
             if (!data.success) {
-                showMessage('? Savdo topilmadi!', 'error');
+                showMessage('❌ Savdo topilmadi!', 'error');
                 return;
             }
 
@@ -1632,8 +1632,8 @@
                 <div id="saleDetailsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
                     <div style="background: white; border-radius: 10px; padding: 30px; max-width: 1200px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
-                            <h2 style="margin: 0; color: #333;">?? Savdo ID ${sale.id} tafsilotlari</h2>
-                            <button onclick="closeSaleModal()" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px;">�</button>
+                            <h2 style="margin: 0; color: #333;">📋 Savdo ID ${sale.id} tafsilotlari</h2>
+                            <button onclick="closeSaleModal()" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px;">×</button>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
@@ -1644,27 +1644,27 @@
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Mijoz</div>
                                 <div style="font-weight: 600; color: #333;">${sale.customer_name || 'Noma\'lum'}</div>
-                                ${sale.customer_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">?? ${sale.customer_phone}</div>` : ''}
+                                ${sale.customer_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">📞 ${sale.customer_phone}</div>` : ''}
                             </div>
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Sotuvchi</div>
                                 <div style="font-weight: 600; color: #333;">${sale.seller_name || 'Admin'}</div>
-                                ${sale.seller_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">?? ${sale.seller_phone}</div>` : ''}
+                                ${sale.seller_phone ? `<div style="font-size: 12px; color: #3b82f6; margin-top: 3px;">📞 ${sale.seller_phone}</div>` : ''}
                             </div>
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
                                 <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Holat</div>
                                 <div style="margin-bottom: 6px;">${getPaymentStatusBadge(sale)}</div>
                                 <div style="display: flex; flex-direction: column; gap: 3px; font-size: 12px;">
-                                    ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">?? Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">?? Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">?? Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
-                                    ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">?? Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
-                                    <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">?? Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>
+                                    ${sale.cash_usd > 0 ? `<span style="color:#16a34a;">💵 Naqd: $${parseFloat(sale.cash_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.click_usd > 0 ? `<span style="color:#1a6eff;">📱 Click: $${parseFloat(sale.click_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.terminal_usd > 0 ? `<span style="color:#7c3aed;">💳 Terminal: $${parseFloat(sale.terminal_usd).toFixed(2)}</span>` : ''}
+                                    ${sale.debt_usd > 0 ? `<span style="color:#dc2626;">📝 Qarz: $${parseFloat(sale.debt_usd).toFixed(2)}</span>` : ''}
+                                    <span style="color:#1e293b; font-weight:700; border-top:1px solid #e2e8f0; padding-top:4px; margin-top:2px;">💰 Jami: $${parseFloat(sale.total_amount).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <h3 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">?? Mahsulotlar</h3>
+                        <h3 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">📦 Mahsulotlar</h3>
                         <div style="overflow-x: auto; margin-bottom: 20px;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <thead>
@@ -1693,7 +1693,7 @@
                                     <tr style="background: #ffe6e6;">
                                         <td style="padding: 10px; border-bottom: 1px solid #f0f0f0; color: #dc3545;">
                                             ${item.product_name}
-                                            <span style="color: #dc3545; font-weight: 600; margin-left: 8px;">?? Qaytarilgan</span>
+                                            <span style="color: #dc3545; font-weight: 600; margin-left: 8px;">↩️ Qaytarilgan</span>
                                         </td>
                                         <td style="padding: 10px; text-align: center; border-bottom: 1px solid #f0f0f0; font-weight: 600; color: #dc3545;">
                                             ${item.returned_quantity}
@@ -1712,14 +1712,14 @@
             if (paymentRefunds.length > 0) {
                 modalHTML += `
                         <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
-                            <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 14px;">?? Qaytarilgan to'lovlar:</h4>`;
+                            <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 14px;">↩️ Qaytarilgan to'lovlar:</h4>`;
                 
                 paymentRefunds.forEach(refund => {
                     const paymentTypeNames = {
-                        'cash': '?? Naqd',
-                        'click': '?? Click',
-                        'terminal': '?? Terminal',
-                        'debt': '?? Qarzdan'
+                        'cash': '💵 Naqd',
+                        'click': '📱 Click',
+                        'terminal': '💳 Terminal',
+                        'debt': '📝 Qarzdan'
                     };
                     const refundAmount = parseFloat(refund.refund_amount_usd || 0);
                     
@@ -1741,19 +1741,19 @@
                                 <span style="font-size: 18px; font-weight: 700; color: #007bff;">$${parseFloat(sale.total_amount).toFixed(2)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="color: #666;">?? Naqd:</span>
+                                <span style="color: #666;">💵 Naqd:</span>
                                 <span style="font-weight: 600;">$${parseFloat(sale.cash_usd || 0).toFixed(2)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="color: #666;">?? Click:</span>
+                                <span style="color: #666;">📱 Click:</span>
                                 <span style="font-weight: 600;">$${parseFloat(sale.click_usd || 0).toFixed(2)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="color: #666;">?? Terminal:</span>
+                                <span style="color: #666;">💳 Terminal:</span>
                                 <span style="font-weight: 600;">$${parseFloat(sale.terminal_usd || 0).toFixed(2)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #dc3545; font-weight: 600;">?? Qarz:</span>
+                                <span style="color: #dc3545; font-weight: 600;">📝 Qarz:</span>
                                 <span style="font-weight: 700; color: #dc3545;">$${parseFloat(sale.debt_usd || 0).toFixed(2)}</span>
                             </div>
                         </div>
@@ -1764,7 +1764,7 @@
             
         } catch (error) {
             console.error('Xatolik:', error);
-            showMessage('? Savdo tafsilotlarini yuklashda xatolik!', 'error');
+            showMessage('❌ Savdo tafsilotlarini yuklashda xatolik!', 'error');
         }
     }
 
@@ -1781,7 +1781,7 @@
         tbody.innerHTML = `
             <tr>
                 <td colspan="9" style="padding: 20px; text-align: center; color: #999;">
-                    <span style="font-size: 16px;">? Yuklanmoqda...</span>
+                    <span style="font-size: 16px;">⏳ Yuklanmoqda...</span>
                 </td>
             </tr>`;
 
@@ -1817,7 +1817,7 @@
                             <button onclick="viewSaleDetails(${item.sale_id})" 
                                     style="padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; font-size: 13px;"
                                     title="Savdo tafsilotlarini ko'rish">
-                                ??? Savdo
+                                👁️ Savdo
                             </button>
                         </td>
                     `;
@@ -1827,7 +1827,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="padding: 20px; text-align: center; color: #999;">
-                            <span style="font-size: 16px;">?? Hozircha qaytarilgan mahsulotlar yo'q</span>
+                            <span style="font-size: 16px;">📭 Hozircha qaytarilgan mahsulotlar yo'q</span>
                         </td>
                     </tr>`;
             }
@@ -1836,7 +1836,7 @@
             tbody.innerHTML = `
                 <tr>
                     <td colspan="8" style="padding: 20px; text-align: center; color: #dc3545;">
-                        <span style="font-size: 16px;">? Tarixni yuklashda xatolik yuz berdi</span>
+                        <span style="font-size: 16px;">❌ Tarixni yuklashda xatolik yuz berdi</span>
                     </td>
                 </tr>`;
         }

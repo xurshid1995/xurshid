@@ -1,9 +1,9 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 {% block title %}{{ customer.name }} - Amallar tarixi{% endblock %}
 
 {% block extra_css %}
 <style>
-.tl-page { padding: 24px 28px 40px; background: transparent; min-height: 100vh; }
+.tl-page { padding: 24px 28px 40px; background: #f5f6fa; min-height: 100vh; }
 
 /* Header */
 .tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
@@ -93,33 +93,33 @@
             <div class="tl-avatar" id="avatarInitial">?</div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div class="tl-cname">{{ customer.name }}</div>
-                <div class="tl-cphone" style="margin:0;">?? {{ customer.phone or '�' }}</div>
+                <div class="tl-cphone" style="margin:0;">📞 {{ customer.phone or '—' }}</div>
             </div>
             <div class="tl-cbadges" id="customerBadges"></div>
         </div>
-        <a href="/customer-balances" class="tl-back-btn">� Orqaga</a>
+        <a href="/customer-balances" class="tl-back-btn">← Orqaga</a>
     </div>
 
     <!-- Stats -->
     <div class="tl-stats" id="statsRow">
-        <div class="tl-stat"><div class="tl-stat-value" id="statSales">�</div><div class="tl-stat-label">Jami savdolar</div></div>
-        <div class="tl-stat"><div class="tl-stat-value" id="statTotalBought">�</div><div class="tl-stat-label">Jami xarid (USD)</div></div>
-        <div class="tl-stat"><div class="tl-stat-value" id="statPayments">�</div><div class="tl-stat-label">To'lovlar soni</div></div>
-        <div class="tl-stat"><div class="tl-stat-value" id="statTotalPaid">�</div><div class="tl-stat-label">Jami to'langan</div></div>
-        <div class="tl-stat"><div class="tl-stat-value tl-amount-sale" id="statDebt">�</div><div class="tl-stat-label">Hozirgi qarz</div></div>
-        <div class="tl-stat"><div class="tl-stat-value" style="color:#065f46" id="statBalance">�</div><div class="tl-stat-label">Balans</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statSales">—</div><div class="tl-stat-label">Jami savdolar</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statTotalBought">—</div><div class="tl-stat-label">Jami xarid (USD)</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statPayments">—</div><div class="tl-stat-label">To'lovlar soni</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statTotalPaid">—</div><div class="tl-stat-label">Jami to'langan</div></div>
+        <div class="tl-stat"><div class="tl-stat-value tl-amount-sale" id="statDebt">—</div><div class="tl-stat-label">Hozirgi qarz</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" style="color:#065f46" id="statBalance">—</div><div class="tl-stat-label">Balans</div></div>
     </div>
 
     <!-- Filters -->
     <div class="tl-filters">
         <button class="tl-filter-btn active" onclick="setFilter('all')">Barchasi</button>
-        <button class="tl-filter-btn" onclick="setFilter('sale')">?? Savdolar</button>
-        <button class="tl-filter-btn" onclick="setFilter('payment')">?? To'lovlar</button>
-        <button class="tl-filter-btn" onclick="setFilter('return')">?? Qaytarilganlar</button>
+        <button class="tl-filter-btn" onclick="setFilter('sale')">🛒 Savdolar</button>
+        <button class="tl-filter-btn" onclick="setFilter('payment')">💳 To'lovlar</button>
+        <button class="tl-filter-btn" onclick="setFilter('return')">↩️ Qaytarilganlar</button>
     </div>
 
     <!-- Timeline -->
-    <div id="timelineContainer"><div class="tl-loading">? Yuklanmoqda...</div></div>
+    <div id="timelineContainer"><div class="tl-loading">⏳ Yuklanmoqda...</div></div>
 </div>
 
 <script>
@@ -131,7 +131,7 @@ async function loadTimeline() {
     try {
         const res = await fetch(`/api/customer/${CUSTOMER_ID}/timeline`);
         const data = await res.json();
-        if (!data.success) { document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">? Ma\'lumot yuklanmadi</div>'; return; }
+        if (!data.success) { document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Ma\'lumot yuklanmadi</div>'; return; }
 
         allEvents = data.events;
         const c = data.customer;
@@ -148,7 +148,7 @@ async function loadTimeline() {
             // debt = sale.debt_usd
             return s;
         }, 0);
-        if (c.balance > 0) badges += `<span class="tl-badge tl-badge-balance">?? Balans: $${c.balance.toFixed(2)}</span>`;
+        if (c.balance > 0) badges += `<span class="tl-badge tl-badge-balance">💰 Balans: $${c.balance.toFixed(2)}</span>`;
 
         // Stats
         const sales = allEvents.filter(e => e.type === 'sale');
@@ -168,7 +168,7 @@ async function loadTimeline() {
 
         renderTimeline();
     } catch(e) {
-        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">? Xatolik: ' + e.message + '</div>';
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Xatolik: ' + e.message + '</div>';
     }
 }
 
@@ -182,7 +182,7 @@ function setFilter(type) {
 function renderTimeline() {
     const filtered = currentFilter === 'all' ? allEvents : allEvents.filter(e => e.type === currentFilter);
     if (filtered.length === 0) {
-        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">?? Amallar topilmadi</div>';
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">📭 Amallar topilmadi</div>';
         return;
     }
 
@@ -211,13 +211,13 @@ function renderTimeline() {
 }
 
 function formatDay(dateStr) {
-    if (!dateStr) return '�';
+    if (!dateStr) return '—';
     const d = new Date(dateStr);
     const today = new Date(); today.setHours(0,0,0,0);
     const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
     const dd = new Date(dateStr); dd.setHours(0,0,0,0);
-    if (dd.getTime() === today.getTime()) return 'Bugun � ' + dateStr;
-    if (dd.getTime() === yesterday.getTime()) return 'Kecha � ' + dateStr;
+    if (dd.getTime() === today.getTime()) return 'Bugun — ' + dateStr;
+    if (dd.getTime() === yesterday.getTime()) return 'Kecha — ' + dateStr;
     return dateStr;
 }
 
@@ -226,10 +226,10 @@ function timeOnly(dateStr) {
 }
 
 function statusBadge(status, isDeleted) {
-    if (isDeleted) return '<span class="tl-status-deleted">??? O\'chirilgan</span>';
-    if (status === 'paid') return '<span class="tl-status-paid">? Savdo statusi: To\'langan</span>';
-    if (status === 'debt') return '<span class="tl-status-debt">?? Savdo statusi: Qarz</span>';
-    if (status === 'partial') return '<span class="tl-status-debt">?? Savdo statusi: Qarz</span>';
+    if (isDeleted) return '<span class="tl-status-deleted">🗑️ O\'chirilgan</span>';
+    if (status === 'paid') return '<span class="tl-status-paid">✅ Savdo statusi: To\'langan</span>';
+    if (status === 'debt') return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
+    if (status === 'partial') return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
     return '';
 }
 
@@ -248,13 +248,13 @@ function afterRow(e) {
 
 function renderPaymentReverse(e) {
     const chips = [];
-    if (e.cash_usd > 0)     chips.push(`?? Naqd: $${e.cash_usd.toFixed(2)}`);
-    if (e.click_usd > 0)    chips.push(`?? Click: $${e.click_usd.toFixed(2)}`);
-    if (e.terminal_usd > 0) chips.push(`?? Terminal: $${e.terminal_usd.toFixed(2)}`);
-    if (e.currency_rate > 0) chips.push(`?? Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
-    if (e.reversed_by)       chips.push(`?? Bekor qildi: ${e.reversed_by}`);
-    if (e.sale_ids && e.sale_ids.length) chips.push(`?? Savdolar: ${e.sale_ids.join(', ')}`);
-    if (e.original_payment_date) chips.push(`?? Asl to'lov sanasi: ${e.original_payment_date.substring(0,16)}`);
+    if (e.cash_usd > 0)     chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
+    if (e.click_usd > 0)    chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
+    if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
+    if (e.currency_rate > 0) chips.push(`📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
+    if (e.reversed_by)       chips.push(`👤 Bekor qildi: ${e.reversed_by}`);
+    if (e.sale_ids && e.sale_ids.length) chips.push(`🔗 Savdolar: ${e.sale_ids.join(', ')}`);
+    if (e.original_payment_date) chips.push(`🗓 Asl to'lov sanasi: ${e.original_payment_date.substring(0,16)}`);
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-return"></div>
@@ -262,7 +262,7 @@ function renderPaymentReverse(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment-reverse">? To'lov bekor qilindi</span>
+                    <span class="tl-type-badge tl-type-payment-reverse">↩ To'lov bekor qilindi</span>
                 </div>
                 <div><span class="tl-amount" style="color:#ef4444;">-$${e.total_usd.toFixed(2)}</span></div>
             </div>
@@ -274,11 +274,11 @@ function renderPaymentReverse(e) {
 
 function renderReturn(e) {
     const chipsHtml = [
-        `?? Savdo ID ${e.sale_id}`,
-        `?? ${e.product_name} � ${e.returned_quantity}`,
-        e.username ? `?? ${e.username}` : ''
+        `🔗 Savdo ID ${e.sale_id}`,
+        `📦 ${e.product_name} × ${e.returned_quantity}`,
+        e.username ? `👤 ${e.username}` : ''
     ].filter(Boolean).map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
-    const notesHtml = e.description ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">?? ${e.description}</div>` : '';
+    const notesHtml = e.description ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.description}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-return"></div>
@@ -286,7 +286,7 @@ function renderReturn(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-return">?? Qaytarildi</span>
+                    <span class="tl-type-badge tl-type-return">↩️ Qaytarildi</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount" style="color:#f59e0b;">-$${e.amount_usd.toFixed(2)}</span>
@@ -301,25 +301,25 @@ function renderReturn(e) {
 
 function renderSale(e) {
     const chips = [];
-    if (e.total_amount > 0) chips.push(`<span class="tl-detail-chip-total">?? Jami: $${e.total_amount.toFixed(2)}</span>`);
-    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip">?? Naqd: $${e.cash_usd.toFixed(2)}</span>`);
-    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">?? Click: $${e.click_usd.toFixed(2)}</span>`);
-    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">?? Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
-    if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">?? Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
-    if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">?? Qarz: $${e.debt_usd.toFixed(2)}</span>`);
+    if (e.total_amount > 0) chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_amount.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
+    if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">🏦 Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
+    if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
 
     const chipsHtml = chips.filter(Boolean).join('');
 
     let itemsHtml = '';
     if (e.items && e.items.length > 0) {
-        const rows = e.items.map(i => `<div class="tl-item-row"><span>${i.product_name} � ${i.quantity}</span><span>$${i.total.toFixed(2)}</span></div>`).join('');
+        const rows = e.items.map(i => `<div class="tl-item-row"><span>${i.product_name} × ${i.quantity}</span><span>$${i.total.toFixed(2)}</span></div>`).join('');
         itemsHtml = `<div class="tl-items-list">
-            <button class="tl-items-toggle" onclick="toggleItems(this)">? ${e.items_count} ta mahsulot ko'rish</button>
+            <button class="tl-items-toggle" onclick="toggleItems(this)">▶ ${e.items_count} ta mahsulot ko'rish</button>
             <div class="tl-items-body">${rows}</div>
         </div>`;
     }
 
-    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">?? ${e.notes}</div>` : '';
+    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-sale"></div>
@@ -327,11 +327,11 @@ function renderSale(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-sale">?? Savdo ID ${e.id}</span>
+                    <span class="tl-type-badge tl-type-sale">🛒 Savdo ID ${e.id}</span>
                     ${statusBadge(e.payment_status, e.is_deleted)}
-                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip">?? Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
-                    ${e.seller ? `<span class="tl-detail-chip">?? Sotuvchi: ${e.seller}</span>` : ''}
-                    ${e.is_edited ? `<span class="tl-status-edited">?? Tahrirlangan</span>` : ''}
+                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
+                    ${e.seller ? `<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>` : ''}
+                    ${e.is_edited ? `<span class="tl-status-edited">✏️ Tahrirlangan</span>` : ''}
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-sale">$${e.total_amount.toFixed(2)}</span>
@@ -347,16 +347,16 @@ function renderSale(e) {
 
 function renderPayment(e) {
     const chips = [];
-    if (e.cash_usd > 0) chips.push(`?? Naqd: $${e.cash_usd.toFixed(2)}`);
-    if (e.click_usd > 0) chips.push(`?? Click: $${e.click_usd.toFixed(2)}`);
-    if (e.terminal_usd > 0) chips.push(`?? Terminal: $${e.terminal_usd.toFixed(2)}`);
-    if (e.currency_rate > 0) chips.push(`?? Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
-    if ((e.balance_added || 0) > 0) chips.push(`?? Balansga: $${e.balance_added.toFixed(2)}`);
-    if (e.received_by) chips.push(`?? Qabul qildi: ${e.received_by}`);
-    if (e.sale_id) chips.push(`?? Savdo ID ${e.sale_id}`);
+    if (e.cash_usd > 0) chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
+    if (e.click_usd > 0) chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
+    if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
+    if (e.currency_rate > 0) chips.push(`📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
+    if ((e.balance_added || 0) > 0) chips.push(`🏦 Balansga: $${e.balance_added.toFixed(2)}`);
+    if (e.received_by) chips.push(`👤 Qabul qildi: ${e.received_by}`);
+    if (e.sale_id) chips.push(`🔗 Savdo ID ${e.sale_id}`);
 
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
-    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">?? ${e.notes}</div>` : '';
+    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-payment"></div>
@@ -364,7 +364,7 @@ function renderPayment(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment">?? To'lov ID ${e.id}</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-payment">+$${e.total_usd.toFixed(2)}</span>
@@ -380,7 +380,7 @@ function renderPayment(e) {
 function toggleItems(btn) {
     const body = btn.nextElementSibling;
     const open = body.classList.toggle('open');
-    btn.textContent = (open ? '� ' : '? ') + btn.textContent.substring(2);
+    btn.textContent = (open ? '▼ ' : '▶ ') + btn.textContent.substring(2);
 }
 
 document.addEventListener('DOMContentLoaded', loadTimeline);

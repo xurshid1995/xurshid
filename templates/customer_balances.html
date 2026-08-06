@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+ï»¿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('cb_title') }} - Dokon{% endblock %}
 
@@ -7,7 +7,7 @@
     /* ===== CB - Customer Balances ===== */
     .cb-page {
         padding: 24px;
-        background: transparent;
+        background: #f5f6fa;
         min-height: 100vh;
     }
 
@@ -396,19 +396,19 @@
     <!-- Stats -->
     <div class="cb-stats">
         <div class="cb-stat-card blue">
-            <div class="cb-stat-value" id="stat-total-customers">—</div>
+            <div class="cb-stat-value" id="stat-total-customers">â€”</div>
             <div class="cb-stat-label">{{ t('cb_stat_total') }}</div>
         </div>
         <div class="cb-stat-card amber">
-            <div class="cb-stat-value" id="stat-debt-customers">—</div>
+            <div class="cb-stat-value" id="stat-debt-customers">â€”</div>
             <div class="cb-stat-label">{{ t('cb_stat_with_debt') }}</div>
         </div>
         <div class="cb-stat-card green">
-            <div class="cb-stat-value" id="stat-clean-customers">—</div>
+            <div class="cb-stat-value" id="stat-clean-customers">â€”</div>
             <div class="cb-stat-label">{{ t('cb_stat_no_debt') }}</div>
         </div>
         <div class="cb-stat-card amber">
-            <div class="cb-stat-value" id="stat-total-debt">—</div>
+            <div class="cb-stat-value" id="stat-total-debt">â€”</div>
             <div class="cb-stat-label">{{ t('cb_stat_total_debt') }}</div>
         </div>
     </div>
@@ -419,8 +419,8 @@
                placeholder="{{ t('cb_search_placeholder') }}"
                oninput="filterTable()">
         <button class="cb-sort-btn active" id="filter-all" onclick="setFilter('all')">Barchasi</button>
-        <button class="cb-sort-btn" id="filter-debt" onclick="setFilter('debt')">?? Qarzli mijozlar</button>
-        <button class="cb-sort-btn" id="filter-balance" onclick="setFilter('balance')">?? Balansi bor mijozlar</button>
+        <button class="cb-sort-btn" id="filter-debt" onclick="setFilter('debt')">ðŸ’³ Qarzli mijozlar</button>
+        <button class="cb-sort-btn" id="filter-balance" onclick="setFilter('balance')">ðŸ’° Balansi bor mijozlar</button>
     </div>
 
     <!-- Table -->
@@ -433,7 +433,7 @@
             <table class="cb-table">
                 <thead>
                     <tr>
-                        <th>?</th>
+                        <th>â„–</th>
                         <th>{{ t('cb_th_customer') }}</th>
                         <th>{{ t('cb_th_debt') }}</th>
                         <th>{{ t('cb_th_last_payment') }}</th>
@@ -497,7 +497,7 @@ const CB_LANG = {
 let allCustomers = [];
 let exchangeRate = 12500;
 
-// ¦¦ YUKLA ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ YUKLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadBalances() {
     try {
         const res = await fetch('/api/customer-balances');
@@ -513,7 +513,7 @@ async function loadBalances() {
     }
 }
 
-// ¦¦ STATISTIKA ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ STATISTIKA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderStats(data) {
     const total  = data.customers.length;
     const withDebt = data.customers.filter(c => c.debt_usd > 0).length;
@@ -526,7 +526,7 @@ function renderStats(data) {
     document.getElementById('stat-total-debt').textContent      = '$' + totalDebt.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-// ¦¦ JADVAL ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ JADVAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderTable(list) {
     document.getElementById('cb-count').textContent = list.length + ' ' + CB_LANG.customers_count;
     if (!list.length) {
@@ -558,7 +558,7 @@ function renderTable(list) {
                     <div class="cb-progress-fill" style="width:${paidPct}%"></div>
                 </div>
                 <div class="cb-progress-text"><span>${CB_LANG.has_debt.split(' ')[0]} ${paidPct}%</span></div>
-            </div>` : `<span style="color:#94a3b8;font-size:12px;">—</span>`;
+            </div>` : `<span style="color:#94a3b8;font-size:12px;">â€”</span>`;
 
         return `<tr>
             <td style="color:#94a3b8;font-weight:600;">${i+1}</td>
@@ -579,7 +579,7 @@ function renderTable(list) {
             <td>
                 ${(c.balance && c.balance > 0)
                     ? `<span class="cb-badge" style="background:#d1fae5;color:#065f46;font-weight:700;">$${parseFloat(c.balance).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
-                    : `<span style="color:#94a3b8;font-size:13px;">—</span>`}
+                    : `<span style="color:#94a3b8;font-size:13px;">â€”</span>`}
             </td>
             <td>${statusBadge}</td>
             <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -599,15 +599,15 @@ function renderTable(list) {
     document.getElementById('cb-tbody').innerHTML = rows;
 }
 
-// ¦¦ Joriy filter ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ Joriy filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let currentFilter = 'all';
 
-// ¦¦ QIDIRISH ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ QIDIRISH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filterTable() {
     applyFilterAndSearch();
 }
 
-// ¦¦ FILTER ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ FILTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setFilter(type) {
     currentFilter = type;
     document.querySelectorAll('.cb-sort-btn').forEach(b => b.classList.remove('active'));
@@ -630,7 +630,7 @@ function applyFilterAndSearch() {
 
 document.addEventListener('DOMContentLoaded', loadBalances);
 
-// ¦¦ BALANCE TAHRIRLASH ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ BALANCE TAHRIRLASH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let editingCustomerId = null;
 
 function openEditBalance(id, name, currentBalance) {
@@ -685,7 +685,7 @@ document.getElementById('editBalanceModal').addEventListener('click', function(e
     if (e.target === this) closeEditBalance();
 });
 
-// ¦¦ BALANS QO'SHISH ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+// â”€â”€ BALANS QO'SHISH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let addingCustomerId = null;
 
 function openAddBalance(id, name, currentBalance) {

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Yig'ish{% endblock %}
 
@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="tv-wrap">
-    <a href="/transfer" class="tv-back-link">� Transferlar ro'yxati</a>
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
     <div id="tvRoot"></div>
 </div>
 
@@ -16,7 +16,7 @@
 const INITIAL_DATA = {{ initial_data|tojson }};
 
 function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
-function fmtDate(s) { if (!s) return '�'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
+function fmtDate(s) { if (!s) return '—'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
 
 function render() {
     const p = INITIAL_DATA.pending_transfer;
@@ -31,13 +31,13 @@ function render() {
     document.getElementById('tvRoot').innerHTML = `
         <div class="tv-card">
             <h2 class="tv-title">Yangi transfer keldi (#${p.id})</h2>
-            <div class="tv-info-box">?? Sotuvchi tomonidan yuborildi. Yig'ishni boshlash uchun pastdagi tugmani bosing.</div>
+            <div class="tv-info-box">📥 Sotuvchi tomonidan yuborildi. Yig'ishni boshlash uchun pastdagi tugmani bosing.</div>
             <div class="tv-row">
-                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '�'}</div></div>
-                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '�'}</div></div>
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
             </div>
             <div class="tv-row">
-                <div><div class="tv-label">Buyurtmachi (sotuvchi)</div><div class="tv-value">${p.user_name || '�'}</div></div>
+                <div><div class="tv-label">Buyurtmachi (sotuvchi)</div><div class="tv-value">${p.user_name || '—'}</div></div>
                 <div><div class="tv-label">Yuborilgan vaqt</div><div class="tv-value">${fmtDate(p.sent_at || p.updated_at)}</div></div>
             </div>
         </div>
@@ -52,7 +52,7 @@ function render() {
 
         <div class="tv-actions tv-actions-between">
             <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
-            <button class="tv-btn tv-btn-success" id="btnStart">?? Yig'ishni boshlash</button>
+            <button class="tv-btn tv-btn-success" id="btnStart">⚙️ Yig'ishni boshlash</button>
         </div>
     `;
 
@@ -73,12 +73,12 @@ async function startPicking() {
         } else {
             alert('Xatolik: ' + (data.error || 'Noma\'lum'));
             btn.disabled = false;
-            btn.textContent = '?? Yig\'ishni boshlash';
+            btn.textContent = '⚙️ Yig\'ishni boshlash';
         }
     } catch (e) {
         alert('Tarmoq xatosi: ' + e.message);
         btn.disabled = false;
-        btn.textContent = '?? Yig\'ishni boshlash';
+        btn.textContent = '⚙️ Yig\'ishni boshlash';
     }
 }
 

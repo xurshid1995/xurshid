@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ customer.name }} - {{ t('cd_title_suffix') }}{% endblock %}
 
@@ -11,7 +11,7 @@
 /* Page wrapper */
 .ps-page {
     padding: 28px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -265,7 +265,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
 .compact-mode .sale-id-badge, .compact-mode .sale-time {
     display: inline-block !important; visibility: visible !important; opacity: 1 !important;
 }
-/* Joylashuv va mahsulot ustunlari � overflow:hidden ni bekor qilish */
+/* Joylashuv va mahsulot ustunlari — overflow:hidden ni bekor qilish */
 .compact-mode .ps-table td.col-location,
 .compact-mode .ps-table td.col-product {
     overflow: visible !important; text-overflow: unset !important;
@@ -542,7 +542,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
         width: 95%;
         max-height: 90vh;
         overflow-y: auto;
-        background: transparent;
+        background: #f5f6fa;
         border-radius: 16px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
         animation: modalFadeIn 0.25s ease-out;
@@ -572,7 +572,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
         background: #f1f5f9;
     }
     .sale-details-content .close-btn:hover { color: #ef4444; background: #fee2e2; }
-    .sale-details-content .modal-body { padding: 20px 24px; background: transparent; }
+    .sale-details-content .modal-body { padding: 20px 24px; background: #f5f6fa; }
     .sale-details-content .sale-main-info {
         background: white;
         border-radius: 12px;
@@ -933,7 +933,7 @@ function getLocationName(item) {
 
 // === MOBIL STICKY COLUMN: JS translateX ===
 // CSS sticky ishlamaydi chunki body/main-content overflow:hidden ota elementlar bor.
-// Bu funksiya overflow ga bog'liq emas � har qanday brauzerda ishlaydi.
+// Bu funksiya overflow ga bog'liq emas — har qanday brauzerda ishlaydi.
 function initMobileStickyCol() {
     if (window.innerWidth >= 769) return; // Desktop: CSS sticky ishlaydi
 
@@ -1225,12 +1225,12 @@ function viewSaleDetails(saleId) {
             if (data.success && data.sale) {
                 showSaleDetailsModal(data.sale);
             } else {
-                alert('? Savdo tafsilotlarini olishda xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+                alert('❌ Savdo tafsilotlarini olishda xatolik: ' + (data.error || 'Noma\'lum xatolik'));
             }
         })
         .catch(error => {
             console.error('Savdo tafsilotlari xatolik:', error);
-            alert('? Tarmoq xatoligi: ' + error.message);
+            alert('❌ Tarmoq xatoligi: ' + error.message);
         });
 }
 
@@ -1379,7 +1379,7 @@ function showSaleDetailsModal(sale) {
 
 function printSaleReceipt(currency = 'uzs') {
     if (!currentSaleData) {
-        alert('? Chop etish uchun savdo ma\'lumotlari topilmadi!');
+        alert('❌ Chop etish uchun savdo ma\'lumotlari topilmadi!');
         return;
     }
     
@@ -1785,7 +1785,7 @@ function filterCustomerOrders() {
         const matchesDateFrom = !dateFrom || saleDate >= dateFrom;
         const matchesDateTo = !dateTo || saleDate <= dateTo;
 
-        // Qidiruv filtri � mahsulot nomi, joylashuv, sana
+        // Qidiruv filtri — mahsulot nomi, joylashuv, sana
         const matchesSearch = !searchTerm ||
             (sale.location_name || '').toLowerCase().includes(searchTerm) ||
             new Date(sale.sale_date).toLocaleString('uz-UZ').toLowerCase().includes(searchTerm) ||
@@ -1848,16 +1848,16 @@ function closeSaleDetailsModal() {
 
 function getPaymentMethodText(method) {
     switch (method) {
-        case 'cash': return '?? Naqd pul';
-        case 'click': return '?? Click';
-        case 'terminal': return '?? Terminal';
-        case 'debt': return '?? Qarz';
+        case 'cash': return '💵 Naqd pul';
+        case 'click': return '📱 Click';
+        case 'terminal': return '💳 Terminal';
+        case 'debt': return '📝 Qarz';
         default: return method || 'Naqd pul';
     }
 }
 
 function generatePaymentDetailsHTML(sale) {
-    console.log('?? generatePaymentDetailsHTML - Sale data:', sale);
+    console.log('🔍 generatePaymentDetailsHTML - Sale data:', sale);
     
     const rate = sale.currency_rate || 12700;
     
@@ -1867,7 +1867,7 @@ function generatePaymentDetailsHTML(sale) {
     const debtUSD = parseFloat(sale.debt_usd || 0);
     const balanceUSD = parseFloat(sale.balance_usd || 0);
     
-    console.log('?? USD qiymatlar:', { cashUSD, clickUSD, terminalUSD, debtUSD, balanceUSD });
+    console.log('💰 USD qiymatlar:', { cashUSD, clickUSD, terminalUSD, debtUSD, balanceUSD });
     
     const cashUZS = cashUSD * rate;
     const clickUZS = clickUSD * rate;
@@ -1876,11 +1876,11 @@ function generatePaymentDetailsHTML(sale) {
     const balanceUZS = balanceUSD * rate;
     
     const payments = [
-        { name: '?? Naqd pul', usd: cashUSD, uzs: cashUZS, isDebt: false },
-        { name: '?? Click', usd: clickUSD, uzs: clickUZS, isDebt: false },
-        { name: '?? Terminal', usd: terminalUSD, uzs: terminalUZS, isDebt: false },
-        { name: '?? Qarz', usd: debtUSD, uzs: debtUZS, isDebt: true },
-        { name: '?? Balans', usd: balanceUSD, uzs: balanceUZS, isDebt: false }
+        { name: '💵 Naqd pul', usd: cashUSD, uzs: cashUZS, isDebt: false },
+        { name: '📱 Click', usd: clickUSD, uzs: clickUZS, isDebt: false },
+        { name: '💳 Terminal', usd: terminalUSD, uzs: terminalUZS, isDebt: false },
+        { name: '📝 Qarz', usd: debtUSD, uzs: debtUZS, isDebt: true },
+        { name: '🏦 Balans', usd: balanceUSD, uzs: balanceUZS, isDebt: false }
     ];
     
     const activePayments = payments.filter(p => p.usd > 0);
@@ -1919,14 +1919,14 @@ function generatePaymentDetailsHTML(sale) {
     if (sale.payment_refunds && sale.payment_refunds.length > 0) {
         refundsHTML = `
             <div style="margin-top: 15px; padding: 15px; background: #ffebee; border-radius: 6px; border-left: 4px solid #dc3545;">
-                <div style="font-weight: 600; margin-bottom: 10px; color: #c62828;">? Qaytarilgan to'lovlar:</div>
+                <div style="font-weight: 600; margin-bottom: 10px; color: #c62828;">❌ Qaytarilgan to'lovlar:</div>
                 <div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
         
         const paymentTypeIcons = {
-            'cash': '??',
-            'click': '??',
-            'terminal': '??',
-            'payme': '??'
+            'cash': '💵',
+            'click': '📱',
+            'terminal': '💳',
+            'payme': '💳'
         };
         
         const paymentTypeNames = {
@@ -1939,7 +1939,7 @@ function generatePaymentDetailsHTML(sale) {
         
         sale.payment_refunds.forEach(refund => {
             const paymentType = refund.payment_type || 'cash';
-            const icon = paymentTypeIcons[paymentType] || '??';
+            const icon = paymentTypeIcons[paymentType] || '💰';
             const typeName = paymentTypeNames[paymentType] || (paymentType ? paymentType.toUpperCase() : 'NOMA\'LUM');
             const amountUSD = parseFloat(refund.refund_amount_usd || 0);
             const amountUZS = parseFloat(refund.refund_amount_uzs || 0);
@@ -1968,7 +1968,7 @@ function generatePaymentDetailsHTML(sale) {
 
 function exportSaleToExcel() {
     if (!currentSaleData) {
-        alert('? Savdo ma\'lumotlari topilmadi!');
+        alert('❌ Savdo ma\'lumotlari topilmadi!');
         return;
     }
     const sale = currentSaleData;
@@ -2016,8 +2016,8 @@ function exportSaleToExcel() {
     '</tr>' +
     '<tr><td colspan="15">&nbsp;</td></tr>' +
     '<tr style="background-color:#f0f0f0;font-weight:bold;">' +
-        '<td colspan="1">?</td>' +
-        '<td colspan="1">?</td>' +
+        '<td colspan="1">✓</td>' +
+        '<td colspan="1">№</td>' +
         '<td colspan="10">Mahsulot nomi</td>' +
         '<td colspan="1" style="text-align:center;">Miqdor</td>' +
         '<td colspan="1">Birlik narxi</td>' +

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+ï»¿{% extends "base.html" %}
 
 {% block head %}
 {{ super() }}
@@ -15,12 +15,12 @@
 
 .ps-page {
     padding: 28px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* ¦¦ Header ¦¦ */
+/* â”€â”€ Header â”€â”€ */
 .ps-header {
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
 }
 .ps-title i { color: #059669; margin-right: 8px; }
 
-/* ¦¦ Warehouse Grid ¦¦ */
+/* â”€â”€ Warehouse Grid â”€â”€ */
 .warehouse-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -171,7 +171,7 @@
 .ps-empty h3 { font-size: 18px; color: #1e293b; margin: 0 0 8px; }
 .ps-empty p { color: #94a3b8; margin: 0 0 20px; }
 
-/* ¦¦ Delete Modal ¦¦ */
+/* â”€â”€ Delete Modal â”€â”€ */
 .delete-modal {
     display: none;
     position: fixed;
@@ -275,7 +275,7 @@
     box-shadow: 0 4px 12px rgba(239,68,68,0.4);
 }
 
-/* ¦¦ Responsive ¦¦ */
+/* â”€â”€ Responsive â”€â”€ */
 @media (max-width: 1200px) {
     .warehouse-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -302,7 +302,7 @@
         <div class="modal-body">
             <p><strong>{{ t('wh_delete_confirm_msg') }}</strong></p>
             <div class="warehouse-name-highlight" id="modalWarehouseName"></div>
-            <p style="color: #ef4444; font-weight: bold;">?? {{ t('action_irreversible') }}</p>
+            <p style="color: #ef4444; font-weight: bold;">âš ï¸ {{ t('action_irreversible') }}</p>
             <p>{{ t('wh_enter_name_to_continue') }}</p>
             
             <div class="modal-input-group">
@@ -317,10 +317,10 @@
         </div>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
-                ? {{ t('modal_cancel') }}
+                âŒ {{ t('modal_cancel') }}
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn" disabled>
-                ??? {{ t('modal_delete') }}
+                ğŸ—‘ï¸ {{ t('modal_delete') }}
             </button>
         </div>
     </div>
@@ -350,19 +350,19 @@
 
         <div class="warehouse-info">
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">ğŸ“</div>
                 <span>{{ warehouse.address[:28] }}{% if warehouse.address|length > 28 %}...{% endif %}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">ğŸ‘¤</div>
                 <span>{{ warehouse.manager_name }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">ğŸ“</div>
                 <span>{{ warehouse.phone or t('no_phone') }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">ğŸ“…</div>
                 <span>{{ warehouse.created_date.strftime('%d.%m.%Y') if warehouse.created_date else t('unknown_date') }}</span>
             </div>
         </div>
@@ -417,19 +417,19 @@
                        oninput="validateAddWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Manzil <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ“ Manzil <span style="color:#ef4444;">*</span></label>
                 <textarea id="awAddress" rows="2" placeholder="Manzilni kiriting"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateAddWarehouse()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ‘¤ Menejer ismi <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="awManager" placeholder="To'liq ism familiya"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateAddWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Telefon</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ“ Telefon</label>
                 <input type="text" id="awPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhoneWh(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -442,7 +442,7 @@
                 <i class="fas fa-plus"></i> {{ t('btn_add_warehouse') }}
             </button>
             <button onclick="closeAddWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ? Bekor qilish
+                âœ• Bekor qilish
             </button>
         </div>
     </div>
@@ -464,19 +464,19 @@
                        oninput="validateEditWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Manzil <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ“ Manzil <span style="color:#ef4444;">*</span></label>
                 <textarea id="ewAddress" rows="2"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateEditWarehouse()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ‘¤ Menejer ismi <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="ewManager"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateEditWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Telefon</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">ğŸ“ Telefon</label>
                 <input type="text" id="ewPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhoneWh(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -489,7 +489,7 @@
                 <i class="fas fa-save"></i> Saqlash
             </button>
             <button onclick="closeEditWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ? Bekor qilish
+                âœ• Bekor qilish
             </button>
         </div>
     </div>
@@ -518,7 +518,7 @@
 
     // Open delete modal
     function deleteWarehouse(warehouseId, warehouseName) {
-        console.log('?? YANGI deleteWarehouse FUNKSIYASI CHAQIRILDI!');
+        console.log('ğŸ¯ YANGI deleteWarehouse FUNKSIYASI CHAQIRILDI!');
         console.log('O\'chirish funksiyasi chaqirildi:', warehouseId, warehouseName);
         
         currentWarehouseId = warehouseId;
@@ -538,7 +538,7 @@
         console.log('Confirm button element:', confirmBtn);
         
         if (!modal) {
-            console.error('? Modal topilmadi!');
+            console.error('âŒ Modal topilmadi!');
             return;
         }
         
@@ -548,7 +548,7 @@
         confirmBtn.classList.remove('enabled');
         
         modal.classList.add('active');
-        console.log('? Modal ochildi, active class qo\'shildi');
+        console.log('âœ… Modal ochildi, active class qo\'shildi');
         
         // Input'ga fokus
         setTimeout(() => confirmInput.focus(), 300);
@@ -612,7 +612,7 @@
         // Tugmani o'chirish
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '? ' + WHLANG.deleting;
+        confirmBtn.textContent = 'â³ ' + WHLANG.deleting;
         
         fetch(`/api/warehouse/${currentWarehouseId}`, {
             method: 'DELETE',
@@ -630,18 +630,18 @@
                 console.error('API xatosi:', response.status);
                 alert(WHLANG.wh_delete_error);
                 confirmBtn.disabled = false;
-                confirmBtn.textContent = '??? ' + WHLANG.modal_delete;
+                confirmBtn.textContent = 'ğŸ—‘ï¸ ' + WHLANG.modal_delete;
             }
         })
         .catch(error => {
             console.error('Fetch xatosi:', error);
             alert(WHLANG.connection_error_retry);
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '??? ' + WHLANG.modal_delete;
+            confirmBtn.textContent = 'ğŸ—‘ï¸ ' + WHLANG.modal_delete;
         });
     }
 
-    // ¦¦¦ Phone formatting ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+    // â”€â”€â”€ Phone formatting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function formatPhoneWh(input) {
         let digits = input.value.replace(/\D/g, '');
         if (digits.startsWith('998')) digits = digits.slice(3);
@@ -657,7 +657,7 @@
         return val ? val.replace(/\D/g, '') : '';
     }
 
-    // ¦¦¦ Add Warehouse Modal ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+    // â”€â”€â”€ Add Warehouse Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function openAddWarehouseModal() {
         document.getElementById('awName').value = '';
         document.getElementById('awAddress').value = '';
@@ -725,7 +725,7 @@
         if (e.target === this) closeAddWarehouseModal();
     });
 
-    // ¦¦¦ Edit Warehouse Modal ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
+    // â”€â”€â”€ Edit Warehouse Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function openEditWarehouseModal(btn) {
         const id      = btn.dataset.id;
         const name    = btn.dataset.name;

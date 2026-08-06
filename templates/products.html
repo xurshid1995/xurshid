@@ -1,16 +1,16 @@
-{% extends "base_with_sidebar.html" %}
+Ôªø{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('pr_page_title') }}{% endblock %}
 
 {% block extra_css %}{% endblock %}
 .ps-page {
     padding: 28px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* ¶¶ Header ¶¶ */
+/* ‚îÄ‚îÄ Header ‚îÄ‚îÄ */
 .ps-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 16px;
@@ -19,7 +19,7 @@
 .ps-title i { color: #1a6eff; margin-right: 8px; }
 .ps-header-right { display: flex; align-items: center; gap: 12px; }
 
-/* ¶¶ Filter Panel ¶¶ */
+/* ‚îÄ‚îÄ Filter Panel ‚îÄ‚îÄ */
 .ps-filter-panel {
     background: white; border-radius: 16px;
     padding: 18px 22px; margin-bottom: 10px;
@@ -42,7 +42,7 @@
 .ps-filter-location { flex: 1 1 200px; }
 
 
-/* ¶¶ Location buttons ¶¶ */
+/* ‚îÄ‚îÄ Location buttons ‚îÄ‚îÄ */
 .location-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
 .location-button {
     padding: 7px 16px; border: 1.5px solid #e2e8f0;
@@ -53,14 +53,14 @@
 .location-button:hover { border-color: #1a6eff; background: #eff6ff; color: #1a6eff; }
 .location-button.active { background: #1a6eff; border-color: #1a6eff; color: white; box-shadow: 0 2px 8px rgba(26,110,255,0.3); }
 
-/* ¶¶ Table Card ¶¶ */
+/* ‚îÄ‚îÄ Table Card ‚îÄ‚îÄ */
 .ps-table-card {
     background: white; border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
 }
 .ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-/* ¶¶ Table styles ¶¶ */
+/* ‚îÄ‚îÄ Table styles ‚îÄ‚îÄ */
 .ps-table {
     width: 100%; min-width: 900px;
     border-collapse: collapse; font-size: 14px;
@@ -101,7 +101,7 @@
     .ps-table .col-price { max-width: none; }
 }
 
-/* ¶¶ Product name ¶¶ */
+/* ‚îÄ‚îÄ Product name ‚îÄ‚îÄ */
 .product-name {
     font-weight: 600; color: #1e293b; font-size: 13px !important;
     white-space: normal; word-break: break-word; text-align: left;
@@ -112,12 +112,12 @@
     background: #f1f5f9; padding: 2px 6px; border-radius: 4px;
 }
 
-/* ¶¶ Price cell ¶¶ */
+/* ‚îÄ‚îÄ Price cell ‚îÄ‚îÄ */
 .price-cell { text-align: right !important; }
 .price-usd { font-weight: 700; font-size: 12px; color: #1e293b; }
 .price-uzs { font-size: 12px; color: #94a3b8; }
 
-/* ¶¶ Quantity ¶¶ */
+/* ‚îÄ‚îÄ Quantity ‚îÄ‚îÄ */
 .quantity-value {
     display: inline-block; color: white; background: #4da6ff;
     border-radius: 5px; padding: 3px 8px; font-size: 12px;
@@ -129,7 +129,7 @@
     font-weight: 500; margin-left: 4px; font-size: 12px;
 }
 
-/* ¶¶ Location cell ¶¶ */
+/* ‚îÄ‚îÄ Location cell ‚îÄ‚îÄ */
 .location-cell { text-align: left !important; }
 .loc-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 1px; }
 .loc-row:last-child { margin-bottom: 0; }
@@ -142,13 +142,13 @@
     border-radius: 10px; white-space: nowrap; border: 1.5px solid #aaaaaa;
 }
 
-/* ¶¶ Stock status ¶¶ */
+/* ‚îÄ‚îÄ Stock status ‚îÄ‚îÄ */
 .stock-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
 .stock-high   { background:#dcfce7; color:#15803d; }
 .stock-medium { background:#fef9c3; color:#92400e; }
 .stock-out    { background:#fee2e2; color:#b91c1c; }
 
-/* ¶¶ Action buttons ¶¶ */
+/* ‚îÄ‚îÄ Action buttons ‚îÄ‚îÄ */
 .ps-act-btn {
     display:inline-flex; align-items:center; gap:3px;
     padding:4px 9px; border-radius:6px; border:none;
@@ -160,7 +160,7 @@
 .ps-act-btn-hist   { background:#f8fafc; color:#64748b; }
 .ps-act-btn-hist:hover { background:#e2e8f0; color:#334155; }
 
-/* ¶¶ Pagination ¶¶ */
+/* ‚îÄ‚îÄ Pagination ‚îÄ‚îÄ */
 .ps-pagination {
     display: flex; justify-content: center; align-items: center;
     padding: 18px 20px; border-top: 1px solid #f1f5f9;
@@ -176,7 +176,7 @@
 .pagination-btn.active { background: #1a6eff; color: white; border-color: #1a6eff; font-weight: 700; }
 .pagination-dots { padding: 6px 4px; color: #94a3b8; font-weight: bold; }
 
-/* ¶¶ Loading / Empty states ¶¶ */
+/* ‚îÄ‚îÄ Loading / Empty states ‚îÄ‚îÄ */
 .ps-loading-state,
 .ps-empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
 .ps-loading-spinner {
@@ -190,7 +190,7 @@
 .ps-empty-state h3 { color: #475569; font-size: 16px; margin-bottom: 8px; }
 .ps-empty-state p { margin: 0; font-size: 13px; }
 
-/* ¶¶ hist-btn (tarix) ¶¶ */
+/* ‚îÄ‚îÄ hist-btn (tarix) ‚îÄ‚îÄ */
 .hist-btn {
     background: none; border: none; cursor: pointer;
     font-size: 1rem; padding: 0 4px 0 0; line-height: 1;
@@ -199,13 +199,13 @@
 }
 .hist-btn:hover { opacity: 1; transform: scale(1.2); }
 
-/* ¶¶ Tablet ¶¶ */
+/* ‚îÄ‚îÄ Tablet ‚îÄ‚îÄ */
 @media (max-width: 1024px) {
     .ps-page { padding: 18px; }
     .ps-filter-row { gap: 10px; }
 }
 
-/* ¶¶ Mobile ¶¶ */
+/* ‚îÄ‚îÄ Mobile ‚îÄ‚îÄ */
 @media (max-width: 768px) {
     .ps-page { padding: 12px; }
     .ps-header { flex-direction: column; gap: 10px; }
@@ -363,7 +363,7 @@
         </div>
 
         <div id="emptyState" class="ps-empty-state" style="display: none;">
-            <span class="ps-empty-icon">??</span>
+            <span class="ps-empty-icon">üì¶</span>
             <h3>{{ t('no_products_found') }}</h3>
             <p>{{ t('no_products_available') }}</p>
         </div>
@@ -439,7 +439,7 @@
     const userStoreId = container.dataset.userStoreId === 'null' ? null : parseInt(container.dataset.userStoreId);
     const userRole = container.dataset.userRole;
     
-    console.log('?? Foydalanuvchi dokan ID:', userStoreId, 'Rol:', userRole);
+    console.log('üë§ Foydalanuvchi dokan ID:', userStoreId, 'Rol:', userRole);
 
     // Valyuta kursi
     let currencyRate = 0;
@@ -451,7 +451,7 @@
             const data = await response.json();
             if (data.success && data.rate) {
                 currencyRate = parseFloat(data.rate.rate);
-                console.log('?? Valyuta kursi yuklandi:', currencyRate);
+                console.log('üí± Valyuta kursi yuklandi:', currencyRate);
                 // Header display ni ham yangilash
                 if (typeof updateCurrencyDisplay === 'function') {
                     updateCurrencyDisplay(currencyRate);
@@ -657,7 +657,7 @@
                 button.dataset.location = `${location.type}_${location.id}`;
                 
                 // Ombor va dokonlar uchun turli ikonlar
-                const icon = location.type === 'warehouse' ? '??' : '??';
+                const icon = location.type === 'warehouse' ? 'üè¢' : 'üè™';
                 button.textContent = `${icon} ${location.name}`;
                 
                 // Event listener qo'shish
@@ -695,7 +695,7 @@
                     userStoreButton.classList.add('active');
                     currentLocation = `store_${userStoreId}`;
                     
-                    console.log('?? Sotuvchi tugmasi highlight qilindi (qayta yuklanmaydi):', userStoreButton.textContent);
+                    console.log('üéØ Sotuvchi tugmasi highlight qilindi (qayta yuklanmaydi):', userStoreButton.textContent);
                 } else {
                     // Agar user dokon tugmasi topilmasa, "Barcha joylar"ni active qilish
                     const allButton = locationButtons.querySelector('[data-location="all"]');
@@ -832,7 +832,7 @@
                     <tr data-pid="${product.id}">
                         <td style="text-align:center;padding:4px 6px!important;">${imageCell}</td>
                         <td style="text-align: center;">${barcodeCell}</td>
-                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">??</button>${highlightedName}${fuzzyBadge}${catBadge}</td>
+                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">üïê</button>${highlightedName}${fuzzyBadge}${catBadge}</td>
                         <td class="price-cell col-price">
                             <span style="background-color: #5cb85c; color: white; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 0;">$${formatPrice(product.sell_price)}</span>
                             <span style="background-color: #5dade2; color: white; font-size: 12px; font-weight: 700; margin-left: 2px; padding: 2px 8px; border-radius: 0;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
@@ -1169,11 +1169,11 @@
         const loadingState = document.getElementById('loadingState');
         loadingState.innerHTML = `
             <div style="color: #dc3545; text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">‚ö†Ô∏è</div>
                 <h3>${PLANG.errorTitle}</h3>
                 <p>${message}</p>
                 <button onclick="loadProducts()" class="add-product-btn" style="margin-top: 1rem;">
-                    ?? ${PLANG.retry}
+                    üîÑ ${PLANG.retry}
                 </button>
             </div>
         `;
@@ -1190,31 +1190,31 @@
         // Popup ochish
         backdrop.style.display = 'block';
         popup.style.display = 'block';
-        popup.innerHTML = `<div class="pop-header"><h4>?? ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()">?</button></div><div style="padding:1.2rem;text-align:center;color:#1a6eff;">? ${PLANG.loading}</div>`;
+        popup.innerHTML = `<div class="pop-header"><h4>üïê ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()">‚úï</button></div><div style="padding:1.2rem;text-align:center;color:#1a6eff;">‚è≥ ${PLANG.loading}</div>`;
 
         fetch(`/api/product/${productId}/operations`)
             .then(r => r.json())
             .then(data => {
                 if (!data.success) { popup.innerHTML += `<div style="padding:1rem;color:#dc3545;">${PLANG.errorPrefix}: ${data.error}</div>`; return; }
                 const ops = data.operations;
-                let html = `<div class="pop-header"><h4>?? ${data.product_name}</h4><button class="pop-close" onclick="closeProductOps()">?</button></div>`;
+                let html = `<div class="pop-header"><h4>üïê ${data.product_name}</h4><button class="pop-close" onclick="closeProductOps()">‚úï</button></div>`;
                 if (ops.length === 0) {
-                    html += `<div style="padding:1.5rem;text-align:center;color:#888;">?? ${PLANG.noOperations}</div>`;
+                    html += `<div style="padding:1.5rem;text-align:center;color:#888;">üì¢ ${PLANG.noOperations}</div>`;
                 } else {
                     ops.forEach(op => {
                         let loc = '';
                         if (op.operation_type === 'transfer' && op.old_data && op.new_data) {
                             const from = op.old_data.from_location || '';
                             const to = op.new_data.to_location || op.location_name || '';
-                            if (from || to) loc = `<span class="op-loc">${from} ? ${to}</span>`;
+                            if (from || to) loc = `<span class="op-loc">${from} ‚ûú ${to}</span>`;
                         } else if (op.location_name) {
-                            loc = `<span class="op-loc">?? ${op.location_name}</span>`;
+                            loc = `<span class="op-loc">üìç ${op.location_name}</span>`;
                         }
                         let userInfo = op.username || '';
                         if (op.user_role) userInfo += ` (${op.user_role}`;
                         if (op.user_phone) userInfo += op.user_role ? `, ${op.user_phone})` : ` (${op.user_phone})`;
                         else if (op.user_role) userInfo += ')';
-                        const user = userInfo ? `<span class="op-user">?? ${userInfo}</span>` : '';
+                        const user = userInfo ? `<span class="op-user">üë§ ${userInfo}</span>` : '';
                         const dtParts = (op.created_at || '').split(' ');
                         const dateStr = dtParts[0] || '';
                         const timeStr = dtParts[1] || '';
@@ -1222,15 +1222,15 @@
                         // Transfer uchun description dan joylashuv qismini olib tashlash
                         let desc = op.description || '';
                         if (op.operation_type === 'transfer') {
-                            // Yangi format: "Transfer: Nom - FROM 44-2=42 õ TO 20+2=22"
-                            const mNew = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+?\s+(\d+)-(\d+)=(\d+)\s*[õ?]\s*.+?\s+(\d+)\+(\d+)=(\d+)/);
-                            // Eski format: "Transfer: Nom - FROM õ TO"
+                            // Yangi format: "Transfer: Nom - FROM 44-2=42 ‚Üí TO 20+2=22"
+                            const mNew = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+?\s+(\d+)-(\d+)=(\d+)\s*[‚Üí‚ûú]\s*.+?\s+(\d+)\+(\d+)=(\d+)/);
+                            // Eski format: "Transfer: Nom - FROM ‚Üí TO"
                             const mOld = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+$/);
                             if (mNew) {
                                 const name = mNew[1];
                                 const fromBefore = mNew[2], qty = mNew[3], fromAfter = mNew[4];
                                 const toBefore = mNew[5], toAfter = mNew[7];
-                                desc = `${name} | ${fromBefore}-${qty}=${fromAfter} ? ${toBefore}+${qty}=${toAfter}`;
+                                desc = `${name} | ${fromBefore}-${qty}=${fromAfter} ‚ûú ${toBefore}+${qty}=${toAfter}`;
                             } else if (mOld) {
                                 desc = mOld[1];
                             }
@@ -1278,7 +1278,7 @@
 
     // Boshqa joyga bosganda - backdrop orqali yopiladi (onclick), qolgan click listener shart emas
 
-    // ¶¶¶ Kategoriya filtri ¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶
+    // ‚îÄ‚îÄ‚îÄ Kategoriya filtri ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
     function loadCategoryButtons() {
         fetch('/api/categories')
             .then(r => r.json())
@@ -1312,7 +1312,7 @@
         overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;cursor:zoom-out;';
         overlay.innerHTML = `
             <img id="_lbImg" src="" style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 8px 40px #000a;object-fit:contain;">
-            <button onclick="closeLightbox()" style="position:fixed;top:18px;right:24px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:38px;height:38px;font-size:20px;color:#fff;cursor:pointer;">?</button>
+            <button onclick="closeLightbox()" style="position:fixed;top:18px;right:24px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:38px;height:38px;font-size:20px;color:#fff;cursor:pointer;">‚úï</button>
         `;
         overlay.addEventListener('click', function(e) { if (e.target === overlay || e.target.id === '_lbImg') closeLightbox(); });
         document.body.appendChild(overlay);

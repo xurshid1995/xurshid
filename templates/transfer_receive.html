@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+Ôªø{% extends "base.html" %}
 
 {% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Qabul qilish{% endblock %}
 
@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="tv-wrap">
-    <a href="/transfer" class="tv-back-link">ã Transferlar ro'yxati</a>
+    <a href="/transfer" class="tv-back-link">‚Üê Transferlar ro'yxati</a>
     <div id="tvRoot"></div>
 </div>
 
@@ -17,7 +17,7 @@ const INITIAL_DATA = {{ initial_data|tojson }};
 const TRANSFER_ID = INITIAL_DATA.pending_transfer.id;
 
 function fmtNum(n) { return Number(n||0).toLocaleString('uz-UZ', { maximumFractionDigits: 2 }); }
-function fmtDate(s) { if (!s) return 'ó'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
+function fmtDate(s) { if (!s) return '‚Äî'; try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; } }
 
 function render() {
     const p = INITIAL_DATA.pending_transfer;
@@ -34,25 +34,25 @@ function render() {
                     <input type="number" class="tv-input-qty rcv-qty" min="0" step="0.01"
                            value="${sent}" max="${sent}" data-sent="${sent}" />
                 </td>
-                <td class="num diff-cell">ó</td>
+                <td class="num diff-cell">‚Äî</td>
             </tr>
         `;
     }).join('');
 
     document.getElementById('tvRoot').innerHTML = `
         <div class="tv-card">
-            <h2 class="tv-title">?? Mahsulotni qabul qilish (#${p.id})</h2>
+            <h2 class="tv-title">üì• Mahsulotni qabul qilish (#${p.id})</h2>
             <div class="tv-info-box">
-                <b>Yo'riqnoma:</b> Har bir mahsulot uchun haqiqatda nechtasi keldi ó uni "Qabul qilingan" maydoniga yozing.
-                Standart qiymat ó jo'natilgan miqdor. Agar to'liq kelgan bo'lsa, faqat "Tasdiqlash" tugmasini bosing.
+                <b>Yo'riqnoma:</b> Har bir mahsulot uchun haqiqatda nechtasi keldi ‚Äî uni "Qabul qilingan" maydoniga yozing.
+                Standart qiymat ‚Äî jo'natilgan miqdor. Agar to'liq kelgan bo'lsa, faqat "Tasdiqlash" tugmasini bosing.
             </div>
             <div class="tv-row">
-                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || 'ó'}</div></div>
-                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || 'ó'}</div></div>
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '‚Äî'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '‚Äî'}</div></div>
             </div>
             <div class="tv-row">
                 <div><div class="tv-label">Yuborgan vaqt (ombor)</div><div class="tv-value">${fmtDate(p.dispatched_at)}</div></div>
-                <div><div class="tv-label">Yuborgan ombor xodimi</div><div class="tv-value">ID ${p.dispatched_by_id || 'ó'}</div></div>
+                <div><div class="tv-label">Yuborgan ombor xodimi</div><div class="tv-value">ID ${p.dispatched_by_id || '‚Äî'}</div></div>
             </div>
         </div>
 
@@ -75,10 +75,10 @@ function render() {
         </div>
 
         <div class="tv-actions tv-actions-between">
-            <button class="tv-btn tv-btn-danger" id="btnReject">? Rad etish (omborga qaytarish)</button>
+            <button class="tv-btn tv-btn-danger" id="btnReject">‚ùå Rad etish (omborga qaytarish)</button>
             <div style="display:flex;gap:10px;">
                 <button class="tv-btn tv-btn-warning" id="btnZeroAll">0 qabul (hech narsa kelmadi)</button>
-                <button class="tv-btn tv-btn-success" id="btnConfirm">? Tasdiqlash</button>
+                <button class="tv-btn tv-btn-success" id="btnConfirm">‚úÖ Tasdiqlash</button>
             </div>
         </div>
     `;
@@ -104,7 +104,7 @@ function updateDiff(e) {
     const diff = val - sent;
     const cell = tr.querySelector('.diff-cell');
     if (diff === 0) {
-        cell.innerHTML = '<span class="tv-diff-ok">? to\'liq</span>';
+        cell.innerHTML = '<span class="tv-diff-ok">‚úì to\'liq</span>';
         inp.classList.remove('changed');
     } else {
         cell.innerHTML = `<span class="tv-diff-less">${diff}</span>`;
@@ -126,7 +126,7 @@ async function confirmReceive() {
     const note = document.getElementById('receiveNote').value.trim();
 
     if (anyShortage) {
-        if (!confirm('Ba\'zi mahsulotlar to\'liq kelmagan. Tasdiqlashni xohlaysizmi?\n\nFarq diqqat bilan tekshirilsin ó bu amal qaytarilmaydi.')) return;
+        if (!confirm('Ba\'zi mahsulotlar to\'liq kelmagan. Tasdiqlashni xohlaysizmi?\n\nFarq diqqat bilan tekshirilsin ‚Äî bu amal qaytarilmaydi.')) return;
     } else if (!confirm('Hammasi to\'liq qabul qilindi. Tasdiqlaysizmi?')) {
         return;
     }
@@ -142,17 +142,17 @@ async function confirmReceive() {
         });
         const data = await res.json();
         if (data.success) {
-            alert('? ' + data.message);
+            alert('‚úÖ ' + data.message);
             window.location.href = '/transfer';
         } else {
             alert('Xatolik: ' + (data.error || 'Noma\'lum'));
             btn.disabled = false;
-            btn.textContent = '? Tasdiqlash';
+            btn.textContent = '‚úÖ Tasdiqlash';
         }
     } catch (e) {
         alert('Tarmoq xatosi: ' + e.message);
         btn.disabled = false;
-        btn.textContent = '? Tasdiqlash';
+        btn.textContent = '‚úÖ Tasdiqlash';
     }
 }
 

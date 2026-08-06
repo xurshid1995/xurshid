@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('dph_title') }} - Dokon{% endblock %}
 
@@ -95,7 +95,7 @@
 {% block content %}
 <div class="history-container">
     <div class="page-header">
-        <h1>?? {{ t('dph_heading') }}</h1>
+        <h1>📜 {{ t('dph_heading') }}</h1>
         <a href="/debts" class="back-btn">
             <i class="fas fa-arrow-left"></i> {{ t('dph_back') }}
         </a>
@@ -103,25 +103,25 @@
 
     <div class="history-table-container">
         <h2 style="margin-bottom: 15px; color: #28a745; display: flex; align-items: center; gap: 10px;">
-            <span>? {{ t('dph_paid_list') }}</span>
+            <span>✅ {{ t('dph_paid_list') }}</span>
             <span id="totalCount" style="font-size: 16px; font-weight: normal; color: #6c757d;"></span>
         </h2>
         <table class="history-table">
             <thead>
                 <tr>
                     <th>{{ t('dph_th_num') }}</th>
-                    <th>?? {{ t('dph_th_date') }}</th>
-                    <th>?? {{ t('dph_th_customer') }}</th>
-                    <th>?? {{ t('dph_th_total_usd') }}</th>
-                    <th>?? {{ t('dph_th_total_uzs') }}</th>
-                    <th>?? {{ t('dph_th_cash_usd') }}</th>
-                    <th>?? {{ t('dph_th_click_usd') }}</th>
-                    <th>?? {{ t('dph_th_terminal_usd') }}</th>
+                    <th>📅 {{ t('dph_th_date') }}</th>
+                    <th>👤 {{ t('dph_th_customer') }}</th>
+                    <th>💵 {{ t('dph_th_total_usd') }}</th>
+                    <th>💵 {{ t('dph_th_total_uzs') }}</th>
+                    <th>💰 {{ t('dph_th_cash_usd') }}</th>
+                    <th>💳 {{ t('dph_th_click_usd') }}</th>
+                    <th>🏦 {{ t('dph_th_terminal_usd') }}</th>
                 </tr>
             </thead>
             <tbody id="historyTableBody">
                 <tr>
-                    <td colspan="8" class="no-data">? {{ t('dph_loading') }}</td>
+                    <td colspan="8" class="no-data">⏳ {{ t('dph_loading') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -158,7 +158,7 @@
         } catch (error) {
             console.error('Xatolik:', error);
             document.getElementById('historyTableBody').innerHTML = 
-                '<tr><td colspan="8" class="no-data">? ' + DPHLANG.load_error + '</td></tr>';
+                '<tr><td colspan="8" class="no-data">❌ ' + DPHLANG.load_error + '</td></tr>';
         }
     }
 
@@ -168,7 +168,7 @@
         const totalCount = document.getElementById('totalCount');
         
         if (!payments || payments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="no-data">?? ' + DPHLANG.no_data + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 ' + DPHLANG.no_data + '</td></tr>';
             totalCount.textContent = '';
             return;
         }

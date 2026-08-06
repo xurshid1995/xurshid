@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('heading_stores') }}{% endblock %}
 
@@ -14,12 +14,12 @@
 /* Page wrapper */
 .ps-page {
     padding: 28px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* �� Header �� */
+/* ── Header ── */
 .ps-header {
     display: flex;
     align-items: center;
@@ -34,7 +34,7 @@
 }
 .ps-title i { color: #1a6eff; margin-right: 8px; }
 
-/* �� Stat Cards �� */
+/* ── Stat Cards ── */
 .ps-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -66,7 +66,7 @@
 .ps-stat-number { font-size: 1.75rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
 .ps-stat-label  { font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* �� Search Panel �� */
+/* ── Search Panel ── */
 .ps-filter-panel {
     background: white;
     border-radius: 16px;
@@ -85,7 +85,7 @@
 }
 .ps-search-input { padding-left: 40px !important; }
 
-/* �� Store Grid �� */
+/* ── Store Grid ── */
 .store-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -227,7 +227,7 @@
 .ps-empty h3 { font-size: 18px; color: #1e293b; margin: 0 0 8px; }
 .ps-empty p { color: #94a3b8; margin: 0 0 20px; }
 
-/* �� Delete Modal �� */
+/* ── Delete Modal ── */
 .delete-modal {
     display: none;
     position: fixed;
@@ -331,7 +331,7 @@
     box-shadow: 0 4px 12px rgba(239,68,68,0.4);
 }
 
-/* �� Responsive �� */
+/* ── Responsive ── */
 @media (max-width: 1200px) {
     .store-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -366,7 +366,7 @@
         <div class="modal-body">
             <p><strong>{{ t('store_delete_confirm_msg') }}</strong></p>
             <div class="store-name-highlight" id="modalStoreName"></div>
-            <p style="color: #ef4444; font-weight: bold;">?? {{ t('action_irreversible') }}</p>
+            <p style="color: #ef4444; font-weight: bold;">⚠️ {{ t('action_irreversible') }}</p>
             <p>{{ t('enter_name_to_continue') }}</p>
             
             <div class="modal-input-group">
@@ -381,10 +381,10 @@
         </div>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
-                ? {{ t('modal_cancel') }}
+                ❌ {{ t('modal_cancel') }}
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn" disabled>
-                ??? {{ t('modal_delete') }}
+                🗑️ {{ t('modal_delete') }}
             </button>
         </div>
     </div>
@@ -414,19 +414,19 @@
 
         <div class="store-info">
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">📍</div>
                 <span>{{ store.address[:28] }}{% if store.address|length > 28 %}...{% endif %}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">👤</div>
                 <span>{{ store.manager_name }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">📞</div>
                 <span>{{ store.phone or t('no_phone') }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">??</div>
+                <div class="info-icon">📅</div>
                 <span>{{ store.created_date.strftime('%d.%m.%Y') if store.created_date else t('unknown_date') }}</span>
             </div>
         </div>
@@ -482,19 +482,19 @@
                        oninput="validateEditStore()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Manzil <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 Manzil <span style="color:#ef4444;">*</span></label>
                 <textarea id="esAddress" rows="2"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateEditStore()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 Menejer ismi <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="esManager"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateEditStore()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? Telefon</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 Telefon</label>
                 <input type="text" id="esPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhone(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -507,7 +507,7 @@
                 <i class="fas fa-save"></i> Saqlash
             </button>
             <button onclick="closeEditStoreModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ? Bekor qilish
+                ✕ Bekor qilish
             </button>
         </div>
     </div>
@@ -529,19 +529,19 @@
                        oninput="validateAddStore()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? {{ t('label_address_required') if t('label_address_required') != 'label_address_required' else 'Manzil' }} <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 {{ t('label_address_required') if t('label_address_required') != 'label_address_required' else 'Manzil' }} <span style="color:#ef4444;">*</span></label>
                 <textarea id="asAddress" rows="2" placeholder="{{ t('placeholder_address') if t('placeholder_address') != 'placeholder_address' else 'Manzilni kiriting' }}"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateAddStore()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? {{ t('label_manager_name_required') if t('label_manager_name_required') != 'label_manager_name_required' else 'Menejer ismi' }} <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 {{ t('label_manager_name_required') if t('label_manager_name_required') != 'label_manager_name_required' else 'Menejer ismi' }} <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="asManager" placeholder="{{ t('placeholder_manager_full_name') if t('placeholder_manager_full_name') != 'placeholder_manager_full_name' else 'To\'liq ism familiya' }}"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateAddStore()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">?? {{ t('phone_number_label') if t('phone_number_label') != 'phone_number_label' else 'Telefon' }}</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 {{ t('phone_number_label') if t('phone_number_label') != 'phone_number_label' else 'Telefon' }}</label>
                 <input type="text" id="asPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhone(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -556,7 +556,7 @@
                 <i class="fas fa-plus"></i> {{ t('btn_add_store') }}
             </button>
             <button onclick="closeAddStoreModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ? {{ t('btn_cancel') if t('btn_cancel') != 'btn_cancel' else 'Bekor qilish' }}
+                ✕ {{ t('btn_cancel') if t('btn_cancel') != 'btn_cancel' else 'Bekor qilish' }}
             </button>
         </div>
     </div>
@@ -587,7 +587,7 @@
 
     // Open delete modal
     function deleteStore(storeId, storeName) {
-        console.log('?? YANGI deleteStore FUNKSIYASI CHAQIRILDI!');
+        console.log('🎯 YANGI deleteStore FUNKSIYASI CHAQIRILDI!');
         console.log('O\'chirish funksiyasi chaqirildi:', storeId, storeName);
         
         currentStoreId = storeId;
@@ -600,7 +600,7 @@
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         
         if (!modal) {
-            console.error('? Modal topilmadi!');
+            console.error('❌ Modal topilmadi!');
             alert(STLANG.st_modal_not_found);
             return;
         }
@@ -611,7 +611,7 @@
         confirmBtn.classList.remove('enabled');
         
         modal.classList.add('active');
-        console.log('? Modal ochildi, active class qo\'shildi');
+        console.log('✅ Modal ochildi, active class qo\'shildi');
         
         // Input'ga fokus
         setTimeout(() => confirmInput.focus(), 300);
@@ -677,7 +677,7 @@
         // Tugmani o'chirish
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '? ' + STLANG.deleting;
+        confirmBtn.textContent = '⏳ ' + STLANG.deleting;
         
         fetch(`/api/store/${currentStoreId}`, {
             method: 'DELETE',
@@ -696,7 +696,7 @@
                     console.error('API xatosi:', response.status, data);
                     alert(STLANG.error_prefix + (data.error || data.message || STLANG.delete_error));
                     confirmBtn.disabled = false;
-                    confirmBtn.textContent = '??? ' + STLANG.modal_delete;
+                    confirmBtn.textContent = '🗑️ ' + STLANG.modal_delete;
                 }
             });
         })
@@ -704,11 +704,11 @@
             console.error('Fetch xatosi:', error);
             alert(STLANG.connection_error_retry);
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '??? ' + STLANG.modal_delete;
+            confirmBtn.textContent = '🗑️ ' + STLANG.modal_delete;
         });
     }
 
-    // �� Do'kon qo'shish modal ��
+    // ── Do'kon qo'shish modal ──
     function openAddStoreModal() {
         document.getElementById('asName').value = '';
         document.getElementById('asAddress').value = '';
@@ -749,7 +749,7 @@
         const phone = document.getElementById('asPhone').value.trim();
 
         btn.disabled = true;
-        btn.innerHTML = '? Saqlanmoqda...';
+        btn.innerHTML = '⏳ Saqlanmoqda...';
 
         try {
             const resp = await fetch('/api/stores/create', {
@@ -763,7 +763,7 @@
                 window.location.reload();
             } else {
                 const errEl = document.getElementById('asError');
-                errEl.textContent = '? ' + (data.error || 'Xatolik yuz berdi');
+                errEl.textContent = '❌ ' + (data.error || 'Xatolik yuz berdi');
                 errEl.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
@@ -772,7 +772,7 @@
             }
         } catch (e) {
             const errEl = document.getElementById('asError');
-            errEl.textContent = '? Server bilan ulanishda xatolik';
+            errEl.textContent = '❌ Server bilan ulanishda xatolik';
             errEl.style.display = 'block';
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-plus"></i> Do\'kon qo\'shish';
@@ -793,7 +793,7 @@
         });
     });
 
-    // �� Do'kon tahrirlash modal ��
+    // ── Do'kon tahrirlash modal ──
     function openEditStoreModal(btn) {
         const id = btn.dataset.id;
         const name = btn.dataset.name;
@@ -836,7 +836,7 @@
         const phone = document.getElementById('esPhone').value.trim();
 
         btn.disabled = true;
-        btn.innerHTML = '? Saqlanmoqda...';
+        btn.innerHTML = '⏳ Saqlanmoqda...';
 
         try {
             const resp = await fetch(`/api/stores/${id}/edit`, {
@@ -850,7 +850,7 @@
                 window.location.reload();
             } else {
                 const errEl = document.getElementById('esError');
-                errEl.textContent = '? ' + (data.error || 'Xatolik yuz berdi');
+                errEl.textContent = '❌ ' + (data.error || 'Xatolik yuz berdi');
                 errEl.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
@@ -858,7 +858,7 @@
             }
         } catch (e) {
             const errEl = document.getElementById('esError');
-            errEl.textContent = '? Server bilan ulanishda xatolik';
+            errEl.textContent = '❌ Server bilan ulanishda xatolik';
             errEl.style.display = 'block';
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';

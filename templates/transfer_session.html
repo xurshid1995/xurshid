@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}{{ t('transfer_page') }} - {{ t('app_title') }}{% endblock %}
 
@@ -686,13 +686,13 @@
 
     <!-- Mini header -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; padding: 2px 4px;">
-        <span style="font-size: 24px; font-weight: 700; color: #374151;" id="pageTitle">?? {{ t('transfer_page') }}</span>
-        <a href="/transfer" class="ps-back-btn">� {{ t('btn_back') }}</a>
+        <span style="font-size: 24px; font-weight: 700; color: #374151;" id="pageTitle">🔄 {{ t('transfer_page') }}</span>
+        <a href="/transfer" class="ps-back-btn">← {{ t('btn_back') }}</a>
     </div>
 
     <!-- Kirim tekshiruvi banneri (faqat mode=receive da ko'rinadi) -->
     <div id="receiveBanner" style="display:none; background:#d1ecf1; border:1px solid #bee5eb; border-radius:10px; padding:14px 20px; margin-bottom:10px; display:none;">
-        <div style="font-size:16px; font-weight:600; color:#0c5460;">?? Kirim Tekshiruvi</div>
+        <div style="font-size:16px; font-weight:600; color:#0c5460;">📥 Kirim Tekshiruvi</div>
         <div style="font-size:13px; color:#0c5460; margin-top:4px;">Quyidagi mahsulotlar ro'yxatini tekshiring va hammasi to'liq kelgan bo'lsa tasdiqlang.</div>
     </div>
 
@@ -737,7 +737,7 @@
                     <tbody id="productsTableBody">
                         <tr>
                             <td colspan="4" class="empty-state">
-                                <div>??</div>
+                                <div>📦</div>
                                 <div>{{ t('select_location_msg') }}</div>
                             </td>
                         </tr>
@@ -746,11 +746,11 @@
                 <div class="pagination-container" id="paginationContainer" style="display: none;">
                     <div class="pagination-info" id="paginationInfo">1-30 {{ t('from_label') }} 0 {{ t('items_count') }}</div>
                     <div class="pagination-controls">
-                        <button class="pagination-btn" onclick="goToFirstPage()" id="btnFirst">??</button>
-                        <button class="pagination-btn" onclick="previousPage()" id="btnPrev">??</button>
+                        <button class="pagination-btn" onclick="goToFirstPage()" id="btnFirst">⏮️</button>
+                        <button class="pagination-btn" onclick="previousPage()" id="btnPrev">◀️</button>
                         <span id="pageNumbers" style="display: flex; gap: 3px;"></span>
-                        <button class="pagination-btn" onclick="nextPage()" id="btnNext">??</button>
-                        <button class="pagination-btn" onclick="goToLastPage()" id="btnLast">??</button>
+                        <button class="pagination-btn" onclick="nextPage()" id="btnNext">▶️</button>
+                        <button class="pagination-btn" onclick="goToLastPage()" id="btnLast">⏭️</button>
                     </div>
                 </div>
             </div>
@@ -760,12 +760,12 @@
         <div class="transfer-layout">
             <!-- Sarlavha va info bir qatorda -->
             <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #eef0f7; padding: 15px; border-radius: 10px; margin-bottom: 10px; height: 54px;">
-                <div style="color: #374151; font-weight: 600; font-size: 16px;">?? {{ t('transfer_list') }}</div>
+                <div style="color: #374151; font-weight: 600; font-size: 16px;">🔄 {{ t('transfer_list') }}</div>
                 <div id="transferInfo" style="display: none; font-size: 15px; color: #374151; line-height: 1.4;">
                     <span id="infoFromLocation" style="font-weight: 600;">-</span>
-                    <span style="margin: 0 5px;">�</span>
+                    <span style="margin: 0 5px;">→</span>
                     <span id="infoToLocation" style="font-weight: 600;">-</span>
-                    <span style="margin: 0 5px;">�</span>
+                    <span style="margin: 0 5px;">•</span>
                     <span id="infoProductCount" style="background: #1a6eff; color: white; padding: 2px 10px; border-radius: 6px; font-weight: 600;">0</span> ta
                 </div>
             </div>
@@ -790,7 +790,7 @@
                     <tbody id="transferList">
                         <tr>
                             <td colspan="4" class="empty-state">
-                                <div>??</div>
+                                <div>📋</div>
                                 <div>{{ t('transfer_add_product') }}</div>
                             </td>
                         </tr>
@@ -799,21 +799,21 @@
             </div>
 
             <div class="action-buttons" id="normalActionButtons">
-                <button class="btn btn-send-transfer" onclick="sendTransferToWarehouse()">?? {{ t('btn_send_transfer') }}</button>
-                <button class="btn btn-success" onclick="completeTransfer()">? {{ t('btn_finish_transfer') }}</button>
+                <button class="btn btn-send-transfer" onclick="sendTransferToWarehouse()">📤 {{ t('btn_send_transfer') }}</button>
+                <button class="btn btn-success" onclick="completeTransfer()">✅ {{ t('btn_finish_transfer') }}</button>
             </div>
             <!-- Kirim tasdiqlash tugmasi (faqat mode=receive da) -->
             <div class="action-buttons" id="receiveActionButtons" style="display:none;">
-                <button class="btn" style="background:#dc3545;color:white;font-size:15px;padding:14px 32px;margin-right:12px;" onclick="rejectTransfer()">? Rad etish</button>
-                <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="confirmReceiveTransfer()">? Kirimni tasdiqlash</button>
+                <button class="btn" style="background:#dc3545;color:white;font-size:15px;padding:14px 32px;margin-right:12px;" onclick="rejectTransfer()">❌ Rad etish</button>
+                <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="confirmReceiveTransfer()">✅ Kirimni tasdiqlash</button>
             </div>
             <!-- Sotuvchiga jonatish tugmasi (faqat sent holatda omborchi uchun) -->
             <div class="action-buttons" id="dispatchActionButtons" style="display:none;">
-                <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">?? Jo'natish</button>
+                <button class="btn" style="background:#17a2b8;color:white;font-size:15px;padding:14px 32px;" onclick="confirmDispatchTransfer()">📦 Jo'natish</button>
             </div>
             <!-- Yig'ishni boshlash tugmasi (faqat sent holatda omborchi uchun) -->
             <div class="action-buttons" id="startPickingButtons" style="display:none;">
-                <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="startPickingTransfer()">?? Yig'ishni boshlash</button>
+                <button class="btn" style="background:#28a745;color:white;font-size:15px;padding:14px 32px;" onclick="startPickingTransfer()">⚙️ Yig'ishni boshlash</button>
             </div>
         </div>
     </div>
@@ -823,7 +823,7 @@
 <!-- Modal oyna - Miqdor kiritish -->
 <div id="quantityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: white; border-radius: 8px; padding: 30px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-        <h3 style="margin: 0 0 20px 0; color: #333;">?? {{ t('enter_transfer_quantity') }}</h3>
+        <h3 style="margin: 0 0 20px 0; color: #333;">📦 {{ t('enter_transfer_quantity') }}</h3>
         
         <div style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">{{ t('header_product_col') }}:</label>
@@ -849,7 +849,7 @@
         
         <div style="display: flex; gap: 10px;">
             <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">{{ t('btn_cancel') }}</button>
-            <button onclick="addToTransferList()" style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">? {{ t('btn_add') }}</button>
+            <button onclick="addToTransferList()" style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">➕ {{ t('btn_add') }}</button>
         </div>
     </div>
 </div>
@@ -862,11 +862,11 @@
     // Transfer ro'yxatini Excel ga eksport qilish
     function exportTransferListToExcel() {
         if (typeof XLSX === 'undefined') {
-            alert('? Excel kutubxonasi yuklanmadi, sahifani yangilang.');
+            alert('❌ Excel kutubxonasi yuklanmadi, sahifani yangilang.');
             return;
         }
         const table = document.getElementById('transferListTable');
-        if (!table) { alert('? Jadval topilmadi.'); return; }
+        if (!table) { alert('❌ Jadval topilmadi.'); return; }
 
         const rows = [];
         const headers = [];
@@ -880,7 +880,7 @@
             if (cells.some(c => c)) rows.push(cells);
         });
 
-        if (rows.length <= 1) { alert('? Eksport qilish uchun ma\'lumot yo\'q.'); return; }
+        if (rows.length <= 1) { alert('❌ Eksport qilish uchun ma\'lumot yo\'q.'); return; }
 
         const ws = XLSX.utils.aoa_to_sheet(rows);
         ws['!cols'] = [40, 12, 12, 10].map(w => ({ wch: w }));
@@ -973,12 +973,12 @@
             
             // API locations arrayini to'g'ridan-to'g'ri qaytaradi
             locations = data.locations || [];
-            console.log(`?? ${locations.length} ta transfer joylashuvi topildi:`, locations);
+            console.log(`📍 ${locations.length} ta transfer joylashuvi topildi:`, locations);
             
             populateLocationSelects();
-            console.log(`? ${locations.length} ta joylashuv yuklandi`);
+            console.log(`✅ ${locations.length} ta joylashuv yuklandi`);
         } catch (error) {
-            console.error('? Joylashuvlarni yuklashda xatolik:', error);
+            console.error('❌ Joylashuvlarni yuklashda xatolik:', error);
         }
     }
 
@@ -1083,7 +1083,7 @@
             if (fromSelect.value === toValue) {
                 fromSelect.value = '';
                 // Mahsulotlarni tozalash
-                document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="4" class="empty-state"><div>??</div><div>' + TLANG.select_location_msg + '</div></td></tr>';
+                document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="4" class="empty-state"><div>📦</div><div>' + TLANG.select_location_msg + '</div></td></tr>';
             } else {
                 // Agar qayerga tanlangan bo'lsa va qayerdan ham to'g'ri bo'lsa, qidiruv maydoniga fokus
                 const productSearch = document.getElementById('productSearch');
@@ -1098,11 +1098,11 @@
         const tbody = document.getElementById('productsTableBody');
         
         if (!fromLocation) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>??</div><div>' + TLANG.select_location_msg + '</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📦</div><div>' + TLANG.select_location_msg + '</div></td></tr>';
             return;
         }
         
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>?</div><div>' + TLANG.loading_text + '</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>⏳</div><div>' + TLANG.loading_text + '</div></td></tr>';
         
         try {
             // Barcha mahsulotlarni olish uchun per_page=10000 parametri
@@ -1113,15 +1113,15 @@
             allProducts = products;
             renderProducts(products);
             
-            console.log(`? ${products.length} ta mahsulot yuklandi (jami: ${data.pagination?.total || products.length})`);
+            console.log(`✅ ${products.length} ta mahsulot yuklandi (jami: ${data.pagination?.total || products.length})`);
             
             // Agar hali ham ko'proq mahsulot bo'lsa, ogohlantirish
             if (data.pagination && data.pagination.total > products.length) {
-                console.warn(`?? Diqqat: Jami ${data.pagination.total} ta mahsulot bor, lekin ${products.length} ta yuklandi`);
+                console.warn(`⚠️ Diqqat: Jami ${data.pagination.total} ta mahsulot bor, lekin ${products.length} ta yuklandi`);
             }
         } catch (error) {
             console.error('Mahsulotlarni yuklashda xatolik:', error);
-            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>??</div><div>' + TLANG.error_occurred + '</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>⚠️</div><div>' + TLANG.error_occurred + '</div></td></tr>';
         }
     }
 
@@ -1138,7 +1138,7 @@
         const paginationContainer = document.getElementById('paginationContainer');
         
         if (filteredProducts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>??</div><div>' + TLANG.products_not_found + '</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📦</div><div>' + TLANG.products_not_found + '</div></td></tr>';
             paginationContainer.style.display = 'none';
             return;
         }
@@ -1196,15 +1196,15 @@
             // Agar allaqachon ro'yxatda bo'lsa, belgini o'zgartirish
             let buttonEmoji, buttonDisabled, rowBackground;
             if (quantity <= 0) {
-                buttonEmoji = '?';
+                buttonEmoji = '⛔';
                 buttonDisabled = true;
                 rowBackground = '';
             } else if (isInTransferList) {
-                buttonEmoji = '?';
+                buttonEmoji = '✓';
                 buttonDisabled = false;
                 rowBackground = '#d4edda'; // Yashil background
             } else {
-                buttonEmoji = '??';
+                buttonEmoji = '➡️';
                 buttonDisabled = false;
                 rowBackground = '';
             }
@@ -1322,8 +1322,8 @@
         const searchInput = document.getElementById('productSearch');
         const searchText = searchInput.value.toLowerCase().trim();
         
-        console.log('?? Qidiruv boshlandi:', searchText);
-        console.log('?? Jami mahsulotlar:', allProducts.length);
+        console.log('🔍 Qidiruv boshlandi:', searchText);
+        console.log('📦 Jami mahsulotlar:', allProducts.length);
         
         // Tanlovni tozalash
         clearProductSelection();
@@ -1332,7 +1332,7 @@
         if (searchText) {
             // Qidiruv so'zlarini bo'laklarga ajratish
             const searchWords = searchText.split(/\s+/).filter(word => word.length > 0);
-            console.log('?? Qidiruv so\'zlari:', searchWords);
+            console.log('🔤 Qidiruv so\'zlari:', searchWords);
             
             filteredProducts = allProducts.filter(product => {
                 const productName = (product.name || '').toLowerCase();
@@ -1348,10 +1348,10 @@
                 return searchWords.every(word => searchTextInProduct.includes(word));
             });
             
-            console.log('? Topilgan mahsulotlar:', filteredProducts.length);
+            console.log('✅ Topilgan mahsulotlar:', filteredProducts.length);
         } else {
             filteredProducts = allProducts;
-            console.log('?? Barcha mahsulotlar ko\'rsatilmoqda:', filteredProducts.length);
+            console.log('📋 Barcha mahsulotlar ko\'rsatilmoqda:', filteredProducts.length);
         }
         
         // Birinchi sahifadan boshlash
@@ -1404,7 +1404,7 @@
                 return;
             }
             
-            // Aks holda - agar barcode formatida bo'lsa (faqat raqamlar, ?8 belgi)
+            // Aks holda - agar barcode formatida bo'lsa (faqat raqamlar, ≥8 belgi)
             if (/^\d+$/.test(searchValue) && searchValue.length >= 8) {
                 searchProductByBarcode(searchValue);
                 return;
@@ -1511,29 +1511,29 @@
     
     // Barcode orqali mahsulot qidirish
     async function searchProductByBarcode(barcode) {
-        console.log('?? Barcode qidiruvi:', barcode);
+        console.log('🔍 Barcode qidiruvi:', barcode);
         
         // Qayerdan joylashuv tanlanganligini tekshirish
         const fromLocation = document.getElementById('fromLocation').value;
         if (!fromLocation) {
-            showSearchStatus('?? ' + TLANG.select_from_location, 'error');
+            showSearchStatus('⚠️ ' + TLANG.select_from_location, 'error');
             return;
         }
         
-        showSearchStatus('? ' + TLANG.searching, 'loading');
+        showSearchStatus('⏳ ' + TLANG.searching, 'loading');
         
         try {
             // AllProducts dan barcode bo'yicha qidirish
             const product = allProducts.find(p => p.barcode && p.barcode.toString() === barcode.toString());
             
             if (!product) {
-                showSearchStatus(`? Barcode ${barcode} ${TLANG.not_found_barcode}`, 'error');
+                showSearchStatus(`❌ Barcode ${barcode} ${TLANG.not_found_barcode}`, 'error');
                 document.getElementById('productSearch').value = '';
                 return;
             }
             
-            console.log('? Mahsulot topildi:', product);
-            showSearchStatus(`? ${product.name} ${TLANG.found_text}`, 'success');
+            console.log('✅ Mahsulot topildi:', product);
+            showSearchStatus(`✓ ${product.name} ${TLANG.found_text}`, 'success');
             
             // 500ms kutib, avtomatik modal ochish
             setTimeout(() => {
@@ -1543,8 +1543,8 @@
             }, 500);
             
         } catch (error) {
-            console.error('? Barcode qidiruv xatosi:', error);
-            showSearchStatus('? ' + TLANG.search_error, 'error');
+            console.error('❌ Barcode qidiruv xatosi:', error);
+            showSearchStatus('❌ ' + TLANG.search_error, 'error');
             document.getElementById('productSearch').value = '';
         }
     }
@@ -1720,7 +1720,7 @@
         
         // Miqdor validatsiyasi
         if (quantity <= 0) {
-            warningDiv.textContent = '?? ' + TLANG.quantity_must_positive;
+            warningDiv.textContent = '⚠️ ' + TLANG.quantity_must_positive;
             warningDiv.style.display = 'block';
             warningDiv.style.background = '#fff3cd';
             warningDiv.style.border = '1px solid #ffc107';
@@ -1730,7 +1730,7 @@
             return false;
         } else if (quantity > available) {
             const formattedAvailable = unitType === 'litr' ? parseFloat(available).toFixed(2) : (available % 1 === 0 ? Math.floor(available) : parseFloat(available).toFixed(1));
-            warningDiv.textContent = `? ${TLANG.stock_only_available} ${formattedAvailable} ${unitText} ${TLANG.available_word}`;
+            warningDiv.textContent = `❌ ${TLANG.stock_only_available} ${formattedAvailable} ${unitText} ${TLANG.available_word}`;
             warningDiv.style.display = 'block';
             warningDiv.style.background = '#f8d7da';
             warningDiv.style.border = '1px solid #f5c6cb';
@@ -1758,7 +1758,7 @@
 
     // Transfer ro'yxatiga qo'shish
     function addToTransferList() {
-        console.log('?? addToTransferList called, currentProduct:', currentProduct);
+        console.log('🔵 addToTransferList called, currentProduct:', currentProduct);
         
         // Qayerdan va Qayerga maydonlarini tekshirish
         const fromLocation = document.getElementById('fromLocation').value;
@@ -1802,7 +1802,7 @@
         if (existingIndex >= 0) {
             transferList[existingIndex].quantity = quantity;
             transferList[existingIndex].unitType = unitType;
-            console.log('? Miqdor yangilandi:', currentProduct.name, 'x', quantity, unitType);
+            console.log('✅ Miqdor yangilandi:', currentProduct.name, 'x', quantity, unitType);
         } else {
             transferList.push({
                 id: currentProduct.id,
@@ -1811,7 +1811,7 @@
                 price: currentProduct.price || 0,
                 unitType: unitType
             });
-            console.log('? Transfer ro\'yxatiga qo\'shildi:', currentProduct.name, 'x', quantity, unitType);
+            console.log('✅ Transfer ro\'yxatiga qo\'shildi:', currentProduct.name, 'x', quantity, unitType);
         }
         
         updateTransferListDisplay();
@@ -1842,7 +1842,7 @@
         const isDispatchMode = urlMode === 'dispatch';
         
         if (transferList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>??</div><div>' + TLANG.transfer_add_product + '</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div>📋</div><div>' + TLANG.transfer_add_product + '</div></td></tr>';
             document.getElementById('transferInfo').style.display = 'none';
             return;
         }
@@ -1872,10 +1872,10 @@
                     ${(isReceiveMode || isLockedMode) ? '' : `
                     <button onclick="editTransferItem(${index})" 
                             style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px 4px;" 
-                            title="${TLANG.edit_label}">??</button>
+                            title="${TLANG.edit_label}">✏️</button>
                     <button onclick="removeTransferItem(${index})" 
                             style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px 4px; color: #dc3545;" 
-                            title="${TLANG.delete_label}">???</button>
+                            title="${TLANG.delete_label}">🗑️</button>
                     `}
                 </td>
             `;
@@ -2050,7 +2050,7 @@
         // Agar joylashuvlar tanlanmagan yoki ro'yxat bo'sh bo'lsa, o'chirish
         // MUHIM: 'sent' holatdagi transferni o'chirish mumkin emas (omborchi ko'radi)
         if (!fromLocation || !toLocation || transferList.length === 0) {
-            // Faqat 'draft' holatdagi transferni o'chirish � 'sent'ni o'chirmaymiz
+            // Faqat 'draft' holatdagi transferni o'chirish — 'sent'ni o'chirmaymiz
             if (currentPendingTransferId) {
                 // Avval statusini tekshiramiz
                 try {
@@ -2110,15 +2110,15 @@
                     newUrl.searchParams.set('id', currentPendingTransferId);
                     window.history.replaceState({}, '', newUrl);
                 }
-                console.log('? Tasdiqlanmagan transfer saqlandi, ID:', currentPendingTransferId);
+                console.log('✅ Tasdiqlanmagan transfer saqlandi, ID:', currentPendingTransferId);
             } else {
                 // Xatolik - foydalanuvchiga ko'rsatish
                 const errorData = await response.json();
-                alert('? ' + (errorData.error || 'Transferni saqlashda xatolik'));
-                console.error('? Transfer saqlash xatoligi:', errorData);
+                alert('❌ ' + (errorData.error || 'Transferni saqlashda xatolik'));
+                console.error('❌ Transfer saqlash xatoligi:', errorData);
             }
         } catch (error) {
-            console.error('? Tasdiqlanmagan transferni saqlashda xatolik:', error);
+            console.error('❌ Tasdiqlanmagan transferni saqlashda xatolik:', error);
         }
     }
 
@@ -2139,15 +2139,15 @@
                 const newUrl = new URL(window.location);
                 newUrl.searchParams.delete('id');
                 window.history.replaceState({}, '', newUrl);
-                console.log('? Tasdiqlanmagan transfer o\'chirildi');
+                console.log('✅ Tasdiqlanmagan transfer o\'chirildi');
             } else {
                 // Xatolik - foydalanuvchiga ko'rsatish
                 const errorData = await response.json();
-                alert('? ' + (errorData.error || 'Transferni o\'chirishda xatolik'));
-                console.error('? Transfer o\'chirish xatoligi:', errorData);
+                alert('❌ ' + (errorData.error || 'Transferni o\'chirishda xatolik'));
+                console.error('❌ Transfer o\'chirish xatoligi:', errorData);
             }
         } catch (error) {
-            console.error('? Tasdiqlanmagan transferni o\'chirishda xatolik:', error);
+            console.error('❌ Tasdiqlanmagan transferni o\'chirishda xatolik:', error);
         }
     }
 
@@ -2181,7 +2181,7 @@
 
     // Double-click himoyasi uchun o'zgaruvchi
     let isProcessingTransfer = false;
-    let isLockedMode = false; // dispatched holat � omborchi faqat ko'ra oladi
+    let isLockedMode = false; // dispatched holat — omborchi faqat ko'ra oladi
 
     // Kirim tekshiruvi rejimini yoqish
     function enableReceiveMode() {
@@ -2202,22 +2202,22 @@
         banner.style.display = 'block';
         
         // Sarlavhani o'zgartirish
-        document.getElementById('pageTitle').textContent = '?? Kirim Tekshiruvi';
+        document.getElementById('pageTitle').textContent = '📥 Kirim Tekshiruvi';
         
         // Transfer ro'yxatidagi qidiruvni yashirish
         const searchInput = document.getElementById('transferListSearch');
         if (searchInput) searchInput.style.display = 'none';
         
-        console.log('? Kirim tekshiruvi rejimi yoqildi');
+        console.log('✅ Kirim tekshiruvi rejimi yoqildi');
     }
 
     // Yig'ish rejimini yoqish (omborchi)
     function enableDispatchMode() {
-        // Chap panelni ko'rsatib qolish � omborchi mahsulot qo'sha/tahrirlashi mumkin
+        // Chap panelni ko'rsatib qolish — omborchi mahsulot qo'sha/tahrirlashi mumkin
         // (Ilgari yashirilardi, endi tahrirlash uchun ko'rinadi)
 
         // Joylashuv selectlarini vizual o'chirib qo'yish (transfer yo'nalishi o'zgartirilmasin)
-        // disabled ishlatilmaydi � aks holda .value bo'sh qaytadi va savePendingTransfer o'chiradi
+        // disabled ishlatilmaydi — aks holda .value bo'sh qaytadi va savePendingTransfer o'chiradi
         const fromSelect = document.getElementById('fromLocation');
         const toSelect = document.getElementById('toLocation');
         if (fromSelect) {
@@ -2236,12 +2236,12 @@
         document.getElementById('dispatchActionButtons').style.display = 'flex';
 
         // Sarlavhani o'zgartirish
-        document.getElementById('pageTitle').textContent = '?? Transferni Tahrirlash va Yig\'ish';
+        document.getElementById('pageTitle').textContent = '📦 Transferni Tahrirlash va Yig\'ish';
 
-        console.log('? Yig\'ish rejimi yoqildi (tahrirlash imkoni bilan)');
+        console.log('✅ Yig\'ish rejimi yoqildi (tahrirlash imkoni bilan)');
     }
 
-    // Jo'natilgan transfer � faqat ko'rish (omborchi uchun, dispatched holatda)
+    // Jo'natilgan transfer — faqat ko'rish (omborchi uchun, dispatched holatda)
     function enableLockedDispatchMode() {
         isLockedMode = true;
 
@@ -2263,22 +2263,22 @@
             banner.style.display = 'block';
             banner.style.background = '#fff3cd';
             banner.style.borderColor = '#ffc107';
-            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#856404;">? Transfer yo\'lda � kutish rejimi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Transfer sotuvchiga jo\'natildi. Sotuvchi qabul qilgunicha yoki rad etgunicha tahrirlash mumkin emas.</div>';
+            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#856404;">⏳ Transfer yo\'lda — kutish rejimi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Transfer sotuvchiga jo\'natildi. Sotuvchi qabul qilgunicha yoki rad etgunicha tahrirlash mumkin emas.</div>';
         }
 
         // Sarlavhani o'zgartirish
-        document.getElementById('pageTitle').textContent = '?? Transfer yo\'lda (faqat ko\'rish)';
+        document.getElementById('pageTitle').textContent = '🔒 Transfer yo\'lda (faqat ko\'rish)';
 
         // Qidiruvni yashirish
         const searchInput = document.getElementById('transferListSearch');
         if (searchInput) searchInput.style.display = 'none';
 
-        console.log('?? Locked dispatch rejimi yoqildi');
+        console.log('🔒 Locked dispatch rejimi yoqildi');
     }
 
-    // Sent holat � omborchi yig'ishni boshlashdan oldin (tahrirlash imkoni bilan)
+    // Sent holat — omborchi yig'ishni boshlashdan oldin (tahrirlash imkoni bilan)
     function enableStartPickingMode() {
-        // Chap panelni yashirish emas � omborchi ko'rishi mumkin lekin loc tanlay olmaydi
+        // Chap panelni yashirish emas — omborchi ko'rishi mumkin lekin loc tanlay olmaydi
         const fromSelect = document.getElementById('fromLocation');
         const toSelect = document.getElementById('toLocation');
         if (fromSelect) { fromSelect.style.pointerEvents = 'none'; fromSelect.style.opacity = '0.65'; }
@@ -2289,7 +2289,7 @@
         document.getElementById('receiveActionButtons').style.display = 'none';
         document.getElementById('startPickingButtons').style.display = 'flex';
 
-        document.getElementById('pageTitle').textContent = '?? Transfer so\'rovini ko\'rish';
+        document.getElementById('pageTitle').textContent = '📋 Transfer so\'rovini ko\'rish';
 
         // Banner: yuborilgan, kutilmoqda
         const banner = document.getElementById('receiveBanner');
@@ -2297,20 +2297,20 @@
             banner.style.display = 'block';
             banner.style.background = '#fff3cd';
             banner.style.borderColor = '#ffc107';
-            banner.innerHTML = '<div style="font-size:15px;font-weight:600;color:#856404;">?? Sotuvchidan transfer so\'rovi keldi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Mahsulotlarni ko\'rib chiqing, keyin "?? Yig\'ishni boshlash" tugmasini bosing.</div>';
+            banner.innerHTML = '<div style="font-size:15px;font-weight:600;color:#856404;">📤 Sotuvchidan transfer so\'rovi keldi</div><div style="font-size:13px;color:#856404;margin-top:4px;">Mahsulotlarni ko\'rib chiqing, keyin "⚙️ Yig\'ishni boshlash" tugmasini bosing.</div>';
         }
 
-        console.log('?? Start-picking rejimi yoqildi');
+        console.log('📋 Start-picking rejimi yoqildi');
     }
 
-    // Yig'ishni boshlash � sent � picking
+    // Yig'ishni boshlash — sent → picking
     async function startPickingTransfer() {
         if (!currentPendingTransferId) {
-            alert('? Transfer ID topilmadi');
+            alert('❌ Transfer ID topilmadi');
             return;
         }
         const btn = document.querySelector('#startPickingButtons button');
-        if (btn) { btn.disabled = true; btn.textContent = '? Boshlanmoqda...'; }
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Boshlanmoqda...'; }
         try {
             const resp = await fetch(`/api/pending-transfer/${currentPendingTransferId}/start-picking`, {
                 method: 'POST',
@@ -2318,48 +2318,48 @@
             });
             const data = await resp.json();
             if (resp.ok && data.success) {
-                // picking holatiga o'tdi � dispatch modeni yoq
+                // picking holatiga o'tdi — dispatch modeni yoq
                 const b2 = document.getElementById('receiveBanner');
                 if (b2) b2.style.display = 'none';
                 document.getElementById('startPickingButtons').style.display = 'none';
                 enableDispatchMode();
             } else {
-                alert('? ' + (data.error || 'Xatolik yuz berdi'));
-                if (btn) { btn.disabled = false; btn.textContent = '?? Yig\'ishni boshlash'; }
+                alert('❌ ' + (data.error || 'Xatolik yuz berdi'));
+                if (btn) { btn.disabled = false; btn.textContent = '⚙️ Yig\'ishni boshlash'; }
             }
         } catch (e) {
-            alert('? Server xatosi: ' + e.message);
-            if (btn) { btn.disabled = false; btn.textContent = '?? Yig\'ishni boshlash'; }
+            alert('❌ Server xatosi: ' + e.message);
+            if (btn) { btn.disabled = false; btn.textContent = '⚙️ Yig\'ishni boshlash'; }
         }
     }
 
-    // Saqlash va chiqish (dispatch mode � tasdiqlamasdan)
+    // Saqlash va chiqish (dispatch mode — tasdiqlamasdan)
     async function saveAndExitDispatch() {
         const btn = document.querySelector('#dispatchActionButtons button');
         btn.disabled = true;
-        btn.textContent = '? Saqlanmoqda...';
+        btn.textContent = '⏳ Saqlanmoqda...';
         try {
             await savePendingTransfer();
             window.location.href = '/transfer';
         } catch (e) {
             btn.disabled = false;
-            btn.textContent = '?? Saqlash va chiqish';
+            btn.textContent = '💾 Saqlash va chiqish';
         }
     }
 
     // Sotuvchiga jo'natish (dispatch mode dan)
     async function confirmDispatchTransfer() {
         if (!currentPendingTransferId) {
-            alert('? Transfer ID topilmadi');
+            alert('❌ Transfer ID topilmadi');
             return;
         }
 
-        if (!confirm('?? Mahsulotlar yig\'ildi va sotuvchiga jo\'natilsinmi?')) return;
+        if (!confirm('📦 Mahsulotlar yig\'ildi va sotuvchiga jo\'natilsinmi?')) return;
 
         const btn = document.querySelector('#dispatchActionButtons button');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = '? Jo\'natilmoqda...';
+        btn.textContent = '⏳ Jo\'natilmoqda...';
 
         try {
             // Avval o'zgarishlarni saqlash
@@ -2372,16 +2372,16 @@
             const result = await response.json();
 
             if (response.ok && (result.success || result.message)) {
-                alert('? Transfer sotuvchiga muvaffaqiyatli jo\'natildi!');
+                alert('✅ Transfer sotuvchiga muvaffaqiyatli jo\'natildi!');
                 window.location.href = '/transfer';
             } else {
-                alert('? Xatolik: ' + (result.error || result.message || 'Noma\'lum xatolik'));
+                alert('❌ Xatolik: ' + (result.error || result.message || 'Noma\'lum xatolik'));
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         } catch (error) {
-            console.error('? Jo\'natishda xatolik:', error);
-            alert('? Serverga ulanishda xatolik');
+            console.error('❌ Jo\'natishda xatolik:', error);
+            alert('❌ Serverga ulanishda xatolik');
             btn.disabled = false;
             btn.textContent = originalText;
         }
@@ -2390,15 +2390,15 @@
     // Kirimni tasdiqlash (receive mode dan)
     async function rejectTransfer() {
         if (!currentPendingTransferId) {
-            alert('? Transfer ID topilmadi');
+            alert('❌ Transfer ID topilmadi');
             return;
         }
-        if (!confirm('? Transferni rad etasizmi? Omborchi qayta ko\'radi.')) return;
+        if (!confirm('❌ Transferni rad etasizmi? Omborchi qayta ko\'radi.')) return;
         
         const btn = document.querySelector('#receiveActionButtons button:first-child');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = '? ...';
+        btn.textContent = '⏳ ...';
         
         try {
             const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/reject`, {
@@ -2407,15 +2407,15 @@
             });
             const result = await response.json();
             if (response.ok && result.success) {
-                alert('? Transfer rad etildi. Omborchi qayta tahrirlaydi.');
+                alert('✅ Transfer rad etildi. Omborchi qayta tahrirlaydi.');
                 window.location.href = '/transfer';
             } else {
-                alert('? ' + (result.error || 'Xatolik'));
+                alert('❌ ' + (result.error || 'Xatolik'));
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         } catch (e) {
-            alert('? Serverga ulanishda xatolik');
+            alert('❌ Serverga ulanishda xatolik');
             btn.disabled = false;
             btn.textContent = originalText;
         }
@@ -2423,16 +2423,16 @@
 
     async function confirmReceiveTransfer() {
         if (!currentPendingTransferId) {
-            alert('? Transfer ID topilmadi');
+            alert('❌ Transfer ID topilmadi');
             return;
         }
         
-        if (!confirm('? Barcha mahsulotlar to\'liq kelganligini tasdiqlaysizmi?')) return;
+        if (!confirm('✅ Barcha mahsulotlar to\'liq kelganligini tasdiqlaysizmi?')) return;
         
         const btn = document.querySelector('#receiveActionButtons button');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = '? Tasdiqlanmoqda...';
+        btn.textContent = '⏳ Tasdiqlanmoqda...';
         
         try {
             const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}/receiver-confirm`, {
@@ -2442,16 +2442,16 @@
             const result = await response.json();
             
             if (response.ok && (result.success || result.message)) {
-                alert('? Kirim muvaffaqiyatli tasdiqlandi!');
+                alert('✅ Kirim muvaffaqiyatli tasdiqlandi!');
                 window.location.href = '/transfer';
             } else {
-                alert('? Xatolik: ' + (result.error || result.message || 'Noma\'lum xatolik'));
+                alert('❌ Xatolik: ' + (result.error || result.message || 'Noma\'lum xatolik'));
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         } catch (error) {
-            console.error('? Kirim tasdiqlashda xatolik:', error);
-            alert('? Serverga ulanishda xatolik');
+            console.error('❌ Kirim tasdiqlashda xatolik:', error);
+            alert('❌ Serverga ulanishda xatolik');
             btn.disabled = false;
             btn.textContent = originalText;
         }
@@ -2486,7 +2486,7 @@
         const sendBtn = document.querySelector('button[onclick="sendTransferToWarehouse()"]');
         if (sendBtn) {
             sendBtn.disabled = true;
-            sendBtn.textContent = '? ' + (TLANG.sending || 'Yuborilmoqda...');
+            sendBtn.textContent = '⏳ ' + (TLANG.sending || 'Yuborilmoqda...');
             sendBtn.style.opacity = '0.6';
         }
 
@@ -2495,7 +2495,7 @@
             await savePendingTransfer();
 
             if (!currentPendingTransferId) {
-                alert('? Transfer saqlanmadi, qayta urinib ko\'ring');
+                alert('❌ Transfer saqlanmadi, qayta urinib ko\'ring');
                 return;
             }
 
@@ -2507,22 +2507,22 @@
             const result = await response.json();
 
             if (response.ok && result.success) {
-                alert('? ' + (TLANG.send_transfer_success || 'Transfer omborchiga yuborildi!'));
+                alert('✅ ' + (TLANG.send_transfer_success || 'Transfer omborchiga yuborildi!'));
                 // Tozalash va bosh sahifaga qaytish
                 transferList = [];
                 currentPendingTransferId = null;
                 updateTransferListDisplay();
                 window.location.href = '/transfer';
             } else {
-                alert('? ' + (result.error || 'Xatolik yuz berdi'));
+                alert('❌ ' + (result.error || 'Xatolik yuz berdi'));
             }
         } catch (error) {
             console.error('Transfer yuborishda xatolik:', error);
-            alert('? ' + TLANG.error_occurred);
+            alert('❌ ' + TLANG.error_occurred);
         } finally {
             if (sendBtn) {
                 sendBtn.disabled = false;
-                sendBtn.textContent = '?? ' + (TLANG.send_transfer || 'Transfer yuborish');
+                sendBtn.textContent = '📤 ' + (TLANG.send_transfer || 'Transfer yuborish');
                 sendBtn.style.opacity = '1';
             }
         }
@@ -2532,7 +2532,7 @@
     async function completeTransfer() {
         // Double-click oldini olish
         if (isProcessingTransfer) {
-            console.log('?? Transfer allaqachon jarayonda');
+            console.log('⚠️ Transfer allaqachon jarayonda');
             return;
         }
         
@@ -2571,7 +2571,7 @@
         if (transferBtn) {
             originalText = transferBtn.textContent;
             transferBtn.disabled = true;
-            transferBtn.textContent = '? ' + TLANG.transferring;
+            transferBtn.textContent = '⏳ ' + TLANG.transferring;
             transferBtn.style.opacity = '0.6';
             transferBtn.style.cursor = 'not-allowed';
         }
@@ -2588,7 +2588,7 @@
                 quantity: item.quantity
             }));
             
-            console.log('?? Transfer yuborilmoqda:', { transfers, idempotencyKey });
+            console.log('📤 Transfer yuborilmoqda:', { transfers, idempotencyKey });
             
             const response = await fetch('/api/transfer', {
                 method: 'POST',
@@ -2603,15 +2603,15 @@
             });
             
             const result = await response.json();
-            console.log('?? Server javobi:', result);
+            console.log('📥 Server javobi:', result);
             
             if (response.ok || result.message || result.success) {
                 // Agar bu takroriy so'rov bo'lsa
                 if (result.already_processed) {
-                    console.log('?? Bu transfer allaqachon bajarilgan');
+                    console.log('⚠️ Bu transfer allaqachon bajarilgan');
                 }
                 
-                alert('? ' + TLANG.transfer_success);
+                alert('✅ ' + TLANG.transfer_success);
                 
                 // Reset
                 transferList = [];
@@ -2623,17 +2623,17 @@
                 // Tasdiqlanmagan transferni o'chirish
                 await deletePendingTransfer();
             } else {
-                console.error('? Server xatosi:', result);
-                alert('? Xatolik: ' + (result.error || result.message || 'Transfer amalga oshmadi'));
+                console.error('❌ Server xatosi:', result);
+                alert('❌ Xatolik: ' + (result.error || result.message || 'Transfer amalga oshmadi'));
             }
         } catch (error) {
             console.error('Transfer xatosi:', error);
-            alert('? ' + TLANG.error_occurred);
+            alert('❌ ' + TLANG.error_occurred);
         } finally {
             // Tugmani qayta faollashtirish
             if (transferBtn) {
                 transferBtn.disabled = false;
-                transferBtn.textContent = originalText || '? ' + TLANG.transfer_confirm_btn;
+                transferBtn.textContent = originalText || '✅ ' + TLANG.transfer_confirm_btn;
                 transferBtn.style.opacity = '1';
                 transferBtn.style.cursor = 'pointer';
             }
@@ -2641,7 +2641,7 @@
             // 3 sekunddan keyin qayta bosish imkonini berish
             setTimeout(() => {
                 isProcessingTransfer = false;
-                console.log('? Transfer processing flag cleared');
+                console.log('✅ Transfer processing flag cleared');
             }, 3000);
         }
     }
@@ -2657,7 +2657,7 @@
         const isReceiveMode = urlParams.get('mode') === 'receive';
         
         if (isReceiveMode && pendingId) {
-            // Kirim tekshiruvi rejimi � instant (INITIAL_DATA) + mode darhol
+            // Kirim tekshiruvi rejimi — instant (INITIAL_DATA) + mode darhol
             await loadPendingTransfer();
             enableReceiveMode();
         } else if (isNewTransfer) {
@@ -2670,14 +2670,14 @@
             await loadPendingTransfer();
         }
         
-        // � SAHIFA DARHOL KO'RSATISH (mode tayyor, UI to'g'ri holda)
+        // ← SAHIFA DARHOL KO'RSATISH (mode tayyor, UI to'g'ri holda)
         const overlay = document.getElementById('pageLoadingOverlay');
         if (overlay) overlay.style.display = 'none';
         const mainContent = document.getElementById('transferMainContent');
         if (mainContent) mainContent.style.visibility = 'visible';
         
-        // Products non-blocking yuklash � sahifa allaqachon ko'rinmoqda,
-        // jadval ichida o'zining "? Yuklanmoqda..." spinneri bor
+        // Products non-blocking yuklash — sahifa allaqachon ko'rinmoqda,
+        // jadval ichida o'zining "⏳ Yuklanmoqda..." spinneri bor
         loadProducts();
         
         const productSearch = document.getElementById('productSearch');
@@ -2694,7 +2694,7 @@
             document.getElementById('searchStatus').style.display = 'none';
         });
         
-        console.log('? Transfer sahifasi tayyor (barcode scanner yoqilgan)');
+        console.log('✅ Transfer sahifasi tayyor (barcode scanner yoqilgan)');
     });
     
     // Tasdiqlanmagan transferni yuklash
@@ -2717,7 +2717,7 @@
                     const response = await fetch(`/api/pending-transfer/${currentPendingTransferId}`);
                     if (!response.ok) {
                         const errorData = await response.json();
-                        alert('? ' + (errorData.error || 'Transferni yuklashda xatolik'));
+                        alert('❌ ' + (errorData.error || 'Transferni yuklashda xatolik'));
                         const newUrl = new URL(window.location);
                         newUrl.searchParams.delete('id');
                         window.history.replaceState({}, '', newUrl);
@@ -2737,7 +2737,7 @@
                     document.getElementById('fromLocation').value = fromLocation;
                     document.getElementById('toLocation').value = toLocation;
                     
-                    // Transfer ro'yxatini tiklash (products yuklashdan OLDIN � darhol ko'rinadi)
+                    // Transfer ro'yxatini tiklash (products yuklashdan OLDIN — darhol ko'rinadi)
                     transferList = pending.items.map(item => ({
                         id: item.product_id,
                         name: item.name,
@@ -2748,7 +2748,7 @@
                     }));
                     updateTransferListDisplay();
 
-                    // MODE DARHOL O'RNATISH � products kutmasdan sahifa to'g'ri holda ko'rinadi
+                    // MODE DARHOL O'RNATISH — products kutmasdan sahifa to'g'ri holda ko'rinadi
                     if (pending.status === 'sent' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
                         enableStartPickingMode();
                     } else if (pending.status === 'picking' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
@@ -2757,18 +2757,18 @@
                         enableLockedDispatchMode();
                         const banner = document.getElementById('receiveBanner');
                         if (banner) {
-                            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#0066cc;">?? Omborchi yig\'imoqda...</div><div style="font-size:13px;color:#0066cc;margin-top:4px;">Omborchi mahsulotlarni yig\'moqda. Jo\'natilgach siz qabul qilasiz.</div>';
+                            banner.innerHTML = '<div style="font-size:16px;font-weight:600;color:#0066cc;">⚙️ Omborchi yig\'imoqda...</div><div style="font-size:13px;color:#0066cc;margin-top:4px;">Omborchi mahsulotlarni yig\'moqda. Jo\'natilgach siz qabul qilasiz.</div>';
                             banner.style.background = '#e8f4fd';
                             banner.style.borderColor = '#0066cc';
                         }
                     } else if (pending.status === 'dispatched' && (userRole === 'omborchi' || userRole === 'admin' || userRole === 'kassir')) {
                         enableLockedDispatchMode();
                     }
-                    // loadProducts() � DOMContentLoaded da sahifa ochilgandan keyin chaqiriladi
+                    // loadProducts() — DOMContentLoaded da sahifa ochilgandan keyin chaqiriladi
                 }
             }
         } catch (error) {
-            console.error('? Tasdiqlanmagan transferni yuklashda xatolik:', error);
+            console.error('❌ Tasdiqlanmagan transferni yuklashda xatolik:', error);
         }
     }
 </script>

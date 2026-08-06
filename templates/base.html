@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ 'uz' if current_language != 'ru' else 'ru' }}" data-current-lang="{{ current_language }}" translate="no" class="notranslate">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,7 @@
         .main-content > div { padding-top: 0; }
         /* Barcha sahifalarda page-header margin bir xil */
         .page-header { margin-bottom: 6px !important; }
-        /* Global qidiruv maydoni stili � barcha sahifada bir xil */
+        /* Global qidiruv maydoni stili — barcha sahifada bir xil */
         .ps-input {
             padding: 9px 14px !important;
             border: 1.5px solid #e2e8f0 !important;
@@ -46,7 +46,7 @@
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1) !important;
             background: white !important;
         }
-        /* Search icon uchun joy � ps-search-input classli inputlarda */
+        /* Search icon uchun joy — ps-search-input classli inputlarda */
         .ps-search-input {
             padding-left: 36px !important;
         }
@@ -55,7 +55,7 @@
             color: #94a3b8; font-size: 13px; pointer-events: none;
         }
 
-        /* Global orqaga tugmasi stili � barcha sahifada bir xil */
+        /* Global orqaga tugmasi stili — barcha sahifada bir xil */
         .ps-back-btn, .tl-back-btn, .back-btn,
         .cs-btn-back, .cb-btn-back, .pdh-btn-back, .tv-back-link {
             display: inline-flex !important;
@@ -80,7 +80,7 @@
         }
     </style>
     <script>
-    // Global klaviatura navigatsiyasi � ps-input[data-results] uchun
+    // Global klaviatura navigatsiyasi — ps-input[data-results] uchun
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.ps-input[data-results]').forEach(function(input) {
             let _idx = -1;
@@ -125,14 +125,14 @@
         <ul class="sidebar-menu">
             <li>
                 <a href="/" {% if request.endpoint == 'index' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">🏠</span>
                     <span>{{ t('dashboard') }}</span>
                 </a>
             </li>
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/sales" {% if request.endpoint == 'sales' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">🛒</span>
                     <span>{{ t('sales') }}</span>
                 </a>
             </li>
@@ -144,7 +144,7 @@
             </li>
             <li>
                 <a href="/pending-sales" {% if request.endpoint == 'pending_sales' %}class="active"{% endif %}>
-                    <span class="icon">?</span>
+                    <span class="icon">⏳</span>
                     <span>{{ t('pending_sales') }}</span>
                     {% if pending_sales_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_sales_count }}</span>
@@ -163,7 +163,7 @@
             {% endif %}
             <li>
                 <a href="/products" {% if request.endpoint == 'products_list' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">📦</span>
                     <span>{{ t('products') }}</span>
                 </a>
             </li>
@@ -179,14 +179,14 @@
             {% if session.role != 'omborchi' %}
             <li>
                 <a href="/return-product" {% if request.endpoint == 'return_product' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">↩️</span>
                     <span>{{ t('return_product') }}</span>
                 </a>
             </li>
             {% endif %}
             <li>
                 <a href="/xarajatlar" {% if request.endpoint == 'xarajatlar' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">💸</span>
                     <span>Xarajatlar</span>
                 </a>
             </li>
@@ -208,14 +208,14 @@
             {% endif %}
             <li>
                 <a href="/operations-history" {% if request.endpoint == 'operations_history' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">📜</span>
                     <span>{{ t('operations_history') }}</span>
                 </a>
             </li>
             {% if session.role == 'omborchi' or session.role not in ['sotuvchi', 'omborchi'] or (session.role == 'sotuvchi' and stock_check_visible) %}
             <li>
                 <a href="/check_stock" {% if request.endpoint == 'check_stock' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">📋</span>
                     <span>{{ t('check_stock') }}</span>
                     {% if stock_check_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ stock_check_count }}</span>
@@ -226,7 +226,7 @@
             {% if session.role != 'sotuvchi' %}
             <li>
                 <a href="/add_product" {% if request.endpoint in ('add_product', 'add_product_session') %}class="active"{% endif %}>
-                    <span class="icon">?</span>
+                    <span class="icon">➕</span>
                     <span>{{ t('add_product') }}</span>
                     {% if pending_product_count > 0 %}
                     <span style="margin-left:auto; background:#e53e3e; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; min-width:20px; text-align:center;">{{ pending_product_count }}</span>
@@ -265,7 +265,7 @@
             </li>
             <li>
                 <a href="/currency-rate" {% if request.endpoint == 'currency_rate' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">💱</span>
                     <span>{{ t('currency_rate') }}</span>
                 </a>
             </li>
@@ -273,7 +273,7 @@
             {% if session.role in ['admin', 'manager'] %}
             <li>
                 <a href="/settings" {% if request.endpoint == 'settings_page' %}class="active"{% endif %}>
-                    <span class="icon">??</span>
+                    <span class="icon">⚙️</span>
                     <span>{{ t('settings') }}</span>
                 </a>
             </li>
@@ -281,7 +281,7 @@
             {% if session.role == 'admin' %}
             <li>
                 <a href="/hosting" {% if request.endpoint == 'hosting_dashboard' %}class="active"{% endif %}>
-                    <span class="icon">???</span>
+                    <span class="icon">🖥️</span>
                     <span>Hosting</span>
                 </a>
             </li>
@@ -306,48 +306,48 @@
                 <!-- Bildirishnoma paneli -->
                 <div id="notifPanel" style="display:none; position:absolute; top:calc(100% + 8px); right:0; width:320px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:9999; overflow:hidden;">
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #f0f2f5; background:#fafbfc;">
-                        <span style="font-size:14px; font-weight:700; color:#1e293b;">?? Bildirishnomalar</span>
+                        <span style="font-size:14px; font-weight:700; color:#1e293b;">🔔 Bildirishnomalar</span>
                         <button onclick="markAllNotifRead()" style="background:none; border:none; font-size:12px; color:#1a6eff; cursor:pointer; font-weight:600;">Hammasini o'qildi</button>
                     </div>
                     <div id="notifList" style="max-height:340px; overflow-y:auto; padding:4px 0;">
                         <div style="text-align:center; color:#aaa; font-size:13px; padding:24px;">
-                            <div style="font-size:28px; margin-bottom:8px;">??</div>
+                            <div style="font-size:28px; margin-bottom:8px;">🔔</div>
                             Yuklanmoqda...
                         </div>
                     </div>
                     <div style="padding:10px 16px; border-top:1px solid #f0f2f5; text-align:center;">
-                        <a href="/debts" style="font-size:12px; color:#1a6eff; text-decoration:none; font-weight:600;">Barcha qarzlarni ko'rish �</a>
+                        <a href="/debts" style="font-size:12px; color:#1a6eff; text-decoration:none; font-weight:600;">Barcha qarzlarni ko'rish →</a>
                     </div>
                 </div>
             </div>
             <!-- ===== VALYUTA KURSI ===== -->
             <div class="currency-display" title="{{ t('exchange_rate') }}">
-                <span class="currency-rate"><span class="currency-label">?? 1 USD = </span><span class="currency-value">... UZS</span></span>
+                <span class="currency-rate"><span class="currency-label">💵 1 USD = </span><span class="currency-value">... UZS</span></span>
                 <button class="edit-rate-btn" onclick="editCurrency()" title="{{ t('rate_change') }}">
-                    <span>??</span>
+                    <span>✏️</span>
                 </button>
             </div>
             <!-- Til tanlash -->
             <div class="language-selector" style="position: relative; display: flex; align-items: center;">
                 <button type="button" id="langDropdownBtn" onclick="toggleLangDropdown()" style="display: flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; background: rgba(255,255,255,0.9); font-size: 12px; cursor: pointer; outline: none;">
                     {% if current_language == 'uz_cyrillic' %}
-                    <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> ??
+                    <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> Ўз
                     {% elif current_language == 'ru' %}
                     <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> RU
                     {% else %}
                     <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> UZ
                     {% endif %}
-                    <span style="font-size:10px;">�</span>
+                    <span style="font-size:10px;">▼</span>
                 </button>
                 <div id="langDropdownMenu" style="display:none; position:absolute; top:100%; right:0; margin-top:4px; background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:9999; min-width:170px; overflow:hidden;">
                     <div class="lang-option{% if current_language == 'uz_latin' %} lang-active{% endif %}" onclick="changeLanguage('uz_latin')" style="display:flex; align-items:center; gap:8px; padding:10px 14px; cursor:pointer; font-size:13px; transition:background 0.2s;">
                         <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> O'zbekcha
                     </div>
                     <div class="lang-option{% if current_language == 'uz_cyrillic' %} lang-active{% endif %}" onclick="changeLanguage('uz_cyrillic')" style="display:flex; align-items:center; gap:8px; padding:10px 14px; cursor:pointer; font-size:13px; transition:background 0.2s;">
-                        <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> ???????
+                        <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#0099B5"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#1EB53A"/><rect y="4.17" width="20" height="1" fill="#CE1126"/><rect y="8.83" width="20" height="1" fill="#CE1126"/><circle cx="6" cy="2.3" r="1.3" fill="#fff"/><circle cx="6.6" cy="2.3" r="1" fill="#0099B5"/></svg> Ўзбекча
                     </div>
                     <div class="lang-option{% if current_language == 'ru' %} lang-active{% endif %}" onclick="changeLanguage('ru')" style="display:flex; align-items:center; gap:8px; padding:10px 14px; cursor:pointer; font-size:13px; transition:background 0.2s;">
-                        <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> ???????
+                        <svg width="20" height="14" viewBox="0 0 20 14" style="border-radius:2px;flex-shrink:0;"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg> Русский
                     </div>
                 </div>
             </div>
@@ -363,7 +363,7 @@
                 <span class="user-role">({{ session.role or t('role') }})</span>
             </div>
             <button class="logout-btn" onclick="logout()" title="{{ t('exit_system') }}">
-                <span class="logout-icon">??</span>
+                <span class="logout-icon">➡️</span>
                 <span class="logout-text">{{ t('logout') }}</span>
             </button>
         </div>
@@ -395,20 +395,20 @@
 
         // Til o'zgartirish
         function changeLanguage(lang) {
-            console.log('?? Til o\'zgartirish:', lang);
+            console.log('🌐 Til o\'zgartirish:', lang);
             fetch('/api/settings/language', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
                 body: JSON.stringify({language: lang})
             }).then(res => res.json()).then(data => {
-                console.log('?? Til javob:', data);
+                console.log('🌐 Til javob:', data);
                 if (data.success) {
                     // Keshi buzib, yangi sahifa yuklash (Samsung/mobil brauzerlar uchun)
                     var url = window.location.href.split('?')[0];
                     window.location.href = url + '?_lang=' + Date.now();
                 }
-            }).catch(err => console.error('?? Til xato:', err));
+            }).catch(err => console.error('🌐 Til xato:', err));
         }
 
         // Til dropdown
@@ -451,7 +451,7 @@
             const list = document.getElementById('notifList');
             // Agar dismiss qilingan bo'lsa, "joyida" ko'rsat
             if (isNotifDismissed()) {
-                list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">?</div>Hamma narsa joyida!</div>';
+                list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">✅</div>Hamma narsa joyida!</div>';
                 return;
             }
 
@@ -475,7 +475,7 @@
                     debts.forEach(d => {
                         items.push({
                             type: 'debt',
-                            icon: '??',
+                            icon: '💳',
                             color: '#e53e3e',
                             bg: '#fff5f5',
                             title: d.customer_name || 'Mijoz',
@@ -492,7 +492,7 @@
                     lowItems.slice(0, 3).forEach(p => {
                         items.push({
                             type: 'stock',
-                            icon: '??',
+                            icon: '📦',
                             color: '#d97706',
                             bg: '#fffbeb',
                             title: p.name || 'Mahsulot',
@@ -515,7 +515,7 @@
 
                 // Ro'yxatni render qilish
                 if (items.length === 0) {
-                    list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">?</div>Hamma narsa joyida!</div>';
+                    list.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">✅</div>Hamma narsa joyida!</div>';
                 } else {
                     list.innerHTML = items.map((it, i) => `
                         <a href="${it.link}" onclick="document.getElementById('notifPanel').style.display='none'"
@@ -546,7 +546,7 @@
             fetch('/api/notifications/dismiss', { method: 'POST' }).catch(() => {});
             document.getElementById('notifPanel').style.display = 'none';
             document.getElementById('notifList').innerHTML =
-                '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">?</div>Hamma narsa joyida!</div>';
+                '<div style="text-align:center; color:#aaa; font-size:13px; padding:24px;"><div style="font-size:28px; margin-bottom:8px;">✅</div>Hamma narsa joyida!</div>';
             const badge = document.getElementById('notifBadge');
             if (badge) badge.style.display = 'none';
             _notifLoaded = true;
@@ -617,16 +617,16 @@
         // Valyuta kursini API dan olish
         async function loadCurrencyRate() {
             try {
-                console.log('?? Valyuta kursini yuklayapman...');
+                console.log('🔄 Valyuta kursini yuklayapman...');
                 const response = await fetch('/api/currency-rate');
                 const data = await response.json();
                 
                 if (data.success && data.rate) {
                     window.currentExchangeRate = data.rate.rate;
                     updateCurrencyDisplay(data.rate.rate);
-                    console.log('? Valyuta kursi yuklandi:', window.currentExchangeRate);
+                    console.log('✅ Valyuta kursi yuklandi:', window.currentExchangeRate);
                 } else {
-                    console.log('? API dan ma\'lumot olishda xatolik:', data);
+                    console.log('❌ API dan ma\'lumot olishda xatolik:', data);
                     // API xatolik bersa ham, joriy kursni saqlab qolish
                     if (!window.currentExchangeRate) {
                         window.currentExchangeRate = data.rate?.rate || null;
@@ -634,7 +634,7 @@
                     updateCurrencyDisplay(window.currentExchangeRate);
                 }
             } catch (error) {
-                console.error('? Valyuta kursini yuklashda xatolik:', error);
+                console.error('❌ Valyuta kursini yuklashda xatolik:', error);
                 // Xatolik bo'lsa, mavjud kursni saqlab qolish
                 if (window.currentExchangeRate) {
                     updateCurrencyDisplay(window.currentExchangeRate);
@@ -651,12 +651,12 @@
                 if (valueEl) {
                     valueEl.textContent = `${formattedRate} UZS`;
                 } else {
-                    currencyElement.innerHTML = `<span class="currency-label">?? 1 USD = </span><span class="currency-value">${formattedRate} UZS</span>`;
+                    currencyElement.innerHTML = `<span class="currency-label">💵 1 USD = </span><span class="currency-value">${formattedRate} UZS</span>`;
                 }
                 currencyElement.title = `Oxirgi yangilanish: ${new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' })}`;
-                console.log('?? Header valyuta kursi yangilandi:', formattedRate);
+                console.log('🔄 Header valyuta kursi yangilandi:', formattedRate);
             } else {
-                console.log('? Currency element topilmadi yoki rate null');
+                console.log('❌ Currency element topilmadi yoki rate null');
             }
         }
 
@@ -669,7 +669,7 @@
             
             const currentRateFormatted = parseFloat(window.currentExchangeRate).toLocaleString('uz-UZ');
             const newRate = prompt(
-                `?? ${LANG.rate_change}:\n\n` +
+                `💱 ${LANG.rate_change}:\n\n` +
                 `${LANG.current_rate}: 1 USD = ${currentRateFormatted} UZS\n\n` +
                 `${LANG.enter_rate}:`, 
                 window.currentExchangeRate.toString()
@@ -729,7 +729,7 @@
             const overlay = document.querySelector('.sidebar-overlay');
             const body = document.body;
             
-            console.log('?? Toggle navigation:', {
+            console.log('🔍 Toggle navigation:', {
                 sidebarExists: !!sidebar,
                 overlayExists: !!overlay,
                 sidebarActive: sidebar?.classList.contains('active'),
@@ -746,7 +746,7 @@
                 body.classList.remove('sidebar-active');
             }
             
-            console.log('? After toggle:', {
+            console.log('✅ After toggle:', {
                 sidebarActive: sidebar?.classList.contains('active'),
                 overlayActive: overlay?.classList.contains('active'),
                 bodyLocked: body.classList.contains('sidebar-active')
@@ -758,7 +758,7 @@
             const overlay = document.querySelector('.sidebar-overlay');
             const body = document.body;
             
-            console.log('? Closing navigation');
+            console.log('❌ Closing navigation');
             
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
@@ -767,7 +767,7 @@
         
         // Close mobile nav when clicking on menu items
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('?? Sahifa yuklandi, navigatsiyani yopish...');
+            console.log('📱 Sahifa yuklandi, navigatsiyani yopish...');
             
             // DARHOL navigatsiyani yopish
             const sidebar = document.getElementById('sidebar');
@@ -776,15 +776,15 @@
             
             if (sidebar) {
                 sidebar.classList.remove('active');
-                console.log('? Sidebar active class olib tashlandi');
+                console.log('✅ Sidebar active class olib tashlandi');
             }
             if (overlay) {
                 overlay.classList.remove('active');
-                console.log('? Overlay active class olib tashlandi');
+                console.log('✅ Overlay active class olib tashlandi');
             }
             if (body) {
                 body.classList.remove('sidebar-active');
-                console.log('? Body sidebar-active class olib tashlandi');
+                console.log('✅ Body sidebar-active class olib tashlandi');
             }
             
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
@@ -822,7 +822,7 @@
         // ========================================
         
         function setupSessionMonitoring() {
-            console.log('?? Session monitoring tizimi ishga tushdi');
+            console.log('🔐 Session monitoring tizimi ishga tushdi');
             
             // 1. Global fetch wrapper - barcha API so'rovlarini tutib oladi
             const originalFetch = window.fetch;
@@ -843,7 +843,7 @@
                                 const data = await clonedResponse.json();
                                 
                                 if (data.error === 'Login required' || data.error === 'Access denied') {
-                                    console.warn('?? Session tugadi. Login sahifasiga yo\'naltirilmoqda...');
+                                    console.warn('⚠️ Session tugadi. Login sahifasiga yo\'naltirilmoqda...');
                                     
                                     // Joriy sahifa ma'lumotlarini saqlash
                                     saveCurrentPageData();
@@ -862,7 +862,7 @@
                     
                     return response;
                 } catch (error) {
-                    console.error('? Fetch xatosi:', error);
+                    console.error('❌ Fetch xatosi:', error);
                     throw error;
                 }
             };
@@ -889,13 +889,13 @@
                     });
                     
                     if (response.status === 401) {
-                        console.warn('?? Heartbeat: Session tugagan');
+                        console.warn('⚠️ Heartbeat: Session tugagan');
                         // Global fetch wrapper buni tutib oladi
                     } else if (response.ok) {
-                        console.log('? Heartbeat: Session faol');
+                        console.log('✅ Heartbeat: Session faol');
                     }
                 } catch (error) {
-                    console.error('? Heartbeat xatosi:', error);
+                    console.error('❌ Heartbeat xatosi:', error);
                 }
             }, 5 * 60 * 1000); // 5 daqiqa
         }
@@ -912,9 +912,9 @@
                 };
                 
                 localStorage.setItem('session_backup', JSON.stringify(pageData));
-                console.log('?? Sahifa ma\'lumotlari saqlandi:', pageData);
+                console.log('💾 Sahifa ma\'lumotlari saqlandi:', pageData);
             } catch (error) {
-                console.error('? Ma\'lumotlarni saqlashda xatolik:', error);
+                console.error('❌ Ma\'lumotlarni saqlashda xatolik:', error);
             }
         }
         
@@ -962,7 +962,7 @@
             
             warning.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 2rem;">?</span>
+                    <span style="font-size: 2rem;">⏰</span>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">${LANG.session_expiring}</div>
                         <div style="font-size: 0.95rem; opacity: 0.95;">${LANG.session_expiring_desc}</div>
@@ -991,7 +991,7 @@
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                    ">�</button>
+                    ">×</button>
                 </div>
             `;
             
@@ -1111,7 +1111,7 @@
         });
     </script>
 
-    <!-- �� Global modal keyboard shortcuts: ESC = yopish, Enter = saqlash �� -->
+    <!-- ── Global modal keyboard shortcuts: ESC = yopish, Enter = saqlash ── -->
     <script>
     (function() {
         function findActiveModal() {
@@ -1155,7 +1155,7 @@
                 var oc = btns[i].getAttribute('onclick') || '';
                 if (/close/i.test(oc)) return btns[i];
             }
-            // "Bekor" yoki "�" matni
+            // "Bekor" yoki "×" matni
             for (var i = 0; i < btns.length; i++) {
                 var txt = btns[i].textContent;
                 if (txt.includes('Bekor') || txt.includes('\u00d7') || txt.trim() === '\u00d7') return btns[i];
@@ -1206,7 +1206,7 @@
     })();
     </script>
 
-    <!-- �� Universal keyboard navigation for search inputs �� -->
+    <!-- ── Universal keyboard navigation for search inputs ── -->
     <!-- Usage: add data-nav-tbody="tbodyId" data-nav-btn="btnClass" to any search input -->
     <script>
     (function() {

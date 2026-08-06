@@ -1,4 +1,4 @@
-{% extends "base_with_sidebar.html" %}
+﻿{% extends "base_with_sidebar.html" %}
 
 {% block title %}{{ t('currency_management') }} - {{ t('app_title') }}{% endblock %}
 
@@ -6,7 +6,7 @@
 <style>
     .cr-page {
         padding: 28px 28px 40px;
-        background: transparent;
+        background: #f5f6fa;
         min-height: 100vh;
         font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     }
@@ -84,9 +84,9 @@
 
     <div class="cr-stats">
         <div class="cr-stat-card">
-            <div class="cr-stat-icon cr-icon-green">??</div>
+            <div class="cr-stat-icon cr-icon-green">💵</div>
             <div class="cr-stat-body">
-                <span class="cr-stat-number" id="currentRateValue">�</span>
+                <span class="cr-stat-number" id="currentRateValue">—</span>
                 <span class="cr-stat-label">{{ t('current_rate') }}</span>
                 <span class="cr-stat-info" id="currentRateInfo">{{ t('loading_text') }}</span>
             </div>
@@ -98,36 +98,36 @@
         <form id="updateRateForm">
             <div class="cr-form-row">
                 <div class="cr-form-group">
-                    <label>?? {{ t('new_rate_label') }}</label>
+                    <label>💵 {{ t('new_rate_label') }}</label>
                     <input type="number" id="newRate" name="newRate" class="cr-input"
                            step="0.01" min="1" placeholder="{{ t('rate_example') }}" required>
                 </div>
                 <div class="cr-form-group">
-                    <label>?? {{ t('updated_by_label') }}</label>
+                    <label>👤 {{ t('updated_by_label') }}</label>
                     <input type="text" id="updatedBy" name="updatedBy" class="cr-input"
                            placeholder="{{ t('admin_name') }}" value="admin">
                 </div>
-                <button type="submit" class="cr-btn-update">?? {{ t('update_rate') }}</button>
+                <button type="submit" class="cr-btn-update">🔄 {{ t('update_rate') }}</button>
             </div>
         </form>
     </div>
 
     <div class="cr-table-card">
         <div class="cr-table-header">
-            <p class="cr-table-title">?? {{ t('rate_history') }}</p>
+            <p class="cr-table-title">📊 {{ t('rate_history') }}</p>
             <button type="button" onclick="clearCurrencyHistory()" class="cr-btn-clear" id="clearHistoryBtn">
-                ??? {{ t('btn_clear_history') }}
+                🗑️ {{ t('btn_clear_history') }}
             </button>
         </div>
-        <div id="historyLoading" class="cr-loading">?? {{ t('loading_text') }}</div>
+        <div id="historyLoading" class="cr-loading">📥 {{ t('loading_text') }}</div>
         <div class="cr-table-wrap">
             <table class="cr-table" id="historyTable" style="display:none;">
                 <thead>
                     <tr>
-                        <th>?? {{ t('header_date') }}</th>
-                        <th>?? {{ t('header_rate') }}</th>
-                        <th>?? {{ t('updated_by_label') }}</th>
-                        <th>?? {{ t('header_status') }}</th>
+                        <th>📅 {{ t('header_date') }}</th>
+                        <th>💱 {{ t('header_rate') }}</th>
+                        <th>👤 {{ t('updated_by_label') }}</th>
+                        <th>📊 {{ t('header_status') }}</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>
@@ -308,7 +308,7 @@
     async function clearCurrencyHistory() {
         // Tasdiqlash dialog
         const confirmed = confirm(
-            '?? ' + CLANG.clear_history_confirm1
+            '⚠️ ' + CLANG.clear_history_confirm1
         );
         
         if (!confirmed) {
@@ -317,7 +317,7 @@
         
         // Ikkinchi tasdiqlash
         const doubleConfirmed = confirm(
-            '?? ' + CLANG.clear_history_confirm2
+            '🚨 ' + CLANG.clear_history_confirm2
         );
         
         if (!doubleConfirmed) {
@@ -329,7 +329,7 @@
         const originalText = clearBtn.innerHTML;
         
         try {
-            clearBtn.innerHTML = '? ' + CLANG.clearing;
+            clearBtn.innerHTML = '⏳ ' + CLANG.clearing;
             clearBtn.disabled = true;
             
             const response = await fetch('/api/currency-rate/clear-history', {
@@ -342,7 +342,7 @@
             const data = await response.json();
             
             if (data.success) {
-                showAlert('success', `? ${data.deleted_count} ${CLANG.records_deleted}`);
+                showAlert('success', `✅ ${data.deleted_count} ${CLANG.records_deleted}`);
                 
                 // Tarix jadvalini tozalash
                 const tbody = document.getElementById('historyTableBody');
@@ -354,7 +354,7 @@
                 
                 // Loading text ko'rsatish
                 document.getElementById('historyLoading').style.display = 'block';
-                document.getElementById('historyLoading').innerHTML = '<p>?? ' + CLANG.no_history + '</p>';
+                document.getElementById('historyLoading').innerHTML = '<p>📝 ' + CLANG.no_history + '</p>';
                 
             } else {
                 showAlert('error', data.message || CLANG.clear_history_error);

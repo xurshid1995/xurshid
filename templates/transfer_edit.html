@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Transfer Sahifasi{% endblock %}
 
 {% block extra_css %}
@@ -6,7 +6,7 @@
 <style>
 .transfer-container {
     padding: 10px 28px 40px;
-    background: transparent;
+    background: #f5f6fa;
     min-height: 100vh;
     width: 100%;
     max-width: 100%;
@@ -405,15 +405,15 @@
 {% block content %}
 <div class="transfer-container">
     <div class="tr-page-header">
-        <h1>?? Transfer ID:{{ initial_data.pending_transfer.id if initial_data.pending_transfer else '�' }}</h1>
-        <a href="/transfer" class="ps-back-btn">� Orqaga</a>
+        <h1>🔄 Transfer ID:{{ initial_data.pending_transfer.id if initial_data.pending_transfer else '—' }}</h1>
+        <a href="/transfer" class="ps-back-btn">← Orqaga</a>
     </div>
 
     <div class="sales-grid">
         <!-- Chap: Mahsulotlar -->
         <div class="sales-layout-box">
             <div class="tr-box-header">
-                <h3 class="tr-box-title">?? Mahsulotlar</h3>
+                <h3 class="tr-box-title">📦 Mahsulotlar</h3>
                 <div class="tr-loc-inline">
                     <div class="tr-loc-group">
                         <label>Qayerdan:</label>
@@ -425,7 +425,7 @@
                     </div>
                 </div>
             </div>
-            <input type="text" class="tr-search-input" id="productSearch" placeholder="?? Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="width:100%; box-sizing:border-box;" />
+            <input type="text" class="tr-search-input" id="productSearch" placeholder="🔍 Mahsulot qidirish..." data-nav-tbody="productBody" data-nav-btn="tr-add-btn" style="width:100%; box-sizing:border-box;" />
             <div class="table-wrapper">
                 <div class="tr-scroll">
                     <table class="tr-prod-table">
@@ -438,7 +438,7 @@
                             </tr>
                         </thead>
                         <tbody id="productBody">
-                            <tr class="tr-empty-row"><td colspan="4">?? Joylashuvni tanlang</td></tr>
+                            <tr class="tr-empty-row"><td colspan="4">📦 Joylashuvni tanlang</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -449,10 +449,10 @@
         <!-- O'ng: Transfer ro'yxati -->
         <div class="sales-layout-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 class="tr-box-title" style="margin:0;">?? Transfer ro'yxati</h3>
+                <h3 class="tr-box-title" style="margin:0;">🔄 Transfer ro'yxati</h3>
                 <div id="cartTotal"></div>
             </div>
-            <input type="text" class="tr-search-input" id="cartSearch" placeholder="?? Ro'yxatda qidirish..." />
+            <input type="text" class="tr-search-input" id="cartSearch" placeholder="🔍 Ro'yxatda qidirish..." />
             <div class="table-wrapper">
                 <div class="tr-scroll">
                     <table class="tr-cart-table">
@@ -465,7 +465,7 @@
                             </tr>
                         </thead>
                         <tbody id="cartBody">
-                            <tr class="tr-empty-row"><td colspan="4">??? Transfer qilish uchun mahsulot qo'shing</td></tr>
+                            <tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo'shing</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -473,9 +473,9 @@
             <div class="tr-foot">
                 {% set _st = initial_data.pending_transfer.status if initial_data.pending_transfer else 'draft' %}
                 {% if _st not in ('sent', 'picking') or initial_data.user_role not in ('omborchi', 'admin', 'kassir') %}
-                <button class="tv-btn" id="btnClear" style="background:#6c757d;color:#fff;border-color:#6c757d;">?? Tozalash</button>
+                <button class="tv-btn" id="btnClear" style="background:#6c757d;color:#fff;border-color:#6c757d;">🗑 Tozalash</button>
                 {% endif %}
-                <button class="tv-btn tv-btn-success" id="btnSend">? Transferni yakunlash</button>
+                <button class="tv-btn tv-btn-success" id="btnSend">✅ Transferni yakunlash</button>
             </div>
         </div>
     </div>
@@ -484,7 +484,7 @@
 <!-- Miqdor modal -->
 <div class="tr-modal-overlay" id="trModalOverlay">
     <div class="tr-modal">
-        <p class="tr-modal-title">??? Transfer miqdorini kiriting</p>
+        <p class="tr-modal-title">🏷️ Transfer miqdorini kiriting</p>
         <div class="tr-modal-field">
             <label class="tr-modal-label">Mahsulot:</label>
             <div class="tr-modal-readonly" id="trModalName"></div>
@@ -553,20 +553,20 @@ function updateSendBtn() {
     const from = document.getElementById('fromLocation').value;
     const to   = document.getElementById('toLocation').value;
     const btn  = document.getElementById('btnSend');
-    // Omborchi/admin/kassir sent transferni tahrirlayapti � tasdiqlash tugmasi
+    // Omborchi/admin/kassir sent transferni tahrirlayapti — tasdiqlash tugmasi
     const pendingStatus = (INITIAL_DATA.pending_transfer || {}).status || 'draft';
     if ((pendingStatus === 'sent' || pendingStatus === 'picking') && (USER_ROLE === 'omborchi' || USER_ROLE === 'admin' || USER_ROLE === 'kassir')) {
-        btn.textContent = '? Saqlash va tasdiqlash';
+        btn.textContent = '✅ Saqlash va tasdiqlash';
         btn.style.background = '#16a34a';
         btn.dataset.mode = 'warehouse-confirm';
         return;
     }
     if (canDirectComplete(from, to)) {
-        btn.textContent = '? To\'g\'ridan yakunlash';
+        btn.textContent = '✅ To\'g\'ridan yakunlash';
         btn.style.background = '#16a34a';
         btn.dataset.mode = 'direct';
     } else {
-        btn.textContent = '?? Omborga yuborish';
+        btn.textContent = '📦 Omborga yuborish';
         btn.style.background = '';
         btn.dataset.mode = 'send';
     }
@@ -585,7 +585,7 @@ function rebuildSelectOptions(sel, excludeKey, selectedKey) {
     INITIAL_DATA.locations.forEach(loc => {
         const key = `${loc.type}_${loc.id}`;
         if (key === excludeKey) return;
-        const icon = loc.type === 'warehouse' ? '??' : '??';
+        const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
         const opt = new Option(`${icon} ${loc.name}`, key);
         if (key === current) opt.selected = true;
         sel.appendChild(opt);
@@ -610,7 +610,7 @@ function populateSelects() {
     const defaultTo = INITIAL_DATA.default_to_location || '';
     INITIAL_DATA.locations.forEach(loc => {
         const key = `${loc.type}_${loc.id}`;
-        const icon = loc.type === 'warehouse' ? '??' : '??';
+        const icon = loc.type === 'warehouse' ? '🏭' : '🏪';
         const opt1 = new Option(`${icon} ${loc.name}`, key);
         const opt2 = new Option(`${icon} ${loc.name}`, key);
         if (key === fromKey) opt1.selected = true;
@@ -638,12 +638,12 @@ async function loadProducts() {
     const from = document.getElementById('fromLocation').value;
     const tbody = document.getElementById('productBody');
     if (!from) {
-        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">?? Joylashuvni tanlang</td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">📦 Joylashuvni tanlang</td></tr>';
         document.getElementById('productPagination').innerHTML = '';
 
         return;
     }
-    tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">? Yuklanmoqda...</td></tr>';
+    tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">⏳ Yuklanmoqda...</td></tr>';
     try {
         const res = await fetch(`/api/products?location=${from}&per_page=10000`);
         const data = await res.json();
@@ -652,7 +652,7 @@ async function loadProducts() {
 
         renderProducts();
     } catch(e) {
-        tbody.innerHTML = `<tr class="tr-empty-row"><td colspan="4">?? Xato: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr class="tr-empty-row"><td colspan="4">⚠️ Xato: ${e.message}</td></tr>`;
     }
 }
 
@@ -663,13 +663,13 @@ function renderProducts() {
     filteredProducts = !q ? allProducts : allProducts.filter(p =>
         (p.name || '').toLowerCase().includes(q) || (p.barcode || '').toLowerCase().includes(q));
     if (!filteredProducts.length) {
-        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">?? Mahsulot topilmadi</td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🔍 Mahsulot topilmadi</td></tr>';
         pagDiv.innerHTML = '';
         return;
     }
     let pageItems;
     if (q) {
-        // Qidiruv bo'lsa � barcha natijalarni ko'rsat, pagination yo'q
+        // Qidiruv bo'lsa — barcha natijalarni ko'rsat, pagination yo'q
         pageItems = filteredProducts;
         pagDiv.innerHTML = '';
     } else {
@@ -705,13 +705,13 @@ function renderPagination(totalPages) {
     let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(totalPages, start + maxVisible - 1);
     if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
-    let html = `<button class="tr-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>�</button>`;
-    if (start > 1) html += `<button class="tr-page-btn" onclick="goPage(1)">1</button>${start>2?'<span class="tr-page-info">�</span>':''}`;
+    let html = `<button class="tr-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+    if (start > 1) html += `<button class="tr-page-btn" onclick="goPage(1)">1</button>${start>2?'<span class="tr-page-info">…</span>':''}`;
     for (let i = start; i <= end; i++) {
         html += `<button class="tr-page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
     }
-    if (end < totalPages) html += `${end<totalPages-1?'<span class="tr-page-info">�</span>':''}<button class="tr-page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
-    html += `<button class="tr-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>�</button>`;
+    if (end < totalPages) html += `${end<totalPages-1?'<span class="tr-page-info">…</span>':''}<button class="tr-page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+    html += `<button class="tr-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
     html += `<span class="tr-page-info">${currentPage}/${totalPages} (${filteredProducts.length} ta)</span>`;
     pagDiv.innerHTML = html;
 }
@@ -759,12 +759,12 @@ function renderCart() {
         }
     }
     if (!selectedItems.length) {
-        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">??? Transfer qilish uchun mahsulot qo\'shing</td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🗃️ Transfer qilish uchun mahsulot qo\'shing</td></tr>';
         lockLocationSelects(false);
         return;
     }
     if (!items.length) {
-        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">?? Qidiruv natijasi yo\'q</td></tr>';
+        tbody.innerHTML = '<tr class="tr-empty-row"><td colspan="4">🔍 Qidiruv natijasi yo\'q</td></tr>';
         return;
     }
     lockLocationSelects(true);
@@ -775,7 +775,7 @@ function renderCart() {
         const isOver = maxQty > 0 && it.quantity > maxQty;
         const isZero = !it.quantity || it.quantity <= 0;
         const invalid = isOver || isZero;
-        const errMsg = isZero ? '?? 0 dan katta' : (isOver ? `?? Max: ${fmtNum(maxQty)}` : '');
+        const errMsg = isZero ? '⚠️ 0 dan katta' : (isOver ? `⚠️ Max: ${fmtNum(maxQty)}` : '');
         const badgeStyle = invalid ? 'background:#e53e3e' : '';
         return `<tr>
             <td title="${it.name}">${it.name}</td>
@@ -785,8 +785,8 @@ function renderCart() {
                 ${invalid ? `<div class="tr-qty-error" style="display:block">${errMsg}</div>` : ''}
             </td>
             <td style="text-align:center">
-                <button class="tr-edit-btn" onclick="editItem(${idx})" title="Tahrirlash">??</button>
-                <button class="tr-del-btn" onclick="removeItem(${idx})" title="O'chirish">???</button>
+                <button class="tr-edit-btn" onclick="editItem(${idx})" title="Tahrirlash">✏️</button>
+                <button class="tr-del-btn" onclick="removeItem(${idx})" title="O'chirish">🗑️</button>
             </td>
         </tr>`;
     }).join('');
@@ -812,14 +812,14 @@ window.addProduct = function(pid) {
         const errEl = document.getElementById('trModalError');
         errEl.style.display = 'none';
         if (!qty || qty <= 0) {
-            errEl.textContent = '?? Miqdor 0 dan katta bo\'lishi kerak';
+            errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
             errEl.style.display = 'block';
             qtyInput.classList.add('is-invalid');
             qtyInput.focus();
             return;
         }
         if (stock > 0 && qty > stock) {
-            errEl.textContent = `?? Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
+            errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
             errEl.style.display = 'block';
             qtyInput.classList.add('is-invalid');
             qtyInput.focus();
@@ -854,11 +854,11 @@ document.getElementById('trModalQty').addEventListener('input', function() {
     const qty = parseFloat(this.value);
     const max = parseFloat(this.max) || 0;
     if (!qty || qty <= 0) {
-        errEl.textContent = '?? Miqdor 0 dan katta bo\'lishi kerak';
+        errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
         errEl.style.display = 'block';
         this.classList.add('is-invalid');
     } else if (max > 0 && qty > max) {
-        errEl.textContent = `?? Mavjud miqdordan oshib ketdi (max: ${fmtNum(max)})`;
+        errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(max)})`;
         errEl.style.display = 'block';
         this.classList.add('is-invalid');
     } else {
@@ -884,14 +884,14 @@ window.editItem = function(idx) {
         const errEl = document.getElementById('trModalError');
         errEl.style.display = 'none';
         if (!qty || qty <= 0) {
-            errEl.textContent = '?? Miqdor 0 dan katta bo\'lishi kerak';
+            errEl.textContent = '⚠️ Miqdor 0 dan katta bo\'lishi kerak';
             errEl.style.display = 'block';
             qtyInput.classList.add('is-invalid');
             qtyInput.focus();
             return;
         }
         if (stock > 0 && qty > stock) {
-            errEl.textContent = `?? Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
+            errEl.textContent = `⚠️ Mavjud miqdordan oshib ketdi (max: ${fmtNum(stock)})`;
             errEl.style.display = 'block';
             qtyInput.classList.add('is-invalid');
             qtyInput.focus();
@@ -937,7 +937,7 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     const isWarehouseConfirm = mode === 'warehouse-confirm';
     let confirmMsg;
     if (isWarehouseConfirm) {
-        confirmMsg = `${valid.length} ta mahsulot tasdiqlans�n va sotuvchiga jo'natilsin. Davom etasizmi?`;
+        confirmMsg = `${valid.length} ta mahsulot tasdiqlansın va sotuvchiga jo'natilsin. Davom etasizmi?`;
     } else if (isDirect) {
         confirmMsg = `${valid.length} ta mahsulot to'g'ridan transferlanadi (stok darhol o'zgaradi). Davom etasizmi?`;
     } else {
@@ -958,7 +958,7 @@ document.getElementById('btnSend').addEventListener('click', async () => {
     try {
         const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();
-        if (data.success) { alert('? ' + data.message); window.location.href = '/transfer'; }
+        if (data.success) { alert('✅ ' + data.message); window.location.href = '/transfer'; }
         else { alert('Xato: ' + (data.error || 'Noma\'lum')); btn.disabled = false; btn.textContent = btnOrigText; }
     } catch(e) {
         alert('Tarmoq xatosi: ' + e.message);

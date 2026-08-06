@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Transfer #{{ initial_data.pending_transfer.id }} - Ko'rish{% endblock %}
 
@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="tv-wrap">
-    <a href="/transfer" class="tv-back-link">� Transferlar ro'yxati</a>
+    <a href="/transfer" class="tv-back-link">← Transferlar ro'yxati</a>
     <div id="tvRoot"></div>
 </div>
 
@@ -20,16 +20,16 @@ function fmtNum(n) {
     return num.toLocaleString('uz-UZ', { maximumFractionDigits: 2 });
 }
 function fmtDate(s) {
-    if (!s) return '�';
+    if (!s) return '—';
     try { return new Date(s).toLocaleString('uz-UZ'); } catch { return s; }
 }
 function getStatusBadge(status) {
     const map = {
-        draft:      ['draft',      '?? Qoralama'],
-        sent:       ['sent',       '?? Yuborildi'],
-        picking:    ['picking',    '?? Yig\'ilmoqda'],
-        dispatched: ['dispatched', '?? Yo\'lda'],
-        completed:  ['completed',  '? Yakunlandi'],
+        draft:      ['draft',      '✏️ Qoralama'],
+        sent:       ['sent',       '📤 Yuborildi'],
+        picking:    ['picking',    '⚙️ Yig\'ilmoqda'],
+        dispatched: ['dispatched', '🚚 Yo\'lda'],
+        completed:  ['completed',  '✅ Yakunlandi'],
     };
     const [cls, label] = map[status] || map.draft;
     return `<span class="tv-status tv-status-${cls}">${label}</span>`;
@@ -47,7 +47,7 @@ function render() {
         const received = receivedMap[pid] !== undefined ? Number(receivedMap[pid]) : sent;
         const diff = received - sent;
         const diffCls = diff < 0 ? 'tv-diff-less' : 'tv-diff-ok';
-        const diffTxt = diff === 0 ? '�' : (diff > 0 ? `+${fmtNum(diff)}` : `${fmtNum(diff)}`);
+        const diffTxt = diff === 0 ? '—' : (diff > 0 ? `+${fmtNum(diff)}` : `${fmtNum(diff)}`);
         return `<tr>
             <td>${it.name || ('#'+pid)}</td>
             <td class="num">${fmtNum(sent)}</td>
@@ -60,11 +60,11 @@ function render() {
         <div class="tv-card">
             <h2 class="tv-title">Transfer #${p.id} ${getStatusBadge(p.status)}</h2>
             <div class="tv-row">
-                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '�'}</div></div>
-                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '�'}</div></div>
+                <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
+                <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
             </div>
             <div class="tv-row">
-                <div><div class="tv-label">Yaratdi</div><div class="tv-value">${p.user_name || '�'}</div></div>
+                <div><div class="tv-label">Yaratdi</div><div class="tv-value">${p.user_name || '—'}</div></div>
                 <div><div class="tv-label">Qabul qilingan vaqt</div><div class="tv-value">${fmtDate(p.received_at)}</div></div>
             </div>
             ${p.received_note ? `<div class="tv-note-box"><b>Izoh:</b> ${p.received_note}</div>` : ''}
@@ -84,7 +84,7 @@ function render() {
         </div>
 
         <div class="tv-actions">
-            <a href="/transfer" class="ps-back-btn">� Orqaga</a>
+            <a href="/transfer" class="ps-back-btn">← Orqaga</a>
         </div>
     `;
 }
