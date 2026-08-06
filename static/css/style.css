@@ -183,6 +183,46 @@ body {
     background: rgba(255,255,255,0.4);
 }
 
+/* Sidebar Logo */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px 15px 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 10px;
+    overflow: hidden;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.sidebar:hover .logo-text {
+    opacity: 1;
+}
+
 .sidebar-menu {
     list-style: none;
     padding: 10px 5px 20px 5px; /* Pastga ko'proq joy */
@@ -1672,7 +1712,7 @@ footer {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
         scrollbar-color: rgba(255,255,255,0.3) transparent;
-        padding: 70px 0 0 0 !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
     }
     
@@ -1738,6 +1778,16 @@ footer {
     
     .sidebar::-webkit-scrollbar-thumb:hover {
         background: rgba(255,255,255,0.4);
+    }
+    
+    /* Mobile logo styles */
+    .sidebar-logo {
+        margin-top: 70px; /* Mobile header height uchun */
+        padding: 15px 10px 12px 10px;
+    }
+    
+    .sidebar.active .logo-text {
+        opacity: 1;
     }
     
     .sidebar-menu li a {
