@@ -15679,6 +15679,48 @@ def save_settings():
         logger.debug(f"Sozlamalarni saqlashda xato: {e}")
         return jsonify({'error': str(e)}), 500
 
+
+# Telegram Bot API endpointlari
+@app.route('/api/telegram/test-token', methods=['POST'])
+@login_required
+def test_telegram_token():
+    """Telegram bot tokenni tekshirish"""
+    try:
+        data = request.get_json()
+        token = data.get('token', '').strip()
+        
+        if not token:
+            return jsonify({'success': False, 'error': 'Token kiritilmagan'}), 400
+        
+        # Telegram API orqali tokenni tekshirish
+        import requests
+        response = requests.get(f'https://api.telegram.org/bot{token}/getMe', timeout=10)
+        
+        if response.status_code == 200:
+            bot_info = response.json()
+            if bot_info.get('ok'):
+                result = bot_info.get('result', {})
+                return jsonify({
+                    'success': True,
+                    'bot_name': result.get('first_name', 'Noma\'lum'),
+                    'bot_username': result.get('username', ''),
+                    'bot_id': result.get('id')
+                })
+            else:
+                return jsonify({'success': False, 'error': 'Token noto\'g\'ri'}), 400
+        else:
+            return jsonify({'success': False, 'error': 'Telegram API ga ulanib bo\'lmadi'}), 400
+            
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Timeout: Server javob bermadi'}), 408
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Telegram token tekshirishda xato: {e}")
+        return jsonify({'success': False, 'error': 'Server bilan bog\'lanishda xatolik'}), 500
+    except Exception as e:
+        logger.error(f"Token tekshirishda xato: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # Sozlamalar sahifasi
 
 

@@ -27,13 +27,20 @@ class DebtTelegramBot:
     """Qarz eslatmalari uchun Telegram Bot"""
 
     def __init__(self, db=None):
-        self.token = os.getenv('TELEGRAM_BOT_TOKEN')
+        self.db = db  # Database instance
+        
+        # Avval Settings jadvalidan tokenni olishga urinish
+        self.token = self._get_token_from_settings()
+        
+        # Agar Settings'da bo'lmasa, .env faylidan olish
+        if not self.token:
+            self.token = os.getenv('TELEGRAM_BOT_TOKEN')
+        
         self.admin_chat_ids = self._parse_admin_ids()
         self.bot = None
-        self.db = db  # Database instance
 
         if not self.token:
-            logger.warning("⚠️ TELEGRAM_BOT_TOKEN .env faylida sozlanmagan!")
+            logger.warning("⚠️ TELEGRAM_BOT_TOKEN sozlanmagan! Settings yoki .env faylida belgilang.")
         else:
             try:
                 self.bot = Bot(token=self.token)
@@ -41,9 +48,31 @@ class DebtTelegramBot:
             except Exception as e:
                 logger.error(f"❌ Telegram bot xatosi: {e}")
 
+    def _get_token_from_settings(self) -> Optional[str]:
+        """Settings jadvalidan bot tokenni olish"""
+        try:
+            if not self.db:
+                return None
+            
+            from models import Settings
+            setting = Settings.query.filter_by(key='telegram_bot_token').first()
+            if setting and setting.value:
+                logger.info("✅ Telegram bot token Settings jadvalidan olindi")
+                return setting.value
+            return None
+        except Exception as e:
+            logger.debug(f"Settings'dan token olishda xato: {e}")
+            return None
+
     def _parse_admin_ids(self) -> List[int]:
         """Admin chat ID larini parse qilish"""
-        admin_ids_str = os.getenv('TELEGRAM_ADMIN_CHAT_IDS', '')
+        # Avval Settings jadvalidan olishga urinish
+        admin_ids_str = self._get_admin_ids_from_settings()
+        
+        # Agar Settings'da bo'lmasa, .env faylidan olish
+        if not admin_ids_str:
+            admin_ids_str = os.getenv('TELEGRAM_ADMIN_CHAT_IDS', '')
+        
         if not admin_ids_str:
             return []
 
@@ -52,6 +81,21 @@ class DebtTelegramBot:
         except ValueError:
             logger.warning("⚠️ TELEGRAM_ADMIN_CHAT_IDS noto'g'ri formatda")
             return []
+
+    def _get_admin_ids_from_settings(self) -> Optional[str]:
+        """Settings jadvalidan admin chat ID larini olish"""
+        try:
+            if not self.db:
+                return None
+            
+            from models import Settings
+            setting = Settings.query.filter_by(key='telegram_admin_chat_ids').first()
+            if setting and setting.value:
+                return setting.value
+            return None
+        except Exception as e:
+            logger.debug(f"Settings'dan admin IDs olishda xato: {e}")
+            return None
 
     def _get_payment_details_sync(self, customer_id: int) -> str:
         """

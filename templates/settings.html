@@ -401,6 +401,71 @@
             </div>
         </div>
 
+        <!-- Telegram Bot sozlamalari -->
+        <div class="setting-card" style="grid-column: 1 / -1;">
+            <div class="setting-card-header">
+                <div class="setting-icon" style="background:#e8f4fd;"><i class="fab fa-telegram" style="color:#0088cc;"></i></div>
+                <div class="setting-card-meta">
+                    <p class="card-title">🤖 Telegram Bot sozlamalari</p>
+                    <p class="card-desc">Qarz eslatmalari uchun Telegram bot token va sozlamalarini boshqarish</p>
+                </div>
+            </div>
+            <div class="setting-card-body">
+                <div style="display:grid; gap:16px;">
+                    <!-- Bot Token -->
+                    <div>
+                        <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                            <i class="fas fa-key" style="color:#0088cc;"></i> Bot Token
+                            <span style="font-size:11px; font-weight:500; color:#94a3b8;">(BotFather'dan olingan)</span>
+                        </label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="password" id="tg-bot-token" class="card-input" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" style="flex:1; font-family:monospace; font-size:13px;">
+                            <button class="card-input-btn" onclick="toggleTokenVisibility()" style="min-width:90px;">
+                                <i class="fas fa-eye" id="token-eye-icon"></i> <span id="token-btn-text">Ko'rsatish</span>
+                            </button>
+                        </div>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                            <button class="btn-secondary" onclick="testTelegramToken()" style="padding:8px 16px; font-size:13px;">
+                                <i class="fas fa-vial"></i> Tokenni tekshirish
+                            </button>
+                            <span id="token-test-result" style="font-size:13px; padding:8px 12px; border-radius:6px; display:none;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Admin Chat IDs -->
+                    <div>
+                        <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                            <i class="fas fa-users-cog" style="color:#0088cc;"></i> Admin Chat ID lari
+                            <span style="font-size:11px; font-weight:500; color:#94a3b8;">(vergul bilan ajrating)</span>
+                        </label>
+                        <input type="text" id="tg-admin-ids" class="card-input" placeholder="123456789, 987654321" style="width:100%; box-sizing:border-box; font-family:monospace;">
+                        <div style="font-size:12px; color:#64748b; margin-top:6px; display:flex; align-items:start; gap:6px;">
+                            <i class="fas fa-info-circle" style="margin-top:2px;"></i>
+                            <span>Chat ID ni @userinfobot orqali bilishingiz mumkin</span>
+                        </div>
+                    </div>
+
+                    <!-- Bot nomi va username -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div>
+                            <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:block; margin-bottom:4px;">Bot nomi</label>
+                            <input type="text" id="tg-bot-name" class="card-input" placeholder="Sergeli 143 Qarz Bot" style="width:100%; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label class="em-label" style="font-size:13px; font-weight:600; color:#475569; display:block; margin-bottom:4px;">Bot username</label>
+                            <input type="text" id="tg-bot-username" class="card-input" placeholder="@Sergeli143_bot" style="width:100%; box-sizing:border-box;">
+                        </div>
+                    </div>
+
+                    <!-- Ogohlantirish -->
+                    <div class="note-box" style="margin-top:4px; background:#fef3c7; border-color:#fde047;">
+                        <i class="fas fa-shield-alt" style="color:#f59e0b;"></i>
+                        <span><strong>Xavfsizlik:</strong> Bot token maxfiy ma'lumot! Faqat ishonchli adminlar kiritishi mumkin. Token ma'lumotlar bazasida xavfsiz saqlanadi.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div><!-- /settings-grid -->
 </div><!-- /ps-page -->
 
@@ -597,6 +662,17 @@
             const tgGL = document.getElementById('tg-group-link');
             if (tgGN) tgGN.value = settings.telegram_group_name || 'DiamondCarAccesories';
             if (tgGL) tgGL.value = settings.telegram_group_link || 'https://t.me/DiamondCarAccesories';
+
+            // Telegram Bot sozlamalari
+            const tgToken = document.getElementById('tg-bot-token');
+            const tgAdminIds = document.getElementById('tg-admin-ids');
+            const tgBotName = document.getElementById('tg-bot-name');
+            const tgBotUsername = document.getElementById('tg-bot-username');
+            
+            if (tgToken) tgToken.value = settings.telegram_bot_token || '';
+            if (tgAdminIds) tgAdminIds.value = settings.telegram_admin_chat_ids || '';
+            if (tgBotName) tgBotName.value = settings.telegram_bot_name || 'Sergeli 143 Qarz Bot';
+            if (tgBotUsername) tgBotUsername.value = settings.telegram_bot_username || '@Sergeli143_bot';
         }
 
         // Toggle funksiyasi
@@ -641,6 +717,17 @@
                 if (tgGN && tgGN.value.trim()) settings.telegram_group_name = tgGN.value.trim();
                 if (tgGL && tgGL.value.trim()) settings.telegram_group_link = tgGL.value.trim();
 
+                // Telegram Bot sozlamalarini olish
+                const tgToken = document.getElementById('tg-bot-token');
+                const tgAdminIds = document.getElementById('tg-admin-ids');
+                const tgBotName = document.getElementById('tg-bot-name');
+                const tgBotUsername = document.getElementById('tg-bot-username');
+                
+                if (tgToken && tgToken.value.trim()) settings.telegram_bot_token = tgToken.value.trim();
+                if (tgAdminIds && tgAdminIds.value.trim()) settings.telegram_admin_chat_ids = tgAdminIds.value.trim();
+                if (tgBotName && tgBotName.value.trim()) settings.telegram_bot_name = tgBotName.value.trim();
+                if (tgBotUsername && tgBotUsername.value.trim()) settings.telegram_bot_username = tgBotUsername.value.trim();
+
                 // Keyin boshqa sozlamalarni saqlash (language kalitisiz!)
                 const settingsToSave = { ...settings };
                 delete settingsToSave.language;
@@ -671,6 +758,73 @@
                 console.error('Sozlamalarni saqlashda xato:', error);
                 alert(SLANG.alert_settings_error);
             }
+        }
+
+        // Token ko'rsatish/yashirish
+        function toggleTokenVisibility() {
+            const tokenInput = document.getElementById('tg-bot-token');
+            const eyeIcon = document.getElementById('token-eye-icon');
+            const btnText = document.getElementById('token-btn-text');
+            
+            if (tokenInput.type === 'password') {
+                tokenInput.type = 'text';
+                eyeIcon.className = 'fas fa-eye-slash';
+                btnText.textContent = 'Yashirish';
+            } else {
+                tokenInput.type = 'password';
+                eyeIcon.className = 'fas fa-eye';
+                btnText.textContent = 'Ko\'rsatish';
+            }
+        }
+
+        // Telegram bot tokenni tekshirish
+        async function testTelegramToken() {
+            const tokenInput = document.getElementById('tg-bot-token');
+            const token = tokenInput.value.trim();
+            const resultSpan = document.getElementById('token-test-result');
+            
+            if (!token) {
+                resultSpan.style.display = 'inline-block';
+                resultSpan.style.background = '#fee2e2';
+                resultSpan.style.color = '#991b1b';
+                resultSpan.innerHTML = '<i class="fas fa-times-circle"></i> Token kiritilmagan!';
+                setTimeout(() => { resultSpan.style.display = 'none'; }, 3000);
+                return;
+            }
+
+            // Loading holatini ko'rsatish
+            resultSpan.style.display = 'inline-block';
+            resultSpan.style.background = '#e0f2fe';
+            resultSpan.style.color = '#0369a1';
+            resultSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Tekshirilmoqda...';
+
+            try {
+                const response = await fetch('/api/telegram/test-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultSpan.style.background = '#dcfce7';
+                    resultSpan.style.color = '#166534';
+                    resultSpan.innerHTML = `<i class="fas fa-check-circle"></i> Ishlayapti! Bot: ${data.bot_name || 'Noma\'lum'}`;
+                } else {
+                    resultSpan.style.background = '#fee2e2';
+                    resultSpan.style.color = '#991b1b';
+                    resultSpan.innerHTML = `<i class="fas fa-times-circle"></i> Xato: ${data.error || 'Token noto\'g\'ri'}`;
+                }
+            } catch (error) {
+                console.error('Token tekshirishda xato:', error);
+                resultSpan.style.background = '#fee2e2';
+                resultSpan.style.color = '#991b1b';
+                resultSpan.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Server xatosi';
+            }
+
+            // 5 sekunddan keyin natijani yashirish
+            setTimeout(() => { resultSpan.style.display = 'none'; }, 5000);
         }
 </script>
 {% endblock %}
