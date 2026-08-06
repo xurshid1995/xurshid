@@ -139,12 +139,13 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-right: none;
+    border-top-left-radius: 10px;
     border-bottom-right-radius: 10px;
     height: 100vh;
     padding: 0;
     box-shadow: 2px 0 12px rgba(15,23,42,0.3);
     position: fixed;
-    left: 0;
+    left: 10px;
     top: 0;
     z-index: 1000;
     overflow-y: scroll;
@@ -432,12 +433,12 @@ body {
 
 /* Main Content - Desktop */
 .main-content {
-    margin-left: 70px; /* Sidebar doim 70px, content shu margin da qoladi */
+    margin-left: 80px; /* Sidebar 70px + 10px left offset */
     margin-top: 55px;
     flex: 1;
     padding: 10px 20px 20px 20px;
-    width: calc(100vw - 70px);
-    max-width: calc(100vw - 70px);
+    width: calc(100vw - 80px);
+    max-width: calc(100vw - 80px);
     min-width: 0; /* flex item min-width: auto ni bekor qilish — overflow to'g'ri ishlaydi */
     min-height: calc(100vh - 55px);
     box-sizing: border-box;
