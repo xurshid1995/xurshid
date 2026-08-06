@@ -145,7 +145,7 @@ body {
     position: fixed;
     left: 0;
     top: 55px;
-    z-index: 900;
+    z-index: 1000;
     overflow-y: scroll;
     overflow-x: hidden;
     box-sizing: border-box;
@@ -158,7 +158,7 @@ body {
 /* Hover: sidebar content ustiga chiqib kengayadi, content qisqarmaydi */
 .sidebar:hover {
     width: 300px;
-    z-index: 950;
+    z-index: 1050;
 }
 
 /* Custom Scrollbar for Sidebar - yashirin */
