@@ -135,7 +135,7 @@ body {
 
 .sidebar {
     width: 70px; /* Oddiy holatda tor */
-    background: rgba(20, 50, 100, 0.9);
+    background: rgba(12, 30, 60, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-right: none;
@@ -1665,7 +1665,7 @@ footer {
         width: 70px !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         z-index: 1250 !important;
-        background: rgba(20, 50, 100, 0.9) !important;
+        background: rgba(12, 30, 60, 0.95) !important;
         box-shadow: none !important;
         border-radius: 0;
         overflow: visible !important;
