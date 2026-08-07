@@ -142,10 +142,6 @@
             class="hr-tab-btn">
             💹 Foydali mahsulotlar
         </button>
-        <button onclick="switchHrTab('lowstock')" id="hr-tab-btn-lowstock"
-            class="hr-tab-btn">
-            ⚠️ Kam stok (<span id="lowStockCount">0</span>)
-        </button>
         <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
             class="hr-tab-btn">
             🔴 Qarzlar (<span id="debtListCount">0</span>)
@@ -207,16 +203,6 @@
                 foydali mahsulotlar (foyda % bo'yicha)
             </div>
             <div id="topMarginProducts">
-                <div class="hr-loading">Yuklanmoqda...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 6: Kam stok -->
-    <div id="hr-tab-lowstock" style="display:none; margin-bottom:24px;">
-        <div class="hr-section">
-            <div class="hr-section-title">⚠️ Kam qolgan mahsulotlar (<span id="lowStockCountInner">0</span> ta)</div>
-            <div id="lowStockList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
@@ -421,7 +407,7 @@
 
 <script>
 function switchHrTab(tab) {
-    ['payments','products','topcust','margin','lowstock','debts'].forEach(t => {
+    ['payments','products','topcust','margin','debts'].forEach(t => {
         document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-tab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
@@ -544,33 +530,6 @@ async function loadExtra() {
         }).join('');
     }
 
-    // --- Kam stok ---
-    const stockDiv = document.getElementById('lowStockList');
-    const count = data.low_stock.length;
-    document.getElementById('lowStockCount').textContent = count;
-    const lsInner = document.getElementById('lowStockCountInner');
-    if (lsInner) lsInner.textContent = count;
-    if (count === 0) {
-        stockDiv.innerHTML = '<div class="hr-loading">✅ Barcha mahsulotlar yetarli</div>';
-    } else {
-        stockDiv.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">` +
-        data.low_stock.map(s => {
-            const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
-            const pct = s.min_qty > 0 ? Math.round(s.qty / s.min_qty * 100) : 0;
-            const color = s.qty === 0 ? '#dc2626' : s.qty <= s.min_qty * 0.3 ? '#ea580c' : '#ca8a04';
-            return `<div style="background:#fff;border:1.5px solid ${color}30;border-radius:10px;padding:12px 14px;">
-                <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escHtml(s.product)}</div>
-                <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escHtml(s.location)}</div>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="flex:1;height:8px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
-                        <div style="width:${Math.min(pct,100)}%;height:100%;background:${color};border-radius:99px;"></div>
-                    </div>
-                    <span style="font-weight:700;color:${color};font-size:13px;white-space:nowrap">${s.qty} / ${s.min_qty}</span>
-                </div>
-                ${s.qty === 0 ? '<div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">⛔ Tugagan!</div>' : ''}
-            </div>`;
-        }).join('') + `</div>`;
-    }
 }
 
 function escHtml(s) {
