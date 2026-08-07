@@ -22,7 +22,7 @@
                 </button>
                 <button onclick="switchDbTab('stock')" id="db-tab-btn-stock" class="db-tab-btn" style="position:relative;">
                     📦 Mahsulot qoldig'i
-                    <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:16px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
+                    <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:22px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
                 </button>
             </div>
         </div>
@@ -822,7 +822,7 @@ async function loadStockOutBadge() {
         if (!badge) return;
         const outCount = (data.items || []).length;
         if (outCount > 0) {
-            badge.textContent = outCount > 99 ? '99+' : outCount;
+            badge.textContent = outCount > 999 ? '999+' : outCount;
             badge.style.display = 'inline-block';
         } else {
             badge.style.display = 'none';
