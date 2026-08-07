@@ -819,10 +819,16 @@ function renderYakuniyHisob() {
             <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Yakuniy hisob</div>
             <div style="flex-shrink:0; text-align:right; font-weight:800; color:#16a34a; font-size:20px;">${fmtUsd(total)}</div>
         </div>
+        <button onclick="saveYakuniyHisobot()" style="width:100%; margin-top:12px; background:#16a34a; color:#fff; border:none; border-radius:6px; padding:9px 10px; font-size:13px; font-weight:600; cursor:pointer;">💾 Hisobotni saqlash</button>
     </div>`;
 }
 
 let editingReserveFundId = null;
+
+function saveYakuniyHisobot() {
+    // TODO: hisobotni saqlash funksiyasi keyin qo'shiladi
+    alert("Bu funksiya keyinroq qo'shiladi");
+}
 
 function openReserveFundModal() {
     editingReserveFundId = null;
