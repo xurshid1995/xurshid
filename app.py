@@ -16332,22 +16332,47 @@ def api_hisobot_turnover():
             if lid is not None:
                 loc_balance[(lt, lid)] = loc_balance.get((lt, lid), 0.0) - float(amt)
 
+        # --- Joylashuvlardagi joriy mahsulot qoldig'ining tan qiymati ---
+        store_stock_value_rows = db.session.query(
+            StoreStock.store_id,
+            db.func.coalesce(db.func.sum(StoreStock.quantity * Product.cost_price), 0)
+        ).join(Product, StoreStock.product_id == Product.id).group_by(StoreStock.store_id).all()
+
+        wh_stock_value_rows = db.session.query(
+            WarehouseStock.warehouse_id,
+            db.func.coalesce(db.func.sum(WarehouseStock.quantity * Product.cost_price), 0)
+        ).join(Product, WarehouseStock.product_id == Product.id).group_by(WarehouseStock.warehouse_id).all()
+
+        stock_value_by_loc = {}
+        for sid, val in store_stock_value_rows:
+            stock_value_by_loc[('store', sid)] = float(val)
+        for wid, val in wh_stock_value_rows:
+            stock_value_by_loc[('warehouse', wid)] = float(val)
+
         locations = []
         for s in all_stores:
             locations.append({
                 'location_type': 'store',
                 'location_id': s.id,
                 'location_name': s.name,
-                'balance': round(loc_balance.get(('store', s.id), 0.0), 2)
+                'balance': round(loc_balance.get(('store', s.id), 0.0), 2),
+                'stock_value': round(stock_value_by_loc.get(('store', s.id), 0.0), 2)
             })
         for w in all_warehouses:
             locations.append({
                 'location_type': 'warehouse',
                 'location_id': w.id,
                 'location_name': w.name,
-                'balance': round(loc_balance.get(('warehouse', w.id), 0.0), 2)
+                'balance': round(loc_balance.get(('warehouse', w.id), 0.0), 2),
+                'stock_value': round(stock_value_by_loc.get(('warehouse', w.id), 0.0), 2)
             })
         locations.sort(key=lambda x: x['balance'], reverse=True)
+
+        # --- Tanlangan filtr bo'yicha jami tan qiymat (mavjud qoldiq) ---
+        if loc_type and loc_id:
+            total_stock_value = stock_value_by_loc.get((loc_type, loc_id), 0.0)
+        else:
+            total_stock_value = sum(stock_value_by_loc.values())
 
         return jsonify({
             'success': True,
@@ -16356,6 +16381,7 @@ def api_hisobot_turnover():
             'total_kirim': round(total_kirim, 2),
             'total_chiqim': round(total_chiqim, 2),
             'total_cost': round(total_cost, 2),
+            'total_stock_value': round(total_stock_value, 2),
             'days': days,
             'locations': locations
         })

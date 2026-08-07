@@ -987,7 +987,8 @@ async function loadTurnover() {
         { label: 'Jami kirim', value: data.total_kirim, color: '#16a34a' },
         { label: 'Jami xarajat', value: data.total_chiqim, color: '#dc2626' },
         { label: 'Mahsulot tan narxi', value: data.total_cost, color: '#ea580c' },
-        { label: 'Yakuniy balans', value: data.closing_balance, color: data.closing_balance >= 0 ? '#0f766e' : '#dc2626' }
+        { label: 'Yakuniy balans', value: data.closing_balance, color: data.closing_balance >= 0 ? '#0f766e' : '#dc2626' },
+        { label: 'Jami tan qiymat (qoldiq)', value: data.total_stock_value, color: '#8b5cf6' }
     ];
     summaryDiv.innerHTML = cards.map(c => `
         <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px 16px;">
@@ -1006,6 +1007,7 @@ async function loadTurnover() {
             return `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;">
                 <div style="font-size:12px;color:#888;margin-bottom:6px;">${icon} ${escHtml(loc.location_name)}</div>
                 <div style="font-size:17px;font-weight:700;color:${color};">${fmtUsd(loc.balance)}</div>
+                <div style="font-size:11px;color:#8b5cf6;margin-top:4px;">📦 Tan qiymat: ${fmtUsd(loc.stock_value)}</div>
             </div>`;
         }).join('');
     }
