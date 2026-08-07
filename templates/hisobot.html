@@ -967,6 +967,7 @@ async function loadFinalReportSnapshots() {
 
 async function deleteFinalReportSnapshot(id) {
     if (!confirm("Ushbu yozuvni o'chirmoqchimisiz?")) return;
+    if (!confirm("Diqqat! Bu amalni qaytarib bo'lmaydi. Rostdan ham o'chirilsinmi?")) return;
     try {
         const res = await fetch(`/api/final-report-snapshot/${id}`, { method: 'DELETE' });
         const data = await res.json();
