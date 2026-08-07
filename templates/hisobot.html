@@ -254,7 +254,7 @@
                     <div class="hr-section-title" style="margin-bottom:0;">🗂️ Yakuniy hisob</div>
                 </div>
                 <div id="finalReportFourthList">
-                    <div class="hr-loading" style="text-align:center; color:#999; padding:20px 0;">Tez orada...</div>
+                    <div class="hr-loading">Yuklanmoqda...</div>
                 </div>
             </div>
         </div>
@@ -635,6 +635,8 @@ async function loadFinalReport() {
                 <div style="flex-shrink:0; text-align:right; font-weight:800; color:#1a1a2e; font-size:14px;">${fmtUsd(data.grand_total)}</div>
             </div>
         </div>`;
+        frGrandCostValue = parseFloat(data.grand_total) || 0;
+        renderYakuniyHisob();
     } catch (e) {
         listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
     }
@@ -680,6 +682,8 @@ async function loadTotalDebt() {
                 <div style="flex-shrink:0; text-align:right; font-weight:800; color:#e53e3e; font-size:14px;">${fmtUsd(data.grand_total)}</div>
             </div>
         </div>`;
+        frGrandDebt = parseFloat(data.grand_total) || 0;
+        renderYakuniyHisob();
     } catch (e) {
         debtDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
     }
@@ -783,9 +787,39 @@ async function loadReserveFund() {
                 <div style="flex-shrink:0; text-align:right; font-weight:800; color:#16a34a; font-size:14px;">${fmtUsd(data.grand_total)}</div>
             </div>
         </div>`;
+        frGrandReserve = parseFloat(data.grand_total) || 0;
+        renderYakuniyHisob();
     } catch (e) {
         listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
     }
+}
+
+let frGrandCostValue = 0;
+let frGrandDebt = 0;
+let frGrandReserve = 0;
+
+function renderYakuniyHisob() {
+    const div = document.getElementById('finalReportFourthList');
+    if (!div) return;
+    const total = frGrandCostValue + frGrandDebt + frGrandReserve;
+    div.innerHTML = `<div style="max-width:100%; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📊 Jami tan qiymat</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandCostValue)}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">🔴 Jami qarz</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandDebt)}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📦 Jami zaxira</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandReserve)}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
+            <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Yakuniy hisob</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:800; color:#16a34a; font-size:14px;">${fmtUsd(total)}</div>
+        </div>
+    </div>`;
 }
 
 let editingReserveFundId = null;
