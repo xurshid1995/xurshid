@@ -16212,6 +16212,43 @@ def api_hisobot_final_report():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/hisobot-total-debt')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_total_debt():
+    """
+    Yakuniy hisobot: davrga bog'liq bo'lmagan, mijozlarning barcha vaqtdagi
+    umumiy (joriy) qarzi - customer_balances sahifasidagi kabi.
+    """
+    try:
+        rows = db.session.query(
+            Customer.id.label('customer_id'),
+            Customer.name.label('customer_name'),
+            db.func.coalesce(db.func.sum(Sale.debt_usd), 0).label('total_debt')
+        ).join(
+            Sale, Sale.customer_id == Customer.id
+        ).filter(
+            Sale.debt_usd > 0
+        ).group_by(
+            Customer.id, Customer.name
+        ).order_by(
+            db.func.sum(Sale.debt_usd).desc()
+        ).all()
+
+        customers = [{
+            'customer_id': r.customer_id,
+            'customer_name': r.customer_name,
+            'total_debt': round(float(r.total_debt), 2)
+        } for r in rows]
+
+        grand_total = round(sum(c['total_debt'] for c in customers), 2)
+
+        return jsonify({'success': True, 'customers': customers, 'grand_total': grand_total})
+
+    except Exception as e:
+        logger.error(f"hisobot-total-debt API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""
