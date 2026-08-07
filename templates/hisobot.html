@@ -330,7 +330,12 @@
 <div id="finalReportDeleteModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
         <div style="font-weight:700; font-size:15px; margin-bottom:10px;">🗑️ Yozuvni o'chirish</div>
-        <div id="finalReportDeleteText" style="font-size:13px; color:#555; margin-bottom:18px;"></div>
+        <div id="finalReportDeleteText" style="font-size:13px; color:#555; margin-bottom:14px;"></div>
+        <div id="finalReportDeleteCodeBox" style="display:none; margin-bottom:14px;">
+            <div style="font-size:13px; color:#555; margin-bottom:6px;">Tasdiqlash uchun quyidagi kodni kiriting: <b id="finalReportDeleteCode" style="letter-spacing:2px; color:#e53e3e;"></b></div>
+            <input id="finalReportDeleteCodeInput" type="text" placeholder="Kodni kiriting" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+            <div id="finalReportDeleteError" style="color:#e53e3e; font-size:12px; margin-top:6px; display:none;">Kod noto'g'ri, qaytadan kiriting</div>
+        </div>
         <div style="display:flex; gap:8px; justify-content:flex-end;">
             <button onclick="closeFinalReportDeleteModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
             <button id="finalReportDeleteBtn" onclick="advanceFinalReportDelete()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Davom etish</button>
@@ -977,12 +982,17 @@ async function loadFinalReportSnapshots() {
 
 let finalReportDeleteId = null;
 let finalReportDeleteStep = 1;
+let finalReportDeleteCode = '';
 
 function deleteFinalReportSnapshot(id) {
     finalReportDeleteId = id;
     finalReportDeleteStep = 1;
+    finalReportDeleteCode = '';
     document.getElementById('finalReportDeleteText').textContent = "Ushbu yozuvni o'chirmoqchimisiz?";
     document.getElementById('finalReportDeleteBtn').textContent = 'Davom etish';
+    document.getElementById('finalReportDeleteCodeBox').style.display = 'none';
+    document.getElementById('finalReportDeleteCodeInput').value = '';
+    document.getElementById('finalReportDeleteError').style.display = 'none';
     document.getElementById('finalReportDeleteModal').style.display = 'flex';
 }
 
@@ -990,15 +1000,27 @@ function closeFinalReportDeleteModal() {
     document.getElementById('finalReportDeleteModal').style.display = 'none';
     finalReportDeleteId = null;
     finalReportDeleteStep = 1;
+    finalReportDeleteCode = '';
 }
 
 async function advanceFinalReportDelete() {
     if (finalReportDeleteStep === 1) {
         finalReportDeleteStep = 2;
-        document.getElementById('finalReportDeleteText').textContent = "Diqqat! Bu amalni qaytarib bo'lmaydi. Rostdan ham o'chirilsinmi?";
+        finalReportDeleteCode = String(Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('finalReportDeleteText').textContent = "Diqqat! Bu amalni qaytarib bo'lmaydi.";
+        document.getElementById('finalReportDeleteCode').textContent = finalReportDeleteCode;
+        document.getElementById('finalReportDeleteCodeBox').style.display = 'block';
         document.getElementById('finalReportDeleteBtn').textContent = "Ha, o'chirish";
         return;
     }
+
+    const enteredCode = document.getElementById('finalReportDeleteCodeInput').value.trim();
+    if (enteredCode !== finalReportDeleteCode) {
+        document.getElementById('finalReportDeleteError').style.display = 'block';
+        return;
+    }
+    document.getElementById('finalReportDeleteError').style.display = 'none';
+
     const id = finalReportDeleteId;
     try {
         const res = await fetch(`/api/final-report-snapshot/${id}`, { method: 'DELETE' });
@@ -1013,6 +1035,7 @@ async function advanceFinalReportDelete() {
         alert('Xatolik yuz berdi');
     }
 }
+
 
 function openReserveFundModal() {
     editingReserveFundId = null;
