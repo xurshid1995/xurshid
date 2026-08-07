@@ -16161,7 +16161,8 @@ def api_hisobot_turnover():
     Pul aylanmasi (kassa balansi): tanlangan davr uchun kunlik kirim/chiqim
     va boshlang'ich/yakuniy balans.
     Kirim = savdolardagi naqd + click + terminal (debt hisobga olinmaydi).
-    Chiqim = xarajatlar (Expense.amount_usd).
+    Chiqim = xarajatlar (Expense.amount_usd) + joylashuvga kirim qilingan mahsulotlar tan narxi
+    (ProductAddHistory.cost_price * quantity) — ta'minotchilarga to'langan pul sifatida.
     Boshlang'ich balans = tanlangan davrdan oldingi barcha kunlar bo'yicha (kirim - chiqim) yig'indisi.
     """
     try:
@@ -16178,9 +16179,15 @@ def api_hisobot_turnover():
         date_to = dt_date.fromisoformat(date_to_str)
 
         loc_type = loc_id = None
+        loc_name = None
         if location_filter and '_' in location_filter:
             parts = location_filter.split('_', 1)
             loc_type, loc_id = parts[0], int(parts[1])
+            if loc_type == 'store':
+                _obj = Store.query.get(loc_id)
+            else:
+                _obj = Warehouse.query.get(loc_id)
+            loc_name = _obj.name if _obj else None
 
         def apply_sale_loc(q):
             if loc_type and loc_id:
@@ -16190,6 +16197,14 @@ def api_hisobot_turnover():
         def apply_expense_loc(q):
             if loc_type and loc_id:
                 return q.filter(Expense.location_type == loc_type, Expense.location_id == loc_id)
+            return q
+
+        def apply_cost_loc(q):
+            if loc_type and loc_name:
+                return q.filter(
+                    ProductAddHistory.location_type == loc_type,
+                    ProductAddHistory.location_name == loc_name
+                )
             return q
 
         # --- Kunlik kirim (davr ichida) ---
@@ -16203,19 +16218,31 @@ def api_hisobot_turnover():
             )
         ).group_by('d').all()
 
-        # --- Kunlik chiqim (davr ichida) ---
-        chiqim_rows = apply_expense_loc(
+        # --- Kunlik xarajat (davr ichida) ---
+        expense_rows = apply_expense_loc(
             db.session.query(
                 db.func.date(Expense.expense_date).label('d'),
-                db.func.coalesce(db.func.sum(Expense.amount_usd), 0).label('chiqim')
+                db.func.coalesce(db.func.sum(Expense.amount_usd), 0).label('expense')
             ).filter(
                 db.func.date(Expense.expense_date) >= date_from,
                 db.func.date(Expense.expense_date) <= date_to
             )
         ).group_by('d').all()
 
+        # --- Kunlik mahsulot tan narxi (davr ichida, joylashuv bo'yicha kirim qilingan) ---
+        cost_rows = apply_cost_loc(
+            db.session.query(
+                db.func.date(ProductAddHistory.added_date).label('d'),
+                db.func.coalesce(db.func.sum(ProductAddHistory.cost_price * ProductAddHistory.quantity), 0).label('cost')
+            ).filter(
+                db.func.date(ProductAddHistory.added_date) >= date_from,
+                db.func.date(ProductAddHistory.added_date) <= date_to
+            )
+        ).group_by('d').all()
+
         kirim_by_day = {r.d: float(r.kirim) for r in kirim_rows}
-        chiqim_by_day = {r.d: float(r.chiqim) for r in chiqim_rows}
+        expense_by_day = {r.d: float(r.expense) for r in expense_rows}
+        cost_by_day = {r.d: float(r.cost) for r in cost_rows}
 
         # --- Boshlang'ich balans: davrdan oldingi barcha kirim/chiqim yig'indisi ---
         prior_kirim = apply_sale_loc(
@@ -16223,29 +16250,39 @@ def api_hisobot_turnover():
                 db.func.coalesce(db.func.sum(Sale.cash_usd + Sale.click_usd + Sale.terminal_usd), 0)
             ).filter(db.func.date(Sale.sale_date) < date_from)
         ).scalar() or 0
-        prior_chiqim = apply_expense_loc(
+        prior_expense = apply_expense_loc(
             db.session.query(
                 db.func.coalesce(db.func.sum(Expense.amount_usd), 0)
             ).filter(db.func.date(Expense.expense_date) < date_from)
         ).scalar() or 0
-        opening_balance = float(prior_kirim) - float(prior_chiqim)
+        prior_cost = apply_cost_loc(
+            db.session.query(
+                db.func.coalesce(db.func.sum(ProductAddHistory.cost_price * ProductAddHistory.quantity), 0)
+            ).filter(db.func.date(ProductAddHistory.added_date) < date_from)
+        ).scalar() or 0
+        opening_balance = float(prior_kirim) - float(prior_expense) - float(prior_cost)
 
         # --- Davr bo'yicha kun-kun balans ---
         days = []
         balance = opening_balance
         total_kirim = 0.0
         total_chiqim = 0.0
+        total_cost = 0.0
         cur = date_from
         while cur <= date_to:
             k = kirim_by_day.get(cur, 0.0)
-            c = chiqim_by_day.get(cur, 0.0)
+            e = expense_by_day.get(cur, 0.0)
+            tn = cost_by_day.get(cur, 0.0)
+            c = e + tn
             balance += (k - c)
             total_kirim += k
-            total_chiqim += c
+            total_chiqim += e
+            total_cost += tn
             days.append({
                 'date': cur.isoformat(),
                 'kirim': round(k, 2),
-                'chiqim': round(c, 2),
+                'chiqim': round(e, 2),
+                'tan_narx': round(tn, 2),
                 'net': round(k - c, 2),
                 'balance': round(balance, 2)
             })
@@ -16257,6 +16294,7 @@ def api_hisobot_turnover():
             'closing_balance': round(balance, 2),
             'total_kirim': round(total_kirim, 2),
             'total_chiqim': round(total_chiqim, 2),
+            'total_cost': round(total_cost, 2),
             'days': days
         })
 
