@@ -16244,7 +16244,8 @@ def api_hisobot_total_debt():
         manual_entries = [{
             'id': m.id,
             'customer_name': m.customer_name,
-            'total_debt': round(float(m.amount_usd or 0), 2)
+            'total_debt': round(float(m.amount_usd or 0), 2),
+            'created_at': m.created_at.strftime('%Y-%m-%d %H:%M') if m.created_at else None
         } for m in manual_rows]
 
         manual_total = round(sum(m['total_debt'] for m in manual_entries), 2)
@@ -16272,6 +16273,7 @@ def api_add_manual_debt():
         data = request.get_json(silent=True) or {}
         name = (data.get('name') or '').strip()
         amount = data.get('amount')
+        created_at_str = (data.get('created_at') or '').strip()
 
         if not name:
             return jsonify({'success': False, 'error': 'Ism kiritilmagan'}), 400
@@ -16288,6 +16290,11 @@ def api_add_manual_debt():
             amount_usd=amount,
             created_by=current_user.username if current_user else None
         )
+        if created_at_str:
+            try:
+                entry.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except Exception:
+                pass
         db.session.add(entry)
         db.session.commit()
 
@@ -16311,6 +16318,7 @@ def api_update_manual_debt(debt_id):
         data = request.get_json(silent=True) or {}
         name = (data.get('name') or '').strip()
         amount = data.get('amount')
+        created_at_str = (data.get('created_at') or '').strip()
 
         if not name:
             return jsonify({'success': False, 'error': 'Ism kiritilmagan'}), 400
@@ -16323,6 +16331,11 @@ def api_update_manual_debt(debt_id):
 
         entry.customer_name = name
         entry.amount_usd = amount
+        if created_at_str:
+            try:
+                entry.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except Exception:
+                pass
         db.session.commit()
 
         return jsonify({'success': True, 'entry': entry.to_dict()})
@@ -16377,6 +16390,7 @@ def api_add_reserve_fund():
         data = request.get_json(silent=True) or {}
         name = (data.get('name') or '').strip()
         amount = data.get('amount')
+        created_at_str = (data.get('created_at') or '').strip()
 
         if not name:
             return jsonify({'success': False, 'error': 'Nom kiritilmagan'}), 400
@@ -16393,6 +16407,11 @@ def api_add_reserve_fund():
             amount_usd=amount,
             created_by=current_user.username if current_user else None
         )
+        if created_at_str:
+            try:
+                entry.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except Exception:
+                pass
         db.session.add(entry)
         db.session.commit()
 
@@ -16416,6 +16435,7 @@ def api_update_reserve_fund(entry_id):
         data = request.get_json(silent=True) or {}
         name = (data.get('name') or '').strip()
         amount = data.get('amount')
+        created_at_str = (data.get('created_at') or '').strip()
 
         if not name:
             return jsonify({'success': False, 'error': 'Nom kiritilmagan'}), 400
@@ -16428,6 +16448,11 @@ def api_update_reserve_fund(entry_id):
 
         entry.name = name
         entry.amount_usd = amount
+        if created_at_str:
+            try:
+                entry.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except Exception:
+                pass
         db.session.commit()
 
         return jsonify({'success': True, 'entry': entry.to_dict()})
