@@ -232,6 +232,10 @@
                 </div>
             </div>
             <div class="hr-section" id="finalReportRightCard" style="min-width:0;">
+                <div class="hr-section-title">🔴 Mijozlar bo'yicha jami qarz</div>
+                <div id="finalReportDebtList">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -1005,6 +1009,35 @@ async function loadAll() {
                 <span style="font-weight:600; color:#e53e3e; min-width:80px; text-align:right;">${fmtUsd(d.total_debt)}</span>
             </div>`;
         }).join('');
+    }
+
+    // --- Yakuniy hisobot: ong kartada jami qarz (mijozlar bo'yicha) ---
+    const finalDebtDiv = document.getElementById('finalReportDebtList');
+    if (finalDebtDiv) {
+        if (debts.length === 0) {
+            finalDebtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
+        } else {
+            const totalDebtSum = debts.reduce((s, d) => s + parseFloat(d.total_debt || 0), 0);
+            const debtRows = debts.map((d, i) => {
+                return `<div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+                    <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
+                    <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${d.customer_name}">${escHtml(d.customer_name)}</div>
+                    <div style="flex-shrink:0; text-align:right; font-weight:700; color:#e53e3e; font-size:12px;">${fmtUsd(d.total_debt)}</div>
+                </div>`;
+            }).join('');
+            finalDebtDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
+                <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
+                    <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
+                    <div style="flex:1; min-width:0; font-size:11px; color:#888;">Mijoz</div>
+                    <div style="flex-shrink:0; font-size:11px; color:#888;">Qarz</div>
+                </div>
+                ${debtRows}
+                <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
+                    <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Jami qarz</div>
+                    <div style="flex-shrink:0; text-align:right; font-weight:800; color:#e53e3e; font-size:14px;">${fmtUsd(totalDebtSum)}</div>
+                </div>
+            </div>`;
+        }
     }
 }
 
