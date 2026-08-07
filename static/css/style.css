@@ -122,15 +122,7 @@ body {
     padding-right: env(safe-area-inset-right);
 }
 
-/* PWA standalone rejimda status bar rangi */
-@media (display-mode: standalone) {
-    body {
-        background: #1e293b;
-    }
-    body > * {
-        background: #f0f1f3;
-    }
-}
+
 
 /* Kichik ekranlar uchun global optimizatsiya */
 @media (max-width: 480px) {
