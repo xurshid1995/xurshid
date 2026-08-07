@@ -1258,6 +1258,26 @@ class ManualDebt(db.Model):
         }
 
 
+class ReserveFund(db.Model):
+    """Qo'lda kiritilgan zaxiradagi pul yozuvlari (Yakuniy hisobot - Zaxiradagi kartasi uchun)"""
+    __tablename__ = 'reserve_funds'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    created_by = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'amount_usd': float(self.amount_usd or 0),
+            'created_by': self.created_by,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else None,
+        }
+
+
 # ============================================
 # HOSTING TO'LOV TIZIMI MODELLARI
 # ============================================

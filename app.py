@@ -220,7 +220,7 @@ from models import (  # noqa: E402
     DebtReminder, CustomerTimelineSnapshot, User, ApiOperation, OperationHistory,
     UserSession, Settings, StockCheckSession, StockCheckItem, SaleItem, Sale,
     StockChange, ProductAddHistory, CurrencyRate, Expense, HostingClient,
-    HostingPaymentOrder, HostingPayment, ManualDebt,
+    HostingPaymentOrder, HostingPayment, ManualDebt, ReserveFund,
 )
 
 # Decimal aniqlik o'rnatish
@@ -16350,6 +16350,111 @@ def api_delete_manual_debt(debt_id):
     except Exception as e:
         db.session.rollback()
         logger.error(f"manual-debt o'chirish xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/reserve-fund')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_reserve_fund():
+    """Yakuniy hisobot - Zaxiradagi kartasi uchun qo'lda kiritilgan yozuvlar ro'yxati va jami"""
+    try:
+        rows = ReserveFund.query.order_by(ReserveFund.created_at.desc()).all()
+        entries = [r.to_dict() for r in rows]
+        grand_total = round(sum(float(e['amount_usd'] or 0) for e in entries), 2)
+
+        return jsonify({'success': True, 'entries': entries, 'grand_total': grand_total})
+
+    except Exception as e:
+        logger.error(f"reserve-fund API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/reserve-fund', methods=['POST'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_add_reserve_fund():
+    """Yakuniy hisobot - Zaxiradagi kartasiga qo'lda yozuv qo'shish"""
+    try:
+        data = request.get_json(silent=True) or {}
+        name = (data.get('name') or '').strip()
+        amount = data.get('amount')
+
+        if not name:
+            return jsonify({'success': False, 'error': 'Nom kiritilmagan'}), 400
+        try:
+            amount = Decimal(str(amount))
+        except Exception:
+            return jsonify({'success': False, 'error': 'Summa noto\'g\'ri'}), 400
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Summa 0 dan katta bo\'lishi kerak'}), 400
+
+        current_user = get_current_user()
+        entry = ReserveFund(
+            name=name,
+            amount_usd=amount,
+            created_by=current_user.username if current_user else None
+        )
+        db.session.add(entry)
+        db.session.commit()
+
+        return jsonify({'success': True, 'entry': entry.to_dict()})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"reserve-fund qo'shish xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/reserve-fund/<int:entry_id>', methods=['PUT'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_update_reserve_fund(entry_id):
+    """Yakuniy hisobot - zaxiradagi yozuvni tahrirlash"""
+    try:
+        entry = ReserveFund.query.get(entry_id)
+        if not entry:
+            return jsonify({'success': False, 'error': 'Yozuv topilmadi'}), 404
+
+        data = request.get_json(silent=True) or {}
+        name = (data.get('name') or '').strip()
+        amount = data.get('amount')
+
+        if not name:
+            return jsonify({'success': False, 'error': 'Nom kiritilmagan'}), 400
+        try:
+            amount = Decimal(str(amount))
+        except Exception:
+            return jsonify({'success': False, 'error': 'Summa noto\'g\'ri'}), 400
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Summa 0 dan katta bo\'lishi kerak'}), 400
+
+        entry.name = name
+        entry.amount_usd = amount
+        db.session.commit()
+
+        return jsonify({'success': True, 'entry': entry.to_dict()})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"reserve-fund tahrirlash xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/reserve-fund/<int:entry_id>', methods=['DELETE'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_delete_reserve_fund(entry_id):
+    """Yakuniy hisobot - zaxiradagi yozuvni o'chirish"""
+    try:
+        entry = ReserveFund.query.get(entry_id)
+        if not entry:
+            return jsonify({'success': False, 'error': 'Yozuv topilmadi'}), 404
+
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"reserve-fund o'chirish xatolik: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

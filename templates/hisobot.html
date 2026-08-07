@@ -241,6 +241,13 @@
                 </div>
             </div>
             <div class="hr-section" id="finalReportThirdCard" style="min-width:0;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="hr-section-title" style="margin-bottom:0;">📦 Zaxiradagi</div>
+                    <button onclick="openReserveFundModal()" style="background:#16a34a; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">+ Qo'shish</button>
+                </div>
+                <div id="finalReportReserveList">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -257,6 +264,20 @@
         <div style="display:flex; gap:8px; justify-content:flex-end;">
             <button onclick="closeManualDebtModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
             <button onclick="saveManualDebt()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<div id="reserveFundModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">➕ Zaxiraga qo'shish</div>
+        <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Nomi</label>
+        <input id="reserveFundName" type="text" placeholder="Nomi" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:12px;">
+        <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Summa ($)</label>
+        <input id="reserveFundAmount" type="number" step="0.01" min="0" placeholder="0.00" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:16px;">
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button onclick="closeReserveFundModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
+            <button onclick="saveReserveFund()" style="background:#16a34a; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Saqlash</button>
         </div>
     </div>
 </div>
@@ -716,6 +737,109 @@ async function saveManualDebt() {
     }
 }
 
+async function loadReserveFund() {
+    const listDiv = document.getElementById('finalReportReserveList');
+    if (!listDiv) return;
+    try {
+        const res = await fetch('/api/reserve-fund');
+        const data = await res.json();
+        if (!data.success) {
+            listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+            return;
+        }
+        const entries = data.entries || [];
+        if (entries.length === 0) {
+            listDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+            return;
+        }
+        const rows = entries.map((e, i) => {
+            return `<div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+                <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
+                <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escHtml(e.name)}">${escHtml(e.name)}</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(e.amount_usd)}</div>
+                <div style="flex-shrink:0; display:flex; gap:4px;">
+                    <button onclick="editReserveFund(${e.id}, '${escHtml(e.name).replace(/'/g, "\\'")}', ${e.amount_usd})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash">✏️</button>
+                    <button onclick="deleteReserveFund(${e.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish">🗑️</button>
+                </div>
+            </div>`;
+        }).join('');
+        listDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
+                <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
+                <div style="flex:1; min-width:0; font-size:11px; color:#888;">Nomi</div>
+                <div style="flex-shrink:0; font-size:11px; color:#888;">Summa</div>
+            </div>
+            ${rows}
+            <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
+                <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Jami zaxira</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:800; color:#16a34a; font-size:14px;">${fmtUsd(data.grand_total)}</div>
+            </div>
+        </div>`;
+    } catch (e) {
+        listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+    }
+}
+
+let editingReserveFundId = null;
+
+function openReserveFundModal() {
+    editingReserveFundId = null;
+    document.getElementById('reserveFundName').value = '';
+    document.getElementById('reserveFundAmount').value = '';
+    document.getElementById('reserveFundModal').style.display = 'flex';
+}
+
+function editReserveFund(id, name, amount) {
+    editingReserveFundId = id;
+    document.getElementById('reserveFundName').value = name;
+    document.getElementById('reserveFundAmount').value = amount;
+    document.getElementById('reserveFundModal').style.display = 'flex';
+}
+
+async function deleteReserveFund(id) {
+    if (!confirm("Ushbu yozuvni o'chirmoqchimisiz?")) return;
+    try {
+        const res = await fetch(`/api/reserve-fund/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!data.success) {
+            alert(data.error || 'Xatolik yuz berdi');
+            return;
+        }
+        loadReserveFund();
+    } catch (e) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
+function closeReserveFundModal() {
+    document.getElementById('reserveFundModal').style.display = 'none';
+}
+
+async function saveReserveFund() {
+    const name = document.getElementById('reserveFundName').value.trim();
+    const amount = parseFloat(document.getElementById('reserveFundAmount').value);
+    if (!name) { alert('Nomni kiriting'); return; }
+    if (!amount || amount <= 0) { alert('Summani kiriting'); return; }
+    try {
+        const url = editingReserveFundId ? `/api/reserve-fund/${editingReserveFundId}` : '/api/reserve-fund';
+        const method = editingReserveFundId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+            method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, amount})
+        });
+        const data = await res.json();
+        if (!data.success) {
+            alert(data.error || 'Xatolik yuz berdi');
+            return;
+        }
+        closeReserveFundModal();
+        loadReserveFund();
+    } catch (e) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
 function escHtml(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -881,6 +1005,7 @@ async function loadAll() {
     loadExtra();
     loadFinalReport();
     loadTotalDebt();
+    loadReserveFund();
 
     // --- Jami savdolar, tushum, o'rtacha ---
     document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);
