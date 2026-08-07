@@ -16154,6 +16154,117 @@ def api_product_stock_overview():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/hisobot-turnover')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_turnover():
+    """
+    Pul aylanmasi (kassa balansi): tanlangan davr uchun kunlik kirim/chiqim
+    va boshlang'ich/yakuniy balans.
+    Kirim = savdolardagi naqd + click + terminal (debt hisobga olinmaydi).
+    Chiqim = xarajatlar (Expense.amount_usd).
+    Boshlang'ich balans = tanlangan davrdan oldingi barcha kunlar bo'yicha (kirim - chiqim) yig'indisi.
+    """
+    try:
+        date_from_str = request.args.get('date_from')
+        date_to_str = request.args.get('date_to')
+        location_filter = request.args.get('location_filter')  # e.g. 'store_1' or 'warehouse_2'
+
+        if not date_from_str or not date_to_str:
+            today = get_tashkent_time().date()
+            date_from_str = date_to_str = today.isoformat()
+
+        from datetime import date as dt_date
+        date_from = dt_date.fromisoformat(date_from_str)
+        date_to = dt_date.fromisoformat(date_to_str)
+
+        loc_type = loc_id = None
+        if location_filter and '_' in location_filter:
+            parts = location_filter.split('_', 1)
+            loc_type, loc_id = parts[0], int(parts[1])
+
+        def apply_sale_loc(q):
+            if loc_type and loc_id:
+                return q.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+            return q
+
+        def apply_expense_loc(q):
+            if loc_type and loc_id:
+                return q.filter(Expense.location_type == loc_type, Expense.location_id == loc_id)
+            return q
+
+        # --- Kunlik kirim (davr ichida) ---
+        kirim_rows = apply_sale_loc(
+            db.session.query(
+                db.func.date(Sale.sale_date).label('d'),
+                db.func.coalesce(db.func.sum(Sale.cash_usd + Sale.click_usd + Sale.terminal_usd), 0).label('kirim')
+            ).filter(
+                db.func.date(Sale.sale_date) >= date_from,
+                db.func.date(Sale.sale_date) <= date_to
+            )
+        ).group_by('d').all()
+
+        # --- Kunlik chiqim (davr ichida) ---
+        chiqim_rows = apply_expense_loc(
+            db.session.query(
+                db.func.date(Expense.expense_date).label('d'),
+                db.func.coalesce(db.func.sum(Expense.amount_usd), 0).label('chiqim')
+            ).filter(
+                db.func.date(Expense.expense_date) >= date_from,
+                db.func.date(Expense.expense_date) <= date_to
+            )
+        ).group_by('d').all()
+
+        kirim_by_day = {r.d: float(r.kirim) for r in kirim_rows}
+        chiqim_by_day = {r.d: float(r.chiqim) for r in chiqim_rows}
+
+        # --- Boshlang'ich balans: davrdan oldingi barcha kirim/chiqim yig'indisi ---
+        prior_kirim = apply_sale_loc(
+            db.session.query(
+                db.func.coalesce(db.func.sum(Sale.cash_usd + Sale.click_usd + Sale.terminal_usd), 0)
+            ).filter(db.func.date(Sale.sale_date) < date_from)
+        ).scalar() or 0
+        prior_chiqim = apply_expense_loc(
+            db.session.query(
+                db.func.coalesce(db.func.sum(Expense.amount_usd), 0)
+            ).filter(db.func.date(Expense.expense_date) < date_from)
+        ).scalar() or 0
+        opening_balance = float(prior_kirim) - float(prior_chiqim)
+
+        # --- Davr bo'yicha kun-kun balans ---
+        days = []
+        balance = opening_balance
+        total_kirim = 0.0
+        total_chiqim = 0.0
+        cur = date_from
+        while cur <= date_to:
+            k = kirim_by_day.get(cur, 0.0)
+            c = chiqim_by_day.get(cur, 0.0)
+            balance += (k - c)
+            total_kirim += k
+            total_chiqim += c
+            days.append({
+                'date': cur.isoformat(),
+                'kirim': round(k, 2),
+                'chiqim': round(c, 2),
+                'net': round(k - c, 2),
+                'balance': round(balance, 2)
+            })
+            cur += timedelta(days=1)
+
+        return jsonify({
+            'success': True,
+            'opening_balance': round(opening_balance, 2),
+            'closing_balance': round(balance, 2),
+            'total_kirim': round(total_kirim, 2),
+            'total_chiqim': round(total_chiqim, 2),
+            'days': days
+        })
+
+    except Exception as e:
+        logger.error(f"hisobot-turnover API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""

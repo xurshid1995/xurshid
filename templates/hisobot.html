@@ -146,6 +146,10 @@
             class="hr-tab-btn">
             🔴 Qarzlar (<span id="debtListCount">0</span>)
         </button>
+        <button onclick="switchHrTab('turnover')" id="hr-tab-btn-turnover"
+            class="hr-tab-btn">
+            🔄 Aylanma
+        </button>
     </div>
 
     <!-- Tab 1: Joylashuv × To'lov usullari -->
@@ -213,6 +217,19 @@
         <div class="hr-section">
             <div class="hr-section-title">🔴 Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 8: Aylanma (kassa balansi) -->
+    <div id="hr-tab-turnover" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">🔄 Pul aylanmasi (kassa balansi)</div>
+            <div id="turnoverSummary" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:16px;">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+            <div id="turnoverTable" style="overflow-x:auto;">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
@@ -407,7 +424,7 @@
 
 <script>
 function switchHrTab(tab) {
-    ['payments','products','topcust','margin','debts'].forEach(t => {
+    ['payments','products','topcust','margin','debts','turnover'].forEach(t => {
         document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-tab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
@@ -695,6 +712,7 @@ async function loadAll() {
 
     // Extra statistika parallel yuklash
     loadExtra();
+    loadTurnover();
 
     // --- Jami savdolar, tushum, o'rtacha ---
     document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);
@@ -949,6 +967,57 @@ async function loadAll() {
             </div>`;
         }).join('');
     }
+}
+
+async function loadTurnover() {
+    const res = await fetch(
+        `/api/hisobot-turnover?date_from=${currentDateFrom}&date_to=${currentDateTo}` +
+        (currentLocFilter ? `&location_filter=${currentLocFilter}` : '')
+    );
+    const data = await res.json();
+    if (!data.success) return;
+
+    const summaryDiv = document.getElementById('turnoverSummary');
+    const cards = [
+        { label: 'Boshlang\'ich balans', value: data.opening_balance, color: '#475569' },
+        { label: 'Jami kirim', value: data.total_kirim, color: '#16a34a' },
+        { label: 'Jami chiqim', value: data.total_chiqim, color: '#dc2626' },
+        { label: 'Yakuniy balans', value: data.closing_balance, color: data.closing_balance >= 0 ? '#0f766e' : '#dc2626' }
+    ];
+    summaryDiv.innerHTML = cards.map(c => `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px 16px;">
+            <div style="font-size:12px;color:#888;margin-bottom:6px;">${c.label}</div>
+            <div style="font-size:18px;font-weight:700;color:${c.color};">${fmtUsd(c.value)}</div>
+        </div>`).join('');
+
+    const tableDiv = document.getElementById('turnoverTable');
+    const days = data.days || [];
+    if (days.length === 0) {
+        tableDiv.innerHTML = '<div class="hr-loading">Ma\'lumot topilmadi</div>';
+        return;
+    }
+    tableDiv.innerHTML = `
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid #e2e8f0;text-align:left;">
+                    <th style="padding:8px 10px;">Sana</th>
+                    <th style="padding:8px 10px;text-align:right;">Kirim</th>
+                    <th style="padding:8px 10px;text-align:right;">Chiqim</th>
+                    <th style="padding:8px 10px;text-align:right;">Sof oqim</th>
+                    <th style="padding:8px 10px;text-align:right;">Balans</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${days.map(d => `
+                <tr style="border-bottom:1px solid #f0f2f5;">
+                    <td style="padding:7px 10px;">${d.date}</td>
+                    <td style="padding:7px 10px;text-align:right;color:#16a34a;">${fmtUsd(d.kirim)}</td>
+                    <td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmtUsd(d.chiqim)}</td>
+                    <td style="padding:7px 10px;text-align:right;font-weight:600;color:${d.net >= 0 ? '#16a34a' : '#dc2626'};">${d.net >= 0 ? '+' : ''}${fmtUsd(d.net)}</td>
+                    <td style="padding:7px 10px;text-align:right;font-weight:700;color:${d.balance >= 0 ? '#0f766e' : '#dc2626'};">${fmtUsd(d.balance)}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
 }
 
 // Top-N inputlar: qiymat o'zgarganda qayta yuklash
