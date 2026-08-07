@@ -16154,6 +16154,64 @@ def api_product_stock_overview():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/hisobot-final-report')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_final_report():
+    """
+    Yakuniy hisobot: har bir joylashuv (do'kon/ombor) bo'yicha joriy mahsulot
+    qoldig'ining jami tan qiymati (quantity * cost_price).
+    """
+    try:
+        store_rows = db.session.query(
+            Store.id.label('location_id'),
+            Store.name.label('location_name'),
+            db.func.coalesce(db.func.sum(StoreStock.quantity), 0).label('total_qty'),
+            db.func.coalesce(db.func.sum(StoreStock.quantity * Product.cost_price), 0).label('total_cost_value')
+        ).outerjoin(
+            StoreStock, StoreStock.store_id == Store.id
+        ).outerjoin(
+            Product, StoreStock.product_id == Product.id
+        ).group_by(Store.id, Store.name).all()
+
+        wh_rows = db.session.query(
+            Warehouse.id.label('location_id'),
+            Warehouse.name.label('location_name'),
+            db.func.coalesce(db.func.sum(WarehouseStock.quantity), 0).label('total_qty'),
+            db.func.coalesce(db.func.sum(WarehouseStock.quantity * Product.cost_price), 0).label('total_cost_value')
+        ).outerjoin(
+            WarehouseStock, WarehouseStock.warehouse_id == Warehouse.id
+        ).outerjoin(
+            Product, WarehouseStock.product_id == Product.id
+        ).group_by(Warehouse.id, Warehouse.name).all()
+
+        locations = []
+        for r in store_rows:
+            locations.append({
+                'location_type': 'store',
+                'location_id': r.location_id,
+                'location_name': r.location_name,
+                'total_qty': float(r.total_qty),
+                'total_cost_value': round(float(r.total_cost_value), 2)
+            })
+        for r in wh_rows:
+            locations.append({
+                'location_type': 'warehouse',
+                'location_id': r.location_id,
+                'location_name': r.location_name,
+                'total_qty': float(r.total_qty),
+                'total_cost_value': round(float(r.total_cost_value), 2)
+            })
+
+        locations.sort(key=lambda x: x['total_cost_value'], reverse=True)
+        grand_total = round(sum(loc['total_cost_value'] for loc in locations), 2)
+
+        return jsonify({'success': True, 'locations': locations, 'grand_total': grand_total})
+
+    except Exception as e:
+        logger.error(f"hisobot-final-report API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""

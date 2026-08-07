@@ -146,6 +146,10 @@
             class="hr-tab-btn">
             🔴 Qarzlar (<span id="debtListCount">0</span>)
         </button>
+        <button onclick="switchHrTab('finalreport')" id="hr-tab-btn-finalreport"
+            class="hr-tab-btn">
+            📊 Yakuniy hisobot
+        </button>
     </div>
 
     <!-- Tab 1: Joylashuv × To'lov usullari -->
@@ -213,6 +217,16 @@
         <div class="hr-section">
             <div class="hr-section-title">🔴 Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
+                <div class="hr-loading">Yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 8: Yakuniy hisobot -->
+    <div id="hr-tab-finalreport" style="display:none; margin-bottom:24px;">
+        <div class="hr-section">
+            <div class="hr-section-title">📊 Joylashuvlar bo'yicha jami tan qiymat</div>
+            <div id="finalReportList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
@@ -407,7 +421,7 @@
 
 <script>
 function switchHrTab(tab) {
-    ['payments','products','topcust','margin','debts'].forEach(t => {
+    ['payments','products','topcust','margin','debts','finalreport'].forEach(t => {
         document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-tab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
@@ -530,6 +544,43 @@ async function loadExtra() {
         }).join('');
     }
 
+}
+
+async function loadFinalReport() {
+    const listDiv = document.getElementById('finalReportList');
+    try {
+        const res = await fetch('/api/hisobot-final-report');
+        const data = await res.json();
+        if (!data.success) {
+            listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+            return;
+        }
+        if (data.locations.length === 0) {
+            listDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+            return;
+        }
+        const maxVal = data.locations[0].total_cost_value || 1;
+        const rows = data.locations.map(loc => {
+            const pct = Math.round((loc.total_cost_value / maxVal) * 100);
+            const icon = loc.location_type === 'store' ? '🏪' : '📦';
+            return `<div class="hr-row">
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px;">${icon} ${escHtml(loc.location_name)}</div>
+                    <div style="font-size:11px;color:#888">${fmtNum(loc.total_qty)} ta mahsulot</div>
+                    <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:#1a1a2e;"></div></div>
+                </div>
+                <div style="text-align:right;padding-left:10px;flex-shrink:0">
+                    <div style="font-weight:700;color:#1a1a2e;font-size:14px">${fmtUsd(loc.total_cost_value)}</div>
+                </div>
+            </div>`;
+        }).join('');
+        listDiv.innerHTML = rows + `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px 4px;margin-top:8px;border-top:2px solid #eee;">
+            <span style="font-weight:700;font-size:14px;">Jami tan qiymat</span>
+            <span style="font-weight:800;color:#1a1a2e;font-size:16px;">${fmtUsd(data.grand_total)}</span>
+        </div>`;
+    } catch (e) {
+        listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+    }
 }
 
 function escHtml(s) {
@@ -695,6 +746,7 @@ async function loadAll() {
 
     // Extra statistika parallel yuklash
     loadExtra();
+    loadFinalReport();
 
     // --- Jami savdolar, tushum, o'rtacha ---
     document.getElementById('totalSales').textContent = fmtNum(stats.total_sales);
