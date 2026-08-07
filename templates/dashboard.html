@@ -20,8 +20,9 @@
                 <button onclick="switchDbTab('sales')" id="db-tab-btn-sales" class="db-tab-btn db-tab-active">
                     📊 {{ t('sales_dynamics') }}
                 </button>
-                <button onclick="switchDbTab('stock')" id="db-tab-btn-stock" class="db-tab-btn">
+                <button onclick="switchDbTab('stock')" id="db-tab-btn-stock" class="db-tab-btn" style="position:relative;">
                     📦 Mahsulot qoldig'i
+                    <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:16px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
                 </button>
             </div>
         </div>
@@ -804,9 +805,30 @@ async function loadStockOverview() {
         }
 
         renderStockOverviewList(data.items || []);
+        loadStockOutBadge();
     } catch (e) {
         console.error('Mahsulot qoldig\'i xatolik:', e);
         if (list) list.innerHTML = '<div style="grid-column:1/-1;color:#dc2626;font-size:13px;text-align:center;padding:20px;">Yuklashda xatolik yuz berdi</div>';
+    }
+}
+
+// Tab tugmasidagi bildirishnoma - joylashuv filtridan qat'i nazar umumiy tugagan mahsulotlar soni
+async function loadStockOutBadge() {
+    try {
+        const res = await fetch('/api/product-stock-overview?status=out');
+        const data = await res.json();
+        if (!data.success) return;
+        const badge = document.getElementById('dbStockOutBadge');
+        if (!badge) return;
+        const outCount = (data.items || []).length;
+        if (outCount > 0) {
+            badge.textContent = outCount > 99 ? '99+' : outCount;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (e) {
+        console.error('Tugagan mahsulotlar bildirishnomasi xatolik:', e);
     }
 }
 
