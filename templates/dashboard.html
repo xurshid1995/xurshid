@@ -14,8 +14,20 @@
     <div class="row g-4">
 
 {% if session.role != 'omborchi' %}
-        <!-- ===== Chart Card (full width) ===== -->
+        <!-- ===== Dashboard Tab Buttons ===== -->
         <div class="col-12">
+            <div class="db-tabs">
+                <button onclick="switchDbTab('sales')" id="db-tab-btn-sales" class="db-tab-btn db-tab-active">
+                    📊 {{ t('sales_dynamics') }}
+                </button>
+                <button onclick="switchDbTab('outofstock')" id="db-tab-btn-outofstock" class="db-tab-btn">
+                    ⛔ Tugagan mahsulotlar (<span id="outOfStockCount">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Chart Card (full width) ===== -->
+        <div class="col-12" id="db-tab-sales">
             <div class="db-card">
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
@@ -89,6 +101,19 @@
                     <canvas id="salesChart"></canvas>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- ===== Tugagan mahsulotlar Tab ===== -->
+        <div class="col-12" id="db-tab-outofstock" style="display:none;">
+            <div class="db-card">
+                <div class="db-card-head">
+                    <span class="db-card-label">⛔ Tugagan mahsulotlar</span>
+                    <button onclick="loadOutOfStock()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
+                </div>
+                <div id="outOfStockList" style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+                    <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
 {% endif %}
@@ -309,6 +334,36 @@
     border-color: #1a6eff;
     color: #ffffff;
     font-weight: 600;
+}
+
+/* Dashboard main tabs */
+.db-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+.db-tab-btn {
+    padding: 9px 18px;
+    border: 1.5px solid #dde1e7;
+    background: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.18s;
+}
+.db-tab-btn:hover:not(.db-tab-active) {
+    border-color: #1a6eff;
+    color: #1a6eff;
+    background: #f0f5ff;
+}
+.db-tab-active {
+    background: #1a6eff !important;
+    color: #fff !important;
+    border-color: #1a6eff !important;
+    box-shadow: 0 3px 10px rgba(26,110,255,0.25);
 }
 
 /* Chart */
@@ -636,8 +691,56 @@ document.addEventListener('DOMContentLoaded', function() {
             loadLocations();
             loadSalesChart();
         });
+        loadOutOfStock();
     }
 });
+
+// ===== Dashboard asosiy tablari (Savdo dinamikasi / Tugagan mahsulotlar) =====
+function switchDbTab(tab) {
+    ['sales', 'outofstock'].forEach(t => {
+        const el = document.getElementById('db-tab-' + t);
+        if (el) el.style.display = (t === tab) ? '' : 'none';
+        const btn = document.getElementById('db-tab-btn-' + t);
+        if (btn) btn.classList.toggle('db-tab-active', t === tab);
+    });
+}
+
+function escDbHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+}
+
+async function loadOutOfStock() {
+    const list = document.getElementById('outOfStockList');
+    try {
+        const today = new Date().toISOString().slice(0, 10);
+        const res = await fetch(`/api/hisobot-extra?date_from=${today}&date_to=${today}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Xatolik');
+
+        const items = (data.low_stock || []).filter(s => s.qty === 0);
+        const countEl = document.getElementById('outOfStockCount');
+        if (countEl) countEl.textContent = items.length;
+        if (!list) return;
+
+        if (!items.length) {
+            list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Tugagan mahsulot yo\'q</div>';
+            return;
+        }
+        list.innerHTML = items.map(s => {
+            const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
+            return `<div style="background:#fff;border:1.5px solid #dc262630;border-radius:10px;padding:12px 14px;">
+                <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escDbHtml(s.product)}</div>
+                <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escDbHtml(s.location)}</div>
+                <div style="font-size:11px;color:#dc2626;font-weight:600">⛔ Tugagan!</div>
+            </div>`;
+        }).join('');
+    } catch (e) {
+        console.error('Tugagan mahsulotlar xatolik:', e);
+        if (list) list.innerHTML = '<div style="grid-column:1/-1;color:#dc2626;font-size:13px;text-align:center;padding:20px;">Yuklashda xatolik yuz berdi</div>';
+    }
+}
 
 // Valyuta kursi yuklanguncha kutish
 async function waitForCurrencyRate() {
