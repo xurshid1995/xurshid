@@ -565,34 +565,23 @@ async function loadFinalReport() {
         }
         const rows = data.locations.map((loc, i) => {
             const icon = loc.location_type === 'store' ? '🏪' : '📦';
-            return `<tr style="border-bottom:1px solid #eee;">
-                <td style="box-sizing:border-box;padding:8px 2px;text-align:center;color:#888;font-size:12px;">${i+1}</td>
-                <td style="box-sizing:border-box;padding:8px 2px;font-weight:600;font-size:12px;word-break:break-word;overflow-wrap:break-word;">${icon} ${escHtml(loc.location_name)}</td>
-                <td style="box-sizing:border-box;padding:8px 2px;text-align:right;font-weight:700;color:#1a1a2e;font-size:12px;">${fmtUsd(loc.total_cost_value)}</td>
-            </tr>`;
+            return `<div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+                <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
+                <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${icon} ${escHtml(loc.location_name)}</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:700; color:#1a1a2e; font-size:12px;">${fmtUsd(loc.total_cost_value)}</div>
+            </div>`;
         }).join('');
-        listDiv.innerHTML = `<div style="max-width:100%;">
-            <table style="width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;box-sizing:border-box;">
-                <colgroup>
-                    <col style="width:10%;">
-                    <col style="width:55%;">
-                    <col style="width:35%;">
-                </colgroup>
-                <thead>
-                    <tr style="border-bottom:2px solid #ddd;">
-                        <th style="box-sizing:border-box;padding:8px 2px;text-align:center;font-size:11px;color:#888;">#</th>
-                        <th style="box-sizing:border-box;padding:8px 2px;text-align:left;font-size:11px;color:#888;">Joylashuv</th>
-                        <th style="box-sizing:border-box;padding:8px 2px;text-align:right;font-size:11px;color:#888;">Tan qiymat</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-                <tfoot>
-                    <tr style="border-top:2px solid #ddd;">
-                        <td colspan="2" style="box-sizing:border-box;padding:10px 2px;font-weight:700;font-size:13px;">Jami tan qiymat</td>
-                        <td style="box-sizing:border-box;padding:10px 2px;text-align:right;font-weight:800;color:#1a1a2e;font-size:14px;">${fmtUsd(data.grand_total)}</td>
-                    </tr>
-                </tfoot>
-            </table>
+        listDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
+                <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
+                <div style="flex:1; min-width:0; font-size:11px; color:#888;">Joylashuv</div>
+                <div style="flex-shrink:0; font-size:11px; color:#888;">Tan qiymat</div>
+            </div>
+            ${rows}
+            <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
+                <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Jami tan qiymat</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:800; color:#1a1a2e; font-size:14px;">${fmtUsd(data.grand_total)}</div>
+            </div>
         </div>`;
     } catch (e) {
         listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
