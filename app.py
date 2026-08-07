@@ -16158,12 +16158,14 @@ def api_product_stock_overview():
 @role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_hisobot_turnover():
     """
-    Pul aylanmasi (kassa balansi): tanlangan davr uchun kunlik kirim/chiqim
-    va boshlang'ich/yakuniy balans.
+    Pul aylanmasi (kassa balansi): tanlangan davr uchun kunlik kirim/chiqim,
+    boshlang'ich/yakuniy balans va har bir joylashuvdagi joriy kassa balansi.
     Kirim = savdolardagi naqd + click + terminal (debt hisobga olinmaydi).
     Chiqim = xarajatlar (Expense.amount_usd) + joylashuvga kirim qilingan mahsulotlar tan narxi
     (ProductAddHistory.cost_price * quantity) — ta'minotchilarga to'langan pul sifatida.
     Boshlang'ich balans = tanlangan davrdan oldingi barcha kunlar bo'yicha (kirim - chiqim) yig'indisi.
+    Joylashuvlar balansi = har bir do'kon/ombor uchun butun tarix bo'yicha (date_to holatiga)
+    kirim - chiqim - tan narx, tanlangan joylashuv filtridan qat'iy nazar.
     """
     try:
         date_from_str = request.args.get('date_from')
@@ -16288,6 +16290,65 @@ def api_hisobot_turnover():
             })
             cur += timedelta(days=1)
 
+        # --- Joylashuvlar bo'yicha joriy kassa balansi (filtrdan qat'iy nazar, date_to holatiga) ---
+        sale_loc_rows = db.session.query(
+            Sale.location_type, Sale.location_id,
+            db.func.coalesce(db.func.sum(Sale.cash_usd + Sale.click_usd + Sale.terminal_usd), 0)
+        ).filter(
+            Sale.location_type.isnot(None), Sale.location_id.isnot(None),
+            db.func.date(Sale.sale_date) <= date_to
+        ).group_by(Sale.location_type, Sale.location_id).all()
+
+        expense_loc_rows = db.session.query(
+            Expense.location_type, Expense.location_id,
+            db.func.coalesce(db.func.sum(Expense.amount_usd), 0)
+        ).filter(
+            Expense.location_type.isnot(None), Expense.location_id.isnot(None),
+            db.func.date(Expense.expense_date) <= date_to
+        ).group_by(Expense.location_type, Expense.location_id).all()
+
+        cost_loc_rows = db.session.query(
+            ProductAddHistory.location_type, ProductAddHistory.location_name,
+            db.func.coalesce(db.func.sum(ProductAddHistory.cost_price * ProductAddHistory.quantity), 0)
+        ).filter(
+            db.func.date(ProductAddHistory.added_date) <= date_to
+        ).group_by(ProductAddHistory.location_type, ProductAddHistory.location_name).all()
+
+        all_stores = Store.query.all()
+        all_warehouses = Warehouse.query.all()
+        name_to_id = {}
+        for s in all_stores:
+            name_to_id[('store', s.name)] = s.id
+        for w in all_warehouses:
+            name_to_id[('warehouse', w.name)] = w.id
+
+        loc_balance = {}  # (location_type, location_id) -> balance
+        for lt, lid, amt in sale_loc_rows:
+            loc_balance[(lt, lid)] = loc_balance.get((lt, lid), 0.0) + float(amt)
+        for lt, lid, amt in expense_loc_rows:
+            loc_balance[(lt, lid)] = loc_balance.get((lt, lid), 0.0) - float(amt)
+        for lt, lname, amt in cost_loc_rows:
+            lid = name_to_id.get((lt, lname))
+            if lid is not None:
+                loc_balance[(lt, lid)] = loc_balance.get((lt, lid), 0.0) - float(amt)
+
+        locations = []
+        for s in all_stores:
+            locations.append({
+                'location_type': 'store',
+                'location_id': s.id,
+                'location_name': s.name,
+                'balance': round(loc_balance.get(('store', s.id), 0.0), 2)
+            })
+        for w in all_warehouses:
+            locations.append({
+                'location_type': 'warehouse',
+                'location_id': w.id,
+                'location_name': w.name,
+                'balance': round(loc_balance.get(('warehouse', w.id), 0.0), 2)
+            })
+        locations.sort(key=lambda x: x['balance'], reverse=True)
+
         return jsonify({
             'success': True,
             'opening_balance': round(opening_balance, 2),
@@ -16295,7 +16356,8 @@ def api_hisobot_turnover():
             'total_kirim': round(total_kirim, 2),
             'total_chiqim': round(total_chiqim, 2),
             'total_cost': round(total_cost, 2),
-            'days': days
+            'days': days,
+            'locations': locations
         })
 
     except Exception as e:
