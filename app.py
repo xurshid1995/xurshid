@@ -220,7 +220,7 @@ from models import (  # noqa: E402
     DebtReminder, CustomerTimelineSnapshot, User, ApiOperation, OperationHistory,
     UserSession, Settings, StockCheckSession, StockCheckItem, SaleItem, Sale,
     StockChange, ProductAddHistory, CurrencyRate, Expense, HostingClient,
-    HostingPaymentOrder, HostingPayment, ManualDebt, ReserveFund,
+    HostingPaymentOrder, HostingPayment, ManualDebt, ReserveFund, FinalReportSnapshot,
 )
 
 # Decimal aniqlik o'rnatish
@@ -16480,6 +16480,72 @@ def api_delete_reserve_fund(entry_id):
     except Exception as e:
         db.session.rollback()
         logger.error(f"reserve-fund o'chirish xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/final-report-snapshot')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_final_report_snapshots():
+    """Yakuniy hisobot - saqlangan yakuniy hisob yozuvlari ro'yxati (pastdagi karta uchun)"""
+    try:
+        rows = FinalReportSnapshot.query.order_by(FinalReportSnapshot.created_at.desc()).all()
+        return jsonify({'success': True, 'entries': [r.to_dict() for r in rows]})
+
+    except Exception as e:
+        logger.error(f"final-report-snapshot API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/final-report-snapshot', methods=['POST'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_save_final_report_snapshot():
+    """Yakuniy hisobot - 'Hisobotni saqlash' bosilganda joriy yakuniy hisobni saqlash"""
+    try:
+        data = request.get_json(silent=True) or {}
+        try:
+            cost_value = Decimal(str(data.get('cost_value') or 0))
+            debt = Decimal(str(data.get('debt') or 0))
+            reserve = Decimal(str(data.get('reserve') or 0))
+            grand_total = Decimal(str(data.get('grand_total') or 0))
+        except Exception:
+            return jsonify({'success': False, 'error': 'Summalar noto\'g\'ri'}), 400
+
+        current_user = get_current_user()
+        entry = FinalReportSnapshot(
+            cost_value_usd=cost_value,
+            debt_usd=debt,
+            reserve_usd=reserve,
+            grand_total_usd=grand_total,
+            created_by=current_user.username if current_user else None
+        )
+        db.session.add(entry)
+        db.session.commit()
+
+        return jsonify({'success': True, 'entry': entry.to_dict()})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"final-report-snapshot saqlash xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/final-report-snapshot/<int:snapshot_id>', methods=['DELETE'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_delete_final_report_snapshot(snapshot_id):
+    """Yakuniy hisobot - saqlangan yakuniy hisob yozuvini o'chirish"""
+    try:
+        entry = FinalReportSnapshot.query.get(snapshot_id)
+        if not entry:
+            return jsonify({'success': False, 'error': 'Yozuv topilmadi'}), 404
+
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"final-report-snapshot o'chirish xatolik: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

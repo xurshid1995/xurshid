@@ -1278,6 +1278,30 @@ class ReserveFund(db.Model):
         }
 
 
+class FinalReportSnapshot(db.Model):
+    """Yakuniy hisobot - 'Hisobotni saqlash' bosilganda saqlanadigan yakuniy hisob yozuvlari"""
+    __tablename__ = 'final_report_snapshots'
+
+    id = db.Column(db.Integer, primary_key=True)
+    cost_value_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    debt_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    reserve_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    grand_total_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    created_by = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'cost_value_usd': float(self.cost_value_usd or 0),
+            'debt_usd': float(self.debt_usd or 0),
+            'reserve_usd': float(self.reserve_usd or 0),
+            'grand_total_usd': float(self.grand_total_usd or 0),
+            'created_by': self.created_by,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else None,
+        }
+
+
 # ============================================
 # HOSTING TO'LOV TIZIMI MODELLARI
 # ============================================
