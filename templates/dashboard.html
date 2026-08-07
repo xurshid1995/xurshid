@@ -20,8 +20,8 @@
                 <button onclick="switchDbTab('sales')" id="db-tab-btn-sales" class="db-tab-btn db-tab-active">
                     📊 {{ t('sales_dynamics') }}
                 </button>
-                <button onclick="switchDbTab('outofstock')" id="db-tab-btn-outofstock" class="db-tab-btn">
-                    ⛔ Tugagan mahsulotlar (<span id="outOfStockCount">0</span>)
+                <button onclick="switchDbTab('stock')" id="db-tab-btn-stock" class="db-tab-btn">
+                    📦 Mahsulot qoldig'i
                 </button>
             </div>
         </div>
@@ -104,19 +104,27 @@
             </div>
         </div>
 
-        <!-- ===== Tugagan mahsulotlar Tab ===== -->
-        <div class="col-12" id="db-tab-outofstock" style="display:none;">
+        <!-- ===== Mahsulot qoldig'i Tab ===== -->
+        <div class="col-12" id="db-tab-stock" style="display:none;">
             <div class="db-card">
                 <div class="db-card-head">
-                    <span class="db-card-label">⛔ Tugagan mahsulotlar</span>
-                    <button onclick="loadOutOfStock()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
+                    <span class="db-card-label">📦 Mahsulot qoldig'i</span>
+                    <button onclick="loadStockOverview()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
                 </div>
                 <div class="db-location-row">
-                    <div id="outOfStockLocButtons" class="db-loc-btns">
-                        <button class="db-oos-loc-btn active" data-location="" onclick="selectOutOfStockLocation(this, '', '')">🏢 Barchasi</button>
+                    <div id="stockLocButtons" class="db-loc-btns">
+                        <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
                     </div>
                 </div>
-                <div id="outOfStockList" style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+                <div class="db-location-row">
+                    <div class="db-loc-btns">
+                        <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
+                        <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
+                        <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
+                        <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
+                    </div>
+                </div>
+                <div id="stockOverviewList" style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
             </div>
@@ -341,7 +349,7 @@
     font-weight: 600;
 }
 
-/* Tugagan mahsulotlar tab uchun joylashuv filtri (db-loc-btn bilan bir xil ko'rinish) */
+/* Mahsulot qoldig'i tab uchun joylashuv filtri (db-loc-btn bilan bir xil ko'rinish) */
 .db-oos-loc-btn {
     background: transparent;
     border: 1.5px solid #cbd5e1;
@@ -358,6 +366,29 @@
     color: #1a6eff;
 }
 .db-oos-loc-btn.active {
+    background: #1a6eff;
+    border-color: #1a6eff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Mahsulot qoldig'i tab uchun status filtri (yetarli/kam qolgan/tugagan) */
+.db-stock-status-btn {
+    background: transparent;
+    border: 1.5px solid #cbd5e1;
+    color: #475569;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.db-stock-status-btn:hover:not(.active) {
+    border-color: #1a6eff;
+    color: #1a6eff;
+}
+.db-stock-status-btn.active {
     background: #1a6eff;
     border-color: #1a6eff;
     color: #ffffff;
@@ -719,13 +750,13 @@ document.addEventListener('DOMContentLoaded', function() {
             loadLocations();
             loadSalesChart();
         });
-        loadOutOfStock();
+        loadStockOverview();
     }
 });
 
-// ===== Dashboard asosiy tablari (Savdo dinamikasi / Tugagan mahsulotlar) =====
+// ===== Dashboard asosiy tablari (Savdo dinamikasi / Mahsulot qoldig'i) =====
 function switchDbTab(tab) {
-    ['sales', 'outofstock'].forEach(t => {
+    ['sales', 'stock'].forEach(t => {
         const el = document.getElementById('db-tab-' + t);
         if (el) el.style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('db-tab-btn-' + t);
@@ -739,41 +770,48 @@ function escDbHtml(str) {
     return div.innerHTML;
 }
 
-let outOfStockItems = [];
-let outOfStockLocationsLoaded = false;
+let stockLocationsLoaded = false;
 
-async function loadOutOfStock() {
-    const list = document.getElementById('outOfStockList');
+async function loadStockOverview() {
+    const list = document.getElementById('stockOverviewList');
     try {
-        const today = new Date().toISOString().slice(0, 10);
-        const requests = [fetch(`/api/hisobot-extra?date_from=${today}&date_to=${today}`)];
-        if (!outOfStockLocationsLoaded) requests.push(fetch('/api/stores-warehouses'));
+        const locBtn = document.querySelector('.db-oos-loc-btn.active');
+        const locId = locBtn?.getAttribute('data-location') || '';
+        const locType = locBtn?.getAttribute('data-location-type') || '';
+        const statusBtn = document.querySelector('.db-stock-status-btn.active');
+        const status = statusBtn?.getAttribute('data-status') || '';
+
+        const params = new URLSearchParams();
+        if (locId) params.set('location_filter', `${locType}_${locId}`);
+        if (status) params.set('status', status);
+
+        const requests = [fetch(`/api/product-stock-overview?${params.toString()}`)];
+        if (!stockLocationsLoaded) requests.push(fetch('/api/stores-warehouses'));
         const responses = await Promise.all(requests);
         const data = await responses[0].json();
         if (!data.success) throw new Error(data.error || 'Xatolik');
 
-        outOfStockItems = (data.low_stock || []).filter(s => s.qty === 0);
-        const countEl = document.getElementById('outOfStockCount');
-        if (countEl) countEl.textContent = outOfStockItems.length;
+        const c = data.counts || {};
+        const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 0; };
+        setCount('stockCountSufficient', c.sufficient);
+        setCount('stockCountLow', c.low);
+        setCount('stockCountOut', c.out);
 
         if (responses[1]) {
             const locData = await responses[1].json();
-            renderOutOfStockLocButtons(locData.locations || []);
-            outOfStockLocationsLoaded = true;
+            renderStockLocButtons(locData.locations || []);
+            stockLocationsLoaded = true;
         }
 
-        const activeBtn = document.querySelector('.db-oos-loc-btn.active');
-        const locId = activeBtn?.getAttribute('data-location') || '';
-        const locType = activeBtn?.getAttribute('data-location-type') || '';
-        renderOutOfStockList(filterOutOfStockItems(locId, locType));
+        renderStockOverviewList(data.items || []);
     } catch (e) {
-        console.error('Tugagan mahsulotlar xatolik:', e);
+        console.error('Mahsulot qoldig\'i xatolik:', e);
         if (list) list.innerHTML = '<div style="grid-column:1/-1;color:#dc2626;font-size:13px;text-align:center;padding:20px;">Yuklashda xatolik yuz berdi</div>';
     }
 }
 
-function renderOutOfStockLocButtons(locations) {
-    const container = document.getElementById('outOfStockLocButtons');
+function renderStockLocButtons(locations) {
+    const container = document.getElementById('stockLocButtons');
     if (!container) return;
     container.querySelectorAll('.db-oos-loc-btn[data-dynamic]').forEach(b => b.remove());
     locations.forEach(loc => {
@@ -782,37 +820,48 @@ function renderOutOfStockLocButtons(locations) {
         btn.setAttribute('data-dynamic', '1');
         btn.setAttribute('data-location', loc.id);
         btn.setAttribute('data-location-type', loc.type);
-        btn.onclick = () => selectOutOfStockLocation(btn, loc.id, loc.type);
+        btn.onclick = () => selectStockLocation(btn, loc.id, loc.type);
         const icon = loc.type === 'store' ? '🏪' : '🏭';
         btn.innerHTML = `${icon} ${escDbHtml(loc.name)}`;
         container.appendChild(btn);
     });
 }
 
-function selectOutOfStockLocation(clickedBtn, locationId, locationType) {
+function selectStockLocation(clickedBtn, locationId, locationType) {
     document.querySelectorAll('.db-oos-loc-btn').forEach(b => b.classList.remove('active'));
     clickedBtn.classList.add('active');
-    renderOutOfStockList(filterOutOfStockItems(locationId, locationType));
+    loadStockOverview();
 }
 
-function filterOutOfStockItems(locId, locType) {
-    if (!locId) return outOfStockItems;
-    return outOfStockItems.filter(s => String(s.location_id) === String(locId) && s.location_type === locType);
+function selectStockStatus(clickedBtn, status) {
+    document.querySelectorAll('.db-stock-status-btn').forEach(b => b.classList.remove('active'));
+    clickedBtn.classList.add('active');
+    loadStockOverview();
 }
 
-function renderOutOfStockList(items) {
-    const list = document.getElementById('outOfStockList');
+const STOCK_STATUS_META = {
+    sufficient: { icon: '🟢', color: '#16a34a', label: 'Yetarli' },
+    low: { icon: '🟡', color: '#ca8a04', label: 'Kam qolgan' },
+    out: { icon: '🔴', color: '#dc2626', label: 'Tugagan' }
+};
+
+function renderStockOverviewList(items) {
+    const list = document.getElementById('stockOverviewList');
     if (!list) return;
     if (!items.length) {
-        list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Tugagan mahsulot yo\'q</div>';
+        list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Mahsulot topilmadi</div>';
         return;
     }
     list.innerHTML = items.map(s => {
         const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
-        return `<div style="background:#fff;border:1.5px solid #dc262630;border-radius:10px;padding:12px 14px;">
+        const meta = STOCK_STATUS_META[s.status] || STOCK_STATUS_META.sufficient;
+        return `<div style="background:#fff;border:1.5px solid ${meta.color}30;border-radius:10px;padding:12px 14px;">
             <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escDbHtml(s.product)}</div>
             <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escDbHtml(s.location)}</div>
-            <div style="font-size:11px;color:#dc2626;font-weight:600">⛔ Tugagan!</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:11px;color:${meta.color};font-weight:600">${meta.icon} ${meta.label}</span>
+                <span style="font-size:13px;font-weight:700;color:${meta.color}">${s.qty} / ${s.min_qty}</span>
+            </div>
         </div>`;
     }).join('');
 }

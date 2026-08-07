@@ -16058,6 +16058,102 @@ def api_hisobot_extra():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/product-stock-overview')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_product_stock_overview():
+    """
+    Barcha mahsulotlarning qoldig'i (do'kon + ombor): yetarli / kam qolgan / tugagan.
+    Query parametrlari: location_filter ('store_1' yoki 'warehouse_2'), status ('sufficient'|'low'|'out')
+    """
+    try:
+        location_filter = request.args.get('location_filter')
+        status_filter = request.args.get('status')
+
+        loc_type = loc_id = None
+        if location_filter and '_' in location_filter:
+            parts = location_filter.split('_', 1)
+            loc_type, loc_id = parts[0], int(parts[1])
+
+        def compute_status(qty, min_stock):
+            if qty <= 0:
+                return 'out'
+            if min_stock > 0 and qty <= min_stock:
+                return 'low'
+            return 'sufficient'
+
+        items = []
+        counts = {'sufficient': 0, 'low': 0, 'out': 0}
+
+        if not loc_type or loc_type == 'store':
+            store_rows = db.session.query(
+                Product.name.label('product_name'),
+                Product.barcode,
+                StoreStock.store_id.label('location_id'),
+                Store.name.label('location_name'),
+                StoreStock.quantity,
+                StoreStock.min_stock
+            ).join(
+                Product, StoreStock.product_id == Product.id
+            ).join(
+                Store, StoreStock.store_id == Store.id
+            )
+            if loc_id:
+                store_rows = store_rows.filter(StoreStock.store_id == loc_id)
+            for r in store_rows.all():
+                status = compute_status(float(r.quantity), r.min_stock or 0)
+                counts[status] += 1
+                items.append({
+                    'product': r.product_name,
+                    'barcode': r.barcode,
+                    'location_id': r.location_id,
+                    'location_type': 'store',
+                    'location': r.location_name,
+                    'qty': float(r.quantity),
+                    'min_qty': r.min_stock or 0,
+                    'status': status
+                })
+
+        if not loc_type or loc_type == 'warehouse':
+            wh_rows = db.session.query(
+                Product.name.label('product_name'),
+                Product.barcode,
+                WarehouseStock.warehouse_id.label('location_id'),
+                Warehouse.name.label('location_name'),
+                WarehouseStock.quantity,
+                WarehouseStock.min_stock
+            ).join(
+                Product, WarehouseStock.product_id == Product.id
+            ).join(
+                Warehouse, WarehouseStock.warehouse_id == Warehouse.id
+            )
+            if loc_id:
+                wh_rows = wh_rows.filter(WarehouseStock.warehouse_id == loc_id)
+            for r in wh_rows.all():
+                status = compute_status(float(r.quantity), r.min_stock or 0)
+                counts[status] += 1
+                items.append({
+                    'product': r.product_name,
+                    'barcode': r.barcode,
+                    'location_id': r.location_id,
+                    'location_type': 'warehouse',
+                    'location': r.location_name,
+                    'qty': float(r.quantity),
+                    'min_qty': r.min_stock or 0,
+                    'status': status
+                })
+
+        if status_filter in ('sufficient', 'low', 'out'):
+            items = [it for it in items if it['status'] == status_filter]
+
+        items.sort(key=lambda x: x['qty'])
+
+        return jsonify({'success': True, 'items': items, 'counts': counts})
+
+    except Exception as e:
+        logger.error(f"product-stock-overview API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""
