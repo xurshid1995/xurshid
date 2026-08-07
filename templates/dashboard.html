@@ -124,7 +124,7 @@
                         <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
                     </div>
                 </div>
-                <div id="stockOverviewList" style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+                <div id="stockOverviewList" style="padding:0 20px 16px;overflow-x:auto;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
             </div>
@@ -849,21 +849,30 @@ function renderStockOverviewList(items) {
     const list = document.getElementById('stockOverviewList');
     if (!list) return;
     if (!items.length) {
-        list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Mahsulot topilmadi</div>';
+        list.innerHTML = '<div style="color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Mahsulot topilmadi</div>';
         return;
     }
-    list.innerHTML = items.map(s => {
+    const rows = items.map(s => {
         const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
         const meta = STOCK_STATUS_META[s.status] || STOCK_STATUS_META.sufficient;
-        return `<div style="background:#fff;border:1.5px solid ${meta.color}30;border-radius:10px;padding:12px 14px;">
-            <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escDbHtml(s.product)}</div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escDbHtml(s.location)}</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:11px;color:${meta.color};font-weight:600">${meta.icon} ${meta.label}</span>
-                <span style="font-size:13px;font-weight:700;color:${meta.color}">${s.qty} / ${s.min_qty}</span>
-            </div>
-        </div>`;
+        return `<tr style="border-bottom:1px solid #f8fafc;">
+            <td style="padding:9px 12px;font-weight:600;font-size:13px;color:#1e293b;">${escDbHtml(s.product)}</td>
+            <td style="padding:9px 12px;font-size:12px;color:#64748b;white-space:nowrap;">${icon} ${escDbHtml(s.location)}</td>
+            <td style="padding:9px 12px;font-size:12px;font-weight:600;white-space:nowrap;color:${meta.color};">${meta.icon} ${meta.label}</td>
+            <td style="padding:9px 12px;font-size:13px;font-weight:700;color:${meta.color};text-align:right;white-space:nowrap;">${s.qty} / ${s.min_qty}</td>
+        </tr>`;
     }).join('');
+    list.innerHTML = `<table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="border-bottom:1.5px solid #f1f5f9;">
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#94a3b8;font-weight:600;">MAHSULOT</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#94a3b8;font-weight:600;">JOYLASHUV</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#94a3b8;font-weight:600;">HOLATI</th>
+                <th style="padding:8px 12px;text-align:right;font-size:11px;color:#94a3b8;font-weight:600;">QOLDIQ / MIN</th>
+            </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+    </table>`;
 }
 
 // Valyuta kursi yuklanguncha kutish
