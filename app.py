@@ -16240,13 +16240,24 @@ def api_hisobot_total_debt():
             'total_debt': round(float(r.total_debt), 2)
         } for r in rows]
 
-        manual_total = round(float(db.session.query(
-            db.func.coalesce(db.func.sum(ManualDebt.amount_usd), 0)
-        ).scalar() or 0), 2)
+        manual_rows = ManualDebt.query.order_by(ManualDebt.created_at.desc()).all()
+        manual_entries = [{
+            'id': m.id,
+            'customer_name': m.customer_name,
+            'total_debt': round(float(m.amount_usd or 0), 2)
+        } for m in manual_rows]
+
+        manual_total = round(sum(m['total_debt'] for m in manual_entries), 2)
 
         grand_total = round(sum(c['total_debt'] for c in customers) + manual_total, 2)
 
-        return jsonify({'success': True, 'customers': customers, 'manual_total': manual_total, 'grand_total': grand_total})
+        return jsonify({
+            'success': True,
+            'customers': customers,
+            'manual_entries': manual_entries,
+            'manual_total': manual_total,
+            'grand_total': grand_total
+        })
 
     except Exception as e:
         logger.error(f"hisobot-total-debt API xatolik: {e}")

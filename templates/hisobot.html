@@ -621,11 +621,26 @@ async function loadTotalDebt() {
             debtDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
             return;
         }
+        const entries = [...(data.customers || []), ...(data.manual_entries || [])]
+            .sort((a, b) => b.total_debt - a.total_debt);
+        if (entries.length === 0) {
+            debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
+            return;
+        }
+        const rows = entries.map((c, i) => {
+            return `<div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+                <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
+                <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escHtml(c.customer_name)}">${escHtml(c.customer_name)}</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:700; color:#e53e3e; font-size:12px;">${fmtUsd(c.total_debt)}</div>
+            </div>`;
+        }).join('');
         debtDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
             <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
-                <div style="flex:1; min-width:0; font-size:11px; color:#888;">Joylashuv</div>
+                <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
+                <div style="flex:1; min-width:0; font-size:11px; color:#888;">Mijoz</div>
                 <div style="flex-shrink:0; font-size:11px; color:#888;">Qarz</div>
             </div>
+            ${rows}
             <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
                 <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Jami qarz</div>
                 <div style="flex-shrink:0; text-align:right; font-weight:800; color:#e53e3e; font-size:14px;">${fmtUsd(data.grand_total)}</div>
