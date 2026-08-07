@@ -111,6 +111,11 @@
                     <span class="db-card-label">⛔ Tugagan mahsulotlar</span>
                     <button onclick="loadOutOfStock()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
                 </div>
+                <div class="db-location-row">
+                    <div id="outOfStockLocButtons" class="db-loc-btns">
+                        <button class="db-oos-loc-btn active" data-location="" onclick="selectOutOfStockLocation(this, '', '')">🏢 Barchasi</button>
+                    </div>
+                </div>
                 <div id="outOfStockList" style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
@@ -330,6 +335,29 @@
     color: #1a6eff;
 }
 .db-loc-btn.active {
+    background: #1a6eff;
+    border-color: #1a6eff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Tugagan mahsulotlar tab uchun joylashuv filtri (db-loc-btn bilan bir xil ko'rinish) */
+.db-oos-loc-btn {
+    background: transparent;
+    border: 1.5px solid #cbd5e1;
+    color: #475569;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.db-oos-loc-btn:hover:not(.active) {
+    border-color: #1a6eff;
+    color: #1a6eff;
+}
+.db-oos-loc-btn.active {
     background: #1a6eff;
     border-color: #1a6eff;
     color: #ffffff;
@@ -711,35 +739,82 @@ function escDbHtml(str) {
     return div.innerHTML;
 }
 
+let outOfStockItems = [];
+let outOfStockLocationsLoaded = false;
+
 async function loadOutOfStock() {
     const list = document.getElementById('outOfStockList');
     try {
         const today = new Date().toISOString().slice(0, 10);
-        const res = await fetch(`/api/hisobot-extra?date_from=${today}&date_to=${today}`);
-        const data = await res.json();
+        const requests = [fetch(`/api/hisobot-extra?date_from=${today}&date_to=${today}`)];
+        if (!outOfStockLocationsLoaded) requests.push(fetch('/api/stores-warehouses'));
+        const responses = await Promise.all(requests);
+        const data = await responses[0].json();
         if (!data.success) throw new Error(data.error || 'Xatolik');
 
-        const items = (data.low_stock || []).filter(s => s.qty === 0);
+        outOfStockItems = (data.low_stock || []).filter(s => s.qty === 0);
         const countEl = document.getElementById('outOfStockCount');
-        if (countEl) countEl.textContent = items.length;
-        if (!list) return;
+        if (countEl) countEl.textContent = outOfStockItems.length;
 
-        if (!items.length) {
-            list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Tugagan mahsulot yo\'q</div>';
-            return;
+        if (responses[1]) {
+            const locData = await responses[1].json();
+            renderOutOfStockLocButtons(locData.locations || []);
+            outOfStockLocationsLoaded = true;
         }
-        list.innerHTML = items.map(s => {
-            const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
-            return `<div style="background:#fff;border:1.5px solid #dc262630;border-radius:10px;padding:12px 14px;">
-                <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escDbHtml(s.product)}</div>
-                <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escDbHtml(s.location)}</div>
-                <div style="font-size:11px;color:#dc2626;font-weight:600">⛔ Tugagan!</div>
-            </div>`;
-        }).join('');
+
+        const activeBtn = document.querySelector('.db-oos-loc-btn.active');
+        const locId = activeBtn?.getAttribute('data-location') || '';
+        const locType = activeBtn?.getAttribute('data-location-type') || '';
+        renderOutOfStockList(filterOutOfStockItems(locId, locType));
     } catch (e) {
         console.error('Tugagan mahsulotlar xatolik:', e);
         if (list) list.innerHTML = '<div style="grid-column:1/-1;color:#dc2626;font-size:13px;text-align:center;padding:20px;">Yuklashda xatolik yuz berdi</div>';
     }
+}
+
+function renderOutOfStockLocButtons(locations) {
+    const container = document.getElementById('outOfStockLocButtons');
+    if (!container) return;
+    container.querySelectorAll('.db-oos-loc-btn[data-dynamic]').forEach(b => b.remove());
+    locations.forEach(loc => {
+        const btn = document.createElement('button');
+        btn.className = 'db-oos-loc-btn';
+        btn.setAttribute('data-dynamic', '1');
+        btn.setAttribute('data-location', loc.id);
+        btn.setAttribute('data-location-type', loc.type);
+        btn.onclick = () => selectOutOfStockLocation(btn, loc.id, loc.type);
+        const icon = loc.type === 'store' ? '🏪' : '🏭';
+        btn.innerHTML = `${icon} ${escDbHtml(loc.name)}`;
+        container.appendChild(btn);
+    });
+}
+
+function selectOutOfStockLocation(clickedBtn, locationId, locationType) {
+    document.querySelectorAll('.db-oos-loc-btn').forEach(b => b.classList.remove('active'));
+    clickedBtn.classList.add('active');
+    renderOutOfStockList(filterOutOfStockItems(locationId, locationType));
+}
+
+function filterOutOfStockItems(locId, locType) {
+    if (!locId) return outOfStockItems;
+    return outOfStockItems.filter(s => String(s.location_id) === String(locId) && s.location_type === locType);
+}
+
+function renderOutOfStockList(items) {
+    const list = document.getElementById('outOfStockList');
+    if (!list) return;
+    if (!items.length) {
+        list.innerHTML = '<div style="grid-column:1/-1;color:#0d9488;font-size:14px;text-align:center;padding:20px;">✅ Tugagan mahsulot yo\'q</div>';
+        return;
+    }
+    list.innerHTML = items.map(s => {
+        const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
+        return `<div style="background:#fff;border:1.5px solid #dc262630;border-radius:10px;padding:12px 14px;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px">${escDbHtml(s.product)}</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">${icon} ${escDbHtml(s.location)}</div>
+            <div style="font-size:11px;color:#dc2626;font-weight:600">⛔ Tugagan!</div>
+        </div>`;
+    }).join('');
 }
 
 // Valyuta kursi yuklanguncha kutish

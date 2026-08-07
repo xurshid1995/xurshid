@@ -16025,6 +16025,7 @@ def api_hisobot_extra():
                 'product': s.product.name,
                 'location': store_obj.name if store_obj else 'Do\'kon',
                 'location_type': 'store',
+                'location_id': s.store_id,
                 'qty': float(s.quantity),
                 'min_qty': float(s.min_stock),
                 'diff': float(s.min_stock - s.quantity)
@@ -16037,6 +16038,7 @@ def api_hisobot_extra():
                 'product': s.product.name,
                 'location': wh_obj.name if wh_obj else 'Ombor',
                 'location_type': 'warehouse',
+                'location_id': s.warehouse_id,
                 'qty': float(s.quantity),
                 'min_qty': float(s.min_stock),
                 'diff': float(s.min_stock - s.quantity)
