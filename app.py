@@ -16299,6 +16299,60 @@ def api_add_manual_debt():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/manual-debt/<int:debt_id>', methods=['PUT'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_update_manual_debt(debt_id):
+    """Yakuniy hisobot - qo'lda qo'shilgan qarz yozuvini tahrirlash"""
+    try:
+        entry = ManualDebt.query.get(debt_id)
+        if not entry:
+            return jsonify({'success': False, 'error': 'Yozuv topilmadi'}), 404
+
+        data = request.get_json(silent=True) or {}
+        name = (data.get('name') or '').strip()
+        amount = data.get('amount')
+
+        if not name:
+            return jsonify({'success': False, 'error': 'Ism kiritilmagan'}), 400
+        try:
+            amount = Decimal(str(amount))
+        except Exception:
+            return jsonify({'success': False, 'error': 'Summa noto\'g\'ri'}), 400
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Summa 0 dan katta bo\'lishi kerak'}), 400
+
+        entry.customer_name = name
+        entry.amount_usd = amount
+        db.session.commit()
+
+        return jsonify({'success': True, 'entry': entry.to_dict()})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"manual-debt tahrirlash xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/manual-debt/<int:debt_id>', methods=['DELETE'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_delete_manual_debt(debt_id):
+    """Yakuniy hisobot - qo'lda qo'shilgan qarz yozuvini o'chirish"""
+    try:
+        entry = ManualDebt.query.get(debt_id)
+        if not entry:
+            return jsonify({'success': False, 'error': 'Yozuv topilmadi'}), 404
+
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"manual-debt o'chirish xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/hisobot')
 def hisobot():
     """Hisobot sahifasi"""

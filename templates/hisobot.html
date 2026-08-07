@@ -629,6 +629,10 @@ async function loadTotalDebt() {
                 <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
                 <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escHtml(c.customer_name)}">${escHtml(c.customer_name)}</div>
                 <div style="flex-shrink:0; text-align:right; font-weight:700; color:#e53e3e; font-size:12px;">${fmtUsd(c.total_debt)}</div>
+                <div style="flex-shrink:0; display:flex; gap:4px;">
+                    <button onclick="editManualDebt(${c.id}, '${escHtml(c.customer_name).replace(/'/g, "\\'")}', ${c.total_debt})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash">✏️</button>
+                    <button onclick="deleteManualDebt(${c.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish">🗑️</button>
+                </div>
             </div>`;
         }).join('');
         debtDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
@@ -652,10 +656,35 @@ async function loadTotalDebt() {
     }
 }
 
+let editingManualDebtId = null;
+
 function openManualDebtModal() {
+    editingManualDebtId = null;
     document.getElementById('manualDebtName').value = '';
     document.getElementById('manualDebtAmount').value = '';
     document.getElementById('manualDebtModal').style.display = 'flex';
+}
+
+function editManualDebt(id, name, amount) {
+    editingManualDebtId = id;
+    document.getElementById('manualDebtName').value = name;
+    document.getElementById('manualDebtAmount').value = amount;
+    document.getElementById('manualDebtModal').style.display = 'flex';
+}
+
+async function deleteManualDebt(id) {
+    if (!confirm("Ushbu qarz yozuvini o'chirmoqchimisiz?")) return;
+    try {
+        const res = await fetch(`/api/manual-debt/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!data.success) {
+            alert(data.error || 'Xatolik yuz berdi');
+            return;
+        }
+        loadTotalDebt();
+    } catch (e) {
+        alert('Xatolik yuz berdi');
+    }
 }
 
 function closeManualDebtModal() {
@@ -668,8 +697,10 @@ async function saveManualDebt() {
     if (!name) { alert('Ismni kiriting'); return; }
     if (!amount || amount <= 0) { alert('Summani kiriting'); return; }
     try {
-        const res = await fetch('/api/manual-debt', {
-            method: 'POST',
+        const url = editingManualDebtId ? `/api/manual-debt/${editingManualDebtId}` : '/api/manual-debt';
+        const method = editingManualDebtId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+            method,
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name, amount})
         });
