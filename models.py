@@ -1238,6 +1238,26 @@ class Expense(db.Model):
         }
 
 
+class ManualDebt(db.Model):
+    """Qo'lda kiritilgan qarz yozuvlari (Yakuniy hisobot - Jami qarz kartasi uchun, umumiy pulni hisoblashda inobatga olinadi)"""
+    __tablename__ = 'manual_debts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(200), nullable=False)
+    amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    created_by = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'customer_name': self.customer_name,
+            'amount_usd': float(self.amount_usd or 0),
+            'created_by': self.created_by,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else None,
+        }
+
+
 # ============================================
 # HOSTING TO'LOV TIZIMI MODELLARI
 # ============================================

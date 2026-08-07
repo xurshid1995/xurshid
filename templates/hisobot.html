@@ -232,7 +232,10 @@
                 </div>
             </div>
             <div class="hr-section" id="finalReportRightCard" style="min-width:0;">
-                <div class="hr-section-title">🔴 Jami qarz</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="hr-section-title" style="margin-bottom:0;">🔴 Jami qarz</div>
+                    <button onclick="openManualDebtModal()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">+ Qarz qo'shish</button>
+                </div>
                 <div id="finalReportDebtList">
                     <div class="hr-loading">Yuklanmoqda...</div>
                 </div>
@@ -242,6 +245,20 @@
         </div>
     </div>
 
+</div>
+
+<div id="manualDebtModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">➕ Qarz qo'shish</div>
+        <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Ism</label>
+        <input id="manualDebtName" type="text" placeholder="Mijoz ismi" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:12px;">
+        <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Summa ($)</label>
+        <input id="manualDebtAmount" type="number" step="0.01" min="0" placeholder="0.00" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:16px;">
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button onclick="closeManualDebtModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
+            <button onclick="saveManualDebt()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Saqlash</button>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -616,6 +633,39 @@ async function loadTotalDebt() {
         </div>`;
     } catch (e) {
         debtDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+    }
+}
+
+function openManualDebtModal() {
+    document.getElementById('manualDebtName').value = '';
+    document.getElementById('manualDebtAmount').value = '';
+    document.getElementById('manualDebtModal').style.display = 'flex';
+}
+
+function closeManualDebtModal() {
+    document.getElementById('manualDebtModal').style.display = 'none';
+}
+
+async function saveManualDebt() {
+    const name = document.getElementById('manualDebtName').value.trim();
+    const amount = parseFloat(document.getElementById('manualDebtAmount').value);
+    if (!name) { alert('Ismni kiriting'); return; }
+    if (!amount || amount <= 0) { alert('Summani kiriting'); return; }
+    try {
+        const res = await fetch('/api/manual-debt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, amount})
+        });
+        const data = await res.json();
+        if (!data.success) {
+            alert(data.error || 'Xatolik yuz berdi');
+            return;
+        }
+        closeManualDebtModal();
+        loadTotalDebt();
+    } catch (e) {
+        alert('Xatolik yuz berdi');
     }
 }
 

@@ -220,7 +220,7 @@ from models import (  # noqa: E402
     DebtReminder, CustomerTimelineSnapshot, User, ApiOperation, OperationHistory,
     UserSession, Settings, StockCheckSession, StockCheckItem, SaleItem, Sale,
     StockChange, ProductAddHistory, CurrencyRate, Expense, HostingClient,
-    HostingPaymentOrder, HostingPayment,
+    HostingPaymentOrder, HostingPayment, ManualDebt,
 )
 
 # Decimal aniqlik o'rnatish
@@ -16240,12 +16240,51 @@ def api_hisobot_total_debt():
             'total_debt': round(float(r.total_debt), 2)
         } for r in rows]
 
-        grand_total = round(sum(c['total_debt'] for c in customers), 2)
+        manual_total = round(float(db.session.query(
+            db.func.coalesce(db.func.sum(ManualDebt.amount_usd), 0)
+        ).scalar() or 0), 2)
 
-        return jsonify({'success': True, 'customers': customers, 'grand_total': grand_total})
+        grand_total = round(sum(c['total_debt'] for c in customers) + manual_total, 2)
+
+        return jsonify({'success': True, 'customers': customers, 'manual_total': manual_total, 'grand_total': grand_total})
 
     except Exception as e:
         logger.error(f"hisobot-total-debt API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/manual-debt', methods=['POST'])
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_add_manual_debt():
+    """Yakuniy hisobot - Jami qarz kartasiga qo'lda qarz qo'shish (faqat umumiy summani hisoblash uchun)"""
+    try:
+        data = request.get_json(silent=True) or {}
+        name = (data.get('name') or '').strip()
+        amount = data.get('amount')
+
+        if not name:
+            return jsonify({'success': False, 'error': 'Ism kiritilmagan'}), 400
+        try:
+            amount = Decimal(str(amount))
+        except Exception:
+            return jsonify({'success': False, 'error': 'Summa noto\'g\'ri'}), 400
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Summa 0 dan katta bo\'lishi kerak'}), 400
+
+        current_user = get_current_user()
+        entry = ManualDebt(
+            customer_name=name,
+            amount_usd=amount,
+            created_by=current_user.username if current_user else None
+        )
+        db.session.add(entry)
+        db.session.commit()
+
+        return jsonify({'success': True, 'entry': entry.to_dict()})
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"manual-debt qo'shish xatolik: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
