@@ -302,6 +302,32 @@
     </div>
 </div>
 
+<div id="finalReportSaveModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">💾 Hisobotni saqlash</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
+            <div style="font-size:13px; color:#555;">📊 Jami tan qiymat</div>
+            <div id="finalReportSaveCostValue" style="font-weight:700; font-size:13px;"></div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
+            <div style="font-size:13px; color:#555;">🔴 Jami qarz</div>
+            <div id="finalReportSaveDebt" style="font-weight:700; font-size:13px;"></div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
+            <div style="font-size:13px; color:#555;">📦 Jami zaxira</div>
+            <div id="finalReportSaveReserve" style="font-weight:700; font-size:13px;"></div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 2px 16px;">
+            <div style="font-size:14px; font-weight:700;">Yakuniy hisob</div>
+            <div id="finalReportSaveGrandTotal" style="font-weight:800; font-size:16px; color:#16a34a;"></div>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button onclick="closeFinalReportSaveModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
+            <button onclick="confirmSaveYakuniyHisobot()" style="background:#16a34a; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Saqlash</button>
+        </div>
+    </div>
+</div>
+
 <style>
 .hr-btn {
     padding: 7px 14px;
@@ -856,7 +882,20 @@ function renderYakuniyHisob() {
 
 let editingReserveFundId = null;
 
-async function saveYakuniyHisobot() {
+function saveYakuniyHisobot() {
+    const total = frGrandCostValue + frGrandDebt + frGrandReserve;
+    document.getElementById('finalReportSaveCostValue').textContent = fmtUsd(frGrandCostValue);
+    document.getElementById('finalReportSaveDebt').textContent = fmtUsd(frGrandDebt);
+    document.getElementById('finalReportSaveReserve').textContent = fmtUsd(frGrandReserve);
+    document.getElementById('finalReportSaveGrandTotal').textContent = fmtUsd(total);
+    document.getElementById('finalReportSaveModal').style.display = 'flex';
+}
+
+function closeFinalReportSaveModal() {
+    document.getElementById('finalReportSaveModal').style.display = 'none';
+}
+
+async function confirmSaveYakuniyHisobot() {
     const total = frGrandCostValue + frGrandDebt + frGrandReserve;
     try {
         const res = await fetch('/api/final-report-snapshot', {
@@ -874,6 +913,7 @@ async function saveYakuniyHisobot() {
             alert(data.error || 'Xatolik yuz berdi');
             return;
         }
+        closeFinalReportSaveModal();
         loadFinalReportSnapshots();
     } catch (e) {
         alert('Xatolik yuz berdi');
