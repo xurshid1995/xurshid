@@ -301,7 +301,6 @@
         </div>
     </div>
 </div>
-
 <div id="finalReportSaveModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
         <div style="font-weight:700; font-size:15px; margin-bottom:14px;">💾 Hisobotni saqlash</div>
@@ -324,6 +323,17 @@
         <div style="display:flex; gap:8px; justify-content:flex-end;">
             <button onclick="closeFinalReportSaveModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
             <button onclick="confirmSaveYakuniyHisobot()" style="background:#16a34a; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<div id="finalReportDeleteModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:10px;">🗑️ Yozuvni o'chirish</div>
+        <div id="finalReportDeleteText" style="font-size:13px; color:#555; margin-bottom:18px;"></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button onclick="closeFinalReportDeleteModal()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;">Bekor qilish</button>
+            <button id="finalReportDeleteBtn" onclick="advanceFinalReportDelete()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;">Davom etish</button>
         </div>
     </div>
 </div>
@@ -965,9 +975,31 @@ async function loadFinalReportSnapshots() {
     }
 }
 
-async function deleteFinalReportSnapshot(id) {
-    if (!confirm("Ushbu yozuvni o'chirmoqchimisiz?")) return;
-    if (!confirm("Diqqat! Bu amalni qaytarib bo'lmaydi. Rostdan ham o'chirilsinmi?")) return;
+let finalReportDeleteId = null;
+let finalReportDeleteStep = 1;
+
+function deleteFinalReportSnapshot(id) {
+    finalReportDeleteId = id;
+    finalReportDeleteStep = 1;
+    document.getElementById('finalReportDeleteText').textContent = "Ushbu yozuvni o'chirmoqchimisiz?";
+    document.getElementById('finalReportDeleteBtn').textContent = 'Davom etish';
+    document.getElementById('finalReportDeleteModal').style.display = 'flex';
+}
+
+function closeFinalReportDeleteModal() {
+    document.getElementById('finalReportDeleteModal').style.display = 'none';
+    finalReportDeleteId = null;
+    finalReportDeleteStep = 1;
+}
+
+async function advanceFinalReportDelete() {
+    if (finalReportDeleteStep === 1) {
+        finalReportDeleteStep = 2;
+        document.getElementById('finalReportDeleteText').textContent = "Diqqat! Bu amalni qaytarib bo'lmaydi. Rostdan ham o'chirilsinmi?";
+        document.getElementById('finalReportDeleteBtn').textContent = "Ha, o'chirish";
+        return;
+    }
+    const id = finalReportDeleteId;
     try {
         const res = await fetch(`/api/final-report-snapshot/${id}`, { method: 'DELETE' });
         const data = await res.json();
@@ -975,6 +1007,7 @@ async function deleteFinalReportSnapshot(id) {
             alert(data.error || 'Xatolik yuz berdi');
             return;
         }
+        closeFinalReportDeleteModal();
         loadFinalReportSnapshots();
     } catch (e) {
         alert('Xatolik yuz berdi');
