@@ -1702,8 +1702,11 @@ footer {
         position: fixed;
         left: -80px !important;
         top: 0 !important;
-        bottom: 0 !important; /* top+bottom orqali balandlik - vh/dvh hisoblanishiga bog'liq emas, manzil satri ko'rinish/yashirinishida sakrab-kichrayishning oldini oladi */
-        height: auto !important;
+        bottom: auto !important;
+        /* 100lvh = eng katta (manzil satri yashirin holatidagi) balandlik - doim shu holicha qoladi,
+           manzil satri chiqib-kirishi sidebar o'lchamini o'zgartirmaydi, faqat pastki qismini vaqtincha yopishi mumkin */
+        height: 100vh !important;
+        height: 100lvh !important;
         max-height: none !important;
         width: 70px !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
