@@ -1703,7 +1703,9 @@ footer {
         left: -80px !important;
         top: 0 !important;
         height: 100vh !important;
+        height: 100dvh !important; /* Manzil satri korinish/yashirinishida vertikal sakrab-kichrayishning oldini oladi */
         max-height: 100vh !important;
+        max-height: 100dvh !important;
         width: 70px !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         z-index: 1250 !important;
