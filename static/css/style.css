@@ -164,10 +164,15 @@ body {
     scrollbar-width: none;
 }
 
-/* Hover: sidebar content ustiga chiqib kengayadi, content qisqarmaydi */
-.sidebar:hover {
-    width: 300px;
-    z-index: 1050;
+/* Hover: sidebar content ustiga chiqib kengayadi, content qisqarmaydi.
+   FAQAT haqiqiy desktopda (>=1025px) - mobil/planshetda kenglik faqat
+   .active klassi orqali boshqariladi, aks holda sichqoncha/tegilgan holat
+   mobil qoidalarni CSS specifikligi bo'yicha yengib "kichrayish" beradi. */
+@media (min-width: 1025px) {
+    .sidebar:hover {
+        width: 300px;
+        z-index: 1050;
+    }
 }
 
 /* Custom Scrollbar for Sidebar - yashirin */
@@ -221,9 +226,14 @@ body {
     white-space: nowrap;
 }
 
-/* Hover: faqat gorizontal padding kengayadi, vertikal o'zgarmaydi */
-.sidebar:hover .sidebar-menu a {
-    padding: 10px 20px;
+/* Hover: faqat gorizontal padding kengayadi, vertikal o'zgarmaydi.
+   FAQAT desktopda (>=1025px) - mobilda bu qoida yuqori specifiklik
+   tufayli mobil padding qoidalarini yengib, panelni "kichraytirib"
+   ko'rsatardi. */
+@media (min-width: 1025px) {
+    .sidebar:hover .sidebar-menu a {
+        padding: 10px 20px;
+    }
 }
 
 /* Oddiy holatda matn yashirin (desktop) */
@@ -257,13 +267,29 @@ body {
     z-index: 10;
 }
 
-/* Hover qilganda matn ko'rinadi (desktop) */
-.sidebar:hover .sidebar-menu a span:not(.icon):not(.menu-badge) {
-    opacity: 1;
+/* Hover qilganda matn ko'rinadi - faqat desktopda */
+@media (min-width: 1025px) {
+    .sidebar:hover .sidebar-menu a span:not(.icon):not(.menu-badge) {
+        opacity: 1;
+    }
+
+    /* Sidebar kengayganida badge o'ng tomonga o'tadi (desktop hover) */
+    .sidebar:hover .sidebar-menu a .menu-badge {
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+        position: static;
+        margin-left: auto;
+        padding: 1px 7px;
+        font-size: 11px;
+        min-width: 20px;
+        height: auto;
+        line-height: normal;
+        transform: none;
+    }
 }
 
-/* Sidebar kengayganida badge o'ng tomonga o'tadi */
-.sidebar:hover .sidebar-menu a .menu-badge,
+/* Mobilda/planshetda sidebar ochiq (.active) bo'lganda badge joylashuvi */
 .sidebar.active .sidebar-menu a .menu-badge {
     opacity: 1 !important;
     display: flex !important;
