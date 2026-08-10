@@ -1801,16 +1801,13 @@ footer {
         border-radius: 12px;
     }
     
-    /* Sidebar kengayganida padding oshadi */
-    .sidebar:hover .sidebar-menu li a,
-    .sidebar.active:hover .sidebar-menu li a {
-        padding: 10px 20px;
-    }
-    
+    /* Diqqat: mobilda sidebar kengligi hover bilan o'zgarmaydi (faqat .active orqali),
+       shuning uchun havola padding'i ham hover bilan o'zgartirilmaydi - aks holda
+       barcha menyu elementlari sichqoncha panelga tegishi bilan "siqilib/kichrayib"
+       ko'rinadi. */
     .sidebar-menu li a:hover {
         background: rgba(255,255,255,0.15);
         color: #ffffff;
-        padding-left: 25px;
     }
     
     .sidebar-menu li a.active {
@@ -2483,30 +2480,11 @@ table:not(.cart-table) {
         font-size: 0.8rem;
     }
     
-    /* Mobile sidebar ultra compact */
-    .sidebar {
-        width: 300px !important;
-        left: -300px !important;
-    }
-
-    .sidebar.active {
-        left: 0 !important;
-    }
-    
+    /* Sidebar kengligi/padding'i umumiy @media(max-width:1024px) qoidasidan meros -
+       480px uchun alohida qiymat kerak emas, aks holda ikki qoida orasida (masalan
+       hover paytida) mos kelmaslik va "sakrash" paydo bo'ladi. */
     .sidebar-menu {
         padding-bottom: 100px !important; /* Oxirgi element ko'rinishi uchun */
-    }
-
-    .sidebar-menu li a {
-        padding: 12px 15px;
-        font-size: 0.95rem;
-        min-height: 45px;
-    }
-    
-    .sidebar-menu li a i {
-        margin-right: 12px;
-        font-size: 1.1rem;
-        width: 20px;
     }
 }
 

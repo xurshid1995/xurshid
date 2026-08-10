@@ -1,4 +1,4 @@
-const CACHE_NAME = 'diamond-v7';
+const CACHE_NAME = 'diamond-v8';
 const STATIC_ASSETS = [
   '/static/css/style.css',
   '/static/icons/icon-192.png',
