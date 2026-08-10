@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>
+        // Haqiqiy viewport balandligini JS orqali qotirib qo'yish - manzil satri
+        // korinish/yashirinishida CSS vh/dvh/lvh qayta hisoblanib sakrashning oldini oladi.
+        (function () {
+            var resizeTimer;
+            function setAppVh() {
+                document.documentElement.style.setProperty('--app-vh', window.innerHeight + 'px');
+            }
+            setAppVh();
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(setAppVh, 200);
+            });
+        })();
+    </script>
     <meta name="description" content="DOKON - Professional Omborxona va Savdo Boshqaruv Tizimi">
     <meta name="keywords" content="omborxona, savdo, boshqaruv, inventory, warehouse, management">
     <meta name="author" content="DOKON Team">

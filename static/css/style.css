@@ -1710,10 +1710,11 @@ footer {
         left: -80px !important;
         top: 0 !important;
         bottom: auto !important;
-        /* 100lvh = eng katta (manzil satri yashirin holatidagi) balandlik - doim shu holicha qoladi,
-           manzil satri chiqib-kirishi sidebar o'lchamini o'zgartirmaydi, faqat pastki qismini vaqtincha yopishi mumkin */
+        /* --app-vh (JS orqali bir marta o'lchab qotirilgan) - manzil satri chiqib-kirishida
+           qayta hisoblanmaydi, shuning uchun sidebar balandligi hech qachon sakramaydi */
         height: 100vh !important;
         height: 100lvh !important;
+        height: calc(var(--app-vh, 100vh)) !important;
         max-height: none !important;
         width: 70px !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
