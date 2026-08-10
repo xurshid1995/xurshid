@@ -33,9 +33,12 @@
                 <div class="db-card-head">
                     <span class="db-card-label">{{ t('sales_dynamics') }}</span>
                     <div id="timeFilters" class="db-time-filters">
+                        <div class="db-tf-row1">
                         <button class="db-tf-btn db-tf-btn-wide active" data-period="today" onclick="selectTimePeriod(this, 'today')">📅 {{ t('today') }}</button>
                         <button class="db-tf-btn" data-period="week" onclick="selectTimePeriod(this, 'week')">📊 {{ t('this_week') }}</button>
                         <button class="db-tf-btn" data-period="month" onclick="selectTimePeriod(this, 'month')">📈 {{ t('this_month') }}</button>
+                        </div>
+                        <div class="db-tf-row2">
                         <select id="yearSelect" class="db-month-select" onchange="selectMonthFilter()">
                             <option value="">📆 Yil...</option>
                         </select>
@@ -59,6 +62,7 @@
                             <input type="date" id="customDateFrom" class="db-date-input" title="{{ t('date_from') }}" onchange="applyCustomRange()">
                             <span class="db-date-sep">—</span>
                             <input type="date" id="customDateTo" class="db-date-input" title="{{ t('date_to') }}" onchange="applyCustomRange()">
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -224,6 +228,9 @@
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+}
+.db-tf-row1, .db-tf-row2 {
+    display: contents;
 }
 .db-tf-btn {
     background: transparent;
@@ -632,17 +639,24 @@
 @media (max-width: 576px) {
     .db-page-title-text { font-size: 20px; }
     .db-card-head { gap: 8px; }
-    /* Butun filtr paneli (tugmalar + yil/oy + sana) bitta qatorda, kerak bo'lsa gorizontal skroll */
+    /* Bugun/Bu hafta/Bu oy — 1-qator; Yil/Oy/sana oralig'i — 2-qator */
     .db-time-filters {
-        flex-wrap: nowrap !important;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .db-tf-row1, .db-tf-row2 {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        width: 100%;
-        padding-bottom: 4px;
         scrollbar-width: none;
     }
-    .db-time-filters::-webkit-scrollbar { display: none; }
-    .db-time-filters > * { flex-shrink: 0; }
+    .db-tf-row1::-webkit-scrollbar, .db-tf-row2::-webkit-scrollbar { display: none; }
+    .db-tf-row1 > *, .db-tf-row2 > * { flex-shrink: 0; }
     .db-tf-btn { padding: 4px 10px; font-size: 11px; }
     .db-month-select { padding: 5px 22px 5px 10px; font-size: 11px; }
     .db-daterange { flex-wrap: nowrap; gap: 3px; }
