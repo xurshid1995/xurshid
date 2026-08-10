@@ -795,8 +795,10 @@
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
             menuLinks.forEach(link => {
                 link.addEventListener('click', function() {
-                    // Sahifaga o'tish boshlanmoqda — sidebar'ni yopish/torayish animatsiyasini
-                    // ko'rsatmaymiz, chunki yangi sahifa baribir yopiq holatda yuklanadi.
+                    // Sahifaga o'tish boshlanmoqda — sidebar animatsiyasi (hover/active kengayishi)
+                    // sahifa yuklanayotganda "muzlab qolib" sakrash korinishini bermasligi uchun
+                    // darhol (animatsiyasiz) yakuniy holatga o'tkaziladi.
+                    if (sidebar) sidebar.classList.add('no-transition');
                 });
             });
             

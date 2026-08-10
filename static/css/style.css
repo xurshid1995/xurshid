@@ -170,6 +170,13 @@ body {
     z-index: 1050;
 }
 
+/* Sahifaga o'tish boshlanganda: animatsiya sahifa yuklanish paytida "muzlab qolib"
+   sakrash/kichrayish korinishini bermasligi uchun darhol tugallanadi (jump-cut, animatsiyasiz) */
+.sidebar.no-transition,
+.sidebar.no-transition:hover {
+    transition: none !important;
+}
+
 /* Custom Scrollbar for Sidebar - yashirin */
 .sidebar::-webkit-scrollbar {
     width: 0px;
@@ -1736,6 +1743,12 @@ footer {
     .sidebar.active:hover {
         width: 300px !important;
         left: 0 !important;
+    }
+    
+    .sidebar.no-transition,
+    .sidebar.no-transition:hover,
+    .sidebar.no-transition.active {
+        transition: none !important;
     }
     
     .sidebar-overlay {
