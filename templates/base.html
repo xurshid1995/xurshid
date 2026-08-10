@@ -796,6 +796,8 @@
             menuLinks.forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth <= 1024) {
+                        // Sahifaga o'tishdan oldin torayish animatsiyasi ko'rinmasligi uchun darhol yopamiz
+                        sidebar.style.transition = 'none';
                         closeMobileNav();
                     }
                 });
