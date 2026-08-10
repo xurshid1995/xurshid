@@ -6,11 +6,11 @@
     <meta name="google" content="notranslate">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ t('login_title') }}</title>
-    {% if current_language == 'ru' %}
-    <link type="image/png" sizes="96x96" rel="icon" href="{{ url_for('static', filename='images/icons8-russia-emoji-96.png') }}">
-    {% else %}
-    <link type="image/png" sizes="96x96" rel="icon" href="{{ url_for('static', filename='images/icons8-uzbekistan-emoji-96.png') }}">
-    {% endif %}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Diamond CRM">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <link type="image/png" sizes="192x192" rel="icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
