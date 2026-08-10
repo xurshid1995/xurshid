@@ -2532,9 +2532,10 @@ table:not(.cart-table) {
     }
 }
 
-.sidebar.active {
-    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Diqqat: .sidebar.active uchun 'animation: slideInRight' ISHLATILMAYDI.
+   U 'transition: left' bilan bir vaqtda ishlab, transform (-100%) va left
+   qiymatlarini qo'shib yuborardi -> ochilishda sidebar avval ikki barobar
+   tashqariga sakrab, keyin surilardi. Endi faqat 'transition: left' orqali silliq ochiladi. */
 
 .sidebar-overlay.active {
     animation: fadeIn 0.3s ease;
