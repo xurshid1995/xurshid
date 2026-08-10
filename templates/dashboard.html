@@ -60,7 +60,6 @@
                         <span class="db-tf-sep">|</span>
                         <div class="db-daterange">
                             <input type="date" id="customDateFrom" class="db-date-input" title="{{ t('date_from') }}" onchange="applyCustomRange()">
-                            <span class="db-date-sep">—</span>
                             <input type="date" id="customDateTo" class="db-date-input" title="{{ t('date_to') }}" onchange="applyCustomRange()">
                         </div>
                         </div>
@@ -269,7 +268,7 @@
 .db-daterange {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0;
 }
 .db-date-input {
     border: 1.5px solid #e2e8f0;
@@ -290,12 +289,6 @@
     background: #eff4ff;
     color: #1a6eff;
     font-weight: 600;
-}
-.db-date-sep {
-    color: #94a3b8;
-    font-size: 14px;
-    -webkit-user-select: none;
-    user-select: none;
 }
 .db-month-select {
     border: 1.5px solid #e2e8f0;
@@ -660,7 +653,7 @@
     .db-tf-btn { padding: 4px 10px; font-size: 11px; }
     .db-month-select { padding: 5px 22px 5px 10px; font-size: 11px; }
     #yearSelect { width: 68px; padding: 5px 18px 5px 8px; }
-    .db-daterange { flex-wrap: nowrap; gap: 3px; }
+    .db-daterange { flex-wrap: nowrap; gap: 0; }
     .db-date-input { width: 100px; font-size: 11px; padding: 3px 4px; }
     .db-tf-sep { display: none; }
     .db-loc-btn { padding: 3px 10px; font-size: 11px; }
@@ -670,7 +663,6 @@
 }
 @media (max-width: 400px) {
     .db-date-input { font-size: 10px; padding: 3px 2px; }
-    .db-date-sep { padding: 0 1px; font-size: 12px; }
 }
 </style>
 
