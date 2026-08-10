@@ -632,9 +632,21 @@
 @media (max-width: 576px) {
     .db-page-title-text { font-size: 20px; }
     .db-card-head { gap: 8px; }
+    /* Butun filtr paneli (tugmalar + yil/oy + sana) bitta qatorda, kerak bo'lsa gorizontal skroll */
+    .db-time-filters {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+    .db-time-filters::-webkit-scrollbar { display: none; }
+    .db-time-filters > * { flex-shrink: 0; }
     .db-tf-btn { padding: 4px 10px; font-size: 11px; }
-    .db-daterange { flex-wrap: nowrap; width: 100%; gap: 3px; }
-    .db-date-input { flex: 1 1 0; width: auto; min-width: 0; font-size: 11px; padding: 3px 4px; }
+    .db-month-select { padding: 5px 22px 5px 10px; font-size: 11px; }
+    .db-daterange { flex-wrap: nowrap; gap: 3px; }
+    .db-date-input { width: 100px; font-size: 11px; padding: 3px 4px; }
     .db-tf-sep { display: none; }
     .db-loc-btn { padding: 3px 10px; font-size: 11px; }
     .db-mini-val { font-size: 16px; }
