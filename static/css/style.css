@@ -1697,14 +1697,17 @@ footer {
         z-index: 99999 !important;
     }
 
-    /* Mobile sidebar - Yopiq holatda (faqat iconlar) */
+    /* Mobile sidebar - Yopiq holatda (ekrandan butunlay tashqarida) */
     .sidebar {
         position: fixed;
-        left: -80px !important;
+        left: -300px !important;
         top: 0 !important;
         height: 100vh !important;
         max-height: 100vh !important;
-        width: 70px !important;
+        /* Kenglik yopiq/ochiq holatda BIR XIL (300px) bo'lishi shart - aks holda
+           'width' animatsiyasiz sakrab o'zgaradi ('left' esa silliq suriladi),
+           bu ikkalasi mos kelmay panel "kichrayib/sakrab qolgandek" ko'rinadi. */
+        width: 300px !important;
         /* Faqat 'left' animatsiyasi - ochish/yopishda gorizontal suriladi.
            'all' bo'lsa balandlik/width kabi boshqa xossalar ham animatsiyaga tushib sakrash beradi. */
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
