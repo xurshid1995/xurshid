@@ -1757,7 +1757,7 @@ footer {
     
     /* Mobile sidebar menu - Compact va toza */
     .sidebar-menu {
-        padding: 10px 0 50px 0 !important; /* Pastda ko'proq joy */
+        padding: 75px 0 50px 0 !important; /* Yuqorida mobile-nav-toggle tugmasi uchun joy, pastda ko'proq joy */
         margin: 0 !important;
         list-style: none !important;
         width: 100% !important;
