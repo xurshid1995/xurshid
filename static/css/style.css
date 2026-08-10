@@ -170,13 +170,6 @@ body {
     z-index: 1050;
 }
 
-/* Sahifaga o'tish boshlanganda: animatsiya sahifa yuklanish paytida "muzlab qolib"
-   sakrash/kichrayish korinishini bermasligi uchun darhol tugallanadi (jump-cut, animatsiyasiz) */
-.sidebar.no-transition,
-.sidebar.no-transition:hover {
-    transition: none !important;
-}
-
 /* Custom Scrollbar for Sidebar - yashirin */
 .sidebar::-webkit-scrollbar {
     width: 0px;
@@ -1709,15 +1702,12 @@ footer {
         position: fixed;
         left: -80px !important;
         top: 0 !important;
-        bottom: auto !important;
-        /* --app-vh (JS orqali bir marta o'lchab qotirilgan) - manzil satri chiqib-kirishida
-           qayta hisoblanmaydi, shuning uchun sidebar balandligi hech qachon sakramaydi */
         height: 100vh !important;
-        height: 100lvh !important;
-        height: calc(var(--app-vh, 100vh)) !important;
-        max-height: none !important;
+        max-height: 100vh !important;
         width: 70px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        /* Faqat 'left' animatsiyasi - ochish/yopishda gorizontal suriladi.
+           'all' bo'lsa balandlik/width kabi boshqa xossalar ham animatsiyaga tushib sakrash beradi. */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         z-index: 1250 !important;
         background: rgba(12, 30, 60, 0.95) !important;
         box-shadow: none !important;
@@ -1739,18 +1729,9 @@ footer {
         overflow-x: hidden !important;
     }
     
-    /* Hover effekti mobilda ham ishlaydi */
-    .sidebar:hover,
-    .sidebar.active:hover {
-        width: 300px !important;
-        left: 0 !important;
-    }
-    
-    .sidebar.no-transition,
-    .sidebar.no-transition:hover,
-    .sidebar.no-transition.active {
-        transition: none !important;
-    }
+    /* Mobilda (sensorli ekran) :hover ishlatilmaydi - u "yopishqoq" bo'lib
+       navigatsiyada sidebar kutilmaganda kengayib/sakrab qolishiga sabab bo'ladi.
+       Ochish faqat .active klassi orqali (menyu tugmasi bilan) amalga oshiriladi. */
     
     .sidebar-overlay {
         display: block !important;
@@ -1779,7 +1760,7 @@ footer {
         margin: 0 !important;
         list-style: none !important;
         width: 100% !important;
-        min-height: 100%; /* Ota elementga (top/bottom bilan cheklangan) moslashadi, vh hisoblanishiga bog'liq emas */
+        min-height: calc(100vh - 70px) !important; /* Scroll ishlashi uchun minimal balandlik */
     }
     
     /* Sidebar scrollbar - mobile uchun */
