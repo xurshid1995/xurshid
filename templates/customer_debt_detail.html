@@ -119,6 +119,23 @@
     font-size: 17px;
     font-weight: 700;
 }
+.ps-copy-btn {
+    border: none;
+    background: #dbeafe;
+    color: #1a6eff;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+}
+.ps-copy-btn:hover { background: #bfdbfe; }
+.ps-copy-btn.ps-copied { background: #16a34a; color: #fff; }
 .ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .ps-payment-row {
     display: flex;
@@ -342,6 +359,7 @@
                 <div class="ps-debt-badge">
                     <span>{{ t('cdd_debt_amount') }}</span>
                     <strong id="displayRemainingDebt">$0.00</strong>
+                    <button type="button" class="ps-copy-btn" onclick="copyDebtAmount(this)" title="{{ t('cdd_copy_amount') }}"><i class="fas fa-copy"></i></button>
                 </div>
             </div>
             <div class="ps-payment-rows">
@@ -628,6 +646,36 @@
         }).join('');
 
         tbody.innerHTML = html;
+    }
+
+    // Qarz miqdorini nusxalash
+    function copyDebtAmount(btn) {
+        const text = document.getElementById('displayRemainingDebt').textContent.trim();
+        const done = () => {
+            const icon = btn.querySelector('i');
+            btn.classList.add('ps-copied');
+            icon.className = 'fas fa-check';
+            setTimeout(() => {
+                btn.classList.remove('ps-copied');
+                icon.className = 'fas fa-copy';
+            }, 1200);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        } else {
+            fallbackCopy(text, done);
+        }
+    }
+
+    function fallbackCopy(text, done) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+        document.body.removeChild(ta);
     }
 
     // Qolgan qarzni maydoniga qo'shish
