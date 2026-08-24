@@ -406,7 +406,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         <div class="ap-form-group">
                             <label class="ap-label" for="cost_price">{{ t('ap_cost_price_label') }}</label>
                             <input type="number" id="cost_price" name="cost_price" class="ap-input"
-                                   placeholder="0.00" step="0.01" min="0"
+                                   placeholder="0.00000" step="0.00001" min="0"
                                    oninput="calculateProfit();"
                                    onfocus="saveCostPriceOnFocus(); cancelAutoUpdate();"
                                    onblur="updateOriginalCostPreview(); enableAutoUpdate(); comparePrices();">
@@ -414,7 +414,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         <div class="ap-form-group">
                             <label class="ap-label" for="sell_price">{{ t('ap_sell_price_label') }}</label>
                             <input type="number" id="sell_price" name="sell_price" class="ap-input"
-                                   placeholder="0.00" step="0.01" min="0"
+                                   placeholder="0.00000" step="0.00001" min="0"
                                    oninput="calculateProfit();">
                         </div>
                     </div>
