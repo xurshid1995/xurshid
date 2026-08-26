@@ -5272,7 +5272,7 @@ def api_store_stock(store_id):
             if stock.quantity == 0:
                 item_status = 'critical'
                 critical_stock_count += 1
-            elif min_stock > 0 and stock.quantity <= min_stock:
+            elif min_stock > 0 and stock.quantity < min_stock:
                 item_status = 'low'
 
             # Skip if status filter doesn't match
@@ -5382,11 +5382,11 @@ def api_store_stock_export(store_id):
 
         for stock in stocks:
             unit_profit = stock.product.sell_price - stock.product.cost_price
-            min_stock = stock.product.min_stock
+            min_stock = stock.min_stock
 
             if stock.quantity == 0:
                 item_status = 'critical'
-            elif min_stock > 0 and stock.quantity <= min_stock:
+            elif min_stock > 0 and stock.quantity < min_stock:
                 item_status = 'low'
             else:
                 item_status = 'normal'
@@ -5695,7 +5695,7 @@ def api_warehouse_stock(warehouse_id):
             if stock.quantity == 0:
                 item_status = 'critical'
                 critical_stock_count += 1
-            elif min_stock > 0 and stock.quantity <= min_stock:
+            elif min_stock > 0 and stock.quantity < min_stock:
                 item_status = 'low'
 
             # Skip if status filter doesn't match
@@ -6262,7 +6262,7 @@ def api_omborchi_dashboard():
             product_count = len(stocks)
             low_count = sum(
                 1 for s in stocks
-                if float(s.quantity) == 0 or (s.min_stock > 0 and float(s.quantity) <= s.min_stock)
+                if float(s.quantity) == 0 or (s.min_stock > 0 and float(s.quantity) < s.min_stock)
             )
             warehouse_data.append({
                 'id': wh.id,
@@ -6278,7 +6278,7 @@ def api_omborchi_dashboard():
                 WarehouseStock.quantity == 0,
                 db.and_(
                     WarehouseStock.min_stock > 0,
-                    WarehouseStock.quantity <= WarehouseStock.min_stock
+                    WarehouseStock.quantity < WarehouseStock.min_stock
                 )
             )
         ).order_by(WarehouseStock.quantity.asc()).limit(30).all()
@@ -16015,14 +16015,14 @@ def api_hisobot_extra():
             Product, StoreStock.product_id == Product.id
         ).filter(
             StoreStock.min_stock > 0,
-            StoreStock.quantity <= StoreStock.min_stock
+            StoreStock.quantity < StoreStock.min_stock
         ).order_by(StoreStock.quantity.asc()).limit(30).all()
 
         low_wh = db.session.query(WarehouseStock).join(
             Product, WarehouseStock.product_id == Product.id
         ).filter(
             WarehouseStock.min_stock > 0,
-            WarehouseStock.quantity <= WarehouseStock.min_stock
+            WarehouseStock.quantity < WarehouseStock.min_stock
         ).order_by(WarehouseStock.quantity.asc()).limit(30).all()
 
         low_stock = []
@@ -16086,7 +16086,7 @@ def api_product_stock_overview():
         def compute_status(qty, min_stock):
             if qty <= 0:
                 return 'out'
-            if min_stock > 0 and qty <= min_stock:
+            if min_stock > 0 and qty < min_stock:
                 return 'low'
             return 'sufficient'
 
