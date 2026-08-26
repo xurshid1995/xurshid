@@ -1669,8 +1669,6 @@ def api_add_product():
 
                     # Boshqa maydonlar
                     existing_product.sell_price = sell_price
-                    existing_product.min_stock = product_data.get(
-                        'minStock', existing_product.min_stock)
 
                     # Unit type yangilash (agar berilgan bo'lsa)
                     if 'unitType' in product_data:
@@ -1700,7 +1698,6 @@ def api_add_product():
                         last_batch_cost=cost_price,  # Birinchi partiya
                         last_batch_date=get_tashkent_time(),
                         stock_quantity=0,  # Global stock 0 ga qo'yamiz
-                        min_stock=product_data.get('minStock', 0),
                         unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
                         category_id=cat_id  # Kategoriya
                     )
@@ -1711,6 +1708,8 @@ def api_add_product():
                 location_value = product_data.get('locationValue', '')
                 location_name = ''
                 location_type_str = ''
+                # Faqat shu joylashuvga tegishli minimal zaxira (umumiy product.min_stock ga tegilmaydi)
+                location_min_stock = int(product_data.get('minStock', 0))
 
                 if location_value.startswith('store_'):
                     store_id = int(location_value.replace('store_', ''))
@@ -1723,11 +1722,11 @@ def api_add_product():
                         existing_stock = StoreStock.query.filter_by(
                             store_id=store_id, product_id=product.id).first()
                         if existing_stock:
-                            existing_stock.min_stock = product.min_stock
+                            existing_stock.min_stock = location_min_stock
                             # Race condition oldini olish - atomic UPDATE
                             db.session.execute(
                                 text("UPDATE store_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
-                                {'qty': quantity, 'min_stock': product.min_stock, 'stock_id': existing_stock.id}
+                                {'qty': quantity, 'min_stock': location_min_stock, 'stock_id': existing_stock.id}
                             )
                             # Object'ni refresh qilish
                             db.session.refresh(existing_stock)
@@ -1736,7 +1735,7 @@ def api_add_product():
                                 store_id=store_id,
                                 product_id=product.id,
                                 quantity=quantity,
-                                min_stock=product.min_stock
+                                min_stock=location_min_stock
                             )
                             db.session.add(store_stock)
 
@@ -1753,11 +1752,11 @@ def api_add_product():
                         existing_stock = WarehouseStock.query.filter_by(
                             warehouse_id=warehouse_id, product_id=product.id).first()
                         if existing_stock:
-                            existing_stock.min_stock = product.min_stock
+                            existing_stock.min_stock = location_min_stock
                             # Race condition oldini olish - atomic UPDATE
                             db.session.execute(
                                 text("UPDATE warehouse_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
-                                {'qty': quantity, 'min_stock': product.min_stock, 'stock_id': existing_stock.id}
+                                {'qty': quantity, 'min_stock': location_min_stock, 'stock_id': existing_stock.id}
                             )
                             db.session.refresh(existing_stock)
                         else:
@@ -1765,7 +1764,7 @@ def api_add_product():
                                 warehouse_id=warehouse_id,
                                 product_id=product.id,
                                 quantity=quantity,
-                                min_stock=product.min_stock
+                                min_stock=location_min_stock
                             )
                             db.session.add(warehouse_stock)
 
