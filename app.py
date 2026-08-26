@@ -1723,10 +1723,11 @@ def api_add_product():
                         existing_stock = StoreStock.query.filter_by(
                             store_id=store_id, product_id=product.id).first()
                         if existing_stock:
+                            existing_stock.min_stock = product.min_stock
                             # Race condition oldini olish - atomic UPDATE
                             db.session.execute(
-                                text("UPDATE store_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
-                                {'qty': quantity, 'stock_id': existing_stock.id}
+                                text("UPDATE store_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
+                                {'qty': quantity, 'min_stock': product.min_stock, 'stock_id': existing_stock.id}
                             )
                             # Object'ni refresh qilish
                             db.session.refresh(existing_stock)
@@ -1734,7 +1735,8 @@ def api_add_product():
                             store_stock = StoreStock(
                                 store_id=store_id,
                                 product_id=product.id,
-                                quantity=quantity
+                                quantity=quantity,
+                                min_stock=product.min_stock
                             )
                             db.session.add(store_stock)
 
@@ -1751,17 +1753,19 @@ def api_add_product():
                         existing_stock = WarehouseStock.query.filter_by(
                             warehouse_id=warehouse_id, product_id=product.id).first()
                         if existing_stock:
+                            existing_stock.min_stock = product.min_stock
                             # Race condition oldini olish - atomic UPDATE
                             db.session.execute(
-                                text("UPDATE warehouse_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
-                                {'qty': quantity, 'stock_id': existing_stock.id}
+                                text("UPDATE warehouse_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
+                                {'qty': quantity, 'min_stock': product.min_stock, 'stock_id': existing_stock.id}
                             )
                             db.session.refresh(existing_stock)
                         else:
                             warehouse_stock = WarehouseStock(
                                 warehouse_id=warehouse_id,
                                 product_id=product.id,
-                                quantity=quantity
+                                quantity=quantity,
+                                min_stock=product.min_stock
                             )
                             db.session.add(warehouse_stock)
 
