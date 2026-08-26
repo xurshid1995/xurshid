@@ -7820,7 +7820,9 @@ def edit_stock(warehouse_id, product_id):
             # Mahsulot ma'lumotlarini yangilash
             stock.product.name = new_product_name
             stock.product.barcode = new_barcode if new_barcode else None  # Barcode yangilash
-            stock.product.min_stock = new_min_stock
+
+            # Ombordagi joylashuvga xos minimal zaxira
+            stock.min_stock = new_min_stock
 
             # Cost price va sell price ni alohida saqlash
             stock.product.cost_price = Decimal(str(new_cost_price))
@@ -8042,7 +8044,9 @@ def edit_store_stock(store_id, product_id):
             # Mahsulot ma'lumotlarini yangilash
             stock.product.name = new_product_name
             stock.product.barcode = new_barcode if new_barcode else None  # Barcode yangilash
-            stock.product.min_stock = new_min_stock
+
+            # Do'kondagi joylashuvga xos minimal zaxira
+            stock.min_stock = new_min_stock
 
             # Cost price va sell price ni alohida saqlash
             stock.product.cost_price = Decimal(str(new_cost_price))
