@@ -5267,7 +5267,7 @@ def api_store_stock(store_id):
 
             # Determine status
             item_status = 'normal'
-            min_stock = stock.product.min_stock
+            min_stock = stock.min_stock
 
             if stock.quantity == 0:
                 item_status = 'critical'
@@ -5287,6 +5287,7 @@ def api_store_stock(store_id):
             stock_data = {
                 'stock': {
                     'quantity': stock.quantity,
+                    'min_stock': min_stock,
                     'product': {
                         'id': stock.product.id,
                         'name': stock.product.name,
@@ -5689,7 +5690,7 @@ def api_warehouse_stock(warehouse_id):
 
             # Determine status
             item_status = 'normal'
-            min_stock = stock.product.min_stock
+            min_stock = stock.min_stock
 
             if stock.quantity == 0:
                 item_status = 'critical'
@@ -5709,6 +5710,7 @@ def api_warehouse_stock(warehouse_id):
             stock_data = {
                 'stock': {
                     'quantity': stock.quantity,
+                    'min_stock': min_stock,
                     'product': {
                         'id': stock.product.id,
                         'name': stock.product.name,
