@@ -92,7 +92,7 @@
             <span><strong>{{ t('es_quantity_label') }}</strong> {{ stock.quantity }} {{ t('es_pcs') }}</span>
             <span><strong>{{ t('es_cost_label') }}</strong> ${{ "%.2f"|format(stock.purchase_price) }}</span>
             <span><strong>{{ t('es_sell_label') }}</strong> ${{ "%.2f"|format(stock.product.sell_price) }}</span>
-            <span><strong>{{ t('es_min_stock') }}</strong> {{ stock.product.min_stock }} {{ t('es_pcs') }}</span>
+            <span><strong>{{ t('es_min_stock') }}</strong> {{ stock.min_stock }} {{ t('es_pcs') }}</span>
         </div>
     </div>
     
@@ -125,7 +125,7 @@
                 </div>
                 <div class="form-group">
                     <label for="minStock">{{ t('es_min_stock_label') }}</label>
-                    <input type="number" id="minStock" name="minStock" value="{{ stock.product.min_stock }}" min="0">
+                    <input type="number" id="minStock" name="minStock" value="{{ stock.min_stock }}" min="0">
                 </div>
             </div>
 
