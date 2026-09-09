@@ -226,6 +226,9 @@
 }
 .em-group { display: flex; flex-direction: column; gap: 5px; }
 .em-group.full { grid-column: 1 / -1; }
+.em-min-split { display:flex; gap:6px; }
+.em-min-split > div { flex:1 1 50%; min-width:0; }
+.em-min-split .em-label { font-size:10px; white-space:nowrap; }
 .em-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
 .em-input { padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #1e293b; font-weight: 600; outline: none; transition: border-color 0.15s; }
 .em-input:focus { border-color: #1a6eff; }
@@ -443,8 +446,16 @@
                     <input type="number" class="em-input" id="em-quantity" min="0" step="1" required>
                 </div>
                 <div class="em-group">
-                    <label class="em-label">Min. zaxira</label>
-                    <input type="number" class="em-input" id="em-minStock" min="0" step="1">
+                    <div class="em-min-split">
+                        <div>
+                            <label class="em-label">Min. zaxira</label>
+                            <input type="number" class="em-input" id="em-minStock" min="0" step="1">
+                        </div>
+                        <div>
+                            <label class="em-label">Umumiy zaxira</label>
+                            <input type="number" class="em-input" id="em-globalMinStock" min="0" step="1">
+                        </div>
+                    </div>
                 </div>
                 <div class="em-group">
                     <label class="em-label">{{ t('sd_th_cost') }}</label>
@@ -683,6 +694,7 @@
                 barcode: item.stock.product.barcode || '',
                 quantity: item.stock.quantity,
                 minStock: item.stock.min_stock || 0,
+                globalMinStock: item.stock.product.global_min_stock || 0,
                 costPrice: item.stock.product.cost_price,
                 lastBatchCost: item.stock.product.last_batch_cost || null,
                 sellPrice: item.stock.product.sell_price,
@@ -853,6 +865,7 @@
         document.getElementById('em-barcode').value = d.barcode;
         document.getElementById('em-quantity').value = (d.quantity % 1 === 0) ? Math.floor(d.quantity) : parseFloat(d.quantity);
         document.getElementById('em-minStock').value = d.minStock;
+        document.getElementById('em-globalMinStock').value = d.globalMinStock;
         document.getElementById('em-costPrice').value = parseFloat(d.costPrice).toFixed(2);
         document.getElementById('em-sellPrice').value = parseFloat(d.sellPrice).toFixed(2);
         document.getElementById('em-category').value = d.categoryId || '';
@@ -1022,6 +1035,7 @@
             barcode: document.getElementById('em-barcode').value.trim(),
             quantity: document.getElementById('em-quantity').value,
             minStock: document.getElementById('em-minStock').value,
+            globalMinStock: document.getElementById('em-globalMinStock').value,
             costPrice: document.getElementById('em-costPrice').value,
             sellPrice: document.getElementById('em-sellPrice').value,
             categoryId: document.getElementById('em-category').value || null,

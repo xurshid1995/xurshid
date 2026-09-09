@@ -5312,6 +5312,7 @@ def api_store_stock(store_id):
                         'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'min_stock': min_stock,
+                        'global_min_stock': stock.product.min_stock,
                         'sell_price': float(stock.product.sell_price),
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
                         'last_batch_date': stock.product.last_batch_date.isoformat() if stock.product.last_batch_date else None,
@@ -5743,6 +5744,7 @@ def api_warehouse_stock(warehouse_id):
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
                         'min_stock': min_stock,
+                        'global_min_stock': stock.product.min_stock,
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
                         'last_batch_date': stock.product.last_batch_date.isoformat() if stock.product.last_batch_date else None,
                         'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None,
@@ -8161,6 +8163,7 @@ def api_edit_store_stock(store_id, product_id):
         new_barcode = data.get('barcode', '').strip()
         new_quantity = int(float(data.get('quantity', 0)))
         new_min_stock = int(float(data.get('minStock', 0)))
+        new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
         new_category_id = data.get('categoryId')
@@ -8189,6 +8192,8 @@ def api_edit_store_stock(store_id, product_id):
         stock.product.name = new_product_name
         stock.product.barcode = new_barcode if new_barcode else None
         stock.min_stock = new_min_stock
+        if new_global_min_stock not in (None, ''):
+            stock.product.min_stock = int(float(new_global_min_stock))
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
@@ -8237,6 +8242,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         new_barcode = data.get('barcode', '').strip()
         new_quantity = int(float(data.get('quantity', 0)))
         new_min_stock = int(float(data.get('minStock', 0)))
+        new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
         new_category_id = data.get('categoryId')
@@ -8265,6 +8271,8 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         stock.product.name = new_product_name
         stock.product.barcode = new_barcode if new_barcode else None
         stock.min_stock = new_min_stock
+        if new_global_min_stock not in (None, ''):
+            stock.product.min_stock = int(float(new_global_min_stock))
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
