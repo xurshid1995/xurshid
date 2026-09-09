@@ -178,6 +178,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
 .ap-qty-grid .ap-unit  { grid-area:unit; }
 .ap-qty-grid .ap-min   { grid-area:min; }
 .ap-qty-grid .ap-bcode { grid-area:barcode; }
+.ap-min-split { display:flex; gap:6px; }
+.ap-min-split > div { flex:1 1 50%; min-width:0; }
+.ap-min-split .ap-label { font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 @media (max-width: 768px) {
     .ap-page { padding: 12px; }
     .ap-row { grid-template-columns: 1fr; }
@@ -273,9 +276,18 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             </select>
                         </div>
                         <div class="ap-form-group ap-min">
-                            <label class="ap-label" for="min_stock">{{ t('ap_min_stock_label') }}</label>
-                            <input type="number" id="min_stock" name="min_stock" class="ap-input"
-                                   placeholder="0" min="0">
+                            <div class="ap-min-split">
+                                <div>
+                                    <label class="ap-label" for="min_stock">{{ t('ap_min_stock_label') }}</label>
+                                    <input type="number" id="min_stock" name="min_stock" class="ap-input"
+                                           placeholder="0" min="0">
+                                </div>
+                                <div>
+                                    <label class="ap-label" for="global_min_stock">{{ t('ap_global_min_stock_label') }}</label>
+                                    <input type="number" id="global_min_stock" name="global_min_stock" class="ap-input"
+                                           placeholder="0" min="0">
+                                </div>
+                            </div>
                         </div>
                         <div class="ap-form-group ap-bcode">
                             <label class="ap-label" for="barcode">{{ t('ap_barcode_label') }}</label>
