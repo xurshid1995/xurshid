@@ -1120,12 +1120,16 @@ function displayOrders(orders) {
         html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish">';
         html += '<i class="fas fa-eye"></i>';
         html += '</button>';
-        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash">';
-        html += '<i class="fas fa-pencil-alt"></i>';
-        html += '</button>';
-        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish">';
-        html += '<i class="fas fa-trash"></i>';
-        html += '</button>';
+        if (sale.can_edit !== false) {
+            html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash">';
+            html += '<i class="fas fa-pencil-alt"></i>';
+            html += '</button>';
+        }
+        if (sale.can_delete !== false) {
+            html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish">';
+            html += '<i class="fas fa-trash"></i>';
+            html += '</button>';
+        }
         html += '</div>';
         html += '</td>';
         html += '</tr>';
@@ -1205,8 +1209,12 @@ function updateTableForCompactView() {
         html += '<td class="group-cell group-actions">';
         html += '<div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">';
         html += '<button class="btn-action btn-view" onclick="viewSaleDetails(' + sale.id + ')" title="Ko\'rish"><i class="fas fa-eye"></i></button>';
-        html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish"><i class="fas fa-trash"></i></button>';
+        if (sale.can_edit !== false) {
+            html += '<button class="btn-action btn-edit" onclick="editSaleGroup(' + sale.id + ')" title="Tahrirlash"><i class="fas fa-pencil-alt"></i></button>';
+        }
+        if (sale.can_delete !== false) {
+            html += '<button class="btn-action btn-delete" onclick="deleteSale(' + sale.id + ')" title="O\'chirish"><i class="fas fa-trash"></i></button>';
+        }
         html += '</div></td>';
         html += '</tr>';
     });

@@ -10466,6 +10466,7 @@ def api_add_customer():
 @role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def get_customer_orders(customer_id):
     try:
+        current_user = get_current_user()
         sales = Sale.query.filter_by(customer_id=customer_id).order_by(
             Sale.sale_date.desc()).all()
 
@@ -10473,6 +10474,26 @@ def get_customer_orders(customer_id):
         for sale in sales:
             # Sale to_dict() metodini ishlatamiz
             sale_dict = sale.to_dict()
+
+            # Frontend tugmalarini yashirish/ko'rsatish uchun ruxsat flaglari
+            # (update_sale / delete_sale_with_stock_return dagi mantiq bilan bir xil)
+            can_edit = True
+            can_delete = True
+            if current_user and current_user.role == 'sotuvchi':
+                allowed_locations = current_user.allowed_locations or []
+                sale_location_id = sale.store_id if sale.store_id else sale.warehouse_id
+                sale_location_type = 'store' if sale.store_id else 'warehouse'
+                allowed_location_ids = extract_location_ids(allowed_locations, sale_location_type)
+                has_access = sale_location_id in allowed_location_ids
+                is_pending = sale.payment_status == 'pending'
+                can_edit = has_access and is_pending
+                can_delete = has_access and is_pending
+            elif current_user and current_user.role not in ('admin', 'kassir'):
+                can_edit = False
+                can_delete = False
+
+            sale_dict['can_edit'] = can_edit
+            sale_dict['can_delete'] = can_delete
             orders_list.append(sale_dict)
 
         return jsonify({
