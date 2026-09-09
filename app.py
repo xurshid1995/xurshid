@@ -5246,11 +5246,26 @@ def api_store_stock(store_id):
                 query = query.join(Product)
             query = query.filter(Product.category_id == category_id)
 
+        # Status filter - SQL darajasida, paginatsiyadan oldin qo'llanadi
+        if status == 'critical':
+            query = query.filter(StoreStock.quantity == 0)
+        elif status == 'low':
+            query = query.filter(
+                StoreStock.quantity > 0,
+                StoreStock.min_stock > 0,
+                StoreStock.quantity < StoreStock.min_stock
+            )
+        elif status == 'normal':
+            query = query.filter(
+                StoreStock.quantity > 0,
+                db.or_(StoreStock.min_stock <= 0, StoreStock.quantity >= StoreStock.min_stock)
+            )
+
         # Execute query with pagination
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         stocks = pagination.items
 
-        # Calculate stock info with status filtering
+        # Calculate stock info
         stock_info = []
         total_value = Decimal('0.00')
         total_cost_value = Decimal('0.00')
@@ -5274,10 +5289,6 @@ def api_store_stock(store_id):
                 critical_stock_count += 1
             elif min_stock > 0 and stock.quantity < min_stock:
                 item_status = 'low'
-
-            # Skip if status filter doesn't match
-            if status and item_status != status:
-                continue
 
             # Calculate profit percentage
             profit_percentage = 0
@@ -5316,10 +5327,6 @@ def api_store_stock(store_id):
             total_profit += total_stock_profit
             total_quantity += stock.quantity
 
-        # If status filter is applied, filter stock_info
-        if status:
-            stock_info = [item for item in stock_info if item['status'] == status]
-
         profit_percentage = 0
         if total_cost_value > 0:
             profit_percentage = (float(total_profit) / float(total_cost_value)) * 100
@@ -5328,7 +5335,7 @@ def api_store_stock(store_id):
             'success': True,
             'data': {
                 'stock_info': stock_info,
-                'total_products': len(stock_info),
+                'total_products': pagination.total,
                 'total_quantity': total_quantity,
                 'total_value': float(total_value),
                 'total_cost_value': float(total_cost_value),
@@ -5669,11 +5676,26 @@ def api_warehouse_stock(warehouse_id):
                 query = query.join(Product)
             query = query.filter(Product.category_id == category_id)
 
+        # Status filter - SQL darajasida, paginatsiyadan oldin qo'llanadi
+        if status == 'critical':
+            query = query.filter(WarehouseStock.quantity == 0)
+        elif status == 'low':
+            query = query.filter(
+                WarehouseStock.quantity > 0,
+                WarehouseStock.min_stock > 0,
+                WarehouseStock.quantity < WarehouseStock.min_stock
+            )
+        elif status == 'normal':
+            query = query.filter(
+                WarehouseStock.quantity > 0,
+                db.or_(WarehouseStock.min_stock <= 0, WarehouseStock.quantity >= WarehouseStock.min_stock)
+            )
+
         # Execute query with pagination
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         stocks = pagination.items
 
-        # Calculate stock info with status filtering
+        # Calculate stock info
         stock_info = []
         total_value = Decimal('0.00')
         total_cost_value = Decimal('0.00')
@@ -5697,10 +5719,6 @@ def api_warehouse_stock(warehouse_id):
                 critical_stock_count += 1
             elif min_stock > 0 and stock.quantity < min_stock:
                 item_status = 'low'
-
-            # Skip if status filter doesn't match
-            if status and item_status != status:
-                continue
 
             # Calculate profit percentage
             profit_percentage = 0
@@ -5739,10 +5757,6 @@ def api_warehouse_stock(warehouse_id):
             total_profit += total_stock_profit
             total_quantity += stock.quantity
 
-        # If status filter is applied, filter stock_info
-        if status:
-            stock_info = [item for item in stock_info if item['status'] == status]
-
         profit_percentage = 0
         if total_cost_value > 0:
             profit_percentage = (float(total_profit) / float(total_cost_value)) * 100
@@ -5751,7 +5765,7 @@ def api_warehouse_stock(warehouse_id):
             'success': True,
             'data': {
                 'stock_info': stock_info,
-                'total_products': len(stock_info),
+                'total_products': pagination.total,
                 'total_quantity': total_quantity,
                 'total_value': float(total_value),
                 'total_cost_value': float(total_cost_value),
