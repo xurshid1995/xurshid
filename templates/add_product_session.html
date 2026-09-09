@@ -285,8 +285,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 </div>
                                 <div>
                                     <label class="ap-label" for="global_min_stock">{{ t('ap_global_min_stock_label') }}</label>
-                                    <input type="number" id="global_min_stock" name="global_min_stock" class="ap-input"
-                                           placeholder="0" min="0">
+                                    <div style="display:flex; gap:4px;">
+                                        <input type="number" id="global_min_stock" name="global_min_stock" class="ap-input"
+                                               placeholder="0" min="0" style="flex:1;">
+                                        <button type="button" id="globalMinStockEditBtn" onclick="openGlobalMinStockModal()"
+                                                style="display:none; flex-shrink:0; width:34px; border:1.5px solid #e2e8f0; border-radius:8px; background:#f8fafc; cursor:pointer; align-items:center; justify-content:center;"
+                                                title="Tahrirlash">
+                                            <i class="fas fa-pen" style="font-size:12px; color:#64748b;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -509,6 +516,21 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 <span style="font-size:36px;">🖼️</span>
                 Galereya
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Umumiy minimal qoldiqni tahrirlash modal -->
+<div id="globalMinStockModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;padding:20px;width:min(320px,92vw);box-shadow:0 12px 48px rgba(0,0,0,0.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <span style="font-weight:700;font-size:14px;">Umumiy minimal qoldiqni tahrirlash</span>
+            <button type="button" onclick="closeGlobalMinStockModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1;">&#10005;</button>
+        </div>
+        <input type="number" id="globalMinStockModalInput" class="ap-input" min="0" style="width:100%;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;">
+            <button type="button" onclick="closeGlobalMinStockModal()" style="flex:1;padding:9px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;">Bekor qilish</button>
+            <button type="button" onclick="saveGlobalMinStockModal()" style="flex:1;padding:9px;border:none;border-radius:8px;background:#1a6eff;color:#fff;cursor:pointer;font-size:13px;font-weight:700;">Saqlash</button>
         </div>
     </div>
 </div>
@@ -1404,7 +1426,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (searchTimeout) {
                 clearTimeout(searchTimeout);
             }
-            
+
+            // Yangi qidiruv boshlanganda umumiy qoldiq maydonini qulfdan chiqarish
+            unlockGlobalMinStock();
+
             const productName = document.getElementById('product_name').value.trim();
             const locationSelect = document.getElementById('location');
             const selectedLocation = locationSelect.value;
@@ -1600,7 +1625,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
             document.getElementById('sell_price').value = sellPrice;
             // minStock bu yerda mahsulotning umumiy (global) minimal qoldig'i - joylashuv uchun alohida kiritiladi
-            document.getElementById('global_min_stock').value = minStock;
+            lockGlobalMinStock(minStock);
 
             // Kategoriyani to'ldirish
             if (categoryId) {
@@ -1701,6 +1726,40 @@ optgroup option { font-weight: normal; color: #1e293b; }
             
             // Foyda hisoblash
             calculateProfit();
+        }
+
+        // ── Umumiy (global) minimal qoldiq maydonini qulflash/ochish ──
+        function lockGlobalMinStock(value) {
+            const inp = document.getElementById('global_min_stock');
+            inp.value = (value !== null && value !== undefined) ? value : '';
+            inp.readOnly = true;
+            inp.style.background = '#f1f5f9';
+            inp.style.cursor = 'not-allowed';
+            document.getElementById('globalMinStockEditBtn').style.display = 'flex';
+        }
+
+        function unlockGlobalMinStock() {
+            const inp = document.getElementById('global_min_stock');
+            inp.readOnly = false;
+            inp.style.background = '';
+            inp.style.cursor = '';
+            document.getElementById('globalMinStockEditBtn').style.display = 'none';
+        }
+
+        function openGlobalMinStockModal() {
+            document.getElementById('globalMinStockModalInput').value = document.getElementById('global_min_stock').value || 0;
+            document.getElementById('globalMinStockModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('globalMinStockModalInput').focus(), 50);
+        }
+
+        function closeGlobalMinStockModal() {
+            document.getElementById('globalMinStockModal').style.display = 'none';
+        }
+
+        function saveGlobalMinStockModal() {
+            const val = parseInt(document.getElementById('globalMinStockModalInput').value) || 0;
+            document.getElementById('global_min_stock').value = val;
+            closeGlobalMinStockModal();
         }
         
         // Joriy stock miqdorini olish va hisob-kitobni ko'rsatish
@@ -2175,6 +2234,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             
             // Rasmni tozalash
             clearProductImage();
+            
+            // Umumiy qoldiq maydonini qulfdan chiqarish
+            unlockGlobalMinStock();
             
             // Global o'zgaruvchilarni tozalash
             selectedProductData = null;
