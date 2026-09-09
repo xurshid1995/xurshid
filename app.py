@@ -2203,6 +2203,7 @@ def search_product(product_name):
                     'type': 'warehouse',
                     'name': stock.warehouse.name,
                     'quantity': float(stock.quantity),
+                    'min_stock': stock.min_stock,
                     'id': stock.warehouse.id
                 })
                 total_quantity += float(stock.quantity)
@@ -2213,6 +2214,7 @@ def search_product(product_name):
                     'type': 'store',
                     'name': stock.store.name,
                     'quantity': float(stock.quantity),
+                    'min_stock': stock.min_stock,
                     'id': stock.store.id
                 })
                 total_quantity += float(stock.quantity)

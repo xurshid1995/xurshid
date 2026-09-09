@@ -1508,6 +1508,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             let quantityText = 'Miqdor: 0 ta';
                             let quantityClass = 'quantity-badge';
                             let quantityBgColor = '#6c757d';
+                            let locationMinStock = 0;
                             
                             if (selectedLocation && productData.locations) {
                                 // location value'dan type va ID ni ajratish
@@ -1532,6 +1533,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 if (locationData) {
                                     quantityText = `Mavjud (${locationData.quantity} ta)`;
                                     quantityBgColor = '#28a745';
+                                    locationMinStock = locationData.min_stock || 0;
                                     console.log(`✅ Topildi: ${locationData.quantity} ta`);
                                 } else {
                                     quantityText = 'Yangi';
@@ -1548,7 +1550,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             html += `
                                 <div class="product-dropdown-item suggestion-item" 
-                                     onclick="selectProduct('${productData.product.name}', ${productData.product.cost_price}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}', '${productData.product.barcode || ''}', ${productData.product.category_id || 'null'}, '${productData.product.image_url || ''}')"
+                                     onclick="selectProduct('${productData.product.name}', ${productData.product.cost_price}, ${productData.product.sell_price}, ${productData.product.min_stock}, ${lastBatchCost}, '${lastBatchDate}', '${productData.product.barcode || ''}', ${productData.product.category_id || 'null'}, '${productData.product.image_url || ''}', ${locationMinStock})"
                                      onmouseenter="handleMouseEnterSuggestion(this)">
                                     <div class="product-dropdown-content">
                                         <strong style="color: #2c3e50; font-size: 1.1rem;">${productData.product.name}</strong> | 
@@ -1614,7 +1616,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
         }
         
-        function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode, categoryId, imageUrl) {
+        function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode, categoryId, imageUrl, locationMinStock) {
             console.log('✅ selectProduct chaqirildi:');
             console.log('   name:', name);
             console.log('   barcode:', barcode);
@@ -1626,6 +1628,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('sell_price').value = sellPrice;
             // minStock bu yerda mahsulotning umumiy (global) minimal qoldig'i - joylashuv uchun alohida kiritiladi
             lockGlobalMinStock(minStock);
+            // Tanlangan joylashuvda mahsulot mavjud bo'lsa, o'sha joyning minimal qoldig'ini to'ldirish
+            document.getElementById('min_stock').value = locationMinStock || 0;
 
             // Kategoriyani to'ldirish
             if (categoryId) {
