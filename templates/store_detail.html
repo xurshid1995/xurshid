@@ -229,7 +229,7 @@
 .em-group { display: flex; flex-direction: column; gap: 5px; }
 .em-group.full { grid-column: 1 / -1; }
 .em-min-split { display:flex; gap:6px; }
-.em-min-split > div { flex:1 1 50%; min-width:0; }
+.em-min-split > div { flex:1 1 33.333%; min-width:0; }
 .em-min-split input.em-input { width:100%; }
 .em-min-split .em-label { font-size:10px; white-space:nowrap; }
 .em-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
@@ -464,12 +464,12 @@
                         <img src="https://img.icons8.com/color/48/print.png" alt="Print" style="width:22px;height:22px;">
                     </button>
                 </div>
-                <div class="em-group">
-                    <label class="em-label">{{ t('sd_th_quantity') }}</label>
-                    <input type="number" class="em-input" id="em-quantity" min="0" step="1" required>
-                </div>
-                <div class="em-group">
+                <div class="em-group full">
                     <div class="em-min-split">
+                        <div>
+                            <label class="em-label">{{ t('sd_th_quantity') }}</label>
+                            <input type="number" class="em-input" id="em-quantity" min="0" step="1" required>
+                        </div>
                         <div>
                             <label class="em-label">Min. zaxira</label>
                             <input type="number" class="em-input" id="em-minStock" min="0" step="1">
