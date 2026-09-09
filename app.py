@@ -1899,7 +1899,11 @@ def api_batch_products():
             quantity = Decimal(str(product_data['quantity']))
             cost_price = Decimal(str(product_data['cost_price']))
             sell_price = Decimal(str(product_data['sell_price']))
-            min_stock = int(float(product_data['min_stock']))
+            # Joylashuvga tegishli minimal qoldiq (WarehouseStock/StoreStock.min_stock)
+            min_stock = int(float(product_data.get('min_stock', 0) or 0))
+            # Mahsulotning umumiy (global) minimal qoldig'i (Product.min_stock)
+            _global_min_raw = product_data.get('global_min_stock')
+            global_min_stock = int(float(_global_min_raw)) if _global_min_raw not in (None, '') else min_stock
             last_batch_cost = Decimal(str(product_data.get('lastBatchCost', cost_price)))
 
             logger.info(f"🔍 Batch mahsulot qo'shilmoqda: {name}")
@@ -1936,7 +1940,7 @@ def api_batch_products():
                     sell_price=sell_price,
                     last_batch_cost=last_batch_cost,  # Frontend'dan kelgan qiymat
                     last_batch_date=get_tashkent_time(),
-                    min_stock=min_stock,
+                    min_stock=global_min_stock,
                     unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
                     category_id=category_id  # Kategoriya
                 )
@@ -1980,7 +1984,7 @@ def api_batch_products():
 
                 # Boshqa maydonlar
                 product.sell_price = sell_price
-                product.min_stock = min_stock
+                product.min_stock = global_min_stock
 
             # Stock qo'shish va joylashuv nomini olish
             location_name = ''
@@ -1998,15 +2002,16 @@ def api_batch_products():
                 if stock:
                     # Race condition oldini olish - atomic UPDATE
                     db.session.execute(
-                        text("UPDATE warehouse_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
-                        {'qty': quantity, 'stock_id': stock.id}
+                        text("UPDATE warehouse_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
+                        {'qty': quantity, 'min_stock': min_stock, 'stock_id': stock.id}
                     )
                     db.session.refresh(stock)
                 else:
                     stock = WarehouseStock(
                         warehouse_id=location_id,
                         product_id=product.id,
-                        quantity=quantity
+                        quantity=quantity,
+                        min_stock=min_stock
                     )
                     db.session.add(stock)
 
@@ -2023,15 +2028,16 @@ def api_batch_products():
                 if stock:
                     # Race condition oldini olish - atomic UPDATE
                     db.session.execute(
-                        text("UPDATE store_stocks SET quantity = quantity + :qty WHERE id = :stock_id"),
-                        {'qty': quantity, 'stock_id': stock.id}
+                        text("UPDATE store_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
+                        {'qty': quantity, 'min_stock': min_stock, 'stock_id': stock.id}
                     )
                     db.session.refresh(stock)
                 else:
                     stock = StoreStock(
                         store_id=location_id,
                         product_id=product.id,
-                        quantity=quantity
+                        quantity=quantity,
+                        min_stock=min_stock
                     )
                     db.session.add(stock)
 

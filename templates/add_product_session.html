@@ -945,6 +945,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         quantity: quantity,
                         unit_type: unitType === 'litr' ? 'litr' : 'dona', // dona yoki litr
                         min_stock: minStock,
+                        global_min_stock: minStock, // Excel'da alohida ustun yo'q - shu qiymat ishlatiladi
                         location_id: locationId,
                         location_type: locationType,
                         location_name: locationName,
@@ -1597,7 +1598,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('product_name').value = name;
             document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
             document.getElementById('sell_price').value = sellPrice;
-            document.getElementById('min_stock').value = minStock;
+            // minStock bu yerda mahsulotning umumiy (global) minimal qoldig'i - joylashuv uchun alohida kiritiladi
+            document.getElementById('global_min_stock').value = minStock;
 
             // Kategoriyani to'ldirish
             if (categoryId) {
@@ -1843,6 +1845,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const sellPrice = parseFloat(document.getElementById('sell_price').value);
             let quantity = parseFloat(document.getElementById('quantity').value);
             const minStock = parseInt(document.getElementById('min_stock').value) || 0;
+            const globalMinStock = parseInt(document.getElementById('global_min_stock').value) || 0;
             const location = document.getElementById('location').value;
             
             // MUHIM: To'g'ri ajratish
@@ -1923,7 +1926,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 sell_price: sellPrice,
                 quantity: quantity,
                 unit_type: unitType, // O'lchov birligi
-                min_stock: minStock,
+                min_stock: minStock, // Shu joylashuv uchun minimal qoldiq
+                global_min_stock: globalMinStock, // Mahsulotning umumiy minimal qoldig'i
                 location: location,
                 location_id: location, // Yangi format uchun
                 location_name: locationName,
@@ -2030,6 +2034,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 document.getElementById('cost_price').value = product.cost_price;
                 document.getElementById('sell_price').value = product.sell_price;
                 document.getElementById('min_stock').value = product.min_stock;
+                document.getElementById('global_min_stock').value = product.global_min_stock || '';
                 document.getElementById('quantity').value = product.quantity;
                 
                 // Joylashuvni tanlash
@@ -2343,6 +2348,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         quantity: product.quantity,
                         unitType: product.unit_type || 'dona', // O'lchov birligi
                         min_stock: product.min_stock,
+                        global_min_stock: product.global_min_stock,
                         location_type: locationType,
                         location_id: locationId,
                         categoryId: product.categoryId || null
