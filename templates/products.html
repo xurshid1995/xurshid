@@ -805,7 +805,7 @@
             
             filteredProducts.forEach(product => {
                 const totalStock = getTotalStock(product, locationFilter);
-                const minStock = product.min_stock || 0;
+                const minStock = getLocationMinStock(product, locationFilter);
                 const stockClass = getStockClass(totalStock, minStock);
                 const stockText = getStockText(totalStock, minStock);
                 const locations = getProductLocations(product);
@@ -1079,6 +1079,22 @@
         return totalStock * price;
     }
 
+    // Joylashuvga mos minimal qoldiq chegarasini aniqlash
+    // "Barchasi" tanlanganda - mahsulotning umumiy (global) chegarasi
+    // Aniq joylashuv tanlanganda - o'sha joyning o'z chegarasi (agar mavjud bo'lsa)
+    function getLocationMinStock(product, locationFilter) {
+        if (!locationFilter || locationFilter === 'all') {
+            return product.min_stock || 0;
+        }
+        const [locationType, locationId] = locationFilter.split('_');
+        const match = (product.stocks || []).find(s => {
+            if (locationType === 'warehouse') return s.warehouse_id == locationId;
+            if (locationType === 'store') return s.store_id == locationId;
+            return false;
+        });
+        return match ? (match.min_stock || 0) : 0;
+    }
+
     // Status bo'yicha client-side filtrlash (faqat hozirgi sahifa uchun)
     function applyStatusFilter() {
         const statusFilter = document.getElementById('statusFilter').value;
@@ -1091,11 +1107,11 @@
                 
                 switch (statusFilter) {
                     case 'high': {
-                        const minS = product.min_stock || 0;
+                        const minS = getLocationMinStock(product, currentLocation);
                         return minS > 0 ? totalStock > minS : totalStock > 0;
                     }
                     case 'medium': {
-                        const minS = product.min_stock || 0;
+                        const minS = getLocationMinStock(product, currentLocation);
                         return totalStock > 0 && minS > 0 && totalStock <= minS;
                     }
                     case 'out':
