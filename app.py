@@ -1023,6 +1023,39 @@ def api_products():
     # Saralash: Eng ko'p sotilgan mahsulotlar birinchi bo'lishi uchun
     from sqlalchemy import desc, func
 
+    # Holat filtri - faqat "barcha joylashuvlar" holatida SQL darajasida qo'llanadi
+    # (aniq joylashuv tanlanganda mos SQL ifodasi murakkablashadi - hozircha client-side qoladi)
+    status_filter = request.args.get('status', '', type=str).strip()
+    is_all_locations = not (final_loc_type and final_loc_id)
+    if status_filter and is_all_locations:
+        wh_qty_sq = db.session.query(
+            WarehouseStock.product_id,
+            func.coalesce(func.sum(WarehouseStock.quantity), 0).label('qty')
+        ).group_by(WarehouseStock.product_id).subquery()
+        st_qty_sq = db.session.query(
+            StoreStock.product_id,
+            func.coalesce(func.sum(StoreStock.quantity), 0).label('qty')
+        ).group_by(StoreStock.product_id).subquery()
+        query = query.outerjoin(wh_qty_sq, Product.id == wh_qty_sq.c.product_id)
+        query = query.outerjoin(st_qty_sq, Product.id == st_qty_sq.c.product_id)
+        total_stock_expr = func.coalesce(wh_qty_sq.c.qty, 0) + func.coalesce(st_qty_sq.c.qty, 0)
+
+        if status_filter == 'out':
+            query = query.filter(total_stock_expr == 0)
+        elif status_filter == 'medium':
+            query = query.filter(
+                total_stock_expr > 0,
+                Product.min_stock > 0,
+                total_stock_expr <= Product.min_stock
+            )
+        elif status_filter == 'high':
+            query = query.filter(
+                db.or_(
+                    db.and_(Product.min_stock > 0, total_stock_expr > Product.min_stock),
+                    db.and_(Product.min_stock <= 0, total_stock_expr > 0)
+                )
+            )
+
     # LEFT JOIN aggregate: barcha sotuvlarni BIR MARTA COUNT qiladi
     # (Correlated subquery edi - har mahsulot uchun alohida COUNT = juda sekin!)
     sale_count_q = db.session.query(

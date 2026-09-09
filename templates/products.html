@@ -523,8 +523,13 @@
         
         // Holat filtiri event listener
         document.getElementById('statusFilter').addEventListener('change', function() {
-            // Client-side filtering for status (fast)
-            applyStatusFilter();
+            if (currentLocation === 'all') {
+                // "Barcha joylashuvlar"da holat filtri serverda (global stok bo'yicha) qo'llanadi
+                loadProducts(1, currentSearch, 'all');
+            } else {
+                // Aniq joylashuvda hozircha client-side filtrlash
+                applyStatusFilter();
+            }
         });
         
         // "Barcha joylar" tugmasi uchun event listener
@@ -569,6 +574,12 @@
             
             if (currentCategory && currentCategory !== 'all') {
                 params.append('category_id', currentCategory);
+            }
+            
+            // Holat filtri - faqat "barcha joylashuvlar"da serverga yuboriladi (global stok bo'yicha)
+            const statusFilterEl = document.getElementById('statusFilter');
+            if (statusFilterEl && statusFilterEl.value !== 'all' && location === 'all') {
+                params.append('status', statusFilterEl.value);
             }
             
             const response = await fetch(`/api/products?${params}`);
