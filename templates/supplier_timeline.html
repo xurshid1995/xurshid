@@ -238,16 +238,17 @@ function renderPayment(e) {
     if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
     if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
-    if (e.paid_by) chips.push(`<span class="tl-detail-chip">👤 ${e.paid_by}</span>`);
+    const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-payment"></div>
         <div class="tl-card tl-card-payment">
             <div class="tl-card-header">
-                <div style="display:flex;align-items:center;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
                     <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
+                    ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
                 </div>
                 <div><span class="tl-amount tl-amount-payment">+$${e.amount_usd.toFixed(2)}</span></div>
             </div>
