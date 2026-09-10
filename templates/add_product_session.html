@@ -2283,13 +2283,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         function clearForm() {
-            // Joylashuvni saqlab qolish
+            // Joylashuv va yetkazib beruvchini saqlab qolish
             const savedLocation = document.getElementById('location').value;
+            const savedSupplierId = document.getElementById('supplier_id').value;
             
             document.getElementById('productForm').reset();
             
-            // Joylashuvni qayta o'rnatish
+            // Joylashuv va yetkazib beruvchini qayta o'rnatish
             document.getElementById('location').value = savedLocation;
+            document.getElementById('supplier_id').value = savedSupplierId;
             
             document.getElementById('searchResult').style.display = 'none';
             document.getElementById('priceComparison').style.display = 'none';
@@ -2308,7 +2310,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Global o'zgaruvchilarni tozalash
             selectedProductData = null;
             userEnteredCostPrice = null;
-            console.log('🧹 Forma tozalandi (joylashuv saqlab qolindi)');
+            console.log('🧹 Forma tozalandi (joylashuv va yetkazib beruvchi saqlab qolindi)');
             
             // Fokusni mahsulot nomi maydoniga qaytarish
             setTimeout(() => {
