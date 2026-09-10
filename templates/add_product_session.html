@@ -1784,6 +1784,25 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('globalMinStockEditBtn').style.display = 'none';
         }
 
+        // Yetkazib beruvchi tanlab mahsulot qo'shilgandan keyin Joylashuv/Yetkazib beruvchini bloklash
+        function lockLocationSupplier() {
+            ['location', 'supplier_id'].forEach(id => {
+                const el = document.getElementById(id);
+                el.disabled = true;
+                el.style.background = '#f1f5f9';
+                el.style.cursor = 'not-allowed';
+            });
+        }
+
+        function unlockLocationSupplier() {
+            ['location', 'supplier_id'].forEach(id => {
+                const el = document.getElementById(id);
+                el.disabled = false;
+                el.style.background = '';
+                el.style.cursor = '';
+            });
+        }
+
         function openGlobalMinStockModal() {
             document.getElementById('globalMinStockModalInput').value = document.getElementById('global_min_stock').value || 0;
             document.getElementById('globalMinStockModal').style.display = 'flex';
@@ -2051,6 +2070,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
             updateTempList();
             clearForm();
             savePendingBatch();
+
+            // Yetkazib beruvchi tanlangan bo'lsa, joylashuv/yetkazib beruvchini bloklash
+            if (supplierId) {
+                lockLocationSupplier();
+            }
         }
 
         // Yetkazib beruvchi tanlansa, sarlavhada uning nomi va telefoni ko'rsatiladi
@@ -2199,6 +2223,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function removeFromTempList(productId) {
             tempProducts = tempProducts.filter(product => product.id !== productId);
             updateTempList();
+            if (tempProducts.length === 0) {
+                unlockLocationSupplier();
+            }
         }
 
         // Crop uchun global
@@ -2418,6 +2445,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 tempProducts = [];
                 updateTempList();
                 deletePendingBatch();
+                unlockLocationSupplier();
             }
         }
 
@@ -2524,6 +2552,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     deletePendingBatch();
                     tempProducts = [];
                     updateTempList();
+                    unlockLocationSupplier();
                     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 ' + (APLANG.ap_save_all || 'Barchasini saqlash'); }
                 } else {
                     alert(data.error || APLANG.save_error);
