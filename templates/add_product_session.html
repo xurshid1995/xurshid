@@ -571,36 +571,47 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
 <!-- Yetkazib beruvchiga to'lov modali (Barchasini saqlash bosilganda, agar yetkazib beruvchi tanlangan bo'lsa) -->
 <div id="supplierPaymentModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;padding:26px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <span style="font-weight:700;font-size:16px;color:#1e293b;"><i class="fas fa-truck" style="color:#1a6eff;"></i> Yetkazib beruvchiga to'lov</span>
-            <button type="button" onclick="closeSupplierPaymentModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1;">&#10005;</button>
+    <div style="background:#fff;border-radius:10px;padding:26px;width:min(600px,92vw);max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+            <h3 style="margin:0; color:#333; font-size:17px;"><i class="fas fa-truck" style="color:#1a6eff;"></i> Yetkazib beruvchiga to'lov</h3>
+            <div style="text-align:right;">
+                <div style="font-size:12px; color:#666;">Jami summa</div>
+                <div style="font-weight:700; color:#28a745; font-size:16px;"><span id="spTotalUSD">$0.00</span> / <span id="spTotalUZS">0 so'm</span></div>
+            </div>
         </div>
-        <p style="margin:0 0 16px; font-size:13px; color:#64748b;">
-            Yetkazib beruvchidan olingan mahsulotlar summasi:
-            <strong id="spTotalAmount" style="color:#1e293b; font-size:15px;">$0.00</strong>
-        </p>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;" id="spPaymentTypeButtons">
-            <button type="button" class="sp-type-btn" data-type="cash" onclick="selectSupplierPaymentType('cash')"
-                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
-                💵 Naxt (to'liq to'lanadi)
-            </button>
-            <button type="button" class="sp-type-btn" data-type="debt" onclick="selectSupplierPaymentType('debt')"
-                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
-                📝 Qarz (hali to'lanmagan)
-            </button>
-            <button type="button" class="sp-type-btn" data-type="partial" onclick="selectSupplierPaymentType('partial')"
-                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
-                ➗ Qisman to'lov
-            </button>
+
+        <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Naqd:</label>
+                <input type="number" id="spCashUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('cash', false)">
+                <input type="number" id="spCashUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('cash', true)">
+                <button type="button" onclick="addRemainingToSupplierField('spCashUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Click:</label>
+                <input type="number" id="spClickUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('click', false)">
+                <input type="number" id="spClickUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('click', true)">
+                <button type="button" onclick="addRemainingToSupplierField('spClickUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Terminal:</label>
+                <input type="number" id="spTerminalUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('terminal', false)">
+                <input type="number" id="spTerminalUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('terminal', true)">
+                <button type="button" onclick="addRemainingToSupplierField('spTerminalUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Qarz:</label>
+                <input type="number" id="spDebtUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('debt', false)">
+                <input type="number" id="spDebtUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('debt', true)">
+                <button type="button" onclick="addRemainingToSupplierField('spDebtUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
+            </div>
         </div>
-        <div id="spPartialAmountRow" style="display:none; margin-bottom:16px;">
-            <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">To'langan summa ($)</label>
-            <input type="number" id="spPartialAmount" class="ap-input" step="0.01" min="0" placeholder="0.00" style="width:100%;">
-        </div>
+
+        <div id="spPaymentWarning" style="display:none; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:6px; margin-bottom:14px; color:#856404; font-size:13px;"></div>
+
         <div style="display:flex; gap:10px;">
-            <button type="button" onclick="closeSupplierPaymentModal()" style="flex:1;padding:11px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:14px;font-weight:600;">Bekor qilish</button>
-            <button type="button" id="spConfirmBtn" onclick="confirmSupplierPaymentAndSave()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">💾 Saqlash</button>
+            <button type="button" onclick="closeSupplierPaymentModal()" style="flex:1; padding:12px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500;">Bekor qilish</button>
+            <button type="button" id="spConfirmBtn" onclick="confirmSupplierPaymentAndSave()" style="flex:1; padding:12px; background:linear-gradient(135deg,#1a6eff,#1558d6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">✅ Tasdiqlash</button>
         </div>
     </div>
 </div>
@@ -2521,19 +2532,31 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         // Yetkazib beruvchiga to'lov modali
-        let _supplierPaymentType = 'cash';
-
         function getSupplierItemsTotal() {
             return tempProducts
                 .filter(p => p.supplierId)
                 .reduce((sum, p) => sum + (parseFloat(p.total_value) || 0), 0);
         }
 
+        function getSupplierExchangeRate() {
+            return parseFloat(window.currentExchangeRate) || 12500;
+        }
+
         function openSupplierPaymentModal() {
             const total = getSupplierItemsTotal();
-            document.getElementById('spTotalAmount').textContent = `$${total.toFixed(2)}`;
-            document.getElementById('spPartialAmount').value = '';
-            selectSupplierPaymentType('cash');
+            const rate = getSupplierExchangeRate();
+            document.getElementById('spTotalUSD').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('spTotalUZS').textContent = `${Math.round(total * rate).toLocaleString('uz-UZ')} so'm`;
+
+            // Maydonlarni tozalash, Naqd maydoniga to'liq summani qo'yish (odatiy holat)
+            ['spCashUSD', 'spClickUSD', 'spTerminalUSD', 'spDebtUSD',
+             'spCashUZS', 'spClickUZS', 'spTerminalUZS', 'spDebtUZS'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('spCashUSD').value = total.toFixed(2);
+            document.getElementById('spCashUZS').value = Math.round(total * rate);
+            document.getElementById('spPaymentWarning').style.display = 'none';
+
             document.getElementById('supplierPaymentModal').style.display = 'flex';
         }
 
@@ -2541,49 +2564,62 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('supplierPaymentModal').style.display = 'none';
         }
 
-        function selectSupplierPaymentType(type) {
-            _supplierPaymentType = type;
-            document.querySelectorAll('.sp-type-btn').forEach(btn => {
-                const active = btn.getAttribute('data-type') === type;
-                btn.style.borderColor = active ? '#1a6eff' : '#e2e8f0';
-                btn.style.background = active ? '#edf4ff' : '#fff';
-                btn.style.color = active ? '#1a6eff' : '#1e293b';
-            });
-            document.getElementById('spPartialAmountRow').style.display = (type === 'partial') ? 'block' : 'none';
+        // USD va UZS maydonlarini bir-biriga sinxronlash
+        function onSupplierPayFieldInput(type, fromUZS) {
+            const rate = getSupplierExchangeRate();
+            const usdField = document.getElementById(`sp${type.charAt(0).toUpperCase()}${type.slice(1)}USD`);
+            const uzsField = document.getElementById(`sp${type.charAt(0).toUpperCase()}${type.slice(1)}UZS`);
+            if (fromUZS) {
+                const uzs = parseFloat(uzsField.value) || 0;
+                usdField.value = rate > 0 ? (uzs / rate).toFixed(2) : '0.00';
+            } else {
+                const usd = parseFloat(usdField.value) || 0;
+                uzsField.value = Math.round(usd * rate);
+            }
+        }
+
+        // Tanlangan maydonga qolgan (to'lanmagan) summani avtomatik to'ldirish
+        function addRemainingToSupplierField(usdFieldId) {
+            const total = getSupplierItemsTotal();
+            const cash = parseFloat(document.getElementById('spCashUSD').value) || 0;
+            const click = parseFloat(document.getElementById('spClickUSD').value) || 0;
+            const terminal = parseFloat(document.getElementById('spTerminalUSD').value) || 0;
+            const debt = parseFloat(document.getElementById('spDebtUSD').value) || 0;
+
+            const selfValue = { spCashUSD: cash, spClickUSD: click, spTerminalUSD: terminal, spDebtUSD: debt }[usdFieldId] || 0;
+            const currentTotal = cash + click + terminal + debt - selfValue;
+            const remaining = Math.max(0, total - currentTotal);
+
+            document.getElementById(usdFieldId).value = remaining.toFixed(2);
+            const type = usdFieldId.replace('sp', '').replace('USD', '').toLowerCase();
+            onSupplierPayFieldInput(type, false);
         }
 
         function confirmSupplierPaymentAndSave() {
-            const type = _supplierPaymentType;
             const total = getSupplierItemsTotal();
-            let partialAmount = 0;
+            const cash = parseFloat(document.getElementById('spCashUSD').value) || 0;
+            const click = parseFloat(document.getElementById('spClickUSD').value) || 0;
+            const terminal = parseFloat(document.getElementById('spTerminalUSD').value) || 0;
+            const debt = parseFloat(document.getElementById('spDebtUSD').value) || 0;
+            const paid = cash + click + terminal;
+            const sum = paid + debt;
 
-            if (type === 'partial') {
-                partialAmount = parseFloat(document.getElementById('spPartialAmount').value) || 0;
-                if (partialAmount <= 0) {
-                    alert("To'langan summani kiriting");
-                    return;
-                }
-                if (partialAmount > total) {
-                    alert("To'langan summa umumiy summadan katta bo'lishi mumkin emas");
-                    return;
-                }
+            const warningEl = document.getElementById('spPaymentWarning');
+            if (Math.abs(sum - total) > 0.01) {
+                warningEl.textContent = `To'lovlar yig'indisi ($${sum.toFixed(2)}) jami summaga ($${total.toFixed(2)}) teng bo'lishi kerak`;
+                warningEl.style.display = 'block';
+                return;
             }
+            warningEl.style.display = 'none';
 
-            // Har bir yetkazib beruvchi mahsulotiga tanlangan to'lov turini ulushiga qarab taqsimlash
+            // Har bir yetkazib beruvchi mahsulotiga to'lovni ulushiga qarab taqsimlash
             tempProducts.forEach(p => {
                 if (!p.supplierId) return;
                 const itemValue = parseFloat(p.total_value) || 0;
-                if (type === 'cash') {
-                    p.paymentType = 'cash';
-                    p.paidAmount = itemValue;
-                } else if (type === 'debt') {
-                    p.paymentType = 'debt';
-                    p.paidAmount = 0;
-                } else {
-                    const share = total > 0 ? (itemValue / total) : 0;
-                    p.paymentType = 'partial';
-                    p.paidAmount = Math.round(partialAmount * share * 100) / 100;
-                }
+                const share = total > 0 ? (itemValue / total) : 0;
+                const itemPaid = Math.round(paid * share * 100) / 100;
+                p.paidAmount = itemPaid;
+                p.paymentType = itemPaid <= 0 ? 'debt' : (itemPaid >= itemValue - 0.01 ? 'cash' : 'partial');
             });
 
             closeSupplierPaymentModal();
