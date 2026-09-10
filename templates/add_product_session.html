@@ -463,6 +463,24 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
+                    <!-- To'lov turi -->
+                    <div class="ap-row">
+                        <div class="ap-form-group">
+                            <label class="ap-label" for="payment_type">To'lov turi</label>
+                            <select id="payment_type" name="payment_type" class="ap-input" onchange="togglePaidAmountField()">
+                                <option value="cash">Naxt (to'liq to'landi)</option>
+                                <option value="debt">Qarz (hali to'lanmagan)</option>
+                                <option value="partial">Qisman to'lov</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="ap-row" id="paidAmountRow" style="display:none;">
+                        <div class="ap-form-group">
+                            <label class="ap-label" for="paid_amount">To'langan summa ($)</label>
+                            <input type="number" id="paid_amount" name="paid_amount" class="ap-input" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+
                     <!-- Narx taqqoslash -->
                     <div id="priceComparison" class="price-comparison">
                         <div id="priceComparisonContent"></div>
@@ -2088,10 +2106,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const globalMinStock = parseInt(document.getElementById('global_min_stock').value) || 0;
             const location = document.getElementById('location').value;
             const supplierId = document.getElementById('supplier_id').value || null;
-            const paymentTypeEl = document.getElementById('payment_type');
-            const paymentType = paymentTypeEl ? paymentTypeEl.value : 'cash';
-            const paidAmountEl = document.getElementById('paid_amount');
-            const paidAmount = (paymentType === 'partial' && paidAmountEl) ? (parseFloat(paidAmountEl.value) || 0) : null;
+            const paymentType = document.getElementById('payment_type').value;
+            const paidAmount = paymentType === 'partial' ? (parseFloat(document.getElementById('paid_amount').value) || 0) : null;
             
             // MUHIM: To'g'ri ajratish
             // - cost_price = tan narx maydonidagi ortacha narx
@@ -3258,11 +3274,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         function togglePaidAmountField() {
-            const paymentTypeEl = document.getElementById('payment_type');
-            const paidAmountRow = document.getElementById('paidAmountRow');
-            if (!paymentTypeEl || !paidAmountRow) return;
-            const paymentType = paymentTypeEl.value;
-            paidAmountRow.style.display = (paymentType === 'partial') ? 'block' : 'none';
+            const paymentType = document.getElementById('payment_type').value;
+            document.getElementById('paidAmountRow').style.display = (paymentType === 'partial') ? 'block' : 'none';
         }
 
         // ─── Kategoriyalar ────────────────────────────────────────────────
