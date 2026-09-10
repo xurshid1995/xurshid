@@ -10909,6 +10909,82 @@ def get_supplier_history(supplier_id):
         return jsonify({'error': str(e)}), 500
 
 
+# Yetkazib beruvchi amallar tarixi sahifasi (mijoz timeline'iga o'xshash)
+@app.route('/supplier/<int:supplier_id>/timeline')
+@role_required('admin', 'kassir', 'omborchi')
+def supplier_timeline(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        return render_template(
+            'supplier_timeline.html',
+            supplier=supplier,
+            page_title=f'{supplier.name} - Amallar tarixi',
+            icon='📋')
+    except Exception as e:
+        logger.error(f"Error loading supplier timeline: {str(e)}")
+        return "Yetkazib beruvchi ma'lumotlari yuklanmadi", 500
+
+
+@app.route('/api/supplier/<int:supplier_id>/timeline')
+@role_required('admin', 'kassir', 'omborchi')
+def api_supplier_timeline(supplier_id):
+    """Yetkazib beruvchining barcha amallarini (xaridlar + to'lovlar) ketma-ketlikda qaytaradi"""
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        purchases = SupplierPurchase.query.filter_by(supplier_id=supplier_id).all()
+        payments = SupplierPayment.query.filter_by(supplier_id=supplier_id).all()
+
+        raw_events = []
+        for p in purchases:
+            raw_events.append({
+                'type': 'purchase',
+                'id': p.id,
+                'date': p.created_at.strftime('%Y-%m-%d %H:%M:%S') if p.created_at else None,
+                'product_name': p.product_name,
+                'quantity': float(p.quantity or 0),
+                'cost_price': float(p.cost_price or 0),
+                'total_amount': float(p.total_amount or 0),
+                'payment_type': p.payment_type,
+                'paid_amount': float(p.paid_amount or 0),
+                'debt_amount': float(p.debt_amount or 0),
+                'location_name': p.location_name,
+                'added_by': p.added_by,
+                '_debt_delta': float(p.debt_amount or 0),
+            })
+        for pay in payments:
+            raw_events.append({
+                'type': 'payment',
+                'id': pay.id,
+                'date': pay.payment_date.strftime('%Y-%m-%d %H:%M:%S') if pay.payment_date else None,
+                'amount_usd': float(pay.amount_usd or 0),
+                'payment_method': pay.payment_method,
+                'paid_by': pay.paid_by,
+                'notes': pay.notes,
+                '_debt_delta': -float(pay.amount_usd or 0),
+            })
+
+        # Xronologik tartibda (eskidan yangiga) qarzni hisoblash
+        raw_events.sort(key=lambda e: e['date'] or '')
+        running_debt = 0.0
+        for e in raw_events:
+            e['debt_before'] = round(running_debt, 2)
+            running_debt += e['_debt_delta']
+            e['debt_after'] = round(running_debt, 2)
+            del e['_debt_delta']
+
+        # Ko'rsatishda yangidan eskiga
+        raw_events.sort(key=lambda e: e['date'] or '', reverse=True)
+
+        return jsonify({
+            'success': True,
+            'supplier': supplier.to_dict(),
+            'events': raw_events
+        })
+    except Exception as e:
+        logger.error(f"Error fetching supplier timeline: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/suppliers/<int:supplier_id>/debt-payment', methods=['POST'])
 @role_required('admin', 'kassir', 'omborchi')
 def pay_supplier_debt(supplier_id):

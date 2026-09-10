@@ -1,0 +1,260 @@
+{% extends "base_with_sidebar.html" %}
+{% block title %}{{ supplier.name }} - Amallar tarixi{% endblock %}
+
+{% block extra_css %}
+<style>
+.tl-page { padding: 24px 28px 40px; background: transparent; min-height: 100vh; }
+
+/* Header */
+.tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.tl-back-btn { padding: 8px 16px; background: #1a6eff; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; }
+.tl-back-btn:hover { background: #1557cc; color: white; text-decoration: none; }
+
+/* Supplier info card */
+.tl-customer-card { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); flex-wrap: wrap; }
+.tl-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1a6eff, #0d47d9); display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: 700; flex-shrink: 0; }
+.tl-cname { font-size: 17px; font-weight: 700; color: #1e293b; }
+.tl-cphone { font-size: 13px; color: #64748b; margin-top: 2px; }
+.tl-cbadges { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.tl-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.tl-badge-debt { background: #fee2e2; color: #991b1b; }
+
+/* Stats */
+.tl-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.tl-stat { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); text-align: center; }
+.tl-stat-value { font-size: 18px; font-weight: 700; color: #1e293b; }
+.tl-stat-label { font-size: 12px; color: #64748b; margin-top: 3px; }
+
+/* Filter */
+.tl-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+.tl-filter-btn { padding: 7px 16px; border: 1px solid #e2e8f0; border-radius: 20px; background: white; color: #475569; font-size: 13px; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+.tl-filter-btn.active { background: #1a6eff; color: white; border-color: #1a6eff; }
+.tl-filter-btn:hover:not(.active) { background: #f1f5f9; }
+
+/* Timeline */
+.tl-container { position: relative; padding-left: 40px; }
+.tl-container::before { content: ''; position: absolute; left: 16px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
+
+.tl-item { position: relative; margin-bottom: 16px; }
+.tl-dot { position: absolute; left: -32px; top: 18px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px currentColor; }
+.tl-dot-purchase { color: #1a6eff; background: #1a6eff; }
+.tl-dot-payment { color: #16a34a; background: #16a34a; }
+
+.tl-card { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); border-left: 3px solid #e2e8f0; }
+.tl-card-purchase { border-left-color: #1a6eff; }
+.tl-card-payment { border-left-color: #16a34a; }
+
+.tl-card-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tl-type-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
+.tl-type-purchase { background: #dbeafe; color: #1558d6; }
+.tl-type-payment { background: #dcfce7; color: #15803d; }
+.tl-date { font-size: 12px; color: #94a3b8; }
+.tl-time-badge { background: #1a6eff; color: #ffffff; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+.tl-amount { font-size: 16px; font-weight: 700; }
+.tl-amount-purchase { color: #1e293b; }
+.tl-amount-payment { color: #16a34a; }
+
+.tl-details { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tl-detail-chip { font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; color: #475569; }
+.tl-detail-chip-total { font-size: 12px; background: #dbeafe; color: #1558d6; border: 1px solid #93c5fd; border-radius: 6px; padding: 3px 10px; font-weight: 700; }
+.tl-after-row { display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:12px; }
+.tl-after-label { color:#94a3b8; }
+.tl-after-debt { background:#fee2e2; color:#dc2626; border-radius:5px; padding:2px 8px; font-weight:600; }
+.tl-after-debt.zero { background:#dcfce7; color:#16a34a; }
+
+.tl-status-paid { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+.tl-status-debt { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+.tl-status-partial { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+
+.tl-empty { text-align: center; padding: 40px; color: #94a3b8; font-size: 15px; }
+.tl-loading { text-align: center; padding: 40px; color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tl-page">
+    <!-- Header -->
+    <div class="tl-header">
+        <div class="tl-customer-card" style="margin:0;box-shadow:none;background:transparent;padding:0;">
+            <div class="tl-avatar" id="avatarInitial">?</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="tl-cname">{{ supplier.name }}</div>
+                <div class="tl-cphone" style="margin:0;">📞 {{ supplier.phone or '—' }}</div>
+            </div>
+            <div class="tl-cbadges" id="supplierBadges"></div>
+        </div>
+        <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="tl-stats" id="statsRow">
+        <div class="tl-stat"><div class="tl-stat-value" id="statPurchases">—</div><div class="tl-stat-label">Jami xaridlar</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statTotalBought">—</div><div class="tl-stat-label">Jami xarid (USD)</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statPayments">—</div><div class="tl-stat-label">To'lovlar soni</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statTotalPaid">—</div><div class="tl-stat-label">Jami to'langan</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statDebt">—</div><div class="tl-stat-label">Hozirgi qarz</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="tl-filters">
+        <button class="tl-filter-btn active" onclick="setFilter('all')">Barchasi</button>
+        <button class="tl-filter-btn" onclick="setFilter('purchase')">📦 Xaridlar</button>
+        <button class="tl-filter-btn" onclick="setFilter('payment')">💳 To'lovlar</button>
+    </div>
+
+    <!-- Timeline -->
+    <div id="timelineContainer"><div class="tl-loading">⏳ Yuklanmoqda...</div></div>
+</div>
+
+<script>
+const SUPPLIER_ID = {{ supplier.id }};
+let allEvents = [];
+let currentFilter = 'all';
+
+async function loadTimeline() {
+    try {
+        const res = await fetch(`/api/supplier/${SUPPLIER_ID}/timeline`);
+        const data = await res.json();
+        if (!data.success) { document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Ma\'lumot yuklanmadi</div>'; return; }
+
+        allEvents = data.events;
+        const s = data.supplier;
+
+        document.getElementById('avatarInitial').textContent = (s.name || '?')[0].toUpperCase();
+
+        const badgesEl = document.getElementById('supplierBadges');
+        badgesEl.innerHTML = s.balance_usd > 0 ? `<span class="tl-badge tl-badge-debt">⚠️ Qarz: $${s.balance_usd.toFixed(2)}</span>` : '';
+
+        const purchases = allEvents.filter(e => e.type === 'purchase');
+        const payments = allEvents.filter(e => e.type === 'payment');
+        const totalBought = purchases.reduce((sum, e) => sum + e.total_amount, 0);
+        const totalPaid = payments.reduce((sum, e) => sum + e.amount_usd, 0);
+        const currentDebt = s.balance_usd || 0;
+
+        document.getElementById('statPurchases').textContent = purchases.length + ' ta';
+        document.getElementById('statTotalBought').textContent = '$' + totalBought.toFixed(2);
+        document.getElementById('statPayments').textContent = payments.length + ' ta';
+        document.getElementById('statTotalPaid').textContent = '$' + totalPaid.toFixed(2);
+        document.getElementById('statDebt').textContent = '$' + currentDebt.toFixed(2);
+        document.getElementById('statDebt').style.color = currentDebt > 0 ? '#dc2626' : '#16a34a';
+
+        renderTimeline();
+    } catch (e) {
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Xatolik: ' + e.message + '</div>';
+    }
+}
+
+function setFilter(type) {
+    currentFilter = type;
+    document.querySelectorAll('.tl-filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderTimeline();
+}
+
+function renderTimeline() {
+    const filtered = currentFilter === 'all' ? allEvents : allEvents.filter(e => e.type === currentFilter);
+    if (filtered.length === 0) {
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">📭 Amallar topilmadi</div>';
+        return;
+    }
+
+    const groups = {};
+    filtered.forEach(e => {
+        const day = (e.date || '').substring(0, 10);
+        if (!groups[day]) groups[day] = [];
+        groups[day].push(e);
+    });
+
+    let html = '';
+    Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
+        html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;margin-top:4px;letter-spacing:0.5px;">${formatDay(day)}</div>`;
+        html += '<div class="tl-container">';
+        groups[day].forEach(e => {
+            html += e.type === 'purchase' ? renderPurchase(e) : renderPayment(e);
+        });
+        html += '</div>';
+    });
+
+    document.getElementById('timelineContainer').innerHTML = html;
+}
+
+function formatDay(dateStr) {
+    if (!dateStr) return '—';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    const dd = new Date(dateStr); dd.setHours(0, 0, 0, 0);
+    if (dd.getTime() === today.getTime()) return 'Bugun — ' + dateStr;
+    if (dd.getTime() === yesterday.getTime()) return 'Kecha — ' + dateStr;
+    return dateStr;
+}
+
+function timeOnly(dateStr) {
+    return (dateStr || '').substring(11, 16);
+}
+
+function paymentTypeBadge(type) {
+    if (type === 'cash') return '<span class="tl-status-paid">✅ Naxt to\'landi</span>';
+    if (type === 'debt') return '<span class="tl-status-debt">💳 Qarzga olindi</span>';
+    if (type === 'partial') return '<span class="tl-status-partial">➗ Qisman to\'landi</span>';
+    return '';
+}
+
+function afterRow(e) {
+    const debt = e.debt_after != null ? e.debt_after : null;
+    if (debt === null) return '';
+    const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
+    return `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span><span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span></div>`;
+}
+
+function renderPurchase(e) {
+    const chips = [];
+    chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_amount.toFixed(2)}</span>`);
+    chips.push(`<span class="tl-detail-chip">📦 ${e.quantity} × $${e.cost_price.toFixed(2)}</span>`);
+    if (e.paid_amount > 0) chips.push(`<span class="tl-detail-chip">✅ To'landi: $${e.paid_amount.toFixed(2)}</span>`);
+    if (e.debt_amount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_amount.toFixed(2)}</span>`);
+    if (e.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${e.location_name}</span>`);
+    if (e.added_by) chips.push(`<span class="tl-detail-chip">👤 ${e.added_by}</span>`);
+
+    return `<div class="tl-item">
+        <div class="tl-dot tl-dot-purchase"></div>
+        <div class="tl-card tl-card-purchase">
+            <div class="tl-card-header">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span class="tl-time-badge">${timeOnly(e.date)}</span>
+                    <span class="tl-type-badge tl-type-purchase">📦 ${e.product_name}</span>
+                    ${paymentTypeBadge(e.payment_type)}
+                </div>
+                <div><span class="tl-amount tl-amount-purchase">$${e.total_amount.toFixed(2)}</span></div>
+            </div>
+            <div class="tl-details">${chips.join('')}</div>
+            ${afterRow(e)}
+        </div>
+    </div>`;
+}
+
+function renderPayment(e) {
+    const chips = [];
+    chips.push(`<span class="tl-detail-chip">💳 ${e.payment_method}</span>`);
+    if (e.paid_by) chips.push(`<span class="tl-detail-chip">👤 ${e.paid_by}</span>`);
+    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
+
+    return `<div class="tl-item">
+        <div class="tl-dot tl-dot-payment"></div>
+        <div class="tl-card tl-card-payment">
+            <div class="tl-card-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="tl-time-badge">${timeOnly(e.date)}</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
+                </div>
+                <div><span class="tl-amount tl-amount-payment">+$${e.amount_usd.toFixed(2)}</span></div>
+            </div>
+            <div class="tl-details">${chips.join('')}</div>
+            ${notesHtml}
+            ${afterRow(e)}
+        </div>
+    </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', loadTimeline);
+</script>
+{% endblock %}

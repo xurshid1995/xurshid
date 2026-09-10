@@ -195,17 +195,6 @@
     </div>
 </div>
 
-<!-- History Modal -->
-<div id="supplierHistoryModal" class="sup-modal">
-    <div class="sup-modal-box" style="max-width:560px;">
-        <div class="sup-modal-head">
-            <h3 id="supHistoryTitle"><i class="fas fa-history"></i> Tarix</h3>
-            <button class="sup-modal-close" onclick="closeSupplierHistoryModal()">&times;</button>
-        </div>
-        <div id="supHistoryList" class="sup-history-list"></div>
-    </div>
-</div>
-
 <script>
 let allSuppliers = [];
 
@@ -397,58 +386,12 @@ async function submitSupplierPayForm(event) {
     }
 }
 
-// ==================== HISTORY MODAL ====================
-async function openSupplierHistoryModal(id, name) {
-    document.getElementById('supHistoryTitle').innerHTML = `<i class="fas fa-history"></i> ${escapeHtml(name)} - Tarix`;
-    document.getElementById('supHistoryList').innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i></div>';
-    document.getElementById('supplierHistoryModal').classList.add('active');
-    try {
-        const res = await fetch(`/api/suppliers/${id}/history`);
-        const data = await res.json();
-        const events = data.events || [];
-        if (events.length === 0) {
-            document.getElementById('supHistoryList').innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tarix mavjud emas</div>';
-            return;
-        }
-        document.getElementById('supHistoryList').innerHTML = events.map(e => {
-            const date = e.created_at ? new Date(e.created_at).toLocaleString('uz-UZ') : '-';
-            if (e.event_type === 'purchase') {
-                return `
-                    <div class="sup-history-item purchase">
-                        <div class="sup-history-row">
-                            <strong>📦 ${escapeHtml(e.product_name)}</strong>
-                            <span>$${e.total_amount.toFixed(2)}</span>
-                        </div>
-                        <div style="color:#6b7280; margin-top:4px;">
-                            ${e.quantity} dona × $${e.cost_price.toFixed(2)} · ${escapeHtml(e.location_name || '-')}
-                            ${e.debt_amount > 0 ? `· <span style="color:#dc2626;">Qarz: $${e.debt_amount.toFixed(2)}</span>` : '· <span style="color:#059669;">To\'liq to\'langan</span>'}
-                        </div>
-                        <div class="sup-history-date">${date} ${e.added_by ? '· ' + escapeHtml(e.added_by) : ''}</div>
-                    </div>
-                `;
-            }
-            return `
-                <div class="sup-history-item payment">
-                    <div class="sup-history-row">
-                        <strong>💰 To'lov (${escapeHtml(e.payment_method)})</strong>
-                        <span style="color:#059669;">$${e.amount_usd.toFixed(2)}</span>
-                    </div>
-                    ${e.notes ? `<div style="color:#6b7280; margin-top:4px;">${escapeHtml(e.notes)}</div>` : ''}
-                    <div class="sup-history-date">${date} ${e.paid_by ? '· ' + escapeHtml(e.paid_by) : ''}</div>
-                </div>
-            `;
-        }).join('');
-    } catch (e) {
-        document.getElementById('supHistoryList').innerHTML = `<div style="color:#dc2626; padding:20px;">Xatolik: ${e.message}</div>`;
-    }
-}
-
-function closeSupplierHistoryModal() {
-    document.getElementById('supplierHistoryModal').classList.remove('active');
+// ==================== TARIX (mijoz timeline uslubidagi sahifa) ====================
+function openSupplierHistoryModal(id) {
+    window.location.href = `/supplier/${id}/timeline`;
 }
 
 document.getElementById('supplierFormModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierFormModal(); });
 document.getElementById('supplierPayModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierPayModal(); });
-document.getElementById('supplierHistoryModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierHistoryModal(); });
 </script>
 {% endblock %}
