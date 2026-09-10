@@ -732,11 +732,44 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     currentPendingBatchId = data.batch.id;
                     tempProducts = data.batch.items;
                     updateTempList();
+                    restorePendingBatchSelections();
                     console.log(`✅ Pending batch yuklandi: ${tempProducts.length} ta mahsulot`);
                 }
             } catch (e) {
                 console.warn('Pending batch yuklanmadi:', e);
             }
+        }
+
+        // Davom ettirilayotgan pendingda oxirgi mahsulotning joylashuvi/yetkazib beruvchisini
+        // qayta tanlash - select'lar hali API'dan yuklanmagan bo'lishi mumkin, shuning uchun kutib turamiz
+        function restorePendingBatchSelections() {
+            if (tempProducts.length === 0) return;
+            const lastItem = tempProducts[tempProducts.length - 1];
+            const wantLocation = lastItem.location || '';
+            const wantSupplier = lastItem.supplierId || '';
+            if (!wantLocation && !wantSupplier) return;
+
+            let attempts = 0;
+            const maxAttempts = 30;
+            const tryApply = () => {
+                const locSel = document.getElementById('location');
+                const supSel = document.getElementById('supplier_id');
+                const locReady = !wantLocation || locSel.options.length > 1;
+                const supReady = !wantSupplier || supSel.options.length > 1;
+
+                if ((locReady && supReady) || attempts >= maxAttempts) {
+                    if (wantLocation) locSel.value = wantLocation;
+                    if (wantSupplier) {
+                        supSel.value = wantSupplier;
+                        lockLocationSupplier();
+                        updateSupplierHeader();
+                    }
+                    return;
+                }
+                attempts++;
+                setTimeout(tryApply, 150);
+            };
+            tryApply();
         }
 
         // Excel import funksiyalari
