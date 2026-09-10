@@ -275,7 +275,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                     </button>
                                 </div>
                                 <input type="text" id="supplier_search" class="ap-input" placeholder="Qidirish..." autocomplete="off"
-                                       oninput="searchSuppliers(this.value)" onfocus="searchSuppliers(this.value)" onkeydown="handleSupplierSearchKeyDown(event)">
+                                       oninput="searchSuppliers(this.value)" onkeydown="handleSupplierSearchKeyDown(event)">
                                 <div id="supplierDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-radius:10px; max-height:220px; overflow-y:auto; z-index:1500; box-shadow:0 6px 18px rgba(0,0,0,0.12); margin-top:4px;"></div>
                                 <input type="hidden" id="supplier_id" value="">
                             </div>
@@ -3111,8 +3111,15 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const dropdown = document.getElementById('supplierDropdown');
             selectedSupplierIndex = -1;
             const query = (text || '').toLowerCase().trim();
+
+            if (!query) {
+                dropdown.style.display = 'none';
+                filteredSuppliers = [];
+                return;
+            }
+
             const cleanQuery = query.replace(/[\s\-\(\)\+]/g, '');
-            filteredSuppliers = !query ? allSuppliersData : allSuppliersData.filter(s => {
+            filteredSuppliers = allSuppliersData.filter(s => {
                 const name = (s.name || '').toLowerCase();
                 const contact = (s.contact_person || '').toLowerCase();
                 const cleanPhone = (s.phone || '').replace(/[\s\-\(\)\+]/g, '');
