@@ -182,10 +182,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
 .ap-min-split > div { flex:1 1 50%; min-width:0; }
 .ap-min-split input.ap-input { width:100%; }
 .ap-min-split .ap-label { font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ap-row-loc-excel { grid-template-columns: 7fr 3fr; }
+.ap-row-loc-sup { display:grid; grid-template-columns: 1.6fr 1fr; gap:12px; }
 @media (max-width: 768px) {
     .ap-page { padding: 12px; }
     .ap-row { grid-template-columns: 1fr; }
     .ap-row-2col { grid-template-columns: 1fr 1fr !important; }
+    .ap-row-loc-excel { grid-template-columns: 1fr !important; }
+    .ap-row-loc-sup { grid-template-columns: 1fr 1fr !important; }
     .ap-row-2col-dsk { grid-template-columns: 1fr !important; }
     .ap-row-3col { grid-template-columns: 1fr 1fr 1fr !important; }
     .ap-qty-grid { grid-template-columns:1fr 1fr 1fr; grid-template-areas:"qty unit min" "barcode barcode barcode"; }
@@ -226,31 +230,31 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleExcelFile(event)">
 
                 <form id="productForm" onsubmit="return false;">
-                    <!-- Joylashuv va Yetkazib beruvchi -->
-                    <div class="ap-row" style="grid-template-columns:1.6fr 1fr; margin-bottom:11px;">
-                        <div class="ap-form-group" style="margin-bottom:0;">
-                            <label class="ap-label" for="location">{{ t('ap_location_label') }}</label>
-                            <select id="location" name="location" class="ap-input" onchange="onLocationChange()">
-                                <option value="">{{ t('ap_select_location') }}</option>
-                            </select>
+                    <!-- Joylashuv + Yetkazib beruvchi (70%) va Excel Import (30%) -->
+                    <div class="ap-row ap-row-loc-excel" style="margin-bottom:11px;">
+                        <div class="ap-row-loc-sup">
+                            <div class="ap-form-group" style="margin-bottom:0;">
+                                <label class="ap-label" for="location">{{ t('ap_location_label') }}</label>
+                                <select id="location" name="location" class="ap-input" onchange="onLocationChange()">
+                                    <option value="">{{ t('ap_select_location') }}</option>
+                                </select>
+                            </div>
+                            <div class="ap-form-group" style="margin-bottom:0;">
+                                <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
+                                <select id="supplier_id" name="supplier_id" class="ap-input">
+                                    <option value="">— Tanlanmagan —</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="ap-form-group" style="margin-bottom:0;">
-                            <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
-                            <select id="supplier_id" name="supplier_id" class="ap-input">
-                                <option value="">— Tanlanmagan —</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Excel Import -->
-                    <div class="ap-form-group" style="margin-bottom:11px;">
-                        <div style="display:flex; gap:6px;">
-                            <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
-                                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_import_btn') }}
-                            </button>
-                            <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
-                                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_template_btn') }}
-                            </button>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
+                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_import_btn') }}
+                                </button>
+                                <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
+                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_template_btn') }}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
