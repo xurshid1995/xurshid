@@ -83,6 +83,52 @@
 .sup-history-item.payment { border-left: 4px solid #059669; }
 .sup-history-row { display: flex; justify-content: space-between; align-items: center; }
 .sup-history-date { color: #94a3b8; font-size: 12px; }
+
+/* Qarzga to'lov qilish - mijoz qarz to'lash kartasi uslubi */
+.ps-payment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+.ps-payment-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+.ps-payment-title i { color: #1a6eff; margin-right: 6px; }
+.ps-debt-badge {
+    background: #eff6ff; border: 1.5px solid #bfdbfe; border-left: 4px solid #1a6eff; border-radius: 10px;
+    padding: 7px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569;
+}
+.ps-debt-badge strong { color: #dc2626; font-size: 17px; font-weight: 700; }
+.ps-copy-btn {
+    border: none; background: #dbeafe; color: #1a6eff; width: 26px; height: 26px; border-radius: 6px;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+    flex-shrink: 0; transition: background .15s, color .15s;
+}
+.ps-copy-btn:hover { background: #bfdbfe; }
+.ps-copy-btn.ps-copied { background: #16a34a; color: #fff; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ps-payment-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.ps-pay-label {
+    font-weight: 600; color: #374151; font-size: 13px; min-width: 76px; max-width: 76px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
+}
+.ps-pay-field { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; }
+.ps-currency-sign { font-weight: 700; color: #64748b; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+.ps-pay-input {
+    flex: 1; padding: 5px 6px; border: 1.5px solid #e2e8f0; border-radius: 7px; font-size: 13px;
+    background: #f8fafc; color: #1e293b; outline: none; transition: all 0.2s; min-width: 0; width: 100%;
+    box-sizing: border-box;
+}
+.ps-pay-input:focus { border-color: #1a6eff; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
+.ps-btn-remaining {
+    padding: 5px 8px; background: #1a6eff; color: white; border: none; border-radius: 7px; cursor: pointer;
+    font-size: 13px; font-weight: 700; line-height: 1; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
+}
+.ps-btn-remaining:hover { background: #1558d6; }
+.ps-btn-submit {
+    width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 10px;
+    cursor: pointer; font-size: 14px; font-weight: 700; transition: background 0.2s;
+}
+.ps-btn-submit:hover { background: #15803d; }
+@media (max-width: 480px) {
+    .ps-payment-row { flex-wrap: wrap; }
+    .ps-pay-field { min-width: 100px; }
+    .ps-payment-header { flex-direction: column; align-items: flex-start; }
+}
 </style>
 {% endblock %}
 
@@ -159,39 +205,57 @@
 
 <!-- Debt Payment Modal -->
 <div id="supplierPayModal" class="sup-modal">
-    <div class="sup-modal-box">
-        <div class="sup-modal-head">
-            <h3><i class="fas fa-hand-holding-usd"></i> Qarzni to'lash</h3>
-            <button class="sup-modal-close" onclick="closeSupplierPayModal()">&times;</button>
+    <div class="sup-modal-box" style="max-width:420px;">
+        <div class="ps-payment-header">
+            <h2 class="ps-payment-title"><i class="fas fa-credit-card"></i> Qarzga to'lov qilish</h2>
+            <div class="ps-debt-badge">
+                <span>Qarz miqdori:</span>
+                <strong id="pay_current_balance">$0.00</strong>
+                <button type="button" class="ps-copy-btn" onclick="copySupplierDebtAmount(this)" title="Nusxalash"><i class="fas fa-copy"></i></button>
+            </div>
         </div>
         <div id="supPayError" class="sup-msg sup-msg-error"></div>
-        <div id="supPaySuccess" class="sup-msg sup-msg-success"></div>
-        <form id="supplierPayForm" onsubmit="submitSupplierPayForm(event)">
-            <input type="hidden" id="pay_supplier_id">
-            <p style="margin:0 0 14px; font-size:13px; color:#6b7280;">
-                Joriy qarz: <strong id="pay_current_balance" style="color:#dc2626;"></strong>
-            </p>
-            <div class="sup-field">
-                <label>To'lov summasi ($) <span style="color:#e74c3c;">*</span></label>
-                <input type="number" id="pay_amount" step="0.01" min="0.01" required>
+        <input type="hidden" id="pay_supplier_id">
+        <div class="ps-payment-rows">
+            <div class="ps-payment-row">
+                <span class="ps-pay-label">💵 Naqd:</span>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">$</span>
+                    <input type="number" id="paySupplierCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                </div>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">UZS</span>
+                    <input type="number" id="paySupplierCashUZS" step="1" placeholder="0" class="ps-pay-input">
+                </div>
+                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierCashUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
             </div>
-            <div class="sup-field">
-                <label>To'lov turi</label>
-                <select id="pay_method">
-                    <option value="cash">Naxt</option>
-                    <option value="click">Click</option>
-                    <option value="terminal">Terminal</option>
-                </select>
+            <div class="ps-payment-row">
+                <span class="ps-pay-label">📱 Click:</span>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">$</span>
+                    <input type="number" id="paySupplierClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                </div>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">UZS</span>
+                    <input type="number" id="paySupplierClickUZS" step="1" placeholder="0" class="ps-pay-input">
+                </div>
+                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierClickUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
             </div>
-            <div class="sup-field">
-                <label>Izoh</label>
-                <textarea id="pay_notes" rows="2"></textarea>
+            <div class="ps-payment-row">
+                <span class="ps-pay-label">🏧 Termi...:</span>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">$</span>
+                    <input type="number" id="paySupplierTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                </div>
+                <div class="ps-pay-field">
+                    <span class="ps-currency-sign">UZS</span>
+                    <input type="number" id="paySupplierTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
+                </div>
+                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierTerminalUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
             </div>
-            <div class="sup-modal-actions">
-                <button type="button" class="sup-btn-cancel" onclick="closeSupplierPayModal()">Bekor qilish</button>
-                <button type="submit" class="sup-btn-submit" id="supPaySubmitBtn">To'lash</button>
-            </div>
-        </form>
+        </div>
+        <button type="button" class="ps-btn-submit" id="supPaySubmitBtn" onclick="submitSupplierPayForm()">✅ To'lovni tasdiqlash</button>
+        <button type="button" class="sup-btn-cancel" onclick="closeSupplierPayModal()" style="width:100%; margin-top:8px; padding:9px; border:none; border-radius:10px; background:#f1f5f9; color:#374151; font-weight:600; cursor:pointer;">Bekor qilish</button>
     </div>
 </div>
 
@@ -338,44 +402,117 @@ async function deleteSupplier(id, name) {
 }
 
 // ==================== DEBT PAYMENT MODAL ====================
+let supplierCurrentBalance = 0;
+let supplierPayRate = 12500;
+
+async function fetchSupplierPayRate() {
+    try {
+        const res = await fetch('/api/currency-rate');
+        const data = await res.json();
+        supplierPayRate = data.rate?.rate || data.rate || 12500;
+    } catch (e) {
+        supplierPayRate = 12500;
+    }
+}
+
 function openSupplierPayModal(id, name, balance) {
+    supplierCurrentBalance = balance;
     document.getElementById('pay_supplier_id').value = id;
-    document.getElementById('pay_current_balance').textContent = `$${balance.toFixed(2)} (${name})`;
-    document.getElementById('pay_amount').value = '';
-    document.getElementById('pay_amount').max = balance;
-    document.getElementById('pay_notes').value = '';
+    document.getElementById('pay_current_balance').textContent = `$${balance.toFixed(2)}`;
+    ['paySupplierCashUSD', 'paySupplierClickUSD', 'paySupplierTerminalUSD',
+     'paySupplierCashUZS', 'paySupplierClickUZS', 'paySupplierTerminalUZS'].forEach(id2 => {
+        document.getElementById(id2).value = '';
+    });
     document.getElementById('supPayError').style.display = 'none';
-    document.getElementById('supPaySuccess').style.display = 'none';
     document.getElementById('supplierPayModal').classList.add('active');
+    fetchSupplierPayRate();
 }
 
 function closeSupplierPayModal() {
     document.getElementById('supplierPayModal').classList.remove('active');
 }
 
-async function submitSupplierPayForm(event) {
-    event.preventDefault();
-    const id = document.getElementById('pay_supplier_id').value;
-    const payload = {
-        amount_usd: parseFloat(document.getElementById('pay_amount').value),
-        payment_method: document.getElementById('pay_method').value,
-        notes: document.getElementById('pay_notes').value.trim(),
+function copySupplierDebtAmount(btn) {
+    const text = document.getElementById('pay_current_balance').textContent.trim();
+    const done = () => {
+        const icon = btn.querySelector('i');
+        btn.classList.add('ps-copied');
+        icon.className = 'fas fa-check';
+        setTimeout(() => { btn.classList.remove('ps-copied'); icon.className = 'fas fa-copy'; }, 1200);
     };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {});
+    }
+}
+
+// USD <-> UZS avtomatik konversiya (har bir to'lov turi uchun)
+['Cash', 'Click', 'Terminal'].forEach(kind => {
+    const usdEl = () => document.getElementById(`paySupplier${kind}USD`);
+    const uzsEl = () => document.getElementById(`paySupplier${kind}UZS`);
+    document.addEventListener('DOMContentLoaded', () => {
+        usdEl().addEventListener('input', function () {
+            const usd = parseFloat(this.value);
+            uzsEl().value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * supplierPayRate) : '';
+        });
+        uzsEl().addEventListener('input', function () {
+            const uzs = parseFloat(this.value);
+            usdEl().value = (!isNaN(uzs) && this.value !== '') ? (uzs / supplierPayRate).toFixed(2) : '';
+        });
+    });
+});
+
+function addRemainingToSupplierPayField(usdFieldId) {
+    const cash = parseFloat(document.getElementById('paySupplierCashUSD').value) || 0;
+    const click = parseFloat(document.getElementById('paySupplierClickUSD').value) || 0;
+    const terminal = parseFloat(document.getElementById('paySupplierTerminalUSD').value) || 0;
+    const selfValue = { paySupplierCashUSD: cash, paySupplierClickUSD: click, paySupplierTerminalUSD: terminal }[usdFieldId] || 0;
+    const currentTotal = cash + click + terminal - selfValue;
+    const remaining = supplierCurrentBalance - currentTotal;
+
+    if (remaining > 0) {
+        const field = document.getElementById(usdFieldId);
+        field.value = remaining.toFixed(2);
+        field.dispatchEvent(new Event('input'));
+    } else {
+        alert('✅ Qarz to\'liq qoplandi');
+    }
+}
+
+async function submitSupplierPayForm() {
+    const id = document.getElementById('pay_supplier_id').value;
+    const cash_usd = parseFloat(document.getElementById('paySupplierCashUSD').value) || 0;
+    const click_usd = parseFloat(document.getElementById('paySupplierClickUSD').value) || 0;
+    const terminal_usd = parseFloat(document.getElementById('paySupplierTerminalUSD').value) || 0;
+    const total = cash_usd + click_usd + terminal_usd;
+
     const errEl = document.getElementById('supPayError');
-    const okEl = document.getElementById('supPaySuccess');
     errEl.style.display = 'none';
-    okEl.style.display = 'none';
+
+    if (total <= 0) {
+        errEl.textContent = "To'lov summasini kiriting";
+        errEl.style.display = 'block';
+        return;
+    }
+    if (total > supplierCurrentBalance + 0.00001) {
+        errEl.textContent = "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas";
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const submitBtn = document.getElementById('supPaySubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Yuklanmoqda...';
+
     try {
         const res = await fetch(`/api/suppliers/${id}/debt-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ cash_usd, click_usd, terminal_usd, exchange_rate: supplierPayRate })
         });
         const data = await res.json();
         if (res.ok) {
-            okEl.textContent = "To'lov qabul qilindi";
-            okEl.style.display = 'block';
-            setTimeout(() => { closeSupplierPayModal(); loadSuppliers(); }, 800);
+            closeSupplierPayModal();
+            loadSuppliers();
         } else {
             errEl.textContent = data.error || 'Xatolik yuz berdi';
             errEl.style.display = 'block';
@@ -383,6 +520,9 @@ async function submitSupplierPayForm(event) {
     } catch (e) {
         errEl.textContent = e.message;
         errEl.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "✅ To'lovni tasdiqlash";
     }
 }
 

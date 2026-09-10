@@ -7765,6 +7765,19 @@ def create_tables():
         except Exception as _e:
             db.session.rollback()
             logger.warning(f"pending_transfers migration: {_e}")
+        # Idempotent migration: supplier_payments ga naqd/click/terminal ustunlarini qo'shish
+        try:
+            db.session.execute(db.text("""
+                ALTER TABLE supplier_payments
+                    ADD COLUMN IF NOT EXISTS cash_usd DECIMAL(15, 2) DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS click_usd DECIMAL(15, 2) DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS terminal_usd DECIMAL(15, 2) DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS currency_rate DECIMAL(15, 4);
+            """))
+            db.session.commit()
+        except Exception as _e:
+            db.session.rollback()
+            logger.warning(f"supplier_payments migration: {_e}")
         create_tables.created = True
 
     # Test ombor stocklari o'chirildi - manual ravishda qo'shiladi
@@ -10957,6 +10970,10 @@ def api_supplier_timeline(supplier_id):
                 'id': pay.id,
                 'date': pay.payment_date.strftime('%Y-%m-%d %H:%M:%S') if pay.payment_date else None,
                 'amount_usd': float(pay.amount_usd or 0),
+                'cash_usd': float(pay.cash_usd or 0),
+                'click_usd': float(pay.click_usd or 0),
+                'terminal_usd': float(pay.terminal_usd or 0),
+                'currency_rate': float(pay.currency_rate) if pay.currency_rate else 0,
                 'payment_method': pay.payment_method,
                 'paid_by': pay.paid_by,
                 'notes': pay.notes,
@@ -10992,17 +11009,33 @@ def pay_supplier_debt(supplier_id):
         supplier = Supplier.query.get_or_404(supplier_id)
         data = request.get_json()
 
-        amount = Decimal(str(data.get('amount_usd', 0)))
+        cash_usd = Decimal(str(data.get('cash_usd', 0) or 0))
+        click_usd = Decimal(str(data.get('click_usd', 0) or 0))
+        terminal_usd = Decimal(str(data.get('terminal_usd', 0) or 0))
+        amount = cash_usd + click_usd + terminal_usd
+
+        # Eski (bitta summa) formatga moslik
+        if amount <= 0 and data.get('amount_usd'):
+            amount = Decimal(str(data.get('amount_usd', 0)))
+            cash_usd = amount
+
         if amount <= 0:
             return jsonify({'error': "To'lov summasi 0 dan katta bo'lishi kerak"}), 400
         if amount > supplier.balance_usd:
             return jsonify({'error': "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas"}), 400
 
+        methods_used = [m for m, v in (('cash', cash_usd), ('click', click_usd), ('terminal', terminal_usd)) if v > 0]
+        payment_method = methods_used[0] if len(methods_used) == 1 else ('mixed' if len(methods_used) > 1 else data.get('payment_method', 'cash'))
+
         current_user_name = session.get('username', 'System')
         payment = SupplierPayment(
             supplier_id=supplier_id,
             amount_usd=amount,
-            payment_method=data.get('payment_method', 'cash'),
+            cash_usd=cash_usd,
+            click_usd=click_usd,
+            terminal_usd=terminal_usd,
+            currency_rate=Decimal(str(data.get('exchange_rate'))) if data.get('exchange_rate') else None,
+            payment_method=payment_method,
             paid_by=current_user_name,
             notes=data.get('notes', '').strip() or None,
         )
