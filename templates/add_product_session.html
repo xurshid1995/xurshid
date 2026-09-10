@@ -761,7 +761,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     if (wantLocation) locSel.value = wantLocation;
                     if (wantSupplier) {
                         supSel.value = wantSupplier;
-                        lockLocationSupplier();
                         updateSupplierHeader();
                     }
                     return;
@@ -1817,16 +1816,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('globalMinStockEditBtn').style.display = 'none';
         }
 
-        // Yetkazib beruvchi tanlab mahsulot qo'shilgandan keyin Joylashuv/Yetkazib beruvchini bloklash
-        function lockLocationSupplier() {
-            ['location', 'supplier_id'].forEach(id => {
-                const el = document.getElementById(id);
-                el.disabled = true;
-                el.style.background = '#f1f5f9';
-                el.style.cursor = 'not-allowed';
-            });
-        }
-
+        // Joylashuv/Yetkazib beruvchini asl (bloklanmagan) holatga qaytarish
         function unlockLocationSupplier() {
             ['location', 'supplier_id'].forEach(id => {
                 const el = document.getElementById(id);
@@ -2103,11 +2093,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
             updateTempList();
             clearForm();
             savePendingBatch();
-
-            // Yetkazib beruvchi tanlangan bo'lsa, joylashuv/yetkazib beruvchini bloklash
-            if (supplierId) {
-                lockLocationSupplier();
-            }
         }
 
         // Yetkazib beruvchi tanlansa, sarlavhada uning nomi va telefoni ko'rsatiladi
