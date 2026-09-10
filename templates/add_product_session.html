@@ -94,20 +94,24 @@ optgroup option { font-weight: normal; color: #1e293b; }
 }
 .ap-btn-danger:hover { background: #dc2626; }
 .ap-btn-excel-import {
-    flex: 1; padding: 7px 10px;
+    flex: 1; min-width: 0; padding: 6px 4px;
     background: transparent; border: none; color: #059669;
-    border-radius: 8px; font-size: 13px; font-weight: 600;
+    border-radius: 8px; font-size: 11px; font-weight: 600;
     cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 7px; justify-content: center;
+    display: flex; align-items: center; gap: 4px; justify-content: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.ap-btn-excel-import img { width: 20px; height: 20px; flex-shrink: 0; }
 .ap-btn-excel-import:hover { background: #f0fff4; }
 .ap-btn-excel-template {
-    flex: 1; padding: 7px 10px;
+    flex: 1; min-width: 0; padding: 6px 4px;
     background: transparent; border: none; color: #059669;
-    border-radius: 8px; font-size: 13px; font-weight: 600;
+    border-radius: 8px; font-size: 11px; font-weight: 600;
     cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 7px; justify-content: center;
+    display: flex; align-items: center; gap: 4px; justify-content: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.ap-btn-excel-template img { width: 20px; height: 20px; flex-shrink: 0; }
 .ap-btn-excel-template:hover { background: #f0fff4; }
 .ap-btn-barcode-auto {
     padding: 6px 10px; background: transparent;
@@ -182,7 +186,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
 .ap-min-split > div { flex:1 1 50%; min-width:0; }
 .ap-min-split input.ap-input { width:100%; }
 .ap-min-split .ap-label { font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ap-row-loc-excel { grid-template-columns: 9fr 1fr; }
+.ap-row-loc-excel { grid-template-columns: minmax(0, 9fr) minmax(0, 1fr); }
+.ap-row-loc-excel > div { min-width: 0; }
 .ap-row-loc-sup { display:grid; grid-template-columns: 0.8fr 1.2fr; gap:12px; }
 @media (max-width: 768px) {
     .ap-page { padding: 12px; }
@@ -280,13 +285,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 <input type="hidden" id="supplier_id" value="">
                             </div>
                         </div>
-                        <div class="ap-form-group" style="margin-bottom:0;">
-                            <div style="display:flex; gap:6px;">
+                        <div class="ap-form-group" style="margin-bottom:0; min-width:0;">
+                            <div style="display:flex; gap:4px; min-width:0;">
                                 <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_import_btn') }}
+                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_import_btn') }}
                                 </button>
                                 <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_template_btn') }}
+                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_template_btn') }}
                                 </button>
                             </div>
                         </div>
