@@ -233,11 +233,10 @@ function renderPurchase(e) {
 }
 
 function renderPayment(e) {
-    const chips = [];
-    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
-    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
-    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
-    if (e.currency_rate > 0) chips.push(`<span class="tl-detail-chip">📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>`);
+    const paymentChips = [];
+    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
     const rateLabel = e.currency_rate > 0 ? `📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm` : '';
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
@@ -254,7 +253,7 @@ function renderPayment(e) {
                 </div>
                 <div><span class="tl-amount tl-amount-payment">+$${e.amount_usd.toFixed(2)}</span></div>
             </div>
-            <div class="tl-details">${chips.join('')}</div>
+            <div class="tl-details">${paymentChips.join('')}</div>
             ${notesHtml}
             ${afterRow(e)}
         </div>
