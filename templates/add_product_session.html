@@ -3111,7 +3111,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const dropdown = document.getElementById('supplierDropdown');
             selectedSupplierIndex = -1;
             const query = (text || '').toLowerCase().trim();
-            filteredSuppliers = !query ? allSuppliersData : allSuppliersData.filter(s => (s.name || '').toLowerCase().includes(query));
+            const cleanQuery = query.replace(/[\s\-\(\)\+]/g, '');
+            filteredSuppliers = !query ? allSuppliersData : allSuppliersData.filter(s => {
+                const name = (s.name || '').toLowerCase();
+                const contact = (s.contact_person || '').toLowerCase();
+                const cleanPhone = (s.phone || '').replace(/[\s\-\(\)\+]/g, '');
+                return name.includes(query) || contact.includes(query) || (cleanQuery && cleanPhone.includes(cleanQuery));
+            });
 
             if (filteredSuppliers.length === 0) {
                 dropdown.innerHTML = '<div style="padding:10px; color:#94a3b8; text-align:center; font-size:13px;">Topilmadi</div>';
@@ -3126,12 +3132,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const dropdown = document.getElementById('supplierDropdown');
             dropdown.innerHTML = filteredSuppliers.map((s, index) => {
                 const active = index === selectedSupplierIndex;
+                const details = [s.contact_person, s.phone].filter(Boolean).map(escapeHtmlSup).join(' · ');
                 return `<div class="supplier-item" data-index="${index}"
                         style="padding:9px 12px; cursor:pointer; border-bottom:1px solid #f1f5f9; background:${active ? '#edf4ff' : '#fff'};"
                         onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='${active ? '#edf4ff' : '#fff'}'"
                         onclick="selectSupplierItem(${s.id}, '${escapeHtmlSup(s.name).replace(/'/g, "\\'")}')">
                         <div style="font-weight:600; color:#1e293b; font-size:13px;">${escapeHtmlSup(s.name)}</div>
-                        ${s.phone ? `<div style="font-size:12px; color:#64748b;">${escapeHtmlSup(s.phone)}</div>` : ''}
+                        ${details ? `<div style="font-size:12px; color:#64748b;">${details}</div>` : ''}
                     </div>`;
             }).join('');
         }
