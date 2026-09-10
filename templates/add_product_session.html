@@ -206,6 +206,34 @@ optgroup option { font-weight: normal; color: #1e293b; }
         height: 22px !important;
     }
 }
+
+/* Yetkazib beruvchi qo'shish modali - suppliers.html bilan 100% bir xil */
+.sup-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55); z-index: 9998; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.sup-modal.active { display: flex; }
+.sup-modal-box {
+    background: white; border-radius: 16px; padding: 28px; width: 92%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.sup-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e9ecef; }
+.sup-modal-head h3 { margin: 0; font-size: 17px; font-weight: 700; color: #1e293b; }
+.sup-modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; }
+.sup-field { margin-bottom: 14px; }
+.sup-field label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; font-size: 13px; }
+.sup-field input, .sup-field select, .sup-field textarea {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 14px; box-sizing: border-box; outline: none; font-family: inherit;
+}
+.sup-modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.sup-modal-actions button { flex: 1; padding: 11px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.sup-btn-cancel { background: #f1f5f9; color: #374151; }
+.sup-btn-submit { background: linear-gradient(135deg,#1a6eff,#1557cc); color: white; }
+.sup-msg { display: none; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
+.sup-msg-error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+.sup-msg-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
 </style>
 {% endblock %}
 
@@ -575,37 +603,37 @@ optgroup option { font-weight: normal; color: #1e293b; }
     </div>
 </div>
 
-<!-- Tezkor yetkazib beruvchi qo'shish modali -->
-<div id="quickAddSupplierModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:14px;padding:22px;width:min(360px,92vw);box-shadow:0 12px 48px rgba(0,0,0,0.25);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <span style="font-weight:700;font-size:15px;"><i class="fas fa-truck" style="color:#1a6eff;"></i> Yangi yetkazib beruvchi</span>
-            <button type="button" onclick="closeQuickAddSupplierModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1;">&#10005;</button>
+<!-- Tezkor yetkazib beruvchi qo'shish modali (suppliers.html bilan 100% bir xil) -->
+<div id="quickAddSupplierModal" class="sup-modal">
+    <div class="sup-modal-box">
+        <div class="sup-modal-head">
+            <h3><i class="fas fa-truck"></i> Yangi yetkazib beruvchi</h3>
+            <button class="sup-modal-close" onclick="closeQuickAddSupplierModal()">&times;</button>
         </div>
-        <div id="qasError" style="display:none; background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:12px;"></div>
-        <div class="ap-form-group">
-            <label class="ap-label">Kompaniya nomi <span style="color:#e74c3c;">*</span></label>
-            <input type="text" id="qas_name" class="ap-input">
+        <div id="qasError" class="sup-msg sup-msg-error"></div>
+        <div class="sup-field">
+            <label>Kompaniya nomi <span style="color:#e74c3c;">*</span></label>
+            <input type="text" id="qas_name" required>
         </div>
-        <div class="ap-form-group">
-            <label class="ap-label">Yetkazib beruvchi</label>
-            <input type="text" id="qas_contact_person" class="ap-input">
+        <div class="sup-field">
+            <label>Yetkazib beruvchi</label>
+            <input type="text" id="qas_contact_person">
         </div>
-        <div class="ap-form-group">
-            <label class="ap-label">Telefon raqami</label>
-            <input type="text" id="qas_phone" class="ap-input" placeholder="+998(90) 123-45-67" maxlength="18" oninput="formatSupplierPhone(this)">
+        <div class="sup-field">
+            <label>Telefon raqami</label>
+            <input type="text" id="qas_phone" placeholder="+998(90) 123-45-67" maxlength="18" oninput="formatSupplierPhone(this)">
         </div>
-        <div class="ap-form-group">
-            <label class="ap-label">Manzili</label>
-            <textarea id="qas_address" class="ap-input" rows="2"></textarea>
+        <div class="sup-field">
+            <label>Manzili</label>
+            <textarea id="qas_address" rows="2"></textarea>
         </div>
-        <div class="ap-form-group">
-            <label class="ap-label">Izoh</label>
-            <textarea id="qas_notes" class="ap-input" rows="2"></textarea>
+        <div class="sup-field">
+            <label>Izoh</label>
+            <textarea id="qas_notes" rows="2"></textarea>
         </div>
-        <div style="display:flex;gap:10px;margin-top:6px;">
-            <button type="button" onclick="closeQuickAddSupplierModal()" style="flex:1;padding:9px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;">Bekor qilish</button>
-            <button type="button" id="qasSubmitBtn" onclick="submitQuickAddSupplier()" style="flex:1;padding:9px;border:none;border-radius:8px;background:#1a6eff;color:#fff;cursor:pointer;font-size:13px;font-weight:700;">Saqlash</button>
+        <div class="sup-modal-actions">
+            <button type="button" class="sup-btn-cancel" onclick="closeQuickAddSupplierModal()">Bekor qilish</button>
+            <button type="button" class="sup-btn-submit" id="qasSubmitBtn" onclick="submitQuickAddSupplier()">Saqlash</button>
         </div>
     </div>
 </div>
@@ -3153,12 +3181,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('qas_address').value = '';
             document.getElementById('qas_notes').value = '';
             document.getElementById('qasError').style.display = 'none';
-            document.getElementById('quickAddSupplierModal').style.display = 'flex';
+            document.getElementById('quickAddSupplierModal').classList.add('active');
             setTimeout(() => document.getElementById('qas_name').focus(), 50);
         }
 
         function closeQuickAddSupplierModal() {
-            document.getElementById('quickAddSupplierModal').style.display = 'none';
+            document.getElementById('quickAddSupplierModal').classList.remove('active');
         }
 
         function formatSupplierPhone(input) {
