@@ -257,43 +257,39 @@ optgroup option { font-weight: normal; color: #1e293b; }
         <div class="ap-card">
             <div class="ap-card-header">
                 <span class="ap-card-title"><i class="fas fa-edit"></i> {{ t('label_product_info') }}</span>
+                <div style="display:flex; gap:4px;">
+                    <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
+                        <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_import_btn') }}
+                    </button>
+                    <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
+                        <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_template_btn') }}
+                    </button>
+                </div>
             </div>
             <div class="ap-card-body">
                 <!-- Excel fayl input (yashirin) -->
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleExcelFile(event)">
 
                 <form id="productForm" onsubmit="return false;">
-                    <!-- Joylashuv + Yetkazib beruvchi (70%) va Excel Import (30%) -->
-                    <div class="ap-row ap-row-loc-excel" style="margin-bottom:11px;">
-                        <div class="ap-row-loc-sup">
-                            <div class="ap-form-group" style="margin-bottom:0;">
-                                <label class="ap-label" for="location">{{ t('ap_location_label') }}</label>
-                                <select id="location" name="location" class="ap-input" onchange="onLocationChange()">
-                                    <option value="">{{ t('ap_select_location') }}</option>
-                                </select>
-                            </div>
-                            <div class="ap-form-group" style="margin-bottom:0; position:relative;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-                                    <label class="ap-label" style="margin:0;" for="supplier_search">Yetkazib beruvchi</label>
-                                    <button type="button" onclick="openQuickAddSupplierModal()" style="padding:3px 8px; background:linear-gradient(135deg,#3b82f6,#1a6eff); color:#fff; border:none; border-radius:8px; font-size:11px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:3px; box-shadow:0 2px 8px rgba(59,130,246,0.3);">
-                                        <span style="font-size:14px; font-weight:700; line-height:1;">+</span> Yangi
-                                    </button>
-                                </div>
-                                <input type="text" id="supplier_search" class="ap-input" placeholder="Qidirish..." autocomplete="off"
-                                       oninput="searchSuppliers(this.value)" onkeydown="handleSupplierSearchKeyDown(event)">
-                                <div id="supplierDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-radius:10px; max-height:220px; overflow-y:auto; z-index:1500; box-shadow:0 6px 18px rgba(0,0,0,0.12); margin-top:4px;"></div>
-                                <input type="hidden" id="supplier_id" value="">
-                            </div>
+                    <!-- Joylashuv + Yetkazib beruvchi -->
+                    <div class="ap-row-loc-sup" style="margin-bottom:11px;">
+                        <div class="ap-form-group" style="margin-bottom:0;">
+                            <label class="ap-label" for="location">{{ t('ap_location_label') }}</label>
+                            <select id="location" name="location" class="ap-input" onchange="onLocationChange()">
+                                <option value="">{{ t('ap_select_location') }}</option>
+                            </select>
                         </div>
-                        <div class="ap-form-group" style="margin-bottom:0; min-width:0;">
-                            <div style="display:flex; gap:4px; min-width:0;">
-                                <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_import_btn') }}
-                                </button>
-                                <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel"> {{ t('ap_excel_template_btn') }}
+                        <div class="ap-form-group" style="margin-bottom:0; position:relative;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                                <label class="ap-label" style="margin:0;" for="supplier_search">Yetkazib beruvchi</label>
+                                <button type="button" onclick="openQuickAddSupplierModal()" style="padding:3px 8px; background:linear-gradient(135deg,#3b82f6,#1a6eff); color:#fff; border:none; border-radius:8px; font-size:11px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:3px; box-shadow:0 2px 8px rgba(59,130,246,0.3);">
+                                    <span style="font-size:14px; font-weight:700; line-height:1;">+</span> Yangi
                                 </button>
                             </div>
+                            <input type="text" id="supplier_search" class="ap-input" placeholder="Qidirish..." autocomplete="off"
+                                   oninput="searchSuppliers(this.value)" onkeydown="handleSupplierSearchKeyDown(event)">
+                            <div id="supplierDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-radius:10px; max-height:220px; overflow-y:auto; z-index:1500; box-shadow:0 6px 18px rgba(0,0,0,0.12); margin-top:4px;"></div>
+                            <input type="hidden" id="supplier_id" value="">
                         </div>
                     </div>
 
