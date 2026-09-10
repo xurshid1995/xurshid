@@ -226,8 +226,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleExcelFile(event)">
 
                 <form id="productForm" onsubmit="return false;">
-                    <!-- Joylashuv va Excel Import -->
-                    <div class="ap-row ap-row-2col" style="margin-bottom:11px;">
+                    <!-- Joylashuv va Yetkazib beruvchi -->
+                    <div class="ap-row" style="grid-template-columns:1.6fr 1fr; margin-bottom:11px;">
                         <div class="ap-form-group" style="margin-bottom:0;">
                             <label class="ap-label" for="location">{{ t('ap_location_label') }}</label>
                             <select id="location" name="location" class="ap-input" onchange="onLocationChange()">
@@ -235,14 +235,22 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             </select>
                         </div>
                         <div class="ap-form-group" style="margin-bottom:0;">
-                            <div style="display:flex; gap:6px; height:100%; align-items:flex-end;">
-                                <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_import_btn') }}
-                                </button>
-                                <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
-                                    <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_template_btn') }}
-                                </button>
-                            </div>
+                            <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
+                            <select id="supplier_id" name="supplier_id" class="ap-input">
+                                <option value="">— Tanlanmagan —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Excel Import -->
+                    <div class="ap-form-group" style="margin-bottom:11px;">
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="ap-btn-excel-import" onclick="openExcelImport()">
+                                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_import_btn') }}
+                            </button>
+                            <button type="button" class="ap-btn-excel-template" onclick="downloadExcelTemplate()">
+                                <img src="https://img.icons8.com/color/48/ms-excel.png" alt="Excel" style="width: 36px; height: 36px;"> {{ t('ap_excel_template_btn') }}
+                            </button>
                         </div>
                     </div>
 
@@ -416,14 +424,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
-                    <!-- Yetkazib beruvchi va to'lov turi -->
-                    <div class="ap-row ap-row-2col">
-                        <div class="ap-form-group">
-                            <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
-                            <select id="supplier_id" name="supplier_id" class="ap-input">
-                                <option value="">— Tanlanmagan —</option>
-                            </select>
-                        </div>
+                    <!-- To'lov turi -->
+                    <div class="ap-row">
                         <div class="ap-form-group">
                             <label class="ap-label" for="payment_type">To'lov turi</label>
                             <select id="payment_type" name="payment_type" class="ap-input" onchange="togglePaidAmountField()">
