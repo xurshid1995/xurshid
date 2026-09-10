@@ -241,7 +241,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             </div>
                             <div class="ap-form-group" style="margin-bottom:0;">
                                 <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
-                                <select id="supplier_id" name="supplier_id" class="ap-input" onchange="updateTempList()">
+                                <select id="supplier_id" name="supplier_id" class="ap-input" onchange="updateSupplierHeader()">
                                     <option value="">— Tanlanmagan —</option>
                                 </select>
                             </div>
@@ -501,7 +501,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
         <!-- O'ng: Vaqtinchalik ro'yxat -->
         <div class="ap-card">
             <div class="ap-card-header">
-                <span class="ap-card-title"><i class="fas fa-list-ul"></i> {{ t('ap_temp_list_title') }}</span>
+                <span class="ap-card-title" id="tempListTitleDefault"><i class="fas fa-list-ul"></i> {{ t('ap_temp_list_title') }}</span>
+                <span class="ap-card-title" id="tempListTitleSupplier" style="display:none;">
+                    <i class="fas fa-truck"></i> <span id="tempListSupplierName"></span>
+                    <span id="tempListSupplierPhone" style="font-weight:500; color:#1a6eff; margin-left:8px;"></span>
+                </span>
             </div>
             <div class="ap-card-body">
                 <div class="ap-summary">
@@ -2049,11 +2053,23 @@ optgroup option { font-weight: normal; color: #1e293b; }
             savePendingBatch();
         }
 
-        // XSS oldini olish uchun matnni HTML-safe qilish
-        function escapeHtmlTemp(str) {
-            const div = document.createElement('div');
-            div.textContent = str == null ? '' : str;
-            return div.innerHTML;
+        // Yetkazib beruvchi tanlansa, sarlavhada uning nomi va telefoni ko'rsatiladi
+        function updateSupplierHeader() {
+            const selectedSupplierId = document.getElementById('supplier_id').value;
+            const selectedSupplier = selectedSupplierId ? allSuppliersData.find(s => String(s.id) === String(selectedSupplierId)) : null;
+
+            const defaultTitle = document.getElementById('tempListTitleDefault');
+            const supplierTitle = document.getElementById('tempListTitleSupplier');
+
+            if (selectedSupplier) {
+                document.getElementById('tempListSupplierName').textContent = selectedSupplier.name;
+                document.getElementById('tempListSupplierPhone').textContent = selectedSupplier.phone || '';
+                defaultTitle.style.display = 'none';
+                supplierTitle.style.display = 'flex';
+            } else {
+                defaultTitle.style.display = 'flex';
+                supplierTitle.style.display = 'none';
+            }
         }
 
         // Vaqtinchalik ro'yxatni yangilash
@@ -2062,27 +2078,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const finalActions = document.getElementById('finalActions');
             
             if (tempProducts.length === 0) {
-                const selectedSupplierId = document.getElementById('supplier_id').value;
-                const selectedSupplier = selectedSupplierId ? allSuppliersData.find(s => String(s.id) === String(selectedSupplierId)) : null;
-
-                if (selectedSupplier) {
-                    listContainer.innerHTML = `
-                        <div class="empty-state" style="text-align:center; padding:24px 16px;">
-                            <div style="font-size:36px; margin-bottom:10px;">🚚</div>
-                            <div style="font-weight:700; font-size:16px; color:#1e293b;">${escapeHtmlTemp(selectedSupplier.name)}</div>
-                            ${selectedSupplier.contact_person ? `<div style="color:#64748b; font-size:13px; margin-top:4px;">${escapeHtmlTemp(selectedSupplier.contact_person)}</div>` : ''}
-                            ${selectedSupplier.phone ? `<div style="color:#1a6eff; font-size:14px; font-weight:600; margin-top:8px;"><i class="fas fa-phone"></i> ${escapeHtmlTemp(selectedSupplier.phone)}</div>` : ''}
-                            <p style="margin-top:16px;">Ushbu yetkazib beruvchidan mahsulot qo'shish uchun formani to'ldiring</p>
-                        </div>
-                    `;
-                } else {
-                    listContainer.innerHTML = `
-                        <div class="empty-state">
-                            <p>🎯 Hozircha hech qanday mahsulot qo'shilmagan</p>
-                            <p>Chap paneldagi formani to'ldiring va "Ro'yxatga qo'shish" tugmasini bosing</p>
-                        </div>
-                    `;
-                }
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>🎯 Hozircha hech qanday mahsulot qo'shilmagan</p>
+                        <p>Chap paneldagi formani to'ldiring va "Ro'yxatga qo'shish" tugmasini bosing</p>
+                    </div>
+                `;
                 finalActions.style.display = 'none';
             } else {
                 let html = `
@@ -2302,6 +2303,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             
             // To'lov turi maydonini qayta yashirish
             togglePaidAmountField();
+            updateSupplierHeader();
             
             // Global o'zgaruvchilarni tozalash
             selectedProductData = null;
@@ -2825,6 +2827,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         sel.appendChild(opt);
                     });
                     if (prev) sel.value = prev;
+                    updateSupplierHeader();
                 })
                 .catch(() => {});
         }
