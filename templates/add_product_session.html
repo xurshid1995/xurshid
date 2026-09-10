@@ -569,6 +569,42 @@ optgroup option { font-weight: normal; color: #1e293b; }
     </div>
 </div>
 
+<!-- Yetkazib beruvchiga to'lov modali (Barchasini saqlash bosilganda, agar yetkazib beruvchi tanlangan bo'lsa) -->
+<div id="supplierPaymentModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:26px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <span style="font-weight:700;font-size:16px;color:#1e293b;"><i class="fas fa-truck" style="color:#1a6eff;"></i> Yetkazib beruvchiga to'lov</span>
+            <button type="button" onclick="closeSupplierPaymentModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1;">&#10005;</button>
+        </div>
+        <p style="margin:0 0 16px; font-size:13px; color:#64748b;">
+            Yetkazib beruvchidan olingan mahsulotlar summasi:
+            <strong id="spTotalAmount" style="color:#1e293b; font-size:15px;">$0.00</strong>
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;" id="spPaymentTypeButtons">
+            <button type="button" class="sp-type-btn" data-type="cash" onclick="selectSupplierPaymentType('cash')"
+                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
+                💵 Naxt (to'liq to'lanadi)
+            </button>
+            <button type="button" class="sp-type-btn" data-type="debt" onclick="selectSupplierPaymentType('debt')"
+                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
+                📝 Qarz (hali to'lanmagan)
+            </button>
+            <button type="button" class="sp-type-btn" data-type="partial" onclick="selectSupplierPaymentType('partial')"
+                style="padding:11px; border:1.5px solid #e2e8f0; border-radius:10px; background:#fff; cursor:pointer; font-size:14px; font-weight:600; text-align:left;">
+                ➗ Qisman to'lov
+            </button>
+        </div>
+        <div id="spPartialAmountRow" style="display:none; margin-bottom:16px;">
+            <label style="display:block; margin-bottom:6px; font-weight:600; color:#374151; font-size:13px;">To'langan summa ($)</label>
+            <input type="number" id="spPartialAmount" class="ap-input" step="0.01" min="0" placeholder="0.00" style="width:100%;">
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button type="button" onclick="closeSupplierPaymentModal()" style="flex:1;padding:11px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:14px;font-weight:600;">Bekor qilish</button>
+            <button type="button" id="spConfirmBtn" onclick="confirmSupplierPaymentAndSave()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">💾 Saqlash</button>
+        </div>
+    </div>
+</div>
+
 <div id="cropModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:16px;width:min(520px,96vw);max-height:95vh;display:flex;flex-direction:column;box-shadow:0 12px 48px #0008;">
         <!-- Header -->
@@ -2473,7 +2509,88 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 alert(APLANG.no_products_added);
                 return;
             }
-            
+
+            // Yetkazib beruvchidan olingan mahsulotlar bo'lsa, avval to'lov turini so'rash
+            const hasSupplierItems = tempProducts.some(p => p.supplierId);
+            if (hasSupplierItems) {
+                openSupplierPaymentModal();
+                return;
+            }
+
+            proceedSaveAllProducts();
+        }
+
+        // Yetkazib beruvchiga to'lov modali
+        let _supplierPaymentType = 'cash';
+
+        function getSupplierItemsTotal() {
+            return tempProducts
+                .filter(p => p.supplierId)
+                .reduce((sum, p) => sum + (parseFloat(p.total_value) || 0), 0);
+        }
+
+        function openSupplierPaymentModal() {
+            const total = getSupplierItemsTotal();
+            document.getElementById('spTotalAmount').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('spPartialAmount').value = '';
+            selectSupplierPaymentType('cash');
+            document.getElementById('supplierPaymentModal').style.display = 'flex';
+        }
+
+        function closeSupplierPaymentModal() {
+            document.getElementById('supplierPaymentModal').style.display = 'none';
+        }
+
+        function selectSupplierPaymentType(type) {
+            _supplierPaymentType = type;
+            document.querySelectorAll('.sp-type-btn').forEach(btn => {
+                const active = btn.getAttribute('data-type') === type;
+                btn.style.borderColor = active ? '#1a6eff' : '#e2e8f0';
+                btn.style.background = active ? '#edf4ff' : '#fff';
+                btn.style.color = active ? '#1a6eff' : '#1e293b';
+            });
+            document.getElementById('spPartialAmountRow').style.display = (type === 'partial') ? 'block' : 'none';
+        }
+
+        function confirmSupplierPaymentAndSave() {
+            const type = _supplierPaymentType;
+            const total = getSupplierItemsTotal();
+            let partialAmount = 0;
+
+            if (type === 'partial') {
+                partialAmount = parseFloat(document.getElementById('spPartialAmount').value) || 0;
+                if (partialAmount <= 0) {
+                    alert("To'langan summani kiriting");
+                    return;
+                }
+                if (partialAmount > total) {
+                    alert("To'langan summa umumiy summadan katta bo'lishi mumkin emas");
+                    return;
+                }
+            }
+
+            // Har bir yetkazib beruvchi mahsulotiga tanlangan to'lov turini ulushiga qarab taqsimlash
+            tempProducts.forEach(p => {
+                if (!p.supplierId) return;
+                const itemValue = parseFloat(p.total_value) || 0;
+                if (type === 'cash') {
+                    p.paymentType = 'cash';
+                    p.paidAmount = itemValue;
+                } else if (type === 'debt') {
+                    p.paymentType = 'debt';
+                    p.paidAmount = 0;
+                } else {
+                    const share = total > 0 ? (itemValue / total) : 0;
+                    p.paymentType = 'partial';
+                    p.paidAmount = Math.round(partialAmount * share * 100) / 100;
+                }
+            });
+
+            closeSupplierPaymentModal();
+            proceedSaveAllProducts();
+        }
+
+        function proceedSaveAllProducts() {
             // Double-submit himoyasi
             const saveBtn = document.getElementById('btnSaveAll');
             if (saveBtn && saveBtn.disabled) return;
