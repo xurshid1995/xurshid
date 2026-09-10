@@ -355,6 +355,7 @@ function renderPayment(e) {
     if (e.sale_id) chips.push(`🔗 Savdo ID ${e.sale_id}`);
 
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
+    const rateLabel = e.currency_rate > 0 ? `📈 Kurs: ${Math.round(e.currency_rate).toLocaleString()} so'm` : '';
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
@@ -366,6 +367,7 @@ function renderPayment(e) {
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
                     <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
                     ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
+                    ${rateLabel ? `<span class="tl-detail-chip">${rateLabel}</span>` : ''}
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount tl-amount-payment">+$${e.total_usd.toFixed(2)}</span>
