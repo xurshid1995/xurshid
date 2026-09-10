@@ -595,6 +595,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
             <label class="ap-label">Telefon raqami</label>
             <input type="text" id="qas_phone" class="ap-input" placeholder="+998(90) 123-45-67" maxlength="18" oninput="formatSupplierPhone(this)">
         </div>
+        <div class="ap-form-group">
+            <label class="ap-label">Manzili</label>
+            <textarea id="qas_address" class="ap-input" rows="2"></textarea>
+        </div>
+        <div class="ap-form-group">
+            <label class="ap-label">Izoh</label>
+            <textarea id="qas_notes" class="ap-input" rows="2"></textarea>
+        </div>
         <div style="display:flex;gap:10px;margin-top:6px;">
             <button type="button" onclick="closeQuickAddSupplierModal()" style="flex:1;padding:9px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;">Bekor qilish</button>
             <button type="button" id="qasSubmitBtn" onclick="submitQuickAddSupplier()" style="flex:1;padding:9px;border:none;border-radius:8px;background:#1a6eff;color:#fff;cursor:pointer;font-size:13px;font-weight:700;">Saqlash</button>
@@ -3142,6 +3150,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('qas_name').value = '';
             document.getElementById('qas_contact_person').value = '';
             document.getElementById('qas_phone').value = '';
+            document.getElementById('qas_address').value = '';
+            document.getElementById('qas_notes').value = '';
             document.getElementById('qasError').style.display = 'none';
             document.getElementById('quickAddSupplierModal').style.display = 'flex';
             setTimeout(() => document.getElementById('qas_name').focus(), 50);
@@ -3194,6 +3204,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         name: name,
                         contact_person: document.getElementById('qas_contact_person').value.trim(),
                         phone: document.getElementById('qas_phone').value.trim(),
+                        address: document.getElementById('qas_address').value.trim(),
+                        notes: document.getElementById('qas_notes').value.trim(),
                     })
                 });
                 const data = await res.json();
