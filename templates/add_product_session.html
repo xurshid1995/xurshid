@@ -416,6 +416,30 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
+                    <!-- Yetkazib beruvchi va to'lov turi -->
+                    <div class="ap-row ap-row-2col">
+                        <div class="ap-form-group">
+                            <label class="ap-label" for="supplier_id">Yetkazib beruvchi</label>
+                            <select id="supplier_id" name="supplier_id" class="ap-input">
+                                <option value="">— Tanlanmagan —</option>
+                            </select>
+                        </div>
+                        <div class="ap-form-group">
+                            <label class="ap-label" for="payment_type">To'lov turi</label>
+                            <select id="payment_type" name="payment_type" class="ap-input" onchange="togglePaidAmountField()">
+                                <option value="cash">Naxt (to'liq to'landi)</option>
+                                <option value="debt">Qarz (hali to'lanmagan)</option>
+                                <option value="partial">Qisman to'lov</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="ap-row" id="paidAmountRow" style="display:none;">
+                        <div class="ap-form-group">
+                            <label class="ap-label" for="paid_amount">To'langan summa ($)</label>
+                            <input type="number" id="paid_amount" name="paid_amount" class="ap-input" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+
                     <!-- Narx taqqoslash -->
                     <div id="priceComparison" class="price-comparison">
                         <div id="priceComparisonContent"></div>
@@ -1911,6 +1935,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const minStock = parseInt(document.getElementById('min_stock').value) || 0;
             const globalMinStock = parseInt(document.getElementById('global_min_stock').value) || 0;
             const location = document.getElementById('location').value;
+            const supplierId = document.getElementById('supplier_id').value || null;
+            const paymentType = document.getElementById('payment_type').value;
+            const paidAmount = paymentType === 'partial' ? (parseFloat(document.getElementById('paid_amount').value) || 0) : null;
             
             // MUHIM: To'g'ri ajratish
             // - cost_price = tan narx maydonidagi ortacha narx
@@ -2000,6 +2027,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 total_value: finalCostPrice * quantity,
                 categoryId: categoryId,
                 categoryName: categoryName,
+                supplierId: supplierId,
+                paymentType: paymentType,
+                paidAmount: paidAmount,
                 _imageFile: imageFile
             };
             
@@ -2242,6 +2272,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Umumiy qoldiq maydonini qulfdan chiqarish
             unlockGlobalMinStock();
             
+            // To'lov turi maydonini qayta yashirish
+            togglePaidAmountField();
+            
             // Global o'zgaruvchilarni tozalash
             selectedProductData = null;
             userEnteredCostPrice = null;
@@ -2418,7 +2451,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         global_min_stock: product.global_min_stock,
                         location_type: locationType,
                         location_id: locationId,
-                        categoryId: product.categoryId || null
+                        categoryId: product.categoryId || null,
+                        supplierId: product.supplierId || null,
+                        paymentType: product.paymentType || 'cash',
+                        paidAmount: product.paidAmount
                     };
                     
                     console.log('📦 API ga yuborilayotgan mahsulot:', productData);
@@ -2739,7 +2775,33 @@ optgroup option { font-weight: normal; color: #1e293b; }
         document.addEventListener('DOMContentLoaded', function() {
             loadPendingBatchFromUrl();
             loadCategories();
+            loadSuppliers();
         });
+
+        // ─── Yetkazib beruvchilar ─────────────────────────────────────────
+        function loadSuppliers() {
+            fetch('/api/suppliers')
+                .then(r => r.json())
+                .then(data => {
+                    if (!Array.isArray(data)) return;
+                    const sel = document.getElementById('supplier_id');
+                    const prev = sel.value;
+                    sel.innerHTML = '<option value="">— Tanlanmagan —</option>';
+                    data.forEach(sup => {
+                        const opt = document.createElement('option');
+                        opt.value = sup.id;
+                        opt.textContent = sup.name;
+                        sel.appendChild(opt);
+                    });
+                    if (prev) sel.value = prev;
+                })
+                .catch(() => {});
+        }
+
+        function togglePaidAmountField() {
+            const paymentType = document.getElementById('payment_type').value;
+            document.getElementById('paidAmountRow').style.display = (paymentType === 'partial') ? 'block' : 'none';
+        }
 
         // ─── Kategoriyalar ────────────────────────────────────────────────
         function loadCategories() {

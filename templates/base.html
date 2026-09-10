@@ -233,7 +233,14 @@
                     {% endif %}
                 </a>
             </li>
+            <li>
+                <a href="/suppliers" {% if request.endpoint == 'suppliers_page' %}class="active"{% endif %}>
+                    <span class="icon">🚚</span>
+                    <span>Yetkazib beruvchilar</span>
+                </a>
+            </li>
             {% endif %}
+
             {% if session.role not in ['sotuvchi', 'omborchi'] %}
             <li>
                 <a href="/stores" {% if request.endpoint == 'stores' %}class="active"{% endif %}>

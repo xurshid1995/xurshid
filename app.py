@@ -221,6 +221,7 @@ from models import (  # noqa: E402
     UserSession, Settings, StockCheckSession, StockCheckItem, SaleItem, Sale,
     StockChange, ProductAddHistory, CurrencyRate, Expense, HostingClient,
     HostingPaymentOrder, HostingPayment, ManualDebt, ReserveFund, FinalReportSnapshot,
+    Supplier, SupplierPurchase, SupplierPayment,
 )
 
 # Decimal aniqlik o'rnatish
@@ -1821,6 +1822,42 @@ def api_add_product():
                     )
                     db.session.add(history)
 
+                    # Yetkazib beruvchi bilan kirim/qarz/to'lov yozuvi
+                    supplier_id = product_data.get('supplierId') or None
+                    if supplier_id:
+                        supplier = Supplier.query.get(supplier_id)
+                        if supplier:
+                            batch_total = cost_price * Decimal(str(quantity))
+                            payment_type = product_data.get('paymentType', 'cash')
+                            if payment_type == 'debt':
+                                paid_amount = Decimal('0')
+                            elif payment_type == 'partial':
+                                paid_amount = Decimal(str(product_data.get('paidAmount', 0) or 0))
+                                paid_amount = max(Decimal('0'), min(paid_amount, batch_total))
+                            else:
+                                payment_type = 'cash'
+                                paid_amount = batch_total
+                            debt_amount = batch_total - paid_amount
+
+                            purchase = SupplierPurchase(
+                                supplier_id=supplier.id,
+                                product_id=product.id,
+                                product_name=product.name,
+                                quantity=quantity,
+                                cost_price=cost_price,
+                                total_amount=batch_total,
+                                payment_type=payment_type,
+                                paid_amount=paid_amount,
+                                debt_amount=debt_amount,
+                                location_type=location_type_str,
+                                location_name=location_name,
+                                added_by=current_user_name
+                            )
+                            db.session.add(purchase)
+
+                            if debt_amount > 0:
+                                supplier.balance_usd = (supplier.balance_usd or 0) + debt_amount
+
                     # OperationHistory ga ham yozish
                     location_id_int = None
                     if location_type_str == 'store':
@@ -2092,6 +2129,42 @@ def api_batch_products():
                     added_by=current_user_name
                 )
                 db.session.add(history)
+
+                # Yetkazib beruvchi bilan kirim/qarz/to'lov yozuvi
+                supplier_id = product_data.get('supplierId') or None
+                if supplier_id:
+                    supplier = Supplier.query.get(int(supplier_id))
+                    if supplier:
+                        batch_total = cost_price * quantity
+                        payment_type = product_data.get('paymentType', 'cash')
+                        if payment_type == 'debt':
+                            paid_amount = Decimal('0')
+                        elif payment_type == 'partial':
+                            paid_amount = Decimal(str(product_data.get('paidAmount', 0) or 0))
+                            paid_amount = max(Decimal('0'), min(paid_amount, batch_total))
+                        else:
+                            payment_type = 'cash'
+                            paid_amount = batch_total
+                        debt_amount = batch_total - paid_amount
+
+                        purchase = SupplierPurchase(
+                            supplier_id=supplier.id,
+                            product_id=product.id,
+                            product_name=product.name,
+                            quantity=quantity,
+                            cost_price=cost_price,
+                            total_amount=batch_total,
+                            payment_type=payment_type,
+                            paid_amount=paid_amount,
+                            debt_amount=debt_amount,
+                            location_type=location_type,
+                            location_name=location_name,
+                            added_by=current_user_name
+                        )
+                        db.session.add(purchase)
+
+                        if debt_amount > 0:
+                            supplier.balance_usd = (supplier.balance_usd or 0) + debt_amount
 
                 # OperationHistory ga ham yozish
                 operation = OperationHistory(
@@ -10721,6 +10794,153 @@ def update_customer(customer_id):
     except Exception as e:
         db.session.rollback()
         app.logger.error(f"Error updating customer: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+# Yetkazib beruvchilar sahifasi
+@app.route('/suppliers')
+@role_required('admin', 'kassir', 'omborchi')
+def suppliers_page():
+    return render_template('suppliers.html', page_title="Yetkazib beruvchilar", icon='🚚')
+
+
+# Yetkazib beruvchilar API route'lari
+@app.route('/api/suppliers', methods=['GET'])
+@role_required('admin', 'kassir', 'omborchi')
+def get_suppliers():
+    try:
+        search = request.args.get('search', '').strip()
+        query = Supplier.query.filter_by(is_active=True)
+        if search:
+            query = query.filter(
+                db.or_(
+                    Supplier.name.ilike(f'%{search}%'),
+                    Supplier.phone.ilike(f'%{search}%'),
+                    Supplier.contact_person.ilike(f'%{search}%')
+                )
+            )
+        suppliers = query.order_by(Supplier.name).all()
+        return jsonify([s.to_dict() for s in suppliers])
+    except Exception as e:
+        logger.error(f"Error fetching suppliers: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/suppliers', methods=['POST'])
+@role_required('admin', 'kassir', 'omborchi')
+def api_add_supplier():
+    try:
+        data = request.get_json()
+        if not data or not data.get('name', '').strip():
+            return jsonify({'error': 'Yetkazib beruvchi nomi talab qilinadi'}), 400
+
+        supplier = Supplier(
+            name=data['name'].strip(),
+            phone=data.get('phone', '').strip() or None,
+            contact_person=data.get('contact_person', '').strip() or None,
+            address=data.get('address', '').strip() or None,
+            notes=data.get('notes', '').strip() or None,
+        )
+        db.session.add(supplier)
+        db.session.commit()
+
+        return jsonify({'success': True, 'supplier': supplier.to_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error adding supplier: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/suppliers/<int:supplier_id>', methods=['PUT'])
+@role_required('admin', 'kassir', 'omborchi')
+def update_supplier(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        data = request.get_json()
+        if not data or not data.get('name', '').strip():
+            return jsonify({'error': 'Yetkazib beruvchi nomi talab qilinadi'}), 400
+
+        supplier.name = data['name'].strip()
+        supplier.phone = data.get('phone', '').strip() or None
+        supplier.contact_person = data.get('contact_person', '').strip() or None
+        supplier.address = data.get('address', '').strip() or None
+        supplier.notes = data.get('notes', '').strip() or None
+        db.session.commit()
+
+        return jsonify({'success': True, 'supplier': supplier.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error updating supplier: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/suppliers/<int:supplier_id>', methods=['DELETE'])
+@role_required('admin')
+def delete_supplier(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        # O'chirilmaydi - faqat nofaol qilinadi, tarix (xaridlar/to'lovlar) saqlanadi
+        supplier.is_active = False
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'"{supplier.name}" ro\'yxatdan chiqarildi'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting supplier: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/suppliers/<int:supplier_id>/history', methods=['GET'])
+@role_required('admin', 'kassir', 'omborchi')
+def get_supplier_history(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        purchases = SupplierPurchase.query.filter_by(supplier_id=supplier_id).all()
+        payments = SupplierPayment.query.filter_by(supplier_id=supplier_id).all()
+
+        events = [p.to_dict() for p in purchases] + [p.to_dict() for p in payments]
+        events.sort(key=lambda e: e['created_at'] or '', reverse=True)
+
+        return jsonify({
+            'supplier': supplier.to_dict(),
+            'events': events
+        })
+    except Exception as e:
+        logger.error(f"Error fetching supplier history: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/suppliers/<int:supplier_id>/debt-payment', methods=['POST'])
+@role_required('admin', 'kassir', 'omborchi')
+def pay_supplier_debt(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        data = request.get_json()
+
+        amount = Decimal(str(data.get('amount_usd', 0)))
+        if amount <= 0:
+            return jsonify({'error': "To'lov summasi 0 dan katta bo'lishi kerak"}), 400
+        if amount > supplier.balance_usd:
+            return jsonify({'error': "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas"}), 400
+
+        current_user_name = session.get('username', 'System')
+        payment = SupplierPayment(
+            supplier_id=supplier_id,
+            amount_usd=amount,
+            payment_method=data.get('payment_method', 'cash'),
+            paid_by=current_user_name,
+            notes=data.get('notes', '').strip() or None,
+        )
+        db.session.add(payment)
+        supplier.balance_usd = supplier.balance_usd - amount
+        db.session.commit()
+
+        return jsonify({'success': True, 'payment': payment.to_dict(), 'new_balance': float(supplier.balance_usd)})
+    except InvalidOperation:
+        db.session.rollback()
+        return jsonify({'error': "To'lov summasi noto'g'ri"}), 400
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error paying supplier debt: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

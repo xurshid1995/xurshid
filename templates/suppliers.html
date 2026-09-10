@@ -1,0 +1,454 @@
+{% extends "base_with_sidebar.html" %}
+
+{% block title %}Yetkazib beruvchilar - DOKON{% endblock %}
+
+{% block extra_css %}
+<style>
+.sup-page {
+    padding: 28px 28px 40px;
+    background: transparent;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+.sup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.sup-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
+.sup-title i { color: #1a6eff; margin-right: 8px; }
+.sup-add-btn {
+    background: #1a6eff; color: white; padding: 9px 18px; border-radius: 10px; border: none;
+    font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(26,110,255,0.2); transition: all 0.2s;
+}
+.sup-add-btn:hover { background: #1557cc; transform: translateY(-1px); }
+.sup-search-box { position: relative; max-width: 320px; margin-bottom: 14px; }
+.sup-search-box input {
+    width: 100%; padding: 10px 14px 10px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 14px; box-sizing: border-box; outline: none;
+}
+.sup-search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+.sup-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+.sup-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sup-table { width: 100%; min-width: 800px; border-collapse: collapse; font-size: 14px; }
+.sup-table thead tr { background: #1a6eff; }
+.sup-table th {
+    padding: 12px 10px; text-align: center; font-size: 11px; font-weight: 700; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.sup-table td { padding: 11px 10px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; }
+.sup-table tbody tr:hover { background: #f8faff; }
+.sup-name { font-weight: 600; color: #1e293b; text-align: left !important; }
+.sup-balance-zero { color: #059669; font-weight: 700; }
+.sup-balance-debt { color: #dc2626; font-weight: 700; }
+.sup-actions { display: flex; gap: 4px; align-items: center; justify-content: center; }
+.sup-btn { padding: 0; border-radius: 8px; border: none; cursor: pointer; width: 30px; height: 28px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s; }
+.sup-btn-history { color: #1a6eff; background: rgba(26,110,255,0.08); }
+.sup-btn-history:hover { background: #1a6eff; color: #fff; }
+.sup-btn-pay { color: #d97706; background: rgba(217,119,6,0.1); }
+.sup-btn-pay:hover { background: #d97706; color: #fff; }
+.sup-btn-edit { color: #1a6eff; background: rgba(37,99,235,0.08); }
+.sup-btn-edit:hover { background: #1a6eff; color: #fff; }
+.sup-btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+.sup-btn-delete:hover { background: #ef4444; color: #fff; }
+.sup-state-msg { text-align: center; padding: 3rem 2rem; color: #6c757d; font-size: 15px; }
+
+.sup-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55); z-index: 9998; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.sup-modal.active { display: flex; }
+.sup-modal-box {
+    background: white; border-radius: 16px; padding: 28px; width: 92%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.sup-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e9ecef; }
+.sup-modal-head h3 { margin: 0; font-size: 17px; font-weight: 700; color: #1e293b; }
+.sup-modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; }
+.sup-field { margin-bottom: 14px; }
+.sup-field label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; font-size: 13px; }
+.sup-field input, .sup-field select, .sup-field textarea {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 14px; box-sizing: border-box; outline: none; font-family: inherit;
+}
+.sup-modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.sup-modal-actions button { flex: 1; padding: 11px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.sup-btn-cancel { background: #f1f5f9; color: #374151; }
+.sup-btn-submit { background: linear-gradient(135deg,#1a6eff,#1557cc); color: white; }
+.sup-msg { display: none; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
+.sup-msg-error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+.sup-msg-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+
+.sup-history-list { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; }
+.sup-history-item { border: 1px solid #f1f5f9; border-radius: 10px; padding: 10px 14px; font-size: 13px; }
+.sup-history-item.purchase { border-left: 4px solid #1a6eff; }
+.sup-history-item.payment { border-left: 4px solid #059669; }
+.sup-history-row { display: flex; justify-content: space-between; align-items: center; }
+.sup-history-date { color: #94a3b8; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sup-page">
+    <div class="sup-header">
+        <h1 class="sup-title"><i class="fas fa-truck"></i> Yetkazib beruvchilar</h1>
+        <button class="sup-add-btn" onclick="openAddSupplierModal()"><i class="fas fa-plus"></i> Yangi yetkazib beruvchi</button>
+    </div>
+
+    <div class="sup-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="supplierSearch" placeholder="Qidirish..." oninput="loadSuppliers()">
+    </div>
+
+    <div class="sup-table-card">
+        <div id="supLoadingState" class="sup-state-msg"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</div>
+        <div id="supEmptyState" class="sup-state-msg" style="display:none;"><i class="fas fa-inbox"></i> Yetkazib beruvchilar topilmadi</div>
+        <div class="sup-table-wrap">
+            <table class="sup-table" id="supplierTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Nomi</th>
+                        <th>Aloqador shaxs</th>
+                        <th>Telefon</th>
+                        <th>Joriy qarz ($)</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="supplierTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Supplier Modal -->
+<div id="supplierFormModal" class="sup-modal">
+    <div class="sup-modal-box">
+        <div class="sup-modal-head">
+            <h3 id="supplierFormTitle"><i class="fas fa-truck"></i> Yangi yetkazib beruvchi</h3>
+            <button class="sup-modal-close" onclick="closeSupplierFormModal()">&times;</button>
+        </div>
+        <div id="supFormError" class="sup-msg sup-msg-error"></div>
+        <div id="supFormSuccess" class="sup-msg sup-msg-success"></div>
+        <form id="supplierForm" onsubmit="submitSupplierForm(event)">
+            <input type="hidden" id="sup_id">
+            <div class="sup-field">
+                <label>Nomi <span style="color:#e74c3c;">*</span></label>
+                <input type="text" id="sup_name" required>
+            </div>
+            <div class="sup-field">
+                <label>Aloqador shaxs</label>
+                <input type="text" id="sup_contact_person">
+            </div>
+            <div class="sup-field">
+                <label>Telefon</label>
+                <input type="text" id="sup_phone" placeholder="+998 90 123 45 67">
+            </div>
+            <div class="sup-field">
+                <label>Manzil</label>
+                <textarea id="sup_address" rows="2"></textarea>
+            </div>
+            <div class="sup-field">
+                <label>Izoh</label>
+                <textarea id="sup_notes" rows="2"></textarea>
+            </div>
+            <div class="sup-modal-actions">
+                <button type="button" class="sup-btn-cancel" onclick="closeSupplierFormModal()">Bekor qilish</button>
+                <button type="submit" class="sup-btn-submit" id="supFormSubmitBtn">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Debt Payment Modal -->
+<div id="supplierPayModal" class="sup-modal">
+    <div class="sup-modal-box">
+        <div class="sup-modal-head">
+            <h3><i class="fas fa-hand-holding-usd"></i> Qarzni to'lash</h3>
+            <button class="sup-modal-close" onclick="closeSupplierPayModal()">&times;</button>
+        </div>
+        <div id="supPayError" class="sup-msg sup-msg-error"></div>
+        <div id="supPaySuccess" class="sup-msg sup-msg-success"></div>
+        <form id="supplierPayForm" onsubmit="submitSupplierPayForm(event)">
+            <input type="hidden" id="pay_supplier_id">
+            <p style="margin:0 0 14px; font-size:13px; color:#6b7280;">
+                Joriy qarz: <strong id="pay_current_balance" style="color:#dc2626;"></strong>
+            </p>
+            <div class="sup-field">
+                <label>To'lov summasi ($) <span style="color:#e74c3c;">*</span></label>
+                <input type="number" id="pay_amount" step="0.01" min="0.01" required>
+            </div>
+            <div class="sup-field">
+                <label>To'lov turi</label>
+                <select id="pay_method">
+                    <option value="cash">Naxt</option>
+                    <option value="click">Click</option>
+                    <option value="terminal">Terminal</option>
+                </select>
+            </div>
+            <div class="sup-field">
+                <label>Izoh</label>
+                <textarea id="pay_notes" rows="2"></textarea>
+            </div>
+            <div class="sup-modal-actions">
+                <button type="button" class="sup-btn-cancel" onclick="closeSupplierPayModal()">Bekor qilish</button>
+                <button type="submit" class="sup-btn-submit" id="supPaySubmitBtn">To'lash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="supplierHistoryModal" class="sup-modal">
+    <div class="sup-modal-box" style="max-width:560px;">
+        <div class="sup-modal-head">
+            <h3 id="supHistoryTitle"><i class="fas fa-history"></i> Tarix</h3>
+            <button class="sup-modal-close" onclick="closeSupplierHistoryModal()">&times;</button>
+        </div>
+        <div id="supHistoryList" class="sup-history-list"></div>
+    </div>
+</div>
+
+<script>
+let allSuppliers = [];
+
+document.addEventListener('DOMContentLoaded', loadSuppliers);
+
+async function loadSuppliers() {
+    const search = document.getElementById('supplierSearch').value.trim();
+    try {
+        const res = await fetch(`/api/suppliers?search=${encodeURIComponent(search)}`);
+        const data = await res.json();
+        allSuppliers = Array.isArray(data) ? data : [];
+        renderSuppliers();
+    } catch (e) {
+        console.error('Yetkazib beruvchilarni yuklashda xatolik:', e);
+    }
+}
+
+function renderSuppliers() {
+    const loading = document.getElementById('supLoadingState');
+    const empty = document.getElementById('supEmptyState');
+    const table = document.getElementById('supplierTable');
+    const body = document.getElementById('supplierTableBody');
+
+    loading.style.display = 'none';
+
+    if (allSuppliers.length === 0) {
+        empty.style.display = 'block';
+        table.style.display = 'none';
+        return;
+    }
+
+    empty.style.display = 'none';
+    table.style.display = 'table';
+
+    body.innerHTML = allSuppliers.map(s => {
+        const balance = parseFloat(s.balance_usd || 0);
+        const balanceClass = balance > 0 ? 'sup-balance-debt' : 'sup-balance-zero';
+        return `
+            <tr>
+                <td class="sup-name">${escapeHtml(s.name)}</td>
+                <td>${escapeHtml(s.contact_person || '-')}</td>
+                <td>${escapeHtml(s.phone || '-')}</td>
+                <td class="${balanceClass}">$${balance.toFixed(2)}</td>
+                <td class="sup-actions">
+                    <button class="sup-btn sup-btn-history" title="Tarix" onclick="openSupplierHistoryModal(${s.id}, '${escapeAttr(s.name)}')"><i class="fas fa-history"></i></button>
+                    ${balance > 0 ? `<button class="sup-btn sup-btn-pay" title="Qarz to'lash" onclick="openSupplierPayModal(${s.id}, '${escapeAttr(s.name)}', ${balance})"><i class="fas fa-hand-holding-usd"></i></button>` : ''}
+                    <button class="sup-btn sup-btn-edit" title="Tahrirlash" onclick="openEditSupplierModal(${s.id})"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="sup-btn sup-btn-delete" title="O'chirish" onclick="deleteSupplier(${s.id}, '${escapeAttr(s.name)}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+}
+function escapeAttr(str) {
+    return (str || '').replace(/'/g, "\\'");
+}
+
+// ==================== ADD/EDIT SUPPLIER MODAL ====================
+function openAddSupplierModal() {
+    document.getElementById('supplierForm').reset();
+    document.getElementById('sup_id').value = '';
+    document.getElementById('supplierFormTitle').innerHTML = '<i class="fas fa-truck"></i> Yangi yetkazib beruvchi';
+    document.getElementById('supFormError').style.display = 'none';
+    document.getElementById('supFormSuccess').style.display = 'none';
+    document.getElementById('supplierFormModal').classList.add('active');
+}
+
+function openEditSupplierModal(id) {
+    const s = allSuppliers.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('sup_id').value = s.id;
+    document.getElementById('sup_name').value = s.name || '';
+    document.getElementById('sup_contact_person').value = s.contact_person || '';
+    document.getElementById('sup_phone').value = s.phone || '';
+    document.getElementById('sup_address').value = s.address || '';
+    document.getElementById('sup_notes').value = s.notes || '';
+    document.getElementById('supplierFormTitle').innerHTML = '<i class="fas fa-pencil-alt"></i> Yetkazib beruvchini tahrirlash';
+    document.getElementById('supFormError').style.display = 'none';
+    document.getElementById('supFormSuccess').style.display = 'none';
+    document.getElementById('supplierFormModal').classList.add('active');
+}
+
+function closeSupplierFormModal() {
+    document.getElementById('supplierFormModal').classList.remove('active');
+}
+
+async function submitSupplierForm(event) {
+    event.preventDefault();
+    const id = document.getElementById('sup_id').value;
+    const payload = {
+        name: document.getElementById('sup_name').value.trim(),
+        contact_person: document.getElementById('sup_contact_person').value.trim(),
+        phone: document.getElementById('sup_phone').value.trim(),
+        address: document.getElementById('sup_address').value.trim(),
+        notes: document.getElementById('sup_notes').value.trim(),
+    };
+    const errEl = document.getElementById('supFormError');
+    const okEl = document.getElementById('supFormSuccess');
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+    try {
+        const res = await fetch(id ? `/api/suppliers/${id}` : '/api/suppliers', {
+            method: id ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            okEl.textContent = "Muvaffaqiyatli saqlandi";
+            okEl.style.display = 'block';
+            setTimeout(() => { closeSupplierFormModal(); loadSuppliers(); }, 800);
+        } else {
+            errEl.textContent = data.error || 'Xatolik yuz berdi';
+            errEl.style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = e.message;
+        errEl.style.display = 'block';
+    }
+}
+
+async function deleteSupplier(id, name) {
+    if (!confirm(`"${name}" ni ro'yxatdan chiqarishga ishonchingiz komilmi?`)) return;
+    try {
+        const res = await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            loadSuppliers();
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (e) {
+        alert(e.message);
+    }
+}
+
+// ==================== DEBT PAYMENT MODAL ====================
+function openSupplierPayModal(id, name, balance) {
+    document.getElementById('pay_supplier_id').value = id;
+    document.getElementById('pay_current_balance').textContent = `$${balance.toFixed(2)} (${name})`;
+    document.getElementById('pay_amount').value = '';
+    document.getElementById('pay_amount').max = balance;
+    document.getElementById('pay_notes').value = '';
+    document.getElementById('supPayError').style.display = 'none';
+    document.getElementById('supPaySuccess').style.display = 'none';
+    document.getElementById('supplierPayModal').classList.add('active');
+}
+
+function closeSupplierPayModal() {
+    document.getElementById('supplierPayModal').classList.remove('active');
+}
+
+async function submitSupplierPayForm(event) {
+    event.preventDefault();
+    const id = document.getElementById('pay_supplier_id').value;
+    const payload = {
+        amount_usd: parseFloat(document.getElementById('pay_amount').value),
+        payment_method: document.getElementById('pay_method').value,
+        notes: document.getElementById('pay_notes').value.trim(),
+    };
+    const errEl = document.getElementById('supPayError');
+    const okEl = document.getElementById('supPaySuccess');
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+    try {
+        const res = await fetch(`/api/suppliers/${id}/debt-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            okEl.textContent = "To'lov qabul qilindi";
+            okEl.style.display = 'block';
+            setTimeout(() => { closeSupplierPayModal(); loadSuppliers(); }, 800);
+        } else {
+            errEl.textContent = data.error || 'Xatolik yuz berdi';
+            errEl.style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = e.message;
+        errEl.style.display = 'block';
+    }
+}
+
+// ==================== HISTORY MODAL ====================
+async function openSupplierHistoryModal(id, name) {
+    document.getElementById('supHistoryTitle').innerHTML = `<i class="fas fa-history"></i> ${escapeHtml(name)} - Tarix`;
+    document.getElementById('supHistoryList').innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i></div>';
+    document.getElementById('supplierHistoryModal').classList.add('active');
+    try {
+        const res = await fetch(`/api/suppliers/${id}/history`);
+        const data = await res.json();
+        const events = data.events || [];
+        if (events.length === 0) {
+            document.getElementById('supHistoryList').innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tarix mavjud emas</div>';
+            return;
+        }
+        document.getElementById('supHistoryList').innerHTML = events.map(e => {
+            const date = e.created_at ? new Date(e.created_at).toLocaleString('uz-UZ') : '-';
+            if (e.event_type === 'purchase') {
+                return `
+                    <div class="sup-history-item purchase">
+                        <div class="sup-history-row">
+                            <strong>📦 ${escapeHtml(e.product_name)}</strong>
+                            <span>$${e.total_amount.toFixed(2)}</span>
+                        </div>
+                        <div style="color:#6b7280; margin-top:4px;">
+                            ${e.quantity} dona × $${e.cost_price.toFixed(2)} · ${escapeHtml(e.location_name || '-')}
+                            ${e.debt_amount > 0 ? `· <span style="color:#dc2626;">Qarz: $${e.debt_amount.toFixed(2)}</span>` : '· <span style="color:#059669;">To\'liq to\'langan</span>'}
+                        </div>
+                        <div class="sup-history-date">${date} ${e.added_by ? '· ' + escapeHtml(e.added_by) : ''}</div>
+                    </div>
+                `;
+            }
+            return `
+                <div class="sup-history-item payment">
+                    <div class="sup-history-row">
+                        <strong>💰 To'lov (${escapeHtml(e.payment_method)})</strong>
+                        <span style="color:#059669;">$${e.amount_usd.toFixed(2)}</span>
+                    </div>
+                    ${e.notes ? `<div style="color:#6b7280; margin-top:4px;">${escapeHtml(e.notes)}</div>` : ''}
+                    <div class="sup-history-date">${date} ${e.paid_by ? '· ' + escapeHtml(e.paid_by) : ''}</div>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        document.getElementById('supHistoryList').innerHTML = `<div style="color:#dc2626; padding:20px;">Xatolik: ${e.message}</div>`;
+    }
+}
+
+function closeSupplierHistoryModal() {
+    document.getElementById('supplierHistoryModal').classList.remove('active');
+}
+
+document.getElementById('supplierFormModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierFormModal(); });
+document.getElementById('supplierPayModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierPayModal(); });
+document.getElementById('supplierHistoryModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierHistoryModal(); });
+</script>
+{% endblock %}

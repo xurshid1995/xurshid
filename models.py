@@ -540,6 +540,115 @@ class DebtReminder(db.Model):
         }
 
 
+# Yetkazib beruvchilar modeli
+class Supplier(db.Model):
+    __tablename__ = 'suppliers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.String(20))
+    contact_person = db.Column(db.String(100))
+    address = db.Column(db.Text)
+    notes = db.Column(db.Text)
+    balance_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)  # Bizning yetkazib beruvchiga qarzimiz
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: get_tashkent_time(),
+        onupdate=lambda: get_tashkent_time())
+
+    def __repr__(self):
+        return f'<Supplier {self.id}: {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'phone': self.phone,
+            'contact_person': self.contact_person,
+            'address': self.address,
+            'notes': self.notes,
+            'balance_usd': float(self.balance_usd or 0),
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+# Yetkazib beruvchidan mahsulot kirimi (naxt/qarz/qisman to'lov bilan)
+class SupplierPurchase(db.Model):
+    __tablename__ = 'supplier_purchases'
+
+    id = db.Column(db.Integer, primary_key=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id', ondelete='SET NULL'), nullable=True)
+    product_name = db.Column(db.String(200), nullable=False)  # snapshot
+    quantity = db.Column(db.DECIMAL(precision=15, scale=3), nullable=False)
+    cost_price = db.Column(db.DECIMAL(precision=15, scale=4), nullable=False)  # bir dona narxi
+    total_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
+    payment_type = db.Column(db.String(20), nullable=False, default='cash')  # cash | debt | partial
+    paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    debt_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    location_type = db.Column(db.String(20))
+    location_name = db.Column(db.String(200))
+    added_by = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    supplier = db.relationship('Supplier', backref=db.backref('purchases', order_by='SupplierPurchase.created_at.desc()'))
+
+    def __repr__(self):
+        return f'<SupplierPurchase {self.id}: supplier={self.supplier_id} {self.product_name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'event_type': 'purchase',
+            'supplier_id': self.supplier_id,
+            'product_id': self.product_id,
+            'product_name': self.product_name,
+            'quantity': float(self.quantity or 0),
+            'cost_price': float(self.cost_price or 0),
+            'total_amount': float(self.total_amount or 0),
+            'payment_type': self.payment_type,
+            'paid_amount': float(self.paid_amount or 0),
+            'debt_amount': float(self.debt_amount or 0),
+            'location_name': self.location_name,
+            'added_by': self.added_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+# Yetkazib beruvchiga qarz to'lovlari tarixi
+class SupplierPayment(db.Model):
+    __tablename__ = 'supplier_payments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
+    amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
+    payment_method = db.Column(db.String(20), default='cash')  # cash, click, terminal
+    paid_by = db.Column(db.String(100))
+    notes = db.Column(db.Text)
+    payment_date = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    supplier = db.relationship('Supplier', backref=db.backref('debt_payments', order_by='SupplierPayment.payment_date.desc()'))
+
+    def __repr__(self):
+        return f'<SupplierPayment {self.id}: supplier={self.supplier_id} {self.amount_usd} USD>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'event_type': 'payment',
+            'supplier_id': self.supplier_id,
+            'amount_usd': float(self.amount_usd or 0),
+            'payment_method': self.payment_method,
+            'paid_by': self.paid_by,
+            'notes': self.notes,
+            'created_at': self.payment_date.isoformat() if self.payment_date else None,
+        }
+
+
 # Mijoz amallar tarixi snapshot modeli (timeline uchun immutable yozuvlar)
 class CustomerTimelineSnapshot(db.Model):
     __tablename__ = 'customer_timeline_snapshot'
