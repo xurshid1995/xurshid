@@ -66,21 +66,6 @@
 .tl-status-debt { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
 .tl-status-partial { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
 
-/* Accordion for supplier product list */
-.tl-accordion { background: white; border-radius: 10px; box-shadow: 0 1px 6px rgba(15,23,42,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
-.tl-accordion-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #f8fafc; border: none; padding: 12px 16px; text-align: left; cursor: pointer; font-size: 13px; font-weight: 700; color: #1e293b; }
-.tl-accordion-toggle:hover { background: #eef4ff; }
-.tl-accordion-toggle .tl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; color: #1a6eff; font-size: 16px; transition: transform 0.2s ease; }
-.tl-accordion-toggle[data-open="false"] .tl-arrow { transform: rotate(-90deg); }
-.tl-accordion-body { display: block; background: white; border-top: 1px solid #e2e8f0; }
-.tl-accordion-body.hidden { display: none; }
-.tl-accordion-item { padding: 10px 16px; border-bottom: 1px solid #f1f5f9; }
-.tl-accordion-item:last-child { border-bottom: none; }
-.tl-accordion-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.tl-accordion-name { font-weight: 700; color: #0f172a; }
-.tl-accordion-meta { font-size: 11px; color: #64748b; margin-top: 3px; }
-.tl-accordion-total { color: #1a6eff; font-weight: 700; }
-
 .tl-empty { text-align: center; padding: 40px; color: #94a3b8; font-size: 15px; }
 .tl-loading { text-align: center; padding: 40px; color: #94a3b8; }
 </style>
@@ -184,33 +169,13 @@ function renderTimeline() {
     Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
         html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;margin-top:4px;letter-spacing:0.5px;">${formatDay(day)}</div>`;
         html += '<div class="tl-container">';
-
-        const purchaseEvents = groups[day].filter(e => e.type === 'purchase');
-        const paymentEvents = groups[day].filter(e => e.type === 'payment');
-
-        if (purchaseEvents.length > 0) {
-            html += renderPurchaseAccordion(purchaseEvents);
-        }
-        paymentEvents.forEach(e => {
-            html += renderPayment(e);
+        groups[day].forEach(e => {
+            html += e.type === 'purchase' ? renderPurchase(e) : renderPayment(e);
         });
-
         html += '</div>';
     });
 
     document.getElementById('timelineContainer').innerHTML = html;
-    bindAccordionToggles();
-}
-
-function bindAccordionToggles() {
-    document.querySelectorAll('.tl-accordion-toggle').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const body = this.nextElementSibling;
-            const open = this.getAttribute('data-open') === 'true';
-            this.setAttribute('data-open', String(!open));
-            body.classList.toggle('hidden', open);
-        });
-    });
 }
 
 function formatDay(dateStr) {
@@ -239,46 +204,6 @@ function afterRow(e) {
     if (debt === null) return '';
     const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
     return `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span><span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span></div>`;
-}
-
-function renderPurchaseAccordion(events) {
-    const total = events.reduce((sum, e) => sum + Number(e.total_amount || 0), 0);
-    const listHtml = events.map(e => {
-        const qty = Number(e.quantity || 0);
-        const cost = Number(e.cost_price || 0);
-        const location = e.location_name ? `<div class="tl-accordion-meta">🏬 ${e.location_name}</div>` : '';
-        const status = paymentTypeBadge(e.payment_type);
-        return `
-            <div class="tl-accordion-item">
-                <div class="tl-accordion-row">
-                    <div>
-                        <div class="tl-accordion-name">${e.product_name || 'Mahsulot'}</div>
-                        <div class="tl-accordion-meta">📦 ${qty} dona × $${cost.toFixed(2)}</div>
-                        ${location}
-                    </div>
-                    <div class="tl-accordion-total">$${Number(e.total_amount || 0).toFixed(2)}</div>
-                </div>
-                <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${status}</div>
-            </div>
-        `;
-    }).join('');
-
-    return `
-        <div class="tl-item">
-            <div class="tl-dot tl-dot-purchase"></div>
-            <div class="tl-card tl-card-purchase" style="padding:0;overflow:hidden;">
-                <div class="tl-accordion">
-                    <button class="tl-accordion-toggle" data-open="true" type="button">
-                        <span>📦 ${events.length} ta mahsulot ko'rish</span>
-                        <span class="tl-arrow">▼</span>
-                    </button>
-                    <div class="tl-accordion-body">
-                        ${listHtml}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
 }
 
 function renderPurchase(e) {
