@@ -965,14 +965,15 @@ function closeFinalReportSaveModal() {
 }
 
 async function confirmSaveYakuniyHisobot() {
-    const total = frGrandCostValue + frGrandDebt + frGrandReserve;
+    const totalDebt = frGrandDebt + frSupplierDebt;
+    const total = frGrandCostValue + totalDebt + frGrandReserve;
     try {
         const res = await fetch('/api/final-report-snapshot', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 cost_value: frGrandCostValue,
-                debt: frGrandDebt,
+                debt: totalDebt,
                 reserve: frGrandReserve,
                 grand_total: total
             })
