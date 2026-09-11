@@ -289,7 +289,6 @@ function renderPayment(e) {
                     ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
                     ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
                 </div>
-                <div><span class="tl-amount tl-amount-payment">+$${e.amount_usd.toFixed(2)}</span></div>
             </div>
             <div class="tl-details">${paymentChips.join('')}</div>
             ${notesHtml}
