@@ -18,12 +18,10 @@
 .sp-badge-count { background: #dbeafe; color: #1558d6; }
 .sp-badge-debt { background: #fee2e2; color: #991b1b; }
 
-.sp-search-box { position: relative; max-width: 320px; margin-bottom: 14px; }
-.sp-search-box input {
-    width: 100%; padding: 10px 14px 10px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 14px; box-sizing: border-box; outline: none;
-}
-.sp-search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+.sp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.sp-stat { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); text-align: center; }
+.sp-stat-value { font-size: 18px; font-weight: 700; color: #1e293b; }
+.sp-stat-label { font-size: 12px; color: #64748b; margin-top: 3px; }
 
 .sp-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
 .sp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -60,6 +58,11 @@
             </div>
         </div>
         <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
+    </div>
+
+    <div class="sp-stats">
+        <div class="sp-stat"><div class="sp-stat-value" id="spStatCount">0 ta</div><div class="sp-stat-label">Mahsulotlar soni</div></div>
+        <div class="sp-stat"><div class="sp-stat-value" id="spStatDebt">$0.00</div><div class="sp-stat-label">Joriy qarz</div></div>
     </div>
 
     <div class="sp-table-card" style="margin-top: 10px;">
@@ -109,6 +112,8 @@ function renderSupplierProducts(products) {
 
     loading.style.display = 'none';
     document.getElementById('spCountBadge').textContent = `${products.length} ta mahsulot`;
+    document.getElementById('spStatCount').textContent = `${products.length} ta`;
+    document.getElementById('spStatDebt').textContent = `$${Number({{ supplier.balance_usd or 0 }}).toFixed(2)}`;
 
     if (products.length === 0) {
         empty.style.display = 'block';
