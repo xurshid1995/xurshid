@@ -433,7 +433,7 @@
                 <thead>
                     <tr>
                         <th>{{ t('cdd_th_date') }}</th>
-                        <th>{{ t('cdd_th_sale_num') }}</th>
+                        <th>Sale ID</th>
                         <th>{{ t('cdd_th_products') }}</th>
                         <th>Qty</th>
                         <th>Narx</th>
@@ -665,7 +665,7 @@
                                 <div class="sale-time">${formattedTime}</div>
                             </td>
                             <td rowspan="${saleItems.length}" class="group-cell group-sale-id">
-                                <strong style="color:#1a6eff;">Savdo ID ${h.sale_id}</strong>
+                                <strong style="color:#1a6eff;">${h.sale_id}</strong>
                             </td>
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
