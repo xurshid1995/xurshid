@@ -284,6 +284,11 @@
 .group-cell.col-total, .group-cell.col-paid, .group-cell.col-debt, .group-cell.col-due { background: white !important; }
 .group-cell > * { margin: 0 auto; display: block; }
 .group-cell.col-price > *, .group-cell.col-subtotal > *, .group-cell.col-grand-total > *, .group-cell.col-paid > *, .group-cell.col-debt > *, .group-cell.col-due > * { text-align: center !important; }
+.group-cell.col-grand-total strong,
+.group-cell.col-paid strong,
+.group-cell.col-debt strong {
+    font-weight: 800 !important;
+}
 /* Beat global .ps-table td.col-price left-align rule from style.css (higher specificity needed) */
 .ps-table-card .ps-table tbody tr td.col-price,
 .ps-table-card .ps-table tbody tr td.col-subtotal,
