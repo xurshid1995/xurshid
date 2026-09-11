@@ -195,32 +195,70 @@ function renderSupplierProducts(products) {
 
     let runningTotal = 0;
 
-    body.innerHTML = products.map(p => {
-        const createdAt = p.created_at ? new Date(p.created_at) : null;
-        const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
-        const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
-        const quantity = Number(p.quantity || 0);
-        const unitPrice = Number(p.cost_price || 0);
-        const lineTotal = quantity * unitPrice;
-        runningTotal += lineTotal;
+    const groupedProducts = [];
+    const seenGroups = new Map();
 
-        return `
-            <tr>
-                <td class="sp-datetime-cell">
-                    <div class="datetime-info">
-                        <div class="sale-date">${formattedDate}</div>
-                        <div class="sale-time">${formattedTime}</div>
-                    </div>
-                </td>
-                <td>${escapeHtml(p.location_name || '-')}</td>
-                <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
-                <td>${quantity.toLocaleString('uz-UZ')}</td>
-                <td>${formatUsdWithUzs(unitPrice)}</td>
-                <td>${formatUsdWithUzs(lineTotal)}</td>
-                <td>${formatUsdWithUzs(runningTotal)}</td>
-                <td>${escapeHtml(p.added_by || '-')}</td>
-            </tr>
-        `;
+    products.forEach(p => {
+        const createdAt = p.created_at ? new Date(p.created_at) : null;
+        const groupKey = createdAt
+            ? `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}-${createdAt.getHours()}-${createdAt.getMinutes()}-${(p.location_name || '').trim()}-${(p.added_by || '').trim()}`
+            : `${(p.location_name || '').trim()}-${(p.added_by || '').trim()}`;
+
+        if (!seenGroups.has(groupKey)) {
+            seenGroups.set(groupKey, []);
+        }
+        seenGroups.get(groupKey).push(p);
+    });
+
+    groupedProducts.push(...[...seenGroups.values()]);
+
+    body.innerHTML = groupedProducts.map(group => {
+        const groupItems = group.map(item => {
+            const createdAt = item.created_at ? new Date(item.created_at) : null;
+            const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+            const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+            const quantity = Number(item.quantity || 0);
+            const unitPrice = Number(item.cost_price || 0);
+            const lineTotal = quantity * unitPrice;
+            runningTotal += lineTotal;
+
+            return {
+                ...item,
+                createdAt,
+                formattedDate,
+                formattedTime,
+                quantity,
+                unitPrice,
+                lineTotal,
+                runningTotal
+            };
+        });
+
+        const firstItem = groupItems[0];
+        const rows = groupItems.map((item, idx) => {
+            const row = `
+                <tr>
+                    ${idx === 0 ? `
+                        <td class="sp-datetime-cell" rowspan="${groupItems.length}">
+                            <div class="datetime-info">
+                                <div class="sale-date">${firstItem.formattedDate}</div>
+                                <div class="sale-time">${firstItem.formattedTime}</div>
+                            </div>
+                        </td>
+                        <td rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
+                    ` : ''}
+                    <td class="sp-product-name">${escapeHtml(item.product_name)}</td>
+                    <td>${item.quantity.toLocaleString('uz-UZ')}</td>
+                    <td>${formatUsdWithUzs(item.unitPrice)}</td>
+                    <td>${formatUsdWithUzs(item.lineTotal)}</td>
+                    <td>${formatUsdWithUzs(item.runningTotal)}</td>
+                    ${idx === 0 ? `<td rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
+                </tr>
+            `;
+            return row;
+        }).join('');
+
+        return rows;
     }).join('');
 }
 
