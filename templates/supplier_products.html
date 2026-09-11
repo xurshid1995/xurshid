@@ -3,7 +3,16 @@
 
 {% block extra_css %}
 <style>
-.sp-page { padding: 24px 28px 40px; background: transparent; min-height: 100vh; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
+.sp-page {
+    padding: 24px 28px 40px;
+    background: transparent;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
 
 /* Timeline sahifasi bilan 100% bir xil header stillari */
 .tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
@@ -17,27 +26,56 @@
 .tl-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .tl-badge-debt { background: #fee2e2; color: #991b1b; }
 
-.sp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.sp-stat { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); text-align: center; }
-.sp-stat-value { font-size: 18px; font-weight: 700; color: #1e293b; }
-.sp-stat-label { font-size: 12px; color: #64748b; margin-top: 3px; }
-
-.sp-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+.sp-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
 .sp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.sp-table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
+.sp-table {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+}
 .sp-table thead tr { background: #1a6eff; }
 .sp-table th {
-    padding: 12px 10px; text-align: center; font-size: 11px; font-weight: 700; color: #fff;
-    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    padding: 12px 10px !important;
+    text-align: center;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    background: #1a6eff !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.sp-table td { padding: 11px 10px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; white-space: nowrap; }
+.sp-table td {
+    padding: 5px 10px !important;
+    font-size: 13px !important;
+    color: #374151;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle;
+    text-align: center;
+    white-space: normal !important;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
 .sp-table tbody tr:hover { background: #f8faff; }
+.sp-table tbody tr:last-child td { border-bottom: none; }
+.sp-table th:nth-child(1), .sp-table td:nth-child(1) { width: 150px; }
+.sp-table th:nth-child(2), .sp-table td:nth-child(2) { width: 120px; }
+.sp-table th:nth-child(3), .sp-table td:nth-child(3) { width: 260px; }
+.sp-table th:nth-child(4), .sp-table td:nth-child(4) { width: 100px; }
+.sp-table th:nth-child(5), .sp-table td:nth-child(5) { width: 100px; }
+.sp-table th:nth-child(6), .sp-table td:nth-child(6) { width: 160px; }
 .sp-product-name { font-weight: 600; color: #1e293b; text-align: left !important; }
-.sp-pay-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.sp-pay-cash { background: #dcfce7; color: #15803d; }
-.sp-pay-debt { background: #fee2e2; color: #991b1b; }
-.sp-pay-partial { background: #fef3c7; color: #92400e; }
-.sp-debt-amount { color: #dc2626; font-weight: 700; }
 .sp-state-msg { text-align: center; padding: 3rem 2rem; color: #6c757d; font-size: 15px; }
 </style>
 {% endblock %}
