@@ -794,18 +794,15 @@ function closePurchaseDetailsModal() {
 }
 
 async function loadPaymentsHistory() {
-    const section = document.getElementById('paymentsHistorySection');
     const tbody = document.getElementById('paymentsHistoryBody');
-    if (!section || !tbody) return;
     try {
         const res = await fetch(`/api/debt-payments/by-supplier/${SUPPLIER_ID}`);
         const data = await res.json();
 
         if (!data.success || !data.payments || data.payments.length === 0) {
-            section.style.display = 'none';
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">To\'lovlar tarixi mavjud emas</td></tr>';
             return;
         }
-        section.style.display = 'block';
 
         tbody.innerHTML = data.payments.map((p) => {
             const date = p.payment_date_iso ? new Date(p.payment_date_iso) : null;
