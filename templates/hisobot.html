@@ -874,6 +874,47 @@ async function loadReserveFund() {
     }
 }
 
+async function loadSupplierDebtSummary() {
+    const listDiv = document.getElementById('finalReportExtraList');
+    if (!listDiv) return;
+    try {
+        const res = await fetch('/api/suppliers');
+        const suppliers = await res.json();
+        const entries = (suppliers || [])
+            .filter(s => Number(s.balance_usd || 0) > 0)
+            .sort((a, b) => Number(b.balance_usd || 0) - Number(a.balance_usd || 0));
+
+        if (entries.length === 0) {
+            listDiv.innerHTML = '<div class="hr-loading">Yetkazib beruvchilardan qarz yo\'q</div>';
+            return;
+        }
+
+        const rows = entries.map((s, i) => `
+            <div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
+                <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i + 1}</div>
+                <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escHtml(s.name)}">${escHtml(s.name)}</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:700; color:#dc2626; font-size:12px;">${fmtUsd(s.balance_usd || 0)}</div>
+            </div>
+        `).join('');
+
+        const grandTotal = entries.reduce((sum, s) => sum + Number(s.balance_usd || 0), 0);
+        listDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
+                <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
+                <div style="flex:1; min-width:0; font-size:11px; color:#888;">Yetkazib beruvchi</div>
+                <div style="flex-shrink:0; font-size:11px; color:#888;">Qarz</div>
+            </div>
+            ${rows}
+            <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
+                <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Jami</div>
+                <div style="flex-shrink:0; text-align:right; font-weight:800; color:#dc2626; font-size:14px;">${fmtUsd(grandTotal)}</div>
+            </div>
+        </div>`;
+    } catch (e) {
+        listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+    }
+}
+
 let frGrandCostValue = 0;
 let frGrandDebt = 0;
 let frGrandReserve = 0;
@@ -1272,6 +1313,7 @@ async function loadAll() {
     loadFinalReport();
     loadTotalDebt();
     loadReserveFund();
+    loadSupplierDebtSummary();
     loadFinalReportSnapshots();
 
     // --- Jami savdolar, tushum, o'rtacha ---
