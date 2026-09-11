@@ -66,6 +66,12 @@
 .tl-status-debt { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
 .tl-status-partial { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
 
+.tl-items-list { margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px; }
+.tl-items-toggle { font-size: 12px; color: #1a6eff; cursor: pointer; font-weight: 500; background: none; border: none; padding: 0; }
+.tl-items-body { display: none; margin-top: 6px; }
+.tl-items-body.open { display: block; }
+.tl-item-row { display: flex; justify-content: space-between; font-size: 12px; color: #475569; padding: 3px 0; border-bottom: 1px solid #f8fafc; }
+
 .tl-empty { text-align: center; padding: 40px; color: #94a3b8; font-size: 15px; }
 .tl-loading { text-align: center; padding: 40px; color: #94a3b8; }
 </style>
@@ -169,13 +175,32 @@ function renderTimeline() {
     Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
         html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;margin-top:4px;letter-spacing:0.5px;">${formatDay(day)}</div>`;
         html += '<div class="tl-container">';
-        groups[day].forEach(e => {
-            html += e.type === 'purchase' ? renderPurchase(e) : renderPayment(e);
-        });
+        html += renderDayEvents(groups[day]);
         html += '</div>';
     });
 
     document.getElementById('timelineContainer').innerHTML = html;
+}
+
+function renderDayEvents(events) {
+    // Bir vaqtda (o'sha daqiqada) qo'shilgan xaridlarni bitta kirim sifatida guruhlash (savdo kartasi uslubida)
+    const batches = {};
+    const ordered = [];
+    events.forEach(e => {
+        if (e.type !== 'purchase') { ordered.push({ single: e }); return; }
+        const minuteKey = (e.date || '').substring(0, 16);
+        if (!batches[minuteKey]) {
+            const group = { batch: [] };
+            batches[minuteKey] = group;
+            ordered.push(group);
+        }
+        batches[minuteKey].batch.push(e);
+    });
+
+    return ordered.map(item => {
+        if (item.single) return item.single.type === 'purchase' ? renderPurchase(item.single) : renderPayment(item.single);
+        return item.batch.length > 1 ? renderPurchaseBatch(item.batch) : renderPurchase(item.batch[0]);
+    }).join('');
 }
 
 function formatDay(dateStr) {
@@ -232,6 +257,46 @@ function renderPurchase(e) {
     </div>`;
 }
 
+function renderPurchaseBatch(events) {
+    // events - shu daqiqada bitta yetkazib beruvchidan qabul qilingan bir nechta mahsulot
+    // (chronologik tartibda: birinchi -> oxirgi qabul qilingan)
+    const totalAmount = events.reduce((sum, e) => sum + e.total_amount, 0);
+    const paidAmount = events.reduce((sum, e) => sum + e.paid_amount, 0);
+    const debtAmount = events.reduce((sum, e) => sum + e.debt_amount, 0);
+    const first = events[0];
+    const last = events[events.length - 1];
+
+    const chips = [];
+    chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${totalAmount.toFixed(2)}</span>`);
+    if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">✅ To'landi: $${paidAmount.toFixed(2)}</span>`);
+    if (debtAmount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${debtAmount.toFixed(2)}</span>`);
+    if (first.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${first.location_name}</span>`);
+    if (first.added_by) chips.push(`<span class="tl-detail-chip">👤 ${first.added_by}</span>`);
+
+    const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} × ${e.quantity}</span><span>$${e.total_amount.toFixed(2)}</span></div>`).join('');
+    const itemsHtml = `<div class="tl-items-list">
+        <button class="tl-items-toggle" onclick="toggleItems(this)">▶ ${events.length} ta mahsulot ko'rish</button>
+        <div class="tl-items-body">${rows}</div>
+    </div>`;
+
+    return `<div class="tl-item">
+        <div class="tl-dot tl-dot-purchase"></div>
+        <div class="tl-card tl-card-purchase">
+            <div class="tl-card-header">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span class="tl-time-badge">${timeOnly(first.date)}</span>
+                    <span class="tl-type-badge tl-type-purchase">📦 Mahsulot qabul qilindi</span>
+                    ${paymentTypeBadge(first.payment_type)}
+                </div>
+                <div><span class="tl-amount tl-amount-purchase">$${totalAmount.toFixed(2)}</span></div>
+            </div>
+            <div class="tl-details">${chips.join('')}</div>
+            ${itemsHtml}
+            ${afterRow(last)}
+        </div>
+    </div>`;
+}
+
 function renderPayment(e) {
     const paymentChips = [];
     if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
@@ -257,6 +322,12 @@ function renderPayment(e) {
             ${afterRow(e)}
         </div>
     </div>`;
+}
+
+function toggleItems(btn) {
+    const body = btn.nextElementSibling;
+    const open = body.classList.toggle('open');
+    btn.textContent = (open ? '▼ ' : '▶ ') + btn.textContent.substring(2);
 }
 
 document.addEventListener('DOMContentLoaded', loadTimeline);
