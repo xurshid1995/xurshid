@@ -584,11 +584,27 @@ class Supplier(db.Model):
         }
 
 
+# Bitta "mahsulot qabul qilish" operatsiyasining guruh (parent) yozuvi - Sale kabi
+class SupplierPurchaseBatch(db.Model):
+    __tablename__ = 'supplier_purchase_batches'
+
+    id = db.Column(db.Integer, primary_key=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
+    added_by = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
+
+    supplier = db.relationship('Supplier', backref=db.backref('purchase_batches', order_by='SupplierPurchaseBatch.created_at.desc()'))
+
+    def __repr__(self):
+        return f'<SupplierPurchaseBatch {self.id}: supplier={self.supplier_id}>'
+
+
 # Yetkazib beruvchidan mahsulot kirimi (naxt/qarz/qisman to'lov bilan)
 class SupplierPurchase(db.Model):
     __tablename__ = 'supplier_purchases'
 
     id = db.Column(db.Integer, primary_key=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey('supplier_purchase_batches.id', ondelete='SET NULL'), nullable=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id', ondelete='SET NULL'), nullable=True)
     product_name = db.Column(db.String(200), nullable=False)  # snapshot
@@ -604,6 +620,7 @@ class SupplierPurchase(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
 
     supplier = db.relationship('Supplier', backref=db.backref('purchases', order_by='SupplierPurchase.created_at.desc()'))
+    batch = db.relationship('SupplierPurchaseBatch', backref=db.backref('items', order_by='SupplierPurchase.id.asc()'))
 
     def __repr__(self):
         return f'<SupplierPurchase {self.id}: supplier={self.supplier_id} {self.product_name}>'
@@ -612,6 +629,7 @@ class SupplierPurchase(db.Model):
         return {
             'id': self.id,
             'event_type': 'purchase',
+            'batch_id': self.batch_id,
             'supplier_id': self.supplier_id,
             'product_id': self.product_id,
             'product_name': self.product_name,

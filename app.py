@@ -221,7 +221,7 @@ from models import (  # noqa: E402
     UserSession, Settings, StockCheckSession, StockCheckItem, SaleItem, Sale,
     StockChange, ProductAddHistory, CurrencyRate, Expense, HostingClient,
     HostingPaymentOrder, HostingPayment, ManualDebt, ReserveFund, FinalReportSnapshot,
-    Supplier, SupplierPurchase, SupplierPayment,
+    Supplier, SupplierPurchase, SupplierPurchaseBatch, SupplierPayment,
 )
 
 # Decimal aniqlik o'rnatish
@@ -1646,6 +1646,7 @@ def api_add_product():
         # Bir nechta mahsulotlar uchun
         if 'products' in data:
             created_products = []
+            supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
             for product_data in data['products']:
                 cost_price = Decimal(str(product_data['costPrice']))
                 sell_price = Decimal(str(product_data['sellPrice']))
@@ -1839,7 +1840,17 @@ def api_add_product():
                                 paid_amount = batch_total
                             debt_amount = batch_total - paid_amount
 
+                            if supplier.id not in supplier_batches:
+                                purchase_batch = SupplierPurchaseBatch(
+                                    supplier_id=supplier.id,
+                                    added_by=current_user_name
+                                )
+                                db.session.add(purchase_batch)
+                                db.session.flush()  # ID olish uchun
+                                supplier_batches[supplier.id] = purchase_batch
+
                             purchase = SupplierPurchase(
+                                batch_id=supplier_batches[supplier.id].id,
                                 supplier_id=supplier.id,
                                 product_id=product.id,
                                 product_name=product.name,
@@ -1949,6 +1960,7 @@ def api_batch_products():
             return jsonify({'error': 'Mahsulotlar ro\'yxati bo\'sh'}), 400
 
         created_count = 0
+        supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
 
         for product_data in products:
             # Ma'lumotlarni olish
@@ -2147,7 +2159,17 @@ def api_batch_products():
                             paid_amount = batch_total
                         debt_amount = batch_total - paid_amount
 
+                        if supplier.id not in supplier_batches:
+                            purchase_batch = SupplierPurchaseBatch(
+                                supplier_id=supplier.id,
+                                added_by=current_user_name
+                            )
+                            db.session.add(purchase_batch)
+                            db.session.flush()  # ID olish uchun
+                            supplier_batches[supplier.id] = purchase_batch
+
                         purchase = SupplierPurchase(
+                            batch_id=supplier_batches[supplier.id].id,
                             supplier_id=supplier.id,
                             product_id=product.id,
                             product_name=product.name,
@@ -11166,6 +11188,7 @@ def api_supplier_timeline(supplier_id):
             raw_events.append({
                 'type': 'purchase',
                 'id': p.id,
+                'batch_id': p.batch_id,
                 'date': p.created_at.strftime('%Y-%m-%d %H:%M:%S') if p.created_at else None,
                 'product_name': p.product_name,
                 'quantity': float(p.quantity or 0),

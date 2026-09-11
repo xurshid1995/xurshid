@@ -607,37 +607,65 @@ function renderPurchases(purchases) {
         tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Qarzli mahsulot topilmadi</td></tr>';
         return;
     }
-    tbody.innerHTML = purchases.map(p => {
-        const date = p.date ? new Date(p.date) : null;
+
+    // batch_id bo'yicha guruhlash (bitta qabul qilish operatsiyasidagi mahsulotlar bitta guruhga tushadi, savdo kabi)
+    const groups = [];
+    const groupMap = new Map();
+    purchases.forEach(p => {
+        const key = p.batch_id != null ? `b${p.batch_id}` : `p${p.id}`;
+        if (!groupMap.has(key)) {
+            const group = { items: [] };
+            groupMap.set(key, group);
+            groups.push(group);
+        }
+        groupMap.get(key).items.push(p);
+    });
+
+    tbody.innerHTML = groups.map(group => {
+        const items = group.items;
+        const first = items[0];
+        const date = first.date ? new Date(first.date) : null;
         const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
         const timeStr = date ? date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
-        const qty = Number(p.quantity || 0);
-        const costPrice = Number(p.cost_price || 0);
-        const totalAmount = Number(p.total_amount || 0);
-        const paidAmount = Number(p.paid_amount || 0);
-        const debtAmount = Number(p.debt_amount || 0);
+        const groupId = first.batch_id != null ? first.batch_id : first.id;
 
-        return `
-            <tr class="sale-group-start sale-group-end">
-                <td rowspan="1" class="group-cell group-datetime">
-                    <div class="sale-id-badge">ID: ${p.id || '-'}</div>
-                    <div class="sale-date">${dateStr}</div>
-                    <div class="sale-time">${timeStr}</div>
-                </td>
-                <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name || '-')}</td>
-                <td class="group-cell col-qty">${qty.toLocaleString('uz-UZ')}</td>
-                <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
-                <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
-                <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidAmount)}</td>
-                <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtAmount)}</td>
-                <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
-                <td class="group-cell col-actions">
-                    <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
-                </td>
-            </tr>
-        `;
+        return items.map((p, idx) => {
+            const isFirst = idx === 0;
+            const isLast = idx === items.length - 1;
+            const rowClasses = [isFirst ? 'sale-group-start' : 'sale-group-item'];
+            if (isLast) rowClasses.push('sale-group-end');
+
+            const qty = Number(p.quantity || 0);
+            const costPrice = Number(p.cost_price || 0);
+            const totalAmount = Number(p.total_amount || 0);
+            const paidAmount = Number(p.paid_amount || 0);
+            const debtAmount = Number(p.debt_amount || 0);
+
+            return `
+                <tr class="${rowClasses.join(' ')}">
+                    ${isFirst ? `
+                        <td rowspan="${items.length}" class="group-cell group-datetime">
+                            <div class="sale-id-badge">ID: ${groupId}</div>
+                            <div class="sale-date">${dateStr}</div>
+                            <div class="sale-time">${timeStr}</div>
+                        </td>
+                    ` : ''}
+                    <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name || '-')}</td>
+                    <td class="group-cell col-qty">${qty.toLocaleString('uz-UZ')}</td>
+                    <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
+                    <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
+                    <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidAmount)}</td>
+                    <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtAmount)}</td>
+                    <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
+                    <td class="group-cell col-actions">
+                        <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }).join('');
 }
+
 
 function viewPurchaseDetails(purchaseId) {
     const purchase = currentPurchases.find(p => p.id === purchaseId);
