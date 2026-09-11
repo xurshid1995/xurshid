@@ -225,11 +225,15 @@ function timeOnly(dateStr) {
     return (dateStr || '').substring(11, 16);
 }
 
-function statusBadge(status, isDeleted) {
+function statusBadge(status, isDeleted, e) {
     if (isDeleted) return '<span class="tl-status-deleted">🗑️ O\'chirilgan</span>';
     if (status === 'paid') return '<span class="tl-status-paid">✅ Savdo statusi: To\'lov</span>';
+    if (status === 'partial') {
+        const paidSoFar = (e?.cash_usd || 0) + (e?.click_usd || 0) + (e?.terminal_usd || 0) + (e?.balance_usd || 0);
+        if (paidSoFar <= 0) return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
+        return '<span class="tl-status-debt">💳 Savdo statusi: Qisman</span>';
+    }
     if (status === 'debt') return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
-    if (status === 'partial') return '<span class="tl-status-debt">💳 Savdo statusi: Qisman</span>';
     return '';
 }
 
@@ -328,7 +332,7 @@ function renderSale(e) {
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
                     <span class="tl-type-badge tl-type-sale">🛒 Savdo ID ${e.id}</span>
-                    ${statusBadge(e.payment_status, e.is_deleted)}
+                    ${statusBadge(e.payment_status, e.is_deleted, e)}
                     ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
                     ${e.seller ? `<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>` : ''}
                     ${e.is_edited ? `<span class="tl-status-edited">✏️ Tahrirlangan</span>` : ''}
