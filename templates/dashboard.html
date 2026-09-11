@@ -899,7 +899,7 @@ function renderStockOverviewList(items) {
         return;
     }
     const rows = items.map(s => {
-        const icon = s.location_type === 'warehouse' ? '🏭' : '🏪';
+        const icon = s.location_type === 'warehouse' ? '🏭' : (s.location_type === 'store' ? '🏪' : '📦');
         const meta = STOCK_STATUS_META[s.status] || STOCK_STATUS_META.sufficient;
         return `<tr style="border-bottom:1px solid #f8fafc;">
             <td style="padding:9px 12px;font-weight:600;font-size:13px;color:#1e293b;">${escDbHtml(s.product)}</td>

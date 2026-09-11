@@ -16659,60 +16659,94 @@ def api_product_stock_overview():
         items = []
         counts = {'sufficient': 0, 'low': 0, 'out': 0}
 
-        if not loc_type or loc_type == 'store':
-            store_rows = db.session.query(
-                Product.name.label('product_name'),
-                Product.barcode,
-                StoreStock.store_id.label('location_id'),
-                Store.name.label('location_name'),
-                StoreStock.quantity,
-                StoreStock.min_stock
-            ).join(
-                Product, StoreStock.product_id == Product.id
-            ).join(
-                Store, StoreStock.store_id == Store.id
-            )
-            if loc_id:
-                store_rows = store_rows.filter(StoreStock.store_id == loc_id)
-            for r in store_rows.all():
-                status = compute_status(float(r.quantity), r.min_stock or 0)
-                counts[status] += 1
-                items.append({
-                    'product': r.product_name,
-                    'barcode': r.barcode,
-                    'location_id': r.location_id,
-                    'location_type': 'store',
-                    'location': r.location_name,
-                    'qty': float(r.quantity),
-                    'min_qty': r.min_stock or 0,
-                    'status': status
-                })
+        if loc_type:
+            # Aniq joylashuv tanlangan - o'sha joyning o'z minimal qoldig'i bilan ishlaydi
+            if loc_type == 'store':
+                store_rows = db.session.query(
+                    Product.name.label('product_name'),
+                    Product.barcode,
+                    StoreStock.store_id.label('location_id'),
+                    Store.name.label('location_name'),
+                    StoreStock.quantity,
+                    StoreStock.min_stock
+                ).join(
+                    Product, StoreStock.product_id == Product.id
+                ).join(
+                    Store, StoreStock.store_id == Store.id
+                ).filter(StoreStock.store_id == loc_id)
+                for r in store_rows.all():
+                    status = compute_status(float(r.quantity), r.min_stock or 0)
+                    counts[status] += 1
+                    items.append({
+                        'product': r.product_name,
+                        'barcode': r.barcode,
+                        'location_id': r.location_id,
+                        'location_type': 'store',
+                        'location': r.location_name,
+                        'qty': float(r.quantity),
+                        'min_qty': r.min_stock or 0,
+                        'status': status
+                    })
+            elif loc_type == 'warehouse':
+                wh_rows = db.session.query(
+                    Product.name.label('product_name'),
+                    Product.barcode,
+                    WarehouseStock.warehouse_id.label('location_id'),
+                    Warehouse.name.label('location_name'),
+                    WarehouseStock.quantity,
+                    WarehouseStock.min_stock
+                ).join(
+                    Product, WarehouseStock.product_id == Product.id
+                ).join(
+                    Warehouse, WarehouseStock.warehouse_id == Warehouse.id
+                ).filter(WarehouseStock.warehouse_id == loc_id)
+                for r in wh_rows.all():
+                    status = compute_status(float(r.quantity), r.min_stock or 0)
+                    counts[status] += 1
+                    items.append({
+                        'product': r.product_name,
+                        'barcode': r.barcode,
+                        'location_id': r.location_id,
+                        'location_type': 'warehouse',
+                        'location': r.location_name,
+                        'qty': float(r.quantity),
+                        'min_qty': r.min_stock or 0,
+                        'status': status
+                    })
+        else:
+            # "Barchasi" - mahsulotlar sahifasidagi kabi: barcha joylashuvlar bo'yicha
+            # qoldiq YIG'ILADI va mahsulotning GLOBAL (Product.min_stock) chegarasi bilan solishtiriladi
+            wh_qty_sq = db.session.query(
+                WarehouseStock.product_id,
+                db.func.coalesce(db.func.sum(WarehouseStock.quantity), 0).label('qty')
+            ).group_by(WarehouseStock.product_id).subquery()
+            st_qty_sq = db.session.query(
+                StoreStock.product_id,
+                db.func.coalesce(db.func.sum(StoreStock.quantity), 0).label('qty')
+            ).group_by(StoreStock.product_id).subquery()
 
-        if not loc_type or loc_type == 'warehouse':
-            wh_rows = db.session.query(
+            rows = db.session.query(
                 Product.name.label('product_name'),
                 Product.barcode,
-                WarehouseStock.warehouse_id.label('location_id'),
-                Warehouse.name.label('location_name'),
-                WarehouseStock.quantity,
-                WarehouseStock.min_stock
-            ).join(
-                Product, WarehouseStock.product_id == Product.id
-            ).join(
-                Warehouse, WarehouseStock.warehouse_id == Warehouse.id
+                Product.min_stock,
+                db.func.coalesce(wh_qty_sq.c.qty, 0).label('wh_qty'),
+                db.func.coalesce(st_qty_sq.c.qty, 0).label('st_qty')
+            ).outerjoin(
+                wh_qty_sq, Product.id == wh_qty_sq.c.product_id
+            ).outerjoin(
+                st_qty_sq, Product.id == st_qty_sq.c.product_id
             )
-            if loc_id:
-                wh_rows = wh_rows.filter(WarehouseStock.warehouse_id == loc_id)
-            for r in wh_rows.all():
-                status = compute_status(float(r.quantity), r.min_stock or 0)
+            for r in rows.all():
+                total_qty = float(r.wh_qty or 0) + float(r.st_qty or 0)
+                status = compute_status(total_qty, r.min_stock or 0)
                 counts[status] += 1
                 items.append({
                     'product': r.product_name,
                     'barcode': r.barcode,
-                    'location_id': r.location_id,
-                    'location_type': 'warehouse',
-                    'location': r.location_name,
-                    'qty': float(r.quantity),
+                    'location_id': None,
+                    'location_type': 'all',
+                    'location': 'Barchasi',
+                    'qty': total_qty,
                     'min_qty': r.min_stock or 0,
                     'status': status
                 })
