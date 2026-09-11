@@ -1967,16 +1967,17 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (productName.length >= 2) {
                 searchProduct(); // Qidiruvni qayta ishga tushirish
             }
-            
-            // Joylashuv tanlangandan keyin mahsulot nomi maydoniga fokus berish
+
+            // Joylashuv tanlangandan keyin yetkazib beruvchi qidiruv maydoniga fokus berish
             const locationSelect = document.getElementById('location');
-            if (locationSelect.value) { // Agar joylashuv tanlangan bo'lsa
+            if (locationSelect.value) {
                 setTimeout(function() {
-                    const productNameField = document.getElementById('product_name');
-                    if (productNameField) {
-                        productNameField.focus();
+                    const supplierSearchField = document.getElementById('supplier_search');
+                    if (supplierSearchField) {
+                        supplierSearchField.focus();
+                        supplierSearchField.select();
                     }
-                }, 100); // Kichik kechikish bilan
+                }, 100);
             }
         }
 
