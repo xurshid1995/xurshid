@@ -461,8 +461,8 @@
                     <thead>
                         <tr>
                             <th>Sana</th>
-                            <th>Mahsulot</th>
-                            <th>Miqdor</th>
+                            <th style="text-align:left;">Mahsulot</th>
+                            <th>Soni</th>
                             <th>Narxi</th>
                             <th>Jami</th>
                             <th>To'langan</th>
@@ -587,17 +587,22 @@ function renderPurchases(purchases) {
     }
     tbody.innerHTML = purchases.map(p => {
         const date = p.date ? new Date(p.date) : null;
-        const dateStr = date ? date.toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+        const timeStr = date ? date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
         return `
-            <tr>
-                <td>${dateStr}</td>
-                <td class="col-products">${escapeHtml(p.product_name)}</td>
-                <td>${p.quantity.toLocaleString('uz-UZ')}</td>
-                <td>${formatUSD(p.cost_price)}</td>
-                <td><strong>${formatUSD(p.total_amount)}</strong></td>
-                <td style="color:#28a745;">${formatUSD(p.paid_amount)}</td>
-                <td><strong style="color:#dc3545;">${formatUSD(p.debt_amount)}</strong></td>
-                <td>${escapeHtml(p.added_by || '-')}</td>
+            <tr class="sale-group-start sale-group-end">
+                <td class="group-cell group-datetime">
+                    <div class="sale-id-badge">ID: ${p.id || '-'}</div>
+                    <div class="sale-date">${dateStr}</div>
+                    <div class="sale-time">${timeStr}</div>
+                </td>
+                <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name)}</td>
+                <td class="group-cell col-qty">${p.quantity.toLocaleString('uz-UZ')}</td>
+                <td class="group-cell col-price">${formatDualCurrency(p.cost_price)}</td>
+                <td class="group-cell col-subtotal">${formatDualCurrency(p.total_amount)}</td>
+                <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(p.paid_amount)}</td>
+                <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(p.debt_amount)}</td>
+                <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
             </tr>
         `;
     }).join('');
