@@ -2641,6 +2641,21 @@ def customer_timeline(customer_id):
         return "Mijoz ma'lumotlari yuklanmadi", 500
 
 
+def normalize_timeline_sale_status(payment_status, debt_usd, cash_usd=0, click_usd=0, terminal_usd=0):
+    """Timeline uchun real holat bo'yicha statusni qaytaradi."""
+    debt_value = float(debt_usd or 0)
+    cash_value = float(cash_usd or 0)
+    click_value = float(click_usd or 0)
+    terminal_value = float(terminal_usd or 0)
+    if debt_value <= 0:
+        return 'paid'
+    if payment_status in ('paid', 'completed'):
+        return 'paid'
+    if cash_value > 0 or click_value > 0 or terminal_value > 0:
+        return 'partial'
+    return payment_status if payment_status in ('debt', 'partial', 'paid', 'completed') else 'debt'
+
+
 @app.route('/api/customer/<int:customer_id>/timeline')
 @role_required('admin', 'kassir', 'sotuvchi')
 def api_customer_timeline(customer_id):
@@ -2690,12 +2705,19 @@ def api_customer_timeline(customer_id):
                     }
                     for it in sd.get('items', [])
                 ]
+                payment_status = normalize_timeline_sale_status(
+                    sd.get('payment_status', 'unknown'),
+                    sd.get('debt_usd', 0),
+                    sd.get('cash_usd', 0),
+                    sd.get('click_usd', 0),
+                    sd.get('terminal_usd', 0),
+                )
                 events.append({
                     'type': 'sale',
                     'id': snap.event_id,
                     'date': snap.event_date.strftime('%Y-%m-%d %H:%M:%S') if snap.event_date else None,
                     'total_amount': float(sd.get('total_amount', 0)),
-                    'payment_status': sd.get('payment_status', 'unknown'),
+                    'payment_status': payment_status,
                     'cash_usd': float(sd.get('cash_usd', 0)),
                     'click_usd': float(sd.get('click_usd', 0)),
                     'terminal_usd': float(sd.get('terminal_usd', 0)),
@@ -2762,7 +2784,13 @@ def api_customer_timeline(customer_id):
                 'id': sale.id,
                 'date': sale.sale_date.strftime('%Y-%m-%d %H:%M:%S') if sale.sale_date else None,
                 'total_amount': float(sale.total_amount or 0),
-                'payment_status': sale.payment_status,
+                'payment_status': normalize_timeline_sale_status(
+                    sale.payment_status,
+                    sale.debt_usd,
+                    sale.cash_usd,
+                    sale.click_usd,
+                    sale.terminal_usd,
+                ),
                 'cash_usd': float(sale.cash_usd or 0),
                 'click_usd': float(sale.click_usd or 0),
                 'terminal_usd': float(sale.terminal_usd or 0),
