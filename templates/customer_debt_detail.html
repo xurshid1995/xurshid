@@ -1194,26 +1194,29 @@
                     ? paymentDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false })
                     : '-';
 
-                const uzs = (p.total_usd * (p.currency_rate || currentRate)).toLocaleString('uz-UZ', {maximumFractionDigits: 0});
+                const totalUsd = Number(p.total_usd || 0);
+                const cashUsd = Number(p.cash_usd || 0);
+                const clickUsd = Number(p.click_usd || 0);
+                const terminalUsd = Number(p.terminal_usd || 0);
+
                 const reverseBtn = isAdmin
-                    ? `<button onclick="openReverseModal('${p.payment_date_iso}', ${p.total_usd}, '${p.payment_date}')"
+                    ? `<button onclick="openReverseModal('${p.payment_date_iso}', ${totalUsd}, '${p.payment_date || formattedDate}')"
                                style="padding:5px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px;">
                            ↩ Bekor qilish
                        </button>`
                     : '<span style="color:#aaa; font-size:12px;">—</span>';
 
-                return `<tr>
+                return `<tr class="sale-group-start sale-group-end">
                     <td class="group-cell group-datetime">
                         <div class="sale-date">${formattedDate}</div>
                         <div class="sale-time">${formattedTime}</div>
                     </td>
-                    <td><strong style="color:#28a745;">$${p.total_usd.toFixed(2)}</strong><br>
-                        <small style="color:#666;">${uzs} so'm</small></td>
-                    <td>${p.cash_usd > 0     ? '$' + p.cash_usd.toFixed(2)     : '—'}</td>
-                    <td>${p.click_usd > 0    ? '$' + p.click_usd.toFixed(2)    : '—'}</td>
-                    <td>${p.terminal_usd > 0 ? '$' + p.terminal_usd.toFixed(2) : '—'}</td>
-                    <td style="font-size:13px;">${p.received_by}</td>
-                    <td>${reverseBtn}</td>
+                    <td class="group-cell col-price" style="color:#28a745;">${formatDualCurrency(totalUsd)}</td>
+                    <td class="group-cell col-price">${cashUsd > 0 ? formatDualCurrency(cashUsd) : '—'}</td>
+                    <td class="group-cell col-price">${clickUsd > 0 ? formatDualCurrency(clickUsd) : '—'}</td>
+                    <td class="group-cell col-price">${terminalUsd > 0 ? formatDualCurrency(terminalUsd) : '—'}</td>
+                    <td class="group-cell col-price" style="font-size:13px;">${p.received_by || '-'}</td>
+                    <td class="group-cell col-actions">${reverseBtn}</td>
                 </tr>`;
             }).join('');
         } catch (e) {
