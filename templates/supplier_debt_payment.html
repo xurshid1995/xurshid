@@ -690,11 +690,20 @@ function showPurchaseDetailsModal(purchase) {
     const totalUSD = Number(purchase.total_amount || 0);
     const paidUSD = Number(purchase.paid_amount || 0);
     const debtUSD = Number(purchase.debt_amount || 0);
+    const cashUSD = Number(purchase.cash_usd || 0);
+    const clickUSD = Number(purchase.click_usd || 0);
+    const terminalUSD = Number(purchase.terminal_usd || 0);
+    const hasBreakdown = (cashUSD + clickUSD + terminalUSD) > 0;
 
-    const boxes = [
+    const boxes = (hasBreakdown ? [
+        { name: '💵 Naqd', usd: cashUSD, color: '#28a745' },
+        { name: '💳 Click', usd: clickUSD, color: '#17a2b8' },
+        { name: '🏧 Terminal', usd: terminalUSD, color: '#6f42c1' },
+    ] : [
         { name: '✅ To\'langan', usd: paidUSD, color: '#28a745' },
+    ]).concat([
         { name: '📝 Qarz', usd: debtUSD, color: '#dc3545' },
-    ].filter(b => b.usd > 0);
+    ]).filter(b => b.usd > 0);
 
     const boxesHTML = boxes.map(b => `
         <div style="display: inline-block; background: #f8f9fa; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid ${b.color};">

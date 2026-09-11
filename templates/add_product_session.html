@@ -2669,13 +2669,24 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
             warningEl.style.display = 'none';
 
-            // Har bir yetkazib beruvchi mahsulotiga to'lovni ulushiga qarab taqsimlash
-            tempProducts.forEach(p => {
-                if (!p.supplierId) return;
+            // Har bir yetkazib beruvchi mahsulotiga to'lovni (naqd/click/terminal) ulushiga qarab taqsimlash
+            const supplierItems = tempProducts.filter(p => p.supplierId);
+            let cashRemaining = cash, clickRemaining = click, terminalRemaining = terminal;
+            supplierItems.forEach((p, idx) => {
                 const itemValue = parseFloat(p.total_value) || 0;
                 const share = total > 0 ? (itemValue / total) : 0;
-                const itemPaid = Math.round(paid * share * 100) / 100;
+                const isLast = idx === supplierItems.length - 1;
+                const itemCash = isLast ? Math.round(cashRemaining * 100) / 100 : Math.round(cash * share * 100) / 100;
+                const itemClick = isLast ? Math.round(clickRemaining * 100) / 100 : Math.round(click * share * 100) / 100;
+                const itemTerminal = isLast ? Math.round(terminalRemaining * 100) / 100 : Math.round(terminal * share * 100) / 100;
+                cashRemaining = Math.max(0, cashRemaining - itemCash);
+                clickRemaining = Math.max(0, clickRemaining - itemClick);
+                terminalRemaining = Math.max(0, terminalRemaining - itemTerminal);
+                const itemPaid = itemCash + itemClick + itemTerminal;
                 p.paidAmount = itemPaid;
+                p.cashUsd = itemCash;
+                p.clickUsd = itemClick;
+                p.terminalUsd = itemTerminal;
                 p.paymentType = itemPaid <= 0 ? 'debt' : (itemPaid >= itemValue - 0.01 ? 'cash' : 'partial');
             });
 
@@ -2742,7 +2753,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         categoryId: product.categoryId || null,
                         supplierId: product.supplierId || null,
                         paymentType: product.paymentType || 'cash',
-                        paidAmount: product.paidAmount
+                        paidAmount: product.paidAmount,
+                        cashUsd: product.cashUsd,
+                        clickUsd: product.clickUsd,
+                        terminalUsd: product.terminalUsd
                     };
                     
                     console.log('📦 API ga yuborilayotgan mahsulot:', productData);

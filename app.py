@@ -1840,6 +1840,13 @@ def api_add_product():
                                 paid_amount = batch_total
                             debt_amount = batch_total - paid_amount
 
+                            # Naqd/Click/Terminal taqsimoti (agar yuborilmagan bo'lsa, to'lovni naqd deb olamiz)
+                            cash_usd_val = Decimal(str(product_data.get('cashUsd', 0) or 0))
+                            click_usd_val = Decimal(str(product_data.get('clickUsd', 0) or 0))
+                            terminal_usd_val = Decimal(str(product_data.get('terminalUsd', 0) or 0))
+                            if (cash_usd_val + click_usd_val + terminal_usd_val) <= 0 and paid_amount > 0:
+                                cash_usd_val = paid_amount
+
                             if supplier.id not in supplier_batches:
                                 purchase_batch = SupplierPurchaseBatch(
                                     supplier_id=supplier.id,
@@ -1860,6 +1867,9 @@ def api_add_product():
                                 payment_type=payment_type,
                                 paid_amount=paid_amount,
                                 debt_amount=debt_amount,
+                                cash_usd=cash_usd_val,
+                                click_usd=click_usd_val,
+                                terminal_usd=terminal_usd_val,
                                 location_type=location_type_str,
                                 location_name=location_name,
                                 added_by=current_user_name
@@ -2159,6 +2169,13 @@ def api_batch_products():
                             paid_amount = batch_total
                         debt_amount = batch_total - paid_amount
 
+                        # Naqd/Click/Terminal taqsimoti (agar yuborilmagan bo'lsa, to'lovni naqd deb olamiz)
+                        cash_usd_val = Decimal(str(product_data.get('cashUsd', 0) or 0))
+                        click_usd_val = Decimal(str(product_data.get('clickUsd', 0) or 0))
+                        terminal_usd_val = Decimal(str(product_data.get('terminalUsd', 0) or 0))
+                        if (cash_usd_val + click_usd_val + terminal_usd_val) <= 0 and paid_amount > 0:
+                            cash_usd_val = paid_amount
+
                         if supplier.id not in supplier_batches:
                             purchase_batch = SupplierPurchaseBatch(
                                 supplier_id=supplier.id,
@@ -2179,6 +2196,9 @@ def api_batch_products():
                             payment_type=payment_type,
                             paid_amount=paid_amount,
                             debt_amount=debt_amount,
+                            cash_usd=cash_usd_val,
+                            click_usd=click_usd_val,
+                            terminal_usd=terminal_usd_val,
                             location_type=location_type,
                             location_name=location_name,
                             added_by=current_user_name
@@ -11197,6 +11217,9 @@ def api_supplier_timeline(supplier_id):
                 'payment_type': p.payment_type,
                 'paid_amount': float(p.paid_amount or 0),
                 'debt_amount': float(p.debt_amount or 0),
+                'cash_usd': float(p.cash_usd or 0),
+                'click_usd': float(p.click_usd or 0),
+                'terminal_usd': float(p.terminal_usd or 0),
                 'location_name': p.location_name,
                 'added_by': p.added_by,
                 '_debt_delta': float(p.debt_amount or 0),
