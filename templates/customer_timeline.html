@@ -333,9 +333,6 @@ function renderSale(e) {
                     ${e.seller ? `<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>` : ''}
                     ${e.is_edited ? `<span class="tl-status-edited">✏️ Tahrirlangan</span>` : ''}
                 </div>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="tl-amount tl-amount-sale">$${e.total_amount.toFixed(2)}</span>
-                </div>
             </div>
             <div class="tl-details">${chipsHtml}</div>
             ${itemsHtml}
