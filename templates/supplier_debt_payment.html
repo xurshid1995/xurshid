@@ -631,6 +631,10 @@ function renderPurchases(purchases) {
         const groupId = first.batch_id != null ? first.batch_id : first.id;
         const groupRunningTotal = items.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
 
+        const groupPaid = Number(items[0].paid_amount || 0);
+        const groupDebt = Number(items[0].debt_amount || 0);
+        const groupAddedBy = items[0].added_by || '-';
+
         return items.map((p, idx) => {
             const isFirst = idx === 0;
             const isLast = idx === items.length - 1;
@@ -640,8 +644,6 @@ function renderPurchases(purchases) {
             const qty = Number(p.quantity || 0);
             const costPrice = Number(p.cost_price || 0);
             const totalAmount = Number(p.total_amount || 0);
-            const paidAmount = Number(p.paid_amount || 0);
-            const debtAmount = Number(p.debt_amount || 0);
 
             return `
                 <tr class="${rowClasses.join(' ')}">
@@ -657,12 +659,12 @@ function renderPurchases(purchases) {
                     <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
                     <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-group-total">${formatDualCurrency(groupRunningTotal)}</td>` : ''}
-                    <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidAmount)}</td>
-                    <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtAmount)}</td>
-                    <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
-                    <td class="group-cell col-actions">
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(groupPaid)}</td>` : ''}
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(groupDebt)}</td>` : ''}
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-added-by" style="font-size:13px;">${escapeHtml(groupAddedBy)}</td>` : ''}
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-actions">
                         <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
-                    </td>
+                    </td>` : ''}
                 </tr>
             `;
         }).join('');
