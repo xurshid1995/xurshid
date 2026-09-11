@@ -247,7 +247,7 @@ function renderPurchaseBatch(events) {
     if (first.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${first.location_name}</span>`);
     if (first.added_by) chips.push(`<span class="tl-detail-chip">👤 ${first.added_by}</span>`);
 
-    const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} × ${e.quantity}</span><span>$${e.total_amount.toFixed(2)}</span></div>`).join('');
+    const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} | ${e.quantity}*${e.cost_price.toFixed(2)}$=${e.total_amount.toFixed(2)}$</span></div>`).join('');
     const itemsHtml = `<div class="tl-items-list">
         <button class="tl-items-toggle" onclick="toggleItems(this)">▶ ${events.length} ta mahsulot ko'rish</button>
         <div class="tl-items-body">${rows}</div>

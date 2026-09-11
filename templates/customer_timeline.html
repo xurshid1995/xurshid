@@ -312,7 +312,7 @@ function renderSale(e) {
 
     let itemsHtml = '';
     if (e.items && e.items.length > 0) {
-        const rows = e.items.map(i => `<div class="tl-item-row"><span>${i.product_name} × ${i.quantity}</span><span>$${i.total.toFixed(2)}</span></div>`).join('');
+        const rows = e.items.map(i => `<div class="tl-item-row"><span>${i.product_name} | ${i.quantity}*${i.unit_price.toFixed(2)}$=${i.total.toFixed(2)}$</span></div>`).join('');
         itemsHtml = `<div class="tl-items-list">
             <button class="tl-items-toggle" onclick="toggleItems(this)">▶ ${e.items_count} ta mahsulot ko'rish</button>
             <div class="tl-items-body">${rows}</div>
