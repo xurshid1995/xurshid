@@ -482,6 +482,7 @@
                             <th>Soni</th>
                             <th>Narxi</th>
                             <th>Jami</th>
+                            <th>Jami yigindi</th>
                             <th>To'langan</th>
                             <th>Qarz</th>
                             <th>Qo'shgan</th>
@@ -628,6 +629,7 @@ function renderPurchases(purchases) {
         const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
         const timeStr = date ? date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
         const groupId = first.batch_id != null ? first.batch_id : first.id;
+        const groupRunningTotal = items.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
 
         return items.map((p, idx) => {
             const isFirst = idx === 0;
@@ -654,6 +656,7 @@ function renderPurchases(purchases) {
                     <td class="group-cell col-qty">${qty.toLocaleString('uz-UZ')}</td>
                     <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
                     <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-group-total">${formatDualCurrency(groupRunningTotal)}</td>` : ''}
                     <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidAmount)}</td>
                     <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtAmount)}</td>
                     <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
