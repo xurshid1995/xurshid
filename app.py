@@ -17080,6 +17080,8 @@ def api_save_final_report_snapshot():
         try:
             cost_value = Decimal(str(data.get('cost_value') or 0))
             debt = Decimal(str(data.get('debt') or 0))
+            customer_debt = Decimal(str(data.get('customer_debt') or 0))
+            supplier_debt = Decimal(str(data.get('supplier_debt') or 0))
             reserve = Decimal(str(data.get('reserve') or 0))
             grand_total = Decimal(str(data.get('grand_total') or 0))
         except Exception:
@@ -17089,6 +17091,8 @@ def api_save_final_report_snapshot():
         entry = FinalReportSnapshot(
             cost_value_usd=cost_value,
             debt_usd=debt,
+            customer_debt_usd=customer_debt,
+            supplier_debt_usd=supplier_debt,
             reserve_usd=reserve,
             grand_total_usd=grand_total,
             created_by=current_user.username if current_user else None

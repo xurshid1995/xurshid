@@ -1402,6 +1402,8 @@ class FinalReportSnapshot(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cost_value_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     debt_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    customer_debt_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    supplier_debt_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     reserve_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     grand_total_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     created_by = db.Column(db.String(100), nullable=True)
@@ -1412,6 +1414,8 @@ class FinalReportSnapshot(db.Model):
             'id': self.id,
             'cost_value_usd': float(self.cost_value_usd or 0),
             'debt_usd': float(self.debt_usd or 0),
+            'customer_debt_usd': float(self.customer_debt_usd or 0),
+            'supplier_debt_usd': float(self.supplier_debt_usd or 0),
             'reserve_usd': float(self.reserve_usd or 0),
             'grand_total_usd': float(self.grand_total_usd or 0),
             'created_by': self.created_by,
