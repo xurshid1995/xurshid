@@ -26,6 +26,77 @@
 .tl-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .tl-badge-debt { background: #fee2e2; color: #991b1b; }
 
+.sp-filter-panel {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+.sp-filter-row {
+    display: flex;
+    align-items: end;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.sp-search-box {
+    position: relative;
+    flex: 1 1 320px;
+    min-width: 220px;
+}
+.sp-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+}
+.sp-input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    box-sizing: border-box;
+}
+.sp-input:focus {
+    border-color: #1a6eff;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(26,110,255,0.12);
+}
+.sp-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 170px;
+    flex: 0 0 180px;
+}
+.sp-filter-group label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+.sp-filter-group .sp-input {
+    padding-left: 12px;
+}
+.sp-clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+}
 .sp-table-card {
     background: white;
     border-radius: 16px;
@@ -127,6 +198,24 @@
         <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
     </div>
 
+    <div class="sp-filter-panel">
+        <div class="sp-filter-row">
+            <div class="sp-search-box">
+                <i class="fas fa-search sp-search-icon"></i>
+                <input type="text" id="spSearchInput" class="sp-input" placeholder="Mahsulotni qidiring...">
+                <button type="button" id="spClearSearch" class="sp-clear-btn" aria-label="Qidiruvni tozalash"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="sp-filter-group">
+                <label>Sana dan</label>
+                <input type="date" id="spDateFromFilter" class="sp-input">
+            </div>
+            <div class="sp-filter-group">
+                <label>Sana gacha</label>
+                <input type="date" id="spDateToFilter" class="sp-input">
+            </div>
+        </div>
+    </div>
+
     <div class="sp-table-card" style="margin-top: 10px;">
         <div class="sp-table-wrap">
             <table class="sp-table" id="spTable" style="display:none;">
@@ -173,7 +262,56 @@ function formatUsdWithUzs(value) {
     return `${formatUSD(usd)}<br><small style="color: #007bff; font-size: 13px;">${convertToUZS(usd).toLocaleString('uz-UZ')}</small>`;
 }
 
-document.addEventListener('DOMContentLoaded', loadSupplierProducts);
+document.addEventListener('DOMContentLoaded', () => {
+    bindSupplierFilters();
+    loadSupplierProducts();
+});
+
+function bindSupplierFilters() {
+    const searchInput = document.getElementById('spSearchInput');
+    const clearBtn = document.getElementById('spClearSearch');
+    const dateFrom = document.getElementById('spDateFromFilter');
+    const dateTo = document.getElementById('spDateToFilter');
+
+    const applyFilters = () => {
+        const term = searchInput.value.trim().toLowerCase();
+        const fromValue = dateFrom.value;
+        const toValue = dateTo.value;
+
+        const filtered = allProducts.filter(product => {
+            const productName = (product.product_name || '').toLowerCase();
+            if (term && !productName.includes(term)) return false;
+
+            const createdAt = product.created_at ? new Date(product.created_at) : null;
+            if (!createdAt || Number.isNaN(createdAt.getTime())) return false;
+
+            if (fromValue) {
+                const fromDate = new Date(`${fromValue}T00:00:00`);
+                if (createdAt < fromDate) return false;
+            }
+
+            if (toValue) {
+                const toDate = new Date(`${toValue}T23:59:59`);
+                if (createdAt > toDate) return false;
+            }
+
+            return true;
+        });
+
+        renderSupplierProducts(filtered);
+        clearBtn.style.display = term || fromValue || toValue ? 'block' : 'none';
+    };
+
+    searchInput.addEventListener('input', applyFilters);
+    dateFrom.addEventListener('change', applyFilters);
+    dateTo.addEventListener('change', applyFilters);
+    clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        dateFrom.value = '';
+        dateTo.value = '';
+        applyFilters();
+    });
+}
 
 async function loadSupplierProducts() {
     try {
@@ -276,12 +414,6 @@ function renderSupplierProducts(products) {
 
         return rows;
     }).join('');
-}
-
-function filterSupplierProducts() {
-    const term = document.getElementById('spSearchInput').value.toLowerCase().trim();
-    const filtered = !term ? allProducts : allProducts.filter(p => (p.product_name || '').toLowerCase().includes(term));
-    renderSupplierProducts(filtered);
 }
 
 function escapeHtml(str) {
