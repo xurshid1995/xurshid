@@ -663,7 +663,7 @@ function renderPurchases(purchases) {
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(groupDebt)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-added-by" style="font-size:13px;">${escapeHtml(groupAddedBy)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-actions">
-                        <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
+                        <button onclick="viewPurchaseGroup(${first.batch_id != null ? first.batch_id : 'null'}, ${first.id})" class="ps-btn-view">👁️ Ko'rish</button>
                     </td>` : ''}
                 </tr>
             `;
@@ -672,27 +672,29 @@ function renderPurchases(purchases) {
 }
 
 
-function viewPurchaseDetails(purchaseId) {
-    const purchase = currentPurchases.find(p => p.id === purchaseId);
-    if (!purchase) {
+function viewPurchaseGroup(batchId, fallbackId) {
+    const items = (batchId != null)
+        ? currentPurchases.filter(p => p.batch_id === batchId)
+        : currentPurchases.filter(p => p.id === fallbackId);
+    if (!items || items.length === 0) {
         alert('❌ Xarid topilmadi');
         return;
     }
-    showPurchaseDetailsModal(purchase);
+    showPurchaseDetailsModal(items);
 }
 
-function showPurchaseDetailsModal(purchase) {
+function showPurchaseDetailsModal(items) {
     const rate = currentRate || 12000;
-    const date = purchase.date ? new Date(purchase.date) : null;
+    const first = items[0];
+    const date = first.date ? new Date(first.date) : null;
     const dateStr = date ? date.toLocaleString('uz-UZ') : '-';
 
-    const costPriceUSD = Number(purchase.cost_price || 0);
-    const totalUSD = Number(purchase.total_amount || 0);
-    const paidUSD = Number(purchase.paid_amount || 0);
-    const debtUSD = Number(purchase.debt_amount || 0);
-    const cashUSD = Number(purchase.cash_usd || 0);
-    const clickUSD = Number(purchase.click_usd || 0);
-    const terminalUSD = Number(purchase.terminal_usd || 0);
+    const totalUSD = items.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
+    const paidUSD = Number(first.paid_amount || 0);
+    const debtUSD = Number(first.debt_amount || 0);
+    const cashUSD = Number(first.cash_usd || 0);
+    const clickUSD = Number(first.click_usd || 0);
+    const terminalUSD = Number(first.terminal_usd || 0);
     const hasBreakdown = (cashUSD + clickUSD + terminalUSD) > 0;
 
     const boxes = (hasBreakdown ? [
@@ -721,6 +723,26 @@ function showPurchaseDetailsModal(purchase) {
         </div>
     `;
 
+    const rowsHTML = items.map(p => {
+        const costPriceUSD = Number(p.cost_price || 0);
+        const rowTotalUSD = Number(p.total_amount || 0);
+        return `
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(p.product_name)}</td>
+                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(p.location_name || '-')}</td>
+                                <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">${Number(p.quantity || 0).toLocaleString('uz-UZ')}</td>
+                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6;">
+                                    <div>$${costPriceUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(costPriceUSD * rate).toLocaleString('uz-UZ')} so'm</div>
+                                </td>
+                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600;">
+                                    <div>$${rowTotalUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(rowTotalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
+                                </td>
+                            </tr>
+        `;
+    }).join('');
+
     const modalHtml = `
         <div id="purchaseDetailsModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
             <div style="background: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
@@ -735,7 +757,7 @@ function showPurchaseDetailsModal(purchase) {
                         <strong>Sana:</strong> ${dateStr}
                     </div>
 
-                    <h4 style="margin-bottom: 10px;">Mahsulot:</h4>
+                    <h4 style="margin-bottom: 10px;">Mahsulotlar (${items.length} ta):</h4>
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                         <thead>
                             <tr style="background: #f8f9fa;">
@@ -747,19 +769,7 @@ function showPurchaseDetailsModal(purchase) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(purchase.product_name)}</td>
-                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(purchase.location_name || '-')}</td>
-                                <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">${purchase.quantity.toLocaleString('uz-UZ')}</td>
-                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                    <div>$${costPriceUSD.toFixed(2)}</div>
-                                    <div style="font-size: 11px; color: #666;">${Math.round(costPriceUSD * rate).toLocaleString('uz-UZ')} so'm</div>
-                                </td>
-                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600;">
-                                    <div>$${totalUSD.toFixed(2)}</div>
-                                    <div style="font-size: 11px; color: #666;">${Math.round(totalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
-                                </td>
-                            </tr>
+                            ${rowsHTML}
                         </tbody>
                     </table>
 
