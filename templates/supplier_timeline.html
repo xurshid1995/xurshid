@@ -198,8 +198,8 @@ function renderDayEvents(events) {
     });
 
     return ordered.map(item => {
-        if (item.single) return item.single.type === 'purchase' ? renderPurchase(item.single) : renderPayment(item.single);
-        return item.batch.length > 1 ? renderPurchaseBatch(item.batch) : renderPurchase(item.batch[0]);
+        if (item.single) return renderPayment(item.single);
+        return renderPurchaseBatch(item.batch);
     }).join('');
 }
 
@@ -229,32 +229,6 @@ function afterRow(e) {
     if (debt === null) return '';
     const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
     return `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span><span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span></div>`;
-}
-
-function renderPurchase(e) {
-    const chips = [];
-    chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_amount.toFixed(2)}</span>`);
-    chips.push(`<span class="tl-detail-chip">📦 ${e.quantity} × $${e.cost_price.toFixed(2)}</span>`);
-    if (e.paid_amount > 0) chips.push(`<span class="tl-detail-chip">✅ To'landi: $${e.paid_amount.toFixed(2)}</span>`);
-    if (e.debt_amount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_amount.toFixed(2)}</span>`);
-    if (e.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${e.location_name}</span>`);
-    if (e.added_by) chips.push(`<span class="tl-detail-chip">👤 ${e.added_by}</span>`);
-
-    return `<div class="tl-item">
-        <div class="tl-dot tl-dot-purchase"></div>
-        <div class="tl-card tl-card-purchase">
-            <div class="tl-card-header">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-purchase">📦 ${e.product_name}</span>
-                    ${paymentTypeBadge(e.payment_type)}
-                </div>
-                <div><span class="tl-amount tl-amount-purchase">$${e.total_amount.toFixed(2)}</span></div>
-            </div>
-            <div class="tl-details">${chips.join('')}</div>
-            ${afterRow(e)}
-        </div>
-    </div>`;
 }
 
 function renderPurchaseBatch(events) {
