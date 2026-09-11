@@ -205,62 +205,6 @@
     </div>
 </div>
 
-<!-- Debt Payment Modal -->
-<div id="supplierPayModal" class="sup-modal">
-    <div class="sup-modal-box" style="max-width:420px;">
-        <div class="ps-payment-header">
-            <h2 class="ps-payment-title"><i class="fas fa-credit-card"></i> Qarzga to'lov qilish</h2>
-            <div class="ps-debt-badge">
-                <span>Qarz miqdori:</span>
-                <strong id="pay_current_balance">$0.00</strong>
-                <button type="button" class="ps-copy-btn" onclick="copySupplierDebtAmount(this)" title="Nusxalash"><i class="fas fa-copy"></i></button>
-            </div>
-        </div>
-        <div id="supPayError" class="sup-msg sup-msg-error"></div>
-        <input type="hidden" id="pay_supplier_id">
-        <div class="ps-payment-rows">
-            <div class="ps-payment-row">
-                <span class="ps-pay-label">💵 Naqd:</span>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">$</span>
-                    <input type="number" id="paySupplierCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                </div>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">UZS</span>
-                    <input type="number" id="paySupplierCashUZS" step="1" placeholder="0" class="ps-pay-input">
-                </div>
-                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierCashUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
-            </div>
-            <div class="ps-payment-row">
-                <span class="ps-pay-label">📱 Click:</span>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">$</span>
-                    <input type="number" id="paySupplierClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                </div>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">UZS</span>
-                    <input type="number" id="paySupplierClickUZS" step="1" placeholder="0" class="ps-pay-input">
-                </div>
-                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierClickUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
-            </div>
-            <div class="ps-payment-row">
-                <span class="ps-pay-label">🏧 Termi...:</span>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">$</span>
-                    <input type="number" id="paySupplierTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                </div>
-                <div class="ps-pay-field">
-                    <span class="ps-currency-sign">UZS</span>
-                    <input type="number" id="paySupplierTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
-                </div>
-                <button type="button" onclick="addRemainingToSupplierPayField('paySupplierTerminalUSD')" class="ps-btn-remaining" title="Qolganini qo'shish">+</button>
-            </div>
-        </div>
-        <button type="button" class="ps-btn-submit" id="supPaySubmitBtn" onclick="submitSupplierPayForm()">✅ To'lovni tasdiqlash</button>
-        <button type="button" class="sup-btn-cancel" onclick="closeSupplierPayModal()" style="width:100%; margin-top:8px; padding:9px; border:none; border-radius:10px; background:#f1f5f9; color:#374151; font-weight:600; cursor:pointer;">Bekor qilish</button>
-    </div>
-</div>
-
 <script>
 let allSuppliers = [];
 
@@ -307,7 +251,7 @@ function renderSuppliers() {
                 <td class="sup-actions">
                     <button class="sup-btn sup-btn-view" title="Ko'rish" onclick="viewSupplier(${s.id})"><i class="fas fa-eye"></i></button>
                     <button class="sup-btn sup-btn-history" title="Tarix" onclick="openSupplierHistoryModal(${s.id}, '${escapeAttr(s.name)}')"><i class="fas fa-history"></i></button>
-                    ${balance > 0 ? `<button class="sup-btn sup-btn-pay" title="Qarz to'lash" onclick="openSupplierPayModal(${s.id}, '${escapeAttr(s.name)}', ${balance})"><i class="fas fa-hand-holding-usd"></i></button>` : ''}
+                    ${balance > 0 ? `<button class="sup-btn sup-btn-pay" title="Qarz to'lash" onclick="openSupplierPayPage(${s.id})"><i class="fas fa-hand-holding-usd"></i></button>` : ''}
                     <button class="sup-btn sup-btn-edit" title="Tahrirlash" onclick="openEditSupplierModal(${s.id})"><i class="fas fa-pencil-alt"></i></button>
                     <button class="sup-btn sup-btn-delete" title="O'chirish" onclick="deleteSupplier(${s.id}, '${escapeAttr(s.name)}')"><i class="fas fa-trash"></i></button>
                 </td>
@@ -427,134 +371,14 @@ async function deleteSupplier(id, name) {
     }
 }
 
-// ==================== DEBT PAYMENT MODAL ====================
-let supplierCurrentBalance = 0;
-let supplierPayRate = 12500;
-
-async function fetchSupplierPayRate() {
-    try {
-        const res = await fetch('/api/currency-rate');
-        const data = await res.json();
-        supplierPayRate = data.rate?.rate || data.rate || 12500;
-    } catch (e) {
-        supplierPayRate = 12500;
-    }
-}
-
-function openSupplierPayModal(id, name, balance) {
-    supplierCurrentBalance = balance;
-    document.getElementById('pay_supplier_id').value = id;
-    document.getElementById('pay_current_balance').textContent = `$${balance.toFixed(2)}`;
-    ['paySupplierCashUSD', 'paySupplierClickUSD', 'paySupplierTerminalUSD',
-     'paySupplierCashUZS', 'paySupplierClickUZS', 'paySupplierTerminalUZS'].forEach(id2 => {
-        document.getElementById(id2).value = '';
-    });
-    document.getElementById('supPayError').style.display = 'none';
-    document.getElementById('supplierPayModal').classList.add('active');
-    fetchSupplierPayRate();
-}
-
-function closeSupplierPayModal() {
-    document.getElementById('supplierPayModal').classList.remove('active');
-}
-
-function copySupplierDebtAmount(btn) {
-    const text = document.getElementById('pay_current_balance').textContent.trim();
-    const done = () => {
-        const icon = btn.querySelector('i');
-        btn.classList.add('ps-copied');
-        icon.className = 'fas fa-check';
-        setTimeout(() => { btn.classList.remove('ps-copied'); icon.className = 'fas fa-copy'; }, 1200);
-    };
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(done).catch(() => {});
-    }
-}
-
-// USD <-> UZS avtomatik konversiya (har bir to'lov turi uchun)
-['Cash', 'Click', 'Terminal'].forEach(kind => {
-    const usdEl = () => document.getElementById(`paySupplier${kind}USD`);
-    const uzsEl = () => document.getElementById(`paySupplier${kind}UZS`);
-    document.addEventListener('DOMContentLoaded', () => {
-        usdEl().addEventListener('input', function () {
-            const usd = parseFloat(this.value);
-            uzsEl().value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * supplierPayRate) : '';
-        });
-        uzsEl().addEventListener('input', function () {
-            const uzs = parseFloat(this.value);
-            usdEl().value = (!isNaN(uzs) && this.value !== '') ? (uzs / supplierPayRate).toFixed(2) : '';
-        });
-    });
-});
-
-function addRemainingToSupplierPayField(usdFieldId) {
-    const cash = parseFloat(document.getElementById('paySupplierCashUSD').value) || 0;
-    const click = parseFloat(document.getElementById('paySupplierClickUSD').value) || 0;
-    const terminal = parseFloat(document.getElementById('paySupplierTerminalUSD').value) || 0;
-    const selfValue = { paySupplierCashUSD: cash, paySupplierClickUSD: click, paySupplierTerminalUSD: terminal }[usdFieldId] || 0;
-    const currentTotal = cash + click + terminal - selfValue;
-    const remaining = supplierCurrentBalance - currentTotal;
-
-    if (remaining > 0) {
-        const field = document.getElementById(usdFieldId);
-        field.value = remaining.toFixed(2);
-        field.dispatchEvent(new Event('input'));
-    } else {
-        alert('✅ Qarz to\'liq qoplandi');
-    }
-}
-
-async function submitSupplierPayForm() {
-    const id = document.getElementById('pay_supplier_id').value;
-    const cash_usd = parseFloat(document.getElementById('paySupplierCashUSD').value) || 0;
-    const click_usd = parseFloat(document.getElementById('paySupplierClickUSD').value) || 0;
-    const terminal_usd = parseFloat(document.getElementById('paySupplierTerminalUSD').value) || 0;
-    const total = cash_usd + click_usd + terminal_usd;
-
-    const errEl = document.getElementById('supPayError');
-    errEl.style.display = 'none';
-
-    if (total <= 0) {
-        errEl.textContent = "To'lov summasini kiriting";
-        errEl.style.display = 'block';
-        return;
-    }
-    if (total > supplierCurrentBalance + 0.00001) {
-        errEl.textContent = "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas";
-        errEl.style.display = 'block';
-        return;
-    }
-
-    const submitBtn = document.getElementById('supPaySubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ Yuklanmoqda...';
-
-    try {
-        const res = await fetch(`/api/suppliers/${id}/debt-payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cash_usd, click_usd, terminal_usd, exchange_rate: supplierPayRate })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            closeSupplierPayModal();
-            loadSuppliers();
-        } else {
-            errEl.textContent = data.error || 'Xatolik yuz berdi';
-            errEl.style.display = 'block';
-        }
-    } catch (e) {
-        errEl.textContent = e.message;
-        errEl.style.display = 'block';
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "✅ To'lovni tasdiqlash";
-    }
-}
-
 // Ko'rish - yetkazib beruvchidan qabul qilingan mahsulotlar sahifasini ochish
 function viewSupplier(id) {
     window.location.href = `/supplier/${id}/products`;
+}
+
+// Qarz to'lash - mijoz qarz to'lash sahifasi kabi alohida sahifaga o'tish
+function openSupplierPayPage(id) {
+    window.location.href = `/supplier/${id}/debt-payment`;
 }
 
 // ==================== TARIX (mijoz timeline uslubidagi sahifa) ====================
@@ -563,6 +387,5 @@ function openSupplierHistoryModal(id) {
 }
 
 document.getElementById('supplierFormModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierFormModal(); });
-document.getElementById('supplierPayModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSupplierPayModal(); });
 </script>
 {% endblock %}

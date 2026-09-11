@@ -10970,6 +10970,22 @@ def suppliers_page():
     return render_template('suppliers.html', page_title="Yetkazib beruvchilar", icon='🚚')
 
 
+# Yetkazib beruvchiga qarz to'lash sahifasi (mijoz qarz to'lash sahifasi kabi)
+@app.route('/supplier/<int:supplier_id>/debt-payment')
+@role_required('admin', 'kassir', 'omborchi')
+def supplier_debt_payment_page(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        return render_template(
+            'supplier_debt_payment.html',
+            supplier=supplier,
+            page_title=f'{supplier.name} - Qarz to\'lash',
+            icon='💳')
+    except Exception as e:
+        logger.error(f"Error loading supplier debt payment page: {str(e)}")
+        return "Yetkazib beruvchi ma'lumotlari yuklanmadi", 500
+
+
 # Yetkazib beruvchidan qabul qilingan mahsulotlar sahifasi (ko'rish tugmasi)
 @app.route('/supplier/<int:supplier_id>/products')
 @role_required('admin', 'kassir', 'omborchi')
@@ -17432,7 +17448,7 @@ def inject_settings():
         try:
             if session.get('user_id'):
                 supplier_debt_count = Supplier.query.filter(
-                    Supplier.is_active == True,
+                    Supplier.is_active.is_(True),
                     Supplier.balance_usd > 0
                 ).count()
         except Exception:

@@ -1,0 +1,685 @@
+{% extends "base_with_sidebar.html" %}
+
+{% block title %}{{ supplier.name }} - Qarz to'lash{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ====================================================
+   YETKAZIB BERUVCHIGA QARZ TO'LASH - ps-* design system
+   (mijoz qarz to'lash sahifasi bilan 100% bir xil)
+   ==================================================== */
+.ps-page {
+    padding: 28px 28px 40px;
+    background: transparent;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+.ps-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.ps-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.ps-title i { color: #1a6eff; margin-right: 8px; }
+.ps-back-btn {
+    padding: 8px 16px;
+    background: #1a6eff;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.ps-back-btn:hover { background: #1557cc; color: white; text-decoration: none; }
+
+/* Stats */
+.ps-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.ps-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.ps-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.ps-stat-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.ps-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
+.ps-icon-red   { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
+.ps-stat-body { display: flex; flex-direction: column; gap: 4px; }
+.ps-stat-number { font-size: 1.75rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
+.ps-stat-label  { font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Payment card */
+.ps-payment-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+}
+.ps-payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.ps-payment-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.ps-payment-title i { color: #1a6eff; margin-right: 6px; }
+.ps-debt-badge {
+    background: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    border-left: 4px solid #1a6eff;
+    border-radius: 10px;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+}
+.ps-debt-badge strong {
+    color: #dc2626;
+    font-size: 17px;
+    font-weight: 700;
+}
+.ps-copy-btn {
+    border: none;
+    background: #dbeafe;
+    color: #1a6eff;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+}
+.ps-copy-btn:hover { background: #bfdbfe; }
+.ps-copy-btn.ps-copied { background: #16a34a; color: #fff; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ps-payment-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+.ps-pay-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    min-width: 76px;
+    max-width: 76px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+.ps-pay-field {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+.ps-currency-sign {
+    font-weight: 700;
+    color: #64748b;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.ps-pay-input {
+    flex: 1;
+    padding: 5px 6px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+.ps-pay-input:focus { border-color: #1a6eff; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
+.ps-btn-remaining {
+    padding: 5px 8px;
+    background: #1a6eff;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.ps-btn-remaining:hover { background: #1558d6; }
+.ps-btn-submit {
+    width: 100%;
+    padding: 10px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background 0.2s;
+}
+.ps-btn-submit:hover { background: #15803d; }
+.ps-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Table card */
+.ps-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.ps-table-card-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.ps-table-card-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.ps-table-card-header h2 i { color: #1a6eff; margin-right: 6px; }
+.ps-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ps-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.ps-table thead tr { background: #1a6eff; }
+.ps-table th {
+    padding: 12px 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1a6eff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    white-space: nowrap;
+}
+.ps-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #374151;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    text-align: center;
+}
+.ps-table tbody tr:hover { background: #f8faff; }
+.ps-table tbody tr:last-child td { border-bottom: none; }
+.ps-table .col-products { text-align: left; max-width: 260px; }
+.no-data, .loading {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ps-page { padding: 12px; }
+    .ps-header { flex-direction: row; gap: 8px; }
+    .ps-stats { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ps-payment-row { flex-wrap: wrap; }
+    .ps-pay-field { min-width: 100px; }
+}
+@media (max-width: 480px) {
+    .ps-stats { grid-template-columns: 1fr; }
+    .ps-payment-header { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 576px) {
+    .ps-pay-label { min-width: 62px; max-width: 62px; font-size: 12px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ps-page">
+
+    <!-- Sarlavha va Yetkazib beruvchi ma'lumotlari -->
+    <div style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;margin-bottom:6px;">
+            <h1 class="ps-title" style="margin:0;"><i class="fas fa-money-bill-wave"></i> Yetkazib beruvchiga qarz to'lash</h1>
+            <a href="/suppliers" class="ps-back-btn"><i class="fas fa-arrow-left"></i> Orqaga</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span style="color:#475569;font-size:14px;font-weight:500;"><i class="fas fa-truck" style="color:#1a6eff;margin-right:5px;"></i>{{ supplier.name }}</span>
+            {% if supplier.contact_person %}
+            <span style="color:#475569;font-size:14px;font-weight:500;"><i class="fas fa-user" style="color:#1a6eff;margin-right:5px;"></i>{{ supplier.contact_person }}</span>
+            {% endif %}
+            <span style="color:#475569;font-size:14px;font-weight:500;"><i class="fas fa-phone" style="color:#1a6eff;margin-right:5px;"></i>{{ supplier.phone or '-' }}</span>
+        </div>
+    </div>
+
+    <!-- Statistika + To'lov yonma-yon -->
+    <div style="display:flex;gap:20px;margin-bottom:20px;align-items:flex-start;flex-wrap:wrap;">
+
+        <!-- Statistika -->
+        <div class="ps-stats" style="flex:1 1 0;min-width:220px;margin-bottom:0;">
+            <div class="ps-stat-card">
+                <div class="ps-stat-icon ps-icon-blue"><i class="fas fa-truck-loading"></i></div>
+                <div class="ps-stat-body">
+                    <span class="ps-stat-number" id="purchasesCount">0</span>
+                    <span class="ps-stat-label">Jami xaridlar</span>
+                </div>
+            </div>
+            <div class="ps-stat-card">
+                <div class="ps-stat-icon ps-icon-red"><i class="fas fa-fire"></i></div>
+                <div class="ps-stat-body">
+                    <span class="ps-stat-number" id="totalDebt">$0.00</span>
+                    <span class="ps-stat-label">Joriy qarz</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- To'lov qilish -->
+        <div class="ps-payment-card" style="flex:1 1 0;min-width:320px;margin-bottom:0;">
+            <div class="ps-payment-header">
+                <h2 class="ps-payment-title"><i class="fas fa-credit-card"></i> Qarzga to'lov qilish</h2>
+                <div class="ps-debt-badge">
+                    <span>Qarz miqdori:</span>
+                    <strong id="displayRemainingDebt">$0.00</strong>
+                    <button type="button" class="ps-copy-btn" onclick="copyDebtAmount(this)" title="Nusxalash"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+            <div class="ps-payment-rows">
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">💵 Naqd</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentCashUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
+                </div>
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">📱 Click</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentClickUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
+                </div>
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">🏧 Terminal</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentTerminalUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
+                </div>
+            </div>
+            <div id="payError" style="display:none; color:#dc2626; font-size:13px; margin-bottom:10px;"></div>
+            <div>
+                <button class="ps-btn-submit" id="submitBtn" onclick="submitPayment()">✅ To'lovni tasdiqlash</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Qabul qilingan mahsulotlar tarixi -->
+    <div class="ps-table-card" style="margin-bottom: 20px;">
+        <div class="ps-table-card-header">
+            <h2><i class="fas fa-box"></i> Qabul qilingan mahsulotlar</h2>
+        </div>
+        <div class="ps-table-wrap">
+            <table class="ps-table">
+                <thead>
+                    <tr>
+                        <th>Sana</th>
+                        <th>Mahsulot</th>
+                        <th>Miqdor</th>
+                        <th>Narxi</th>
+                        <th>Jami</th>
+                        <th>To'langan</th>
+                        <th>Qarz</th>
+                        <th>Qo'shgan</th>
+                    </tr>
+                </thead>
+                <tbody id="purchasesBody">
+                    <tr><td colspan="8" class="loading">Yuklanmoqda...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- To'lovlar tarixi -->
+    <div class="ps-table-card" id="paymentsHistorySection" style="display:none;">
+        <div class="ps-table-card-header" style="background: linear-gradient(135deg,#28a745,#20c997);">
+            <h2 style="color:#fff;"><i class="fas fa-money-bill-wave"></i> To'lovlar tarixi</h2>
+        </div>
+        <div class="ps-table-wrap">
+            <table class="ps-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>📅 Sana</th>
+                        <th>💵 Summa (USD)</th>
+                        <th>💵 Naqd</th>
+                        <th>📱 Click</th>
+                        <th>🏦 Terminal</th>
+                        <th>👤 To'lov qildi</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsHistoryBody">
+                    <tr><td colspan="7" class="loading">Yuklanmoqda...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const SUPPLIER_ID = {{ supplier.id }};
+let remainingDebt = 0;
+let currentRate = 12000;
+
+function formatUSD(value) {
+    const amount = Number(value || 0);
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// USD input'ga to'liq qiymat saqlash (data-full-value), display uchun 5 kasr
+function fvSet(input, val) {
+    if (!input) return;
+    const num = parseFloat(val) || 0;
+    input.dataset.fullValue = String(num);
+    input.value = parseFloat(num.toFixed(5));
+    input.dataset.fvLocked = '1';
+}
+function fvGet(input) {
+    if (!input) return 0;
+    return parseFloat(input.dataset.fullValue || input.value) || 0;
+}
+
+async function loadSupplierDebtPage() {
+    try {
+        const rateRes = await fetch('/api/currency-rate');
+        if (rateRes.ok) {
+            const rateData = await rateRes.json();
+            currentRate = rateData.rate?.rate || rateData.rate || 12000;
+        }
+
+        const res = await fetch(`/api/supplier/${SUPPLIER_ID}/timeline`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Xatolik');
+
+        const supplier = data.supplier;
+        remainingDebt = Number(supplier.balance_usd || 0);
+
+        const purchases = data.events.filter(e => e.type === 'purchase');
+        const payments = data.events.filter(e => e.type === 'payment');
+
+        document.getElementById('purchasesCount').textContent = purchases.length;
+        document.getElementById('totalDebt').textContent = formatUSD(remainingDebt);
+        document.getElementById('displayRemainingDebt').textContent = formatUSD(remainingDebt);
+
+        renderPurchases(purchases);
+        renderPayments(payments);
+
+        setupCurrencyConversion();
+    } catch (e) {
+        document.getElementById('purchasesBody').innerHTML = '<tr><td colspan="8" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik yuz berdi</td></tr>';
+    }
+}
+
+function renderPurchases(purchases) {
+    const tbody = document.getElementById('purchasesBody');
+    if (!purchases || purchases.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 Hali mahsulot qabul qilinmagan</td></tr>';
+        return;
+    }
+    tbody.innerHTML = purchases.map(p => {
+        const date = p.date ? new Date(p.date) : null;
+        const dateStr = date ? date.toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        return `
+            <tr>
+                <td>${dateStr}</td>
+                <td class="col-products">${escapeHtml(p.product_name)}</td>
+                <td>${p.quantity.toLocaleString('uz-UZ')}</td>
+                <td>${formatUSD(p.cost_price)}</td>
+                <td><strong>${formatUSD(p.total_amount)}</strong></td>
+                <td style="color:#28a745;">${formatUSD(p.paid_amount)}</td>
+                <td><strong style="color:#dc3545;">${formatUSD(p.debt_amount)}</strong></td>
+                <td>${escapeHtml(p.added_by || '-')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderPayments(payments) {
+    const section = document.getElementById('paymentsHistorySection');
+    const tbody = document.getElementById('paymentsHistoryBody');
+    if (!payments || payments.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    section.style.display = 'block';
+    tbody.innerHTML = payments.map((p, i) => {
+        const date = p.date ? new Date(p.date) : null;
+        const dateStr = date ? date.toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        return `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${dateStr}</td>
+                <td><strong style="color:#28a745;">${formatUSD(p.amount_usd)}</strong></td>
+                <td>${p.cash_usd > 0 ? formatUSD(p.cash_usd) : '—'}</td>
+                <td>${p.click_usd > 0 ? formatUSD(p.click_usd) : '—'}</td>
+                <td>${p.terminal_usd > 0 ? formatUSD(p.terminal_usd) : '—'}</td>
+                <td style="font-size:13px;">${escapeHtml(p.paid_by || '-')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function copyDebtAmount(btn) {
+    const text = document.getElementById('displayRemainingDebt').textContent.trim();
+    const done = () => {
+        const icon = btn.querySelector('i');
+        btn.classList.add('ps-copied');
+        icon.className = 'fas fa-check';
+        setTimeout(() => { btn.classList.remove('ps-copied'); icon.className = 'fas fa-copy'; }, 1200);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+        fallbackCopy(text, done);
+    }
+}
+
+function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
+}
+
+function addRemainingToField(fieldId) {
+    if (!remainingDebt) {
+        alert('❌ Qarz topilmadi');
+        return;
+    }
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    const currentValue = parseFloat(field.value) || 0;
+    const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+    const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+    const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
+
+    const totalPaid = cashUSD + clickUSD + terminalUSD;
+    const remaining = remainingDebt - totalPaid + currentValue;
+
+    if (remaining > 0) {
+        fvSet(field, remaining);
+        field.dispatchEvent(new Event('input'));
+    } else {
+        alert('✅ Qarz to\'liq qoplandi');
+    }
+}
+
+let _paymentSubmitting = false;
+
+async function submitPayment() {
+    if (_paymentSubmitting) return;
+
+    const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+    const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+    const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
+
+    const totalPayment = cashUSD + clickUSD + terminalUSD;
+    const errEl = document.getElementById('payError');
+    errEl.style.display = 'none';
+
+    if (totalPayment <= 0) {
+        errEl.textContent = "To'lov summasini kiriting";
+        errEl.style.display = 'block';
+        return;
+    }
+    if (totalPayment > remainingDebt + 0.00001) {
+        errEl.textContent = "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas";
+        errEl.style.display = 'block';
+        return;
+    }
+
+    _paymentSubmitting = true;
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Yuklanmoqda...';
+
+    try {
+        const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cash_usd: cashUSD, click_usd: clickUSD, terminal_usd: terminalUSD, exchange_rate: currentRate })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) {
+            alert('✅ To\'lov amalga oshirildi!');
+            location.reload();
+        } else {
+            errEl.textContent = result.error || 'Xatolik yuz berdi';
+            errEl.style.display = 'block';
+            _paymentSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    } catch (e) {
+        errEl.textContent = "Server bilan bog'lanib bo'lmadi";
+        errEl.style.display = 'block';
+        _paymentSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+function setupCurrencyConversion() {
+    document.getElementById('paymentCashUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentCashUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
+    });
+    document.getElementById('paymentCashUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const cashEl = document.getElementById('paymentCashUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(cashEl, uzs / currentRate); }
+        else { cashEl.value = ''; delete cashEl.dataset.fullValue; }
+    });
+    document.getElementById('paymentClickUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentClickUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
+    });
+    document.getElementById('paymentClickUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const clickEl = document.getElementById('paymentClickUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(clickEl, uzs / currentRate); }
+        else { clickEl.value = ''; delete clickEl.dataset.fullValue; }
+    });
+    document.getElementById('paymentTerminalUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentTerminalUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
+    });
+    document.getElementById('paymentTerminalUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const termEl = document.getElementById('paymentTerminalUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(termEl, uzs / currentRate); }
+        else { termEl.value = ''; delete termEl.dataset.fullValue; }
+    });
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+}
+
+document.addEventListener('DOMContentLoaded', loadSupplierDebtPage);
+</script>
+{% endblock %}
