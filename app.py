@@ -7430,6 +7430,7 @@ def api_debt_payments_by_customer(customer_id):
         payments = []
         for r in rows:
             payments.append({
+                'id':          int(r.id) if r.id is not None else None,
                 'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
                 'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
                 'received_by': r.received_by or '',
