@@ -1159,6 +1159,14 @@
             const isAdmin = {{ 'true' if session.get('role') in ('admin', 'kassir') else 'false' }};
 
             tbody.innerHTML = data.payments.map((p) => {
+                const paymentDate = p.payment_date_iso ? new Date(p.payment_date_iso) : new Date(p.payment_date || Date.now());
+                const formattedDate = paymentDate && !isNaN(paymentDate.getTime())
+                    ? paymentDate.toLocaleDateString('uz-UZ', { year: 'numeric', month: '2-digit', day: '2-digit' })
+                    : (p.payment_date || '-');
+                const formattedTime = paymentDate && !isNaN(paymentDate.getTime())
+                    ? paymentDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false })
+                    : '-';
+
                 const uzs = (p.total_usd * (p.currency_rate || currentRate)).toLocaleString('uz-UZ', {maximumFractionDigits: 0});
                 const reverseBtn = isAdmin
                     ? `<button onclick="openReverseModal('${p.payment_date_iso}', ${p.total_usd}, '${p.payment_date}')"
@@ -1168,7 +1176,10 @@
                     : '<span style="color:#aaa; font-size:12px;">—</span>';
 
                 return `<tr>
-                    <td>${p.payment_date}</td>
+                    <td class="group-cell group-datetime">
+                        <div class="sale-date">${formattedDate}</div>
+                        <div class="sale-time">${formattedTime}</div>
+                    </td>
                     <td><strong style="color:#28a745;">$${p.total_usd.toFixed(2)}</strong><br>
                         <small style="color:#666;">${uzs} so'm</small></td>
                     <td>${p.cash_usd > 0     ? '$' + p.cash_usd.toFixed(2)     : '—'}</td>
