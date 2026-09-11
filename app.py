@@ -11302,17 +11302,35 @@ def _redistribute_batch_to_items(batch):
     if total <= 0 or not items:
         return
     paid = max(Decimal('0'), min(batch.paid_amount or Decimal('0'), total))
+    cash_total = max(Decimal('0'), min(batch.cash_usd or Decimal('0'), paid))
+    click_total = max(Decimal('0'), min(batch.click_usd or Decimal('0'), paid))
+    terminal_total = max(Decimal('0'), min(batch.terminal_usd or Decimal('0'), paid))
     remaining_paid = paid
+    remaining_cash = cash_total
+    remaining_click = click_total
+    remaining_terminal = terminal_total
     for idx, item in enumerate(items):
         item_total = item.total_amount or Decimal('0')
         is_last = idx == len(items) - 1
         if is_last:
             item_paid = remaining_paid
+            item_cash = remaining_cash
+            item_click = remaining_click
+            item_terminal = remaining_terminal
         else:
-            item_paid = (paid * item_total / total).quantize(Decimal('0.01')) if total > 0 else Decimal('0')
-            item_paid = max(Decimal('0'), min(item_paid, item_total, remaining_paid))
+            share = (item_total / total) if total > 0 else Decimal('0')
+            item_paid = max(Decimal('0'), min((paid * share).quantize(Decimal('0.01')), item_total, remaining_paid))
+            item_cash = max(Decimal('0'), min((cash_total * share).quantize(Decimal('0.01')), remaining_cash))
+            item_click = max(Decimal('0'), min((click_total * share).quantize(Decimal('0.01')), remaining_click))
+            item_terminal = max(Decimal('0'), min((terminal_total * share).quantize(Decimal('0.01')), remaining_terminal))
         remaining_paid -= item_paid
+        remaining_cash -= item_cash
+        remaining_click -= item_click
+        remaining_terminal -= item_terminal
         item.paid_amount = item_paid
+        item.cash_usd = item_cash
+        item.click_usd = item_click
+        item.terminal_usd = item_terminal
         item_debt = item_total - item_paid
         if item_debt < Decimal('0.001'):
             item_debt = Decimal('0')
@@ -11390,6 +11408,9 @@ def pay_supplier_debt(supplier_id):
                 continue
 
             batch.paid_amount = (batch.paid_amount or Decimal('0')) + total_for_this
+            batch.cash_usd = (batch.cash_usd or Decimal('0')) + cash_for_this
+            batch.click_usd = (batch.click_usd or Decimal('0')) + click_for_this
+            batch.terminal_usd = (batch.terminal_usd or Decimal('0')) + terminal_for_this
             new_batch_debt = current_batch_debt - total_for_this
             if new_batch_debt < Decimal('0.001'):
                 new_batch_debt = Decimal('0')
@@ -11546,6 +11567,9 @@ def api_reverse_supplier_debt_payment():
                 if batch:
                     batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
                     batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
+                    batch.cash_usd = max(Decimal('0'), (batch.cash_usd or Decimal('0')) - Decimal(str(payment.cash_usd or 0)))
+                    batch.click_usd = max(Decimal('0'), (batch.click_usd or Decimal('0')) - Decimal(str(payment.click_usd or 0)))
+                    batch.terminal_usd = max(Decimal('0'), (batch.terminal_usd or Decimal('0')) - Decimal(str(payment.terminal_usd or 0)))
                     batch.payment_type = 'debt' if batch.paid_amount == 0 else 'partial'
                     _redistribute_batch_to_items(batch)
 
@@ -11581,6 +11605,9 @@ def reverse_supplier_debt_payment(supplier_id, payment_id):
             if batch:
                 batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
                 batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
+                batch.cash_usd = max(Decimal('0'), (batch.cash_usd or Decimal('0')) - Decimal(str(payment.cash_usd or 0)))
+                batch.click_usd = max(Decimal('0'), (batch.click_usd or Decimal('0')) - Decimal(str(payment.click_usd or 0)))
+                batch.terminal_usd = max(Decimal('0'), (batch.terminal_usd or Decimal('0')) - Decimal(str(payment.terminal_usd or 0)))
                 batch.payment_type = 'debt' if batch.paid_amount == 0 else 'partial'
                 _redistribute_batch_to_items(batch)
 
