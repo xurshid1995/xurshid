@@ -265,6 +265,8 @@
 .ps-table .col-price { width: 100px; text-align: center !important; }
 .ps-table .col-subtotal { width: 110px; text-align: center !important; }
 .ps-table .col-grand-total { width: 120px; text-align: center !important; }
+.ps-table thead th:nth-child(2) { text-align: left !important; }
+.ps-table thead th:nth-child(3) { text-align: center !important; }
 .sale-group-start { border-top: 1px solid #e2e8f0; }
 .sale-group-start, .sale-group-item { position: relative; }
 .sale-group-start td, .sale-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
@@ -452,8 +454,8 @@
                 <thead>
                     <tr>
                         <th>{{ t('cdd_th_date') }}</th>
-                        <th>{{ t('cdd_th_products') }}</th>
-                        <th>Qty</th>
+                        <th style="text-align: left;">{{ t('cdd_th_products') }}</th>
+                        <th>Soni</th>
                         <th>Narx</th>
                         <th>Jami</th>
                         <th>Jami yigindi</th>
