@@ -243,6 +243,8 @@ function renderSupplierProducts(products) {
         });
 
         const firstItem = groupItems[0];
+        const groupRunningTotal = groupItems[groupItems.length - 1].runningTotal;
+
         const rows = groupItems.map((item, idx) => {
             const row = `
                 <tr>
@@ -259,7 +261,7 @@ function renderSupplierProducts(products) {
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
                     <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
                     <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
-                    <td class="sp-running-total-cell">${formatUsdWithUzs(item.runningTotal)}</td>
+                    ${idx === 0 ? `<td class="sp-running-total-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
                     ${idx === 0 ? `<td class="sp-added-by-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;
