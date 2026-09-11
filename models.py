@@ -395,6 +395,13 @@ class PendingProductBatch(db.Model):
         items = self.items or []
         # Birinchi mahsulotning joylashuv nomini olish (preview uchun)
         first_location = items[0].get('location_name', '—') if items else '—'
+        # Birinchi mahsulotning yetkazib beruvchisi (preview uchun)
+        first_supplier_name = '—'
+        supplier_id = items[0].get('supplierId') if items else None
+        if supplier_id:
+            supplier = Supplier.query.get(supplier_id)
+            if supplier:
+                first_supplier_name = supplier.name
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -402,6 +409,7 @@ class PendingProductBatch(db.Model):
             'items': items,
             'items_count': len(items),
             'first_location': first_location,
+            'first_supplier_name': first_supplier_name,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

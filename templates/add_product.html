@@ -198,6 +198,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
                     <tr>
                         <th>#</th>
                         <th>Sana</th>
+                        <th>Yetkazib beruvchi</th>
                         <th>Kim boshlagan</th>
                         <th>Mahsulotlar soni</th>
                         <th>Birinchi joylashuv</th>
@@ -205,7 +206,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
                     </tr>
                 </thead>
                 <tbody id="pendingBatchesBody">
-                    <tr><td colspan="6" style="padding:24px; color:#94a3b8;">
+                    <tr><td colspan="7" style="padding:24px; color:#94a3b8;">
                         <i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...
                     </td></tr>
                 </tbody>
@@ -278,7 +279,7 @@ async function loadPendingBatches() {
         const tbody = document.getElementById('pendingBatchesBody');
 
         if (!data.success || !data.batches || data.batches.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="padding:24px; color:#94a3b8;">📭 Davom ettirilmagan qo\'shishlar yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="padding:24px; color:#94a3b8;">📭 Davom ettirilmagan qo\'shishlar yo\'q</td></tr>';
             return;
         }
 
@@ -293,6 +294,7 @@ async function loadPendingBatches() {
             row.innerHTML = `
                 <td>${idx + 1}</td>
                 <td style="font-size:12px; color:#64748b;">${date}</td>
+                <td style="color:#64748b;">${batch.first_supplier_name || '—'}</td>
                 <td><strong>${batch.user_name}</strong></td>
                 <td><span class="badge-count">${batch.items_count} ta</span></td>
                 <td style="color:#64748b;">${batch.first_location}</td>
@@ -309,7 +311,7 @@ async function loadPendingBatches() {
         });
     } catch (e) {
         document.getElementById('pendingBatchesBody').innerHTML =
-            '<tr><td colspan="6" style="padding:24px; color:#ef4444;">❌ Yuklashda xatolik</td></tr>';
+            '<tr><td colspan="7" style="padding:24px; color:#ef4444;">❌ Yuklashda xatolik</td></tr>';
     }
 }
 
