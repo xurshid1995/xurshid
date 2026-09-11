@@ -252,8 +252,21 @@
 .ps-table tbody tr:hover { background: #f8faff; }
 .ps-table tbody tr:last-child td { border-bottom: none; }
 .ps-table .col-products { text-align: left; max-width: 260px; }
-.no-data, .loading {
-    text-align: center;
+    .ps-reverse-btn {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .ps-reverse-btn:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+    }
     padding: 40px;
     color: #94a3b8;
     font-size: 14px;
@@ -415,10 +428,11 @@
                         <th>📱 Click</th>
                         <th>🏦 Terminal</th>
                         <th>👤 To'lov qildi</th>
+                        <th>⚙️ Amal</th>
                     </tr>
                 </thead>
                 <tbody id="paymentsHistoryBody">
-                    <tr><td colspan="7" class="loading">Yuklanmoqda...</td></tr>
+                    <tr><td colspan="8" class="loading">Yuklanmoqda...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -524,9 +538,37 @@ function renderPayments(payments) {
                 <td>${p.click_usd > 0 ? formatUSD(p.click_usd) : '—'}</td>
                 <td>${p.terminal_usd > 0 ? formatUSD(p.terminal_usd) : '—'}</td>
                 <td style="font-size:13px;">${escapeHtml(p.paid_by || '-')}</td>
+                <td>
+                    <button type="button" class="ps-reverse-btn" data-payment-id="${p.id}" title="To'lovni bekor qilish">↩ Bekor</button>
+                </td>
             </tr>
         `;
     }).join('');
+
+    document.querySelectorAll('.ps-reverse-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const paymentId = Number(btn.dataset.paymentId);
+            if (!paymentId) return;
+
+            const confirmed = confirm('Bu to\'lovni bekor qilmoqchimisiz? Qarz qayta tiklanadi.');
+            if (!confirmed) return;
+
+            try {
+                const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment/${paymentId}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    alert(`✅ ${formatUSD(result.restored_amount)} to'lov bekor qilindi`);
+                    location.reload();
+                } else {
+                    alert(result.error || 'To\'lovni bekor qilishda xatolik yuz berdi');
+                }
+            } catch (e) {
+                alert('Serverga ulanishda xatolik yuz berdi');
+            }
+        });
+    });
 }
 
 function copyDebtAmount(btn) {

@@ -11256,6 +11256,31 @@ def pay_supplier_debt(supplier_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/suppliers/<int:supplier_id>/debt-payment/<int:payment_id>', methods=['DELETE'])
+@role_required('admin', 'kassir', 'omborchi')
+def reverse_supplier_debt_payment(supplier_id, payment_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        payment = SupplierPayment.query.filter_by(id=payment_id, supplier_id=supplier_id).first_or_404()
+
+        amount = Decimal(str(payment.amount_usd or 0))
+        supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + amount
+
+        db.session.delete(payment)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'restored_amount': float(amount),
+            'new_balance': float(supplier.balance_usd),
+            'message': f"${float(amount):.2f} miqdordagi to'lov bekor qilindi"
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error reversing supplier debt payment: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
 # Foydalanuvchilar API route'lari
 @app.route('/api/users', methods=['GET'])
 @role_required('admin', 'kassir')
