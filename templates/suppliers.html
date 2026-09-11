@@ -19,12 +19,26 @@
     cursor: pointer; box-shadow: 0 2px 8px rgba(26,110,255,0.2); transition: all 0.2s;
 }
 .sup-add-btn:hover { background: #1557cc; transform: translateY(-1px); }
-.sup-search-box { position: relative; max-width: 320px; margin-bottom: 14px; }
+.sup-toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.sup-search-box { position: relative; flex: 1; min-width: 240px; max-width: 420px; }
 .sup-search-box input {
     width: 100%; padding: 10px 14px 10px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px;
     font-size: 14px; box-sizing: border-box; outline: none;
 }
 .sup-search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+.sup-filter-group {
+    display: inline-flex; align-items: center; gap: 8px; padding: 4px; background: #eaf1ff; border-radius: 10px;
+    border: 1px solid #dbeafe;
+}
+.sup-filter-btn {
+    border: none; background: transparent; color: #475569; padding: 8px 12px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.sup-filter-btn.active {
+    background: linear-gradient(135deg,#1a6eff,#1557cc); color: #fff; box-shadow: 0 2px 8px rgba(26,110,255,0.2);
+}
 .sup-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
 .sup-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .sup-table { width: 100%; min-width: 800px; border-collapse: collapse; font-size: 14px; }
@@ -141,9 +155,17 @@
         <button class="sup-add-btn" onclick="openAddSupplierModal()"><i class="fas fa-plus"></i> Yangi yetkazib beruvchi</button>
     </div>
 
-    <div class="sup-search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="supplierSearch" placeholder="Qidirish..." oninput="loadSuppliers()">
+    <div class="sup-toolbar">
+        <div class="sup-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="supplierSearch" placeholder="Qidirish..." oninput="loadSuppliers()">
+        </div>
+
+        <div class="sup-filter-group" aria-label="Supplier debt filters">
+            <button type="button" class="sup-filter-btn active" data-filter="all" onclick="setSupplierFilter('all')">Hammasi</button>
+            <button type="button" class="sup-filter-btn" data-filter="debt" onclick="setSupplierFilter('debt')">Qarzli</button>
+            <button type="button" class="sup-filter-btn" data-filter="clear" onclick="setSupplierFilter('clear')">Qarzsiz</button>
+        </div>
     </div>
 
     <div class="sup-table-card">
@@ -207,8 +229,17 @@
 
 <script>
 let allSuppliers = [];
+let supplierFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', loadSuppliers);
+
+function setSupplierFilter(filter) {
+    supplierFilter = filter;
+    document.querySelectorAll('.sup-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    renderSuppliers();
+}
 
 async function loadSuppliers() {
     const search = document.getElementById('supplierSearch').value.trim();
@@ -230,7 +261,14 @@ function renderSuppliers() {
 
     loading.style.display = 'none';
 
-    if (allSuppliers.length === 0) {
+    const filteredSuppliers = allSuppliers.filter(s => {
+        const balance = Number(s.balance_usd || 0);
+        if (supplierFilter === 'debt') return balance > 0;
+        if (supplierFilter === 'clear') return balance <= 0;
+        return true;
+    });
+
+    if (filteredSuppliers.length === 0) {
         empty.style.display = 'block';
         table.style.display = 'none';
         return;
@@ -239,7 +277,7 @@ function renderSuppliers() {
     empty.style.display = 'none';
     table.style.display = 'table';
 
-    body.innerHTML = allSuppliers.map(s => {
+    body.innerHTML = filteredSuppliers.map(s => {
         const balance = parseFloat(s.balance_usd || 0);
         const balanceClass = balance > 0 ? 'sup-balance-debt' : 'sup-balance-zero';
         return `
