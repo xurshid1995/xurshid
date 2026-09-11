@@ -93,8 +93,16 @@
     border-radius: 6px;
     display: inline-block;
 }
-.sp-product-name { font-weight: 600; color: #1e293b; text-align: left !important; }
-.sp-table th:nth-child(3), .sp-table td:nth-child(3) { text-align: left !important; }
+.sp-product-name, .sp-table .sp-product-cell { font-weight: 600; color: #1e293b; text-align: left !important; }
+.sp-table .sp-price-cell,
+.sp-table .sp-total-cell,
+.sp-table .sp-running-total-cell,
+.sp-table .sp-qty-cell,
+.sp-table .sp-added-by-cell,
+.sp-table .sp-location-cell,
+.sp-table .sp-date-cell {
+    text-align: center !important;
+}
 .sp-state-msg { text-align: center; padding: 3rem 2rem; color: #6c757d; font-size: 15px; }
 </style>
 {% endblock %}
@@ -239,20 +247,20 @@ function renderSupplierProducts(products) {
             const row = `
                 <tr>
                     ${idx === 0 ? `
-                        <td class="sp-datetime-cell" rowspan="${groupItems.length}">
+                        <td class="sp-date-cell sp-datetime-cell" rowspan="${groupItems.length}">
                             <div class="datetime-info">
                                 <div class="sale-date">${firstItem.formattedDate}</div>
                                 <div class="sale-time">${firstItem.formattedTime}</div>
                             </div>
                         </td>
-                        <td rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
+                        <td class="sp-location-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
                     ` : ''}
-                    <td class="sp-product-name">${escapeHtml(item.product_name)}</td>
-                    <td>${item.quantity.toLocaleString('uz-UZ')}</td>
-                    <td>${formatUsdWithUzs(item.unitPrice)}</td>
-                    <td>${formatUsdWithUzs(item.lineTotal)}</td>
-                    <td>${formatUsdWithUzs(item.runningTotal)}</td>
-                    ${idx === 0 ? `<td rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
+                    <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name)}</td>
+                    <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
+                    <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
+                    <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
+                    <td class="sp-running-total-cell">${formatUsdWithUzs(item.runningTotal)}</td>
+                    ${idx === 0 ? `<td class="sp-added-by-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;
             return row;
