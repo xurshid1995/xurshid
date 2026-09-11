@@ -925,7 +925,7 @@ let frGrandReserve = 0;
 function renderYakuniyHisob() {
     const div = document.getElementById('finalReportFourthList');
     if (!div) return;
-    const totalDebt = frGrandDebt + frSupplierDebt;
+    const totalDebt = frGrandDebt - frSupplierDebt;
     const total = frGrandCostValue + totalDebt + frGrandReserve;
     div.innerHTML = `<div style="max-width:100%; overflow:hidden;">
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
@@ -938,7 +938,7 @@ function renderYakuniyHisob() {
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
             <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📌 Yetkazib beruvchilar qarzi</div>
-            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frSupplierDebt)}</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#dc2626; font-size:12px;">-${fmtUsd(frSupplierDebt)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
             <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📦 Jami zaxira</div>
@@ -955,7 +955,7 @@ function renderYakuniyHisob() {
 let editingReserveFundId = null;
 
 function saveYakuniyHisobot() {
-    const totalDebt = frGrandDebt + frSupplierDebt;
+    const totalDebt = frGrandDebt - frSupplierDebt;
     const total = frGrandCostValue + totalDebt + frGrandReserve;
     document.getElementById('finalReportSaveCostValue').textContent = fmtUsd(frGrandCostValue);
     document.getElementById('finalReportSaveDebt').textContent = fmtUsd(totalDebt);
@@ -969,7 +969,7 @@ function closeFinalReportSaveModal() {
 }
 
 async function confirmSaveYakuniyHisobot() {
-    const totalDebt = frGrandDebt + frSupplierDebt;
+    const totalDebt = frGrandDebt - frSupplierDebt;
     const total = frGrandCostValue + totalDebt + frGrandReserve;
     try {
         const res = await fetch('/api/final-report-snapshot', {
