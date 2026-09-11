@@ -55,8 +55,9 @@
 .tl-amount-payment { color: #16a34a; }
 
 .tl-details { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.tl-detail-chip { font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; color: #475569; }
-.tl-detail-chip-total { font-size: 12px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 10px; font-weight: 700; }
+.tl-detail-chip { font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; color: #475569; white-space: nowrap; }
+.tl-detail-chip-total { font-size: 12px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 10px; font-weight: 700; white-space: nowrap; }
+.tl-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .tl-after-row { display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:12px; }
 .tl-after-label { color:#94a3b8; }
 .tl-after-debt { background:#fee2e2; color:#dc2626; border-radius:5px; padding:2px 8px; font-weight:600; }
@@ -244,10 +245,13 @@ function renderPurchaseBatch(events) {
     chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${totalAmount.toFixed(2)}</span>`);
     if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">✅ To\'lov: $${paidAmount.toFixed(2)}</span>`);
     if (debtAmount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${debtAmount.toFixed(2)}</span>`);
-    if (first.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${first.location_name}</span>`);
-    if (first.added_by) chips.push(`<span class="tl-detail-chip">👤 ${first.added_by}</span>`);
 
     const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} - ${e.quantity}*${e.cost_price.toFixed(2)}$=${e.total_amount.toFixed(2)}$</span></div>`).join('');
+    const itemMeta = [
+        paymentTypeBadge(first.payment_type),
+        first.location_name ? `<span class="tl-detail-chip">🏬 ${first.location_name}</span>` : '',
+        first.added_by ? `<span class="tl-detail-chip">👤 ${first.added_by}</span>` : ''
+    ].filter(Boolean).join('');
     const itemsHtml = `<div class="tl-items-list">
         <button class="tl-items-toggle" onclick="toggleItems(this)">▶ ${events.length} ta mahsulot ko'rish</button>
         <div class="tl-items-body">${rows}</div>
@@ -257,10 +261,10 @@ function renderPurchaseBatch(events) {
         <div class="tl-dot tl-dot-purchase"></div>
         <div class="tl-card tl-card-purchase">
             <div class="tl-card-header">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <div class="tl-meta-row">
                     <span class="tl-time-badge">${timeOnly(first.date)}</span>
                     <span class="tl-type-badge tl-type-purchase">📦 Mahsulot qabul qilindi</span>
-                    ${paymentTypeBadge(first.payment_type)}
+                    ${itemMeta}
                 </div>
             </div>
             <div class="tl-details">${chips.join('')}</div>
