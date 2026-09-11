@@ -593,10 +593,34 @@ class SupplierPurchaseBatch(db.Model):
     added_by = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
 
+    # Qarz/to'lov Sale kabi BUTUN guruh (qabul qilish) darajasida saqlanadi, har bir mahsulot qatorida emas
+    total_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    payment_type = db.Column(db.String(20), nullable=False, default='cash')  # cash | debt | partial
+    paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    debt_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    click_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+
     supplier = db.relationship('Supplier', backref=db.backref('purchase_batches', order_by='SupplierPurchaseBatch.created_at.desc()'))
 
     def __repr__(self):
         return f'<SupplierPurchaseBatch {self.id}: supplier={self.supplier_id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'supplier_id': self.supplier_id,
+            'added_by': self.added_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'total_amount': float(self.total_amount or 0),
+            'payment_type': self.payment_type,
+            'paid_amount': float(self.paid_amount or 0),
+            'debt_amount': float(self.debt_amount or 0),
+            'cash_usd': float(self.cash_usd or 0),
+            'click_usd': float(self.click_usd or 0),
+            'terminal_usd': float(self.terminal_usd or 0),
+        }
 
 
 # Yetkazib beruvchidan mahsulot kirimi (naxt/qarz/qisman to'lov bilan)
@@ -657,7 +681,8 @@ class SupplierPayment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
-    purchase_id = db.Column(db.Integer, db.ForeignKey('supplier_purchases.id', ondelete='SET NULL'), nullable=True)  # FIFO bo'yicha qaysi partiyaga yo'naltirilgani
+    purchase_id = db.Column(db.Integer, db.ForeignKey('supplier_purchases.id', ondelete='SET NULL'), nullable=True)  # eski (mahsulot darajasidagi) yozuvlar uchun, endi ishlatilmaydi
+    batch_id = db.Column(db.Integer, db.ForeignKey('supplier_purchase_batches.id', ondelete='SET NULL'), nullable=True)  # FIFO bo'yicha qaysi GURUHga (qabul qilishga) yo'naltirilgani
     amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)  # jami to'lov (cash+click+terminal)
     cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
     click_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
@@ -679,6 +704,7 @@ class SupplierPayment(db.Model):
             'event_type': 'payment',
             'supplier_id': self.supplier_id,
             'purchase_id': self.purchase_id,
+            'batch_id': self.batch_id,
             'amount_usd': float(self.amount_usd or 0),
             'cash_usd': float(self.cash_usd or 0),
             'click_usd': float(self.click_usd or 0),

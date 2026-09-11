@@ -1876,6 +1876,21 @@ def api_add_product():
                             )
                             db.session.add(purchase)
 
+                            # Qarz/to'lov GURUH (batch) darajasida yig'iladi - mijoz Sale'idagi kabi
+                            batch_obj = supplier_batches[supplier.id]
+                            batch_obj.total_amount = (batch_obj.total_amount or Decimal('0')) + batch_total
+                            batch_obj.paid_amount = (batch_obj.paid_amount or Decimal('0')) + paid_amount
+                            batch_obj.debt_amount = (batch_obj.debt_amount or Decimal('0')) + debt_amount
+                            batch_obj.cash_usd = (batch_obj.cash_usd or Decimal('0')) + cash_usd_val
+                            batch_obj.click_usd = (batch_obj.click_usd or Decimal('0')) + click_usd_val
+                            batch_obj.terminal_usd = (batch_obj.terminal_usd or Decimal('0')) + terminal_usd_val
+                            if batch_obj.debt_amount <= 0:
+                                batch_obj.payment_type = 'cash'
+                            elif batch_obj.paid_amount <= 0:
+                                batch_obj.payment_type = 'debt'
+                            else:
+                                batch_obj.payment_type = 'partial'
+
                             if debt_amount > 0:
                                 supplier.balance_usd = (supplier.balance_usd or 0) + debt_amount
 
@@ -2204,6 +2219,21 @@ def api_batch_products():
                             added_by=current_user_name
                         )
                         db.session.add(purchase)
+
+                        # Qarz/to'lov GURUH (batch) darajasida yig'iladi - mijoz Sale'idagi kabi
+                        batch_obj = supplier_batches[supplier.id]
+                        batch_obj.total_amount = (batch_obj.total_amount or Decimal('0')) + batch_total
+                        batch_obj.paid_amount = (batch_obj.paid_amount or Decimal('0')) + paid_amount
+                        batch_obj.debt_amount = (batch_obj.debt_amount or Decimal('0')) + debt_amount
+                        batch_obj.cash_usd = (batch_obj.cash_usd or Decimal('0')) + cash_usd_val
+                        batch_obj.click_usd = (batch_obj.click_usd or Decimal('0')) + click_usd_val
+                        batch_obj.terminal_usd = (batch_obj.terminal_usd or Decimal('0')) + terminal_usd_val
+                        if batch_obj.debt_amount <= 0:
+                            batch_obj.payment_type = 'cash'
+                        elif batch_obj.paid_amount <= 0:
+                            batch_obj.payment_type = 'debt'
+                        else:
+                            batch_obj.payment_type = 'partial'
 
                         if debt_amount > 0:
                             supplier.balance_usd = (supplier.balance_usd or 0) + debt_amount
@@ -11262,6 +11292,34 @@ def api_supplier_timeline(supplier_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+def _redistribute_batch_to_items(batch):
+    """Guruh (SupplierPurchaseBatch)ning paid_amount/debt_amount qiymatlarini uning mahsulot
+    qatorlariga (SupplierPurchase) har birining o'z total_amount ulushiga qarab qayta taqsimlaydi.
+    Qarz manbasi endi BATCH, mahsulot qatorlaridagi qiymatlar faqat ko'rsatish/tarix uchun -
+    shu funksiya har doim ularni batch bilan mos holatga keltiradi (to'lov ham, bekor qilish ham)."""
+    total = batch.total_amount or Decimal('0')
+    items = list(batch.items)
+    if total <= 0 or not items:
+        return
+    paid = max(Decimal('0'), min(batch.paid_amount or Decimal('0'), total))
+    remaining_paid = paid
+    for idx, item in enumerate(items):
+        item_total = item.total_amount or Decimal('0')
+        is_last = idx == len(items) - 1
+        if is_last:
+            item_paid = remaining_paid
+        else:
+            item_paid = (paid * item_total / total).quantize(Decimal('0.01')) if total > 0 else Decimal('0')
+            item_paid = max(Decimal('0'), min(item_paid, item_total, remaining_paid))
+        remaining_paid -= item_paid
+        item.paid_amount = item_paid
+        item_debt = item_total - item_paid
+        if item_debt < Decimal('0.001'):
+            item_debt = Decimal('0')
+        item.debt_amount = item_debt
+        item.payment_type = 'cash' if item_debt <= 0 else ('debt' if item_paid <= 0 else 'partial')
+
+
 @app.route('/api/suppliers/<int:supplier_id>/debt-payment', methods=['POST'])
 @role_required('admin', 'kassir', 'omborchi')
 def pay_supplier_debt(supplier_id):
@@ -11292,21 +11350,13 @@ def pay_supplier_debt(supplier_id):
         notes = data.get('notes', '').strip() or None
         payment_time = get_tashkent_time()
 
-        # Eng eski partiyadan boshlab (FIFO) qarzni yopish - mijoz qarz to'lash mantig'i bilan bir xil.
-        # MUHIM: har bir mahsulot qatori o'zining created_at'iga ega (batch ichida bir necha millisekund farq
-        # bo'lishi mumkin), shu sabab guruh (batch) ustuvorligini saqlash uchun avval BATCH yaratilgan vaqti
-        # bo'yicha, keyin batch ichida id bo'yicha tartiblanadi - shunda bitta qabul qilishning barcha
-        # mahsulotlari ketma-ket (bir guruh sifatida) to'lanadi, boshqa guruh bilan aralashib ketmaydi.
-        purchases = SupplierPurchase.query.outerjoin(
-            SupplierPurchaseBatch, SupplierPurchase.batch_id == SupplierPurchaseBatch.id
-        ).filter(
-            SupplierPurchase.supplier_id == supplier_id,
-            SupplierPurchase.debt_amount > 0
-        ).order_by(
-            db.func.coalesce(SupplierPurchaseBatch.created_at, SupplierPurchase.created_at).asc(),
-            SupplierPurchase.batch_id.asc(),
-            SupplierPurchase.id.asc()
-        ).all()
+        # Eng eski GURUHDAN (batch, bitta "qabul qilish" operatsiyasi) boshlab FIFO qarzni yopish -
+        # mijoz qarz to'lash mantig'i bilan bir xil (u yerda "Sale" = bitta yaxlit qarz birligi).
+        # Qarz endi HAR BIR mahsulot qatorida emas, BUTUN guruh (SupplierPurchaseBatch) darajasida saqlanadi.
+        batches = SupplierPurchaseBatch.query.filter(
+            SupplierPurchaseBatch.supplier_id == supplier_id,
+            SupplierPurchaseBatch.debt_amount > 0
+        ).order_by(SupplierPurchaseBatch.created_at.asc(), SupplierPurchaseBatch.id.asc()).all()
 
         remaining_cash = cash_usd
         remaining_click = click_usd
@@ -11314,14 +11364,14 @@ def pay_supplier_debt(supplier_id):
         remaining_payment = amount
         payment_records = []
 
-        for purchase in purchases:
+        for batch in batches:
             if remaining_payment <= 0:
                 break
-            current_debt = purchase.debt_amount or Decimal('0')
-            if current_debt <= 0:
+            current_batch_debt = batch.debt_amount or Decimal('0')
+            if current_batch_debt <= 0:
                 continue
 
-            payment_for_this = min(remaining_payment, current_debt)
+            payment_for_this = min(remaining_payment, current_batch_debt)
 
             cash_for_this = min(remaining_cash, payment_for_this)
             remaining_cash -= cash_for_this
@@ -11339,16 +11389,19 @@ def pay_supplier_debt(supplier_id):
             if total_for_this <= 0:
                 continue
 
-            purchase.paid_amount = (purchase.paid_amount or Decimal('0')) + total_for_this
-            new_debt = current_debt - total_for_this
-            if new_debt < Decimal('0.001'):
-                new_debt = Decimal('0')
-            purchase.debt_amount = new_debt
-            purchase.payment_type = 'cash' if new_debt == 0 else 'partial'
+            batch.paid_amount = (batch.paid_amount or Decimal('0')) + total_for_this
+            new_batch_debt = current_batch_debt - total_for_this
+            if new_batch_debt < Decimal('0.001'):
+                new_batch_debt = Decimal('0')
+            batch.debt_amount = new_batch_debt
+            batch.payment_type = 'cash' if new_batch_debt == 0 else 'partial'
+
+            # Guruh ichidagi mahsulot qatorlarini (faqat ko'rsatish/tarix maqsadida) batch bilan mos holga keltirish
+            _redistribute_batch_to_items(batch)
 
             remaining_payment -= total_for_this
             payment_records.append({
-                'purchase_id': purchase.id,
+                'batch_id': batch.id,
                 'cash_usd': cash_for_this,
                 'click_usd': click_for_this,
                 'terminal_usd': terminal_for_this,
@@ -11359,7 +11412,7 @@ def pay_supplier_debt(supplier_id):
         for record in payment_records:
             payment = SupplierPayment(
                 supplier_id=supplier_id,
-                purchase_id=record['purchase_id'],
+                batch_id=record['batch_id'],
                 amount_usd=record['total_usd'],
                 cash_usd=record['cash_usd'],
                 click_usd=record['click_usd'],
@@ -11372,11 +11425,11 @@ def pay_supplier_debt(supplier_id):
             )
             db.session.add(payment)
 
-        # Agar hech qanday partiyaga ulanmagan qism qolsa (masalan, eski qarz partiyalarga bog'lanmagan)
+        # Agar hech qanday guruhga ulanmagan qism qolsa (masalan, eski qarz partiyalarga bog'lanmagan)
         if remaining_payment > 0:
             payment = SupplierPayment(
                 supplier_id=supplier_id,
-                purchase_id=None,
+                batch_id=None,
                 amount_usd=remaining_payment,
                 cash_usd=remaining_cash,
                 click_usd=remaining_click,
@@ -11488,12 +11541,13 @@ def api_reverse_supplier_debt_payment():
             amount = Decimal(str(payment.amount_usd or 0))
             total_reversed += amount
 
-            if payment.purchase_id:
-                purchase = SupplierPurchase.query.with_for_update().get(payment.purchase_id)
-                if purchase:
-                    purchase.debt_amount = (purchase.debt_amount or Decimal('0')) + amount
-                    purchase.paid_amount = max(Decimal('0'), (purchase.paid_amount or Decimal('0')) - amount)
-                    purchase.payment_type = 'debt' if purchase.paid_amount == 0 else 'partial'
+            if payment.batch_id:
+                batch = SupplierPurchaseBatch.query.with_for_update().get(payment.batch_id)
+                if batch:
+                    batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
+                    batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
+                    batch.payment_type = 'debt' if batch.paid_amount == 0 else 'partial'
+                    _redistribute_batch_to_items(batch)
 
             db.session.delete(payment)
 
@@ -11522,12 +11576,13 @@ def reverse_supplier_debt_payment(supplier_id, payment_id):
         amount = Decimal(str(payment.amount_usd or 0))
         supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + amount
 
-        if payment.purchase_id:
-            purchase = SupplierPurchase.query.get(payment.purchase_id)
-            if purchase:
-                purchase.debt_amount = (purchase.debt_amount or Decimal('0')) + amount
-                purchase.paid_amount = max(Decimal('0'), (purchase.paid_amount or Decimal('0')) - amount)
-                purchase.payment_type = 'debt' if purchase.paid_amount == 0 else 'partial'
+        if payment.batch_id:
+            batch = SupplierPurchaseBatch.query.get(payment.batch_id)
+            if batch:
+                batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
+                batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
+                batch.payment_type = 'debt' if batch.paid_amount == 0 else 'partial'
+                _redistribute_batch_to_items(batch)
 
         db.session.delete(payment)
         db.session.commit()
