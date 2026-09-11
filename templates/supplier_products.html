@@ -59,11 +59,6 @@
         <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
     </div>
 
-    <div class="sp-stats">
-        <div class="sp-stat"><div class="sp-stat-value" id="spStatCount">0 ta</div><div class="sp-stat-label">Mahsulotlar soni</div></div>
-        <div class="sp-stat"><div class="sp-stat-value" id="spStatDebt">$0.00</div><div class="sp-stat-label">Joriy qarz</div></div>
-    </div>
-
     <div class="sp-table-card" style="margin-top: 10px;">
         <div class="sp-table-wrap">
             <table class="sp-table" id="spTable" style="display:none;">
@@ -110,8 +105,6 @@ function renderSupplierProducts(products) {
     const body = document.getElementById('spTableBody');
 
     loading.style.display = 'none';
-    document.getElementById('spStatCount').textContent = `${products.length} ta`;
-    document.getElementById('spStatDebt').textContent = `$${Number({{ supplier.balance_usd or 0 }}).toFixed(2)}`;
 
     if (products.length === 0) {
         empty.style.display = 'block';
