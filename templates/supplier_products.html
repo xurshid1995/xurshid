@@ -75,6 +75,18 @@
 .sp-table th:nth-child(4), .sp-table td:nth-child(4) { width: 100px; }
 .sp-table th:nth-child(5), .sp-table td:nth-child(5) { width: 100px; }
 .sp-table th:nth-child(6), .sp-table td:nth-child(6) { width: 160px; }
+.sp-datetime-cell { white-space: normal !important; overflow: visible !important; }
+.datetime-info { text-align: center; }
+.sale-date { font-weight: 600; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
+.sale-time {
+    font-weight: 600;
+    font-size: 10px;
+    color: white;
+    background: #1a6eff;
+    padding: 1px 6px;
+    border-radius: 6px;
+    display: inline-block;
+}
 .sp-product-name { font-weight: 600; color: #1e293b; text-align: left !important; }
 .sp-state-msg { text-align: center; padding: 3rem 2rem; color: #6c757d; font-size: 15px; }
 </style>
@@ -154,10 +166,18 @@ function renderSupplierProducts(products) {
     table.style.display = 'table';
 
     body.innerHTML = products.map(p => {
-        const date = p.created_at ? new Date(p.created_at).toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+        const createdAt = p.created_at ? new Date(p.created_at) : null;
+        const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+        const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+
         return `
             <tr>
-                <td>${date}</td>
+                <td class="sp-datetime-cell">
+                    <div class="datetime-info">
+                        <div class="sale-date">${formattedDate}</div>
+                        <div class="sale-time">${formattedTime}</div>
+                    </div>
+                </td>
                 <td>${escapeHtml(p.location_name || '-')}</td>
                 <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
                 <td>${Number(p.quantity).toLocaleString('uz-UZ')}</td>
