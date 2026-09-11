@@ -143,6 +143,25 @@
 const SUPPLIER_ID = {{ supplier.id }};
 let allProducts = [];
 
+function formatUSD(value) {
+    const amount = Number(value || 0);
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function getCurrentRate() {
+    const rate = Number(window.currentExchangeRate || 12000);
+    return rate > 0 ? rate : 12000;
+}
+
+function convertToUZS(value) {
+    return Math.round((Number(value || 0) * getCurrentRate()));
+}
+
+function formatUsdWithUzs(value) {
+    const usd = Number(value || 0);
+    return `${formatUSD(usd)}<br><small style="color: #007bff; font-size: 13px;">${convertToUZS(usd).toLocaleString('uz-UZ')}</small>`;
+}
+
 document.addEventListener('DOMContentLoaded', loadSupplierProducts);
 
 async function loadSupplierProducts() {
@@ -196,9 +215,9 @@ function renderSupplierProducts(products) {
                 <td>${escapeHtml(p.location_name || '-')}</td>
                 <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
                 <td>${quantity.toLocaleString('uz-UZ')}</td>
-                <td>$${unitPrice.toFixed(2)}</td>
-                <td>$${lineTotal.toFixed(2)}</td>
-                <td>$${runningTotal.toFixed(2)}</td>
+                <td>${formatUsdWithUzs(unitPrice)}</td>
+                <td>${formatUsdWithUzs(lineTotal)}</td>
+                <td>${formatUsdWithUzs(runningTotal)}</td>
                 <td>${escapeHtml(p.added_by || '-')}</td>
             </tr>
         `;
