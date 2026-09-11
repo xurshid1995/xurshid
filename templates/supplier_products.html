@@ -143,9 +143,11 @@
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 .sp-table tbody tr:hover { background: #f8faff; }
-.sp-table tbody tr.sale-group-start td { border-top: 2px solid rgba(148, 163, 184, 0.9) !important; }
-.sp-table tbody tr.sale-group-start:first-child td { border-top: none !important; }
-.sp-table tbody tr.sale-group-end td { border-bottom: 1px solid #edf2f7 !important; }
+.sp-table tbody tr.sp-group-start { border-top: 1px solid #e2e8f0; }
+.sp-table tbody tr.sp-group-start:first-child { border-top: none; }
+.sp-table tbody tr.sp-group-start td,
+.sp-table tbody tr.sp-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
+.sp-table tbody tr.sp-group-end td { border-bottom: 2px solid #cbd5e1 !important; }
 .sp-table tbody tr:last-child td { border-bottom: none; }
 .sp-table th:nth-child(1), .sp-table td:nth-child(1) { width: 150px; }
 .sp-table th:nth-child(2), .sp-table td:nth-child(2) { width: 120px; }
@@ -156,6 +158,8 @@
 .sp-table th:nth-child(7), .sp-table td:nth-child(7) { width: 120px; }
 .sp-table th:nth-child(8), .sp-table td:nth-child(8) { width: 160px; }
 .sp-datetime-cell { white-space: normal !important; overflow: visible !important; }
+.sp-group-cell { background: white !important; font-weight: 600; }
+.sp-location-cell { font-size: 12px; color: #374151; text-align: center; }
 .datetime-info { text-align: center; }
 .sale-date { font-weight: 600; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
 .sale-time {
@@ -342,24 +346,31 @@ function renderSupplierProducts(products) {
     empty.style.display = 'none';
     table.style.display = 'table';
 
-    let runningTotal = 0;
+    const groups = new Map();
 
-    const groupedProducts = [];
-    const seenGroups = new Map();
+    products.forEach(product => {
+        const createdAt = product.created_at ? new Date(product.created_at) : null;
+        const groupKey = [
+            createdAt ? createdAt.getFullYear() : '',
+            createdAt ? createdAt.getMonth() : '',
+            createdAt ? createdAt.getDate() : '',
+            createdAt ? createdAt.getHours() : '',
+            createdAt ? createdAt.getMinutes() : '',
+            (product.location_name || '').trim(),
+            (product.added_by || '').trim()
+        ].join('|');
 
-    products.forEach(p => {
-        const createdAt = p.created_at ? new Date(p.created_at) : null;
-        const groupKey = createdAt
-            ? `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}-${createdAt.getHours()}-${createdAt.getMinutes()}-${(p.location_name || '').trim()}-${(p.added_by || '').trim()}`
-            : `${(p.location_name || '').trim()}-${(p.added_by || '').trim()}`;
-
-        if (!seenGroups.has(groupKey)) {
-            seenGroups.set(groupKey, []);
+        if (!groups.has(groupKey)) {
+            groups.set(groupKey, []);
         }
-        seenGroups.get(groupKey).push(p);
+        groups.get(groupKey).push(product);
     });
 
-    groupedProducts.push(...[...seenGroups.values()]);
+    const groupedProducts = [...groups.values()].sort((a, b) => {
+        const aDate = a[0]?.created_at ? new Date(a[0].created_at).getTime() : 0;
+        const bDate = b[0]?.created_at ? new Date(b[0].created_at).getTime() : 0;
+        return bDate - aDate;
+    });
 
     body.innerHTML = groupedProducts.map(group => {
         const groupItems = group.map(item => {
@@ -369,7 +380,6 @@ function renderSupplierProducts(products) {
             const quantity = Number(item.quantity || 0);
             const unitPrice = Number(item.cost_price || 0);
             const lineTotal = quantity * unitPrice;
-            runningTotal += lineTotal;
 
             return {
                 ...item,
@@ -378,41 +388,39 @@ function renderSupplierProducts(products) {
                 formattedTime,
                 quantity,
                 unitPrice,
-                lineTotal,
-                runningTotal
+                lineTotal
             };
         });
 
         const firstItem = groupItems[0];
-        const groupRunningTotal = groupItems[groupItems.length - 1].runningTotal;
+        const groupRunningTotal = groupItems.reduce((sum, item) => sum + item.lineTotal, 0);
 
-        const rows = groupItems.map((item, idx) => {
+        return groupItems.map((item, idx) => {
             const isFirst = idx === 0;
             const isLast = idx === groupItems.length - 1;
-            const rowClass = isFirst ? 'sale-group-start' : 'sale-group-item';
-            const row = `
-                <tr class="${rowClass}${isLast ? ' sale-group-end' : ''}">
+            const rowClasses = ['sp-group-start', isFirst ? 'sp-group-start' : 'sp-group-item'];
+            if (isLast || groupItems.length === 1) rowClasses.push('sp-group-end');
+
+            return `
+                <tr class="${rowClasses.filter(Boolean).join(' ')}">
                     ${isFirst ? `
-                        <td class="sp-date-cell sp-datetime-cell" rowspan="${groupItems.length}">
+                        <td class="sp-date-cell sp-datetime-cell sp-group-cell" rowspan="${groupItems.length}">
                             <div class="datetime-info">
                                 <div class="sale-date">${firstItem.formattedDate}</div>
                                 <div class="sale-time">${firstItem.formattedTime}</div>
                             </div>
                         </td>
-                        <td class="sp-location-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
+                        <td class="sp-location-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
                     ` : ''}
-                    <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name)}</td>
+                    <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name || '-')}</td>
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
                     <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
                     <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
-                    ${isFirst ? `<td class="sp-running-total-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
-                    ${isFirst ? `<td class="sp-added-by-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
+                    ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
+                    ${isFirst ? `<td class="sp-added-by-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;
-            return row;
         }).join('');
-
-        return rows;
     }).join('');
 }
 
