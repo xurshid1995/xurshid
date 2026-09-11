@@ -631,8 +631,8 @@ function renderPurchases(purchases) {
         const groupId = first.batch_id != null ? first.batch_id : first.id;
         const groupRunningTotal = items.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
 
-        const groupPaid = Number(items[0].paid_amount || 0);
-        const groupDebt = Number(items[0].debt_amount || 0);
+        const groupPaid = items.reduce((sum, p) => sum + Number(p.paid_amount || 0), 0);
+        const groupDebt = items.reduce((sum, p) => sum + Number(p.debt_amount || 0), 0);
         const groupAddedBy = items[0].added_by || '-';
 
         return items.map((p, idx) => {
@@ -690,11 +690,11 @@ function showPurchaseDetailsModal(items) {
     const dateStr = date ? date.toLocaleString('uz-UZ') : '-';
 
     const totalUSD = items.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
-    const paidUSD = Number(first.paid_amount || 0);
-    const debtUSD = Number(first.debt_amount || 0);
-    const cashUSD = Number(first.cash_usd || 0);
-    const clickUSD = Number(first.click_usd || 0);
-    const terminalUSD = Number(first.terminal_usd || 0);
+    const paidUSD = items.reduce((sum, p) => sum + Number(p.paid_amount || 0), 0);
+    const debtUSD = items.reduce((sum, p) => sum + Number(p.debt_amount || 0), 0);
+    const cashUSD = items.reduce((sum, p) => sum + Number(p.cash_usd || 0), 0);
+    const clickUSD = items.reduce((sum, p) => sum + Number(p.click_usd || 0), 0);
+    const terminalUSD = items.reduce((sum, p) => sum + Number(p.terminal_usd || 0), 0);
     const hasBreakdown = (cashUSD + clickUSD + terminalUSD) > 0;
 
     const boxes = (hasBreakdown ? [
