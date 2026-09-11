@@ -11292,11 +11292,21 @@ def pay_supplier_debt(supplier_id):
         notes = data.get('notes', '').strip() or None
         payment_time = get_tashkent_time()
 
-        # Eng eski partiyadan boshlab (FIFO) qarzni yopish - mijoz qarz to'lash mantig'i bilan bir xil
-        purchases = SupplierPurchase.query.filter(
+        # Eng eski partiyadan boshlab (FIFO) qarzni yopish - mijoz qarz to'lash mantig'i bilan bir xil.
+        # MUHIM: har bir mahsulot qatori o'zining created_at'iga ega (batch ichida bir necha millisekund farq
+        # bo'lishi mumkin), shu sabab guruh (batch) ustuvorligini saqlash uchun avval BATCH yaratilgan vaqti
+        # bo'yicha, keyin batch ichida id bo'yicha tartiblanadi - shunda bitta qabul qilishning barcha
+        # mahsulotlari ketma-ket (bir guruh sifatida) to'lanadi, boshqa guruh bilan aralashib ketmaydi.
+        purchases = SupplierPurchase.query.outerjoin(
+            SupplierPurchaseBatch, SupplierPurchase.batch_id == SupplierPurchaseBatch.id
+        ).filter(
             SupplierPurchase.supplier_id == supplier_id,
             SupplierPurchase.debt_amount > 0
-        ).order_by(SupplierPurchase.created_at.asc()).all()
+        ).order_by(
+            db.func.coalesce(SupplierPurchaseBatch.created_at, SupplierPurchase.created_at).asc(),
+            SupplierPurchase.batch_id.asc(),
+            SupplierPurchase.id.asc()
+        ).all()
 
         remaining_cash = cash_usd
         remaining_click = click_usd
