@@ -272,7 +272,7 @@ function renderPurchaseBatch(events) {
 
 function renderPayment(e) {
     const paymentChips = [];
-    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 To\'lov: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
     if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
     if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
@@ -284,7 +284,7 @@ function renderPayment(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment">💳 To'lov</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov turi: ${e.payment_type === 'cash' ? 'Naqd' : e.payment_type === 'debt' ? 'Qarz' : e.payment_type === 'partial' ? 'Qisman' : 'To\'lov'}</span>
                     ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
                     ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
                 </div>
