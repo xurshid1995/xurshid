@@ -275,6 +275,11 @@
 .group-cell.col-total, .group-cell.col-paid, .group-cell.col-debt, .group-cell.col-due { background: white !important; }
 .group-datetime { background: white !important; }
 .group-sale-id { background: white !important; }
+.sale-id-badge {
+    font-weight: 700; font-size: 10px; color: #92400e;
+    background: #fef08a; padding: 1px 6px; border-radius: 6px;
+    display: inline-block; margin-bottom: 3px;
+}
 .sale-date { font-weight: 700; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
 .sale-time { font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block; }
 .no-data, .loading {
@@ -433,7 +438,6 @@
                 <thead>
                     <tr>
                         <th>{{ t('cdd_th_date') }}</th>
-                        <th>Sale ID</th>
                         <th>{{ t('cdd_th_products') }}</th>
                         <th>Qty</th>
                         <th>Narx</th>
@@ -447,7 +451,7 @@
                 </thead>
                 <tbody id="historyBody">
                     <tr>
-                        <td colspan="11" class="loading">{{ t('cdd_loading') }}</td>
+                        <td colspan="10" class="loading">{{ t('cdd_loading') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -606,7 +610,7 @@
         const tbody = document.getElementById('historyBody');
 
         if (!debtData.history || debtData.history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
             return;
         }
 
@@ -661,11 +665,9 @@
                     <tr class="${rowClasses.filter(Boolean).join(' ')}">
                         ${isFirst ? `
                             <td rowspan="${saleItems.length}" class="group-cell group-datetime">
+                                <div class="sale-id-badge">ID: ${h.sale_id}</div>
                                 <div class="sale-date">${formattedDate}</div>
                                 <div class="sale-time">${formattedTime}</div>
-                            </td>
-                            <td rowspan="${saleItems.length}" class="group-cell group-sale-id">
-                                <strong style="color:#1a6eff;">${h.sale_id}</strong>
                             </td>
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
