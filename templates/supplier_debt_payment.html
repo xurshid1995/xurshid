@@ -497,32 +497,6 @@
         </div>
     </div>
 
-    <div class="ps-tab-panel" data-panel="payments" id="paymentsHistorySection">
-        <div class="ps-table-card">
-            <div class="ps-table-card-header">
-                <h2><i class="fas fa-money-bill-wave"></i> To'lovlar tarixi</h2>
-            </div>
-            <div class="ps-table-wrap">
-                <table class="ps-table">
-                    <thead>
-                        <tr>
-                            <th>Sana</th>
-                            <th>Jami tolangan</th>
-                            <th>Naqd</th>
-                            <th>Click</th>
-                            <th>Terminal</th>
-                            <th>To'lov qildi</th>
-                            <th>Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="paymentsHistoryBody">
-                        <tr><td colspan="7" class="loading">Yuklanmoqda...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 <!-- Bekor qilish modali -->
@@ -796,6 +770,7 @@ function closePurchaseDetailsModal() {
 async function loadPaymentsHistory() {
     const section = document.getElementById('paymentsHistorySection');
     const tbody = document.getElementById('paymentsHistoryBody');
+    if (!section || !tbody) return;
     try {
         const res = await fetch(`/api/debt-payments/by-supplier/${SUPPLIER_ID}`);
         const data = await res.json();
