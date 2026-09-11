@@ -601,6 +601,9 @@ class SupplierPurchaseBatch(db.Model):
     cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     click_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
     terminal_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    # Qabul qilingan paytdagi (birinchi) to'lov - keyingi qarz to'lovlaridan farqli, o'zgarmas holda saqlanadi.
+    # Timeline'da tarixiy qarz hisobini to'g'ri chizish uchun kerak (paid_amount esa doim joriy holatga mos yangilanadi).
+    initial_paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
 
     supplier = db.relationship('Supplier', backref=db.backref('purchase_batches', order_by='SupplierPurchaseBatch.created_at.desc()'))
 
@@ -620,6 +623,7 @@ class SupplierPurchaseBatch(db.Model):
             'cash_usd': float(self.cash_usd or 0),
             'click_usd': float(self.click_usd or 0),
             'terminal_usd': float(self.terminal_usd or 0),
+            'initial_paid_amount': float(self.initial_paid_amount or 0),
         }
 
 

@@ -1880,6 +1880,7 @@ def api_add_product():
                             batch_obj = supplier_batches[supplier.id]
                             batch_obj.total_amount = (batch_obj.total_amount or Decimal('0')) + batch_total
                             batch_obj.paid_amount = (batch_obj.paid_amount or Decimal('0')) + paid_amount
+                            batch_obj.initial_paid_amount = (batch_obj.initial_paid_amount or Decimal('0')) + paid_amount
                             batch_obj.debt_amount = (batch_obj.debt_amount or Decimal('0')) + debt_amount
                             batch_obj.cash_usd = (batch_obj.cash_usd or Decimal('0')) + cash_usd_val
                             batch_obj.click_usd = (batch_obj.click_usd or Decimal('0')) + click_usd_val
@@ -2224,6 +2225,7 @@ def api_batch_products():
                         batch_obj = supplier_batches[supplier.id]
                         batch_obj.total_amount = (batch_obj.total_amount or Decimal('0')) + batch_total
                         batch_obj.paid_amount = (batch_obj.paid_amount or Decimal('0')) + paid_amount
+                        batch_obj.initial_paid_amount = (batch_obj.initial_paid_amount or Decimal('0')) + paid_amount
                         batch_obj.debt_amount = (batch_obj.debt_amount or Decimal('0')) + debt_amount
                         batch_obj.cash_usd = (batch_obj.cash_usd or Decimal('0')) + cash_usd_val
                         batch_obj.click_usd = (batch_obj.click_usd or Decimal('0')) + click_usd_val
@@ -11233,8 +11235,29 @@ def api_supplier_timeline(supplier_id):
         purchases = SupplierPurchase.query.filter_by(supplier_id=supplier_id).all()
         payments = SupplierPayment.query.filter_by(supplier_id=supplier_id).all()
 
+        # Har bir GURUH (batch) uchun "qabul qilingan paytdagi" qarz o'zgarmas holda
+        # total_amount - initial_paid_amount dan hisoblanadi (initial_paid_amount hech qachon
+        # keyingi to'lovlar bilan o'zgartirilmaydi). Item.debt_amount esa keyingi to'lovlar bilan
+        # qayta taqsimlanib turadi - shuning uchun uni tarixiy delta sifatida ishlatib bo'lmaydi
+        # (aks holda keyingi to'lovlar ikki marta hisobga olinib, joriy qarzdan kam ko'rsatiladi).
+        batch_ids = {p.batch_id for p in purchases if p.batch_id is not None}
+        batches_map = {b.id: b for b in SupplierPurchaseBatch.query.filter(SupplierPurchaseBatch.id.in_(batch_ids)).all()} if batch_ids else {}
+        first_item_of_batch = {}
+        for p in sorted(purchases, key=lambda x: x.id):
+            if p.batch_id is not None and p.batch_id not in first_item_of_batch:
+                first_item_of_batch[p.batch_id] = p.id
+
         raw_events = []
         for p in purchases:
+            if p.batch_id is not None and p.batch_id in batches_map:
+                batch = batches_map[p.batch_id]
+                if first_item_of_batch.get(p.batch_id) == p.id:
+                    batch_delta = float((batch.total_amount or 0) - (batch.initial_paid_amount or 0))
+                else:
+                    batch_delta = 0.0
+            else:
+                batch_delta = float(p.debt_amount or 0)
+
             raw_events.append({
                 'type': 'purchase',
                 'id': p.id,
@@ -11252,7 +11275,7 @@ def api_supplier_timeline(supplier_id):
                 'terminal_usd': float(p.terminal_usd or 0),
                 'location_name': p.location_name,
                 'added_by': p.added_by,
-                '_debt_delta': float(p.debt_amount or 0),
+                '_debt_delta': batch_delta,
             })
         for pay in payments:
             raw_events.append({
