@@ -55,7 +55,7 @@
 .tl-amount-payment { color: #16a34a; }
 
 .tl-details { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.tl-detail-chip { font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; color: #475569; }
+.tl-detail-chip { font-size: 12px; background: #dbeafe; color: #1558d6; border: 1px solid #93c5fd; border-radius: 6px; padding: 3px 10px; font-weight: 700; }
 .tl-detail-chip-total { font-size: 12px; background: #dbeafe; color: #1558d6; border: 1px solid #93c5fd; border-radius: 6px; padding: 3px 10px; font-weight: 700; }
 .tl-after-row { display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:12px; }
 .tl-after-label { color:#94a3b8; }
@@ -218,9 +218,9 @@ function timeOnly(dateStr) {
 }
 
 function paymentTypeBadge(type) {
-    if (type === 'cash') return '<span class="tl-status-paid">✅ Naxt to\'landi</span>';
-    if (type === 'debt') return '<span class="tl-status-debt">💳 Qarzga olindi</span>';
-    if (type === 'partial') return '<span class="tl-status-partial">➗ Qisman to\'landi</span>';
+    if (type === 'cash') return '<span class="tl-status-paid">✅ To\'lov turi: Naqd</span>';
+    if (type === 'debt') return '<span class="tl-status-debt">💳 To\'lov turi: Qarz</span>';
+    if (type === 'partial') return '<span class="tl-status-partial">➗ To\'lov turi: Qisman</span>';
     return '';
 }
 
@@ -242,7 +242,7 @@ function renderPurchaseBatch(events) {
 
     const chips = [];
     chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${totalAmount.toFixed(2)}</span>`);
-    if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">✅ To'landi: $${paidAmount.toFixed(2)}</span>`);
+    if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">✅ To\'lov: $${paidAmount.toFixed(2)}</span>`);
     if (debtAmount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${debtAmount.toFixed(2)}</span>`);
     if (first.location_name) chips.push(`<span class="tl-detail-chip">🏬 ${first.location_name}</span>`);
     if (first.added_by) chips.push(`<span class="tl-detail-chip">👤 ${first.added_by}</span>`);
@@ -272,7 +272,7 @@ function renderPurchaseBatch(events) {
 
 function renderPayment(e) {
     const paymentChips = [];
-    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 To\'lov: $${e.cash_usd.toFixed(2)}</span>`);
     if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
     if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
@@ -284,7 +284,7 @@ function renderPayment(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment">💳 To'lov ID ${e.id}</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov</span>
                     ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
                     ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
                 </div>
