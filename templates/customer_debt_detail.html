@@ -615,6 +615,18 @@
     let debtData = null;
     let currentRate = 12000; // Default kurs
 
+    function convertToUZS(usdAmount, rate = null) {
+        const targetRate = parseFloat(rate ?? currentRate) || 0;
+        if (!targetRate) return 0;
+        return Math.round(parseFloat(usdAmount || 0) * targetRate);
+    }
+
+    function formatDualCurrency(value, rate = null) {
+        const usd = parseFloat(value || 0);
+        const uzs = convertToUZS(usd, rate);
+        return `${formatUSD(usd)}<br><small style="color: #007bff; font-size: 13px;">${uzs.toLocaleString('uz-UZ')}</small>`;
+    }
+
     document.querySelectorAll('.ps-tab').forEach(button => {
         button.addEventListener('click', () => {
             const target = button.dataset.tab;
@@ -762,11 +774,11 @@
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
                         <td class="group-cell col-qty">${qty}</td>
-                        <td class="group-cell col-price">${formatUSD(unitPrice)}</td>
-                        <td class="group-cell col-subtotal">${formatUSD(subtotal)}</td>
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total"><strong>${formatUSD(totalUsd)}</strong></td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatUSD(paidUsd)}</td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;"><strong>${formatUSD(debtUsd)}</strong></td>` : ''}
+                        <td class="group-cell col-price">${formatDualCurrency(unitPrice)}</td>
+                        <td class="group-cell col-subtotal">${formatDualCurrency(subtotal)}</td>
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total">${formatDualCurrency(totalUsd)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidUsd)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtUsd)}</td>` : ''}
                         ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due">${dueDateHtml}</td>` : ''}
                         ${isFirst ? `
                             <td rowspan="${saleItems.length}" class="group-cell col-actions">
