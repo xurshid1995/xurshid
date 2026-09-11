@@ -224,7 +224,7 @@
 
     <!-- Tab 8: Yakuniy hisobot -->
     <div id="hr-tab-finalreport" style="display:none; margin-bottom:24px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px;">
+        <div style="display:grid; grid-template-columns:repeat(5, minmax(220px, 1fr)); gap:16px;">
             <div class="hr-section" style="min-width:0;">
                 <div class="hr-section-title">📊 Joylashuvlar bo'yicha jami tan qiymat</div>
                 <div id="finalReportList">
@@ -238,6 +238,14 @@
                 </div>
                 <div id="finalReportDebtList">
                     <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
+            </div>
+            <div class="hr-section" id="finalReportExtraCard" style="min-width:0;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="hr-section-title" style="margin-bottom:0;">📌 Qo'shimcha</div>
+                </div>
+                <div id="finalReportExtraList">
+                    <div class="hr-loading">Ma'lumot yo'q</div>
                 </div>
             </div>
             <div class="hr-section" id="finalReportThirdCard" style="min-width:0;">
