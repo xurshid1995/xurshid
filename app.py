@@ -9908,6 +9908,22 @@ def receiver_confirm_transfer(pending_id):
         to_type = pending.to_location_type
         to_id = pending.to_location_id
 
+        # Joylashuv nomlarini oldindan olish (OperationHistory uchun)
+        from_location_name = ''
+        to_location_name = ''
+        if from_type == 'store':
+            from_obj = Store.query.get(from_id)
+            from_location_name = from_obj.name if from_obj else ''
+        elif from_type == 'warehouse':
+            from_obj = Warehouse.query.get(from_id)
+            from_location_name = from_obj.name if from_obj else ''
+        if to_type == 'store':
+            to_obj = Store.query.get(to_id)
+            to_location_name = to_obj.name if to_obj else ''
+        elif to_type == 'warehouse':
+            to_obj = Warehouse.query.get(to_id)
+            to_location_name = to_obj.name if to_obj else ''
+
         for item in pending.items:
             product_id = item.get('id') or item.get('product_id')
             if not product_id:
@@ -9934,21 +9950,26 @@ def receiver_confirm_transfer(pending_id):
                 continue
 
             # FROM (omborchi joyi) - received_qty kamaytirish
+            before_from_qty = 0.0
             if from_type == 'store':
                 stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                before_from_qty = float(stock.quantity)
                 stock.quantity -= received_qty
             elif from_type == 'warehouse':
                 stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < received_qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                before_from_qty = float(stock.quantity)
                 stock.quantity -= received_qty
 
             # TO (sotuvchi joyi) - received_qty qo'shish
+            before_to_qty = 0.0
             if to_type == 'store':
                 to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).with_for_update().first()
                 if to_stock:
+                    before_to_qty = float(to_stock.quantity)
                     to_stock.quantity += received_qty
                 else:
                     to_stock = StoreStock(store_id=to_id, product_id=product_id, quantity=received_qty)
@@ -9956,6 +9977,7 @@ def receiver_confirm_transfer(pending_id):
             elif to_type == 'warehouse':
                 to_stock = WarehouseStock.query.filter_by(warehouse_id=to_id, product_id=product_id).first()
                 if to_stock:
+                    before_to_qty = float(to_stock.quantity)
                     to_stock.quantity += received_qty
                 else:
                     to_stock = WarehouseStock(warehouse_id=to_id, product_id=product_id, quantity=received_qty)
@@ -9972,6 +9994,46 @@ def receiver_confirm_transfer(pending_id):
                 user_name=current_user.username
             )
             db.session.add(transfer_record)
+
+            # OperationHistory ga transfer yozish (mahsulot tarixida ko'rinishi uchun)
+            _qty = float(received_qty)
+            _from_after = before_from_qty - _qty
+            _to_after = before_to_qty + _qty
+            product_obj = Product.query.get(product_id)
+            product_name = product_obj.name if product_obj else f'Mahsulot #{product_id}'
+            transfer_desc = (
+                f"Transfer: {product_name} - "
+                f"{from_location_name} {before_from_qty:.0f}-{_qty:.0f}={_from_after:.0f}"
+                f" → {to_location_name} {before_to_qty:.0f}+{_qty:.0f}={_to_after:.0f}"
+            )
+            db.session.add(OperationHistory(
+                operation_type='transfer',
+                table_name='transfers',
+                record_id=transfer_record.id,
+                user_id=current_user.id,
+                username=current_user.username,
+                description=transfer_desc,
+                old_data={
+                    'from_location': from_location_name,
+                    'from_location_type': from_type,
+                    'from_qty_before': before_from_qty,
+                    'to_qty_before': before_to_qty
+                },
+                new_data={
+                    'product_id': product_id,
+                    'product_name': product_name,
+                    'quantity': _qty,
+                    'to_location': to_location_name,
+                    'to_location_type': to_type,
+                    'from_qty_after': _from_after,
+                    'to_qty_after': _to_after
+                },
+                ip_address=request.remote_addr,
+                location_id=to_id,
+                location_type=to_type,
+                location_name=to_location_name,
+                amount=None
+            ))
 
         # Pending'ni completed deb belgilash va o'chirish (eskicha)
         pending.status = 'completed'
@@ -10073,6 +10135,22 @@ def direct_complete_transfer(pending_id):
         to_type = pending.to_location_type
         to_id = pending.to_location_id
 
+        # Joylashuv nomlarini oldindan olish (OperationHistory uchun)
+        from_location_name = ''
+        to_location_name = ''
+        if from_type == 'store':
+            from_obj = Store.query.get(from_id)
+            from_location_name = from_obj.name if from_obj else ''
+        elif from_type == 'warehouse':
+            from_obj = Warehouse.query.get(from_id)
+            from_location_name = from_obj.name if from_obj else ''
+        if to_type == 'store':
+            to_obj = Store.query.get(to_id)
+            to_location_name = to_obj.name if to_obj else ''
+        elif to_type == 'warehouse':
+            to_obj = Warehouse.query.get(to_id)
+            to_location_name = to_obj.name if to_obj else ''
+
         for item in pending.items:
             product_id = item.get('id') or item.get('product_id')
             if not product_id:
@@ -10083,33 +10161,39 @@ def direct_complete_transfer(pending_id):
                 continue
 
             # FROM stokdan kamaytirish
+            before_from_qty = 0.0
             if from_type == 'store':
                 stock = StoreStock.query.filter_by(store_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                before_from_qty = float(stock.quantity)
                 stock.quantity -= qty
             elif from_type == 'warehouse':
                 stock = WarehouseStock.query.filter_by(warehouse_id=from_id, product_id=product_id).with_for_update().first()
                 if not stock or stock.quantity < qty:
                     return jsonify({'error': f'Yetarli miqdor yo\'q: mahsulot #{product_id}'}), 400
+                before_from_qty = float(stock.quantity)
                 stock.quantity -= qty
 
             # TO stokga qo'shish
+            before_to_qty = 0.0
             if to_type == 'store':
                 to_stock = StoreStock.query.filter_by(store_id=to_id, product_id=product_id).with_for_update().first()
                 if to_stock:
+                    before_to_qty = float(to_stock.quantity)
                     to_stock.quantity += qty
                 else:
                     db.session.add(StoreStock(store_id=to_id, product_id=product_id, quantity=qty))
             elif to_type == 'warehouse':
                 to_stock = WarehouseStock.query.filter_by(warehouse_id=to_id, product_id=product_id).first()
                 if to_stock:
+                    before_to_qty = float(to_stock.quantity)
                     to_stock.quantity += qty
                 else:
                     db.session.add(WarehouseStock(warehouse_id=to_id, product_id=product_id, quantity=qty))
 
             # Transfer tarixi
-            db.session.add(Transfer(
+            transfer_record = Transfer(
                 product_id=product_id,
                 from_location_type=from_type,
                 from_location_id=from_id,
@@ -10117,6 +10201,47 @@ def direct_complete_transfer(pending_id):
                 to_location_id=to_id,
                 quantity=qty,
                 user_name=current_user.username
+            )
+            db.session.add(transfer_record)
+
+            # OperationHistory ga transfer yozish (mahsulot tarixida ko'rinishi uchun)
+            _qty = float(qty)
+            _from_after = before_from_qty - _qty
+            _to_after = before_to_qty + _qty
+            product_obj = Product.query.get(product_id)
+            product_name = product_obj.name if product_obj else f'Mahsulot #{product_id}'
+            transfer_desc = (
+                f"Transfer: {product_name} - "
+                f"{from_location_name} {before_from_qty:.0f}-{_qty:.0f}={_from_after:.0f}"
+                f" → {to_location_name} {before_to_qty:.0f}+{_qty:.0f}={_to_after:.0f}"
+            )
+            db.session.add(OperationHistory(
+                operation_type='transfer',
+                table_name='transfers',
+                record_id=transfer_record.id,
+                user_id=current_user.id,
+                username=current_user.username,
+                description=transfer_desc,
+                old_data={
+                    'from_location': from_location_name,
+                    'from_location_type': from_type,
+                    'from_qty_before': before_from_qty,
+                    'to_qty_before': before_to_qty
+                },
+                new_data={
+                    'product_id': product_id,
+                    'product_name': product_name,
+                    'quantity': _qty,
+                    'to_location': to_location_name,
+                    'to_location_type': to_type,
+                    'from_qty_after': _from_after,
+                    'to_qty_after': _to_after
+                },
+                ip_address=request.remote_addr,
+                location_id=to_id,
+                location_type=to_type,
+                location_name=to_location_name,
+                amount=None
             ))
 
         db.session.delete(pending)
