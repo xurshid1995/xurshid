@@ -139,16 +139,11 @@ async function loadTimeline() {
         // Avatar
         document.getElementById('avatarInitial').textContent = (c.name || '?')[0].toUpperCase();
 
-        // Badges
+        // Header badges: keep only balance, never show debt next to the title.
         const badgesEl = document.getElementById('customerBadges');
         let badges = '';
-        const totalDebt = allEvents.filter(e => e.type === 'sale').reduce((s, e) => s + (e.debt_usd || 0), 0)
-                        - allEvents.filter(e => e.type === 'payment').reduce((s, e) => s + (e.total_usd || 0), 0);
-        const debtVal = allEvents.filter(e => e.type === 'sale').reduce((s,e) => {
-            // debt = sale.debt_usd
-            return s;
-        }, 0);
         if (c.balance > 0) badges += `<span class="tl-badge tl-badge-balance">💰 Balans: $${c.balance.toFixed(2)}</span>`;
+        badgesEl.innerHTML = badges;
 
         // Stats
         const sales = allEvents.filter(e => e.type === 'sale');

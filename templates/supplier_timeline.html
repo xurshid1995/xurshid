@@ -129,7 +129,7 @@ async function loadTimeline() {
         document.getElementById('avatarInitial').textContent = (s.name || '?')[0].toUpperCase();
 
         const badgesEl = document.getElementById('supplierBadges');
-        badgesEl.innerHTML = s.balance_usd > 0 ? `<span class="tl-badge tl-badge-debt">⚠️ Qarz: $${s.balance_usd.toFixed(2)}</span>` : '';
+        badgesEl.innerHTML = '';
 
         const purchases = allEvents.filter(e => e.type === 'purchase');
         const payments = allEvents.filter(e => e.type === 'payment');
