@@ -5,18 +5,17 @@
 <style>
 .sp-page { padding: 24px 28px 40px; background: transparent; min-height: 100vh; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
 
-.sp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-.sp-back-btn { padding: 8px 16px; background: #1a6eff; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; }
-.sp-back-btn:hover { background: #1557cc; color: white; text-decoration: none; }
-
-.sp-supplier-card { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); flex-wrap: wrap; }
-.sp-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1a6eff, #0d47d9); display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: 700; flex-shrink: 0; }
-.sp-name { font-size: 17px; font-weight: 700; color: #1e293b; }
-.sp-phone { font-size: 13px; color: #64748b; margin-top: 2px; }
-.sp-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-.sp-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-.sp-badge-count { background: #dbeafe; color: #1558d6; }
-.sp-badge-debt { background: #fee2e2; color: #991b1b; }
+/* Timeline sahifasi bilan 100% bir xil header stillari */
+.tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.tl-back-btn { padding: 8px 16px; background: #1a6eff; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; }
+.tl-back-btn:hover { background: #1557cc; color: white; text-decoration: none; }
+.tl-customer-card { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); flex-wrap: wrap; }
+.tl-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1a6eff, #0d47d9); display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: 700; flex-shrink: 0; }
+.tl-cname { font-size: 17px; font-weight: 700; color: #1e293b; }
+.tl-cphone { font-size: 13px; color: #64748b; margin-top: 2px; }
+.tl-cbadges { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.tl-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.tl-badge-debt { background: #fee2e2; color: #991b1b; }
 
 .sp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .sp-stat { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); text-align: center; }
@@ -45,17 +44,14 @@
 
 {% block content %}
 <div class="sp-page">
-    <div class="tl-header" style="margin-bottom: 12px;">
+    <div class="tl-header">
         <div class="tl-customer-card" style="margin:0; box-shadow:none; background:transparent; padding:0;">
             <div class="tl-avatar">{{ supplier.name[0]|upper if supplier.name else '?' }}</div>
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
                 <div class="tl-cname">{{ supplier.name }}</div>
                 <div class="tl-cphone" style="margin:0;">📞 {{ supplier.phone or '—' }}</div>
             </div>
-            <div class="tl-cbadges">
-                <span class="tl-badge tl-badge-debt" id="spCountBadge">0 ta mahsulot</span>
-                <span class="tl-badge tl-badge-debt">Joriy qarz: ${{ '%.2f'|format(supplier.balance_usd or 0) }}</span>
-            </div>
+            <div class="tl-cbadges"></div>
         </div>
         <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
     </div>
@@ -111,7 +107,6 @@ function renderSupplierProducts(products) {
     const body = document.getElementById('spTableBody');
 
     loading.style.display = 'none';
-    document.getElementById('spCountBadge').textContent = `${products.length} ta mahsulot`;
     document.getElementById('spStatCount').textContent = `${products.length} ta`;
     document.getElementById('spStatDebt').textContent = `$${Number({{ supplier.balance_usd or 0 }}).toFixed(2)}`;
 
