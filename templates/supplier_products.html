@@ -47,8 +47,11 @@
     <div class="tl-header">
         <div class="tl-customer-card" style="margin:0; box-shadow:none; background:transparent; padding:0;">
             <div class="tl-avatar">{{ supplier.name[0]|upper if supplier.name else '?' }}</div>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <div class="tl-cname">{{ supplier.name }}</div>
+                {% if supplier.contact_person %}
+                    <div class="tl-cphone" style="margin:0;">{{ supplier.contact_person }}</div>
+                {% endif %}
                 <div class="tl-cphone" style="margin:0;">📞 {{ supplier.phone or '—' }}</div>
             </div>
             <div class="tl-cbadges"></div>
