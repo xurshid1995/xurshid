@@ -325,6 +325,19 @@
     background: #fecaca;
     transform: translateY(-1px);
 }
+.ps-btn-view {
+    background: rgba(37,99,235,0.1);
+    color: #1a6eff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.18s;
+    white-space: nowrap;
+}
+.ps-btn-view:hover { background: #1a6eff; color: white; }
 .no-data, .loading {
     text-align: center;
     padding: 40px;
@@ -468,10 +481,11 @@
                             <th>To'langan</th>
                             <th>Qarz</th>
                             <th>Qo'shgan</th>
+                            <th>Amal</th>
                         </tr>
                     </thead>
                     <tbody id="purchasesBody">
-                        <tr><td colspan="8" class="loading">Yuklanmoqda...</td></tr>
+                        <tr><td colspan="9" class="loading">Yuklanmoqda...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -575,14 +589,17 @@ async function loadSupplierDebtPage() {
 
         setupCurrencyConversion();
     } catch (e) {
-        document.getElementById('purchasesBody').innerHTML = '<tr><td colspan="8" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik yuz berdi</td></tr>';
+        document.getElementById('purchasesBody').innerHTML = '<tr><td colspan="9" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik yuz berdi</td></tr>';
     }
 }
 
+let currentPurchases = [];
+
 function renderPurchases(purchases) {
+    currentPurchases = purchases || [];
     const tbody = document.getElementById('purchasesBody');
     if (!purchases || purchases.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 Hali mahsulot qabul qilinmagan</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Hali mahsulot qabul qilinmagan</td></tr>';
         return;
     }
     tbody.innerHTML = purchases.map(p => {
@@ -603,9 +620,114 @@ function renderPurchases(purchases) {
                 <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(p.paid_amount)}</td>
                 <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(p.debt_amount)}</td>
                 <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
+                <td class="group-cell col-actions">
+                    <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
+                </td>
             </tr>
         `;
     }).join('');
+}
+
+function viewPurchaseDetails(purchaseId) {
+    const purchase = currentPurchases.find(p => p.id === purchaseId);
+    if (!purchase) {
+        alert('❌ Xarid topilmadi');
+        return;
+    }
+    showPurchaseDetailsModal(purchase);
+}
+
+function showPurchaseDetailsModal(purchase) {
+    const rate = currentRate || 12000;
+    const date = purchase.date ? new Date(purchase.date) : null;
+    const dateStr = date ? date.toLocaleString('uz-UZ') : '-';
+
+    const costPriceUSD = Number(purchase.cost_price || 0);
+    const totalUSD = Number(purchase.total_amount || 0);
+    const paidUSD = Number(purchase.paid_amount || 0);
+    const debtUSD = Number(purchase.debt_amount || 0);
+
+    const boxes = [
+        { name: '✅ To\'langan', usd: paidUSD, color: '#28a745' },
+        { name: '📝 Qarz', usd: debtUSD, color: '#dc3545' },
+    ].filter(b => b.usd > 0);
+
+    const boxesHTML = boxes.map(b => `
+        <div style="display: inline-block; background: #f8f9fa; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid ${b.color};">
+            <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">${b.name}</div>
+            <div style="font-size: 15px; font-weight: 700; color: ${b.color};">$${b.usd.toFixed(2)}</div>
+            <div style="font-size: 12px; color: #6c757d;">${Math.round(b.usd * rate).toLocaleString('uz-UZ')} so'm</div>
+        </div>
+    `).join('');
+
+    const totalHTML = `
+        <div style="display: inline-block; background: #1a6eff; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid #0056b3;">
+            <div style="font-weight: 600; color: #ffffff; margin-bottom: 2px;">Jami</div>
+            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">$${totalUSD.toFixed(2)}</div>
+            <div style="font-size: 12px; color: #ffffff;">${Math.round(totalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
+        </div>
+    `;
+
+    const modalHtml = `
+        <div id="purchaseDetailsModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+            <div style="background: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa;">
+                    <h3 style="margin: 0; color: #333;">👁️ Xarid tafsilotlari</h3>
+                    <button onclick="closePurchaseDetailsModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <strong>Yetkazib beruvchi:</strong> {{ supplier.name }}
+                        <span style="margin: 0 10px; color: #ccc;">•</span>
+                        <strong>Sana:</strong> ${dateStr}
+                    </div>
+
+                    <h4 style="margin-bottom: 10px;">Mahsulot:</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Mahsulot</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Joylashuv</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6;">Miqdor</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid #dee2e6;">Narxi</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid #dee2e6;">Jami</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(purchase.product_name)}</td>
+                                <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(purchase.location_name || '-')}</td>
+                                <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">${purchase.quantity.toLocaleString('uz-UZ')}</td>
+                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6;">
+                                    <div>$${costPriceUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(costPriceUSD * rate).toLocaleString('uz-UZ')} so'm</div>
+                                </td>
+                                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600;">
+                                    <div>$${totalUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(totalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 20px;">
+                        <div style="margin-bottom: 8px; font-weight: 500; color: #495057;">To'lov holati:</div>
+                        <div style="display: flex; flex-wrap: wrap; align-items: center;">${boxesHTML}${totalHTML}</div>
+                    </div>
+                </div>
+                <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; text-align: right; background: #f8f9fa;">
+                    <button onclick="closePurchaseDetailsModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Yopish</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closePurchaseDetailsModal() {
+    const modal = document.getElementById('purchaseDetailsModal');
+    if (modal) modal.remove();
 }
 
 async function loadPaymentsHistory() {
