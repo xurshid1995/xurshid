@@ -898,6 +898,7 @@ async function loadSupplierDebtSummary() {
         `).join('');
 
         const grandTotal = entries.reduce((sum, s) => sum + Number(s.balance_usd || 0), 0);
+        frSupplierDebt = grandTotal;
         listDiv.innerHTML = `<div style="max-width:100%; overflow:hidden;">
             <div style="display:flex; align-items:center; gap:8px; border-bottom:2px solid #ddd; padding:0 2px 8px;">
                 <div style="width:18px; flex-shrink:0; font-size:11px; color:#888;">#</div>
@@ -910,6 +911,7 @@ async function loadSupplierDebtSummary() {
                 <div style="flex-shrink:0; text-align:right; font-weight:800; color:#dc2626; font-size:14px;">${fmtUsd(grandTotal)}</div>
             </div>
         </div>`;
+        renderYakuniyHisob();
     } catch (e) {
         listDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
     }
@@ -917,12 +919,14 @@ async function loadSupplierDebtSummary() {
 
 let frGrandCostValue = 0;
 let frGrandDebt = 0;
+let frSupplierDebt = 0;
 let frGrandReserve = 0;
 
 function renderYakuniyHisob() {
     const div = document.getElementById('finalReportFourthList');
     if (!div) return;
-    const total = frGrandCostValue + frGrandDebt + frGrandReserve;
+    const totalDebt = frGrandDebt + frSupplierDebt;
+    const total = frGrandCostValue + totalDebt + frGrandReserve;
     div.innerHTML = `<div style="max-width:100%; overflow:hidden;">
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
             <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📊 Jami tan qiymat</div>
@@ -930,7 +934,7 @@ function renderYakuniyHisob() {
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
             <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">🔴 Jami qarz</div>
-            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandDebt)}</div>
+            <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(totalDebt)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
             <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📦 Jami zaxira</div>
@@ -947,9 +951,10 @@ function renderYakuniyHisob() {
 let editingReserveFundId = null;
 
 function saveYakuniyHisobot() {
-    const total = frGrandCostValue + frGrandDebt + frGrandReserve;
+    const totalDebt = frGrandDebt + frSupplierDebt;
+    const total = frGrandCostValue + totalDebt + frGrandReserve;
     document.getElementById('finalReportSaveCostValue').textContent = fmtUsd(frGrandCostValue);
-    document.getElementById('finalReportSaveDebt').textContent = fmtUsd(frGrandDebt);
+    document.getElementById('finalReportSaveDebt').textContent = fmtUsd(totalDebt);
     document.getElementById('finalReportSaveReserve').textContent = fmtUsd(frGrandReserve);
     document.getElementById('finalReportSaveGrandTotal').textContent = fmtUsd(total);
     document.getElementById('finalReportSaveModal').style.display = 'flex';
