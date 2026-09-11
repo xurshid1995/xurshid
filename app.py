@@ -10970,6 +10970,40 @@ def suppliers_page():
     return render_template('suppliers.html', page_title="Yetkazib beruvchilar", icon='🚚')
 
 
+# Yetkazib beruvchidan qabul qilingan mahsulotlar sahifasi (ko'rish tugmasi)
+@app.route('/supplier/<int:supplier_id>/products')
+@role_required('admin', 'kassir', 'omborchi')
+def supplier_products_page(supplier_id):
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        return render_template(
+            'supplier_products.html',
+            supplier=supplier,
+            page_title=f'{supplier.name} - Qabul qilingan mahsulotlar',
+            icon='📦')
+    except Exception as e:
+        logger.error(f"Error loading supplier products page: {str(e)}")
+        return "Yetkazib beruvchi ma'lumotlari yuklanmadi", 500
+
+
+@app.route('/api/supplier/<int:supplier_id>/products', methods=['GET'])
+@role_required('admin', 'kassir', 'omborchi')
+def api_supplier_products(supplier_id):
+    """Yetkazib beruvchidan qabul qilingan mahsulotlar ro'yxati (faqat xaridlar)"""
+    try:
+        supplier = Supplier.query.get_or_404(supplier_id)
+        purchases = SupplierPurchase.query.filter_by(supplier_id=supplier_id) \
+            .order_by(SupplierPurchase.created_at.desc()).all()
+        return jsonify({
+            'success': True,
+            'supplier': supplier.to_dict(),
+            'products': [p.to_dict() for p in purchases]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching supplier products: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # Yetkazib beruvchilar API route'lari
 @app.route('/api/suppliers', methods=['GET'])
 @role_required('admin', 'kassir', 'omborchi')

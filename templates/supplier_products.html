@@ -1,0 +1,166 @@
+{% extends "base_with_sidebar.html" %}
+{% block title %}{{ supplier.name }} - Qabul qilingan mahsulotlar{% endblock %}
+
+{% block extra_css %}
+<style>
+.sp-page { padding: 24px 28px 40px; background: transparent; min-height: 100vh; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
+
+.sp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.sp-back-btn { padding: 8px 16px; background: #1a6eff; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; }
+.sp-back-btn:hover { background: #1557cc; color: white; text-decoration: none; }
+
+.sp-supplier-card { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); flex-wrap: wrap; }
+.sp-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1a6eff, #0d47d9); display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: 700; flex-shrink: 0; }
+.sp-name { font-size: 17px; font-weight: 700; color: #1e293b; }
+.sp-phone { font-size: 13px; color: #64748b; margin-top: 2px; }
+.sp-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.sp-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.sp-badge-count { background: #dbeafe; color: #1558d6; }
+.sp-badge-debt { background: #fee2e2; color: #991b1b; }
+
+.sp-search-box { position: relative; max-width: 320px; margin-bottom: 14px; }
+.sp-search-box input {
+    width: 100%; padding: 10px 14px 10px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 14px; box-sizing: border-box; outline: none;
+}
+.sp-search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+.sp-table-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+.sp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sp-table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
+.sp-table thead tr { background: #1a6eff; }
+.sp-table th {
+    padding: 12px 10px; text-align: center; font-size: 11px; font-weight: 700; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.sp-table td { padding: 11px 10px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; white-space: nowrap; }
+.sp-table tbody tr:hover { background: #f8faff; }
+.sp-product-name { font-weight: 600; color: #1e293b; text-align: left !important; }
+.sp-pay-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.sp-pay-cash { background: #dcfce7; color: #15803d; }
+.sp-pay-debt { background: #fee2e2; color: #991b1b; }
+.sp-pay-partial { background: #fef3c7; color: #92400e; }
+.sp-debt-amount { color: #dc2626; font-weight: 700; }
+.sp-state-msg { text-align: center; padding: 3rem 2rem; color: #6c757d; font-size: 15px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-header">
+        <h1 class="ps-title" style="font-size:18px;font-weight:700;color:#1e293b;margin:0;">
+            <i class="fas fa-box" style="color:#1a6eff;margin-right:8px;"></i>Qabul qilingan mahsulotlar
+        </h1>
+        <a href="/suppliers" class="sp-back-btn"><i class="fas fa-arrow-left"></i> Orqaga</a>
+    </div>
+
+    <div class="sp-supplier-card">
+        <div class="sp-avatar">{{ supplier.name[0]|upper if supplier.name else '?' }}</div>
+        <div>
+            <div class="sp-name">{{ supplier.name }}</div>
+            <div class="sp-phone">{{ supplier.phone or '-' }}</div>
+        </div>
+        <div class="sp-badges">
+            <span class="sp-badge sp-badge-count" id="spCountBadge">0 ta mahsulot</span>
+            <span class="sp-badge sp-badge-debt">Joriy qarz: ${{ '%.2f'|format(supplier.balance_usd or 0) }}</span>
+        </div>
+    </div>
+
+    <div class="sp-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="spSearchInput" placeholder="Mahsulot nomi bo'yicha qidirish..." oninput="filterSupplierProducts()">
+    </div>
+
+    <div class="sp-table-card">
+        <div class="sp-table-wrap">
+            <table class="sp-table" id="spTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Mahsulot</th>
+                        <th>Miqdor</th>
+                        <th>Narxi</th>
+                        <th>Summa</th>
+                        <th>To'lov turi</th>
+                        <th>Qarz</th>
+                        <th>Joylashuv</th>
+                        <th>Qo'shgan</th>
+                        <th>Sana</th>
+                    </tr>
+                </thead>
+                <tbody id="spTableBody"></tbody>
+            </table>
+        </div>
+        <div class="sp-state-msg" id="spLoadingState">Yuklanmoqda...</div>
+        <div class="sp-state-msg" id="spEmptyState" style="display:none;">Hali mahsulot qabul qilinmagan</div>
+    </div>
+</div>
+
+<script>
+const SUPPLIER_ID = {{ supplier.id }};
+let allProducts = [];
+
+document.addEventListener('DOMContentLoaded', loadSupplierProducts);
+
+async function loadSupplierProducts() {
+    try {
+        const res = await fetch(`/api/supplier/${SUPPLIER_ID}/products`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Xatolik');
+        allProducts = data.products || [];
+        renderSupplierProducts(allProducts);
+    } catch (e) {
+        document.getElementById('spLoadingState').textContent = "Ma'lumotlarni yuklashda xatolik yuz berdi";
+    }
+}
+
+function renderSupplierProducts(products) {
+    const loading = document.getElementById('spLoadingState');
+    const empty = document.getElementById('spEmptyState');
+    const table = document.getElementById('spTable');
+    const body = document.getElementById('spTableBody');
+
+    loading.style.display = 'none';
+    document.getElementById('spCountBadge').textContent = `${products.length} ta mahsulot`;
+
+    if (products.length === 0) {
+        empty.style.display = 'block';
+        table.style.display = 'none';
+        return;
+    }
+
+    empty.style.display = 'none';
+    table.style.display = 'table';
+
+    body.innerHTML = products.map(p => {
+        const payClass = p.payment_type === 'cash' ? 'sp-pay-cash' : (p.payment_type === 'debt' ? 'sp-pay-debt' : 'sp-pay-partial');
+        const payLabel = p.payment_type === 'cash' ? "Naqd" : (p.payment_type === 'debt' ? "Qarz" : "Qisman");
+        const date = p.created_at ? new Date(p.created_at).toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+        return `
+            <tr>
+                <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
+                <td>${Number(p.quantity).toLocaleString('uz-UZ')}</td>
+                <td>$${Number(p.cost_price).toFixed(2)}</td>
+                <td>$${Number(p.total_amount).toFixed(2)}</td>
+                <td><span class="sp-pay-badge ${payClass}">${payLabel}</span></td>
+                <td>${p.debt_amount > 0 ? `<span class="sp-debt-amount">$${Number(p.debt_amount).toFixed(2)}</span>` : '-'}</td>
+                <td>${escapeHtml(p.location_name || '-')}</td>
+                <td>${escapeHtml(p.added_by || '-')}</td>
+                <td>${date}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterSupplierProducts() {
+    const term = document.getElementById('spSearchInput').value.toLowerCase().trim();
+    const filtered = !term ? allProducts : allProducts.filter(p => (p.product_name || '').toLowerCase().includes(term));
+    renderSupplierProducts(filtered);
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}
