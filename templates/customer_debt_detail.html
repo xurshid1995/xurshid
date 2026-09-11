@@ -1147,15 +1147,13 @@
         try {
             const res = await fetch(`/api/debt-payments/by-customer/${customerId}`);
             const data = await res.json();
-            const section = document.getElementById('paymentsHistorySection');
             const tbody  = document.getElementById('paymentsHistoryBody');
 
             if (!data.success || !data.payments || data.payments.length === 0) {
-                section.style.display = 'none';
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">' + CDDLANG.no_data + '</td></tr>';
                 return;
             }
 
-            section.style.display = 'block';
             const isAdmin = {{ 'true' if session.get('role') in ('admin', 'kassir') else 'false' }};
 
             tbody.innerHTML = data.payments.map((p, i) => {
