@@ -284,21 +284,46 @@
 .ps-tab-panel.active {
     display: block;
 }
+.group-cell {
+    vertical-align: middle !important;
+    text-align: center !important;
+    background: white !important;
+    font-weight: 600;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+.group-cell.col-price,
+.group-cell.col-actions {
+    text-align: center !important;
+    font-weight: 600 !important;
+}
+.group-cell > * { margin: 0 auto; display: block; }
+.group-datetime { background: white !important; }
+.sale-id-badge {
+    font-weight: 700; font-size: 10px; color: #92400e;
+    background: #fef08a; padding: 1px 6px; border-radius: 6px;
+    display: inline-block; margin-bottom: 3px;
+    text-align: center;
+}
+.sale-date { font-weight: 700; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
+.sale-time { font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block; }
 .ps-reverse-btn {
-        background: #fee2e2;
-        border: 1px solid #fecaca;
-        color: #b91c1c;
-        border-radius: 8px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .ps-reverse-btn:hover {
-        background: #fecaca;
-        transform: translateY(-1px);
-    }
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.ps-reverse-btn:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+.no-data, .loading {
+    text-align: center;
     padding: 40px;
     color: #94a3b8;
     font-size: 14px;
@@ -489,6 +514,12 @@ function formatUSD(value) {
     return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatDualCurrency(value, rate = currentRate) {
+    const usd = Number(value || 0);
+    const uzs = Math.round(usd * (rate || 0));
+    return `${formatUSD(usd)}<br><small style="color: #007bff; font-size: 13px;">${uzs.toLocaleString('uz-UZ')}</small>`;
+}
+
 // USD input'ga to'liq qiymat saqlash (data-full-value), display uchun 5 kasr
 function fvSet(input, val) {
     if (!input) return;
@@ -565,19 +596,29 @@ function renderPayments(payments) {
         return;
     }
     section.style.display = 'block';
-    tbody.innerHTML = payments.map((p, i) => {
+    tbody.innerHTML = payments.map((p) => {
         const date = p.date ? new Date(p.date) : null;
-        const dateStr = date ? date.toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+        const timeStr = date ? date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+
+        const totalUsd = Number(p.amount_usd || 0);
+        const cashUsd = Number(p.cash_usd || 0);
+        const clickUsd = Number(p.click_usd || 0);
+        const terminalUsd = Number(p.terminal_usd || 0);
+
         return `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${dateStr}</td>
-                <td><strong style="color:#28a745;">${formatUSD(p.amount_usd)}</strong></td>
-                <td>${p.cash_usd > 0 ? formatUSD(p.cash_usd) : '—'}</td>
-                <td>${p.click_usd > 0 ? formatUSD(p.click_usd) : '—'}</td>
-                <td>${p.terminal_usd > 0 ? formatUSD(p.terminal_usd) : '—'}</td>
-                <td style="font-size:13px;">${escapeHtml(p.paid_by || '-')}</td>
-                <td>
+            <tr class="sale-group-start sale-group-end">
+                <td class="group-cell group-datetime">
+                    <div class="sale-id-badge">ID: ${p.id || '-'}</div>
+                    <div class="sale-date">${dateStr}</div>
+                    <div class="sale-time">${timeStr}</div>
+                </td>
+                <td class="group-cell col-price" style="color:#28a745;">${formatDualCurrency(totalUsd)}</td>
+                <td class="group-cell col-price">${cashUsd > 0 ? formatDualCurrency(cashUsd) : '—'}</td>
+                <td class="group-cell col-price">${clickUsd > 0 ? formatDualCurrency(clickUsd) : '—'}</td>
+                <td class="group-cell col-price">${terminalUsd > 0 ? formatDualCurrency(terminalUsd) : '—'}</td>
+                <td class="group-cell col-price" style="font-size:13px;">${escapeHtml(p.paid_by || '-')}</td>
+                <td class="group-cell col-actions">
                     <button type="button" class="ps-reverse-btn" data-payment-id="${p.id}" title="To'lovni bekor qilish">↩ Bekor</button>
                 </td>
             </tr>
