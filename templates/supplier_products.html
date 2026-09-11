@@ -47,23 +47,25 @@
 
 {% block content %}
 <div class="sp-page">
-    <div class="sp-header">
+    <div class="tl-header" style="margin-bottom: 12px;">
+        <div class="tl-customer-card" style="margin:0; box-shadow:none; background:transparent; padding:0;">
+            <div class="tl-avatar">{{ supplier.name[0]|upper if supplier.name else '?' }}</div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div class="tl-cname">{{ supplier.name }}</div>
+                <div class="tl-cphone" style="margin:0;">📞 {{ supplier.phone or '—' }}</div>
+            </div>
+            <div class="tl-cbadges">
+                <span class="tl-badge tl-badge-debt" id="spCountBadge">0 ta mahsulot</span>
+                <span class="tl-badge tl-badge-debt">Joriy qarz: ${{ '%.2f'|format(supplier.balance_usd or 0) }}</span>
+            </div>
+        </div>
+        <a href="/suppliers" class="tl-back-btn">← Orqaga</a>
+    </div>
+
+    <div class="sp-header" style="margin: 0 0 10px 0;">
         <h1 class="ps-title" style="font-size:18px;font-weight:700;color:#1e293b;margin:0;">
             <i class="fas fa-box" style="color:#1a6eff;margin-right:8px;"></i>Qabul qilingan mahsulotlar
         </h1>
-        <a href="/suppliers" class="sp-back-btn"><i class="fas fa-arrow-left"></i> Orqaga</a>
-    </div>
-
-    <div class="sp-supplier-card">
-        <div class="sp-avatar">{{ supplier.name[0]|upper if supplier.name else '?' }}</div>
-        <div>
-            <div class="sp-name">{{ supplier.name }}</div>
-            <div class="sp-phone">{{ supplier.phone or '-' }}</div>
-        </div>
-        <div class="sp-badges">
-            <span class="sp-badge sp-badge-count" id="spCountBadge">0 ta mahsulot</span>
-            <span class="sp-badge sp-badge-debt">Joriy qarz: ${{ '%.2f'|format(supplier.balance_usd or 0) }}</span>
-        </div>
     </div>
 
     <div class="sp-search-box">
