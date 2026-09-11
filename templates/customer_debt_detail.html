@@ -261,6 +261,17 @@
 .ps-table tbody tr:hover { background: #f8faff; }
 .ps-table tbody tr:last-child td { border-bottom: none; }
 .ps-table .col-products { text-align: left; max-width: 260px; }
+.sale-group-start { border-top: 1px solid #e2e8f0; }
+.sale-group-start, .sale-group-item { position: relative; }
+.sale-group-start td, .sale-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
+.sale-group-end { border-bottom: 2px solid #cbd5e1 !important; }
+.group-cell { vertical-align: middle !important; text-align: center !important; background: white !important; font-weight: 600; }
+.group-cell.col-product { text-align: left !important; }
+.group-cell.col-total, .group-cell.col-paid, .group-cell.col-debt, .group-cell.col-due { background: white !important; }
+.group-datetime { background: white !important; }
+.group-sale-id { background: white !important; }
+.sale-date { font-weight: 700; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
+.sale-time { font-weight: 600; font-size: 10px; color: white; background: #1a6eff; padding: 1px 6px; border-radius: 6px; display: inline-block; }
 .no-data, .loading {
     text-align: center;
     padding: 40px;
@@ -585,14 +596,17 @@
     // Tarixni render qilish
     function renderHistory() {
         const tbody = document.getElementById('historyBody');
-        
+
         if (!debtData.history || debtData.history.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
             return;
         }
 
-        const html = debtData.history.map(h => {
-            // Muddat formati
+        const html = debtData.history.map((h, saleIndex) => {
+            const saleItems = Array.isArray(h.items) && h.items.length > 0
+                ? h.items
+                : [{ product_name: h.items_text || 'Noma\'lum', quantity: h.quantity || 0, unit_price: h.total_usd || 0, total_price: h.total_usd || h.debt_amount || 0 }];
+
             let dueDateHtml = '<span style="color: #999;">—</span>';
             if (h.payment_due_date) {
                 const dueDate = new Date(h.payment_due_date);
@@ -600,13 +614,13 @@
                 today.setHours(0, 0, 0, 0);
                 dueDate.setHours(0, 0, 0, 0);
                 const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                
-                let color = '#28a745'; // Yashil - hali vaqt bor
+
+                let color = '#28a745';
                 let icon = '🟢';
-                if (diffDays < 0) { color = '#dc3545'; icon = '🔴'; } // Muddati o'tgan
-                else if (diffDays === 0) { color = '#ffc107'; icon = '🟡'; } // Bugun
-                else if (diffDays <= 3) { color = '#fd7e14'; icon = '🟠'; } // 3 kun ichida
-                
+                if (diffDays < 0) { color = '#dc3545'; icon = '🔴'; }
+                else if (diffDays === 0) { color = '#ffc107'; icon = '🟡'; }
+                else if (diffDays <= 3) { color = '#fd7e14'; icon = '🟠'; }
+
                 dueDateHtml = `<span style="color: ${color}; font-weight: 600;">${icon} ${h.payment_due_date}</span>`;
                 if (diffDays < 0) {
                     dueDateHtml += `<br><small style="color: #dc3545;">${Math.abs(diffDays)} ${CDDLANG.days_overdue}</small>`;
@@ -617,32 +631,46 @@
                 }
             }
 
-            // Mahsulotlar ro'yxati
-            let itemsHtml = '';
-            if (h.items && h.items.length > 0) {
-                itemsHtml = h.items.map(item => 
-                    `<div style="font-size: 13px; line-height: 1.4;">📦 ${item.product_name} <span style="color: #666;">(${item.quantity.toFixed(0)} × ${formatUSD(item.unit_price)})</span></div>`
-                ).join('');
-            } else if (h.items_text) {
-                itemsHtml = `<span style="font-size: 13px;">${h.items_text}</span>`;
-            } else {
-                itemsHtml = '<span style="color: #999;">—</span>';
-            }
-            
-            return `
-                <tr>
-                    <td>${h.sale_date}</td>
-                    <td><strong>Savdo ID ${h.sale_id}</strong></td>
-                    <td style="max-width: 250px;">${itemsHtml}</td>
-                    <td><strong>${formatUSD(h.total_usd || h.debt_amount || 0)}</strong></td>
-                    <td style="color: #28a745;">${formatUSD(h.paid_usd || h.paid_amount || 0)}</td>
-                    <td><strong style="color: #dc3545;">${formatUSD(h.debt_usd || h.remaining || 0)}</strong></td>
-                    <td>${dueDateHtml}</td>
-                    <td>
-                        <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view">👁️ ${CDDLANG.view}</button>
-                    </td>
-                </tr>
-            `;
+            const saleDate = h.sale_date ? new Date(h.sale_date) : null;
+            const formattedDate = saleDate ? saleDate.toLocaleDateString('uz-UZ', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '-';
+            const formattedTime = saleDate ? saleDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+
+            const totalUsd = Number(h.total_usd || h.debt_amount || 0);
+            const paidUsd = Number(h.paid_usd || h.paid_amount || 0);
+            const debtUsd = Number(h.debt_usd || h.remaining || 0);
+
+            const rows = saleItems.map((item, idx) => {
+                const isFirst = idx === 0;
+                const isLast = idx === saleItems.length - 1;
+                const rowClasses = ['sale-group-start', isFirst ? 'sale-group-start' : 'sale-group-item'];
+                if (isLast || saleItems.length === 1) rowClasses.push('sale-group-end');
+
+                return `
+                    <tr class="${rowClasses.filter(Boolean).join(' ')}">
+                        ${isFirst ? `
+                            <td rowspan="${saleItems.length}" class="group-cell group-datetime">
+                                <div class="sale-date">${formattedDate}</div>
+                                <div class="sale-time">${formattedTime}</div>
+                            </td>
+                            <td rowspan="${saleItems.length}" class="group-cell group-sale-id">
+                                <strong style="color:#1a6eff;">Savdo ID ${h.sale_id}</strong>
+                            </td>
+                        ` : ''}
+                        <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
+                        ${isFirst ? `<td class="group-cell col-total"><strong>${formatUSD(totalUsd)}</strong></td>` : '<td></td>'}
+                        ${isFirst ? `<td class="group-cell col-paid" style="color:#28a745;">${formatUSD(paidUsd)}</td>` : '<td></td>'}
+                        ${isFirst ? `<td class="group-cell col-debt" style="color:#dc3545;"><strong>${formatUSD(debtUsd)}</strong></td>` : '<td></td>'}
+                        ${isFirst ? `<td class="group-cell col-due">${dueDateHtml}</td>` : '<td></td>'}
+                        ${isFirst ? `
+                            <td class="group-cell col-actions">
+                                <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view">👁️ ${CDDLANG.view}</button>
+                            </td>
+                        ` : '<td></td>'}
+                    </tr>
+                `;
+            }).join('');
+
+            return rows;
         }).join('');
 
         tbody.innerHTML = html;
