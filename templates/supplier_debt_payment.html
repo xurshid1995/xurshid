@@ -295,6 +295,10 @@
     padding-top: 10px !important;
     padding-bottom: 10px !important;
 }
+.sale-group-start { border-top: 1px solid #e2e8f0; }
+.sale-group-start, .sale-group-item { position: relative; }
+.sale-group-start td, .sale-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
+.sale-group-end { border-bottom: 2px solid #cbd5e1 !important; }
 .group-cell.col-price,
 .group-cell.col-actions {
     text-align: center !important;
@@ -607,19 +611,25 @@ function renderPurchases(purchases) {
         const date = p.date ? new Date(p.date) : null;
         const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
         const timeStr = date ? date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        const qty = Number(p.quantity || 0);
+        const costPrice = Number(p.cost_price || 0);
+        const totalAmount = Number(p.total_amount || 0);
+        const paidAmount = Number(p.paid_amount || 0);
+        const debtAmount = Number(p.debt_amount || 0);
+
         return `
             <tr class="sale-group-start sale-group-end">
-                <td class="group-cell group-datetime">
+                <td rowspan="1" class="group-cell group-datetime">
                     <div class="sale-id-badge">ID: ${p.id || '-'}</div>
                     <div class="sale-date">${dateStr}</div>
                     <div class="sale-time">${timeStr}</div>
                 </td>
-                <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name)}</td>
-                <td class="group-cell col-qty">${p.quantity.toLocaleString('uz-UZ')}</td>
-                <td class="group-cell col-price">${formatDualCurrency(p.cost_price)}</td>
-                <td class="group-cell col-subtotal">${formatDualCurrency(p.total_amount)}</td>
-                <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(p.paid_amount)}</td>
-                <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(p.debt_amount)}</td>
+                <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name || '-')}</td>
+                <td class="group-cell col-qty">${qty.toLocaleString('uz-UZ')}</td>
+                <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
+                <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
+                <td class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidAmount)}</td>
+                <td class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtAmount)}</td>
                 <td class="group-cell" style="font-size:13px;">${escapeHtml(p.added_by || '-')}</td>
                 <td class="group-cell col-actions">
                     <button onclick="viewPurchaseDetails(${p.id})" class="ps-btn-view">👁️ Ko'rish</button>
