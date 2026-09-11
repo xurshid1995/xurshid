@@ -76,15 +76,12 @@
             <table class="sp-table" id="spTable" style="display:none;">
                 <thead>
                     <tr>
+                        <th>Sana va vaqt</th>
+                        <th>Joylashuv</th>
                         <th>Mahsulot</th>
                         <th>Miqdor</th>
                         <th>Narxi</th>
-                        <th>Summa</th>
-                        <th>To'lov turi</th>
-                        <th>Qarz</th>
-                        <th>Joylashuv</th>
                         <th>Qo'shgan</th>
-                        <th>Sana</th>
                     </tr>
                 </thead>
                 <tbody id="spTableBody"></tbody>
@@ -132,20 +129,15 @@ function renderSupplierProducts(products) {
     table.style.display = 'table';
 
     body.innerHTML = products.map(p => {
-        const payClass = p.payment_type === 'cash' ? 'sp-pay-cash' : (p.payment_type === 'debt' ? 'sp-pay-debt' : 'sp-pay-partial');
-        const payLabel = p.payment_type === 'cash' ? "Naqd" : (p.payment_type === 'debt' ? "Qarz" : "Qisman");
         const date = p.created_at ? new Date(p.created_at).toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
         return `
             <tr>
+                <td>${date}</td>
+                <td>${escapeHtml(p.location_name || '-')}</td>
                 <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
                 <td>${Number(p.quantity).toLocaleString('uz-UZ')}</td>
                 <td>$${Number(p.cost_price).toFixed(2)}</td>
-                <td>$${Number(p.total_amount).toFixed(2)}</td>
-                <td><span class="sp-pay-badge ${payClass}">${payLabel}</span></td>
-                <td>${p.debt_amount > 0 ? `<span class="sp-debt-amount">$${Number(p.debt_amount).toFixed(2)}</span>` : '-'}</td>
-                <td>${escapeHtml(p.location_name || '-')}</td>
                 <td>${escapeHtml(p.added_by || '-')}</td>
-                <td>${date}</td>
             </tr>
         `;
     }).join('');
