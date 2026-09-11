@@ -282,6 +282,10 @@
 .group-cell.col-total, .group-cell.col-paid, .group-cell.col-debt, .group-cell.col-due { background: white !important; }
 .group-cell > * { margin: 0 auto; display: block; }
 .group-cell.col-price > *, .group-cell.col-subtotal > *, .group-cell.col-grand-total > *, .group-cell.col-paid > *, .group-cell.col-debt > *, .group-cell.col-due > * { text-align: center !important; }
+/* Beat global .ps-table td.col-price left-align rule from style.css (higher specificity needed) */
+.ps-table-card .ps-table tbody tr td.col-price,
+.ps-table-card .ps-table tbody tr td.col-subtotal,
+.ps-table-card .ps-table tbody tr td.col-grand-total { text-align: center !important; }
 .group-datetime { background: white !important; }
 .group-sale-id { background: white !important; }
 .sale-id-badge {
@@ -681,15 +685,15 @@
                             </td>
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
-                        <td class="group-cell col-qty" style="text-align:center; vertical-align:middle;">${qty}</td>
-                        <td class="group-cell col-price" style="text-align:center; vertical-align:middle;">${formatUSD(unitPrice)}</td>
-                        <td class="group-cell col-subtotal" style="text-align:center; vertical-align:middle;">${formatUSD(subtotal)}</td>
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total" style="text-align:center; vertical-align:middle;"><strong>${formatUSD(totalUsd)}</strong></td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745; text-align:center; vertical-align:middle;">${formatUSD(paidUsd)}</td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545; text-align:center; vertical-align:middle;"><strong>${formatUSD(debtUsd)}</strong></td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due" style="text-align:center; vertical-align:middle;">${dueDateHtml}</td>` : ''}
+                        <td class="group-cell col-qty">${qty}</td>
+                        <td class="group-cell col-price">${formatUSD(unitPrice)}</td>
+                        <td class="group-cell col-subtotal">${formatUSD(subtotal)}</td>
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total"><strong>${formatUSD(totalUsd)}</strong></td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatUSD(paidUsd)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;"><strong>${formatUSD(debtUsd)}</strong></td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due">${dueDateHtml}</td>` : ''}
                         ${isFirst ? `
-                            <td rowspan="${saleItems.length}" class="group-cell col-actions" style="text-align:center; vertical-align:middle;">
+                            <td rowspan="${saleItems.length}" class="group-cell col-actions">
                                 <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view">👁️ ${CDDLANG.view}</button>
                             </td>
                         ` : ''}
