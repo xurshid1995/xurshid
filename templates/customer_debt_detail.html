@@ -317,6 +317,40 @@
 .status-badge.debt { background: #fef9c3; color: #854d0e; }
 .status-badge.paid { background: #dcfce7; color: #166534; }
 
+/* Tabs */
+.ps-tabs {
+    display: inline-flex;
+    gap: 8px;
+    background: #eef4ff;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    padding: 6px;
+    margin: 0 0 18px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.ps-tab {
+    border: none;
+    background: transparent;
+    color: #475569;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+.ps-tab.active {
+    background: linear-gradient(135deg, #1a6eff, #2563eb);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+}
+.ps-tab-panel {
+    display: none;
+}
+.ps-tab-panel.active {
+    display: block;
+}
+
 /* Action button */
 .ps-btn-view {
     background: rgba(37,99,235,0.1);
@@ -444,59 +478,66 @@
 
     </div>
 
-    <!-- Qarz savdolari -->
-    <div class="ps-table-card">
-        <div class="ps-table-card-header">
-            <h2><i class="fas fa-shopping-cart"></i> {{ t('cdd_debt_sales') }}</h2>
-        </div>
-        <div class="ps-table-wrap">
-            <table class="ps-table">
-                <thead>
-                    <tr>
-                        <th>{{ t('cdd_th_date') }}</th>
-                        <th style="text-align: left;">{{ t('cdd_th_products') }}</th>
-                        <th>Soni</th>
-                        <th>Narx</th>
-                        <th>Jami</th>
-                        <th>Jami yigindi</th>
-                        <th>{{ t('cdd_th_paid') }}</th>
-                        <th>{{ t('cdd_th_debt') }}</th>
-                        <th>{{ t('cdd_th_due_date') }}</th>
-                        <th>{{ t('cdd_th_actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody id="historyBody">
-                    <tr>
-                        <td colspan="10" class="loading">{{ t('cdd_loading') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="ps-tabs" role="tablist" aria-label="Debt history tabs">
+        <button class="ps-tab active" type="button" data-tab="debt-sales" role="tab" aria-selected="true">Qarz savdolar</button>
+        <button class="ps-tab" type="button" data-tab="payments-history" role="tab" aria-selected="false">To'lovlar tarixi</button>
+    </div>
+
+    <div class="ps-tab-panel active" data-panel="debt-sales">
+        <div class="ps-table-card">
+            <div class="ps-table-card-header">
+                <h2><i class="fas fa-shopping-cart"></i> {{ t('cdd_debt_sales') }}</h2>
+            </div>
+            <div class="ps-table-wrap">
+                <table class="ps-table">
+                    <thead>
+                        <tr>
+                            <th>{{ t('cdd_th_date') }}</th>
+                            <th style="text-align: left;">{{ t('cdd_th_products') }}</th>
+                            <th>Soni</th>
+                            <th>Narx</th>
+                            <th>Jami</th>
+                            <th>Jami yigindi</th>
+                            <th>{{ t('cdd_th_paid') }}</th>
+                            <th>{{ t('cdd_th_debt') }}</th>
+                            <th>{{ t('cdd_th_due_date') }}</th>
+                            <th>{{ t('cdd_th_actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="10" class="loading">{{ t('cdd_loading') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Qarz to'lovlar tarixi -->
-    <div class="ps-table-card" id="paymentsHistorySection" style="display:none;">
-        <div class="ps-table-card-header" style="background: linear-gradient(135deg,#28a745,#20c997);">
-            <h2 style="color:#fff;"><i class="fas fa-money-bill-wave"></i> To'lovlar tarixi</h2>
-        </div>
-        <div class="ps-table-wrap">
-            <table class="ps-table" id="paymentsHistoryTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>📅 Sana</th>
-                        <th>💵 Summa (USD)</th>
-                        <th>💵 Naqd</th>
-                        <th>📱 Click</th>
-                        <th>🏦 Terminal</th>
-                        <th>👤 Qabul qildi</th>
-                        <th>⚙️ Amal</th>
-                    </tr>
-                </thead>
-                <tbody id="paymentsHistoryBody">
-                    <tr><td colspan="8" class="loading">Yuklanmoqda...</td></tr>
-                </tbody>
-            </table>
+    <div class="ps-tab-panel" data-panel="payments-history" id="paymentsHistorySection">
+        <div class="ps-table-card">
+            <div class="ps-table-card-header" style="background: linear-gradient(135deg,#28a745,#20c997);">
+                <h2 style="color:#fff;"><i class="fas fa-money-bill-wave"></i> To'lovlar tarixi</h2>
+            </div>
+            <div class="ps-table-wrap">
+                <table class="ps-table" id="paymentsHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>📅 Sana</th>
+                            <th>💵 Summa (USD)</th>
+                            <th>💵 Naqd</th>
+                            <th>📱 Click</th>
+                            <th>🏦 Terminal</th>
+                            <th>👤 Qabul qildi</th>
+                            <th>⚙️ Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsHistoryBody">
+                        <tr><td colspan="8" class="loading">Yuklanmoqda...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -556,6 +597,22 @@
     const customerId = {{ customer_id }};
     let debtData = null;
     let currentRate = 12000; // Default kurs
+
+    document.querySelectorAll('.ps-tab').forEach(button => {
+        button.addEventListener('click', () => {
+            const target = button.dataset.tab;
+            document.querySelectorAll('.ps-tab').forEach(tab => {
+                const isActive = tab === button;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            document.querySelectorAll('.ps-tab-panel').forEach(panel => {
+                const isActive = panel.dataset.panel === target;
+                panel.classList.toggle('active', isActive);
+            });
+        });
+    });
 
     // USD input'ga to'liq qiymat saqlash (data-full-value), display uchun 5 kasr
     function fvSet(input, val) {
