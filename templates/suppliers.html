@@ -40,6 +40,8 @@
 .sup-balance-debt { color: #dc2626; font-weight: 700; }
 .sup-actions { display: flex; gap: 4px; align-items: center; justify-content: center; }
 .sup-btn { padding: 0; border-radius: 8px; border: none; cursor: pointer; width: 30px; height: 28px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s; }
+.sup-btn-view { color: #059669; background: rgba(5,150,105,0.08); }
+.sup-btn-view:hover { background: #059669; color: #fff; }
 .sup-btn-history { color: #1a6eff; background: rgba(26,110,255,0.08); }
 .sup-btn-history:hover { background: #1a6eff; color: #fff; }
 .sup-btn-pay { color: #d97706; background: rgba(217,119,6,0.1); }
@@ -303,6 +305,7 @@ function renderSuppliers() {
                 <td>${escapeHtml(s.phone || '-')}</td>
                 <td class="${balanceClass}">$${balance.toFixed(2)}</td>
                 <td class="sup-actions">
+                    <button class="sup-btn sup-btn-view" title="Ko'rish" onclick="viewSupplier(${s.id})"><i class="fas fa-eye"></i></button>
                     <button class="sup-btn sup-btn-history" title="Tarix" onclick="openSupplierHistoryModal(${s.id}, '${escapeAttr(s.name)}')"><i class="fas fa-history"></i></button>
                     ${balance > 0 ? `<button class="sup-btn sup-btn-pay" title="Qarz to'lash" onclick="openSupplierPayModal(${s.id}, '${escapeAttr(s.name)}', ${balance})"><i class="fas fa-hand-holding-usd"></i></button>` : ''}
                     <button class="sup-btn sup-btn-edit" title="Tahrirlash" onclick="openEditSupplierModal(${s.id})"><i class="fas fa-pencil-alt"></i></button>
@@ -547,6 +550,11 @@ async function submitSupplierPayForm() {
         submitBtn.disabled = false;
         submitBtn.textContent = "✅ To'lovni tasdiqlash";
     }
+}
+
+// Ko'rish - yetkazib beruvchi tafsilotlari sahifasini ochish (mijoz kabi)
+function viewSupplier(id) {
+    window.location.href = `/supplier/${id}/timeline`;
 }
 
 // ==================== TARIX (mijoz timeline uslubidagi sahifa) ====================
