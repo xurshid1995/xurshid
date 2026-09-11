@@ -72,6 +72,9 @@
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 .sp-table tbody tr:hover { background: #f8faff; }
+.sp-table tbody tr.sale-group-start { border-top: 1px solid #e2e8f0; }
+.sp-table tbody tr.sale-group-start:first-child { border-top: none; }
+.sp-table tbody tr.sale-group-end td { border-bottom: 2px solid #cbd5e1 !important; }
 .sp-table tbody tr:last-child td { border-bottom: none; }
 .sp-table th:nth-child(1), .sp-table td:nth-child(1) { width: 150px; }
 .sp-table th:nth-child(2), .sp-table td:nth-child(2) { width: 120px; }
@@ -246,9 +249,12 @@ function renderSupplierProducts(products) {
         const groupRunningTotal = groupItems[groupItems.length - 1].runningTotal;
 
         const rows = groupItems.map((item, idx) => {
+            const isFirst = idx === 0;
+            const isLast = idx === groupItems.length - 1;
+            const rowClass = isFirst ? 'sale-group-start' : 'sale-group-item';
             const row = `
-                <tr>
-                    ${idx === 0 ? `
+                <tr class="${rowClass}${isLast ? ' sale-group-end' : ''}">
+                    ${isFirst ? `
                         <td class="sp-date-cell sp-datetime-cell" rowspan="${groupItems.length}">
                             <div class="datetime-info">
                                 <div class="sale-date">${firstItem.formattedDate}</div>
@@ -261,8 +267,8 @@ function renderSupplierProducts(products) {
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
                     <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
                     <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
-                    ${idx === 0 ? `<td class="sp-running-total-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
-                    ${idx === 0 ? `<td class="sp-added-by-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
+                    ${isFirst ? `<td class="sp-running-total-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
+                    ${isFirst ? `<td class="sp-added-by-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;
             return row;
