@@ -76,9 +76,11 @@
 .sp-table th:nth-child(1), .sp-table td:nth-child(1) { width: 150px; }
 .sp-table th:nth-child(2), .sp-table td:nth-child(2) { width: 120px; }
 .sp-table th:nth-child(3), .sp-table td:nth-child(3) { width: 260px; }
-.sp-table th:nth-child(4), .sp-table td:nth-child(4) { width: 100px; }
-.sp-table th:nth-child(5), .sp-table td:nth-child(5) { width: 100px; }
-.sp-table th:nth-child(6), .sp-table td:nth-child(6) { width: 160px; }
+.sp-table th:nth-child(4), .sp-table td:nth-child(4) { width: 90px; }
+.sp-table th:nth-child(5), .sp-table td:nth-child(5) { width: 90px; }
+.sp-table th:nth-child(6), .sp-table td:nth-child(6) { width: 100px; }
+.sp-table th:nth-child(7), .sp-table td:nth-child(7) { width: 120px; }
+.sp-table th:nth-child(8), .sp-table td:nth-child(8) { width: 160px; }
 .sp-datetime-cell { white-space: normal !important; overflow: visible !important; }
 .datetime-info { text-align: center; }
 .sale-date { font-weight: 600; font-size: 11px; color: #1e293b; margin-bottom: 2px; }
@@ -123,6 +125,8 @@
                         <th>Mahsulot</th>
                         <th>Miqdor</th>
                         <th>Narxi</th>
+                        <th>Jami</th>
+                        <th>Jami yig'indi</th>
                         <th>Qo'shgan</th>
                     </tr>
                 </thead>
@@ -169,10 +173,16 @@ function renderSupplierProducts(products) {
     empty.style.display = 'none';
     table.style.display = 'table';
 
+    let runningTotal = 0;
+
     body.innerHTML = products.map(p => {
         const createdAt = p.created_at ? new Date(p.created_at) : null;
         const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
         const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        const quantity = Number(p.quantity || 0);
+        const unitPrice = Number(p.cost_price || 0);
+        const lineTotal = quantity * unitPrice;
+        runningTotal += lineTotal;
 
         return `
             <tr>
@@ -184,8 +194,10 @@ function renderSupplierProducts(products) {
                 </td>
                 <td>${escapeHtml(p.location_name || '-')}</td>
                 <td class="sp-product-name">${escapeHtml(p.product_name)}</td>
-                <td>${Number(p.quantity).toLocaleString('uz-UZ')}</td>
-                <td>$${Number(p.cost_price).toFixed(2)}</td>
+                <td>${quantity.toLocaleString('uz-UZ')}</td>
+                <td>$${unitPrice.toFixed(2)}</td>
+                <td>$${lineTotal.toFixed(2)}</td>
+                <td>$${runningTotal.toFixed(2)}</td>
                 <td>${escapeHtml(p.added_by || '-')}</td>
             </tr>
         `;
