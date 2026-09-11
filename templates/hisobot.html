@@ -317,8 +317,12 @@
             <div id="finalReportSaveCostValue" style="font-weight:700; font-size:13px;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
-            <div style="font-size:13px; color:#555;">🔴 Jami qarz</div>
-            <div id="finalReportSaveDebt" style="font-weight:700; font-size:13px;"></div>
+            <div style="font-size:13px; color:#555;">🔴 Mijozlar qarzi</div>
+            <div id="finalReportSaveCustomerDebt" style="font-weight:700; font-size:13px;"></div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
+            <div style="font-size:13px; color:#555;">📌 Yetkazib beruvchilar qarzi</div>
+            <div id="finalReportSaveSupplierDebt" style="font-weight:700; font-size:13px; color:#dc2626;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
             <div style="font-size:13px; color:#555;">📦 Jami zaxira</div>
@@ -958,7 +962,8 @@ function saveYakuniyHisobot() {
     const totalDebt = frGrandDebt - frSupplierDebt;
     const total = frGrandCostValue + totalDebt + frGrandReserve;
     document.getElementById('finalReportSaveCostValue').textContent = fmtUsd(frGrandCostValue);
-    document.getElementById('finalReportSaveDebt').textContent = fmtUsd(totalDebt);
+    document.getElementById('finalReportSaveCustomerDebt').textContent = fmtUsd(frGrandDebt);
+    document.getElementById('finalReportSaveSupplierDebt').textContent = '-' + fmtUsd(frSupplierDebt);
     document.getElementById('finalReportSaveReserve').textContent = fmtUsd(frGrandReserve);
     document.getElementById('finalReportSaveGrandTotal').textContent = fmtUsd(total);
     document.getElementById('finalReportSaveModal').style.display = 'flex';
