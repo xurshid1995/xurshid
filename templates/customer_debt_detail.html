@@ -261,6 +261,10 @@
 .ps-table tbody tr:hover { background: #f8faff; }
 .ps-table tbody tr:last-child td { border-bottom: none; }
 .ps-table .col-products { text-align: left; max-width: 260px; }
+.ps-table .col-qty { width: 70px; }
+.ps-table .col-price { width: 100px; }
+.ps-table .col-subtotal { width: 110px; }
+.ps-table .col-grand-total { width: 120px; }
 .sale-group-start { border-top: 1px solid #e2e8f0; }
 .sale-group-start, .sale-group-item { position: relative; }
 .sale-group-start td, .sale-group-item td { border: none !important; border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; }
@@ -430,7 +434,10 @@
                         <th>{{ t('cdd_th_date') }}</th>
                         <th>{{ t('cdd_th_sale_num') }}</th>
                         <th>{{ t('cdd_th_products') }}</th>
-                        <th>{{ t('cdd_th_total') }}</th>
+                        <th>Qty</th>
+                        <th>Narx</th>
+                        <th>Jami</th>
+                        <th>Jami yigindi</th>
                         <th>{{ t('cdd_th_paid') }}</th>
                         <th>{{ t('cdd_th_debt') }}</th>
                         <th>{{ t('cdd_th_due_date') }}</th>
@@ -439,7 +446,7 @@
                 </thead>
                 <tbody id="historyBody">
                     <tr>
-                        <td colspan="8" class="loading">{{ t('cdd_loading') }}</td>
+                        <td colspan="11" class="loading">{{ t('cdd_loading') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -598,7 +605,7 @@
         const tbody = document.getElementById('historyBody');
 
         if (!debtData.history || debtData.history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
             return;
         }
 
@@ -645,6 +652,10 @@
                 const rowClasses = ['sale-group-start', isFirst ? 'sale-group-start' : 'sale-group-item'];
                 if (isLast || saleItems.length === 1) rowClasses.push('sale-group-end');
 
+                const qty = Number(item.quantity || 0);
+                const unitPrice = Number(item.unit_price || 0);
+                const subtotal = Number(item.total_price || (qty * unitPrice) || 0);
+
                 return `
                     <tr class="${rowClasses.filter(Boolean).join(' ')}">
                         ${isFirst ? `
@@ -657,7 +668,10 @@
                             </td>
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
-                        ${isFirst ? `<td class="group-cell col-total"><strong>${formatUSD(totalUsd)}</strong></td>` : '<td></td>'}
+                        <td class="group-cell col-qty">${qty}</td>
+                        <td class="group-cell col-price">${formatUSD(unitPrice)}</td>
+                        <td class="group-cell col-subtotal">${formatUSD(subtotal)}</td>
+                        ${isFirst ? `<td class="group-cell col-grand-total"><strong>${formatUSD(totalUsd)}</strong></td>` : '<td></td>'}
                         ${isFirst ? `<td class="group-cell col-paid" style="color:#28a745;">${formatUSD(paidUsd)}</td>` : '<td></td>'}
                         ${isFirst ? `<td class="group-cell col-debt" style="color:#dc3545;"><strong>${formatUSD(debtUsd)}</strong></td>` : '<td></td>'}
                         ${isFirst ? `<td class="group-cell col-due">${dueDateHtml}</td>` : '<td></td>'}
