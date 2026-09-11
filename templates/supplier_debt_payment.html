@@ -460,14 +460,14 @@
     </div>
 
     <div class="ps-tabs" role="tablist" aria-label="Supplier debt tabs">
-        <button class="ps-tab active" type="button" data-tab="purchases" role="tab" aria-selected="true">Qabul qilingan mahsulotlar</button>
+        <button class="ps-tab active" type="button" data-tab="purchases" role="tab" aria-selected="true">Qarzli mahsulotlar</button>
         <button class="ps-tab" type="button" data-tab="payments" role="tab" aria-selected="false">To'lovlar tarixi</button>
     </div>
 
     <div class="ps-tab-panel active" data-panel="purchases">
         <div class="ps-table-card" style="margin-bottom: 20px;">
             <div class="ps-table-card-header">
-                <h2><i class="fas fa-box"></i> Qabul qilingan mahsulotlar</h2>
+                <h2><i class="fas fa-box"></i> Qarzli mahsulotlar</h2>
             </div>
             <div class="ps-table-wrap">
                 <table class="ps-table">
@@ -579,12 +579,13 @@ async function loadSupplierDebtPage() {
         remainingDebt = Number(supplier.balance_usd || 0);
 
         const purchases = data.events.filter(e => e.type === 'purchase');
+        const debtPurchases = purchases.filter(p => Number(p.debt_amount || 0) > 0);
 
         document.getElementById('purchasesCount').textContent = purchases.length;
         document.getElementById('totalDebt').textContent = formatUSD(remainingDebt);
         document.getElementById('displayRemainingDebt').textContent = formatUSD(remainingDebt);
 
-        renderPurchases(purchases);
+        renderPurchases(debtPurchases);
         loadPaymentsHistory();
 
         setupCurrencyConversion();
@@ -599,7 +600,7 @@ function renderPurchases(purchases) {
     currentPurchases = purchases || [];
     const tbody = document.getElementById('purchasesBody');
     if (!purchases || purchases.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Hali mahsulot qabul qilinmagan</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Qarzli mahsulot topilmadi</td></tr>';
         return;
     }
     tbody.innerHTML = purchases.map(p => {
