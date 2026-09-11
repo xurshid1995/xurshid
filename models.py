@@ -633,6 +633,7 @@ class SupplierPayment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
+    purchase_id = db.Column(db.Integer, db.ForeignKey('supplier_purchases.id', ondelete='SET NULL'), nullable=True)  # FIFO bo'yicha qaysi partiyaga yo'naltirilgani
     amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)  # jami to'lov (cash+click+terminal)
     cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
     click_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
@@ -653,6 +654,7 @@ class SupplierPayment(db.Model):
             'id': self.id,
             'event_type': 'payment',
             'supplier_id': self.supplier_id,
+            'purchase_id': self.purchase_id,
             'amount_usd': float(self.amount_usd or 0),
             'cash_usd': float(self.cash_usd or 0),
             'click_usd': float(self.click_usd or 0),

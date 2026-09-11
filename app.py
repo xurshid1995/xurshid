@@ -7807,6 +7807,16 @@ def create_tables():
         except Exception as _e:
             db.session.rollback()
             logger.warning(f"supplier_payments migration: {_e}")
+        # Idempotent migration: supplier_payments ga purchase_id (FIFO taqsimlash uchun) qo'shish
+        try:
+            db.session.execute(db.text("""
+                ALTER TABLE supplier_payments
+                    ADD COLUMN IF NOT EXISTS purchase_id INTEGER REFERENCES supplier_purchases(id) ON DELETE SET NULL;
+            """))
+            db.session.commit()
+        except Exception as _e:
+            db.session.rollback()
+            logger.warning(f"supplier_payments purchase_id migration: {_e}")
         create_tables.created = True
 
     # Test ombor stocklari o'chirildi - manual ravishda qo'shiladi
@@ -11232,22 +11242,101 @@ def pay_supplier_debt(supplier_id):
         payment_method = methods_used[0] if len(methods_used) == 1 else ('mixed' if len(methods_used) > 1 else data.get('payment_method', 'cash'))
 
         current_user_name = session.get('username', 'System')
-        payment = SupplierPayment(
-            supplier_id=supplier_id,
-            amount_usd=amount,
-            cash_usd=cash_usd,
-            click_usd=click_usd,
-            terminal_usd=terminal_usd,
-            currency_rate=Decimal(str(data.get('exchange_rate'))) if data.get('exchange_rate') else None,
-            payment_method=payment_method,
-            paid_by=current_user_name,
-            notes=data.get('notes', '').strip() or None,
-        )
-        db.session.add(payment)
+        currency_rate = Decimal(str(data.get('exchange_rate'))) if data.get('exchange_rate') else None
+        notes = data.get('notes', '').strip() or None
+        payment_time = get_tashkent_time()
+
+        # Eng eski partiyadan boshlab (FIFO) qarzni yopish - mijoz qarz to'lash mantig'i bilan bir xil
+        purchases = SupplierPurchase.query.filter(
+            SupplierPurchase.supplier_id == supplier_id,
+            SupplierPurchase.debt_amount > 0
+        ).order_by(SupplierPurchase.created_at.asc()).all()
+
+        remaining_cash = cash_usd
+        remaining_click = click_usd
+        remaining_terminal = terminal_usd
+        remaining_payment = amount
+        payment_records = []
+
+        for purchase in purchases:
+            if remaining_payment <= 0:
+                break
+            current_debt = purchase.debt_amount or Decimal('0')
+            if current_debt <= 0:
+                continue
+
+            payment_for_this = min(remaining_payment, current_debt)
+
+            cash_for_this = min(remaining_cash, payment_for_this)
+            remaining_cash -= cash_for_this
+            payment_for_this -= cash_for_this
+
+            click_for_this = min(remaining_click, payment_for_this)
+            remaining_click -= click_for_this
+            payment_for_this -= click_for_this
+
+            terminal_for_this = min(remaining_terminal, payment_for_this)
+            remaining_terminal -= terminal_for_this
+            payment_for_this -= terminal_for_this
+
+            total_for_this = cash_for_this + click_for_this + terminal_for_this
+            if total_for_this <= 0:
+                continue
+
+            purchase.paid_amount = (purchase.paid_amount or Decimal('0')) + total_for_this
+            new_debt = current_debt - total_for_this
+            if new_debt < Decimal('0.001'):
+                new_debt = Decimal('0')
+            purchase.debt_amount = new_debt
+            purchase.payment_type = 'cash' if new_debt == 0 else 'partial'
+
+            remaining_payment -= total_for_this
+            payment_records.append({
+                'purchase_id': purchase.id,
+                'cash_usd': cash_for_this,
+                'click_usd': click_for_this,
+                'terminal_usd': terminal_for_this,
+                'total_usd': total_for_this,
+            })
+
+        payment = None
+        for record in payment_records:
+            payment = SupplierPayment(
+                supplier_id=supplier_id,
+                purchase_id=record['purchase_id'],
+                amount_usd=record['total_usd'],
+                cash_usd=record['cash_usd'],
+                click_usd=record['click_usd'],
+                terminal_usd=record['terminal_usd'],
+                currency_rate=currency_rate,
+                payment_method=payment_method,
+                paid_by=current_user_name,
+                notes=notes,
+                payment_date=payment_time,
+            )
+            db.session.add(payment)
+
+        # Agar hech qanday partiyaga ulanmagan qism qolsa (masalan, eski qarz partiyalarga bog'lanmagan)
+        if remaining_payment > 0:
+            payment = SupplierPayment(
+                supplier_id=supplier_id,
+                purchase_id=None,
+                amount_usd=remaining_payment,
+                cash_usd=remaining_cash,
+                click_usd=remaining_click,
+                terminal_usd=remaining_terminal,
+                currency_rate=currency_rate,
+                payment_method=payment_method,
+                paid_by=current_user_name,
+                notes=notes,
+                payment_date=payment_time,
+            )
+            db.session.add(payment)
+
         supplier.balance_usd = supplier.balance_usd - amount
         db.session.commit()
 
-        return jsonify({'success': True, 'payment': payment.to_dict(), 'new_balance': float(supplier.balance_usd)})
+        return jsonify({'success': True, 'payment': payment.to_dict() if payment else None, 'new_balance': float(supplier.balance_usd)})
     except InvalidOperation:
         db.session.rollback()
         return jsonify({'error': "To'lov summasi noto'g'ri"}), 400
@@ -11255,6 +11344,116 @@ def pay_supplier_debt(supplier_id):
         db.session.rollback()
         logger.error(f"Error paying supplier debt: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/debt-payments/by-supplier/<int:supplier_id>')
+@role_required('admin', 'kassir', 'omborchi')
+def api_debt_payments_by_supplier(supplier_id):
+    """Bitta yetkazib beruvchi uchun qarz to'lovlari tarixi (guruhlangan, reverse uchun ISO sana bilan)"""
+    try:
+        rows = db.session.execute(text("""
+            SELECT
+                MIN(sp.id)              AS id,
+                sp.payment_date,
+                sp.paid_by,
+                sp.notes,
+                SUM(sp.cash_usd)        AS cash_usd,
+                SUM(sp.click_usd)       AS click_usd,
+                SUM(sp.terminal_usd)    AS terminal_usd,
+                SUM(sp.amount_usd)      AS total_usd,
+                MAX(sp.currency_rate)   AS currency_rate
+            FROM supplier_payments sp
+            WHERE sp.supplier_id = :sid
+            GROUP BY sp.payment_date, sp.paid_by, sp.notes
+            ORDER BY sp.payment_date DESC
+        """), {'sid': supplier_id})
+
+        payments = []
+        for r in rows:
+            payments.append({
+                'id':          int(r.id) if r.id is not None else None,
+                'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
+                'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
+                'paid_by':     r.paid_by or '',
+                'notes':       r.notes or '',
+                'cash_usd':     float(r.cash_usd    or 0),
+                'click_usd':    float(r.click_usd   or 0),
+                'terminal_usd': float(r.terminal_usd or 0),
+                'total_usd':    float(r.total_usd   or 0),
+                'currency_rate': float(r.currency_rate) if r.currency_rate else 0,
+            })
+
+        return jsonify({'success': True, 'payments': payments})
+    except Exception as e:
+        logger.error(f"Yetkazib beruvchi to'lovlari tarixida xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/suppliers/debt-payment/reverse', methods=['POST'])
+@role_required('admin', 'kassir', 'omborchi')
+def api_reverse_supplier_debt_payment():
+    """Bitta (supplier_id, payment_date) tranzaksiyaga tegishli barcha SupplierPayment
+    yozuvlarini topib, ular bilan kamaytirilgan partiya qarzlarini tiklaydi."""
+    try:
+        data = request.get_json()
+        supplier_id = data.get('supplier_id')
+        payment_date_str = data.get('payment_date')
+
+        if not supplier_id or not payment_date_str:
+            return jsonify({'success': False, 'error': 'supplier_id va payment_date talab qilinadi'}), 400
+
+        from datetime import datetime as _dt, timedelta
+        payment_dt = None
+        for fmt in ('%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S'):
+            try:
+                payment_dt = _dt.strptime(payment_date_str, fmt)
+                break
+            except ValueError:
+                continue
+        if payment_dt is None:
+            return jsonify({'success': False, 'error': "Noto'g'ri sana formati"}), 400
+
+        dt_from = payment_dt - timedelta(seconds=1)
+        dt_to = payment_dt + timedelta(seconds=1)
+
+        payments = SupplierPayment.query.filter(
+            SupplierPayment.supplier_id == supplier_id,
+            SupplierPayment.payment_date >= dt_from,
+            SupplierPayment.payment_date <= dt_to
+        ).all()
+
+        if not payments:
+            return jsonify({'success': False, 'error': "Bu to'lov topilmadi"}), 404
+
+        supplier = Supplier.query.with_for_update().get_or_404(supplier_id)
+        total_reversed = Decimal('0')
+
+        for payment in payments:
+            amount = Decimal(str(payment.amount_usd or 0))
+            total_reversed += amount
+
+            if payment.purchase_id:
+                purchase = SupplierPurchase.query.with_for_update().get(payment.purchase_id)
+                if purchase:
+                    purchase.debt_amount = (purchase.debt_amount or Decimal('0')) + amount
+                    purchase.paid_amount = max(Decimal('0'), (purchase.paid_amount or Decimal('0')) - amount)
+                    purchase.payment_type = 'debt' if purchase.paid_amount == 0 else 'partial'
+
+            db.session.delete(payment)
+
+        supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + total_reversed
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'restored_amount': float(total_reversed),
+            'new_balance': float(supplier.balance_usd),
+            'message': f"${float(total_reversed):.2f} miqdordagi to'lov bekor qilindi"
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error reversing supplier debt payment: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/suppliers/<int:supplier_id>/debt-payment/<int:payment_id>', methods=['DELETE'])
@@ -11266,6 +11465,13 @@ def reverse_supplier_debt_payment(supplier_id, payment_id):
 
         amount = Decimal(str(payment.amount_usd or 0))
         supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + amount
+
+        if payment.purchase_id:
+            purchase = SupplierPurchase.query.get(payment.purchase_id)
+            if purchase:
+                purchase.debt_amount = (purchase.debt_amount or Decimal('0')) + amount
+                purchase.paid_amount = max(Decimal('0'), (purchase.paid_amount or Decimal('0')) - amount)
+                purchase.payment_type = 'debt' if purchase.paid_amount == 0 else 'partial'
 
         db.session.delete(payment)
         db.session.commit()
