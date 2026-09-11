@@ -681,15 +681,15 @@
                             </td>
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
-                        <td class="group-cell col-qty">${qty}</td>
-                        <td class="group-cell col-price">${formatUSD(unitPrice)}</td>
-                        <td class="group-cell col-subtotal">${formatUSD(subtotal)}</td>
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total"><strong>${formatUSD(totalUsd)}</strong></td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatUSD(paidUsd)}</td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;"><strong>${formatUSD(debtUsd)}</strong></td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due">${dueDateHtml}</td>` : ''}
+                        <td class="group-cell col-qty" style="text-align:center; vertical-align:middle;">${qty}</td>
+                        <td class="group-cell col-price" style="text-align:center; vertical-align:middle;">${formatUSD(unitPrice)}</td>
+                        <td class="group-cell col-subtotal" style="text-align:center; vertical-align:middle;">${formatUSD(subtotal)}</td>
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total" style="text-align:center; vertical-align:middle;"><strong>${formatUSD(totalUsd)}</strong></td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745; text-align:center; vertical-align:middle;">${formatUSD(paidUsd)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545; text-align:center; vertical-align:middle;"><strong>${formatUSD(debtUsd)}</strong></td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due" style="text-align:center; vertical-align:middle;">${dueDateHtml}</td>` : ''}
                         ${isFirst ? `
-                            <td rowspan="${saleItems.length}" class="group-cell col-actions">
+                            <td rowspan="${saleItems.length}" class="group-cell col-actions" style="text-align:center; vertical-align:middle;">
                                 <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view">👁️ ${CDDLANG.view}</button>
                             </td>
                         ` : ''}
