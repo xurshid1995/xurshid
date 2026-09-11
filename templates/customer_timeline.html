@@ -344,12 +344,13 @@ function renderSale(e) {
 
 function renderPayment(e) {
     const paymentChips = [];
-    if (e.cash_usd > 0) paymentChips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
-    if (e.click_usd > 0) paymentChips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
-    if (e.terminal_usd > 0) paymentChips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
+    if (e.total_usd != null) paymentChips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_usd.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
 
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
-    const chipsHtml = paymentChips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
+    const chipsHtml = paymentChips.join('');
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">

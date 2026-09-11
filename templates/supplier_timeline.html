@@ -272,6 +272,7 @@ function renderPurchaseBatch(events) {
 
 function renderPayment(e) {
     const paymentChips = [];
+    if (e.amount_usd != null) paymentChips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.amount_usd.toFixed(2)}</span>`);
     if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
     if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
     if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
