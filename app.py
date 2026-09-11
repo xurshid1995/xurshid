@@ -17427,6 +17427,17 @@ def inject_settings():
         except Exception:
             pending_transfer_count = 0
 
+        # Bizga qarzi bo'lgan yetkazib beruvchilar soni
+        supplier_debt_count = 0
+        try:
+            if session.get('user_id'):
+                supplier_debt_count = Supplier.query.filter(
+                    Supplier.is_active == True,
+                    Supplier.balance_usd > 0
+                ).count()
+        except Exception:
+            supplier_debt_count = 0
+
         # Aktiv qoldiq tekshirish sessiyalari soni
         stock_check_count = 0
         try:
@@ -17454,6 +17465,7 @@ def inject_settings():
             'debt_sales_count': debt_sales_count,
             'pending_sales_count': pending_sales_count,
             'pending_transfer_count': pending_transfer_count,
+            'supplier_debt_count': supplier_debt_count,
             'stock_check_count': stock_check_count,
             'pending_product_count': pending_product_count
         }
