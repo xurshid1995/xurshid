@@ -110,51 +110,73 @@
 
         <!-- ===== Mahsulot qoldig'i Tab ===== -->
         <div class="col-12" id="db-tab-stock" style="display:none;">
-            <div class="db-card">
-                <div class="db-card-head">
-                    <span class="db-card-label">📦 Mahsulot qoldig'i</span>
-                    <button onclick="loadStockOverview()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
-                </div>
-                <div class="db-location-row">
-                    <div id="stockLocButtons" class="db-loc-btns">
-                        <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
+
+            <!-- Header -->
+            <div class="db-stock-header">
+                <span class="db-stock-header-title">📦 Mahsulot qoldig'i</span>
+                <button onclick="loadStockOverview()" class="db-stock-refresh-btn">🔄 Yangilash</button>
+            </div>
+
+            <!-- Statistika karta (alohida) -->
+            <div class="db-stock-stats">
+                <div class="db-stock-stat-card">
+                    <div class="db-stock-stat-icon green"><i class="fas fa-circle-check"></i></div>
+                    <div class="db-stock-stat-body">
+                        <span class="db-stock-stat-number" id="stockSummarySufficient">0</span>
+                        <span class="db-stock-stat-label">Yetarli</span>
                     </div>
                 </div>
-                <div class="db-location-row">
-                    <div class="db-loc-btns">
-                        <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
-                        <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
-                        <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
-                        <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
+                <div class="db-stock-stat-card">
+                    <div class="db-stock-stat-icon yellow"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="db-stock-stat-body">
+                        <span class="db-stock-stat-number" id="stockSummaryLow">0</span>
+                        <span class="db-stock-stat-label">Kam qolgan</span>
                     </div>
                 </div>
-                <div class="db-stock-search-panel">
-                    <div class="db-stock-search-layer">
-                        <div class="db-stock-search-title">🔎 Qidiruv</div>
-                        <input id="stockSearchInput" class="db-stock-search-input" type="text" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
+                <div class="db-stock-stat-card">
+                    <div class="db-stock-stat-icon red"><i class="fas fa-circle-xmark"></i></div>
+                    <div class="db-stock-stat-body">
+                        <span class="db-stock-stat-number" id="stockSummaryOut">0</span>
+                        <span class="db-stock-stat-label">Tugagan</span>
                     </div>
                 </div>
-                <div class="db-stock-summary-panel">
-                    <div class="db-stock-summary-card">
-                        <div class="db-stock-summary-box green">
-                            <span class="db-stock-summary-label">Yetarli</span>
-                            <strong id="stockSummarySufficient">0</strong>
+                <div class="db-stock-stat-card">
+                    <div class="db-stock-stat-icon blue"><i class="fas fa-boxes-stacked"></i></div>
+                    <div class="db-stock-stat-body">
+                        <span class="db-stock-stat-number" id="stockSummaryTotal">0</span>
+                        <span class="db-stock-stat-label">Jami</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter karta (joylashuv + holat + qidiruv) - alohida -->
+            <div class="db-stock-filter-panel">
+                <div class="db-stock-filter-row">
+                    <div class="db-stock-search-box">
+                        <i class="fas fa-search db-stock-search-icon"></i>
+                        <input id="stockSearchInput" type="text" class="db-stock-search-input" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
+                    </div>
+                    <div class="db-stock-filter-group">
+                        <label>Joylashuv</label>
+                        <div id="stockLocButtons" class="db-loc-btns">
+                            <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
                         </div>
-                        <div class="db-stock-summary-box yellow">
-                            <span class="db-stock-summary-label">Kam qolgan</span>
-                            <strong id="stockSummaryLow">0</strong>
-                        </div>
-                        <div class="db-stock-summary-box red">
-                            <span class="db-stock-summary-label">Tugagan</span>
-                            <strong id="stockSummaryOut">0</strong>
-                        </div>
-                        <div class="db-stock-summary-box blue">
-                            <span class="db-stock-summary-label">Jami</span>
-                            <strong id="stockSummaryTotal">0</strong>
+                    </div>
+                    <div class="db-stock-filter-group">
+                        <label>Holat</label>
+                        <div class="db-loc-btns">
+                            <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
+                            <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
+                            <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
+                            <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
                         </div>
                     </div>
                 </div>
-                <div id="stockOverviewList" style="padding:0 20px 16px;overflow-x:auto;">
+            </div>
+
+            <!-- Jadval karta - alohida -->
+            <div class="db-stock-table-card">
+                <div id="stockOverviewList" style="padding:0;overflow-x:auto;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
             </div>
@@ -422,124 +444,164 @@
     font-weight: 600;
 }
 
-.db-stock-search-panel {
-    padding: 14px 20px 0;
-}
-
-.db-stock-search-layer {
+/* ===== Mahsulot qoldig'i: alohida kartalar (savdo tarixi uslubi) ===== */
+.db-stock-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 12px 14px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    justify-content: space-between;
+    margin-bottom: 14px;
 }
-
-.db-stock-search-title {
-    font-size: 12px;
+.db-stock-header-title {
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    color: #1e293b;
+}
+.db-stock-refresh-btn {
+    background: none;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    cursor: pointer;
     color: #64748b;
-    white-space: nowrap;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.db-stock-refresh-btn:hover {
+    border-color: #1a6eff;
+    color: #1a6eff;
 }
 
-.db-stock-search-input {
-    flex: 1;
-    min-width: 0;
-    border: 1.5px solid #dfe7f3;
+/* Statistika karta - alohida grid */
+.db-stock-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 14px;
+}
+.db-stock-stat-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.db-stock-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+.db-stock-stat-icon {
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
-    height: 40px;
-    padding: 0 12px;
-    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
+.db-stock-stat-icon.green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; }
+.db-stock-stat-icon.yellow { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
+.db-stock-stat-icon.red    { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
+.db-stock-stat-icon.blue   { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1a6eff; }
+.db-stock-stat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.db-stock-stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+.db-stock-stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Filter karta - alohida (joylashuv + holat + qidiruv) */
+.db-stock-filter-panel {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.db-stock-filter-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.db-stock-search-box {
+    position: relative;
+    flex: 1 1 260px;
+    max-width: 360px;
+}
+.db-stock-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+    pointer-events: none;
+}
+.db-stock-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    height: 38px;
+    padding: 0 14px 0 38px;
+    background: #f8fafc;
     font-size: 13px;
     color: #1e293b;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
-
 .db-stock-search-input:focus {
     border-color: #1a6eff;
+    background: #fff;
     box-shadow: 0 0 0 3px rgba(26,110,255,0.08);
 }
-
-.db-stock-summary-panel {
-    padding: 16px 20px 0;
-}
-
-.db-stock-summary-card {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(130px, 1fr));
-    gap: 12px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
-}
-
-.db-stock-summary-box {
+.db-stock-filter-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    min-height: 84px;
-    border-radius: 14px;
-    padding: 12px 10px;
-    border: 1px solid transparent;
-    text-align: center;
+    gap: 6px;
+    flex-shrink: 0;
 }
-
-.db-stock-summary-box.green {
-    background: rgba(34, 197, 94, 0.08);
-    border-color: rgba(34, 197, 94, 0.18);
-}
-
-.db-stock-summary-box.yellow {
-    background: rgba(250, 204, 21, 0.08);
-    border-color: rgba(250, 204, 21, 0.2);
-}
-
-.db-stock-summary-box.red {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.18);
-}
-
-.db-stock-summary-box.blue {
-    background: rgba(59, 130, 246, 0.08);
-    border-color: rgba(59, 130, 246, 0.18);
-}
-
-.db-stock-summary-label {
+.db-stock-filter-group label {
     font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: #94a3b8;
     text-transform: uppercase;
-    color: #475569;
+    letter-spacing: 0.5px;
 }
 
-.db-stock-summary-box strong {
-    font-size: 26px;
-    font-weight: 800;
-    color: #1e293b;
-    line-height: 1;
+/* Jadval karta - alohida */
+.db-stock-table-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
 }
 
 @media (max-width: 720px) {
-    .db-stock-search-layer {
+    .db-stock-filter-row {
         flex-direction: column;
         align-items: stretch;
     }
-
-    .db-stock-search-title {
-        white-space: normal;
-    }
-
-    .db-stock-summary-card {
-        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    .db-stock-search-box {
+        max-width: none;
     }
 }
 
