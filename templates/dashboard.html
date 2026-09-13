@@ -134,6 +134,26 @@
                         <input id="stockSearchInput" class="db-stock-search-input" type="text" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
                     </div>
                 </div>
+                <div class="db-stock-summary-panel">
+                    <div class="db-stock-summary-card">
+                        <div class="db-stock-summary-box green">
+                            <span class="db-stock-summary-label">Yetarli</span>
+                            <strong id="stockSummarySufficient">0</strong>
+                        </div>
+                        <div class="db-stock-summary-box yellow">
+                            <span class="db-stock-summary-label">Kam qolgan</span>
+                            <strong id="stockSummaryLow">0</strong>
+                        </div>
+                        <div class="db-stock-summary-box red">
+                            <span class="db-stock-summary-label">Tugagan</span>
+                            <strong id="stockSummaryOut">0</strong>
+                        </div>
+                        <div class="db-stock-summary-box blue">
+                            <span class="db-stock-summary-label">Jami</span>
+                            <strong id="stockSummaryTotal">0</strong>
+                        </div>
+                    </div>
+                </div>
                 <div id="stockOverviewList" style="padding:0 20px 16px;overflow-x:auto;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
@@ -445,6 +465,69 @@
     box-shadow: 0 0 0 3px rgba(26,110,255,0.08);
 }
 
+.db-stock-summary-panel {
+    padding: 16px 20px 0;
+}
+
+.db-stock-summary-card {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+    gap: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+}
+
+.db-stock-summary-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    min-height: 84px;
+    border-radius: 14px;
+    padding: 12px 10px;
+    border: 1px solid transparent;
+    text-align: center;
+}
+
+.db-stock-summary-box.green {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.18);
+}
+
+.db-stock-summary-box.yellow {
+    background: rgba(250, 204, 21, 0.08);
+    border-color: rgba(250, 204, 21, 0.2);
+}
+
+.db-stock-summary-box.red {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.18);
+}
+
+.db-stock-summary-box.blue {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.18);
+}
+
+.db-stock-summary-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.db-stock-summary-box strong {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+}
+
 @media (max-width: 720px) {
     .db-stock-search-layer {
         flex-direction: column;
@@ -453,6 +536,10 @@
 
     .db-stock-search-title {
         white-space: normal;
+    }
+
+    .db-stock-summary-card {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
     }
 }
 
@@ -896,6 +983,11 @@ async function loadStockOverview() {
         setCount('stockCountSufficient', c.sufficient);
         setCount('stockCountLow', c.low);
         setCount('stockCountOut', c.out);
+        const totalCount = Number(c.sufficient || 0) + Number(c.low || 0) + Number(c.out || 0);
+        setCount('stockSummarySufficient', c.sufficient);
+        setCount('stockSummaryLow', c.low);
+        setCount('stockSummaryOut', c.out);
+        setCount('stockSummaryTotal', totalCount);
 
         if (responses[1]) {
             const locData = await responses[1].json();
