@@ -115,33 +115,17 @@
                     <span class="db-card-label">📦 Mahsulot qoldig'i</span>
                     <button onclick="loadStockOverview()" style="background:none;border:1.5px solid #e2e8f0;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#64748b;font-weight:500;">🔄 Yangilash</button>
                 </div>
-                <div class="db-stock-filter-panel">
-                    <div class="db-stock-filter-layer">
-                        <div class="db-stock-filter-header">
-                            <span class="db-stock-filter-title">🔎 Filtrlar</span>
-                            <button type="button" class="db-stock-filter-clear" onclick="clearStockFilters()">Tozalash</button>
-                        </div>
-                        <div class="db-stock-filter-body">
-                            <div class="db-stock-filter-group">
-                                <label>Joylashuv</label>
-                                <div id="stockLocButtons" class="db-loc-btns">
-                                    <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
-                                </div>
-                            </div>
-                            <div class="db-stock-filter-group">
-                                <label>Holat</label>
-                                <div class="db-loc-btns">
-                                    <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
-                                    <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
-                                    <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
-                                    <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
-                                </div>
-                            </div>
-                            <div class="db-stock-filter-group db-stock-search-wrap">
-                                <label>Qidiruv</label>
-                                <input id="stockSearchInput" class="db-stock-search-input" type="text" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
-                            </div>
-                        </div>
+                <div class="db-location-row">
+                    <div id="stockLocButtons" class="db-loc-btns">
+                        <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
+                    </div>
+                </div>
+                <div class="db-location-row">
+                    <div class="db-loc-btns">
+                        <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
+                        <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
+                        <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
+                        <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
                     </div>
                 </div>
                 <div id="stockOverviewList" style="padding:0 20px 16px;overflow-x:auto;">
@@ -410,100 +394,6 @@
     border-color: #1a6eff;
     color: #ffffff;
     font-weight: 600;
-}
-
-.db-stock-filter-panel {
-    padding: 16px 20px 0;
-}
-
-.db-stock-filter-layer {
-    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
-    overflow: hidden;
-}
-
-.db-stock-filter-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    background: rgba(26, 110, 255, 0.04);
-}
-
-.db-stock-filter-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.db-stock-filter-clear {
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    color: #475569;
-    border-radius: 999px;
-    padding: 5px 10px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.db-stock-filter-clear:hover {
-    border-color: #1a6eff;
-    color: #1a6eff;
-}
-
-.db-stock-filter-body {
-    display: grid;
-    grid-template-columns: 1.3fr 1.3fr 0.9fr;
-    gap: 14px;
-    padding: 14px 16px 16px;
-    align-items: end;
-}
-
-.db-stock-filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.db-stock-filter-group label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #64748b;
-    text-transform: uppercase;
-}
-
-.db-stock-search-wrap {
-    min-width: 0;
-}
-
-.db-stock-search-input {
-    width: 100%;
-    border: 1.5px solid #dfe7f3;
-    border-radius: 12px;
-    height: 40px;
-    padding: 0 12px;
-    background: #fff;
-    font-size: 13px;
-    color: #1e293b;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.db-stock-search-input:focus {
-    border-color: #1a6eff;
-    box-shadow: 0 0 0 3px rgba(26,110,255,0.08);
-}
-
-@media (max-width: 900px) {
-    .db-stock-filter-body {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Dashboard main tabs */
@@ -877,15 +767,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sahifa ochilganda "Bugun" aktiv bo'lgani uchun yil/oy/sana ham ko'rsatiladi
     initTodayFilters();
 
-    const stockSearchInput = document.getElementById('stockSearchInput');
-    if (stockSearchInput) {
-        stockSearchInput.addEventListener('input', function() {
-            const items = (window.stockOverviewItems || []).slice();
-            renderStockOverviewList(filterStockOverviewItems(items, stockSearchInput.value));
-            updateStockCountsByFilteredItems(filterStockOverviewItems(items, stockSearchInput.value));
-        });
-    }
-
     if (userRole === 'omborchi') {
         loadOmborchiDashboard();
     } else {
@@ -915,29 +796,6 @@ function escDbHtml(str) {
 }
 
 let stockLocationsLoaded = false;
-let stockOverviewItems = [];
-
-function filterStockOverviewItems(items, searchText) {
-    const term = (searchText || '').trim().toLowerCase();
-    if (!term) return items;
-    return items.filter(item => {
-        const product = (item.product || '').toLowerCase();
-        const location = (item.location || '').toLowerCase();
-        const statusLabel = (STOCK_STATUS_META[item.status]?.label || '').toLowerCase();
-        return product.includes(term) || location.includes(term) || statusLabel.includes(term);
-    });
-}
-
-function updateStockCountsByFilteredItems(items) {
-    const counts = { sufficient: 0, low: 0, out: 0 };
-    items.forEach(item => {
-        if (counts[item.status] !== undefined) counts[item.status] += 1;
-    });
-    const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 0; };
-    setCount('stockCountSufficient', counts.sufficient);
-    setCount('stockCountLow', counts.low);
-    setCount('stockCountOut', counts.out);
-}
 
 async function loadStockOverview() {
     const list = document.getElementById('stockOverviewList');
@@ -958,9 +816,6 @@ async function loadStockOverview() {
         const data = await responses[0].json();
         if (!data.success) throw new Error(data.error || 'Xatolik');
 
-        const items = data.items || [];
-        stockOverviewItems = items.slice();
-
         const c = data.counts || {};
         const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 0; };
         setCount('stockCountSufficient', c.sufficient);
@@ -973,12 +828,7 @@ async function loadStockOverview() {
             stockLocationsLoaded = true;
         }
 
-        const searchInput = document.getElementById('stockSearchInput');
-        const filteredItems = filterStockOverviewItems(items, searchInput ? searchInput.value : '');
-        renderStockOverviewList(filteredItems);
-        if (searchInput && searchInput.value.trim()) {
-            updateStockCountsByFilteredItems(filteredItems);
-        }
+        renderStockOverviewList(data.items || []);
         loadStockOutBadge();
     } catch (e) {
         console.error('Mahsulot qoldig\'i xatolik:', e);
@@ -1032,25 +882,6 @@ function selectStockLocation(clickedBtn, locationId, locationType) {
 function selectStockStatus(clickedBtn, status) {
     document.querySelectorAll('.db-stock-status-btn').forEach(b => b.classList.remove('active'));
     clickedBtn.classList.add('active');
-    loadStockOverview();
-}
-
-function clearStockFilters() {
-    const allLocBtn = document.querySelector('.db-oos-loc-btn[data-location=""]');
-    if (allLocBtn) {
-        document.querySelectorAll('.db-oos-loc-btn').forEach(b => b.classList.remove('active'));
-        allLocBtn.classList.add('active');
-    }
-
-    const allStatusBtn = document.querySelector('.db-stock-status-btn[data-status=""]');
-    if (allStatusBtn) {
-        document.querySelectorAll('.db-stock-status-btn').forEach(b => b.classList.remove('active'));
-        allStatusBtn.classList.add('active');
-    }
-
-    const searchInput = document.getElementById('stockSearchInput');
-    if (searchInput) searchInput.value = '';
-
     loadStockOverview();
 }
 
