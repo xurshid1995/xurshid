@@ -128,6 +128,12 @@
                         <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
                     </div>
                 </div>
+                <div class="db-stock-search-panel">
+                    <div class="db-stock-search-layer">
+                        <div class="db-stock-search-title">🔎 Qidiruv</div>
+                        <input id="stockSearchInput" class="db-stock-search-input" type="text" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
+                    </div>
+                </div>
                 <div id="stockOverviewList" style="padding:0 20px 16px;overflow-x:auto;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
                 </div>
@@ -394,6 +400,60 @@
     border-color: #1a6eff;
     color: #ffffff;
     font-weight: 600;
+}
+
+.db-stock-search-panel {
+    padding: 14px 20px 0;
+}
+
+.db-stock-search-layer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.db-stock-search-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.db-stock-search-input {
+    flex: 1;
+    min-width: 0;
+    border: 1.5px solid #dfe7f3;
+    border-radius: 12px;
+    height: 40px;
+    padding: 0 12px;
+    background: #fff;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.db-stock-search-input:focus {
+    border-color: #1a6eff;
+    box-shadow: 0 0 0 3px rgba(26,110,255,0.08);
+}
+
+@media (max-width: 720px) {
+    .db-stock-search-layer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .db-stock-search-title {
+        white-space: normal;
+    }
 }
 
 /* Dashboard main tabs */
@@ -767,6 +827,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sahifa ochilganda "Bugun" aktiv bo'lgani uchun yil/oy/sana ham ko'rsatiladi
     initTodayFilters();
 
+    const stockSearchInput = document.getElementById('stockSearchInput');
+    if (stockSearchInput) {
+        stockSearchInput.addEventListener('input', function() {
+            const rawItems = Array.isArray(window.stockOverviewItems) ? window.stockOverviewItems : [];
+            const term = stockSearchInput.value.trim().toLowerCase();
+            const filteredItems = !term ? rawItems : rawItems.filter(item => {
+                const product = (item.product || '').toLowerCase();
+                const location = (item.location || '').toLowerCase();
+                return product.includes(term) || location.includes(term);
+            });
+            renderStockOverviewList(filteredItems);
+        });
+    }
+
     if (userRole === 'omborchi') {
         loadOmborchiDashboard();
     } else {
@@ -796,6 +870,7 @@ function escDbHtml(str) {
 }
 
 let stockLocationsLoaded = false;
+window.stockOverviewItems = [];
 
 async function loadStockOverview() {
     const list = document.getElementById('stockOverviewList');
@@ -828,7 +903,16 @@ async function loadStockOverview() {
             stockLocationsLoaded = true;
         }
 
-        renderStockOverviewList(data.items || []);
+        const items = data.items || [];
+        window.stockOverviewItems = items;
+        const stockSearchInput = document.getElementById('stockSearchInput');
+        const term = stockSearchInput ? stockSearchInput.value.trim().toLowerCase() : '';
+        const filteredItems = !term ? items : items.filter(item => {
+            const product = (item.product || '').toLowerCase();
+            const location = (item.location || '').toLowerCase();
+            return product.includes(term) || location.includes(term);
+        });
+        renderStockOverviewList(filteredItems);
         loadStockOutBadge();
     } catch (e) {
         console.error('Mahsulot qoldig\'i xatolik:', e);
