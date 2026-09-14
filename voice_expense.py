@@ -277,15 +277,14 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
 def transcribe_voice(audio_bytes: bytes) -> Optional[str]:
     """
     Mavjud sozlangan provayder orqali ovozni matnga aylantirish.
-    Ustuvorlik: GOOGLE_APPLICATION_CREDENTIALS (Cloud Speech - maxsus ASR, aniqroq) ->
-    GEMINI_API_KEY (umumiy LLM, sodda, lekin raqam/kategoriyada ko'proq adashadi).
+    Ustuvorlik: GEMINI_API_KEY (soddaroq) -> GOOGLE_APPLICATION_CREDENTIALS (Cloud Speech).
     """
-    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-        text = transcribe_voice_google(audio_bytes)
+    if os.getenv('GEMINI_API_KEY'):
+        text = transcribe_voice_gemini(audio_bytes)
         if text:
             return text
-    if os.getenv('GEMINI_API_KEY'):
-        return transcribe_voice_gemini(audio_bytes)
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+        return transcribe_voice_google(audio_bytes)
     return None
 
 
