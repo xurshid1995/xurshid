@@ -5,6 +5,7 @@ Mijozlarga qarz haqida avtomatik xabar yuborish
 """
 import os
 import logging
+import asyncio
 import requests
 import random
 from datetime import datetime
@@ -1612,9 +1613,11 @@ def _is_admin_chat(chat_id: int) -> bool:
 
 
 def _build_voice_expense_text(pending: Dict) -> str:
+    loc_emoji = '📦' if pending.get('location_type') == 'warehouse' else '🏪'
+    loc_label = 'Ombor' if pending.get('location_type') == 'warehouse' else "Do'kon"
     return (
         f"🗣 Tanildi: <i>{pending['raw_text']}</i>\n\n"
-        f"🏪 Do'kon: <b>{pending['store_name']}</b>\n"
+        f"{loc_emoji} {loc_label}: <b>{pending['store_name']}</b>\n"
         f"📁 Kategoriya: <b>{pending['category']}</b>\n"
         f"💵 Summa: <b>{pending['amount_uzs']:,.0f} so'm</b>\n\n"
         "Kerak bo'lsa tugmalar bilan to'g'rilang, so'ng saqlang."
@@ -1636,8 +1639,11 @@ def _build_voice_expense_keyboard(pending_key: str, pending: Dict) -> InlineKeyb
     if len(store_options) > 1:
         store_buttons = []
         for idx, s in enumerate(store_options):
-            label = ('✅ ' if s['id'] == pending['store_id'] else '🏪 ') + s['name']
-            store_buttons.append(InlineKeyboardButton(label, callback_data=f"voiceexp_store_{pending_key}_{idx}"))
+            is_selected = s['id'] == pending['store_id'] and s['type'] == pending.get('location_type')
+            emoji = '✅' if is_selected else ('📦' if s['type'] == 'warehouse' else '🏪')
+            store_buttons.append(
+                InlineKeyboardButton(f"{emoji} {s['name']}", callback_data=f"voiceexp_store_{pending_key}_{idx}")
+            )
         for i in range(0, len(store_buttons), 2):
             rows.append(store_buttons[i:i + 2])
 
@@ -1650,7 +1656,7 @@ def _build_voice_expense_keyboard(pending_key: str, pending: Dict) -> InlineKeyb
 
 async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ovozli xabar orqali xarajat yozish - faqat adminlar uchun"""
-    from app import app, db, Store, Expense
+    from app import app, db, Store, Warehouse, Expense
 
     chat_id = update.effective_chat.id
 
@@ -1680,7 +1686,8 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         return
 
-    recognized_text = transcribe_voice(audio_bytes)
+    # Bloklovchi (tarmoq/DB) ishlar asosiy event loop'ni to'xtatib qo'ymasligi uchun alohida thread'da bajariladi
+    recognized_text = await asyncio.to_thread(transcribe_voice, audio_bytes)
 
     if not recognized_text:
         await update.message.reply_text(
@@ -1688,19 +1695,25 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         return
 
-    with app.app_context():
-        stores = [(s.id, s.name) for s in Store.query.all()]
-        # Eng ko'p ishlatiladigan kategoriyalar avval (tugma sifatida ko'rsatish uchun)
-        cat_rows = (
-            db.session.query(Expense.category, db.func.count(Expense.id).label('cnt'))
-            .filter(Expense.category.isnot(None))
-            .group_by(Expense.category)
-            .order_by(db.func.count(Expense.id).desc())
-            .limit(6)
-            .all()
-        )
-        known_categories = [c[0] for c in cat_rows]
-        parsed = parse_voice_expense(recognized_text, stores, known_categories)
+    def _load_and_parse():
+        with app.app_context():
+            locations = (
+                [(s.id, s.name, 'store') for s in Store.query.all()] +
+                [(w.id, w.name, 'warehouse') for w in Warehouse.query.all()]
+            )
+            # Eng ko'p ishlatiladigan kategoriyalar avval (tugma sifatida ko'rsatish uchun)
+            cat_rows = (
+                db.session.query(Expense.category, db.func.count(Expense.id).label('cnt'))
+                .filter(Expense.category.isnot(None))
+                .group_by(Expense.category)
+                .order_by(db.func.count(Expense.id).desc())
+                .limit(6)
+                .all()
+            )
+            known_categories = [c[0] for c in cat_rows]
+            return parse_voice_expense(recognized_text, locations, known_categories), known_categories
+
+    parsed, known_categories = await asyncio.to_thread(_load_and_parse)
 
     amount = parsed['amount_uzs']
     candidates = parsed['store_candidates']
@@ -1716,8 +1729,8 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
 
     if not candidates:
         await update.message.reply_text(
-            f"❌ Do'kon aniqlanmadi.\n\n🗣 Tanildi: <i>{recognized_text}</i>\n\n"
-            "Iltimos, do'kon nomini aniqroq ayting.",
+            f"❌ Do'kon/ombor aniqlanmadi.\n\n🗣 Tanildi: <i>{recognized_text}</i>\n\n"
+            "Iltimos, do'kon yoki ombor nomini aniqroq ayting.",
             parse_mode='HTML'
         )
         return
@@ -1736,6 +1749,7 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         'raw_text': recognized_text,
         'store_id': best['id'],
         'store_name': best['name'],
+        'location_type': best['type'],
         'store_options': candidates[:4],
         'category_options': cat_options,
     }
@@ -1795,6 +1809,7 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
             s = pending['store_options'][idx]
             pending['store_id'] = s['id']
             pending['store_name'] = s['name']
+            pending['location_type'] = s['type']
         await query.answer()
         await query.edit_message_text(
             _build_voice_expense_text(pending),
@@ -1824,7 +1839,7 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
                     category=pending['category'],
                     description=pending['raw_text'],
                     created_by=f"telegram_{chat_id}",
-                    location_type='store',
+                    location_type=pending.get('location_type', 'store'),
                     location_id=pending['store_id'],
                     location_name=pending['store_name'],
                 )
@@ -2202,8 +2217,6 @@ def get_bot_instance(db=None) -> DebtTelegramBot:
 
 if __name__ == "__main__":
     # Test
-    import asyncio
-
     async def test_bot():
         bot = get_bot_instance()
 

@@ -110,25 +110,25 @@ def extract_amount_uzs(text: str) -> Optional[int]:
 
 
 def find_matching_store(
-    text: str, stores: List[Tuple[int, str]], threshold: float = 55.0
+    text: str, locations: List[Tuple[int, str, str]], threshold: float = 55.0
 ) -> List[Dict]:
     """
-    Matnda tilga olingan do'kon nomini stores ro'yxati bilan taqqoslash (fuzzy match).
-    stores: [(id, name), ...]
+    Matnda tilga olingan do'kon/ombor nomini locations ro'yxati bilan taqqoslash (fuzzy match).
+    locations: [(id, name, location_type), ...] - location_type: 'store' yoki 'warehouse'
     Qaytaradi: eng mos nomzodlar ro'yxati (score bo'yicha kamayish tartibida), har biri
-    {'id', 'name', 'score'}
+    {'id', 'name', 'type', 'score'}
     """
-    if not stores:
+    if not locations:
         return []
 
     from rapidfuzz import fuzz
 
     text_norm = _normalize_text(text)
     scored = []
-    for store_id, name in stores:
+    for loc_id, name, loc_type in locations:
         name_norm = _normalize_text(name)
         score = fuzz.partial_ratio(name_norm, text_norm)
-        scored.append({'id': store_id, 'name': name, 'score': score})
+        scored.append({'id': loc_id, 'name': name, 'type': loc_type, 'score': score})
 
     scored.sort(key=lambda s: s['score'], reverse=True)
     return [s for s in scored if s['score'] >= threshold]
@@ -258,22 +258,23 @@ def transcribe_voice(audio_bytes: bytes) -> Optional[str]:
 
 def parse_voice_expense(
     text: str,
-    stores: List[Tuple[int, str]],
+    locations: List[Tuple[int, str, str]],
     known_categories: Optional[List[str]] = None,
 ) -> Dict:
     """
     Tarjima qilingan matndan xarajat ma'lumotlarini ajratib olish.
+    locations: [(id, name, location_type), ...] - do'kon va omborlar birgalikda
 
     Returns:
         {
             'raw_text': str,
             'amount_uzs': Optional[int],
-            'store_candidates': List[{'id','name','score'}],
+            'store_candidates': List[{'id','name','type','score'}],
             'category': Optional[str],
         }
     """
     amount = extract_amount_uzs(text)
-    store_candidates = find_matching_store(text, stores)
+    store_candidates = find_matching_store(text, locations)
     category = find_matching_category(text, known_categories or [])
     if not category:
         category = extract_category_phrase(text)
