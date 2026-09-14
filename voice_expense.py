@@ -229,12 +229,20 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-flash-latest")
-        response = model.generate_content([
-            {"mime_type": "audio/ogg", "data": audio_bytes},
-            "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
-            "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin).",
-        ])
+        # "flash-latest" preview modellarga (masalan gemini-3.8-flash) yo'naltirilishi mumkin,
+        # ularning bepul kvotasi juda kichik (kuniga ~20 so'rov) va 429 xatosida avtomatik
+        # qayta urinish (retry+backoff) o'nlab soniya kutishga olib keladi. "flash-lite" ancha
+        # yuqori bepul kvota va tezroq javob beradi, transkripsiya kabi oddiy vazifa uchun yetarli.
+        model = genai.GenerativeModel("gemini-flash-lite-latest")
+        response = model.generate_content(
+            [
+                {"mime_type": "audio/ogg", "data": audio_bytes},
+                "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
+                "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin).",
+            ],
+            # Kvota/tarmoq xatosida uzoq (o'nlab soniyalik) avtomatik retry o'rniga tez xato qaytarish
+            request_options={"timeout": 20},
+        )
         text = (response.text or "").strip()
         return text or None
     except Exception as e:
