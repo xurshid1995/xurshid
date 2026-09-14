@@ -230,10 +230,11 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
     try:
         genai.configure(api_key=api_key)
         # "flash-latest" preview modellarga (masalan gemini-3.8-flash) yo'naltirilishi mumkin,
-        # ularning bepul kvotasi juda kichik (kuniga ~20 so'rov) va 429 xatosida avtomatik
-        # qayta urinish (retry+backoff) o'nlab soniya kutishga olib keladi. "flash-lite" ancha
-        # yuqori bepul kvota va tezroq javob beradi, transkripsiya kabi oddiy vazifa uchun yetarli.
-        model = genai.GenerativeModel("gemini-flash-lite-latest")
+        # ularning bepul kvotasi juda kichik (kuniga ~20 so'rov) va 429 xatosida avtomatik qayta
+        # urinish o'nlab soniya kutishga olib keladi. "flash-lite" esa tez, lekin transkripsiya
+        # sifati juda past (raqam/matn ko'p noto'g'ri tanildi). "gemini-2.5-flash" - barqaror (GA,
+        # preview emas) model, sifat va tezlik/kvota orasida eng yaxshi muvozanat.
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(
             [
                 {"mime_type": "audio/ogg", "data": audio_bytes},
@@ -241,7 +242,7 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
                 "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin).",
             ],
             # Kvota/tarmoq xatosida uzoq (o'nlab soniyalik) avtomatik retry o'rniga tez xato qaytarish
-            request_options={"timeout": 20},
+            request_options={"timeout": 25},
         )
         text = (response.text or "").strip()
         return text or None
