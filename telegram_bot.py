@@ -1592,6 +1592,176 @@ async def handle_link_contact(update: Update, context: ContextTypes.DEFAULT_TYPE
             )
 
 
+# Tasdiqlanishi kutilayotgan ovozli xarajatlar (chat_id -> parsed data)
+pending_voice_expenses = {}
+
+
+def _is_admin_chat(chat_id: int) -> bool:
+    """Chat ID admin ro'yxatida (TELEGRAM_ADMIN_CHAT_IDS / Settings) borligini tekshirish"""
+    bot = get_bot_instance()
+    return chat_id in (bot.admin_chat_ids or [])
+
+
+async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ovozli xabar orqali xarajat yozish - faqat adminlar uchun"""
+    from app import app, db, Store, Expense
+
+    chat_id = update.effective_chat.id
+
+    if not _is_admin_chat(chat_id):
+        await update.message.reply_text(
+            "⛔ Bu funksiyadan faqat administrator foydalana oladi."
+        )
+        return
+
+    await update.message.reply_text("🎙 Ovozli xabar tahlil qilinmoqda...")
+
+    try:
+        voice = update.message.voice
+        tg_file = await context.bot.get_file(voice.file_id)
+        audio_bytes = bytes(await tg_file.download_as_bytearray())
+    except Exception as e:
+        logger.error(f"❌ Ovozli xabarni yuklab olishda xatolik: {e}")
+        await update.message.reply_text("❌ Ovozli xabarni yuklab olishda xatolik yuz berdi.")
+        return
+
+    from voice_expense import transcribe_voice_google, parse_voice_expense
+
+    recognized_text = transcribe_voice_google(audio_bytes, sample_rate_hertz=48000)
+
+    if not recognized_text:
+        await update.message.reply_text(
+            "❌ Ovozli xabarni matnga aylantirib bo'lmadi. Iltimos, aniqroq va sekinroq gapirib qayta yuboring."
+        )
+        return
+
+    with app.app_context():
+        stores = [(s.id, s.name) for s in Store.query.all()]
+        known_categories = [
+            c[0] for c in db.session.query(Expense.category).filter(
+                Expense.category.isnot(None)).distinct().all() if c[0]
+        ]
+        parsed = parse_voice_expense(recognized_text, stores, known_categories)
+
+    amount = parsed['amount_uzs']
+    candidates = parsed['store_candidates']
+    category = parsed['category'] or 'Boshqa'
+
+    if not amount:
+        await update.message.reply_text(
+            f"❌ Summani aniqlab bo'lmadi.\n\n🗣 Tanildi: <i>{recognized_text}</i>\n\n"
+            "Iltimos, summani aniqroq ayting (masalan: \"...40000 so'm xarajat\").",
+            parse_mode='HTML'
+        )
+        return
+
+    if not candidates:
+        await update.message.reply_text(
+            f"❌ Do'kon aniqlanmadi.\n\n🗣 Tanildi: <i>{recognized_text}</i>\n\n"
+            "Iltimos, do'kon nomini aniqroq ayting.",
+            parse_mode='HTML'
+        )
+        return
+
+    # Eng mos nomzod aniq bo'lsa (yuqori ball) - tasdiqlash uchun ko'rsatish
+    best = candidates[0]
+    pending_key = f"{chat_id}_{update.message.message_id}"
+    pending_voice_expenses[pending_key] = {
+        'amount_uzs': amount,
+        'category': category,
+        'raw_text': recognized_text,
+        'store_id': best['id'],
+        'store_name': best['name'],
+    }
+
+    keyboard_rows = [[
+        InlineKeyboardButton("✅ Saqlash", callback_data=f"voiceexp_ok_{pending_key}"),
+        InlineKeyboardButton("❌ Bekor qilish", callback_data=f"voiceexp_cancel_{pending_key}"),
+    ]]
+
+    # Agar bir nechta do'kon mos kelsa, boshqasini tanlash imkonini berish
+    other_candidates = [c for c in candidates[1:4]]
+    for c in other_candidates:
+        alt_key = f"{pending_key}_{c['id']}"
+        pending_voice_expenses[alt_key] = {
+            'amount_uzs': amount,
+            'category': category,
+            'raw_text': recognized_text,
+            'store_id': c['id'],
+            'store_name': c['name'],
+        }
+        keyboard_rows.append([
+            InlineKeyboardButton(f"🏪 {c['name']} tanlash", callback_data=f"voiceexp_ok_{alt_key}")
+        ])
+
+    await update.message.reply_text(
+        f"🗣 Tanildi: <i>{recognized_text}</i>\n\n"
+        f"🏪 Do'kon: <b>{best['name']}</b>\n"
+        f"📁 Kategoriya: <b>{category}</b>\n"
+        f"💵 Summa: <b>{amount:,.0f} so'm</b>\n\n"
+        "To'g'rimi?",
+        parse_mode='HTML',
+        reply_markup=InlineKeyboardMarkup(keyboard_rows)
+    )
+
+
+async def handle_voice_expense_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ovozli xarajatni tasdiqlash/bekor qilish tugmalari"""
+    from app import app, db, Expense
+
+    query = update.callback_query
+    chat_id = update.effective_chat.id
+
+    if not _is_admin_chat(chat_id):
+        await query.answer("⛔ Ruxsat yo'q", show_alert=True)
+        return
+
+    data = query.data
+    if data.startswith('voiceexp_cancel_'):
+        pending_key = data[len('voiceexp_cancel_'):]
+        pending_voice_expenses.pop(pending_key, None)
+        await query.answer()
+        await query.edit_message_text("❌ Bekor qilindi.")
+        return
+
+    if data.startswith('voiceexp_ok_'):
+        pending_key = data[len('voiceexp_ok_'):]
+        pending = pending_voice_expenses.pop(pending_key, None)
+        if not pending:
+            await query.answer("❌ Muddati o'tgan, qayta yuboring.", show_alert=True)
+            return
+
+        await query.answer()
+
+        with app.app_context():
+            try:
+                expense = Expense(
+                    title=pending['category'],
+                    amount_usd=0,
+                    amount_uzs=pending['amount_uzs'],
+                    category=pending['category'],
+                    description=pending['raw_text'],
+                    created_by=f"telegram_{chat_id}",
+                    location_type='store',
+                    location_id=pending['store_id'],
+                    location_name=pending['store_name'],
+                )
+                db.session.add(expense)
+                db.session.commit()
+
+                await query.edit_message_text(
+                    f"✅ Xarajat saqlandi!\n\n"
+                    f"🏪 {pending['store_name']}\n"
+                    f"📁 {pending['category']}\n"
+                    f"💵 {pending['amount_uzs']:,.0f} so'm"
+                )
+                logger.info(f"✅ Ovozli xarajat saqlandi: {pending}")
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f"❌ Ovozli xarajatni saqlashda xatolik: {e}")
+                await query.edit_message_text("❌ Saqlashda xatolik yuz berdi.")
+
+
 def create_telegram_app():
     """Telegram Application yaratish"""
     token = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -1611,6 +1781,12 @@ def create_telegram_app():
 
         # Contact handler - /link_account yoki oddiy telefon uchun
         application.add_handler(MessageHandler(filters.CONTACT, handle_link_contact))
+
+        # Ovozli xabar - admin uchun xarajat yozish
+        application.add_handler(MessageHandler(filters.VOICE, handle_voice_expense))
+        application.add_handler(
+            CallbackQueryHandler(handle_voice_expense_callback, pattern=r'^voiceexp_')
+        )
 
         # "Qarzni tekshirish" tugmasi handler
         application.add_handler(
