@@ -229,7 +229,7 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-flash-latest")
         response = model.generate_content([
             {"mime_type": "audio/ogg", "data": audio_bytes},
             "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
