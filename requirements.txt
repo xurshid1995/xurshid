@@ -25,4 +25,5 @@ python-telegram-bot==20.7
 apscheduler==3.10.4
 
 # Ovozli xabarni matnga aylantirish (Telegram bot xarajat funksiyasi)
+google-generativeai==0.8.3
 google-cloud-speech==2.27.0

@@ -211,6 +211,51 @@ def transcribe_voice_google(audio_bytes: bytes, sample_rate_hertz: int = 48000) 
         return None
 
 
+def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
+    """
+    Telegram OGG/OPUS ovozli xabarni Gemini API orqali matnga aylantirish.
+    Faqat bitta GEMINI_API_KEY kerak (https://aistudio.google.com/apikey - bepul, kartasiz).
+    """
+    try:
+        import google.generativeai as genai
+    except ImportError:
+        logger.error("❌ google-generativeai kutubxonasi o'rnatilmagan (pip install google-generativeai)")
+        return None
+
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        logger.error("❌ GEMINI_API_KEY sozlanmagan")
+        return None
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content([
+            {"mime_type": "audio/ogg", "data": audio_bytes},
+            "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
+            "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin).",
+        ])
+        text = (response.text or "").strip()
+        return text or None
+    except Exception as e:
+        logger.error(f"❌ Gemini transkripsiya xatolik: {e}")
+        return None
+
+
+def transcribe_voice(audio_bytes: bytes) -> Optional[str]:
+    """
+    Mavjud sozlangan provayder orqali ovozni matnga aylantirish.
+    Ustuvorlik: GEMINI_API_KEY (soddaroq) -> GOOGLE_APPLICATION_CREDENTIALS (Cloud Speech).
+    """
+    if os.getenv('GEMINI_API_KEY'):
+        text = transcribe_voice_gemini(audio_bytes)
+        if text:
+            return text
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+        return transcribe_voice_google(audio_bytes)
+    return None
+
+
 def parse_voice_expense(
     text: str,
     stores: List[Tuple[int, str]],

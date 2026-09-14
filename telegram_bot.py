@@ -1625,16 +1625,16 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text("❌ Ovozli xabarni yuklab olishda xatolik yuz berdi.")
         return
 
-    from voice_expense import transcribe_voice_google, parse_voice_expense
+    from voice_expense import transcribe_voice, parse_voice_expense
 
-    if not os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+    if not os.getenv('GEMINI_API_KEY') and not os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
         await update.message.reply_text(
-            "⚠️ Ovoz tanish sozlanmagan (GOOGLE_APPLICATION_CREDENTIALS yo'q). "
-            "Serverdagi .env fayliga Google Cloud kalitini qo'shing va botni qayta ishga tushiring."
+            "⚠️ Ovoz tanish sozlanmagan (GEMINI_API_KEY yoki GOOGLE_APPLICATION_CREDENTIALS yo'q). "
+            "Serverdagi .env fayliga kalitni qo'shing va botni qayta ishga tushiring."
         )
         return
 
-    recognized_text = transcribe_voice_google(audio_bytes, sample_rate_hertz=48000)
+    recognized_text = transcribe_voice(audio_bytes)
 
     if not recognized_text:
         await update.message.reply_text(
