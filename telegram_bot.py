@@ -1714,7 +1714,7 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def handle_voice_expense_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ovozli xarajatni tasdiqlash/bekor qilish tugmalari"""
-    from app import app, db, Expense
+    from app import app, db, Expense, get_current_currency_rate
 
     query = update.callback_query
     chat_id = update.effective_chat.id
@@ -1742,9 +1742,12 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
 
         with app.app_context():
             try:
+                rate = get_current_currency_rate()
+                amount_usd = round(pending['amount_uzs'] / rate, 2) if rate else 0
+
                 expense = Expense(
                     title=pending['category'],
-                    amount_usd=0,
+                    amount_usd=amount_usd,
                     amount_uzs=pending['amount_uzs'],
                     category=pending['category'],
                     description=pending['raw_text'],
@@ -1761,6 +1764,7 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
                     f"🏪 {pending['store_name']}\n"
                     f"📁 {pending['category']}\n"
                     f"💵 {pending['amount_uzs']:,.0f} so'm"
+                    + (f" (${amount_usd:,.2f})" if amount_usd else "")
                 )
                 logger.info(f"✅ Ovozli xarajat saqlandi: {pending}")
             except Exception as e:
