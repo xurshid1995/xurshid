@@ -239,8 +239,15 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
 
     genai.configure(api_key=api_key)
     prompt = (
-        "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
-        "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin)."
+        "Sen professional audio transkripsiya vositasisan. Ushbu ovozli xabarni ANIQ so'zma-so'z "
+        "matnga aylantir. Til: o'zbekcha (lotin yozuvida), ba'zi so'zlar ruscha bo'lishi mumkin.\n"
+        "QOIDALAR:\n"
+        "- Faqat eshitilgan gapni yoz, hech qanday izoh, tarjima yoki tushuntirish qo'shma.\n"
+        "- Barcha sonlarni (summalarni) albatta RAQAM bilan yoz, so'z bilan emas "
+        "(masalan \"qirq ming\" emas, \"40000\" deb yoz).\n"
+        "- Agar biror qism aniq eshitilmasa, eng yaqin ehtimoldagi so'zni yoz, lekin butunlay "
+        "boshqa mavzudagi gap TO'QIMA.\n"
+        "- Bu odatda do'kon/ombor nomi, xarajat sababi va summa haqidagi qisqa gap bo'ladi."
     )
 
     last_error = None
@@ -249,6 +256,8 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(
                 [{"mime_type": "audio/ogg", "data": audio_bytes}, prompt],
+                # temperature=0 - "ijodiy" (hallucination) emas, imkon qadar so'zma-so'z natija
+                generation_config={"temperature": 0},
                 # Kvota/tarmoq xatosida uzoq (o'nlab soniyalik) avtomatik retry o'rniga tez xato qaytarish
                 request_options={"timeout": 25},
             )
