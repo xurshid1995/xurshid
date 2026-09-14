@@ -211,6 +211,16 @@ def transcribe_voice_google(audio_bytes: bytes, sample_rate_hertz: int = 48000) 
         return None
 
 
+# Gemini model nomlari tez-tez o'zgarib/eskirib turadi (404 yoki tor bepul kvota bilan 429),
+# shu sabab bir nechta nomzod ketma-ket sinaladi - biri ishlamasa keyingisiga o'tiladi.
+_GEMINI_MODEL_CANDIDATES = [
+    "gemini-3.6-flash",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+    "gemini-flash-lite-latest",
+]
+
+
 def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
     """
     Telegram OGG/OPUS ovozli xabarni Gemini API orqali matnga aylantirish.
@@ -227,28 +237,32 @@ def transcribe_voice_gemini(audio_bytes: bytes) -> Optional[str]:
         logger.error("❌ GEMINI_API_KEY sozlanmagan")
         return None
 
-    try:
-        genai.configure(api_key=api_key)
-        # "flash-latest" preview modellarga (masalan gemini-3.8-flash) yo'naltirilishi mumkin,
-        # ularning bepul kvotasi juda kichik (kuniga ~20 so'rov) va 429 xatosida avtomatik qayta
-        # urinish o'nlab soniya kutishga olib keladi. "flash-lite" esa tez, lekin transkripsiya
-        # sifati juda past (raqam/matn ko'p noto'g'ri tanildi). "gemini-2.5-flash" - barqaror (GA,
-        # preview emas) model, sifat va tezlik/kvota orasida eng yaxshi muvozanat.
-        model = genai.GenerativeModel("gemini-2.5-flash")
-        response = model.generate_content(
-            [
-                {"mime_type": "audio/ogg", "data": audio_bytes},
-                "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
-                "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin).",
-            ],
-            # Kvota/tarmoq xatosida uzoq (o'nlab soniyalik) avtomatik retry o'rniga tez xato qaytarish
-            request_options={"timeout": 25},
-        )
-        text = (response.text or "").strip()
-        return text or None
-    except Exception as e:
-        logger.error(f"❌ Gemini transkripsiya xatolik: {e}")
-        return None
+    genai.configure(api_key=api_key)
+    prompt = (
+        "Ushbu ovozli xabarni so'zma-so'z matnga aylantir (transkripsiya qil). "
+        "Faqat aytilgan gapni yoz, izoh yoki tarjima qo'shma. Til: o'zbekcha (ba'zi so'zlar ruscha bo'lishi mumkin)."
+    )
+
+    last_error = None
+    for model_name in _GEMINI_MODEL_CANDIDATES:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(
+                [{"mime_type": "audio/ogg", "data": audio_bytes}, prompt],
+                # Kvota/tarmoq xatosida uzoq (o'nlab soniyalik) avtomatik retry o'rniga tez xato qaytarish
+                request_options={"timeout": 25},
+            )
+            text = (response.text or "").strip()
+            if text:
+                return text
+        except Exception as e:
+            last_error = e
+            logger.warning(f"⚠️ Gemini model '{model_name}' ishlamadi, keyingisi sinaladi: {e}")
+            continue
+
+    logger.error(f"❌ Gemini transkripsiya xatolik (barcha modellar ishlamadi): {last_error}")
+    return None
+
 
 
 def transcribe_voice(audio_bytes: bytes) -> Optional[str]:
