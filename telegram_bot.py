@@ -941,6 +941,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     chat_id = update.effective_chat.id
 
+    if _is_admin_chat(chat_id):
+        await update.message.reply_text(
+            "👑 <b>Admin panel</b>\n\n"
+            "Quyidagi tugmalardan foydalaning yoki xarajat yozish uchun ovozli xabar yuboring:",
+            parse_mode='HTML',
+            reply_markup=_admin_menu_keyboard()
+        )
+        return
+
     # Mijoz allaqachon ro'yxatdan o'tganmi tekshirish
     with app.app_context():
         try:
@@ -1602,6 +1611,43 @@ def _is_admin_chat(chat_id: int) -> bool:
     return chat_id in (bot.admin_chat_ids or [])
 
 
+def _build_voice_expense_text(pending: Dict) -> str:
+    return (
+        f"🗣 Tanildi: <i>{pending['raw_text']}</i>\n\n"
+        f"🏪 Do'kon: <b>{pending['store_name']}</b>\n"
+        f"📁 Kategoriya: <b>{pending['category']}</b>\n"
+        f"💵 Summa: <b>{pending['amount_uzs']:,.0f} so'm</b>\n\n"
+        "Kerak bo'lsa tugmalar bilan to'g'rilang, so'ng saqlang."
+    )
+
+
+def _build_voice_expense_keyboard(pending_key: str, pending: Dict) -> InlineKeyboardMarkup:
+    rows = []
+
+    cat_options = pending.get('category_options') or []
+    cat_buttons = []
+    for idx, cat in enumerate(cat_options):
+        label = ('✅ ' if cat == pending['category'] else '') + cat
+        cat_buttons.append(InlineKeyboardButton(label, callback_data=f"voiceexp_cat_{pending_key}_{idx}"))
+    for i in range(0, len(cat_buttons), 2):
+        rows.append(cat_buttons[i:i + 2])
+
+    store_options = pending.get('store_options') or []
+    if len(store_options) > 1:
+        store_buttons = []
+        for idx, s in enumerate(store_options):
+            label = ('✅ ' if s['id'] == pending['store_id'] else '🏪 ') + s['name']
+            store_buttons.append(InlineKeyboardButton(label, callback_data=f"voiceexp_store_{pending_key}_{idx}"))
+        for i in range(0, len(store_buttons), 2):
+            rows.append(store_buttons[i:i + 2])
+
+    rows.append([
+        InlineKeyboardButton("✅ Saqlash", callback_data=f"voiceexp_ok_{pending_key}"),
+        InlineKeyboardButton("❌ Bekor qilish", callback_data=f"voiceexp_cancel_{pending_key}"),
+    ])
+    return InlineKeyboardMarkup(rows)
+
+
 async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ovozli xabar orqali xarajat yozish - faqat adminlar uchun"""
     from app import app, db, Store, Expense
@@ -1644,10 +1690,16 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
 
     with app.app_context():
         stores = [(s.id, s.name) for s in Store.query.all()]
-        known_categories = [
-            c[0] for c in db.session.query(Expense.category).filter(
-                Expense.category.isnot(None)).distinct().all() if c[0]
-        ]
+        # Eng ko'p ishlatiladigan kategoriyalar avval (tugma sifatida ko'rsatish uchun)
+        cat_rows = (
+            db.session.query(Expense.category, db.func.count(Expense.id).label('cnt'))
+            .filter(Expense.category.isnot(None))
+            .group_by(Expense.category)
+            .order_by(db.func.count(Expense.id).desc())
+            .limit(6)
+            .all()
+        )
+        known_categories = [c[0] for c in cat_rows]
         parsed = parse_voice_expense(recognized_text, stores, known_categories)
 
     amount = parsed['amount_uzs']
@@ -1670,7 +1722,12 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         return
 
-    # Eng mos nomzod aniq bo'lsa (yuqori ball) - tasdiqlash uchun ko'rsatish
+    # Kategoriya tugmalari - taxmin qilingan kategoriya ro'yxatda bo'lmasa, boshiga qo'shiladi
+    cat_options = list(dict.fromkeys(known_categories))
+    if category not in cat_options:
+        cat_options.insert(0, category)
+    cat_options = cat_options[:5]
+
     best = candidates[0]
     pending_key = f"{chat_id}_{update.message.message_id}"
     pending_voice_expenses[pending_key] = {
@@ -1679,41 +1736,20 @@ async def handle_voice_expense(update: Update, context: ContextTypes.DEFAULT_TYP
         'raw_text': recognized_text,
         'store_id': best['id'],
         'store_name': best['name'],
+        'store_options': candidates[:4],
+        'category_options': cat_options,
     }
 
-    keyboard_rows = [[
-        InlineKeyboardButton("✅ Saqlash", callback_data=f"voiceexp_ok_{pending_key}"),
-        InlineKeyboardButton("❌ Bekor qilish", callback_data=f"voiceexp_cancel_{pending_key}"),
-    ]]
-
-    # Agar bir nechta do'kon mos kelsa, boshqasini tanlash imkonini berish
-    other_candidates = [c for c in candidates[1:4]]
-    for c in other_candidates:
-        alt_key = f"{pending_key}_{c['id']}"
-        pending_voice_expenses[alt_key] = {
-            'amount_uzs': amount,
-            'category': category,
-            'raw_text': recognized_text,
-            'store_id': c['id'],
-            'store_name': c['name'],
-        }
-        keyboard_rows.append([
-            InlineKeyboardButton(f"🏪 {c['name']} tanlash", callback_data=f"voiceexp_ok_{alt_key}")
-        ])
-
+    pending = pending_voice_expenses[pending_key]
     await update.message.reply_text(
-        f"🗣 Tanildi: <i>{recognized_text}</i>\n\n"
-        f"🏪 Do'kon: <b>{best['name']}</b>\n"
-        f"📁 Kategoriya: <b>{category}</b>\n"
-        f"💵 Summa: <b>{amount:,.0f} so'm</b>\n\n"
-        "To'g'rimi?",
+        _build_voice_expense_text(pending),
         parse_mode='HTML',
-        reply_markup=InlineKeyboardMarkup(keyboard_rows)
+        reply_markup=_build_voice_expense_keyboard(pending_key, pending)
     )
 
 
 async def handle_voice_expense_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Ovozli xarajatni tasdiqlash/bekor qilish tugmalari"""
+    """Ovozli xarajatni tasdiqlash/tuzatish/bekor qilish tugmalari"""
     from app import app, db, Expense, get_current_currency_rate
 
     query = update.callback_query
@@ -1729,6 +1765,42 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
         pending_voice_expenses.pop(pending_key, None)
         await query.answer()
         await query.edit_message_text("❌ Bekor qilindi.")
+        return
+
+    if data.startswith('voiceexp_cat_'):
+        pending_key, _, idx_str = data[len('voiceexp_cat_'):].rpartition('_')
+        pending = pending_voice_expenses.get(pending_key)
+        if not pending:
+            await query.answer("❌ Muddati o'tgan, qayta yuboring.", show_alert=True)
+            return
+        idx = int(idx_str)
+        if 0 <= idx < len(pending['category_options']):
+            pending['category'] = pending['category_options'][idx]
+        await query.answer()
+        await query.edit_message_text(
+            _build_voice_expense_text(pending),
+            parse_mode='HTML',
+            reply_markup=_build_voice_expense_keyboard(pending_key, pending)
+        )
+        return
+
+    if data.startswith('voiceexp_store_'):
+        pending_key, _, idx_str = data[len('voiceexp_store_'):].rpartition('_')
+        pending = pending_voice_expenses.get(pending_key)
+        if not pending:
+            await query.answer("❌ Muddati o'tgan, qayta yuboring.", show_alert=True)
+            return
+        idx = int(idx_str)
+        if 0 <= idx < len(pending['store_options']):
+            s = pending['store_options'][idx]
+            pending['store_id'] = s['id']
+            pending['store_name'] = s['name']
+        await query.answer()
+        await query.edit_message_text(
+            _build_voice_expense_text(pending),
+            parse_mode='HTML',
+            reply_markup=_build_voice_expense_keyboard(pending_key, pending)
+        )
         return
 
     if data.startswith('voiceexp_ok_'):
@@ -1773,6 +1845,191 @@ async def handle_voice_expense_callback(update: Update, context: ContextTypes.DE
                 await query.edit_message_text("❌ Saqlashda xatolik yuz berdi.")
 
 
+ADMIN_MENU_LABELS = {
+    'expenses': "📊 Xarajatlar",
+    'profit': "💹 Foyda",
+    'today_debts': "📅 Bugungi qarzlar",
+    'total_debts': "👥 Jami qarzlar",
+}
+
+
+def _admin_menu_keyboard() -> ReplyKeyboardMarkup:
+    keyboard = [
+        [KeyboardButton(ADMIN_MENU_LABELS['expenses']), KeyboardButton(ADMIN_MENU_LABELS['profit'])],
+        [KeyboardButton(ADMIN_MENU_LABELS['today_debts']), KeyboardButton(ADMIN_MENU_LABELS['total_debts'])],
+    ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+
+async def admin_expenses_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin uchun bugungi xarajatlar hisoboti"""
+    from app import app, db, Expense, get_tashkent_time
+
+    chat_id = update.effective_chat.id
+    if not _is_admin_chat(chat_id):
+        return
+
+    with app.app_context():
+        today = get_tashkent_time().date()
+        rows = (
+            db.session.query(
+                Expense.category,
+                db.func.coalesce(db.func.sum(Expense.amount_usd), 0).label('usd'),
+                db.func.coalesce(db.func.sum(Expense.amount_uzs), 0).label('uzs'),
+            )
+            .filter(db.func.date(Expense.expense_date) == today)
+            .group_by(Expense.category)
+            .order_by(db.func.sum(Expense.amount_uzs).desc())
+            .all()
+        )
+
+    if not rows:
+        await update.message.reply_text(
+            f"📊 <b>BUGUNGI XARAJATLAR</b>\n📅 {today.strftime('%d.%m.%Y')}\n\n✅ Bugun xarajat yo'q.",
+            parse_mode='HTML'
+        )
+        return
+
+    total_usd = sum(float(r.usd or 0) for r in rows)
+    total_uzs = sum(float(r.uzs or 0) for r in rows)
+
+    lines = [f"📊 <b>BUGUNGI XARAJATLAR</b>\n📅 {today.strftime('%d.%m.%Y')}\n{'─' * 22}"]
+    for r in rows:
+        cat = r.category or 'Boshqa'
+        usd = float(r.usd or 0)
+        uzs = float(r.uzs or 0)
+        lines.append(f"• {cat}: {uzs:,.0f} so'm" + (f" (${usd:,.2f})" if usd else ""))
+    lines.append(
+        f"\n{'─' * 22}\n<b>Jami: {total_uzs:,.0f} so'm</b>"
+        + (f" (${total_usd:,.2f})" if total_usd else "")
+    )
+
+    await update.message.reply_text("\n".join(lines), parse_mode='HTML')
+
+
+async def admin_profit_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin uchun bugungi foyda hisoboti (savdo foydasi - xarajatlar)"""
+    from app import app, db, Sale, Expense, get_tashkent_time, get_current_currency_rate
+
+    chat_id = update.effective_chat.id
+    if not _is_admin_chat(chat_id):
+        return
+
+    with app.app_context():
+        today = get_tashkent_time().date()
+        sales_profit = float(
+            db.session.query(db.func.coalesce(db.func.sum(Sale.total_profit), 0))
+            .filter(db.func.date(Sale.sale_date) == today)
+            .scalar() or 0
+        )
+
+        rate = get_current_currency_rate() or 0
+        expenses_today = Expense.query.filter(db.func.date(Expense.expense_date) == today).all()
+        total_expense_usd = 0.0
+        for e in expenses_today:
+            usd = float(e.amount_usd or 0)
+            if usd <= 0 and e.amount_uzs and rate:
+                usd = float(e.amount_uzs) / rate
+            total_expense_usd += usd
+
+    net_profit = sales_profit - total_expense_usd
+    message = (
+        f"💹 <b>BUGUNGI FOYDA</b>\n📅 {today.strftime('%d.%m.%Y')}\n{'─' * 22}\n\n"
+        f"🛒 Savdo foydasi: <b>${sales_profit:,.2f}</b>\n"
+        f"💸 Xarajatlar: <b>${total_expense_usd:,.2f}</b>\n"
+        f"{'─' * 22}\n"
+        f"📊 Sof foyda: <b>${net_profit:,.2f}</b>"
+    )
+    await update.message.reply_text(message, parse_mode='HTML')
+
+
+async def admin_today_debts_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin uchun bugun to'lash muddati kelgan qarzlar"""
+    from app import app, db, Sale, Customer, get_tashkent_time, get_current_currency_rate
+
+    chat_id = update.effective_chat.id
+    if not _is_admin_chat(chat_id):
+        return
+
+    with app.app_context():
+        today = get_tashkent_time().date()
+        rate = get_current_currency_rate() or 13000
+        rows = Sale.query.filter(
+            Sale.debt_usd > 0,
+            Sale.payment_status == 'partial',
+            Sale.payment_due_date == today,
+            Sale.customer_id.isnot(None)
+        ).all()
+
+        items = []
+        for sale in rows:
+            customer = Customer.query.get(sale.customer_id)
+            if customer:
+                items.append((customer.name, customer.phone, float(sale.debt_usd or 0)))
+
+    if not items:
+        await update.message.reply_text(
+            f"📅 <b>BUGUNGI MUDDATLI QARZLAR</b>\n📅 {today.strftime('%d.%m.%Y')}\n\n"
+            "✅ Bugun to'lash muddati kelgan qarz yo'q.",
+            parse_mode='HTML'
+        )
+        return
+
+    total_usd = sum(i[2] for i in items)
+    lines = [f"📅 <b>BUGUNGI MUDDATLI QARZLAR</b>\n📅 {today.strftime('%d.%m.%Y')}\n{'─' * 22}"]
+    for i, (name, phone, usd) in enumerate(items, 1):
+        lines.append(f"{i}. <b>{name}</b> — ${usd:,.2f} ({usd * rate:,.0f} so'm)\n   📞 {phone or '—'}")
+    lines.append(f"\n{'─' * 22}\n<b>Jami: {len(items)} ta | ${total_usd:,.2f}</b>")
+
+    await update.message.reply_text("\n".join(lines), parse_mode='HTML')
+
+
+async def admin_total_debts_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin uchun barcha qarzli mijozlar umumiy hisoboti"""
+    from app import app, db, Sale, Customer, get_current_currency_rate
+
+    chat_id = update.effective_chat.id
+    if not _is_admin_chat(chat_id):
+        return
+
+    with app.app_context():
+        rate = get_current_currency_rate() or 13000
+        rows = (
+            db.session.query(Sale.customer_id, db.func.sum(Sale.debt_usd).label('debt_usd'))
+            .filter(
+                Sale.debt_usd > 0,
+                Sale.payment_status.in_(['partial', 'pending']),
+                Sale.customer_id.isnot(None)
+            )
+            .group_by(Sale.customer_id)
+            .order_by(db.func.sum(Sale.debt_usd).desc())
+            .all()
+        )
+
+        total_usd = sum(float(r.debt_usd or 0) for r in rows)
+        top_rows = []
+        for r in rows[:15]:
+            customer = Customer.query.get(r.customer_id)
+            if customer:
+                top_rows.append((customer.name, float(r.debt_usd or 0)))
+
+    if not rows:
+        await update.message.reply_text("👥 <b>JAMI QARZLAR</b>\n\n✅ Hozirda qarz yo'q.", parse_mode='HTML')
+        return
+
+    lines = [f"👥 <b>JAMI QARZLAR</b>\n{'─' * 22}"]
+    for i, (name, usd) in enumerate(top_rows, 1):
+        lines.append(f"{i}. {name} — ${usd:,.2f}")
+    if len(rows) > 15:
+        lines.append(f"\n... va yana {len(rows) - 15} ta mijoz")
+    lines.append(
+        f"\n{'─' * 22}\n<b>Jami: {len(rows)} ta mijoz</b>\n"
+        f"<b>Umumiy qarz: ${total_usd:,.2f} ({total_usd * rate:,.0f} so'm)</b>"
+    )
+
+    await update.message.reply_text("\n".join(lines), parse_mode='HTML')
+
+
 def create_telegram_app():
     """Telegram Application yaratish"""
     token = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -1797,6 +2054,20 @@ def create_telegram_app():
         application.add_handler(MessageHandler(filters.VOICE, handle_voice_expense))
         application.add_handler(
             CallbackQueryHandler(handle_voice_expense_callback, pattern=r'^voiceexp_')
+        )
+
+        # Admin panel tugmalari
+        application.add_handler(
+            MessageHandler(filters.Regex(f"^{ADMIN_MENU_LABELS['expenses']}$"), admin_expenses_button)
+        )
+        application.add_handler(
+            MessageHandler(filters.Regex(f"^{ADMIN_MENU_LABELS['profit']}$"), admin_profit_button)
+        )
+        application.add_handler(
+            MessageHandler(filters.Regex(f"^{ADMIN_MENU_LABELS['today_debts']}$"), admin_today_debts_button)
+        )
+        application.add_handler(
+            MessageHandler(filters.Regex(f"^{ADMIN_MENU_LABELS['total_debts']}$"), admin_total_debts_button)
         )
 
         # "Qarzni tekshirish" tugmasi handler
