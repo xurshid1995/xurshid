@@ -214,6 +214,28 @@ def check_browser(application):
                 assert page.locator('#spTotalUZS').inner_text() == '200,000 UZS'
                 assert page.locator('#spMixedPayment').is_checked()
                 assert page.locator('#spCashUSD').input_value() == '20'
+                assert page.locator('#spPaymentPanel .sp-row').count() == 4
+                assert page.locator('#spClickUSD').input_value() == ''
+                assert page.locator('#spDebtUZS').get_attribute('placeholder') == 'UZS'
+                assert page.locator('#spPaymentPanel .sp-remaining').all_text_contents() == ['+Qolgan'] * 4
+                page.locator('#spCashUSD').fill('9.5')
+                page.locator('#spPaymentPanel .sp-remaining').last.click()
+                assert page.locator('#spDebtUSD').input_value() == '10.5'
+                assert page.locator('#spDebtUZS').input_value() == '131250'
+                assert not page.locator('#spConfirmBtn').is_disabled()
+                assert page.evaluate("supplierPaymentData().payments.every(entry => entry.channel !== 'debt')")
+                page.screenshot(path=str(screenshots / f'supplier-payment-rows-{width}.png'), full_page=True)
+                page.locator('#spTabUZS').click()
+                assert page.locator('#spDebtUZS').input_value() == ''
+                page.locator('#spTabUSD').click()
+                assert page.locator('#spDebtUSD').input_value() == '10.5'
+                page.locator('#spDebtUZS').fill('125000')
+                assert page.locator('#spDebtUSD').input_value() == '10'
+                assert page.locator('#spConfirmBtn').is_disabled()
+                page.locator('#spPaymentPanel .sp-remaining').first.click()
+                assert page.locator('#spCashUSD').input_value() == '10'
+                assert not page.locator('#spConfirmBtn').is_disabled()
+                page.evaluate('openSupplierPaymentModal()')
                 page.locator('#spCashUZS').fill('250000')
                 assert page.locator('#spCashUSD').input_value() == '20'
                 assert page.locator('#spActualPayment').inner_text() == '20 USD + 200,000 UZS'
@@ -262,14 +284,23 @@ def check_browser(application):
                     const bounds = input.getBoundingClientRect();
                     return bounds.width >= 70 && bounds.left >= 0 && bounds.right <= innerWidth;
                 })""")
+                expected_debt = Decimal('0')
+                expected_cash = '20'
+                if width == 1440:
+                    page.locator('#spCashUSD').fill('9.5')
+                    page.locator('#spPaymentPanel .sp-remaining').last.click()
+                    assert page.locator('#spDebtUSD').input_value() == '10.5'
+                    expected_debt = Decimal('10.5')
+                    expected_cash = '9.5'
+                    assert page.locator('#spNativeDebt').inner_text() == '10.5 USD + 0 UZS'
                 with page.expect_response(lambda response: response.url.endswith('/api/batch-products')) as saved:
                     page.locator('#spConfirmBtn').click()
                 assert saved.value.status == 201, saved.value.json()
                 receipt = page.request.get(f'{base_url}/api/supplier/{browser_supplier_id}/timeline').json()
-                assert Decimal(receipt['supplier']['native_debts']['USD']) == 0
+                assert Decimal(receipt['supplier']['native_debts']['USD']) == expected_debt
                 assert Decimal(receipt['supplier']['native_debts']['UZS']) == 0
                 assert receipt['events'][0]['batch']['native_payments'] == [
-                    {'channel': 'cash', 'currency': 'USD', 'amount': '20'},
+                    {'channel': 'cash', 'currency': 'USD', 'amount': expected_cash},
                     {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
                 response = page.goto(f'{base_url}/sales')
                 assert response.status == 200

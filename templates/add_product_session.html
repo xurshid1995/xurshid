@@ -645,19 +645,19 @@ optgroup option { font-weight: normal; color: #1e293b; }
             #supplierPaymentModal .sp-tabs { display:flex; gap:4px; border-bottom:1px solid #d6dde5; margin:14px 0; }
             #supplierPaymentModal .sp-tab { flex:1; background:transparent; color:#465467; padding:12px 8px; border:0; border-bottom:3px solid transparent; font-weight:600; cursor:pointer; }
             #supplierPaymentModal .sp-tab[aria-selected="true"] { border-color:#1769df; color:#1558b0; background:#edf4ff; }
-            #supplierPaymentModal .sp-fields { display:grid; gap:12px; margin:16px 0; }
-            #supplierPaymentModal .sp-row { display:grid; grid-template-columns:65px minmax(0,1fr) minmax(0,1fr) 34px; gap:8px; align-items:center; }
+            #supplierPaymentModal .sp-fields { display:grid; gap:8px; margin:16px 0; }
+            #supplierPaymentModal .sp-row { display:grid; grid-template-columns:90px minmax(0,1fr) minmax(0,1fr) 68px; gap:8px; align-items:center; }
             #supplierPaymentModal .sp-amount { min-width:0; display:flex; flex-direction:column; gap:4px; color:#596574; font-size:11px; }
             #supplierPaymentModal .sp-amount input { box-sizing:border-box; min-width:0; width:100%; padding:9px 6px; font-size:14px; border:1px solid #c9d2dd; border-radius:5px; color:#263343; }
-            #supplierPaymentModal .sp-remaining { width:34px; height:36px; background:#1769df; color:white; border:0; border-radius:5px; cursor:pointer; }
+            #supplierPaymentModal .sp-remaining { width:68px; height:32px; background:#1769df; color:white; border:0; border-radius:6px; cursor:pointer; font-size:11px; white-space:nowrap; }
             #supplierPaymentModal .sp-mode { display:flex; align-items:center; gap:8px; font-size:14px; }
             #supplierPaymentModal .sp-mode input { width:16px; height:16px; }
             #supplierPaymentModal .sp-summary { display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px; font-size:13px; }
             #supplierPaymentModal .sp-summary strong { display:block; margin-top:4px; }
             @media(max-width:480px) {
                 #supplierPaymentModal > div { padding:14px !important; }
-                #supplierPaymentModal .sp-row { grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 30px; gap:5px; }
-                #supplierPaymentModal .sp-remaining { width:30px; }
+                #supplierPaymentModal .sp-row { grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 60px; gap:5px; }
+                #supplierPaymentModal .sp-remaining { width:60px; }
                 #supplierPaymentModal > div > div:first-child { flex-wrap:wrap; gap:12px; }
             }
         </style>
@@ -668,12 +668,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
         </div>
         <div id="spPaymentPanel" role="tabpanel" aria-labelledby="spTabUSD">
             <div class="sp-fields">
-                {% for channel, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal')] %}
+                {% for channel, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal'), ('Debt', 'Qarz')] %}
                 <div class="sp-row">
-                    <span>{{ label }}:</span>
-                    <label class="sp-amount"><span data-sp-currency="USD">USD</span><input type="number" id="sp{{ channel }}USD" min="0" step="0.0000000001" aria-label="{{ label }} USD" oninput="onSupplierPayFieldInput('{{ channel|lower }}', false)"></label>
-                    <label class="sp-amount"><span data-sp-currency="UZS">UZS</span><input type="number" id="sp{{ channel }}UZS" min="0" step="0.01" aria-label="{{ label }} UZS" oninput="onSupplierPayFieldInput('{{ channel|lower }}', true)"></label>
-                    <button type="button" class="sp-remaining" onclick="addRemainingToSupplierField('{{ channel|lower }}')" title="{{ label }}: qolgan summani to'ldirish" aria-label="{{ label }}: qolgan summa"><i class="fas fa-plus"></i></button>
+                    <span>{% if channel == 'Debt' %}<i class="fas fa-clipboard-list" aria-hidden="true"></i> {% endif %}{{ label }}:</span>
+                    <label class="sp-amount"><input type="number" id="sp{{ channel }}USD" placeholder="$" min="0" step="0.0000000001" aria-label="{{ label }} USD" oninput="onSupplierPayFieldInput('{{ channel|lower }}', false)"></label>
+                    <label class="sp-amount"><input type="number" id="sp{{ channel }}UZS" placeholder="UZS" min="0" step="0.01" aria-label="{{ label }} UZS" oninput="onSupplierPayFieldInput('{{ channel|lower }}', true)"></label>
+                    <button type="button" class="sp-remaining" onclick="addRemainingToSupplierField('{{ channel|lower }}')" title="{{ label }}: qolgan summani to'ldirish" aria-label="{{ label }}: qolgan summa">+Qolgan</button>
                 </div>
                 {% endfor %}
             </div>
@@ -2715,7 +2715,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         let supplierPaymentIndex = 0;
         let supplierPayments = {};
         let supplierPaymentTab = 'USD';
-        let supplierTabAmounts = {USD: {cash: 0, click: 0, terminal: 0}, UZS: {cash: 0, click: 0, terminal: 0}};
+        let supplierTabAmounts = {USD: {cash: 0, click: 0, terminal: 0, debt: 0}, UZS: {cash: 0, click: 0, terminal: 0, debt: 0}};
 
         function currentSupplierItems() {
             return tempProducts.filter(product => String(product.supplierId) === String(supplierPaymentQueue[supplierPaymentIndex]));
@@ -2749,7 +2749,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('spTotalUZS').textContent = `${totals.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
             document.getElementById('spSupplierName').textContent = currentSupplierItems()[0]?.supplierName || `Yetkazib beruvchi #${supplierPaymentQueue[supplierPaymentIndex]}`;
 
-            supplierTabAmounts = {USD: {cash: totals.USD, click: 0, terminal: 0}, UZS: {cash: totals.UZS, click: 0, terminal: 0}};
+            supplierTabAmounts = {USD: {cash: totals.USD, click: 0, terminal: 0, debt: 0}, UZS: {cash: totals.UZS, click: 0, terminal: 0, debt: 0}};
             supplierPaymentTab = totals.USD ? 'USD' : 'UZS';
             document.getElementById('spMixedPayment').checked = totals.USD > 0 && totals.UZS > 0;
             document.getElementById('spDebtPriority').value = totals.USD ? 'USD' : 'UZS';
@@ -2770,10 +2770,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const uzsField = document.getElementById(`sp${type.charAt(0).toUpperCase()}${type.slice(1)}UZS`);
             if (fromUZS) {
                 const uzs = parseFloat(uzsField.value) || 0;
-                usdField.value = String(Number((uzs / rate).toFixed(10)));
+                usdField.value = uzsField.value === '' ? '' : String(Number((uzs / rate).toFixed(10)));
             } else {
                 const usd = parseFloat(usdField.value) || 0;
-                uzsField.value = String(Number((usd * rate).toFixed(2)));
+                uzsField.value = usdField.value === '' ? '' : String(Number((usd * rate).toFixed(2)));
             }
             supplierTabAmounts[supplierPaymentTab][type] = Number((supplierPaymentTab === 'USD' ? usdField : uzsField).value || 0);
             updateSupplierDebtPreview();
@@ -2782,7 +2782,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function consolidateSupplierPayment(code) {
             const other = code === 'USD' ? 'UZS' : 'USD';
             const factor = code === 'USD' ? 1 / getSupplierExchangeRate() : getSupplierExchangeRate();
-            ['cash', 'click', 'terminal'].forEach(channel => {
+            ['cash', 'click', 'terminal', 'debt'].forEach(channel => {
                 supplierTabAmounts[code][channel] = Number((supplierTabAmounts[code][channel] + supplierTabAmounts[other][channel] * factor).toFixed(code === 'USD' ? 10 : 2));
                 supplierTabAmounts[other][channel] = 0;
             });
@@ -2804,17 +2804,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 document.getElementById(`spTab${code}`).setAttribute('aria-selected', String(code === supplierPaymentTab));
             });
             document.getElementById('spPaymentPanel').setAttribute('aria-labelledby', `spTab${supplierPaymentTab}`);
-            document.querySelectorAll('[data-sp-currency]').forEach(label => {
-                const code = label.dataset.spCurrency;
-                label.textContent = code === supplierPaymentTab ? code : `${code} ekv.`;
-            });
-            ['cash', 'click', 'terminal'].forEach(channel => {
+            ['cash', 'click', 'terminal', 'debt'].forEach(channel => {
                 const prefix = `sp${channel[0].toUpperCase() + channel.slice(1)}`;
                 const value = supplierTabAmounts[supplierPaymentTab][channel];
                 const usd = supplierPaymentTab === 'USD' ? value : value / getSupplierExchangeRate();
                 const uzs = supplierPaymentTab === 'UZS' ? value : value * getSupplierExchangeRate();
-                document.getElementById(`${prefix}USD`).value = String(Number(usd.toFixed(10)));
-                document.getElementById(`${prefix}UZS`).value = String(Number(uzs.toFixed(2)));
+                document.getElementById(`${prefix}USD`).value = value === 0 ? '' : String(Number(usd.toFixed(10)));
+                document.getElementById(`${prefix}UZS`).value = value === 0 ? '' : String(Number(uzs.toFixed(2)));
             });
             updateSupplierDebtPreview();
         }
@@ -2846,22 +2842,30 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 });
                 if (left > (code === 'UZS' ? 0.01 : 0.00001)) valid = false;
             });
+            const declaredUSD = supplierTabAmounts.USD.debt;
+            const declaredUZS = supplierTabAmounts.UZS.debt;
+            if (![declaredUSD, declaredUZS].every(value => Number.isFinite(value) && value >= 0)) valid = false;
+            const allocated = paid.USD + declaredUSD + (paid.UZS + declaredUZS) / data.exchange_rate;
+            const balanced = Math.abs(allocated - getSupplierItemsTotal()) <= 0.00001;
             document.getElementById('spNativeDebt').textContent = `${debts.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${debts.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
             document.getElementById('spActualPayment').textContent = `${paid.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${paid.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
-            document.getElementById('spConfirmBtn').disabled = !valid;
+            document.getElementById('spConfirmBtn').disabled = !valid || !balanced;
             const warning = document.getElementById('spPaymentWarning');
-            warning.textContent = valid ? '' : "To'lov manfiy yoki kirim summasidan katta";
-            warning.style.display = valid ? 'none' : 'block';
-            return valid;
+            warning.textContent = !valid ? "To'lov manfiy yoki kirim summasidan katta" : "To'lovlar va qarz yig'indisi jami summaga teng bo'lishi kerak";
+            warning.style.display = valid && balanced ? 'none' : 'block';
+            return valid && balanced;
         }
 
         // Tanlangan maydonga qolgan (to'lanmagan) summani avtomatik to'ldirish
         function addRemainingToSupplierField(type) {
             const data = supplierPaymentData();
             const code = supplierPaymentTab;
-            const others = data.payments.filter(payment => payment.channel !== type || payment.currency !== code).reduce((sum, payment) => {
-                return sum + Number(payment.amount) / (payment.currency === 'UZS' ? data.exchange_rate : 1);
-            }, 0);
+            let others = 0;
+            ['USD', 'UZS'].forEach(currency => ['cash', 'click', 'terminal', 'debt'].forEach(channel => {
+                if (currency !== code || channel !== type) {
+                    others += supplierTabAmounts[currency][channel] / (currency === 'UZS' ? data.exchange_rate : 1);
+                }
+            }));
             supplierTabAmounts[code][type] = Number((Math.max(0, getSupplierItemsTotal() - others) * (code === 'UZS' ? data.exchange_rate : 1)).toFixed(code === 'UZS' ? 2 : 10));
             renderSupplierPaymentTab();
         }
