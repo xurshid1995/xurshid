@@ -172,6 +172,7 @@ def check_browser(application):
                 page = browser.new_page(viewport={'width': width, 'height': height}, service_workers='block')
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
+                page.on('dialog', lambda dialog: dialog.accept())
                 response = page.goto(f'{base_url}/add_product_session')
                 assert response.status == 200
                 page.locator('#cost_currency').select_option('UZS')
@@ -198,6 +199,32 @@ def check_browser(application):
                 page.locator('#sell_currency').select_option('USD')
                 page.locator('#sell_price').fill('1')
                 assert page.locator('#sellingPriceWarning').is_visible()
+                supplier_response = page.request.post(f'{base_url}/api/suppliers', data={'name': f'Browser supplier {width}'})
+                assert supplier_response.status == 201
+                browser_supplier_id = supplier_response.json()['supplier']['id']
+                page.evaluate("""supplierId => {
+                    window.currentExchangeRate = 12500;
+                    tempProducts = [
+                        {supplierId,name:`Browser USD ${supplierId}`,cost_currency:'USD',native_batch_cost:2,cost_price:2,sell_price:3,quantity:10,location:'store_1'},
+                        {supplierId,name:`Browser UZS ${supplierId}`,cost_currency:'UZS',native_batch_cost:20000,cost_price:1.6,sell_currency:'UZS',native_sell_price:25000,sell_price:2,quantity:10,location:'store_1'}
+                    ];
+                    openSupplierPaymentModal();
+                }""", browser_supplier_id)
+                assert page.locator('#spTotalUSD').inner_text() == '20 USD'
+                assert page.locator('#spTotalUZS').inner_text() == '200,000 UZS'
+                page.locator('#spCashCurrency').select_option('UZS')
+                page.locator('#spDebtPriority').select_option('UZS')
+                page.locator('#spCashUZS').fill('200000')
+                assert page.locator('#spNativeDebt').inner_text() == '20 USD + 0 UZS'
+                assert page.locator('#spCashUSD').is_editable() is False
+                page.screenshot(path=str(screenshots / f'supplier-receipt-{width}.png'), full_page=True)
+                with page.expect_response(lambda response: response.url.endswith('/api/batch-products')) as saved:
+                    page.locator('#spConfirmBtn').click()
+                assert saved.value.status == 201, saved.value.json()
+                receipt = page.request.get(f'{base_url}/api/supplier/{browser_supplier_id}/timeline').json()
+                assert Decimal(receipt['supplier']['native_debts']['USD']) == 20
+                assert Decimal(receipt['supplier']['native_debts']['UZS']) == 0
+                assert receipt['events'][0]['batch']['native_payments'][0]['amount'] == '200000'
                 response = page.goto(f'{base_url}/sales')
                 assert response.status == 200
                 page.wait_for_function("typeof productSellingUSD === 'function'")
@@ -225,6 +252,30 @@ def check_browser(application):
                 debt_text = page.locator('#displayRemainingDebt').inner_text()
                 assert '50' in debt_text and '100' in debt_text, debt_text
                 page.screenshot(path=str(screenshots / f'debt-{width}.png'), full_page=True)
+                response = page.goto(f'{base_url}/supplier/1/debt-payment')
+                assert response.status == 200
+                page.wait_for_function("document.getElementById('displayRemainingDebt').textContent.includes('200,000 UZS')")
+                page.locator('#paymentCashCurrency').select_option('UZS')
+                page.locator('#supplierDebtPriority').select_option('UZS')
+                page.locator('#paymentCashUZS').fill('200000')
+                assert page.locator('#supplierPaymentPreview').inner_text() == '20 USD + 0 UZS'
+                page.screenshot(path=str(screenshots / f'supplier-debt-{width}.png'), full_page=True)
+                page.locator('#submitBtn').click()
+                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '20 USD + 0 UZS'")
+                page.locator('[data-tab="payments"]').click()
+                page.wait_for_function("document.getElementById('paymentsHistoryBody').textContent.includes('200,000 UZS')")
+                page.screenshot(path=str(screenshots / f'supplier-history-{width}.png'), full_page=True)
+                page.locator('.ps-reverse-btn').first.click()
+                assert '200,000 UZS' in page.locator('#reverseModalInfo').inner_text()
+                page.locator('#reverseConfirmBtn').click()
+                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '20 USD + 200,000 UZS'")
+                for path, selector in (('/suppliers', '#supplierTableBody'),
+                                       ('/supplier/1/products', '.sp-running-total-cell'),
+                                       ('/supplier/1/timeline', '#statDebt')):
+                    response = page.goto(base_url + path)
+                    assert response.status == 200
+                    page.wait_for_function("selector => document.querySelector(selector)?.textContent.includes('200,000 UZS')", arg=selector)
+                    page.screenshot(path=str(screenshots / f'supplier-{path.split("/")[-1]}-{width}.png'), full_page=True)
                 assert not errors, errors
                 page.close()
             browser.close()
@@ -232,6 +283,69 @@ def check_browser(application):
     finally:
         server.shutdown()
         worker.join()
+
+
+def check_supplier_api(application):
+    from models import Supplier, SupplierPurchaseBatch, SupplierPayment
+    client = application.app.test_client()
+    with application.app.app_context():
+        supplier = Supplier(name='Mixed supplier')
+        application.db.session.add(supplier)
+        application.db.session.commit()
+        supplier_id = supplier.id
+    products = [
+        {'name': 'Supplier USD', 'quantity': 10, 'cost_price': '2', 'sell_price': '3',
+         'cost_currency': 'USD', 'supplierId': supplier_id, 'location_type': 'store', 'location_id': 1},
+        {'name': 'Supplier UZS', 'quantity': 10, 'cost_price': '20000', 'sell_price': '25000',
+         'cost_currency': 'UZS', 'sell_currency': 'UZS', 'supplierId': supplier_id,
+         'location_type': 'store', 'location_id': 1}]
+    response = client.post('/api/batch-products', json={
+        'products': products, 'supplier_payments': {str(supplier_id): {'exchange_rate': 12500}}})
+    assert response.status_code == 201, response.get_json()
+    with application.app.app_context():
+        batch = SupplierPurchaseBatch.query.filter_by(supplier_id=supplier_id).one()
+        assert batch.native_debt_usd == 20 and batch.native_debt_uzs == 200000
+    response = client.post(f'/api/suppliers/{supplier_id}/debt-payment', json={
+        'native_currency_payment': True, 'cash_currency': 'UZS', 'cash_uzs': 200000,
+        'exchange_rate': 13000, 'debt_priority': 'UZS'})
+    assert response.status_code == 200, response.get_json()
+    assert Decimal(response.get_json()['native_debts']['USD']) == 20
+    assert Decimal(response.get_json()['native_debts']['UZS']) == 0
+    response = client.get(f'/api/debt-payments/by-supplier/{supplier_id}')
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json()['payments'][0]['native_payments'][0]['amount'] == '200000'
+    response = client.get(f'/api/supplier/{supplier_id}/timeline')
+    assert response.status_code == 200, response.get_json()
+    payment_event = next(event for event in response.get_json()['events'] if event['type'] == 'payment')
+    assert Decimal(payment_event['native_debt_after']['USD']) == 20
+    assert Decimal(payment_event['native_debt_after']['UZS']) == 0
+    with application.app.app_context():
+        payment = SupplierPayment.query.filter_by(supplier_id=supplier_id).one()
+        payment_date = payment.payment_date.isoformat()
+    response = client.post('/api/suppliers/debt-payment/reverse', json={
+        'supplier_id': supplier_id, 'payment_date': payment_date})
+    assert response.status_code == 200, response.get_json()
+    assert Decimal(response.get_json()['native_debts']['UZS']) == 200000
+    assert response.get_json()['restored_amount'] == 16
+    response = client.post('/api/products', json={'products': products})
+    assert response.status_code == 400
+    supplier_ids = []
+    for name in ('Multi USD supplier', 'Multi UZS supplier'):
+        response = client.post('/api/suppliers', json={'name': name})
+        assert response.status_code == 201
+        supplier_ids.append(response.get_json()['supplier']['id'])
+    grouped_products = [dict(product, name=f'Multi {index}', supplierId=supplier_ids[index])
+                        for index, product in enumerate(products)]
+    response = client.post('/api/batch-products', json={
+        'products': grouped_products, 'supplier_payments': {
+            str(supplier_ids[0]): {'cash_usd': 10},
+            str(supplier_ids[1]): {'click_currency': 'UZS', 'click_uzs': 50000}}})
+    assert response.status_code == 201, response.get_json()
+    for identifier, expected in zip(supplier_ids, ({'USD': 10, 'UZS': 0}, {'USD': 0, 'UZS': 150000})):
+        response = client.get(f'/api/supplier/{identifier}/timeline')
+        debts = response.get_json()['supplier']['native_debts']
+        assert {code: Decimal(value) for code, value in debts.items()} == expected
+    print('Supplier API: mixed receipt -> new-rate payment -> exact reversal OK')
 
 
 if __name__ == '__main__':
@@ -243,6 +357,7 @@ if __name__ == '__main__':
     application = make_test_app()
     logging.disable(logging.CRITICAL)
     check_api(application)
+    check_supplier_api(application)
     if options.browser:
         check_browser(application)
     if options.serve:

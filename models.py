@@ -572,7 +572,7 @@ class Supplier(db.Model):
     contact_person = db.Column(db.String(100))
     address = db.Column(db.Text)
     notes = db.Column(db.Text)
-    balance_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)  # Bizning yetkazib beruvchiga qarzimiz
+    balance_usd = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)  # Bizning yetkazib beruvchiga qarzimiz
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
     updated_at = db.Column(
@@ -584,6 +584,7 @@ class Supplier(db.Model):
         return f'<Supplier {self.id}: {self.name}>'
 
     def to_dict(self):
+        from supplier_currency import supplier_debts
         return {
             'id': self.id,
             'name': self.name,
@@ -592,6 +593,7 @@ class Supplier(db.Model):
             'address': self.address,
             'notes': self.notes,
             'balance_usd': float(self.balance_usd or 0),
+            'native_debts': supplier_debts(self),
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
@@ -602,22 +604,29 @@ class Supplier(db.Model):
 class SupplierPurchaseBatch(db.Model):
     __tablename__ = 'supplier_purchase_batches'
 
+    currency_rate = db.Column(db.Numeric(18, 4), nullable=True)
+    native_total_usd = db.Column(db.Numeric(24, 10), nullable=True)
+    native_total_uzs = db.Column(db.Numeric(24, 2), nullable=True)
+    native_debt_usd = db.Column(db.Numeric(24, 10), nullable=True)
+    native_debt_uzs = db.Column(db.Numeric(24, 2), nullable=True)
+    native_initial_debts = db.Column(db.JSON, nullable=True)
+    native_payments = db.Column(db.JSON, nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
     added_by = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
 
     # Qarz/to'lov Sale kabi BUTUN guruh (qabul qilish) darajasida saqlanadi, har bir mahsulot qatorida emas
-    total_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    total_amount = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
     payment_type = db.Column(db.String(20), nullable=False, default='cash')  # cash | debt | partial
-    paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
-    debt_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
-    cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
-    click_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
-    terminal_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    paid_amount = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
+    debt_amount = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
+    cash_usd = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
+    click_usd = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
     # Qabul qilingan paytdagi (birinchi) to'lov - keyingi qarz to'lovlaridan farqli, o'zgarmas holda saqlanadi.
     # Timeline'da tarixiy qarz hisobini to'g'ri chizish uchun kerak (paid_amount esa doim joriy holatga mos yangilanadi).
-    initial_paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
+    initial_paid_amount = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False, default=0)
 
     supplier = db.relationship('Supplier', backref=db.backref('purchase_batches', order_by='SupplierPurchaseBatch.created_at.desc()'))
 
@@ -625,7 +634,14 @@ class SupplierPurchaseBatch(db.Model):
         return f'<SupplierPurchaseBatch {self.id}: supplier={self.supplier_id}>'
 
     def to_dict(self):
+        from supplier_currency import batch_debts
         return {
+            'native_debts': {code: str(value) for code, value in batch_debts(self).items()},
+            'native_total_usd': str(self.native_total_usd) if self.native_total_usd is not None else None,
+            'native_total_uzs': str(self.native_total_uzs) if self.native_total_uzs is not None else None,
+            'native_initial_debts': self.native_initial_debts,
+            'native_payments': self.native_payments,
+            'currency_rate': str(self.currency_rate) if self.currency_rate else None,
             'id': self.id,
             'supplier_id': self.supplier_id,
             'added_by': self.added_by,
@@ -645,6 +661,8 @@ class SupplierPurchaseBatch(db.Model):
 class SupplierPurchase(db.Model):
     __tablename__ = 'supplier_purchases'
 
+    cost_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    native_cost_price = db.Column(db.Numeric(24, 10), nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     batch_id = db.Column(db.Integer, db.ForeignKey('supplier_purchase_batches.id', ondelete='SET NULL'), nullable=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
@@ -672,6 +690,8 @@ class SupplierPurchase(db.Model):
 
     def to_dict(self):
         return {
+            'cost_currency': self.cost_currency,
+            'native_cost_price': str(self.native_cost_price if self.native_cost_price is not None else self.cost_price),
             'id': self.id,
             'event_type': 'purchase',
             'batch_id': self.batch_id,
@@ -697,14 +717,15 @@ class SupplierPurchase(db.Model):
 class SupplierPayment(db.Model):
     __tablename__ = 'supplier_payments'
 
+    native_allocation = db.Column(db.JSON, nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
     purchase_id = db.Column(db.Integer, db.ForeignKey('supplier_purchases.id', ondelete='SET NULL'), nullable=True)  # eski (mahsulot darajasidagi) yozuvlar uchun, endi ishlatilmaydi
     batch_id = db.Column(db.Integer, db.ForeignKey('supplier_purchase_batches.id', ondelete='SET NULL'), nullable=True)  # FIFO bo'yicha qaysi GURUHga (qabul qilishga) yo'naltirilgani
-    amount_usd = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)  # jami to'lov (cash+click+terminal)
-    cash_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
-    click_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
-    terminal_usd = db.Column(db.DECIMAL(precision=15, scale=2), default=0)
+    amount_usd = db.Column(db.DECIMAL(precision=24, scale=10), nullable=False)  # jami to'lov (cash+click+terminal)
+    cash_usd = db.Column(db.DECIMAL(precision=24, scale=10), default=0)
+    click_usd = db.Column(db.DECIMAL(precision=24, scale=10), default=0)
+    terminal_usd = db.Column(db.DECIMAL(precision=24, scale=10), default=0)
     currency_rate = db.Column(db.DECIMAL(precision=15, scale=4), nullable=True)
     payment_method = db.Column(db.String(20), default='cash')  # cash, click, terminal, mixed
     paid_by = db.Column(db.String(100))
@@ -718,6 +739,7 @@ class SupplierPayment(db.Model):
 
     def to_dict(self):
         return {
+            'native_allocation': self.native_allocation,
             'id': self.id,
             'event_type': 'payment',
             'supplier_id': self.supplier_id,

@@ -27,19 +27,45 @@
 
 Eski yozuvlarda yangi summalar `NULL` qoladi va USD sifatida talqin qilinadi.
 Eski savdolarni bugungi kurs bilan to'ldirish yoki qayta hisoblash kerak emas.
-Yetkazib beruvchi qarzi, mijoz balansi va umumiy moliyaviy hisobotlar USD hisob
-asosidan foydalanadi. Ular asl USD qarzi emas, hisob ekvivalenti hisoblanadi.
+Mijoz balansi va umumiy moliyaviy hisobotlar USD hisob asosidan foydalanadi.
+Ular asl USD qarzi emas, hisob ekvivalenti hisoblanadi.
 Telegram savdo/to'lov xabarlari, mijoz va admin qarz tugmalari hamda avtomatik
 eslatmalar asl USD/UZS qarzlarini ko'rsatadi. PDF cheklarida asl mahsulot narxi,
 haqiqiy to'lov valyutasi va asl qarz tarkibi bor; jami konvertatsiya qilingan
 summa ekvivalent deb belgilanadi. Kunlik Excel eksportida asl narx/valyuta,
 alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
 
+## Yetkazib beruvchilar
+
+- `SupplierPurchaseBatch.native_total_usd/uzs` va `native_debt_usd/uzs` asl
+  kirim va qarz summalarini saqlaydi. Mahsulot qatorida `cost_currency` va
+  `native_cost_price` bor. Kirim narxi ombordagi o'rtacha narx emas, yangi
+  partiyaning asl narxidir.
+- `native_initial_debts` va `native_payments` kirimdagi holatni saqlaydi.
+  Keyingi to'lovlar ularni o'zgartirmaydi. Tarixda to'lov ikki marta ayrilmaydi.
+- Kirim oynasi har bir yetkazib beruvchi uchun alohida to'lov oladi.
+  Naqd/Click/Terminal valyutasi va avval yopiladigan qarz valyutasi tanlanadi.
+  To'lov kiritilmagan qism avtomatik qarzga qoladi. Ortiqcha to'lov rad etiladi.
+- Keyingi to'lovda tanlangan valyuta bo'yicha eski guruhlar birinchi yopiladi.
+  `SupplierPayment.native_allocation` haqiqiy to'lovlar, yopilgan asl qarzlar
+  hamda tarixiy USD hisob kamayishini alohida saqlaydi. Bekor qilishda kurs
+  qayta hisoblanmaydi, aynan saqlangan summalar tiklanadi.
+- `Supplier.balance_usd`, guruhning eski USD ustunlari va mahsulot qatoridagi
+  paid/debt oynalari tarixiy hisob ekvivalentlaridir. Asl qarz uchun API dagi
+  `native_debts` ishlatiladi. Guruhga bog'lanmagan eski USD qarzlari ham saqlanadi.
+- Eski yozuvlar USD sifatida qoladi; ularni hozirgi kurs bilan UZSga aylantirib
+  tarix to'ldirilmaydi. Eski `/api/products` formati yangi asl-valyuta kirimi
+  uchun rad etiladi; asosiy endpoint `/api/batch-products` hisoblanadi.
+- Misol: 20 USD + 200000 UZS qarzga 13000 kursda 200000 UZS to'lansa,
+  UZS qarzi birinchi tanlanganda 20 USD qoladi. Bekor qilish 200000 UZSni tiklaydi.
+
 ## Bazaga qo'llash
 
 1. PostgreSQL bazasining zaxira nusxasini oling va tiklash mumkinligini tekshiring.
 2. Avval staging bazada `migrations/add_native_currencies.sql` ni bajaring:
    `psql -v ON_ERROR_STOP=1 -d xurshid_db -f migrations/add_native_currencies.sql`.
+  Yetkazib beruvchi moduli uchun qo'shimcha migratsiya ham zarur:
+  `psql -v ON_ERROR_STOP=1 -d xurshid_db -f migrations/add_supplier_native_currencies.sql`.
 3. Migratsiya muvaffaqiyatli tugagandan keyingina yangi ilova kodini ishga tushiring.
    `db.create_all()` mavjud jadvallarga bu ustunlarni qo'shmaydi.
 4. Kirim, aralash savdo, qarz to'lovi, bekor qilish, qaytarish va hisobotlarni tekshiring.

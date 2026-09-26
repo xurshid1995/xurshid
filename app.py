@@ -16,6 +16,8 @@ from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation
 from currency_accounting import amount as money_amount, exchange_rate as validate_rate
+from supplier_currency import (snapshot_supplier_batch, supplier_debts,
+                               pay_supplier_native, reverse_supplier_native)
 from currency_service import (normalize_product_prices, save_product_currency,
                               prepare_native_average, sync_legacy_price_edit,
                               normalize_sale_prices, snapshot_item, snapshot_sale,
@@ -1651,6 +1653,11 @@ def api_add_product():
 
         # Bir nechta mahsulotlar uchun
         if 'products' in data:
+            if data.get('supplier_payments') or any(
+                    item.get('supplierId') and (item.get('cost_currency') == 'UZS'
+                                               or item.get('native_cost_price') is not None)
+                    for item in data['products']):
+                return jsonify({'error': 'Asl valyutadagi kirim uchun /api/batch-products dan foydalaning'}), 400
             created_products = []
             supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
             for product_data in data['products']:
@@ -1995,6 +2002,21 @@ def api_batch_products():
         product_rate = get_current_currency_rate()
         for product_data in products:
             normalize_product_prices(product_data, product_rate)
+        supplier_ids = sorted({int(item['supplierId']) for item in products if item.get('supplierId')})
+        supplier_payments = data.get('supplier_payments')
+        if supplier_payments is not None:
+            if not isinstance(supplier_payments, dict) or set(supplier_payments) != {str(identifier) for identifier in supplier_ids}:
+                raise ValueError('Har bir yetkazib beruvchi tolovini tasdiqlang')
+            for payment_data in supplier_payments.values():
+                if validate_rate(payment_data.get('exchange_rate', product_rate)) != validate_rate(product_rate):
+                    raise ValueError('Kurs yangilangan, tolov oynasini qayta oching')
+        if data.get('supplier_payment') is not None:
+            if len(supplier_ids) != 1:
+                raise ValueError('Bitta tolov oynasida bitta yetkazib beruvchini tanlang')
+            if validate_rate(data['supplier_payment'].get('exchange_rate', product_rate)) != validate_rate(product_rate):
+                raise ValueError('Kurs yangilangan, tolov oynasini qayta oching')
+        if supplier_ids:
+            Supplier.query.filter(Supplier.id.in_(supplier_ids)).order_by(Supplier.id).with_for_update().all()
         supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
 
         for product_data in products:
@@ -2190,7 +2212,8 @@ def api_batch_products():
                 if supplier_id:
                     supplier = Supplier.query.get(int(supplier_id))
                     if supplier:
-                        batch_total = cost_price * quantity
+                        incoming_cost = money_amount(product_data['lastBatchCost'])
+                        batch_total = incoming_cost * quantity
                         payment_type = product_data.get('paymentType', 'cash')
                         if payment_type == 'debt':
                             paid_amount = Decimal('0')
@@ -2220,11 +2243,13 @@ def api_batch_products():
 
                         purchase = SupplierPurchase(
                             batch_id=supplier_batches[supplier.id].id,
+                            cost_currency=product_data['cost_currency'],
+                            native_cost_price=money_amount(product_data.get('native_batch_cost', product_data['native_cost_price'])),
                             supplier_id=supplier.id,
                             product_id=product.id,
                             product_name=product.name,
                             quantity=quantity,
-                            cost_price=cost_price,
+                            cost_price=incoming_cost,
                             total_amount=batch_total,
                             payment_type=payment_type,
                             paid_amount=paid_amount,
@@ -2284,6 +2309,15 @@ def api_batch_products():
 
             created_count += 1
 
+        for supplier_id, batch in supplier_batches.items():
+            previous_book_debt = batch.debt_amount or Decimal('0')
+            payment_data = supplier_payments[str(supplier_id)] if supplier_payments is not None else data.get('supplier_payment')
+            if payment_data is None:
+                payment_data = {f'{channel}_usd': str(getattr(batch, f'{channel}_usd') or 0)
+                                for channel in ('cash', 'click', 'terminal')}
+            snapshot_supplier_batch(batch, payment_data, product_rate)
+            batch.supplier.balance_usd += batch.debt_amount - previous_book_debt
+            _redistribute_batch_to_items(batch)
         db.session.commit()
 
         # saved_products ro'yxatini qaytarish (rasm upload uchun)
@@ -11352,20 +11386,27 @@ def api_supplier_timeline(supplier_id):
 
         raw_events = []
         for p in purchases:
+            batch = batches_map.get(p.batch_id)
+            native_delta = {'USD': Decimal('0'), 'UZS': Decimal('0')}
             if p.batch_id is not None and p.batch_id in batches_map:
                 batch = batches_map[p.batch_id]
                 if first_item_of_batch.get(p.batch_id) == p.id:
                     batch_delta = float((batch.total_amount or 0) - (batch.initial_paid_amount or 0))
+                    native_delta = batch.native_initial_debts or {'USD': str(batch_delta), 'UZS': '0'}
                 else:
                     batch_delta = 0.0
             else:
                 batch_delta = float(p.debt_amount or 0)
+                native_delta['USD'] = Decimal(str(batch_delta))
 
             raw_events.append({
                 'type': 'purchase',
                 'id': p.id,
                 'batch_id': p.batch_id,
-                'date': p.created_at.strftime('%Y-%m-%d %H:%M:%S') if p.created_at else None,
+                'batch': batch.to_dict() if batch else None,
+                'cost_currency': p.cost_currency,
+                'native_cost_price': str(p.native_cost_price if p.native_cost_price is not None else p.cost_price),
+                'date': p.created_at.isoformat() if p.created_at else None,
                 'product_name': p.product_name,
                 'quantity': float(p.quantity or 0),
                 'cost_price': float(p.cost_price or 0),
@@ -11379,12 +11420,14 @@ def api_supplier_timeline(supplier_id):
                 'location_name': p.location_name,
                 'added_by': p.added_by,
                 '_debt_delta': batch_delta,
+                '_native_delta': native_delta,
             })
         for pay in payments:
+            allocation = pay.native_allocation
             raw_events.append({
                 'type': 'payment',
                 'id': pay.id,
-                'date': pay.payment_date.strftime('%Y-%m-%d %H:%M:%S') if pay.payment_date else None,
+                'date': pay.payment_date.isoformat() if pay.payment_date else None,
                 'amount_usd': float(pay.amount_usd or 0),
                 'cash_usd': float(pay.cash_usd or 0),
                 'click_usd': float(pay.click_usd or 0),
@@ -11393,13 +11436,24 @@ def api_supplier_timeline(supplier_id):
                 'payment_method': pay.payment_method,
                 'paid_by': pay.paid_by,
                 'notes': pay.notes,
-                '_debt_delta': -float(pay.amount_usd or 0),
+                'native_allocation': allocation,
+                '_debt_delta': -float(sum(Decimal(value) for value in allocation['book'].values()) if allocation else pay.amount_usd or 0),
+                '_native_delta': {code: -Decimal(allocation[code]) for code in ('USD', 'UZS')} if allocation else {'USD': -Decimal(str(pay.amount_usd or 0)), 'UZS': 0},
             })
 
         # Xronologik tartibda (eskidan yangiga) qarzni hisoblash
         raw_events.sort(key=lambda e: e['date'] or '')
         running_debt = 0.0
+        running_native = {code: Decimal(value) for code, value in supplier_debts(supplier).items()}
+        for event in raw_events:
+            for code in running_native:
+                running_native[code] -= Decimal(event['_native_delta'][code])
         for e in raw_events:
+            e['native_debt_before'] = {code: str(value) for code, value in running_native.items()}
+            for code in running_native:
+                running_native[code] += Decimal(e['_native_delta'][code])
+            e['native_debt_after'] = {code: str(value) for code, value in running_native.items()}
+            del e['_native_delta']
             e['debt_before'] = round(running_debt, 2)
             running_debt += e['_debt_delta']
             e['debt_after'] = round(running_debt, 2)
@@ -11470,6 +11524,17 @@ def pay_supplier_debt(supplier_id):
     try:
         supplier = Supplier.query.get_or_404(supplier_id)
         data = request.get_json()
+
+        if data.get('native_currency_payment') or SupplierPurchaseBatch.query.filter(
+                SupplierPurchaseBatch.supplier_id == supplier_id,
+                SupplierPurchaseBatch.native_debt_usd.isnot(None)).first():
+            if data.get('amount_usd') and not any(data.get(f'{channel}_usd') for channel in ('cash', 'click', 'terminal')):
+                data['cash_usd'] = data['amount_usd']
+            result = pay_supplier_native(supplier_id, data, get_current_currency_rate(), session.get('username', 'System'))
+            for batch_id in result.pop('batch_ids'):
+                _redistribute_batch_to_items(db.session.get(SupplierPurchaseBatch, batch_id))
+            db.session.commit()
+            return jsonify(result)
 
         cash_usd = Decimal(str(data.get('cash_usd', 0) or 0))
         click_usd = Decimal(str(data.get('click_usd', 0) or 0))
@@ -11593,7 +11658,7 @@ def pay_supplier_debt(supplier_id):
         db.session.commit()
 
         return jsonify({'success': True, 'payment': payment.to_dict() if payment else None, 'new_balance': float(supplier.balance_usd)})
-    except InvalidOperation:
+    except (InvalidOperation, ValueError):
         db.session.rollback()
         return jsonify({'error': "To'lov summasi noto'g'ri"}), 400
     except Exception as e:
@@ -11607,37 +11672,29 @@ def pay_supplier_debt(supplier_id):
 def api_debt_payments_by_supplier(supplier_id):
     """Bitta yetkazib beruvchi uchun qarz to'lovlari tarixi (guruhlangan, reverse uchun ISO sana bilan)"""
     try:
-        rows = db.session.execute(text("""
-            SELECT
-                MIN(sp.id)              AS id,
-                sp.payment_date,
-                sp.paid_by,
-                sp.notes,
-                SUM(sp.cash_usd)        AS cash_usd,
-                SUM(sp.click_usd)       AS click_usd,
-                SUM(sp.terminal_usd)    AS terminal_usd,
-                SUM(sp.amount_usd)      AS total_usd,
-                MAX(sp.currency_rate)   AS currency_rate
-            FROM supplier_payments sp
-            WHERE sp.supplier_id = :sid
-            GROUP BY sp.payment_date, sp.paid_by, sp.notes
-            ORDER BY sp.payment_date DESC
-        """), {'sid': supplier_id})
-
-        payments = []
-        for r in rows:
-            payments.append({
-                'id':          int(r.id) if r.id is not None else None,
-                'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
-                'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
-                'paid_by':     r.paid_by or '',
-                'notes':       r.notes or '',
-                'cash_usd':     float(r.cash_usd    or 0),
-                'click_usd':    float(r.click_usd   or 0),
-                'terminal_usd': float(r.terminal_usd or 0),
-                'total_usd':    float(r.total_usd   or 0),
-                'currency_rate': float(r.currency_rate) if r.currency_rate else 0,
-            })
+        groups = {}
+        for payment in SupplierPayment.query.filter_by(supplier_id=supplier_id).order_by(
+                SupplierPayment.payment_date.desc(), SupplierPayment.id).all():
+            key = (payment.payment_date, payment.paid_by, payment.notes)
+            group = groups.setdefault(key, {
+                'id': payment.id,
+                'payment_date_iso': payment.payment_date.isoformat(),
+                'payment_date': payment.payment_date.strftime('%Y-%m-%d %H:%M'),
+                'paid_by': payment.paid_by or '', 'notes': payment.notes or '',
+                'cash_usd': Decimal('0'), 'click_usd': Decimal('0'), 'terminal_usd': Decimal('0'),
+                'total_usd': Decimal('0'), 'currency_rate': float(payment.currency_rate or 0),
+                'native_payments': []})
+            for channel in ('cash', 'click', 'terminal'):
+                group[f'{channel}_usd'] += getattr(payment, f'{channel}_usd') or Decimal('0')
+            group['total_usd'] += payment.amount_usd or Decimal('0')
+            entries = payment.native_allocation['payments'] if payment.native_allocation else [
+                {'channel': channel, 'currency': 'USD', 'amount': str(getattr(payment, f'{channel}_usd') or 0)}
+                for channel in ('cash', 'click', 'terminal')]
+            group['native_payments'].extend(entries)
+        payments = list(groups.values())
+        for group in payments:
+            for field in ('cash_usd', 'click_usd', 'terminal_usd', 'total_usd'):
+                group[field] = float(group[field])
 
         return jsonify({'success': True, 'payments': payments})
     except Exception as e:
@@ -11672,25 +11729,40 @@ def api_reverse_supplier_debt_payment():
         dt_from = payment_dt - timedelta(seconds=1)
         dt_to = payment_dt + timedelta(seconds=1)
 
+        supplier = Supplier.query.filter_by(id=supplier_id).with_for_update().first_or_404()
         payments = SupplierPayment.query.filter(
             SupplierPayment.supplier_id == supplier_id,
-            SupplierPayment.payment_date >= dt_from,
-            SupplierPayment.payment_date <= dt_to
-        ).all()
+            SupplierPayment.payment_date == payment_dt
+        ).with_for_update().all()
+        if not payments:
+            payments = SupplierPayment.query.filter(
+                SupplierPayment.supplier_id == supplier_id,
+                SupplierPayment.native_allocation.is_(None),
+                SupplierPayment.payment_date >= dt_from,
+                SupplierPayment.payment_date <= dt_to).with_for_update().all()
 
         if not payments:
             return jsonify({'success': False, 'error': "Bu to'lov topilmadi"}), 404
 
-        supplier = Supplier.query.with_for_update().get_or_404(supplier_id)
         total_reversed = Decimal('0')
+        native_restored = Decimal('0')
 
         for payment in payments:
+            if payment.native_allocation:
+                restored = reverse_supplier_native(payment, supplier)
+                native_restored += restored
+                if payment.batch_id:
+                    _redistribute_batch_to_items(db.session.get(SupplierPurchaseBatch, payment.batch_id))
+                db.session.delete(payment)
+                continue
             amount = Decimal(str(payment.amount_usd or 0))
             total_reversed += amount
 
             if payment.batch_id:
                 batch = SupplierPurchaseBatch.query.with_for_update().get(payment.batch_id)
                 if batch:
+                    if batch.native_debt_usd is not None:
+                        batch.native_debt_usd += amount
                     batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
                     batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
                     batch.cash_usd = max(Decimal('0'), (batch.cash_usd or Decimal('0')) - Decimal(str(payment.cash_usd or 0)))
@@ -11702,12 +11774,14 @@ def api_reverse_supplier_debt_payment():
             db.session.delete(payment)
 
         supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + total_reversed
+        total_reversed += native_restored
         db.session.commit()
 
         return jsonify({
             'success': True,
             'restored_amount': float(total_reversed),
             'new_balance': float(supplier.balance_usd),
+            'native_debts': supplier_debts(supplier),
             'message': f"${float(total_reversed):.2f} miqdordagi to'lov bekor qilindi"
         })
     except Exception as e:
@@ -11720,8 +11794,16 @@ def api_reverse_supplier_debt_payment():
 @role_required('admin', 'kassir', 'omborchi')
 def reverse_supplier_debt_payment(supplier_id, payment_id):
     try:
-        supplier = Supplier.query.get_or_404(supplier_id)
-        payment = SupplierPayment.query.filter_by(id=payment_id, supplier_id=supplier_id).first_or_404()
+        supplier = Supplier.query.filter_by(id=supplier_id).with_for_update().first_or_404()
+        payment = SupplierPayment.query.filter_by(id=payment_id, supplier_id=supplier_id).with_for_update().first_or_404()
+        if payment.native_allocation:
+            restored = reverse_supplier_native(payment, supplier)
+            if payment.batch_id:
+                _redistribute_batch_to_items(db.session.get(SupplierPurchaseBatch, payment.batch_id))
+            db.session.delete(payment)
+            db.session.commit()
+            return jsonify(success=True, restored_amount=float(restored), new_balance=float(supplier.balance_usd),
+                           native_debts=supplier_debts(supplier))
 
         amount = Decimal(str(payment.amount_usd or 0))
         supplier.balance_usd = (supplier.balance_usd or Decimal('0')) + amount
@@ -11729,6 +11811,8 @@ def reverse_supplier_debt_payment(supplier_id, payment_id):
         if payment.batch_id:
             batch = SupplierPurchaseBatch.query.get(payment.batch_id)
             if batch:
+                if batch.native_debt_usd is not None:
+                    batch.native_debt_usd += amount
                 batch.debt_amount = min(batch.total_amount or Decimal('0'), (batch.debt_amount or Decimal('0')) + amount)
                 batch.paid_amount = max(Decimal('0'), (batch.paid_amount or Decimal('0')) - amount)
                 batch.cash_usd = max(Decimal('0'), (batch.cash_usd or Decimal('0')) - Decimal(str(payment.cash_usd or 0)))

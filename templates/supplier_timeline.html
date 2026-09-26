@@ -99,7 +99,7 @@
     <!-- Stats -->
     <div class="tl-stats" id="statsRow">
         <div class="tl-stat"><div class="tl-stat-value" id="statPurchases">—</div><div class="tl-stat-label">Jami xaridlar</div></div>
-        <div class="tl-stat"><div class="tl-stat-value" id="statTotalBought">—</div><div class="tl-stat-label">Jami xarid (USD)</div></div>
+        <div class="tl-stat"><div class="tl-stat-value" id="statTotalBought">—</div><div class="tl-stat-label">Jami xarid</div></div>
         <div class="tl-stat"><div class="tl-stat-value" id="statPayments">—</div><div class="tl-stat-label">To'lovlar soni</div></div>
         <div class="tl-stat"><div class="tl-stat-value" id="statTotalPaid">—</div><div class="tl-stat-label">Jami to'langan</div></div>
         <div class="tl-stat"><div class="tl-stat-value" id="statDebt">—</div><div class="tl-stat-label">Hozirgi qarz</div></div>
@@ -116,6 +116,7 @@
     <div id="timelineContainer"><div class="tl-loading">⏳ Yuklanmoqda...</div></div>
 </div>
 
+<script src="{{ url_for('static', filename='js/supplier_currency.js') }}?v=1"></script>
 <script>
 const SUPPLIER_ID = {{ supplier.id }};
 let allEvents = [];
@@ -142,10 +143,11 @@ async function loadTimeline() {
         const currentDebt = s.balance_usd || 0;
 
         document.getElementById('statPurchases').textContent = purchases.length + ' ta';
-        document.getElementById('statTotalBought').textContent = '$' + totalBought.toFixed(2);
+        document.getElementById('statTotalBought').textContent = SupplierMoney.format(SupplierMoney.items(purchases));
         document.getElementById('statPayments').textContent = payments.length + ' ta';
-        document.getElementById('statTotalPaid').textContent = '$' + totalPaid.toFixed(2);
-        document.getElementById('statDebt').textContent = '$' + currentDebt.toFixed(2);
+        document.getElementById('statTotalPaid').textContent = SupplierMoney.format(SupplierMoney.received(payments.flatMap(payment =>
+            payment.native_allocation?.payments || [{currency: 'USD', amount: payment.amount_usd}])));
+        document.getElementById('statDebt').textContent = SupplierMoney.format(s.native_debts || {USD: currentDebt});
         document.getElementById('statDebt').style.color = currentDebt > 0 ? '#dc2626' : '#16a34a';
 
         renderTimeline();
@@ -192,7 +194,7 @@ function renderDayEvents(events) {
     const ordered = [];
     events.forEach(e => {
         if (e.type !== 'purchase') { ordered.push({ single: e }); return; }
-        const minuteKey = (e.date || '').substring(0, 16);
+        const minuteKey = e.batch_id != null ? `batch-${e.batch_id}` : `purchase-${e.id}`;
         if (!batches[minuteKey]) {
             const group = { batch: [] };
             batches[minuteKey] = group;
@@ -232,7 +234,7 @@ function afterRow(e) {
     const debt = e.debt_after != null ? e.debt_after : null;
     if (debt === null) return '';
     const debtCls = debt > 0 ? 'tl-after-debt' : 'tl-after-debt zero';
-    return `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span><span class="${debtCls}">Qarz: $${debt.toFixed(2)}</span></div>`;
+    return `<div class="tl-after-row"><span class="tl-after-label">Amaldan keyin:</span><span class="${debtCls}">Qarz: ${SupplierMoney.format(e.native_debt_after || {USD: debt})}</span></div>`;
 }
 
 function renderPurchaseBatch(events) {
@@ -245,11 +247,16 @@ function renderPurchaseBatch(events) {
     const last = events[events.length - 1];
 
     const chips = [];
-    chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${totalAmount.toFixed(2)}</span>`);
-    if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">✅ To\'lov: $${paidAmount.toFixed(2)}</span>`);
-    if (debtAmount > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${debtAmount.toFixed(2)}</span>`);
+    chips.push(`<span class="tl-detail-chip-total">💰 Jami: ${SupplierMoney.format(first.batch ? SupplierMoney.total(first.batch) : SupplierMoney.items(events))}</span>`);
+    if (first.batch) {
+        chips.push(`<span class="tl-detail-chip">Kirimdagi to'lov: ${SupplierMoney.format(first.batch.native_payments ? SupplierMoney.received(first.batch.native_payments) : {USD: first.batch.initial_paid_amount})}</span>`);
+        chips.push(`<span class="tl-detail-chip">Kirimdagi qarz: ${SupplierMoney.format(first.batch.native_initial_debts || {USD: first.batch.total_amount - first.batch.initial_paid_amount})}</span>`);
+    } else {
+        if (paidAmount > 0) chips.push(`<span class="tl-detail-chip">To'lov: ${SupplierMoney.format({USD: paidAmount})}</span>`);
+        if (debtAmount > 0) chips.push(`<span class="tl-detail-chip">Qarz: ${SupplierMoney.format({USD: debtAmount})}</span>`);
+    }
 
-    const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} - ${e.quantity}*${e.cost_price.toFixed(2)}$=${e.total_amount.toFixed(2)}$</span></div>`).join('');
+    const rows = events.map(e => `<div class="tl-item-row"><span>${e.product_name} - ${e.quantity} * ${SupplierMoney.format({[e.cost_currency || 'USD']: e.native_cost_price ?? e.cost_price})} = ${SupplierMoney.format(SupplierMoney.items([e]))}</span></div>`).join('');
     const itemMeta = [
         paymentTypeBadge(first.payment_type),
         first.location_name ? `<span class="tl-detail-chip">🏬 ${first.location_name}</span>` : '',
@@ -279,10 +286,13 @@ function renderPurchaseBatch(events) {
 
 function renderPayment(e) {
     const paymentChips = [];
-    if (e.amount_usd != null) paymentChips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.amount_usd.toFixed(2)}</span>`);
-    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
-    if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
-    if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">🏧 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
+    const entries = e.native_allocation?.payments || ['cash', 'click', 'terminal'].map(channel => ({channel, currency:'USD', amount:e[`${channel}_usd`] || 0}));
+    paymentChips.push(`<span class="tl-detail-chip-total">Jami: ${SupplierMoney.format(e.native_allocation ? SupplierMoney.received(entries) : {USD: e.amount_usd})}</span>`);
+    [['cash', 'Naqd'], ['click', 'Click'], ['terminal', 'Terminal']].forEach(([channel, label]) => {
+        if (entries.some(entry => entry.channel === channel && Number(entry.amount) > 0)) {
+            paymentChips.push(`<span class="tl-detail-chip">${label}: ${SupplierMoney.format(SupplierMoney.received(entries, channel))}</span>`);
+        }
+    });
     const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
     const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 

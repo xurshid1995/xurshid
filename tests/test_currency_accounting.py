@@ -123,6 +123,47 @@ class CurrencyAccountingTests(unittest.TestCase):
 
 
 class CurrencyPersistenceTests(unittest.TestCase):
+    def test_supplier_mixed_batch_snapshot(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPurchase
+        from supplier_currency import snapshot_supplier_batch, batch_debts
+        supplier = Supplier(name='Native supplier')
+        batch = SupplierPurchaseBatch(supplier=supplier)
+        batch.items = [
+            SupplierPurchase(product_name='USD', quantity=10, cost_price=2,
+                             total_amount=20, cost_currency='USD', native_cost_price=2),
+            SupplierPurchase(product_name='UZS', quantity=10, cost_price=1,
+                             total_amount=16, cost_currency='UZS', native_cost_price=20000)]
+        db.session.add(batch)
+        snapshot_supplier_batch(batch, {}, 11850)
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 200000})
+        payment = {'cash_currency': 'UZS', 'cash_uzs': 200000, 'debt_priority': 'UZS'}
+        snapshot_supplier_batch(batch, payment, 11850)
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 0})
+        self.assertEqual(batch.native_payments[0]['amount'], '200000')
+
+    def test_supplier_payment_new_rate_and_reversal(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPayment
+        from supplier_currency import pay_supplier_native, reverse_supplier_native, batch_debts
+        supplier = Supplier(name='Native supplier', balance_usd=36)
+        batch = SupplierPurchaseBatch(supplier=supplier, total_amount=36, debt_amount=36,
+                                      currency_rate=12500, native_debt_usd=20, native_debt_uzs=200000)
+        db.session.add(batch)
+        db.session.commit()
+        result = pay_supplier_native(supplier.id, {'cash_currency': 'UZS', 'cash_uzs': 200000,
+                                                   'exchange_rate': 13000, 'debt_priority': 'UZS'}, 13000, 'Test')
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 0})
+        self.assertEqual(Decimal(result['native_debts']['USD']), 20)
+        payment = SupplierPayment.query.one()
+        self.assertEqual(payment.native_allocation['book']['cash'], '16.0000000000')
+        reverse_supplier_native(payment, supplier)
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 200000})
+        self.assertEqual(supplier.balance_usd, 36)
+        db.session.rollback()
+        with self.assertRaises(ValueError):
+            pay_supplier_native(supplier.id, {'cash_usd': 1000}, 13000, 'Test')
+        db.session.rollback()
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 200000})
+
     def setUp(self):
         self.app = Flask(__name__)
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
@@ -133,6 +174,55 @@ class CurrencyPersistenceTests(unittest.TestCase):
         self.customer = Customer(name='Currency test')
         db.session.add(self.customer)
         db.session.flush()
+
+    def test_supplier_small_payments_leave_no_book_residual(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPayment
+        from supplier_currency import book_value, pay_supplier_native, reverse_supplier_native, supplier_debts
+        totals = {'USD': Decimal('0'), 'UZS': Decimal('200000')}
+        original_book = book_value(totals, 11850)
+        supplier = Supplier(name='Rounding supplier', balance_usd=original_book)
+        batch = SupplierPurchaseBatch(supplier=supplier, total_amount=original_book, debt_amount=original_book,
+                                      currency_rate=11850, native_debt_usd=0, native_debt_uzs=200000)
+        db.session.add(batch)
+        db.session.commit()
+        for value in (1, 1, 199998):
+            pay_supplier_native(supplier.id, {'cash_currency': 'UZS', 'cash_uzs': value}, 13000, 'Test')
+            db.session.commit()
+        self.assertEqual(supplier.balance_usd, 0)
+        self.assertEqual(batch.debt_amount, 0)
+        self.assertEqual({code: Decimal(value) for code, value in supplier_debts(supplier).items()}, {'USD': 0, 'UZS': 0})
+        for payment in SupplierPayment.query.order_by(SupplierPayment.id).all():
+            reverse_supplier_native(payment, supplier)
+            db.session.delete(payment)
+        db.session.commit()
+        self.assertEqual(supplier.balance_usd, original_book)
+        self.assertEqual(batch.native_debt_uzs, 200000)
+
+    def test_supplier_priority_across_batches_and_legacy_residual(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPayment
+        from supplier_currency import pay_supplier_native, reverse_supplier_native, supplier_debts
+        supplier = Supplier(name='FIFO supplier', balance_usd=46)
+        old = SupplierPurchaseBatch(supplier=supplier, total_amount=20, debt_amount=20)
+        new = SupplierPurchaseBatch(supplier=supplier, total_amount=16, debt_amount=16,
+                                    currency_rate=12500, native_debt_usd=0, native_debt_uzs=200000)
+        db.session.add_all([old, new])
+        db.session.commit()
+        pay_supplier_native(supplier.id, {'click_usd': 5, 'debt_priority': 'UZS'}, 13000, 'Test')
+        db.session.commit()
+        self.assertEqual(old.debt_amount, 20)
+        self.assertEqual(new.native_debt_uzs, 135000)
+        pay_supplier_native(supplier.id, {'terminal_usd': 30, 'debt_priority': 'USD'}, 13000, 'Test')
+        db.session.commit()
+        self.assertEqual(old.debt_amount, 0)
+        self.assertEqual(new.native_debt_uzs, 135000)
+        self.assertEqual(Decimal(supplier_debts(supplier)['USD']), 0)
+        for payment in SupplierPayment.query.order_by(SupplierPayment.id.desc()).all():
+            reverse_supplier_native(payment, supplier)
+            db.session.delete(payment)
+        db.session.commit()
+        self.assertEqual(supplier.balance_usd, 46)
+        self.assertEqual(old.debt_amount, 20)
+        self.assertEqual(new.native_debt_uzs, 200000)
 
     def tearDown(self):
         db.session.remove()
