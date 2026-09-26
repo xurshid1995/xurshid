@@ -404,7 +404,8 @@ def check_browser(application):
                 assert page.locator('#debtMixedPayment').is_checked()
                 assert page.locator('.ps-currency-modes input').evaluate_all('(inputs) => inputs.map(input => input.id)') == [
                     'debtMixedPayment', 'debtPaymentUSD', 'debtPaymentUZS']
-                assert page.locator('#debtPaymentPanel .ps-payment-row').count() == 4
+                assert page.locator('#debtPaymentPanel .ps-payment-row').count() == 3
+                assert page.locator('#paymentDebtUSD, #paymentDebtUZS').count() == 0
                 assert page.evaluate("[...document.querySelectorAll('#debtPaymentPanel input')].every(input => input.value === '')")
                 assert page.evaluate('supplierPaymentEntries()') == []
                 assert page.locator('#submitBtn').is_disabled()
@@ -436,9 +437,7 @@ def check_browser(application):
                 assert page.locator('#submitBtn').is_disabled()
                 page.locator('#paymentCashUZS').fill('125000')
                 assert page.locator('#paymentCashUSD').input_value() == '10'
-                assert page.locator('#submitBtn').is_disabled()
-                page.locator('#debtPaymentPanel .ps-btn-remaining').last.click()
-                assert page.locator('#paymentDebtUSD').input_value() == '10'
+                assert not page.locator('#submitBtn').is_disabled()
                 mixed_amounts = page.evaluate('debtTabAmounts')
                 for code in ('USD', 'UZS'):
                     page.locator(f'#debtPayment{code}').check()

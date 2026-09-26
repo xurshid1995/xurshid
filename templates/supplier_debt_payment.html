@@ -434,9 +434,9 @@
                 <button type="button" id="debtTabUZS" class="ps-currency-tab" role="tab" aria-selected="false" aria-controls="debtPaymentPanel" onclick="selectDebtPaymentTab('UZS')">UZS to'lov</button>
             </div>
             <div id="debtPaymentPanel" role="tabpanel" aria-labelledby="debtTabUSD" class="ps-payment-rows">
-                {% for name, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal'), ('Debt', 'Qarz')] %}
+                {% for name, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal')] %}
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label">{% if name == 'Debt' %}<i class="fas fa-clipboard-list" aria-hidden="true"></i> {% endif %}{{ label }}:</span>
+                    <span class="ps-pay-label">{{ label }}:</span>
                     <input type="number" id="payment{{ name }}USD" min="0" step="0.0000000001" placeholder="$" aria-label="{{ label }} USD" class="ps-pay-input">
                     <input type="number" id="payment{{ name }}UZS" min="0" step="0.01" placeholder="UZS" aria-label="{{ label }} UZS" class="ps-pay-input">
                     <button type="button" onclick="addRemainingToField('payment{{ name }}USD')" class="ps-btn-remaining" title="{{ label }}: qolgan summani to'ldirish">+Qolgan</button>
@@ -909,7 +909,7 @@ function fallbackCopy(text, done) {
 function addRemainingToField(fieldId) {
     const name = fieldId.replace('payment', '').replace('USD', '');
     let others = 0;
-    ['USD', 'UZS'].forEach(code => ['Cash', 'Click', 'Terminal', 'Debt'].forEach(channel => {
+    ['USD', 'UZS'].forEach(code => ['Cash', 'Click', 'Terminal'].forEach(channel => {
         if (code !== debtPaymentTab || channel !== name) {
             others += debtTabAmounts[code][channel] / (code === 'UZS' ? currentRate : 1);
         }
@@ -973,13 +973,13 @@ async function submitPayment() {
 
 function setupCurrencyConversion() {
     debtTabAmounts = {
-        USD: {Cash: 0, Click: 0, Terminal: 0, Debt: 0},
-        UZS: {Cash: 0, Click: 0, Terminal: 0, Debt: 0}
+        USD: {Cash: 0, Click: 0, Terminal: 0},
+        UZS: {Cash: 0, Click: 0, Terminal: 0}
     };
     debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
     debtPaymentTab = Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS';
     debtPaymentMode = Number(nativeSupplierDebt.USD) && Number(nativeSupplierDebt.UZS) ? 'MIXED' : debtPaymentTab;
-    ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
+    ['Cash', 'Click', 'Terminal'].forEach(name => {
         ['USD', 'UZS'].forEach(code => {
             const input = document.getElementById(`payment${name}${code}`);
             input.oninput = () => {
@@ -1017,7 +1017,7 @@ function changeDebtPaymentMode(code) {
     }
     if (mode !== 'MIXED') {
         const other = mode === 'USD' ? 'UZS' : 'USD';
-        ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
+        ['Cash', 'Click', 'Terminal'].forEach(name => {
             debtTabAmounts[mode][name] = Number((debtTabAmounts[mode][name] + debtTabAmounts[other][name] * (mode === 'USD' ? 1 / currentRate : currentRate)).toFixed(mode === 'USD' ? 10 : 2));
             debtTabAmounts[other][name] = 0;
         });
@@ -1042,7 +1042,7 @@ function renderDebtPaymentTab() {
         tab.setAttribute('aria-selected', String(debtPaymentTab === code));
     });
     document.getElementById('debtPaymentPanel').setAttribute('aria-labelledby', `debtTab${debtPaymentTab}`);
-    ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
+    ['Cash', 'Click', 'Terminal'].forEach(name => {
         const value = debtTabAmounts[debtPaymentTab][name];
         const usd = debtPaymentTab === 'USD' ? value : value / currentRate;
         const uzs = debtPaymentTab === 'UZS' ? value : value * currentRate;
@@ -1056,12 +1056,9 @@ function updateSupplierPaymentPreview() {
     const entries = supplierPaymentEntries();
     const result = SupplierMoney.preview(nativeSupplierDebt, entries, currentRate, Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS');
     const paid = entries.reduce((sum, entry) => sum + Number(entry.amount) / (entry.currency === 'UZS' ? currentRate : 1), 0);
-    const validDebt = ['USD', 'UZS'].every(code => Number.isFinite(debtTabAmounts[code].Debt) && debtTabAmounts[code].Debt >= 0);
-    const allocated = paid + debtTabAmounts.USD.Debt + debtTabAmounts.UZS.Debt / currentRate;
-    const balanced = Math.abs(allocated - remainingDebt) <= 0.00001;
-    const valid = result.valid && validDebt && balanced && paid > 0;
+    const valid = result.valid && paid > 0;
     const error = document.getElementById('payError');
-    error.textContent = !result.valid || !validDebt ? "To'lov manfiy yoki qarz summasidan katta" : paid <= 0 ? "To'lov summasini kiriting" : "To'lovlar va qarz yig'indisi jami summaga teng bo'lishi kerak";
+    error.textContent = !result.valid ? "To'lov manfiy yoki qarz summasidan katta" : "To'lov summasini kiriting";
     error.style.display = valid || remainingDebt === 0 ? 'none' : 'block';
     document.getElementById('submitBtn').disabled = _paymentSubmitting || !valid;
     return valid;
