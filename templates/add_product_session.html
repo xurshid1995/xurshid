@@ -477,7 +477,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             </select>
                             <input type="number" id="cost_price" name="cost_price" class="ap-input"
                                    placeholder="0.00000" step="0.00001" min="0"
-                                   oninput="calculateProfit();"
+                                   oninput="userEnteredCostPrice = null; calculateProfit();"
                                    onfocus="saveCostPriceOnFocus(); cancelAutoUpdate();"
                                    onblur="updateOriginalCostPreview(); enableAutoUpdate(); comparePrices();">
                         </div>
@@ -493,6 +493,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     </div>
 
                     <!-- Asl tan narx va Foyda -->
+                    <div id="averageCostPreview" role="status" style="display:none; margin-bottom:10px; overflow-wrap:anywhere;"></div>
+                    <div id="sellingPriceWarning" role="alert" style="display:none; margin-bottom:10px; padding:10px; background:#fff3cd; color:#856404; border:1px solid #ffe69c; border-radius:4px; overflow-wrap:anywhere;"></div>
                     <div class="ap-row ap-row-2col">
                         <div class="ap-form-group">
                             <label class="ap-label" for="original_cost">Asl tan narx</label>
@@ -1989,8 +1991,41 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
         }
 
+        const incomingCostProducts = new Map();
+
         // Foyda hisoblash
         function calculateProfit() {
+            const productName = document.getElementById('product_name').value.trim();
+            const averagePreview = document.getElementById('averageCostPreview');
+            const priceWarning = document.getElementById('sellingPriceWarning');
+            averagePreview.style.display = 'none';
+            priceWarning.style.display = 'none';
+            document.getElementById('sell_price').removeAttribute('aria-invalid');
+            if (productName && !incomingCostProducts.has(productName)) {
+                incomingCostProducts.set(productName, {loading: true});
+                fetch('/api/search-product/' + encodeURIComponent(productName))
+                    .then(response => {
+                        if (!response.ok) throw new Error('Tannarx tekshiruvi bajarilmadi');
+                        return response.json();
+                    })
+                    .then(data => {
+                        incomingCostProducts.set(productName, {
+                            match: (data.products || []).find(entry =>
+                                entry.product.name.toLowerCase() === productName.toLowerCase())
+                        });
+                        if (document.getElementById('product_name').value.trim() === productName) calculateProfit();
+                    }).catch(() => {
+                        incomingCostProducts.set(productName, {error: true});
+                        if (document.getElementById('product_name').value.trim() === productName) calculateProfit();
+                    });
+            }
+            const lookup = incomingCostProducts.get(productName);
+            if (lookup?.loading || lookup?.error) {
+                document.getElementById('profit_display').value = '-';
+                averagePreview.textContent = lookup.error ? 'Ortacha tannarxni tekshirib bolmadi. Sahifani yangilang.' : 'Ortacha tannarx tekshirilmoqda...';
+                averagePreview.style.display = 'block';
+                return;
+            }
             const rate = Number(window.currentExchangeRate);
             const costCode = document.getElementById('cost_currency').value;
             const sellCode = document.getElementById('sell_currency').value;
@@ -2002,8 +2037,33 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 }).catch(() => {});
                 return;
             }
-            const costPrice = (parseFloat(document.getElementById('cost_price').value) || 0) / (costCode === 'UZS' ? rate : 1);
+            const batchCost = Number(userEnteredCostPrice ?? document.getElementById('cost_price').value) || 0;
+            let averageCost = batchCost;
+            const incomingQuantity = Number(document.getElementById('quantity').value) || 0;
+            const existing = lookup?.match;
+            if (existing && incomingQuantity > 0) {
+                const existingQuantity = (existing.locations || []).reduce((total, location) => total + Number(location.quantity || 0), 0);
+                const product = existing.product;
+                const previousCost = product.cost_currency === costCode && product.native_cost_price != null
+                    ? Number(product.native_cost_price)
+                    : Number(product.cost_price) * (costCode === 'UZS' ? rate : 1);
+                averageCost = (previousCost * existingQuantity + batchCost * incomingQuantity) / (existingQuantity + incomingQuantity);
+            }
+            const costPrice = averageCost / (costCode === 'UZS' ? rate : 1);
             const sellPrice = (parseFloat(document.getElementById('sell_price').value) || 0) / (sellCode === 'UZS' ? rate : 1);
+            const formatCost = value => value.toLocaleString('en-US', {maximumFractionDigits: 5});
+            if (averageCost > 0) {
+                averagePreview.textContent = `Ortacha tannarx: ${formatCost(averageCost)} ${costCode}`;
+                averagePreview.style.display = 'block';
+            }
+            if (sellPrice > 0 && sellPrice <= costPrice) {
+                const difference = (costPrice - sellPrice) * (sellCode === 'UZS' ? rate : 1);
+                priceWarning.textContent = difference > 0.0000001
+                    ? `Ogohlantirish: sotuv narxi ortacha tannarxdan ${formatCost(difference)} ${sellCode} past.`
+                    : 'Ogohlantirish: sotuv narxi ortacha tannarxga teng.';
+                priceWarning.style.display = 'block';
+                document.getElementById('sell_price').setAttribute('aria-invalid', 'true');
+            }
             const originalCostText = document.getElementById('original_cost').value;
             
             // Yangi birlashtrilgan foyda maydoni

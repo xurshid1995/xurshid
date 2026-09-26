@@ -179,6 +179,25 @@ def check_browser(application):
                 page.locator('#cost_price').fill('50000')
                 page.locator('#sell_price').fill('100000')
                 page.screenshot(path=str(screenshots / f'product-{width}.png'), full_page=True)
+                page.route('**/api/search-product/namuna', lambda route: route.fulfill(json={
+                    'exists': True, 'products': [{'product': {
+                        'name': 'namuna', 'cost_price': 4, 'cost_currency': 'USD',
+                        'native_cost_price': None}, 'locations': [{'quantity': '10'}]}]}))
+                page.evaluate("window.currentExchangeRate = 11850")
+                page.locator('#product_name').fill('namuna')
+                page.locator('#quantity').fill('10')
+                page.locator('#cost_price').fill('12000')
+                page.locator('#sell_price').fill('15000')
+                page.wait_for_function("document.getElementById('averageCostPreview').textContent.includes('29,700')")
+                assert '14,700 UZS' in page.locator('#sellingPriceWarning').inner_text()
+                assert page.locator('#cost_price').input_value() == '12000'
+                assert page.locator('#profit_display').input_value().startswith('$-')
+                page.screenshot(path=str(screenshots / f'average-warning-{width}.png'), full_page=True)
+                page.locator('#sell_price').fill('35000')
+                assert not page.locator('#sellingPriceWarning').is_visible()
+                page.locator('#sell_currency').select_option('USD')
+                page.locator('#sell_price').fill('1')
+                assert page.locator('#sellingPriceWarning').is_visible()
                 response = page.goto(f'{base_url}/sales')
                 assert response.status == 200
                 page.wait_for_function("typeof productSellingUSD === 'function'")
