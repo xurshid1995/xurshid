@@ -526,7 +526,7 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/supplier_currency.js') }}?v=1"></script>
+<script src="{{ url_for('static', filename='js/supplier_currency.js') }}?v=2"></script>
 <script>
 const SUPPLIER_ID = {{ supplier.id }};
 let remainingDebt = 0;
@@ -944,8 +944,7 @@ async function submitPayment() {
     submitBtn.innerHTML = '⏳ Yuklanmoqda...';
 
     try {
-        const payload = {native_currency_payment: true, exchange_rate: currentRate,
-            debt_priority: Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS', payments: entries};
+        const payload = {native_currency_payment: true, exchange_rate: currentRate, payments: entries};
         const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1054,7 +1053,7 @@ function renderDebtPaymentTab() {
 
 function updateSupplierPaymentPreview() {
     const entries = supplierPaymentEntries();
-    const result = SupplierMoney.preview(nativeSupplierDebt, entries, currentRate, Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS');
+    const result = SupplierMoney.preview(nativeSupplierDebt, entries, currentRate, 'native');
     const paid = entries.reduce((sum, entry) => sum + Number(entry.amount) / (entry.currency === 'UZS' ? currentRate : 1), 0);
     const valid = result.valid && paid > 0;
     const error = document.getElementById('payError');

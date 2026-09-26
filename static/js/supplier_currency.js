@@ -24,16 +24,23 @@ window.SupplierMoney = {
     preview(values, entries, rate, priority) {
         const debts = {USD: Number(values.USD), UZS: Number(values.UZS)};
         let valid = true;
-        entries.forEach(entry => {
-            let left = Number(entry.amount);
-            if (!Number.isFinite(left) || left < 0) valid = false;
-            [priority, priority === 'USD' ? 'UZS' : 'USD'].forEach(target => {
-                const factor = entry.currency === target ? 1 : target === 'UZS' ? rate : 1 / rate;
-                const applied = Math.min(debts[target], Math.max(0, left) * factor);
-                debts[target] -= applied;
-                left -= applied / factor;
+        const pending = entries.map(entry => ({...entry, left: Number(entry.amount)}));
+        const nativeFirst = priority === 'native';
+        const first = nativeFirst ? 'USD' : priority;
+        (nativeFirst ? [true, false] : [null]).forEach(matching => {
+            pending.forEach(entry => {
+                if (!Number.isFinite(entry.left) || entry.left < 0) valid = false;
+                [first, first === 'USD' ? 'UZS' : 'USD'].forEach(target => {
+                    if (matching !== null && (entry.currency === target) !== matching) return;
+                    const factor = entry.currency === target ? 1 : target === 'UZS' ? rate : 1 / rate;
+                    const applied = Math.min(debts[target], Math.max(0, entry.left) * factor);
+                    debts[target] -= applied;
+                    entry.left -= applied / factor;
+                });
             });
-            if (left > (entry.currency === 'UZS' ? 0.01 : 0.00001)) valid = false;
+        });
+        pending.forEach(entry => {
+            if (entry.left > (entry.currency === 'UZS' ? 0.01 : 0.00001)) valid = false;
         });
         return {debts, valid};
     }

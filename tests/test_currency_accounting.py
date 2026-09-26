@@ -123,6 +123,41 @@ class CurrencyAccountingTests(unittest.TestCase):
 
 
 class CurrencyPersistenceTests(unittest.TestCase):
+    def test_supplier_native_first_then_excess_conversion(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPayment
+        from supplier_currency import book_value, pay_supplier_native, reverse_supplier_native, supplier_debts
+        for usd_debt, uzs_debt, paid_usd, paid_uzs, expected_usd, expected_uzs in (
+                (20, 200000, 10, 100000, '10', '100000'),
+                (10, 100000, 5, 150000, '0.7805907173', '0'),
+                (10, 100000, 15, 20000, '0', '20750')):
+            with self.subTest(usd_debt=usd_debt, paid_usd=paid_usd):
+                supplier = Supplier(name='Native first', balance_usd=0)
+                batches = []
+                for code, value in (('USD', usd_debt), ('UZS', uzs_debt)):
+                    debts = {'USD': value if code == 'USD' else 0, 'UZS': value if code == 'UZS' else 0}
+                    book = book_value(debts, 12500)
+                    batch = SupplierPurchaseBatch(supplier=supplier, total_amount=book,
+                                                  debt_amount=book, currency_rate=12500,
+                                                  native_debt_usd=debts['USD'], native_debt_uzs=debts['UZS'])
+                    batches.append(batch)
+                    supplier.balance_usd += book
+                original_book = supplier.balance_usd
+                db.session.add_all(batches)
+                db.session.commit()
+                entries = [{'channel': 'cash', 'currency': 'UZS', 'amount': str(paid_uzs)},
+                           {'channel': 'cash', 'currency': 'USD', 'amount': str(paid_usd)}]
+                pay_supplier_native(supplier.id, {'payments': entries, 'debt_priority': 'USD'}, 11850, 'Test')
+                db.session.commit()
+                self.assertEqual({code: Decimal(value) for code, value in supplier_debts(supplier).items()},
+                                 {'USD': Decimal(expected_usd), 'UZS': Decimal(expected_uzs)})
+                for payment in SupplierPayment.query.filter_by(supplier_id=supplier.id).all():
+                    reverse_supplier_native(payment, supplier)
+                    db.session.delete(payment)
+                db.session.commit()
+                self.assertEqual(supplier.balance_usd, original_book)
+                self.assertEqual({code: Decimal(value) for code, value in supplier_debts(supplier).items()},
+                                 {'USD': usd_debt, 'UZS': uzs_debt})
+
     def test_supplier_mixed_batch_snapshot(self):
         from models import Supplier, SupplierPurchaseBatch, SupplierPurchase
         from supplier_currency import snapshot_supplier_batch, batch_debts

@@ -76,8 +76,14 @@ alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
   qisman to'lovda to'lanmagan qism avtomatik qarz bo'lib qoladi. Aralash
   rejimga qaytishda oldingi taqsimot tiklanadi. Haqiqiy to'lovlar `payments`
   ro'yxati bilan yuboriladi, bir kanalda ikkala valyuta birga saqlanishi mumkin.
-  Yopish tartibi asl USD qarz bo'lsa USD, aks holda UZS; to'lov musbat bo'lishi
-  va mavjud qarzdan oshmasligi shart.
+  Avval USD to'lov barcha USD qarzlarni, UZS to'lov barcha UZS qarzlarni
+  eski guruhlardan boshlab yopadi. Faqat o'z valyutasidagi qarzlardan ortgan
+  pul to'lov kursi bo'yicha boshqa valyutadagi qarzga o'tadi. Masalan,
+  10 USD + 100 000 UZS qarzga 5 USD + 150 000 UZS to'lansa, 100 000 UZS
+  so'm qarzini yopadi, ortgan 50 000 UZS esa qolgan 5 USDdan ayiriladi.
+  To'lov musbat bo'lishi va mavjud qarzdan oshmasligi shart.
+  Eski `payments` ro'yxatisiz API so'rovlarida aniq berilgan `debt_priority`
+  moslik uchun saqlanadi; kirim modalining boshlang'ich taqsimoti o'zgarmaydi.
   `SupplierPayment.native_allocation` haqiqiy to'lovlar, yopilgan asl qarzlar
   hamda tarixiy USD hisob kamayishini alohida saqlaydi. Bekor qilishda kurs
   qayta hisoblanmaydi, aynan saqlangan summalar tiklanadi.

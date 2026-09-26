@@ -402,6 +402,13 @@ def check_browser(application):
                 assert response.status == 200
                 page.wait_for_function("document.getElementById('displayRemainingDebt').textContent.includes('200,000 UZS')")
                 assert page.locator('#debtMixedPayment').is_checked()
+                native_preview = page.evaluate("""() => SupplierMoney.preview(
+                    {USD: 10, UZS: 100000},
+                    [{currency:'USD', amount:'5'}, {currency:'UZS', amount:'150000'}],
+                    11850, 'native')""")
+                assert native_preview['valid']
+                assert abs(native_preview['debts']['USD'] - (5 - 50000 / 11850)) < 0.000000001
+                assert native_preview['debts']['UZS'] == 0
                 assert page.locator('.ps-currency-modes input').evaluate_all('(inputs) => inputs.map(input => input.id)') == [
                     'debtMixedPayment', 'debtPaymentUSD', 'debtPaymentUZS']
                 assert page.locator('#debtPaymentPanel .ps-payment-row').count() == 3
@@ -453,7 +460,7 @@ def check_browser(application):
                     {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
                 page.screenshot(path=str(screenshots / f'supplier-debt-{width}.png'), full_page=True)
                 page.locator('#submitBtn').click()
-                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '0 USD + 125,000 UZS'")
+                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '10 USD + 0 UZS'")
                 page.locator('[data-tab="payments"]').click()
                 page.wait_for_function("document.getElementById('paymentsHistoryBody').textContent.includes('200,000 UZS')")
                 page.screenshot(path=str(screenshots / f'supplier-history-{width}.png'), full_page=True)

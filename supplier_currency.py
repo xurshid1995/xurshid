@@ -98,9 +98,15 @@ def pay_supplier_native(supplier_id, data, current_rate, paid_by):
     if residual:
         targets.append((None, {'USD': residual, 'UZS': Decimal('0')}))
     records = {}
-    for code in (first, 'UZS' if first == 'USD' else 'USD'):
+    order = (first, 'UZS' if first == 'USD' else 'USD')
+    native_first = 'payments' in data or 'debt_priority' not in data
+    passes = ([(code, matching) for matching in (True, False) for code in order]
+              if native_first else [(code, None) for code in order])
+    for code, matching in passes:
         for batch, debts in targets:
             for entry in remaining:
+                if matching is not None and (entry['currency'] == code) != matching:
+                    continue
                 available = amount(entry['amount'])
                 if not available or not debts[code]:
                     continue
