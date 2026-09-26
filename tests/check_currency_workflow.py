@@ -240,12 +240,12 @@ def check_browser(application):
                 page.evaluate('openSupplierPaymentModal()')
                 page.locator('#spCashUZS').fill('250000')
                 assert page.locator('#spCashUSD').input_value() == '20'
-                assert page.locator('#spActualPayment').inner_text() == '20 USD + 200,000 UZS'
+                assert page.locator('#spDebtPriority, #spActualPayment, #spNativeDebt').count() == 0
                 page.locator('#spTabUZS').click()
                 assert page.locator('#spCashUZS').input_value() == '200000'
                 page.locator('#spCashUSD').fill('16')
                 assert page.locator('#spCashUZS').input_value() == '200000'
-                assert page.locator('#spNativeDebt').inner_text() == '0 USD + 0 UZS'
+                assert not page.locator('#spConfirmBtn').is_disabled()
                 page.screenshot(path=str(screenshots / f'supplier-mixed-tabs-{width}.png'), full_page=True)
                 page.locator('#spMixedPayment').uncheck()
                 assert page.locator('#spPaymentUZS').is_checked()
@@ -254,7 +254,6 @@ def check_browser(application):
                 assert not page.locator('#spTabUSD').is_visible()
                 assert page.locator('#spTabUZS').is_visible()
                 assert page.locator('#spCashUZS').input_value() == '450000'
-                assert page.locator('#spActualPayment').inner_text() == '0 USD + 450,000 UZS'
                 assert page.evaluate("supplierPaymentData().payments") == [
                     {'channel': 'cash', 'currency': 'UZS', 'amount': '450000'}]
                 page.locator('#spPaymentUSD').check()
@@ -263,7 +262,6 @@ def check_browser(application):
                 assert not page.locator('#spTabUZS').is_visible()
                 assert page.locator('#spTabUSD').is_visible()
                 assert page.locator('#spCashUSD').input_value() == '36'
-                assert page.locator('#spActualPayment').inner_text() == '36 USD + 0 UZS'
                 assert page.evaluate("supplierPaymentData().payments") == [
                     {'channel': 'cash', 'currency': 'USD', 'amount': '36'}]
                 page.locator('#spPaymentUSD').click()
@@ -313,9 +311,9 @@ def check_browser(application):
                 page.evaluate('openSupplierPaymentModal()')
                 page.locator('#spCashUSD').fill('0')
                 page.locator('#spTabUZS').click()
-                page.locator('#spDebtPriority').select_option('UZS')
+                assert page.evaluate('supplierPaymentData().debt_priority') == 'USD'
                 page.locator('#spCashUZS').fill('200000')
-                assert page.locator('#spNativeDebt').inner_text() == '20 USD + 0 UZS'
+                assert page.locator('#spConfirmBtn').is_disabled()
                 assert page.locator('#spCashUSD').is_editable()
                 page.screenshot(path=str(screenshots / f'supplier-receipt-{width}.png'), full_page=True)
                 page.locator('#spTabUSD').click()
@@ -326,7 +324,7 @@ def check_browser(application):
                 page.locator('#spCashUSD').fill('0')
                 page.locator('#spPaymentPanel .sp-remaining').first.click()
                 assert page.locator('#spCashUSD').input_value() == '20'
-                assert page.locator('#spNativeDebt').inner_text() == '0 USD + 0 UZS'
+                assert not page.locator('#spConfirmBtn').is_disabled()
                 assert page.evaluate("""() => [...document.querySelectorAll('#supplierPaymentModal input[type="number"]')].every(input => {
                     const bounds = input.getBoundingClientRect();
                     return bounds.width >= 70 && bounds.left >= 0 && bounds.right <= innerWidth;
@@ -339,13 +337,13 @@ def check_browser(application):
                     assert page.locator('#spDebtUSD').input_value() == '10.5'
                     expected_debt = Decimal('10.5')
                     expected_cash = '9.5'
-                    assert page.locator('#spNativeDebt').inner_text() == '10.5 USD + 0 UZS'
+                    assert not page.locator('#spConfirmBtn').is_disabled()
                 with page.expect_response(lambda response: response.url.endswith('/api/batch-products')) as saved:
                     page.locator('#spConfirmBtn').click()
                 assert saved.value.status == 201, saved.value.json()
                 receipt = page.request.get(f'{base_url}/api/supplier/{browser_supplier_id}/timeline').json()
-                assert Decimal(receipt['supplier']['native_debts']['USD']) == expected_debt
-                assert Decimal(receipt['supplier']['native_debts']['UZS']) == 0
+                assert Decimal(receipt['supplier']['native_debts']['USD']) == 0
+                assert Decimal(receipt['supplier']['native_debts']['UZS']) == expected_debt * 12500
                 assert receipt['events'][0]['batch']['native_payments'] == [
                     {'channel': 'cash', 'currency': 'USD', 'amount': expected_cash},
                     {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]

@@ -654,8 +654,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
             #supplierPaymentModal .sp-modes { display:flex; flex-wrap:wrap; gap:12px 18px; }
             #supplierPaymentModal .sp-mode { display:flex; align-items:center; gap:8px; font-size:14px; }
             #supplierPaymentModal .sp-mode input { width:16px; height:16px; }
-            #supplierPaymentModal .sp-summary { display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px; font-size:13px; }
-            #supplierPaymentModal .sp-summary strong { display:block; margin-top:4px; }
             @media(max-width:480px) {
                 #supplierPaymentModal > div { padding:14px !important; }
                 #supplierPaymentModal .sp-row { grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 60px; gap:5px; }
@@ -683,14 +681,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 </div>
                 {% endfor %}
             </div>
-        </div>
-        <div style="font-size:13px; margin:12px 0;">
-            <label for="spDebtPriority">Avval yopiladigan qarz</label>
-            <select id="spDebtPriority" onchange="updateSupplierDebtPreview()"><option value="USD">USD</option><option value="UZS">UZS</option></select>
-        </div>
-        <div class="sp-summary" role="status">
-            <div>Haqiqiy to'lov<strong id="spActualPayment"></strong></div>
-            <div>Qolgan qarz<strong id="spNativeDebt"></strong></div>
         </div>
         <div id="spPaymentWarning" style="display:none; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:6px; margin-bottom:14px; color:#856404; font-size:13px;"></div>
 
@@ -2764,7 +2754,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('spMixedPayment').checked = totals.USD > 0 && totals.UZS > 0;
             document.getElementById('spPaymentUSD').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'USD';
             document.getElementById('spPaymentUZS').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'UZS';
-            document.getElementById('spDebtPriority').value = totals.USD ? 'USD' : 'UZS';
             document.getElementById('spPaymentWarning').style.display = 'none';
             renderSupplierPaymentTab();
 
@@ -2844,7 +2833,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         function supplierPaymentData() {
-            const data = {exchange_rate: getSupplierExchangeRate(), debt_priority: document.getElementById('spDebtPriority').value, payments: []};
+            const data = {exchange_rate: getSupplierExchangeRate(), debt_priority: supplierNativeTotals().USD ? 'USD' : 'UZS', payments: []};
             ['USD', 'UZS'].forEach(code => ['cash', 'click', 'terminal'].forEach(channel => {
                 if (!document.getElementById('spMixedPayment').checked && !document.getElementById(`spPayment${code}`).checked) return;
                 const value = supplierTabAmounts[code][channel];
@@ -2876,8 +2865,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (![declaredUSD, declaredUZS].every(value => Number.isFinite(value) && value >= 0)) valid = false;
             const allocated = paid.USD + declaredUSD + (paid.UZS + declaredUZS) / data.exchange_rate;
             const balanced = Math.abs(allocated - getSupplierItemsTotal()) <= 0.00001;
-            document.getElementById('spNativeDebt').textContent = `${debts.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${debts.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
-            document.getElementById('spActualPayment').textContent = `${paid.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${paid.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
             document.getElementById('spConfirmBtn').disabled = !valid || !balanced;
             const warning = document.getElementById('spPaymentWarning');
             warning.textContent = !valid ? "To'lov manfiy yoki kirim summasidan katta" : "To'lovlar va qarz yig'indisi jami summaga teng bo'lishi kerak";

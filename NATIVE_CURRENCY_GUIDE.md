@@ -60,12 +60,13 @@ alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
   yetkazib beruvchi modali o'z asl summalari bilan boshlanadi.
   API `payments: [{channel, currency, amount}]` ro'yxatini qabul qiladi;
   bitta kanalda USD va UZS birga yozilishi mumkin. Eski payload ham ishlaydi.
-  Avval yopiladigan qarz valyutasi alohida tanlanadi.
+  Kirimda qarz yopish tartibi avtomatik: asl USD jami bo'lsa avval USD,
+  aks holda UZS. Modalda ustuvorlik tanlovi va to'lov/qarz xulosasi yo'q.
   Modalda Naqd/Click/Terminal/Qarz qatorlari va har biri uchun "+Qolgan" bor.
   Qarz qatori to'lanmaydigan summani ajratadi, API to'lovlar ro'yxatiga kirmaydi.
   To'lovlar va ajratilgan qarzning ekvivalent yig'indisi jami kirimga teng
-  bo'lishi shart. Asl qarz tarkibi tanlangan yopish tartibiga qarab hisoblanadi
-  va "Qolgan qarz"da ko'rsatiladi. Ortiqcha va manfiy summalar rad etiladi.
+  bo'lishi shart. Asl qarz tarkibi avtomatik yopish tartibiga qarab hisoblanadi.
+  Ortiqcha va manfiy summalar rad etiladi.
 - Keyingi to'lovda tanlangan valyuta bo'yicha eski guruhlar birinchi yopiladi.
   `SupplierPayment.native_allocation` haqiqiy to'lovlar, yopilgan asl qarzlar
   hamda tarixiy USD hisob kamayishini alohida saqlaydi. Bekor qilishda kurs
