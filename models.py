@@ -40,17 +40,23 @@ class Category(db.Model):
 class Product(db.Model):
     __tablename__ = 'products'
 
+    cost_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    sell_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    native_cost_price = db.Column(db.Numeric(24, 10), nullable=True)
+    native_sell_price = db.Column(db.Numeric(24, 10), nullable=True)
+    native_last_batch_cost = db.Column(db.Numeric(24, 10), nullable=True)
+    price_currency_rate = db.Column(db.Numeric(18, 4), nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     barcode = db.Column(db.String(255), unique=True, nullable=True, index=True)  # Barcode raqami
-    cost_price = db.Column(db.DECIMAL(precision=10, scale=5),
+    cost_price = db.Column(db.DECIMAL(precision=24, scale=10),
                            nullable=False)  # Ortacha tan narxi
-    sell_price = db.Column(db.DECIMAL(precision=10, scale=5),
+    sell_price = db.Column(db.DECIMAL(precision=24, scale=10),
                            nullable=False)  # Sotish narxi
     min_stock = db.Column(db.Integer, default=0,
                           nullable=False)  # Minimal qoldiq
     unit_type = db.Column(db.String(10), default='dona', nullable=False)  # O'lchov birligi: 'dona' yoki 'litr'
-    last_batch_cost = db.Column(db.DECIMAL(precision=10, scale=4))  # Oxirgi partiya tan narxi
+    last_batch_cost = db.Column(db.DECIMAL(precision=24, scale=10))  # Oxirgi partiya tan narxi
     last_batch_date = db.Column(db.DateTime)  # Oxirgi partiya sanasi
     created_at = db.Column(db.DateTime,
                            default=lambda: get_tashkent_time())  # Qo'shilgan sana
@@ -90,6 +96,12 @@ class Product(db.Model):
             'id': self.id,
             'name': self.name,
             'barcode': self.barcode,  # Barcode qo'shildi
+            'cost_currency': self.cost_currency or 'USD',
+            'sell_currency': self.sell_currency or 'USD',
+            'native_cost_price': str(self.native_cost_price if self.native_cost_price is not None else self.cost_price),
+            'native_sell_price': str(self.native_sell_price if self.native_sell_price is not None else self.sell_price),
+            'native_last_batch_cost': str(self.native_last_batch_cost) if self.native_last_batch_cost is not None else None,
+            'price_currency_rate': str(self.price_currency_rate) if self.price_currency_rate else None,
             'cost_price': str(self.cost_price),  # Decimal precision saqlanadi
             'sell_price': str(self.sell_price),  # Decimal precision saqlanadi
             'price': str(self.sell_price),  # Compatibility uchun
@@ -474,6 +486,7 @@ class Customer(db.Model):
 class DebtPayment(db.Model):
     __tablename__ = 'debt_payments'
 
+    native_allocation = db.Column(db.JSON, nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id', ondelete='SET NULL'), nullable=True)
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id', ondelete='SET NULL'), nullable=True)
@@ -505,6 +518,7 @@ class DebtPayment(db.Model):
             'click_usd': float(self.click_usd or 0),
             'terminal_usd': float(self.terminal_usd or 0),
             'total_usd': float(self.total_usd or 0),
+            'native_allocation': self.native_allocation,
             'currency_rate': float(self.currency_rate) if self.currency_rate else 0,
             'received_by': self.received_by,
             'notes': self.notes
@@ -998,6 +1012,10 @@ class StockCheckItem(db.Model):
 class SaleItem(db.Model):
     __tablename__ = 'sale_items'
 
+    price_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    native_unit_price = db.Column(db.Numeric(24, 10), nullable=True)
+    cost_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    native_cost_price = db.Column(db.Numeric(24, 10), nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
     product_id = db.Column(
@@ -1038,6 +1056,10 @@ class SaleItem(db.Model):
             'product_name': self.product.name if self.product else 'Noma\'lum mahsulot',
             'quantity': float(self.quantity) if self.quantity is not None else 0,
             'unit_price': float(self.unit_price) if self.unit_price is not None else 0.0,
+            'price_currency': self.price_currency or 'USD',
+            'native_unit_price': str(self.native_unit_price if self.native_unit_price is not None else self.unit_price),
+            'cost_currency': self.cost_currency or 'USD',
+            'native_cost_price': str(self.native_cost_price if self.native_cost_price is not None else self.cost_price),
             'total_price': float(self.total_price) if self.total_price is not None else 0.0,
             'unit_price_uzs': float(self.unit_price_uzs) if self.unit_price_uzs is not None else 0.0,
             'total_price_uzs': float(self.total_price_uzs) if self.total_price_uzs is not None else 0.0,
@@ -1053,6 +1075,9 @@ class SaleItem(db.Model):
 class Sale(db.Model):
     __tablename__ = 'sales'
 
+    native_debt_usd = db.Column(db.Numeric(24, 10), nullable=True)
+    native_debt_uzs = db.Column(db.Numeric(24, 2), nullable=True)
+    native_payments = db.Column(db.JSON, nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(
         db.Integer,
@@ -1072,19 +1097,19 @@ class Sale(db.Model):
     sale_date = db.Column(db.DateTime, default=lambda: get_tashkent_time())
     total_amount = db.Column(
         db.DECIMAL(
-            precision=15,
+            precision=24,
             scale=10),
         nullable=False,
         default=0)
     total_cost = db.Column(
         db.DECIMAL(
-            precision=15,
+            precision=24,
             scale=10),
         nullable=False,
         default=0)
     total_profit = db.Column(
         db.DECIMAL(
-            precision=15,
+            precision=24,
             scale=10),
         nullable=False,
         default=0)
@@ -1095,7 +1120,7 @@ class Sale(db.Model):
     terminal_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     debt_amount = db.Column(db.DECIMAL(precision=12, scale=2), default=0)
     # USD ustunlari
-    debt_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
+    debt_usd = db.Column(db.DECIMAL(precision=24, scale=10), default=0)
     cash_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
     click_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
     terminal_usd = db.Column(db.DECIMAL(precision=15, scale=10), default=0)
@@ -1271,6 +1296,9 @@ class Sale(db.Model):
             'click_usd': float(self.click_usd) if self.click_usd is not None else 0.0,
             'terminal_usd': float(self.terminal_usd) if self.terminal_usd is not None else 0.0,
             'debt_usd': float(self.debt_usd) if self.debt_usd is not None else 0.0,
+            'native_debt_usd': str(self.native_debt_usd if self.native_debt_usd is not None else self.debt_usd or 0),
+            'native_debt_uzs': str(self.native_debt_uzs or 0),
+            'native_payments': self.native_payments,
             'balance_usd': float(self.balance_usd) if self.balance_usd is not None else 0.0,
             # Qarz ma'lumotlari
             'previous_debt_usd': previous_debt_usd,
@@ -1349,6 +1377,11 @@ class ProductAddHistory(db.Model):
     """Mahsulot qo'shilgan tarix - faqat ma'lumot uchun"""
     __tablename__ = 'product_add_history'
 
+    cost_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    sell_currency = db.Column(db.String(3), nullable=False, default='USD', server_default='USD')
+    native_cost_price = db.Column(db.Numeric(24, 10), nullable=True)
+    native_sell_price = db.Column(db.Numeric(24, 10), nullable=True)
+    currency_rate = db.Column(db.Numeric(18, 4), nullable=True)
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(200), nullable=False)
     cost_price = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)

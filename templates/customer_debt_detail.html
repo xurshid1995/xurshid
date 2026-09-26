@@ -454,6 +454,12 @@
                 </div>
             </div>
             <div class="ps-payment-rows">
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                    <label>Naqd <select id="nativeCashCurrency"><option>USD</option><option>UZS</option></select></label>
+                    <label>Click <select id="nativeClickCurrency"><option>UZS</option><option>USD</option></select></label>
+                    <label>Terminal <select id="nativeTerminalCurrency"><option>UZS</option><option>USD</option></select></label>
+                    <label>Avval yopiladi <select id="nativeDebtPriority"><option>USD</option><option>UZS</option></select></label>
+                </div>
                 <div class="ps-payment-row">
                     <span class="ps-pay-label">💵 {{ t('cdd_cash') }}</span>
                     <div class="ps-pay-field">
@@ -688,9 +694,12 @@
             document.getElementById('customerAddress').textContent = debtData.customer.address || '-';
             
             // Statistika
-            document.getElementById('totalDebt').textContent = formatUSD(debtData.total_debt);
+            const nativeDebt = debtData.native_debts || {USD: debtData.remaining_debt, UZS: 0};
+            const nativeDebtText = `${Number(nativeDebt.USD).toLocaleString()} USD + ${Number(nativeDebt.UZS).toLocaleString()} UZS`;
+            debtData.remaining_debt = Number(nativeDebt.USD) + Number(nativeDebt.UZS) / currentRate;
+            document.getElementById('totalDebt').textContent = nativeDebtText;
             document.getElementById('salesCount').textContent = debtData.history ? debtData.history.length : 0;
-            document.getElementById('displayRemainingDebt').textContent = formatUSD(debtData.remaining_debt);
+            document.getElementById('displayRemainingDebt').textContent = nativeDebtText;
             
             // Qarzlar tarixi
             renderHistory();
@@ -776,11 +785,11 @@
                         ` : ''}
                         <td class="product-cell col-products" style="text-align:left;">${item.product_name || 'Noma\'lum'}</td>
                         <td class="group-cell col-qty">${qty}</td>
-                        <td class="group-cell col-price">${formatDualCurrency(unitPrice)}</td>
-                        <td class="group-cell col-subtotal">${formatDualCurrency(subtotal)}</td>
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total">${formatDualCurrency(totalUsd)}</td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidUsd)}</td>` : ''}
-                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(debtUsd)}</td>` : ''}
+                        <td class="group-cell col-price">${formatDualCurrency(unitPrice, h.currency_rate)}</td>
+                        <td class="group-cell col-subtotal">${formatDualCurrency(subtotal, h.currency_rate)}</td>
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-grand-total">${formatDualCurrency(totalUsd, h.currency_rate)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(paidUsd, h.currency_rate)}</td>` : ''}
+                        ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-debt" style="color:#dc3545;">${Number(h.native_debt_usd ?? debtUsd).toLocaleString()} USD<br>${Number(h.native_debt_uzs || 0).toLocaleString()} UZS</td>` : ''}
                         ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due">${dueDateHtml}</td>` : ''}
                         ${isFirst ? `
                             <td rowspan="${saleItems.length}" class="group-cell col-actions">
@@ -902,6 +911,14 @@
 
         const paymentData = {
             customer_id: customerId,
+            native_currency_payment: true,
+            cash_currency: document.getElementById('nativeCashCurrency').value,
+            click_currency: document.getElementById('nativeClickCurrency').value,
+            terminal_currency: document.getElementById('nativeTerminalCurrency').value,
+            debt_priority: document.getElementById('nativeDebtPriority').value,
+            cash_uzs: document.getElementById('paymentCashUZS').value || '0',
+            click_uzs: document.getElementById('paymentClickUZS').value || '0',
+            terminal_uzs: document.getElementById('paymentTerminalUZS').value || '0',
             cash_usd: cashUSD,
             click_usd: clickUSD,
             terminal_usd: terminalUSD,

@@ -19,6 +19,8 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 from telegram_bot import get_bot_instance
+from currency_service import native_debts, customer_native_debts
+from currency_accounting import format_native_amounts
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -68,10 +70,10 @@ class DebtScheduler:
                     Sale.location_id,
                     Sale.location_type,
                     Sale.sale_date,
-                    self.db.func.sum(Sale.debt_usd).label('total_debt_usd'),
-                    self.db.func.sum(Sale.debt_amount).label('total_debt_uzs')
+                    self.db.func.sum(self.db.func.coalesce(Sale.native_debt_usd, Sale.debt_usd)).label('total_debt_usd'),
+                    self.db.func.sum(self.db.func.coalesce(Sale.native_debt_uzs, 0)).label('total_debt_uzs')
                 ).filter(
-                    Sale.payment_status == 'partial',
+                    Sale.payment_status != 'pending',
                     Sale.debt_usd > self.minimum_debt_amount,
                     Sale.payment_due_date.is_(None)
                 ).group_by(
@@ -106,6 +108,8 @@ class DebtScheduler:
                         'telegram_chat_id': customer.telegram_chat_id,
                         'debt_usd': float(debt.total_debt_usd or 0),
                         'debt_uzs': float(debt.total_debt_uzs or 0),
+                        'native_debts': {'USD': str(debt.total_debt_usd or 0),
+                                         'UZS': str(debt.total_debt_uzs or 0)},
                         'location_name': location_name,
                         'sale_date': debt.sale_date
                     })
@@ -211,7 +215,8 @@ class DebtScheduler:
                     debt_usd=debt_usd,
                     debt_uzs=debt_uzs,
                     location_name=location_name,
-                    sale_date=sale_date
+                    sale_date=sale_date,
+                    native_debts=customer_native_debts(customer_id)
                 )
 
             except Exception as e:
@@ -245,6 +250,10 @@ class DebtScheduler:
         """
         try:
             # asyncio.run() har safar yangi loop yaratib, to'g'ri yopadi
+            original_debts = None
+            if customer_id and self.app:
+                with self.app.app_context():
+                    original_debts = customer_native_debts(customer_id)
             return asyncio.run(
                 self.bot.send_debt_reminder(
                     chat_id=chat_id,
@@ -253,7 +262,8 @@ class DebtScheduler:
                     debt_uzs=debt_uzs,
                     location_name=location_name,
                     sale_date=sale_date,
-                    customer_id=customer_id
+                    customer_id=customer_id,
+                    native_debts=original_debts
                 )
             )
         except Exception as e:
@@ -301,7 +311,8 @@ class DebtScheduler:
                     paid_uzs=paid_uzs,
                     remaining_usd=remaining_usd,
                     remaining_uzs=remaining_uzs,
-                    location_name=location_name
+                    location_name=location_name,
+                    native_debts=customer_native_debts(customer_id)
                 )
 
             except Exception as e:
@@ -384,6 +395,7 @@ class DebtScheduler:
 
                     debt_sales = Sale.query.filter(
                         Sale.customer_id == reminder.customer_id,
+                        Sale.payment_status != 'pending',
                         Sale.debt_usd > 0
                     ).all()
 
@@ -423,7 +435,8 @@ class DebtScheduler:
                             debt_usd=remaining_debt,
                             debt_uzs=debt_uzs,
                             location_name=location_name,
-                            customer_id=customer.id
+                            customer_id=customer.id,
+                            native_debts=customer_native_debts(customer.id)
                         )
 
                         if success:
@@ -474,7 +487,7 @@ class DebtScheduler:
                 # Qarzli savdolarni olish (payment_due_date belgilangan)
                 debt_sales = Sale.query.filter(
                     Sale.debt_usd > 0,
-                    Sale.payment_status == 'partial',
+                    Sale.payment_status != 'pending',
                     Sale.payment_due_date.isnot(None),
                     Sale.customer_id.isnot(None)
                 ).all()
@@ -521,7 +534,7 @@ class DebtScheduler:
 
                     # Xabar yuborish
                     try:
-                        debt_usd_str = f"${debt_usd:,.2f}"
+                        debt_usd_str = format_native_amounts(native_debts(sale))
                         debt_uzs_str = f"{debt_uzs:,.0f}"
                         due_date_str = due_date.strftime('%d.%m.%Y')
                         today_str = today.strftime('%d.%m.%Y')
@@ -614,12 +627,12 @@ class DebtScheduler:
             # Barcha qarzli mijozlarni customer_id bo'yicha guruhlash
             rows = self.db.session.query(
                 Sale.customer_id,
-                self.db.func.sum(Sale.debt_usd).label('total_debt_usd'),
-                self.db.func.sum(Sale.debt_amount).label('total_debt_uzs'),
+                self.db.func.sum(self.db.func.coalesce(Sale.native_debt_usd, Sale.debt_usd)).label('total_debt_usd'),
+                self.db.func.sum(self.db.func.coalesce(Sale.native_debt_uzs, 0)).label('total_debt_uzs'),
                 self.db.func.min(Sale.payment_due_date).label('earliest_due')
             ).filter(
                 Sale.debt_usd > 0,
-                Sale.payment_status.in_(['partial', 'pending']),
+                Sale.payment_status != 'pending',
                 Sale.customer_id.isnot(None)
             ).group_by(Sale.customer_id).order_by(
                 self.db.func.sum(Sale.debt_usd).desc()
@@ -646,8 +659,8 @@ class DebtScheduler:
             # Ro'yxatni 30 tadan bo'lib yuborish (Telegram limit)
             CHUNK = 30
             total_customers = len(rows)
-            grand_total_usd = sum(float(r.total_debt_usd or 0) for r in rows)
-            grand_total_uzs = grand_total_usd * exchange_rate
+            grand_total_usd = sum((row.total_debt_usd or Decimal('0') for row in rows), Decimal('0'))
+            grand_total_uzs = sum((row.total_debt_uzs or Decimal('0') for row in rows), Decimal('0'))
 
             for chunk_start in range(0, total_customers, CHUNK):
                 chunk = rows[chunk_start:chunk_start + CHUNK]
@@ -667,8 +680,7 @@ class DebtScheduler:
                     customer = Customer.query.get(row.customer_id)
                     if not customer:
                         continue
-                    debt_usd = float(row.total_debt_usd or 0)
-                    debt_uzs = debt_usd * exchange_rate
+                    original_debts = {'USD': row.total_debt_usd or 0, 'UZS': row.total_debt_uzs or 0}
                     due_str = ''
                     if row.earliest_due:
                         if row.earliest_due < today:
@@ -682,7 +694,7 @@ class DebtScheduler:
                     lines.append(
                         f"\n{i}. <b>{customer.name}</b>\n"
                         f"   📞 {phone}\n"
-                        f"   💵 ${debt_usd:,.2f} ({debt_uzs:,.0f} so'm)"
+                        f"   💵 {format_native_amounts(original_debts)}"
                         f"{due_str}"
                     )
 
@@ -690,8 +702,7 @@ class DebtScheduler:
                     lines.append(
                         f"\n{'─' * 24}\n"
                         f"<b>Jami: {total_customers} ta mijoz</b>\n"
-                        f"<b>Umumiy qarz: ${grand_total_usd:,.2f}</b>\n"
-                        f"<b>({grand_total_uzs:,.0f} so'm)</b>"
+                        f"<b>Umumiy qarz: {format_native_amounts({'USD': grand_total_usd, 'UZS': grand_total_uzs})}</b>"
                     )
 
                 send_to_admins("\n".join(lines))
@@ -737,6 +748,7 @@ class DebtScheduler:
                     'name': customer.name,
                     'phone': customer.phone or '—',
                     'debt_usd': debt_usd,
+                    'native_debts': native_debts(sale),
                     'location': location_name,
                     'due_date': due_date,
                 }
@@ -767,32 +779,35 @@ class DebtScheduler:
             # Bugun to'lash muddati kelgan mijozlar
             if due_today_list:
                 lines = [f"💰 <b>BUGUN TO'LOV MUDDATI KELGAN MIJOZLAR</b>\n<b>Sana: {today.strftime('%d.%m.%Y')}</b>\n{'─'*22}"]
-                total = 0
+                total = {'USD': Decimal('0'), 'UZS': Decimal('0')}
                 for i, e in enumerate(due_today_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
-                    total += e['debt_usd']
-                lines.append(f"\n{'─'*22}\nJami: <b>{len(due_today_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 {format_native_amounts(e['native_debts'])} | 🏪 {e['location']}")
+                    for code in total:
+                        total[code] += e['native_debts'][code]
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(due_today_list)} ta mijoz</b> | <b>{format_native_amounts(total)}</b>")
                 send_to_admins("\n".join(lines))
 
             # Ertaga muddati keluvchi mijozlar
             if pre_reminder_list:
                 lines = [f"⚠️ <b>ERTAGA TO'LOV MUDDATI KELADI</b>\n<b>Sana: {tomorrow.strftime('%d.%m.%Y')}</b>\n{'─'*22}"]
-                total = 0
+                total = {'USD': Decimal('0'), 'UZS': Decimal('0')}
                 for i, e in enumerate(pre_reminder_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}")
-                    total += e['debt_usd']
-                lines.append(f"\n{'─'*22}\nJami: <b>{len(pre_reminder_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 {format_native_amounts(e['native_debts'])} | 🏪 {e['location']}")
+                    for code in total:
+                        total[code] += e['native_debts'][code]
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(pre_reminder_list)} ta mijoz</b> | <b>{format_native_amounts(total)}</b>")
                 send_to_admins("\n".join(lines))
 
             # Muddati o'tgan mijozlar
             if overdue_list:
                 overdue_list.sort(key=lambda x: x['days_overdue'], reverse=True)
                 lines = [f"🔴 <b>MUDDATI O'TGAN QARZLAR</b>\n{'─'*22}"]
-                total = 0
+                total = {'USD': Decimal('0'), 'UZS': Decimal('0')}
                 for i, e in enumerate(overdue_list, 1):
-                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 ${e['debt_usd']:,.2f} | 🏪 {e['location']}\n   ❗ {e['days_overdue']} kun o'tgan ({e['due_date'].strftime('%d.%m.%Y')})")
-                    total += e['debt_usd']
-                lines.append(f"\n{'─'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>${total:,.2f}</b>")
+                    lines.append(f"\n{i}. <b>{e['name']}</b>\n   📞 {e['phone']}\n   💵 {format_native_amounts(e['native_debts'])} | 🏪 {e['location']}\n   ❗ {e['days_overdue']} kun o'tgan ({e['due_date'].strftime('%d.%m.%Y')})")
+                    for code in total:
+                        total[code] += e['native_debts'][code]
+                lines.append(f"\n{'─'*22}\nJami: <b>{len(overdue_list)} ta mijoz</b> | <b>{format_native_amounts(total)}</b>")
                 send_to_admins("\n".join(lines))
 
             logger.info("✅ Adminlarga yig'ma qarz xabari yuborildi")

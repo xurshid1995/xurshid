@@ -1,0 +1,41 @@
+BEGIN;
+SET LOCAL lock_timeout = '10s';
+SET LOCAL statement_timeout = '5min';
+
+ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS cost_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS sell_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS native_cost_price NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS native_sell_price NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS native_last_batch_cost NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS price_currency_rate NUMERIC(18,4);
+
+ALTER TABLE sale_items
+    ADD COLUMN IF NOT EXISTS price_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS native_unit_price NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS cost_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS native_cost_price NUMERIC(24,10);
+
+ALTER TABLE sales
+    ADD COLUMN IF NOT EXISTS native_debt_usd NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS native_debt_uzs NUMERIC(24,2),
+    ADD COLUMN IF NOT EXISTS native_payments JSON;
+
+ALTER TABLE debt_payments ADD COLUMN IF NOT EXISTS native_allocation JSON;
+
+ALTER TABLE product_add_history
+    ADD COLUMN IF NOT EXISTS cost_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS sell_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    ADD COLUMN IF NOT EXISTS native_cost_price NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS native_sell_price NUMERIC(24,10),
+    ADD COLUMN IF NOT EXISTS currency_rate NUMERIC(18,4);
+
+ALTER TABLE products ALTER COLUMN cost_price TYPE NUMERIC(24,10),
+    ALTER COLUMN sell_price TYPE NUMERIC(24,10),
+    ALTER COLUMN last_batch_cost TYPE NUMERIC(24,10);
+ALTER TABLE sales ALTER COLUMN total_amount TYPE NUMERIC(24,10),
+    ALTER COLUMN total_cost TYPE NUMERIC(24,10),
+    ALTER COLUMN total_profit TYPE NUMERIC(24,10),
+    ALTER COLUMN debt_usd TYPE NUMERIC(24,10);
+
+COMMIT;

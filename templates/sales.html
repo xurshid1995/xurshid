@@ -1134,6 +1134,13 @@
             </div>
         </div>
         
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
+            <label>Naqd valyutasi <select id="nativeCashCurrency"><option>USD</option><option>UZS</option></select></label>
+            <label>Click valyutasi <select id="nativeClickCurrency"><option>UZS</option><option>USD</option></select></label>
+            <label>Terminal valyutasi <select id="nativeTerminalCurrency"><option>UZS</option><option>USD</option></select></label>
+            <label>Avval yopiladigan qarz <select id="nativeDebtPriority"><option>USD</option><option>UZS</option></select></label>
+        </div>
+        <div id="nativeSaleDebt" style="font-weight:600;margin-bottom:12px;"></div>
         <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <label style="font-weight: 500; white-space: nowrap; min-width: 90px;">{{ t('label_cash') }}</label>
@@ -2660,6 +2667,42 @@
     // ============================================
     let cart = [];
     let currentProduct = null;
+    const nativeProductPrices = new Map();
+
+    function productSellingUSD(product) {
+        nativeProductPrices.set(Number(product.id), product);
+        return product.sell_currency === 'UZS'
+            ? Number(product.native_sell_price) / exchangeRate
+            : Number(product.native_sell_price ?? product.sell_price ?? product.price ?? 0);
+    }
+
+    function nativeItemPayload(item) {
+        const code = item.priceCurrency || nativeProductPrices.get(Number(item.id))?.sell_currency || 'USD';
+        return {price_currency: code, native_unit_price: String(code === 'UZS' ? item.priceUZS : item.priceUSD)};
+    }
+
+    function updateNativeDebtPreview() {
+        const output = document.getElementById('nativeSaleDebt');
+        if (!output) return;
+        const totals = {USD: 0, UZS: 0};
+        cart.forEach(item => {
+            const native = nativeItemPayload(item);
+            totals[native.price_currency] += Number(native.native_unit_price) * item.quantity;
+        });
+        let paidUSD = ['Cash', 'Click', 'Terminal', 'Balance'].reduce((sum, channel) =>
+            sum + fvGet(document.getElementById(`payment${channel}USD`)), 0);
+        const first = document.getElementById('nativeDebtPriority').value;
+        for (const code of [first, first === 'USD' ? 'UZS' : 'USD']) {
+            const factor = code === 'USD' ? 1 : exchangeRate;
+            const reduction = Math.min(totals[code], paidUSD * factor);
+            totals[code] -= reduction;
+            paidUSD = Math.max(0, paidUSD - reduction / factor);
+        }
+        output.textContent = `Qoladigan qarz: ${Number(totals.USD.toFixed(5)).toLocaleString()} USD + ${Number(totals.UZS.toFixed(2)).toLocaleString()} UZS`;
+    }
+
+    document.addEventListener('input', updateNativeDebtPreview);
+    document.addEventListener('change', updateNativeDebtPreview);
     let selectedLocationId = null;
     let selectedLocationType = null;
     
@@ -3080,7 +3123,7 @@
             products.forEach(product => {
                 // Quantity va selling price ni olish
                 let quantity = 0;
-                let sellingPrice = product.sell_price || product.price || 0;
+                let sellingPrice = productSellingUSD(product);
                 
                 // O'lchov birligi
                 const unitType = product.unit_type || 'dona';
@@ -3338,7 +3381,7 @@
     }
     
     // Modal ochish
-    function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
+    async function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
         console.log('?? addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
 
         // Mahsulot allaqachon korzinada bo'lsa — modal ochmasdan ogohlantir
@@ -3353,6 +3396,17 @@
             return;
         }
         
+        if (!nativeProductPrices.has(Number(productId))) {
+            try {
+                const response = await fetch(`/api/product/${productId}`);
+                const data = await response.json();
+                if (!response.ok || !data.product) throw new Error('Mahsulot narxi topilmadi');
+                productSellingUSD(data.product);
+            } catch (error) { alert(error.message); return; }
+        }
+        const nativeProduct = nativeProductPrices.get(Number(productId));
+        price = productSellingUSD(nativeProduct);
+
         // ?? Mahsulot ID'sini lock qilish
         lockedProductId = productId;
         console.log('?? Product locked:', lockedProductId);
@@ -3369,6 +3423,7 @@
         }
         
         currentProduct = { id: productId, name: productName, available: quantity, price: price, costPrice: costPrice, unitType: unitType };
+        currentProduct.priceCurrency = nativeProduct.sell_currency || 'USD';
         console.log('?? currentProduct:', currentProduct);
         
         // Tab-aware modal elementlarini topish
@@ -3489,7 +3544,7 @@
     }
     
     // To'g'ridan-to'g'ri savatga qo'shish (modal ochmasdan) - savdo tahrirlash uchun
-    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId, storedPriceUZS = null) {
+    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId, storedPriceUZS = null, priceCurrency = 'USD') {
         console.log(`? To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
         console.log(`   Location: ${sourceType}_${sourceId}`);
         
@@ -3507,6 +3562,7 @@
                 : Math.round(priceUSD * exchangeRate);
             cart.push({
                 id: productId,              // 'id' maydon nomi (removeFromCart uchun)
+                priceCurrency: priceCurrency,
                 name: productName,          // 'name' maydon nomi (updateCart uchun)
                 quantity: quantity,
                 priceUSD: priceUSD,
@@ -3932,6 +3988,7 @@
         // Savatga yangi mahsulot qo'shish (duplicate allaqachon tekshirilgan)
         cart.push({
             id: currentProduct.id,
+            priceCurrency: currentProduct.priceCurrency || 'USD',
             name: currentProduct?.name || `${SLANG.product_prefix} ${currentProduct?.id || 'Unknown'}`,
             priceUSD: priceUSD,
             priceUZS: priceUZS,
@@ -4080,7 +4137,7 @@
             
             html += `
                 <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 4px 5px; font-size: 16px; color: #333; word-wrap: break-word; width: 312px; max-width: 312px; overflow: hidden;">${item.name}</td>
+                    <td style="padding: 4px 5px; font-size: 16px; color: #333; word-wrap: break-word; width: 312px; max-width: 312px; overflow: hidden;">${item.name} <small>${item.priceCurrency || 'USD'}</small></td>
                     <td style="padding: 4px 5px; text-align: center; font-size: 16px; color: #333; width: 84px;">
                         <input type="number" 
                                value="${item.quantity}" 
@@ -4801,7 +4858,7 @@
             products.forEach(product => {
                 // Quantity va selling price ni olish
                 let quantity = 0;
-                let sellingPrice = product.sell_price || product.price || 0;
+                let sellingPrice = productSellingUSD(product);
                 
                 // Agar stocks mavjud bo'lsa, locationga mos keladiganini topish
                 if (product.stocks && product.stocks.length > 0) {
@@ -5186,7 +5243,8 @@
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
                             item.source_id,    // ? Muhim: Joylashuv ID'si
-                            item.unit_price_uzs // ? Saqlangan UZS narx
+                            item.unit_price_uzs,
+                            item.price_currency || 'USD'
                         );
                     }
                     
@@ -5307,7 +5365,8 @@
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
                             item.source_id,    // ? Muhim: Joylashuv ID'si
-                            item.unit_price_uzs // ? Saqlangan UZS narx
+                            item.unit_price_uzs,
+                            item.price_currency || 'USD'
                         );
                     }
                     
@@ -5611,6 +5670,7 @@
                 product_name: item.name || item.productName,
                 quantity: item.quantity,
                 unit_price: item.priceUSD,
+                ...nativeItemPayload(item),
                 price: item.priceUSD,
                 price_usd: item.priceUSD,
                 price_uzs: item.priceUZS,
@@ -5715,6 +5775,7 @@
                 product_name: item.name || item.productName,
                 quantity: item.quantity,
                 unit_price: item.priceUSD,
+                ...nativeItemPayload(item),
                 price: item.priceUSD,
                 price_usd: item.priceUSD,
                 price_uzs: item.priceUZS,
@@ -5882,7 +5943,8 @@
                     if (!d || !d.total_debt) return;
                     const debt = parseFloat(d.total_debt || d.remaining_debt || 0);
                     if (debt > 0.001 && existingDebtSection) {
-                        document.getElementById('paymentExistingDebtUSD').textContent = `$${debt.toFixed(2)}`;
+                        const native = d.native_debts || {USD: debt, UZS: 0};
+                        document.getElementById('paymentExistingDebtUSD').textContent = `${Number(native.USD).toLocaleString()} USD + ${Number(native.UZS).toLocaleString()} UZS`;
                         const debtUzs = Math.round(debt * (d.currency_rate || exchangeRate || 12000));
                         document.getElementById('paymentExistingDebtUZS').textContent =
                             `≈ ${debtUzs.toLocaleString('uz-UZ')} so'm`;
@@ -5917,6 +5979,7 @@
         const printReceiptUSD = document.getElementById('printReceiptUSD');
         if (printReceiptUSD) printReceiptUSD.checked = true;
         
+        updateNativeDebtPreview();
         if (paymentModal) paymentModal.style.display = 'flex';
         
         // Event listener'larni o'rnatish (real-time konversiya uchun)
@@ -6229,6 +6292,7 @@
     
     // Qarz muddat seksiyasini ko'rsatish/yashirish (umumiy funksiya)
     function showHideDueDateSection() {
+        updateNativeDebtPreview();
         const debtInput = document.getElementById('paymentDebtUSD');
         const dueDateSection = document.getElementById('paymentDueDateSection');
         if (!debtInput || !dueDateSection) return;
@@ -6420,11 +6484,16 @@
                     product_name: item.name || item.productName,  // name yoki productName
                     quantity: item.quantity,
                     unit_price: item.priceUSD,
+                    ...nativeItemPayload(item),
                     price: item.priceUSD,
                     price_usd: item.priceUSD,
                     price_uzs: item.priceUZS
                 })),
                 payment: {
+                    cash_currency: document.getElementById('nativeCashCurrency').value,
+                    click_currency: document.getElementById('nativeClickCurrency').value,
+                    terminal_currency: document.getElementById('nativeTerminalCurrency').value,
+                    debt_priority: document.getElementById('nativeDebtPriority').value,
                     cash_usd: cashUSD,
                     cash_uzs: cashUZS,
                     click_usd: clickUSD,

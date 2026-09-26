@@ -15,6 +15,12 @@ import requests
 from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation
+from currency_accounting import amount as money_amount, exchange_rate as validate_rate
+from currency_service import (normalize_product_prices, save_product_currency,
+                              prepare_native_average, sync_legacy_price_edit,
+                              normalize_sale_prices, snapshot_item, snapshot_sale,
+                              native_debts, set_native_debts, customer_native_debts,
+                              pay_native_debts, reverse_native_payment, apply_native_return)
 from functools import wraps
 import pytz
 
@@ -225,7 +231,7 @@ from models import (  # noqa: E402
 )
 
 # Decimal aniqlik o'rnatish
-getcontext().prec = 10
+getcontext().prec = 38
 
 # Vaqt zonasi, kesh helperlari va konstantalar database.py ga ko'chirildi.
 # Quyidagi keshlar faqat app.py ichida ishlatiladi:
@@ -1986,6 +1992,9 @@ def api_batch_products():
             return jsonify({'error': 'Mahsulotlar ro\'yxati bo\'sh'}), 400
 
         created_count = 0
+        product_rate = get_current_currency_rate()
+        for product_data in products:
+            normalize_product_prices(product_data, product_rate)
         supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
 
         for product_data in products:
@@ -2056,6 +2065,7 @@ def api_batch_products():
                 db.session.flush()  # ID olish uchun
                 logger.info(f"✅ Yangi mahsulot yaratildi - ID: {product.id}, barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
             else:
+                prepare_native_average(product, product_data)
                 # Mavjud mahsulot - Backend'da og'irlikli o'rtacha narx hisoblanadi
                 logger.info(f'Mavjud mahsulot yangilanmoqda (backend) - ID: {product.id}')
                 logger.info(f'   Eski cost_price: ${product.cost_price}')
@@ -2065,7 +2075,7 @@ def api_batch_products():
 
                 # Backend'da og'irlikli o'rtacha hisoblash
                 average_cost = calculate_average_cost(
-                    product.id, int(quantity), last_batch_cost
+                    product.id, quantity, last_batch_cost
                 )
                 logger.info(f"   Hisoblangan o'rtacha: ${average_cost}")
 
@@ -2093,6 +2103,8 @@ def api_batch_products():
                 # Boshqa maydonlar
                 product.sell_price = sell_price
                 product.min_stock = global_min_stock
+
+            save_product_currency(product, product_data)
 
             # Stock qo'shish va joylashuv nomini olish
             location_name = ''
@@ -2159,6 +2171,11 @@ def api_batch_products():
 
                 history = ProductAddHistory(
                     product_name=product.name,
+                    cost_currency=product.cost_currency,
+                    sell_currency=product.sell_currency,
+                    native_cost_price=product.native_last_batch_cost,
+                    native_sell_price=product.native_sell_price,
+                    currency_rate=product.price_currency_rate,
                     cost_price=cost_price,
                     sell_price=sell_price,
                     quantity=quantity,
@@ -2318,6 +2335,11 @@ def get_product_history():
                 'name': record.product_name,
                 'cost_price': float(record.cost_price),
                 'sell_price': float(record.sell_price),
+                'cost_currency': record.cost_currency or 'USD',
+                'sell_currency': record.sell_currency or 'USD',
+                'native_cost_price': str(record.native_cost_price if record.native_cost_price is not None else record.cost_price),
+                'native_sell_price': str(record.native_sell_price if record.native_sell_price is not None else record.sell_price),
+                'currency_rate': str(record.currency_rate) if record.currency_rate else None,
                 'total_quantity': quantity,
                 'total_value': total_value,
                 'locations': [{
@@ -2403,6 +2425,11 @@ def search_product(product_name):
             products_data.append({
                 'product': {
                     'name': product.name,
+                    'cost_currency': product.cost_currency or 'USD',
+                    'sell_currency': product.sell_currency or 'USD',
+                    'native_cost_price': str(product.native_cost_price if product.native_cost_price is not None else product.cost_price),
+                    'native_sell_price': str(product.native_sell_price if product.native_sell_price is not None else product.sell_price),
+                    'native_last_batch_cost': str(product.native_last_batch_cost) if product.native_last_batch_cost is not None else None,
                     'barcode': product.barcode,  # Barcode qo'shildi
                     'cost_price': float(product.cost_price),
                     'sell_price': float(product.sell_price),
@@ -3535,7 +3562,7 @@ def api_return_product():
             return jsonify({'success': False, 'error': 'Savdo ID va mahsulotlar talab qilinadi'}), 400
 
         # Savdoni tekshirish
-        sale = Sale.query.get(sale_id)
+        sale = Sale.query.filter_by(id=sale_id).with_for_update().first()
         if not sale:
             return jsonify({'success': False, 'error': 'Savdo topilmadi'}), 404
 
@@ -3544,6 +3571,7 @@ def api_return_product():
         total_returned_usd = Decimal('0')
         total_returned_cost = Decimal('0')
         total_returned_profit = Decimal('0')
+        native_returned = {'USD': Decimal('0'), 'UZS': Decimal('0')}
 
         for item in items:
             product_id = item.get('product_id')
@@ -3603,6 +3631,9 @@ def api_return_product():
             total_returned_usd += returned_usd
             total_returned_cost += returned_cost
             total_returned_profit += returned_profit
+            native_code = sale_item.price_currency or 'USD'
+            native_price = sale_item.native_unit_price if sale_item.native_unit_price is not None else sale_item.unit_price
+            native_returned[native_code] += native_price * return_quantity
 
             logger.info(f"Qaytarildi: {product.name} x{return_quantity} = ${returned_usd} (foyda: ${returned_profit})")
 
@@ -3613,6 +3644,7 @@ def api_return_product():
             else:
                 # Total price va profit ni yangilash (qisman qaytarishdan keyin)
                 sale_item.total_price = sale_item.unit_price * Decimal(str(sale_item.quantity))
+                sale_item.total_price_uzs = sale_item.unit_price_uzs * sale_item.quantity
                 sale_item.profit = Decimal(str(sale_item.profit or 0)) - returned_profit
 
             # Stock ga qaytarish
@@ -3688,7 +3720,9 @@ def api_return_product():
                     'quantity': float(sale_item.quantity) if sale_item.quantity > 0 else 0,
                     'returned_quantity': float(return_quantity),
                     'sale_id': sale_id,
-                    'amount_usd': float(returned_usd)
+                    'amount_usd': float(returned_usd),
+                    'price_currency': native_code,
+                    'native_amount': str(native_price * return_quantity)
                 },
                 ip_address=request.remote_addr,
                 location_id=location_id,
@@ -3710,6 +3744,15 @@ def api_return_product():
             logger.info(f"  - Foyda: -${total_returned_profit}")
 
             # To'lovlarni qaytarish turi bo'yicha
+            if sale.native_debt_usd is not None:
+                native_refund = apply_native_return(sale, native_returned, refund_type)
+                db.session.add(OperationHistory(
+                    operation_type='payment_refund', table_name='sales', record_id=sale.id,
+                    user_id=session.get('user_id'), username=session.get('username'),
+                    description=f'USD/UZS qaytarish: savdo #{sale.id}',
+                    new_data=native_refund, ip_address=request.remote_addr))
+                refund_type = 'native_completed'
+
             if refund_type == 'balance':
                 # Mijoz balansiga qo'shish
                 customer = Customer.query.get(sale.customer_id) if sale.customer_id else None
@@ -6735,6 +6778,8 @@ def api_debts():
                     0 as paid_amount,
                     COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                     COALESCE(SUM(s.debt_amount), 0) as remaining_debt_uzs,
+                    COALESCE(SUM(COALESCE(s.native_debt_usd, s.debt_usd)), 0) as native_debt_usd,
+                    COALESCE(SUM(s.native_debt_uzs), 0) as native_debt_uzs,
                     c.last_debt_payment_date as last_payment_date,
                     COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
                     COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
@@ -6777,6 +6822,8 @@ def api_debts():
                         0 as paid_amount,
                         COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                         COALESCE(SUM(s.debt_amount), 0) as remaining_debt_uzs,
+                        COALESCE(SUM(COALESCE(s.native_debt_usd, s.debt_usd)), 0) as native_debt_usd,
+                        COALESCE(SUM(s.native_debt_uzs), 0) as native_debt_uzs,
                         c.last_debt_payment_date as last_payment_date,
                         COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
                         COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
@@ -6803,6 +6850,8 @@ def api_debts():
                         0 as paid_amount,
                         COALESCE(SUM(s.debt_usd), 0) as remaining_debt,
                         COALESCE(SUM(s.debt_amount), 0) as remaining_debt_uzs,
+                        COALESCE(SUM(COALESCE(s.native_debt_usd, s.debt_usd)), 0) as native_debt_usd,
+                        COALESCE(SUM(s.native_debt_uzs), 0) as native_debt_uzs,
                         c.last_debt_payment_date as last_payment_date,
                         COALESCE(c.last_debt_payment_usd, 0) as last_payment_amount,
                         COALESCE(c.last_debt_payment_rate, 13000) as last_payment_rate,
@@ -6829,6 +6878,8 @@ def api_debts():
                 'paid_amount': float(row.paid_amount),
                 'remaining_debt': float(row.remaining_debt),
                 'remaining_debt_uzs': float(row.remaining_debt_uzs) if row.remaining_debt_uzs else 0,
+                'native_debt_usd': str(row.native_debt_usd),
+                'native_debt_uzs': str(row.native_debt_uzs),
                 'last_payment_date': row.last_payment_date.strftime('%Y-%m-%d %H:%M') if row.last_payment_date else None,
                 'last_payment_amount': float(row.last_payment_amount) if row.last_payment_amount else 0,
                 'last_payment_rate': float(row.last_payment_rate) if row.last_payment_rate else 13000,
@@ -7194,10 +7245,13 @@ def api_debt_details(customer_id):
 
             history.append({
                 'sale_id': sale.id,
+                'currency_rate': str(sale.currency_rate) if sale.currency_rate else None,
                 'sale_date': sale.created_at.strftime('%Y-%m-%d %H:%M') if sale.created_at else '',
                 'total_usd': total_sale,
                 'paid_usd': paid,
                 'debt_usd': float(sale.debt_usd or 0),
+                'native_debt_usd': str(native_debts(sale)['USD']),
+                'native_debt_uzs': str(native_debts(sale)['UZS']),
                 'payment_due_date': sale.payment_due_date.strftime('%Y-%m-%d') if sale.payment_due_date else None,
                 'payment_status': sale.payment_status,
                 'items': items_info,
@@ -7223,6 +7277,7 @@ def api_debt_details(customer_id):
             'total_debt': float(total_debt),
             'total_paid': 0,
             'remaining_debt': float(remaining_debt),
+            'native_debts': customer_native_debts(customer_id),
             'history': history
         })
 
@@ -7327,9 +7382,15 @@ def api_reverse_debt_payment():
 
         payments = DebtPayment.query.filter(
             DebtPayment.customer_id == customer_id,
-            DebtPayment.payment_date >= dt_from,
-            DebtPayment.payment_date <= dt_to
-        ).all()
+            DebtPayment.payment_date == payment_dt
+        ).with_for_update().all()
+        if not payments:
+            payments = DebtPayment.query.filter(
+                DebtPayment.customer_id == customer_id,
+                DebtPayment.native_allocation.is_(None),
+                DebtPayment.payment_date >= dt_from,
+                DebtPayment.payment_date <= dt_to
+            ).with_for_update().all()
 
         if not payments:
             return jsonify({'success': False, 'error': 'Bu to\'lov topilmadi'}), 404
@@ -7360,6 +7421,10 @@ def api_reverse_debt_payment():
             if dp.sale_id and dp.sale_id not in reversed_sale_ids:
                 reversed_sale_ids.append(dp.sale_id)
 
+            if dp.native_allocation is not None:
+                reverse_native_payment(dp)
+                continue
+
             # Agar savdoga bog'liq bo'lsa, savdo qarzini tiklash
             if dp.sale_id:
                 sale = Sale.query.with_for_update().get(dp.sale_id)
@@ -7368,6 +7433,8 @@ def api_reverse_debt_payment():
                     sale.debt_usd  = (sale.debt_usd  or Decimal('0')) + reversed_amount
                     sale_rate = sale.currency_rate or Decimal('12000')
                     sale.debt_amount = sale.debt_usd * sale_rate
+                    if sale.native_debt_usd is not None:
+                        sale.native_debt_usd += reversed_amount
 
                     # To'lov turlarini kamaytirish (manfiyga ketmasligi uchun)
                     cash_back = min(Decimal(str(dp.cash_usd or 0)), sale.cash_usd or Decimal('0'))
@@ -7531,6 +7598,38 @@ def api_debt_payment():
     try:
         data = request.get_json()
         customer_id = data.get('customer_id')
+
+        if data.get('native_currency_payment') or Sale.query.filter(
+                Sale.customer_id == customer_id, Sale.native_debt_usd.isnot(None),
+                Sale.debt_usd > 0).first():
+            try:
+                result = pay_native_debts(data, get_current_currency_rate(),
+                                         session.get('user_name', 'Unknown'))
+                db.session.add(OperationHistory(
+                    operation_type='debt_payment', table_name='debt_payments',
+                    user_id=session.get('user_id'), username=session.get('username', 'Unknown'),
+                    description=f"USD/UZS qarz tolovi: mijoz #{customer_id}",
+                    new_data=result, ip_address=request.remote_addr))
+                db.session.commit()
+                try:
+                    customer = db.session.get(Customer, customer_id)
+                    if customer and customer.telegram_chat_id:
+                        from telegram_bot import get_bot_instance
+                        result['telegram_sent'] = get_bot_instance(db=db).send_payment_confirmation_sync(
+                            chat_id=customer.telegram_chat_id, customer_name=customer.name,
+                            previous_debt_usd=0, previous_debt_uzs=0,
+                            paid_usd=result['paid_amount'], paid_uzs=0,
+                            remaining_usd=0, remaining_uzs=0, customer_id=customer.id,
+                            native_debts=result['native_debts'],
+                            previous_native_debts=result['previous_native_debts'],
+                            native_payments=result['native_payments'])
+                except Exception:
+                    logger.exception('Native payment Telegram notification failed')
+                    result['telegram_sent'] = False
+                return jsonify(result)
+            except (ValueError, InvalidOperation) as error:
+                db.session.rollback()
+                return jsonify({'success': False, 'error': str(error)}), 400
 
         # Har bir to'lov turini olish
         cash_usd = Decimal(str(data.get('cash_usd', 0)))
@@ -8084,6 +8183,7 @@ def edit_stock(warehouse_id, product_id):
             # Cost price va sell price ni alohida saqlash
             stock.product.cost_price = Decimal(str(new_cost_price))
             stock.product.sell_price = Decimal(str(new_sell_price))
+            sync_legacy_price_edit(stock.product, get_current_currency_rate())
 
             # Stock miqdorini yangilash
             old_quantity = stock.quantity
@@ -8308,6 +8408,7 @@ def edit_store_stock(store_id, product_id):
             # Cost price va sell price ni alohida saqlash
             stock.product.cost_price = Decimal(str(new_cost_price))
             stock.product.sell_price = Decimal(str(new_sell_price))
+            sync_legacy_price_edit(stock.product, get_current_currency_rate())
 
             # Stock miqdorini yangilash
             old_quantity = stock.quantity
@@ -8430,6 +8531,7 @@ def api_edit_store_stock(store_id, product_id):
             stock.product.min_stock = int(float(new_global_min_stock))
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
+        sync_legacy_price_edit(stock.product, get_current_currency_rate())
         stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()
@@ -8509,6 +8611,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
             stock.product.min_stock = int(float(new_global_min_stock))
         stock.product.cost_price = Decimal(str(new_cost_price))
         stock.product.sell_price = Decimal(str(new_sell_price))
+        sync_legacy_price_edit(stock.product, get_current_currency_rate())
         stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()
@@ -12823,7 +12926,11 @@ def finalize_sale(sale_id):
         payment = data.get('payment', {})
         payment_status = data.get('payment_status', 'paid')
         customer_id = data.get('customer_id')
-        exchange_rate = data.get('exchange_rate', get_current_currency_rate())
+        exchange_rate = validate_rate(data.get('exchange_rate', get_current_currency_rate()))
+        if exchange_rate != validate_rate(get_current_currency_rate()):
+            return jsonify({'success': False, 'error': 'Kurs yangilangan. Savatni yangilang.'}), 409
+        if exchange_rate != validate_rate(sale.currency_rate):
+            return jsonify({'success': False, 'error': 'Savat kursi eskirgan. Savatni qayta saqlang.'}), 409
 
         # To'lov ma'lumotlarini yangilash
         balance_used_fin = float(payment.get('balance_used', 0))
@@ -12861,6 +12968,12 @@ def finalize_sale(sale_id):
         # Mijoz ID ni yangilash (agar kiritilgan bo'lsa)
         if customer_id:
             sale.customer_id = int(customer_id)
+
+        snapshot_sale(sale, [
+            {'price_currency': item.price_currency or 'USD',
+             'native_unit_price': str(item.native_unit_price if item.native_unit_price is not None else item.unit_price),
+             'quantity': str(item.quantity)} for item in sale.items
+        ], payment, exchange_rate)
 
         # Mijoz balansidan foydalanilgan summani ayirish
         if balance_used_fin > 0:
@@ -12915,6 +13028,8 @@ def finalize_sale(sale_id):
                             'seller_name': seller_name,
                             'quantity': float(item.quantity),
                             'unit_price_uzs': float(item.unit_price) * float(sale.currency_rate),
+                            'price_currency': item.price_currency,
+                            'native_unit_price': str(item.native_unit_price) if item.native_unit_price is not None else None,
                             'total_uzs': float(item.total_price) * float(sale.currency_rate),
                             'unit_price_usd': float(item.unit_price),
                             'total_usd': float(item.total_price),
@@ -12947,7 +13062,10 @@ def finalize_sale(sale_id):
                         terminal_usd=float(sale.terminal_usd),
                         debt_usd=float(sale.debt_usd),
                         balance_uzs=balance_uzs_fin,
-                        balance_usd=balance_usd_fin
+                        balance_usd=balance_usd_fin,
+                        native_debts=native_debts(sale),
+                        total_native_debts=customer_native_debts(customer.id),
+                        native_payments=sale.native_payments
                     )
                     logger.info(f"✅ Telegram xabar va PDF yuborildi (finalize): {customer.name}")
             except Exception as telegram_error:
@@ -13227,6 +13345,13 @@ def create_sale():
 
         data = request.get_json()
         logger.debug(f" Parsed JSON data: {data}")
+
+        if data:
+            try:
+                normalize_sale_prices(data, get_current_currency_rate())
+            except (ValueError, TypeError, InvalidOperation) as error:
+                db.session.rollback()
+                return jsonify({'success': False, 'error': str(error)}), 400
 
         # Agar payment_status 'pending' bo'lsa, draft sifatida saqlash
         payment_status = data.get('payment_status', 'paid')
@@ -13521,6 +13646,9 @@ def create_sale():
 
             logger.debug("✅ Asl savdo topildi - UPDATE qilinmoqda")
 
+            if current_sale.native_debt_usd is not None and current_sale.debt_payments:
+                return jsonify({'success': False, 'error': 'Bu savdoga qarz tolovi qilingan. Avval tolovni bekor qiling.'}), 409
+
             # Eski SaleItem'larni o'chirish
             SaleItem.query.filter_by(sale_id=original_sale_id).delete()
             logger.debug("🗑️  Eski mahsulotlar o'chirildi")
@@ -13589,7 +13717,7 @@ def create_sale():
             # product_id ni id yoki product_id dan olish
             product_id = item.get('product_id') or item.get('id')
             quantity = Decimal(str(item.get('quantity', 0)))
-            unit_price_usd = float(item.get('unit_price') or item.get('price', 0))
+            unit_price_usd = money_amount(item.get('unit_price', item.get('price', 0)))
 
             logger.debug(f" Processing item: {item}")
             logger.debug(f" Product ID: {product_id} (type: {type(product_id)})")
@@ -13730,7 +13858,7 @@ def create_sale():
             total_amount_usd = Decimal(str(unit_price_usd)) * quantity  # USD da
 
             # Cost price allaqachon USD da (products jadvalidagi qiymat)
-            unit_cost_price_usd = float(product.cost_price)  # USD da
+            unit_cost_price_usd = product.cost_price
             total_cost_price_usd = Decimal(str(unit_cost_price_usd)) * quantity  # Jami tan narx (USD)
 
             # Foyda USD da hisoblash
@@ -13764,6 +13892,7 @@ def create_sale():
                 notes=f'{product.name} | {location_info}'
             )
 
+            snapshot_item(sale_item, product, item)
             db.session.add(sale_item)
             total_profit += profit_usd
             total_revenue += total_amount_usd  # USD da
@@ -13773,6 +13902,8 @@ def create_sale():
         current_sale.total_amount = Decimal(str(total_revenue))  # USD da
         current_sale.total_cost = Decimal(str(total_cost))  # USD da
         current_sale.total_profit = Decimal(str(total_profit))  # USD da
+
+        snapshot_sale(current_sale, items, payment_info, validate_rate(current_rate))
 
         # Ma'lumotlar bazasiga saqlash
         db.session.commit()
@@ -13829,6 +13960,8 @@ def create_sale():
                             'seller_name': seller_name,
                             'quantity': float(item.quantity),
                             'unit_price_uzs': float(item.unit_price) * tg_exchange_rate,
+                            'price_currency': item.price_currency,
+                            'native_unit_price': str(item.native_unit_price) if item.native_unit_price is not None else None,
                             'total_uzs': float(item.total_price) * tg_exchange_rate,
                             'unit_price_usd': float(item.unit_price),
                             'total_usd': float(item.total_price),
@@ -13862,7 +13995,10 @@ def create_sale():
                         terminal_usd=tg_terminal_usd,
                         debt_usd=tg_debt_usd,
                         balance_uzs=tg_balance_uzs,
-                        balance_usd=tg_balance_usd
+                        balance_usd=tg_balance_usd,
+                        native_debts=native_debts(current_sale),
+                        total_native_debts=customer_native_debts(customer.id),
+                        native_payments=current_sale.native_payments
                     )
                     logger.info(f"✅ Telegram xabar va PDF yuborildi: {customer.name}")
             except Exception as telegram_error:
@@ -14168,6 +14304,9 @@ def update_sale(sale_id):
                 }), 403
 
         data = request.get_json()
+        if sale.native_debt_usd is not None and sale.payment_status != 'pending':
+            return jsonify({'success': False, 'error': 'Yakunlangan USD/UZS savdoni tolov oynasi orqali tahrirlang.'}), 409
+        normalize_sale_prices(data, get_current_currency_rate())
         app.logger.info(f"🔄 UPDATE Sale ID: {sale_id}")
         app.logger.info(f"📦 Update data: {data}")
         app.logger.info(f"💰 Sale payment status: {sale.payment_status}")
@@ -14253,6 +14392,7 @@ def update_sale(sale_id):
                     source_id=location_id,
                     notes=f"{product.name} | {source_name}"
                 )
+                snapshot_item(sale_item, product, item_data)
                 db.session.add(sale_item)
 
                 # Jami hisoblar (USD da)
@@ -14480,6 +14620,7 @@ def delete_sale_with_stock_return(sale_id):
 def create_pending_sale(data):
     """Tasdiqlanmagan savdoni yaratish (draft holatida)"""
     try:
+        normalize_sale_prices(data, get_current_currency_rate())
         current_user = get_current_user()
         if not current_user:
             return jsonify({'error': 'Foydalanuvchi topilmadi'}), 401
@@ -14519,6 +14660,9 @@ def create_pending_sale(data):
             logger.info(f"📝 Asl savdoni pending qilish: ID={original_sale_id}")
             original_sale = Sale.query.get(original_sale_id)
             if original_sale:
+                if original_sale.native_debt_usd is not None and original_sale.debt_payments:
+                    db.session.rollback()
+                    return jsonify({'success': False, 'error': 'Bu savdoga qarz tolovi qilingan. Avval tolovni bekor qiling.'}), 409
                 # Asl savdo vaqtini saqlash
                 original_sale_date = original_sale.sale_date
                 logger.info(f"🕐 Asl savdo vaqti saqlandi: {original_sale_date}")
@@ -14605,7 +14749,7 @@ def create_pending_sale(data):
         for item in items:
             product_id = item.get('product_id') or item.get('id')
             quantity = Decimal(str(item.get('quantity', 0)))
-            unit_price = float(item.get('unit_price') or item.get('price', 0))
+            unit_price = money_amount(item.get('unit_price', item.get('price', 0)))
 
             if quantity <= 0:
                 continue
@@ -14620,7 +14764,7 @@ def create_pending_sale(data):
                 }), 404
 
             # Cost price allaqachon USD da (products jadvalidagi qiymat)
-            cost_price_usd = float(product.cost_price or Decimal('0'))
+            cost_price_usd = product.cost_price or Decimal('0')
             if unit_price < cost_price_usd:
                 db.session.rollback()
                 return jsonify({
@@ -14662,6 +14806,7 @@ def create_pending_sale(data):
                 notes=f"Pending: {product.name}"
             )
 
+            snapshot_item(sale_item, product, item)
             db.session.add(sale_item)
             total_amount += total_price_usd  # USD da yig'ish
 
@@ -15084,6 +15229,10 @@ def api_update_pending_sale(sale_id):
         logger.debug(
             f"✅ Mavjud savdo topildi: {existing_sale.id}, Status: {existing_sale.payment_status}")
 
+        if existing_sale.payment_status != 'pending':
+            return jsonify({'success': False, 'error': 'Yakunlangan savdoni savat sifatida ozgartirib bolmaydi'}), 409
+        existing_sale.currency_rate = normalize_sale_prices(data, get_current_currency_rate())
+
         # Eski sale items'ni o'chirish
         SaleItem.query.filter_by(sale_id=sale_id).delete()
 
@@ -15100,6 +15249,8 @@ def api_update_pending_sale(sale_id):
         # Yangi sale items qo'shish
         items = data.get('items', [])
 
+        pending_total = Decimal('0')
+        pending_cost = Decimal('0')
         for item in items:
             product_id = item.get('id') or item.get('product_id')
             quantity = Decimal(str(item.get('quantity', 1)))
@@ -15136,8 +15287,14 @@ def api_update_pending_sale(sale_id):
                 source_id=item.get('location_id'),
                 source_type=item.get('location_type', 'store')
             )
+            snapshot_item(sale_item, product, item)
             db.session.add(sale_item)
+            pending_total += total_price
+            pending_cost += cost_price * quantity
 
+        existing_sale.total_amount = pending_total
+        existing_sale.total_cost = pending_cost
+        existing_sale.total_profit = pending_total - pending_cost
         db.session.commit()
         logger.info(f" Pending savdo yangilandi: {sale_id}")
 
@@ -18000,7 +18157,8 @@ def api_send_debt_sms():
                 location_name=location_name,
                 customer_id=customer_id,
                 message_type=message_type,
-                payment_due_date=nearest_due
+                payment_due_date=nearest_due,
+                native_debts=customer_native_debts(customer_id)
             )
 
             if telegram_result:
@@ -18098,7 +18256,8 @@ def api_send_payment_sms():
                     remaining_usd=float(remaining_debt_usd),
                     remaining_uzs=float(remaining_debt_uzs),
                     location_name=location_name,
-                    customer_id=customer_id  # Customer ID qo'shamiz
+                    customer_id=customer_id,
+                    native_debts=customer_native_debts(customer_id)
                 )
             )
 
