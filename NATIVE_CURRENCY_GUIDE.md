@@ -44,7 +44,17 @@ alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
 - `native_initial_debts` va `native_payments` kirimdagi holatni saqlaydi.
   Keyingi to'lovlar ularni o'zgartirmaydi. Tarixda to'lov ikki marta ayrilmaydi.
 - Kirim oynasi har bir yetkazib beruvchi uchun alohida to'lov oladi.
-  Naqd/Click/Terminal valyutasi va avval yopiladigan qarz valyutasi tanlanadi.
+  USD va UZS to'lov tablari mustaqil Naqd/Click/Terminal summalarini saqlaydi.
+  Har bir tabdagi USD/UZS maydonlari o'zaro konvertatsiya qilinadi, lekin
+  faqat tab valyutasidagi summa haqiqiy to'lov hisoblanadi.
+  Aralash kirimda "Aralash USD + UZS" yoqilgan va har ikkala asl jami o'z
+  tabining naqd maydoniga to'ldiriladi. Belgi o'chirilsa barcha to'lovlar
+  tanlangan tab valyutasiga o'tadi; bitta valyuta rejimida tab almashtirish
+  ham summalarni yangi valyutaga o'tkazadi. Aralash rejimda tab almashtirish
+  hech qanday summani o'zgartirmaydi.
+  API `payments: [{channel, currency, amount}]` ro'yxatini qabul qiladi;
+  bitta kanalda USD va UZS birga yozilishi mumkin. Eski payload ham ishlaydi.
+  Avval yopiladigan qarz valyutasi alohida tanlanadi.
   To'lov kiritilmagan qism avtomatik qarzga qoladi. Ortiqcha to'lov rad etiladi.
 - Keyingi to'lovda tanlangan valyuta bo'yicha eski guruhlar birinchi yopiladi.
   `SupplierPayment.native_allocation` haqiqiy to'lovlar, yopilgan asl qarzlar

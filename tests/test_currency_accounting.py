@@ -142,6 +142,37 @@ class CurrencyPersistenceTests(unittest.TestCase):
         self.assertEqual(batch.native_payments[0]['amount'], '200000')
 
     def test_supplier_payment_new_rate_and_reversal(self):
+        from models import Supplier, SupplierPurchaseBatch, SupplierPurchase, SupplierPayment
+        from supplier_currency import snapshot_supplier_batch, pay_supplier_native, reverse_supplier_native, batch_debts, payment_channels
+        supplier = Supplier(name='Mixed cash supplier')
+        batch = SupplierPurchaseBatch(supplier=supplier)
+        batch.items = [
+            SupplierPurchase(product_name='USD cash', quantity=10, cost_price=2,
+                             total_amount=20, cost_currency='USD', native_cost_price=2),
+            SupplierPurchase(product_name='UZS cash', quantity=10, cost_price=1,
+                             total_amount=16, cost_currency='UZS', native_cost_price=20000)]
+        db.session.add(batch)
+        entries = [{'channel': 'cash', 'currency': 'USD', 'amount': '20'},
+                   {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
+        snapshot_supplier_batch(batch, {'payments': entries}, 11850)
+        self.assertEqual(batch_debts(batch), {'USD': 0, 'UZS': 0})
+        self.assertEqual(batch.native_payments, entries)
+        snapshot_supplier_batch(batch, {'payments': []}, 11850)
+        supplier.balance_usd = batch.debt_amount
+        db.session.commit()
+        pay_supplier_native(supplier.id, {'payments': entries}, 13000, 'Test')
+        db.session.commit()
+        self.assertEqual(batch_debts(batch), {'USD': 0, 'UZS': 0})
+        payment = SupplierPayment.query.one()
+        self.assertEqual(payment.native_allocation['payments'], entries)
+        reverse_supplier_native(payment, supplier)
+        self.assertEqual(batch_debts(batch), {'USD': 20, 'UZS': 200000})
+        for invalid in ([entries[0], entries[0]], [{'channel': 'cash', 'currency': 'EUR', 'amount': 1}],
+                        [{'channel': 'cash', 'currency': 'USD', 'amount': -1}], {}):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                payment_channels({'payments': invalid})
+
+    def test_supplier_payment_new_rate_and_reversal_legacy_payload(self):
         from models import Supplier, SupplierPurchaseBatch, SupplierPayment
         from supplier_currency import pay_supplier_native, reverse_supplier_native, batch_debts
         supplier = Supplier(name='Native supplier', balance_usd=36)

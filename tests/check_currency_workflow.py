@@ -212,19 +212,65 @@ def check_browser(application):
                 }""", browser_supplier_id)
                 assert page.locator('#spTotalUSD').inner_text() == '20 USD'
                 assert page.locator('#spTotalUZS').inner_text() == '200,000 UZS'
-                page.locator('#spCashCurrency').select_option('UZS')
+                assert page.locator('#spMixedPayment').is_checked()
+                assert page.locator('#spCashUSD').input_value() == '20'
+                page.locator('#spCashUZS').fill('250000')
+                assert page.locator('#spCashUSD').input_value() == '20'
+                assert page.locator('#spActualPayment').inner_text() == '20 USD + 200,000 UZS'
+                page.locator('#spTabUZS').click()
+                assert page.locator('#spCashUZS').input_value() == '200000'
+                page.locator('#spCashUSD').fill('16')
+                assert page.locator('#spCashUZS').input_value() == '200000'
+                assert page.locator('#spNativeDebt').inner_text() == '0 USD + 0 UZS'
+                page.screenshot(path=str(screenshots / f'supplier-mixed-tabs-{width}.png'), full_page=True)
+                page.locator('#spMixedPayment').uncheck()
+                assert page.locator('#spCashUZS').input_value() == '450000'
+                assert page.locator('#spActualPayment').inner_text() == '0 USD + 450,000 UZS'
+                page.locator('#spTabUSD').click()
+                assert page.locator('#spCashUSD').input_value() == '36'
+                assert page.locator('#spActualPayment').inner_text() == '36 USD + 0 UZS'
+                for code, expected in (('USD', '20'), ('UZS', '200000')):
+                    result = page.evaluate("""code => {
+                        const original = tempProducts;
+                        tempProducts = original.filter(product => product.cost_currency === code);
+                        openSupplierPaymentModal();
+                        const result = {mixed: document.getElementById('spMixedPayment').checked,
+                            cash: document.getElementById(`spCash${code}`).value,
+                            tab: supplierPaymentTab};
+                        tempProducts = original;
+                        return result;
+                    }""", code)
+                    assert result == {'mixed': False, 'cash': expected, 'tab': code}
+                page.evaluate('openSupplierPaymentModal()')
+                page.locator('#spCashUSD').fill('0')
+                page.locator('#spTabUZS').click()
                 page.locator('#spDebtPriority').select_option('UZS')
                 page.locator('#spCashUZS').fill('200000')
                 assert page.locator('#spNativeDebt').inner_text() == '20 USD + 0 UZS'
-                assert page.locator('#spCashUSD').is_editable() is False
+                assert page.locator('#spCashUSD').is_editable()
                 page.screenshot(path=str(screenshots / f'supplier-receipt-{width}.png'), full_page=True)
+                page.locator('#spTabUSD').click()
+                page.locator('#spCashUSD').fill('-1')
+                assert page.locator('#spConfirmBtn').is_disabled()
+                page.locator('#spCashUSD').fill('21')
+                assert page.locator('#spConfirmBtn').is_disabled()
+                page.locator('#spCashUSD').fill('0')
+                page.locator('#spPaymentPanel .sp-remaining').first.click()
+                assert page.locator('#spCashUSD').input_value() == '20'
+                assert page.locator('#spNativeDebt').inner_text() == '0 USD + 0 UZS'
+                assert page.evaluate("""() => [...document.querySelectorAll('#supplierPaymentModal input[type="number"]')].every(input => {
+                    const bounds = input.getBoundingClientRect();
+                    return bounds.width >= 70 && bounds.left >= 0 && bounds.right <= innerWidth;
+                })""")
                 with page.expect_response(lambda response: response.url.endswith('/api/batch-products')) as saved:
                     page.locator('#spConfirmBtn').click()
                 assert saved.value.status == 201, saved.value.json()
                 receipt = page.request.get(f'{base_url}/api/supplier/{browser_supplier_id}/timeline').json()
-                assert Decimal(receipt['supplier']['native_debts']['USD']) == 20
+                assert Decimal(receipt['supplier']['native_debts']['USD']) == 0
                 assert Decimal(receipt['supplier']['native_debts']['UZS']) == 0
-                assert receipt['events'][0]['batch']['native_payments'][0]['amount'] == '200000'
+                assert receipt['events'][0]['batch']['native_payments'] == [
+                    {'channel': 'cash', 'currency': 'USD', 'amount': '20'},
+                    {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
                 response = page.goto(f'{base_url}/sales')
                 assert response.status == 200
                 page.wait_for_function("typeof productSellingUSD === 'function'")
@@ -327,6 +373,20 @@ def check_supplier_api(application):
     assert response.status_code == 200, response.get_json()
     assert Decimal(response.get_json()['native_debts']['UZS']) == 200000
     assert response.get_json()['restored_amount'] == 16
+    mixed_cash = [{'channel': 'cash', 'currency': 'USD', 'amount': '20'},
+                  {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
+    response = client.post(f'/api/suppliers/{supplier_id}/debt-payment', json={
+        'native_currency_payment': True, 'payments': mixed_cash, 'exchange_rate': 13000})
+    assert response.status_code == 200, response.get_json()
+    paid = response.get_json()
+    assert all(Decimal(value) == 0 for value in paid['native_debts'].values())
+    response = client.get(f'/api/debt-payments/by-supplier/{supplier_id}')
+    assert response.get_json()['payments'][0]['native_payments'] == mixed_cash
+    mixed_payment_date = response.get_json()['payments'][0]['payment_date_iso']
+    response = client.post('/api/suppliers/debt-payment/reverse', json={
+        'supplier_id': supplier_id, 'payment_date': mixed_payment_date})
+    assert response.status_code == 200, response.get_json()
+    assert {code: Decimal(value) for code, value in response.get_json()['native_debts'].items()} == {'USD': 20, 'UZS': 200000}
     response = client.post('/api/products', json={'products': products})
     assert response.status_code == 400
     supplier_ids = []

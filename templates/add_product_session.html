@@ -642,48 +642,50 @@ optgroup option { font-weight: normal; color: #1e293b; }
         </div>
 
         <style>
-            #supplierPaymentModal input { min-width:0; width:70px; }
-            #supplierPaymentModal input:read-only { background:#f1f3f5; }
-            #supplierPaymentModal select { padding:6px; max-width:100%; }
-            #supplierPaymentModal label { min-width:65px !important; }
+            #supplierPaymentModal .sp-tabs { display:flex; gap:4px; border-bottom:1px solid #d6dde5; margin:14px 0; }
+            #supplierPaymentModal .sp-tab { flex:1; background:transparent; color:#465467; padding:12px 8px; border:0; border-bottom:3px solid transparent; font-weight:600; cursor:pointer; }
+            #supplierPaymentModal .sp-tab[aria-selected="true"] { border-color:#1769df; color:#1558b0; background:#edf4ff; }
+            #supplierPaymentModal .sp-fields { display:grid; gap:12px; margin:16px 0; }
+            #supplierPaymentModal .sp-row { display:grid; grid-template-columns:65px minmax(0,1fr) minmax(0,1fr) 34px; gap:8px; align-items:center; }
+            #supplierPaymentModal .sp-amount { min-width:0; display:flex; flex-direction:column; gap:4px; color:#596574; font-size:11px; }
+            #supplierPaymentModal .sp-amount input { box-sizing:border-box; min-width:0; width:100%; padding:9px 6px; font-size:14px; border:1px solid #c9d2dd; border-radius:5px; color:#263343; }
+            #supplierPaymentModal .sp-remaining { width:34px; height:36px; background:#1769df; color:white; border:0; border-radius:5px; cursor:pointer; }
+            #supplierPaymentModal .sp-mode { display:flex; align-items:center; gap:8px; font-size:14px; }
+            #supplierPaymentModal .sp-mode input { width:16px; height:16px; }
+            #supplierPaymentModal .sp-summary { display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px; font-size:13px; }
+            #supplierPaymentModal .sp-summary strong { display:block; margin-top:4px; }
             @media(max-width:480px) {
                 #supplierPaymentModal > div { padding:14px !important; }
-                #supplierPaymentModal .sp-row { flex-wrap:wrap; }
+                #supplierPaymentModal .sp-row { grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 30px; gap:5px; }
+                #supplierPaymentModal .sp-remaining { width:30px; }
+                #supplierPaymentModal > div > div:first-child { flex-wrap:wrap; gap:12px; }
             }
         </style>
-        <label for="spDebtPriority">Avval yopiladigan qarz</label>
-        <select id="spDebtPriority" onchange="updateSupplierDebtPreview()"><option value="USD">USD</option><option value="UZS">UZS</option></select>
-        <div style="display:grid; grid-template-columns:1fr; gap:10px; margin:16px 0;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Naqd:</label>
-                <select id="spCashCurrency" aria-label="Naqd valyutasi" onchange="setSupplierChannelCurrency('cash')"><option>USD</option><option>UZS</option></select>
-                <input type="number" id="spCashUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('cash', false)">
-                <input type="number" id="spCashUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('cash', true)">
-                <button type="button" onclick="addRemainingToSupplierField('spCashUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Click:</label>
-                <select id="spClickCurrency" aria-label="Click valyutasi" onchange="setSupplierChannelCurrency('click')"><option>USD</option><option>UZS</option></select>
-                <input type="number" id="spClickUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('click', false)">
-                <input type="number" id="spClickUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('click', true)">
-                <button type="button" onclick="addRemainingToSupplierField('spClickUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Terminal:</label>
-                <select id="spTerminalCurrency" aria-label="Terminal valyutasi" onchange="setSupplierChannelCurrency('terminal')"><option>USD</option><option>UZS</option></select>
-                <input type="number" id="spTerminalUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('terminal', false)">
-                <input type="number" id="spTerminalUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('terminal', true)">
-                <button type="button" onclick="addRemainingToSupplierField('spTerminalUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
-            </div>
-            <div style="display:none;">
-                <label style="font-weight:500; white-space:nowrap; min-width:90px;">Qarz:</label>
-                <input type="number" id="spDebtUSD" step="0.01" placeholder="$" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('debt', false)">
-                <input type="number" id="spDebtUZS" step="1" placeholder="UZS" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:6px; font-size:14px;" oninput="onSupplierPayFieldInput('debt', true)">
-                <button type="button" onclick="addRemainingToSupplierField('spDebtUSD')" style="padding:8px 12px; background:#1a6eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:11px; white-space:nowrap;">+Qolgan</button>
+        <label class="sp-mode"><input type="checkbox" id="spMixedPayment" onchange="changeSupplierPaymentMode()"> Aralash USD + UZS</label>
+        <div class="sp-tabs" role="tablist" aria-label="To'lov valyutasi">
+            <button type="button" id="spTabUSD" class="sp-tab" role="tab" aria-selected="true" aria-controls="spPaymentPanel" onclick="selectSupplierPaymentTab('USD')">USD to'lov</button>
+            <button type="button" id="spTabUZS" class="sp-tab" role="tab" aria-selected="false" aria-controls="spPaymentPanel" onclick="selectSupplierPaymentTab('UZS')">UZS to'lov</button>
+        </div>
+        <div id="spPaymentPanel" role="tabpanel" aria-labelledby="spTabUSD">
+            <div class="sp-fields">
+                {% for channel, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal')] %}
+                <div class="sp-row">
+                    <span>{{ label }}:</span>
+                    <label class="sp-amount"><span data-sp-currency="USD">USD</span><input type="number" id="sp{{ channel }}USD" min="0" step="0.0000000001" aria-label="{{ label }} USD" oninput="onSupplierPayFieldInput('{{ channel|lower }}', false)"></label>
+                    <label class="sp-amount"><span data-sp-currency="UZS">UZS</span><input type="number" id="sp{{ channel }}UZS" min="0" step="0.01" aria-label="{{ label }} UZS" oninput="onSupplierPayFieldInput('{{ channel|lower }}', true)"></label>
+                    <button type="button" class="sp-remaining" onclick="addRemainingToSupplierField('{{ channel|lower }}')" title="{{ label }}: qolgan summani to'ldirish" aria-label="{{ label }}: qolgan summa"><i class="fas fa-plus"></i></button>
+                </div>
+                {% endfor %}
             </div>
         </div>
-
-        <div style="margin-bottom:14px;">Qolgan qarz: <strong id="spNativeDebt" role="status"></strong></div>
+        <div style="font-size:13px; margin:12px 0;">
+            <label for="spDebtPriority">Avval yopiladigan qarz</label>
+            <select id="spDebtPriority" onchange="updateSupplierDebtPreview()"><option value="USD">USD</option><option value="UZS">UZS</option></select>
+        </div>
+        <div class="sp-summary" role="status">
+            <div>Haqiqiy to'lov<strong id="spActualPayment"></strong></div>
+            <div>Qolgan qarz<strong id="spNativeDebt"></strong></div>
+        </div>
         <div id="spPaymentWarning" style="display:none; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:6px; margin-bottom:14px; color:#856404; font-size:13px;"></div>
 
         <div style="display:flex; gap:10px;">
@@ -2712,6 +2714,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
         let supplierPaymentQueue = [];
         let supplierPaymentIndex = 0;
         let supplierPayments = {};
+        let supplierPaymentTab = 'USD';
+        let supplierTabAmounts = {USD: {cash: 0, click: 0, terminal: 0}, UZS: {cash: 0, click: 0, terminal: 0}};
 
         function currentSupplierItems() {
             return tempProducts.filter(product => String(product.supplierId) === String(supplierPaymentQueue[supplierPaymentIndex]));
@@ -2740,25 +2744,17 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 supplierPaymentIndex = 0;
                 supplierPayments = {};
             }
-            const total = getSupplierItemsTotal();
-            const rate = getSupplierExchangeRate();
             const totals = supplierNativeTotals();
             document.getElementById('spTotalUSD').textContent = `${totals.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD`;
             document.getElementById('spTotalUZS').textContent = `${totals.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
             document.getElementById('spSupplierName').textContent = currentSupplierItems()[0]?.supplierName || `Yetkazib beruvchi #${supplierPaymentQueue[supplierPaymentIndex]}`;
 
-            // Maydonlarni tozalash, Naqd maydoniga to'liq summani qo'yish (odatiy holat)
-            ['spCashUSD', 'spClickUSD', 'spTerminalUSD', 'spDebtUSD',
-             'spCashUZS', 'spClickUZS', 'spTerminalUZS', 'spDebtUZS'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            ['cash', 'click', 'terminal'].forEach(type => {
-                document.getElementById(`sp${type[0].toUpperCase() + type.slice(1)}Currency`).value = totals.USD ? 'USD' : 'UZS';
-                setSupplierChannelCurrency(type);
-            });
+            supplierTabAmounts = {USD: {cash: totals.USD, click: 0, terminal: 0}, UZS: {cash: totals.UZS, click: 0, terminal: 0}};
+            supplierPaymentTab = totals.USD ? 'USD' : 'UZS';
+            document.getElementById('spMixedPayment').checked = totals.USD > 0 && totals.UZS > 0;
             document.getElementById('spDebtPriority').value = totals.USD ? 'USD' : 'UZS';
             document.getElementById('spPaymentWarning').style.display = 'none';
-            updateSupplierDebtPreview();
+            renderSupplierPaymentTab();
 
             document.getElementById('supplierPaymentModal').style.display = 'flex';
         }
@@ -2774,37 +2770,61 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const uzsField = document.getElementById(`sp${type.charAt(0).toUpperCase()}${type.slice(1)}UZS`);
             if (fromUZS) {
                 const uzs = parseFloat(uzsField.value) || 0;
-                usdField.value = rate > 0 ? (uzs / rate).toFixed(10) : '0';
+                usdField.value = String(Number((uzs / rate).toFixed(10)));
             } else {
                 const usd = parseFloat(usdField.value) || 0;
-                uzsField.value = (usd * rate).toFixed(2);
+                uzsField.value = String(Number((usd * rate).toFixed(2)));
             }
+            supplierTabAmounts[supplierPaymentTab][type] = Number((supplierPaymentTab === 'USD' ? usdField : uzsField).value || 0);
             updateSupplierDebtPreview();
         }
 
-        function setSupplierChannelCurrency(type) {
-            const prefix = `sp${type[0].toUpperCase() + type.slice(1)}`;
-            const code = document.getElementById(`${prefix}Currency`).value;
-            ['USD', 'UZS'].forEach(value => {
-                const input = document.getElementById(prefix + value);
-                input.readOnly = value !== code;
-                input.style.display = value === code ? '' : 'none';
-                input.style.width = '110px';
-                input.min = '0';
-                input.step = value === 'USD' ? '0.0000000001' : '0.01';
-                input.parentElement.classList.add('sp-row');
+        function consolidateSupplierPayment(code) {
+            const other = code === 'USD' ? 'UZS' : 'USD';
+            const factor = code === 'USD' ? 1 / getSupplierExchangeRate() : getSupplierExchangeRate();
+            ['cash', 'click', 'terminal'].forEach(channel => {
+                supplierTabAmounts[code][channel] = Number((supplierTabAmounts[code][channel] + supplierTabAmounts[other][channel] * factor).toFixed(code === 'USD' ? 10 : 2));
+                supplierTabAmounts[other][channel] = 0;
             });
-            onSupplierPayFieldInput(type, code === 'UZS');
+        }
+
+        function changeSupplierPaymentMode() {
+            if (!document.getElementById('spMixedPayment').checked) consolidateSupplierPayment(supplierPaymentTab);
+            renderSupplierPaymentTab();
+        }
+
+        function selectSupplierPaymentTab(code) {
+            if (!document.getElementById('spMixedPayment').checked) consolidateSupplierPayment(code);
+            supplierPaymentTab = code;
+            renderSupplierPaymentTab();
+        }
+
+        function renderSupplierPaymentTab() {
+            ['USD', 'UZS'].forEach(code => {
+                document.getElementById(`spTab${code}`).setAttribute('aria-selected', String(code === supplierPaymentTab));
+            });
+            document.getElementById('spPaymentPanel').setAttribute('aria-labelledby', `spTab${supplierPaymentTab}`);
+            document.querySelectorAll('[data-sp-currency]').forEach(label => {
+                const code = label.dataset.spCurrency;
+                label.textContent = code === supplierPaymentTab ? code : `${code} ekv.`;
+            });
+            ['cash', 'click', 'terminal'].forEach(channel => {
+                const prefix = `sp${channel[0].toUpperCase() + channel.slice(1)}`;
+                const value = supplierTabAmounts[supplierPaymentTab][channel];
+                const usd = supplierPaymentTab === 'USD' ? value : value / getSupplierExchangeRate();
+                const uzs = supplierPaymentTab === 'UZS' ? value : value * getSupplierExchangeRate();
+                document.getElementById(`${prefix}USD`).value = String(Number(usd.toFixed(10)));
+                document.getElementById(`${prefix}UZS`).value = String(Number(uzs.toFixed(2)));
+            });
+            updateSupplierDebtPreview();
         }
 
         function supplierPaymentData() {
-            const data = {exchange_rate: getSupplierExchangeRate(), debt_priority: document.getElementById('spDebtPriority').value};
-            ['cash', 'click', 'terminal'].forEach(type => {
-                const prefix = `sp${type[0].toUpperCase() + type.slice(1)}`;
-                const code = document.getElementById(`${prefix}Currency`).value;
-                data[`${type}_currency`] = code;
-                data[`${type}_${code.toLowerCase()}`] = document.getElementById(prefix + code).value || '0';
-            });
+            const data = {exchange_rate: getSupplierExchangeRate(), debt_priority: document.getElementById('spDebtPriority').value, payments: []};
+            ['USD', 'UZS'].forEach(code => ['cash', 'click', 'terminal'].forEach(channel => {
+                const value = supplierTabAmounts[code][channel];
+                if (value !== 0) data.payments.push({channel, currency: code, amount: String(value)});
+            }));
             return data;
         }
 
@@ -2812,9 +2832,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const debts = supplierNativeTotals();
             const data = supplierPaymentData();
             let valid = true;
-            ['cash', 'click', 'terminal'].forEach(type => {
-                const code = data[`${type}_currency`];
-                let left = Number(data[`${type}_${code.toLowerCase()}`]);
+            const paid = {USD: 0, UZS: 0};
+            data.payments.forEach(payment => {
+                const code = payment.currency;
+                let left = Number(payment.amount);
+                paid[code] += left;
                 if (!Number.isFinite(left) || left < 0) valid = false;
                 [data.debt_priority, data.debt_priority === 'USD' ? 'UZS' : 'USD'].forEach(target => {
                     const factor = code === target ? 1 : code === 'USD' ? data.exchange_rate : 1 / data.exchange_rate;
@@ -2825,21 +2847,23 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 if (left > (code === 'UZS' ? 0.01 : 0.00001)) valid = false;
             });
             document.getElementById('spNativeDebt').textContent = `${debts.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${debts.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
+            document.getElementById('spActualPayment').textContent = `${paid.USD.toLocaleString('en-US', {maximumFractionDigits: 10})} USD + ${paid.UZS.toLocaleString('en-US', {maximumFractionDigits: 2})} UZS`;
             document.getElementById('spConfirmBtn').disabled = !valid;
+            const warning = document.getElementById('spPaymentWarning');
+            warning.textContent = valid ? '' : "To'lov manfiy yoki kirim summasidan katta";
+            warning.style.display = valid ? 'none' : 'block';
             return valid;
         }
 
         // Tanlangan maydonga qolgan (to'lanmagan) summani avtomatik to'ldirish
-        function addRemainingToSupplierField(usdFieldId) {
-            const type = usdFieldId.replace('sp', '').replace('USD', '').toLowerCase();
+        function addRemainingToSupplierField(type) {
             const data = supplierPaymentData();
-            const others = ['cash', 'click', 'terminal'].filter(channel => channel !== type).reduce((sum, channel) => {
-                const code = data[`${channel}_currency`];
-                return sum + Number(data[`${channel}_${code.toLowerCase()}`]) / (code === 'UZS' ? data.exchange_rate : 1);
+            const code = supplierPaymentTab;
+            const others = data.payments.filter(payment => payment.channel !== type || payment.currency !== code).reduce((sum, payment) => {
+                return sum + Number(payment.amount) / (payment.currency === 'UZS' ? data.exchange_rate : 1);
             }, 0);
-            const code = data[`${type}_currency`];
-            document.getElementById(usdFieldId.replace('USD', code)).value = (Math.max(0, getSupplierItemsTotal() - others) * (code === 'UZS' ? data.exchange_rate : 1)).toFixed(code === 'UZS' ? 2 : 10);
-            onSupplierPayFieldInput(type, code === 'UZS');
+            supplierTabAmounts[code][type] = Number((Math.max(0, getSupplierItemsTotal() - others) * (code === 'UZS' ? data.exchange_rate : 1)).toFixed(code === 'UZS' ? 2 : 10));
+            renderSupplierPaymentTab();
         }
 
         function confirmSupplierPaymentAndSave() {

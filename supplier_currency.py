@@ -15,6 +15,23 @@ def book_value(values, rate):
 
 
 def payment_channels(data):
+    if 'payments' in data:
+        entries = data['payments']
+        if not isinstance(entries, list) or len(entries) > 6:
+            raise ValueError('Tolovlar royxati notogri')
+        result = []
+        seen = set()
+        for entry in entries:
+            if not isinstance(entry, dict) or entry.get('channel') not in ('cash', 'click', 'terminal'):
+                raise ValueError('Tolov turi notogri')
+            code = currency(entry.get('currency'))
+            key = (entry['channel'], code)
+            if key in seen:
+                raise ValueError('Bir xil tolov turi va valyuta takrorlangan')
+            seen.add(key)
+            result.append({'channel': entry['channel'], 'currency': code,
+                           'amount': str(amount(entry.get('amount', 0)))})
+        return result
     result = []
     for channel in ('cash', 'click', 'terminal'):
         code = currency(data.get(f'{channel}_currency', 'USD'))
