@@ -902,12 +902,11 @@
 
     // Statistikani yangilash
     function updateStats() {
-        const totalDebt = debts.reduce((sum, debt) => sum + Number(debt.native_debt_usd ?? debt.remaining_debt ?? 0), 0);
-        const totalSomDebt = debts.reduce((sum, debt) => sum + Number(debt.native_debt_uzs || 0), 0);
+        const totalDebt = debts.reduce((sum, d) => sum + (d.remaining_debt || 0), 0);
         const debtCustomers = debts.filter(d => (d.remaining_debt || 0) > 0).length;
 
         document.getElementById('debtCustomers').textContent = formatNum(debtCustomers);
-        document.getElementById('totalDebt').textContent = `${formatUSD(totalDebt)} + ${formatNum(totalSomDebt)} UZS`;
+        document.getElementById('totalDebt').textContent = formatUSD(totalDebt);
     }
 
     // Qarz muddati ustuni uchun yordamchi funksiya
@@ -986,8 +985,8 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td>
-                        <strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">${Number(debt.native_debt_usd ?? remainingDebt).toLocaleString()} USD</strong>
-                        <br><strong>${Number(debt.native_debt_uzs || 0).toLocaleString()} UZS</strong>
+                        <strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${parseFloat(remainingDebt.toFixed(5)).toString()}</strong>
+                        <br><small style="color: #666;">${remainingDebtUZS.toLocaleString('uz-UZ')} ${DLANG.sum_currency}</small>
                     </td>
                     <td>
                         <strong style="color: #28a745">$${parseFloat(lastPaymentAmount.toFixed(5)).toString()}</strong>
@@ -1054,8 +1053,8 @@
                     <td>${debt.customer_name}</td>
                     <td>${debt.customer_phone || '-'}</td>
                     <td>
-                        <strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">${Number(debt.native_debt_usd ?? remainingDebt).toLocaleString()} USD</strong>
-                        <br><strong>${Number(debt.native_debt_uzs || 0).toLocaleString()} UZS</strong>
+                        <strong style="color: ${remainingDebt > 0 ? '#dc3545' : '#28a745'}">$${parseFloat(remainingDebt.toFixed(5)).toString()}</strong>
+                        <br><small style="color: #666;">${remainingDebtUZS.toLocaleString('uz-UZ')} ${DLANG.sum_currency}</small>
                     </td>
                     <td>
                         <strong style="color: #28a745">$${parseFloat(lastPaymentAmount.toFixed(5)).toString()}</strong>

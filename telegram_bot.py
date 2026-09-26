@@ -17,8 +17,6 @@ from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQuer
 from telegram.error import TelegramError
 from dotenv import load_dotenv
 from pdf_generator import generate_sale_receipt_pdf
-from currency_accounting import amount, format_native_amounts
-from currency_service import customer_native_debts, native_debts as sale_native_debts
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -207,8 +205,7 @@ class DebtTelegramBot:
         debt_uzs: float,
         location_name: str,
         sale_date: Optional[datetime] = None,
-        customer_id: Optional[int] = None,
-        native_debts: Optional[Dict] = None
+        customer_id: Optional[int] = None
     ) -> bool:
         """
         Mijozga qarz eslatmasi yuborish
@@ -233,8 +230,6 @@ class DebtTelegramBot:
             # Qarz miqdorini formatlash
             debt_usd_str = f"${debt_usd:,.2f}"
             debt_uzs_str = f"{debt_uzs:,.0f} so'm"
-            if native_debts is not None:
-                debt_usd_str = format_native_amounts(native_debts)
 
             # Bugungi sana
             from datetime import datetime as dt
@@ -281,8 +276,7 @@ class DebtTelegramBot:
         sale_date: Optional[datetime] = None,
         customer_id: Optional[int] = None,
         message_type: str = 'general',
-        payment_due_date=None,
-        native_debts: Optional[Dict] = None
+        payment_due_date=None
     ) -> bool:
         """
         Mijozga qarz eslatmasi yuborish (sync versiya - Flask uchun)
@@ -308,8 +302,6 @@ class DebtTelegramBot:
         try:
             # Qarz miqdorini formatlash
             debt_usd_str = f"${debt_usd:,.2f}"
-            if native_debts is not None:
-                debt_usd_str = format_native_amounts(native_debts)
 
             # Bugungi sana
             from datetime import datetime as dt, date as d_date
@@ -421,8 +413,7 @@ class DebtTelegramBot:
         remaining_usd: float,
         remaining_uzs: float,
         location_name: str,
-        customer_id: Optional[int] = None,
-        native_debts: Optional[Dict] = None
+        customer_id: Optional[int] = None
     ) -> bool:
         """
         To'lov tasdiqlash xabarini yuborish
@@ -444,7 +435,7 @@ class DebtTelegramBot:
 
         try:
             payment_details = ""
-            if native_debts is None and customer_id and remaining_usd > 0:
+            if customer_id and remaining_usd > 0:
                 payment_details = await self._get_payment_details(customer_id)
 
             if remaining_usd <= 0:
@@ -470,14 +461,6 @@ class DebtTelegramBot:
                     f"{payment_details}\n"
                     "Rahmat! 🙏 Iltimos qolgan qarzingizniham tez orada Tolang chunki qarz bu sizga omonat"
                 )
-
-            if native_debts is not None:
-                message = (
-                    f"<b>TO'LOV QABUL QILINDI</b>\n\n"
-                    f"To'langan (USD ekv.): {paid_usd:,.2f}\n"
-                    f"Qolgan qarz: {format_native_amounts(native_debts)}\n")
-                if not any(amount(value) for value in native_debts.values()):
-                    message += "Qarzingiz to'liq to'landi!\n"
 
             await self.bot.send_message(
                 chat_id=chat_id,
@@ -517,10 +500,7 @@ class DebtTelegramBot:
         terminal_usd: float = 0,
         debt_usd: float = 0,
         balance_uzs: float = 0,
-        balance_usd: float = 0,
-        native_debts: Optional[Dict] = None,
-        total_native_debts: Optional[Dict] = None,
-        native_payments: Optional[List] = None
+        balance_usd: float = 0
     ) -> bool:
         """
         Savdo yakunlanganda mijozga xabar yuborish (sync versiya - Flask uchun)
@@ -565,13 +545,7 @@ class DebtTelegramBot:
             )
 
             # To'lov ma'lumotlari
-            if native_payments is not None:
-                for payment in native_payments:
-                    if amount(payment['amount']):
-                        label = {'cash': 'Naqd', 'click': 'Click', 'terminal': 'Terminal',
-                                 'balance': 'Balans'}.get(payment['channel'], 'Tolov')
-                        message += f"{label}: {format_native_amounts({payment['currency']: payment['amount']})}\n"
-            elif paid_usd > 0:
+            if paid_usd > 0:
                 message += f"✅ To'langan: ${paid_usd:,.2f}\n"
 
                 # To'lov turlarini ko'rsatish
@@ -585,7 +559,7 @@ class DebtTelegramBot:
                     message += f"   🏦 Balans: ${balance_usd:,.2f}\n"
 
             # Qarz ma'lumoti
-            if native_debts is None and debt_usd > 0:
+            if debt_usd > 0:
                 message += f"⚠️ Qarz: ${debt_usd:,.2f}\n"
 
             # Oldingi va jami qarzni hisoblash (database'dan) - har doim ko'rsatish
@@ -594,7 +568,7 @@ class DebtTelegramBot:
             previous_debt_uzs = 0
             total_debt_uzs = 0
 
-            if customer_id and native_debts is None:
+            if customer_id:
                 try:
                     from app import app, db
                     with app.app_context():
@@ -632,18 +606,6 @@ class DebtTelegramBot:
                 message += f"<b>💳 JAMI QARZ: ${total_debt_usd:,.2f}</b>\n"
                 if total_debt_usd > 0:
                     message += "Qarzingizni vaqtida to'lashni unutmang Qarz bu sizga omonat\n"
-
-            previous_native_debts = None
-            if native_debts is not None:
-                total_native_debts = total_native_debts or native_debts
-                previous_native_debts = {
-                    code: max(Decimal('0'), amount(total_native_debts.get(code, 0))
-                              - amount(native_debts.get(code, 0)))
-                    for code in ('USD', 'UZS')}
-                message += f"Qarz: {format_native_amounts(native_debts)}\n"
-                message += f"Oldingi qarz: {format_native_amounts(previous_native_debts)}\n"
-                message += f"Jami qarz: {format_native_amounts(total_native_debts)}\n"
-                message = message.replace('Jami: $', 'Jami (USD ekv.): $')
 
             message += "\nRahmat! 🙏"
 
@@ -724,11 +686,6 @@ class DebtTelegramBot:
                     }
 
                     # Tanlangan formatga qarab PDF yaratish
-                    for pdf_data in (pdf_data_usd, pdf_data_uzs):
-                        pdf_data.update(native_debts=native_debts,
-                                        previous_native_debts=previous_native_debts,
-                                        total_native_debts=total_native_debts,
-                                        native_payments=native_payments)
                     pdf_paths = []
 
                     if receipt_format in ['uzs', 'both']:
@@ -781,10 +738,7 @@ class DebtTelegramBot:
         customer_id: Optional[int] = None,
         cash_uzs: float = 0,
         click_uzs: float = 0,
-        terminal_uzs: float = 0,
-        native_debts: Optional[Dict] = None,
-        previous_native_debts: Optional[Dict] = None,
-        native_payments: Optional[List] = None
+        terminal_uzs: float = 0
     ) -> bool:
         """
         To'lov tasdiqlash xabarini yuborish (sync versiya - Flask uchun)
@@ -848,19 +802,6 @@ class DebtTelegramBot:
                     "Rahmat! 🙏"
                 )
 
-            if native_debts is not None:
-                message = (
-                    f"<b>TO'LOV QABUL QILINDI</b>\n\n"
-                    f"Avvalgi qarz: {format_native_amounts(previous_native_debts or {})}\n")
-                for payment in native_payments or []:
-                    if amount(payment['amount']):
-                        label = {'cash': 'Naqd', 'click': 'Click', 'terminal': 'Terminal',
-                                 'balance': 'Balans'}.get(payment['channel'], 'Tolov')
-                        message += f"{label}: {format_native_amounts({payment['currency']: payment['amount']})}\n"
-                message += f"Qolgan qarz: {format_native_amounts(native_debts)}\n"
-                if not any(amount(value) for value in native_debts.values()):
-                    message += "Qarzingiz to'liq to'landi!\n"
-
             # HTTP API orqali yuborish
             url = f"https://api.telegram.org/bot{self.token}/sendMessage"
             payload = {
@@ -899,14 +840,14 @@ class DebtTelegramBot:
         if not debts_data:
             message = "📊 <b>QARZLAR HISOBOTI</b>\n\n✅ Hozirda qarz yo'q"
         else:
-            totals = {code: sum((amount(debt.get('native_debts', {'USD': debt['debt_usd']}).get(code, 0))
-                                 for debt in debts_data), Decimal('0')) for code in ('USD', 'UZS')}
+            total_debt_usd = sum(d['debt_usd'] for d in debts_data)
+            total_debt_uzs = sum(d['debt_uzs'] for d in debts_data)
 
             message = (
                 f"📊 <b>QARZLAR HISOBOTI</b>\n"
                 f"📅 Sana: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n\n"
                 f"👥 Jami qarzlar: {len(debts_data)} ta\n"
-                f"Umumiy qarz: {format_native_amounts(totals)}\n\n"
+                f"� Umumiy qarz: {total_debt_uzs:,.0f} so'm\n\n"
                 f"━━━━━━━━━━━━━━━━━━━\n\n"
             )
 
@@ -915,7 +856,7 @@ class DebtTelegramBot:
                 message += (
                     f"{i}. <b>{debt['customer_name']}</b>\n"
                     f"   📍 {debt['location_name']}\n"
-                    f"   💸 {format_native_amounts(debt.get('native_debts', {'USD': debt['debt_usd']}))}\n"
+                    f"   💸 {debt['debt_uzs']:,.0f} so'm\n"
                     f"   📱 {debt.get('phone', 'Telefon yo\'q')}\n\n"
                 )
 
@@ -1208,7 +1149,7 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 db.func.sum(Sale.debt_amount).label('total_debt_uzs')
             ).filter(
                 Sale.customer_id == customer.id,
-                Sale.payment_status != 'pending',
+                Sale.payment_status == 'partial',
                 Sale.debt_usd > 0
             ).group_by(
                 Sale.location_id,
@@ -1243,7 +1184,7 @@ async def handle_verification_code(update: Update, context: ContextTypes.DEFAULT
                 f"✅ Tasdiqlash muvaffaqiyatli!\n\n"
                 f"Assalomu alaykum, {customer.name}!\n\n"
                 f"💰 <b>Sizning qarzingiz:</b>\n\n"
-                f"💸 {format_native_amounts(customer_native_debts(customer.id))}\n\n"
+                f"💸 ${total_usd:,.2f}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang.\n"
                 "Rahmat! 🙏"
             )
@@ -1286,8 +1227,16 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
 
-            original_debts = customer_native_debts(customer.id)
-            if not any(amount(value) for value in original_debts.values()):
+            # Qarzlarni hisoblash - faqat USD dan
+            debts_result = db.session.query(
+                db.func.sum(Sale.debt_usd).label('total_debt_usd')
+            ).filter(
+                Sale.customer_id == customer.id,
+                Sale.payment_status == 'partial',
+                Sale.debt_usd > 0
+            ).first()
+
+            if not debts_result or not debts_result.total_debt_usd or debts_result.total_debt_usd <= 0:
                 await update.message.reply_text(
                     f"Assalomu alaykum, {customer.name}!\n\n"
                     f"🎉 Sizda qarz yo'q!\n\n"
@@ -1295,10 +1244,13 @@ async def check_debt_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
 
+            # Qarzlar haqida xabar - jami qarzni ko'rsatish (USD)
+            total_debt_usd = float(debts_result.total_debt_usd or 0)
+
             message = (
                 f"Assalomu alaykum, {customer.name}!\n\n"
                 f"💰 <b>Sizning jami qarzingiz:</b>\n\n"
-                f"💸 {format_native_amounts(original_debts)}\n\n"
+                f"💸 ${total_debt_usd:,.2f}\n\n"
                 "Iltimos, qarzingizni to'lashni unutmang.\n"
                 "Rahmat! 🙏"
             )
@@ -1360,14 +1312,6 @@ async def payment_history_button(update: Update, context: ContextTypes.DEFAULT_T
                 payment_usd = float(payment.total_usd or 0)
 
                 message += f"<b>{idx}.</b> {payment_datetime}\n"
-                if payment.native_allocation:
-                    for entry in payment.native_allocation.get('payments', []):
-                        label = {'cash': 'Naqd', 'click': 'Click', 'terminal': 'Terminal'}.get(entry['channel'], 'Tolov')
-                        message += f"{label}: {format_native_amounts({entry['currency']: entry['amount']})}\n"
-                    if payment.native_allocation.get('balance_usd'):
-                        message += f"Balansga: {format_native_amounts({'USD': payment.native_allocation['balance_usd']})}\n"
-                    message += '\n'
-                    continue
                 message += f"💰 ${payment_usd:,.2f}\n"
 
                 # To'lov turlarini USD da alohida qatorlarda ko'rsatish
@@ -1489,11 +1433,11 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
             debts = db.session.query(
                 Sale.location_id,
                 Sale.location_type,
-                db.func.sum(db.func.coalesce(Sale.native_debt_usd, Sale.debt_usd)).label('total_debt_usd'),
-                db.func.sum(db.func.coalesce(Sale.native_debt_uzs, 0)).label('total_debt_uzs')
+                db.func.sum(Sale.debt_usd).label('total_debt_usd'),
+                db.func.sum(Sale.debt_amount).label('total_debt_uzs')
             ).filter(
                 Sale.customer_id == customer.id,
-                Sale.payment_status != 'pending',
+                Sale.payment_status == 'partial',
                 Sale.debt_usd > 0
             ).group_by(
                 Sale.location_id,
@@ -1511,13 +1455,13 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
             # Qarzlar haqida xabar
             from app import Store, Warehouse
 
-            total_usd = Decimal('0')
-            total_uzs = Decimal('0')
+            total_usd = 0
+            total_uzs = 0
             debt_details = []
 
             for debt in debts:
-                debt_usd = debt.total_debt_usd or Decimal('0')
-                debt_uzs = debt.total_debt_uzs or Decimal('0')
+                debt_usd = float(debt.total_debt_usd or 0)
+                debt_uzs = float(debt.total_debt_uzs or 0)
                 total_usd += debt_usd
                 total_uzs += debt_uzs
 
@@ -1532,7 +1476,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
 
                 debt_details.append(
                     f"📍 {location_name}\n"
-                    f"   {format_native_amounts({'USD': debt_usd, 'UZS': debt_uzs})}"
+                    f"   � {debt_uzs:,.0f} so'm"
                 )
 
             message = (
@@ -1546,7 +1490,7 @@ async def handle_phone_number(update: Update, context: ContextTypes.DEFAULT_TYPE
                 message += (
                     f"\n\n━━━━━━━━━━━━━━━━━━━\n"
                     f"<b>JAMI:</b>\n"
-                    f"💸 {format_native_amounts({'USD': total_usd, 'UZS': total_uzs})}\n\n"
+                    f"💸 {total_uzs:,.0f} so'm\n\n"
                 )
             else:
                 message += debt_details[0] + "\n\n"
@@ -2027,7 +1971,7 @@ async def admin_today_debts_button(update: Update, context: ContextTypes.DEFAULT
         rate = get_current_currency_rate() or 13000
         rows = Sale.query.filter(
             Sale.debt_usd > 0,
-            Sale.payment_status != 'pending',
+            Sale.payment_status == 'partial',
             Sale.payment_due_date == today,
             Sale.customer_id.isnot(None)
         ).all()
@@ -2036,7 +1980,7 @@ async def admin_today_debts_button(update: Update, context: ContextTypes.DEFAULT
         for sale in rows:
             customer = Customer.query.get(sale.customer_id)
             if customer:
-                items.append((customer.name, customer.phone, sale_native_debts(sale)))
+                items.append((customer.name, customer.phone, float(sale.debt_usd or 0)))
 
     if not items:
         await update.message.reply_text(
@@ -2046,11 +1990,11 @@ async def admin_today_debts_button(update: Update, context: ContextTypes.DEFAULT
         )
         return
 
-    totals = {code: sum((item[2][code] for item in items), Decimal('0')) for code in ('USD', 'UZS')}
+    total_usd = sum(i[2] for i in items)
     lines = [f"📅 <b>BUGUNGI MUDDATLI QARZLAR</b>\n📅 {today.strftime('%d.%m.%Y')}\n{'─' * 22}"]
-    for index, (name, phone, original_debts) in enumerate(items, 1):
-        lines.append(f"{index}. <b>{name}</b>: {format_native_amounts(original_debts)}\n   📞 {phone or '-'}")
-    lines.append(f"\n{'─' * 22}\n<b>Jami: {len(items)} ta | {format_native_amounts(totals)}</b>")
+    for i, (name, phone, usd) in enumerate(items, 1):
+        lines.append(f"{i}. <b>{name}</b> — ${usd:,.2f} ({usd * rate:,.0f} so'm)\n   📞 {phone or '—'}")
+    lines.append(f"\n{'─' * 22}\n<b>Jami: {len(items)} ta | ${total_usd:,.2f}</b>")
 
     await update.message.reply_text("\n".join(lines), parse_mode='HTML')
 
@@ -2066,12 +2010,10 @@ async def admin_total_debts_button(update: Update, context: ContextTypes.DEFAULT
     with app.app_context():
         rate = get_current_currency_rate() or 13000
         rows = (
-            db.session.query(Sale.customer_id,
-                             db.func.sum(db.func.coalesce(Sale.native_debt_usd, Sale.debt_usd)).label('debt_usd'),
-                             db.func.sum(db.func.coalesce(Sale.native_debt_uzs, 0)).label('debt_uzs'))
+            db.session.query(Sale.customer_id, db.func.sum(Sale.debt_usd).label('debt_usd'))
             .filter(
                 Sale.debt_usd > 0,
-                Sale.payment_status != 'pending',
+                Sale.payment_status.in_(['partial', 'pending']),
                 Sale.customer_id.isnot(None)
             )
             .group_by(Sale.customer_id)
@@ -2079,26 +2021,25 @@ async def admin_total_debts_button(update: Update, context: ContextTypes.DEFAULT
             .all()
         )
 
-        totals = {'USD': sum((row.debt_usd or Decimal('0') for row in rows), Decimal('0')),
-              'UZS': sum((row.debt_uzs or Decimal('0') for row in rows), Decimal('0'))}
+        total_usd = sum(float(r.debt_usd or 0) for r in rows)
         top_rows = []
         for r in rows[:15]:
             customer = Customer.query.get(r.customer_id)
             if customer:
-                top_rows.append((customer.name, {'USD': r.debt_usd or 0, 'UZS': r.debt_uzs or 0}))
+                top_rows.append((customer.name, float(r.debt_usd or 0)))
 
     if not rows:
         await update.message.reply_text("👥 <b>JAMI QARZLAR</b>\n\n✅ Hozirda qarz yo'q.", parse_mode='HTML')
         return
 
     lines = [f"👥 <b>JAMI QARZLAR</b>\n{'─' * 22}"]
-    for index, (name, original_debts) in enumerate(top_rows, 1):
-        lines.append(f"{index}. {name}: {format_native_amounts(original_debts)}")
+    for i, (name, usd) in enumerate(top_rows, 1):
+        lines.append(f"{i}. {name} — ${usd:,.2f}")
     if len(rows) > 15:
         lines.append(f"\n... va yana {len(rows) - 15} ta mijoz")
     lines.append(
         f"\n{'─' * 22}\n<b>Jami: {len(rows)} ta mijoz</b>\n"
-        f"<b>Umumiy qarz: {format_native_amounts(totals)}</b>"
+        f"<b>Umumiy qarz: ${total_usd:,.2f} ({total_usd * rate:,.0f} so'm)</b>"
     )
 
     await update.message.reply_text("\n".join(lines), parse_mode='HTML')

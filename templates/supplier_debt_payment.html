@@ -126,15 +126,9 @@
 }
 .ps-copy-btn:hover { background: #bfdbfe; }
 .ps-copy-btn.ps-copied { background: #16a34a; color: #fff; }
-.ps-currency-modes { display:flex; flex-wrap:wrap; gap:12px 18px; margin:14px 0; }
-.ps-currency-modes label { display:flex; align-items:center; gap:8px; font-size:14px; }
-.ps-currency-tabs { display:flex; gap:4px; border-bottom:1px solid #d6dde5; margin:14px 0; }
-.ps-currency-tab { flex:1; background:transparent; color:#465467; padding:12px 8px; border:0; border-bottom:3px solid transparent; font-weight:600; cursor:pointer; }
-.ps-currency-tab[aria-selected="true"] { border-color:#1769df; color:#1558b0; background:#edf4ff; }
-.ps-payment-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .ps-payment-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr) 60px;
+    display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: nowrap;
@@ -143,7 +137,8 @@
     font-weight: 600;
     color: #374151;
     font-size: 13px;
-    min-width: 0;
+    min-width: 76px;
+    max-width: 76px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -165,7 +160,7 @@
 }
 .ps-pay-input {
     flex: 1;
-    padding: 9px 6px;
+    padding: 5px 6px;
     border: 1.5px solid #e2e8f0;
     border-radius: 7px;
     font-size: 13px;
@@ -179,15 +174,13 @@
 }
 .ps-pay-input:focus { border-color: #1a6eff; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
 .ps-btn-remaining {
-    padding: 5px;
-    width: 60px;
-    height: 32px;
+    padding: 5px 8px;
     background: #1a6eff;
     color: white;
     border: none;
     border-radius: 7px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     line-height: 1;
     white-space: nowrap;
@@ -424,24 +417,43 @@
                     <button type="button" class="ps-copy-btn" onclick="copyDebtAmount(this)" title="Nusxalash"><i class="fas fa-copy"></i></button>
                 </div>
             </div>
-            <div class="ps-currency-modes" role="group" aria-label="Saqlanadigan to'lov valyutasi">
-                <label><input type="checkbox" id="debtMixedPayment" onchange="changeDebtPaymentMode()"> Aralash USD + UZS</label>
-                <label><input type="checkbox" id="debtPaymentUSD" onchange="changeDebtPaymentMode('USD')"> USD</label>
-                <label><input type="checkbox" id="debtPaymentUZS" onchange="changeDebtPaymentMode('UZS')"> UZS</label>
-            </div>
-            <div class="ps-currency-tabs" role="tablist" aria-label="To'lov valyutasi">
-                <button type="button" id="debtTabUSD" class="ps-currency-tab" role="tab" aria-selected="true" aria-controls="debtPaymentPanel" onclick="selectDebtPaymentTab('USD')">USD to'lov</button>
-                <button type="button" id="debtTabUZS" class="ps-currency-tab" role="tab" aria-selected="false" aria-controls="debtPaymentPanel" onclick="selectDebtPaymentTab('UZS')">UZS to'lov</button>
-            </div>
-            <div id="debtPaymentPanel" role="tabpanel" aria-labelledby="debtTabUSD" class="ps-payment-rows">
-                {% for name, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal')] %}
+            <div class="ps-payment-rows">
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label">{{ label }}:</span>
-                    <input type="number" id="payment{{ name }}USD" min="0" step="0.0000000001" placeholder="$" aria-label="{{ label }} USD" class="ps-pay-input">
-                    <input type="number" id="payment{{ name }}UZS" min="0" step="0.01" placeholder="UZS" aria-label="{{ label }} UZS" class="ps-pay-input">
-                    <button type="button" onclick="addRemainingToField('payment{{ name }}USD')" class="ps-btn-remaining" title="{{ label }}: qolgan summani to'ldirish">+Qolgan</button>
+                    <span class="ps-pay-label">💵 Naqd</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentCashUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
                 </div>
-                {% endfor %}
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">📱 Click</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentClickUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
+                </div>
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">🏧 Terminal</span>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">$</span>
+                        <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
+                    </div>
+                    <div class="ps-pay-field">
+                        <span class="ps-currency-sign">UZS</span>
+                        <input type="number" id="paymentTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
+                    </div>
+                    <button onclick="addRemainingToField('paymentTerminalUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
+                </div>
             </div>
             <div id="payError" style="display:none; color:#dc2626; font-size:13px; margin-bottom:10px;"></div>
             <div>
@@ -471,7 +483,7 @@
                             <th>Narxi</th>
                             <th>Jami</th>
                             <th>Jami yigindi</th>
-                            <th>Yopilgan qarz</th>
+                            <th>To'langan</th>
                             <th>Qarz</th>
                             <th>Qo'shgan</th>
                             <th>Amal</th>
@@ -526,18 +538,11 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/supplier_currency.js') }}?v=2"></script>
 <script>
 const SUPPLIER_ID = {{ supplier.id }};
 let remainingDebt = 0;
-let nativeSupplierDebt = {USD: 0, UZS: 0};
-let paymentHistory = [];
 let currentRate = 12000;
 let reverseTarget = null;
-let debtPaymentMode = 'USD';
-let debtPaymentTab = 'USD';
-let debtTabAmounts = {};
-let debtMixedAmounts = {};
 
 function formatUSD(value) {
     const amount = Number(value || 0);
@@ -576,15 +581,14 @@ async function loadSupplierDebtPage() {
         if (!data.success) throw new Error(data.error || 'Xatolik');
 
         const supplier = data.supplier;
-        nativeSupplierDebt = supplier.native_debts || {USD: supplier.balance_usd || 0, UZS: 0};
-        remainingDebt = Number(nativeSupplierDebt.USD) + Number(nativeSupplierDebt.UZS) / currentRate;
+        remainingDebt = Number(supplier.balance_usd || 0);
 
         const purchases = data.events.filter(e => e.type === 'purchase');
-        const debtPurchases = purchases.filter(p => p.batch ? Number(p.batch.debt_amount) > 0 : Number(p.debt_amount || 0) > 0);
+        const debtPurchases = purchases.filter(p => Number(p.debt_amount || 0) > 0);
 
         document.getElementById('purchasesCount').textContent = purchases.length;
-        document.getElementById('totalDebt').textContent = SupplierMoney.format(nativeSupplierDebt);
-        document.getElementById('displayRemainingDebt').textContent = SupplierMoney.format(nativeSupplierDebt);
+        document.getElementById('totalDebt').textContent = formatUSD(remainingDebt);
+        document.getElementById('displayRemainingDebt').textContent = formatUSD(remainingDebt);
 
         renderPurchases(debtPurchases);
         loadPaymentsHistory();
@@ -652,11 +656,11 @@ function renderPurchases(purchases) {
                     ` : ''}
                     <td class="product-cell col-products" style="text-align:left;">${escapeHtml(p.product_name || '-')}</td>
                     <td class="group-cell col-qty">${qty.toLocaleString('uz-UZ')}</td>
-                    <td class="group-cell col-price">${SupplierMoney.format({[p.cost_currency || 'USD']: p.native_cost_price ?? costPrice})}</td>
-                    <td class="group-cell col-subtotal">${SupplierMoney.format(SupplierMoney.items([p]))}</td>
-                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-group-total">${SupplierMoney.format(first.batch ? SupplierMoney.total(first.batch) : SupplierMoney.items(items))}</td>` : ''}
-                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-paid" style="color:#28a745;">${SupplierMoney.format(first.batch ? SupplierMoney.closed(first.batch) : {USD: groupPaid})}</td>` : ''}
-                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-debt" style="color:#dc3545;">${SupplierMoney.format(first.batch?.native_debts || {USD: groupDebt})}</td>` : ''}
+                    <td class="group-cell col-price">${formatDualCurrency(costPrice)}</td>
+                    <td class="group-cell col-subtotal">${formatDualCurrency(totalAmount)}</td>
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-group-total">${formatDualCurrency(groupRunningTotal)}</td>` : ''}
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-paid" style="color:#28a745;">${formatDualCurrency(groupPaid)}</td>` : ''}
+                    ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(groupDebt)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-added-by" style="font-size:13px;">${escapeHtml(groupAddedBy)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-actions">
                         <button onclick="viewPurchaseGroup(${first.batch_id != null ? first.batch_id : 'null'}, ${first.id})" class="ps-btn-view">👁️ Ko'rish</button>
@@ -703,11 +707,7 @@ function showPurchaseDetailsModal(items) {
         { name: '📝 Qarz', usd: debtUSD, color: '#dc3545' },
     ]).filter(b => b.usd > 0);
 
-    const boxesHTML = first.batch ? `
-        <div>Joriy qarz: <strong>${SupplierMoney.format(first.batch.native_debts)}</strong></div>
-        <div>Yopilgan qarz: <strong>${SupplierMoney.format(SupplierMoney.closed(first.batch))}</strong></div>
-        <div>Kirimdagi to'lov: <strong>${SupplierMoney.format(first.batch.native_payments ? SupplierMoney.received(first.batch.native_payments) : {USD: first.batch.initial_paid_amount})}</strong></div>
-    ` : boxes.map(b => `
+    const boxesHTML = boxes.map(b => `
         <div style="display: inline-block; background: #f8f9fa; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid ${b.color};">
             <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">${b.name}</div>
             <div style="font-size: 15px; font-weight: 700; color: ${b.color};">$${b.usd.toFixed(2)}</div>
@@ -718,7 +718,8 @@ function showPurchaseDetailsModal(items) {
     const totalHTML = `
         <div style="display: inline-block; background: #1a6eff; padding: 8px 14px; margin: 4px 8px 4px 0; border-radius: 6px; border-left: 4px solid #0056b3;">
             <div style="font-weight: 600; color: #ffffff; margin-bottom: 2px;">Jami</div>
-            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${SupplierMoney.format(SupplierMoney.items(items))}</div>
+            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">$${totalUSD.toFixed(2)}</div>
+            <div style="font-size: 12px; color: #ffffff;">${Math.round(totalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
         </div>
     `;
 
@@ -731,10 +732,12 @@ function showPurchaseDetailsModal(items) {
                                 <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${escapeHtml(p.location_name || '-')}</td>
                                 <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">${Number(p.quantity || 0).toLocaleString('uz-UZ')}</td>
                                 <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                    <div>${SupplierMoney.format({[p.cost_currency || 'USD']: p.native_cost_price ?? costPriceUSD})}</div>
+                                    <div>$${costPriceUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(costPriceUSD * rate).toLocaleString('uz-UZ')} so'm</div>
                                 </td>
                                 <td style="padding: 8px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600;">
-                                    <div>${SupplierMoney.format(SupplierMoney.items([p]))}</div>
+                                    <div>$${rowTotalUSD.toFixed(2)}</div>
+                                    <div style="font-size: 11px; color: #666;">${Math.round(rowTotalUSD * rate).toLocaleString('uz-UZ')} so'm</div>
                                 </td>
                             </tr>
         `;
@@ -801,7 +804,6 @@ async function loadPaymentsHistory() {
             return;
         }
 
-        paymentHistory = data.payments;
         tbody.innerHTML = data.payments.map((p) => {
             const date = p.payment_date_iso ? new Date(p.payment_date_iso) : null;
             const dateStr = date ? date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
@@ -819,10 +821,10 @@ async function loadPaymentsHistory() {
                         <div class="sale-date">${dateStr}</div>
                         <div class="sale-time">${timeStr}</div>
                     </td>
-                    <td class="group-cell col-price" style="color:#28a745;">${SupplierMoney.format(SupplierMoney.received(p.native_payments))}</td>
-                    <td class="group-cell col-price">${SupplierMoney.format(SupplierMoney.received(p.native_payments, 'cash'))}</td>
-                    <td class="group-cell col-price">${SupplierMoney.format(SupplierMoney.received(p.native_payments, 'click'))}</td>
-                    <td class="group-cell col-price">${SupplierMoney.format(SupplierMoney.received(p.native_payments, 'terminal'))}</td>
+                    <td class="group-cell col-price" style="color:#28a745;">${formatDualCurrency(totalUsd)}</td>
+                    <td class="group-cell col-price">${cashUsd > 0 ? formatDualCurrency(cashUsd) : '—'}</td>
+                    <td class="group-cell col-price">${clickUsd > 0 ? formatDualCurrency(clickUsd) : '—'}</td>
+                    <td class="group-cell col-price">${terminalUsd > 0 ? formatDualCurrency(terminalUsd) : '—'}</td>
                     <td class="group-cell col-price" style="font-size:13px;">${escapeHtml(p.paid_by || '-')}</td>
                     <td class="group-cell col-actions">
                         <button type="button" class="ps-reverse-btn" onclick="openReverseModal('${p.payment_date_iso}', ${totalUsd}, '${p.payment_date}')" title="To'lovni bekor qilish">↩ Bekor</button>
@@ -837,10 +839,9 @@ async function loadPaymentsHistory() {
 
 function openReverseModal(paymentDateIso, totalUsd, paymentDateDisplay) {
     reverseTarget = { supplier_id: SUPPLIER_ID, payment_date_iso: paymentDateIso, total_usd: totalUsd };
-    const payment = paymentHistory.find(entry => entry.payment_date_iso === paymentDateIso);
     document.getElementById('reverseModalInfo').innerHTML =
         `<strong>Sana:</strong> ${paymentDateDisplay}<br>
-         <strong>Summa:</strong> <span style="color:#dc3545; font-size:16px; font-weight:700;">${SupplierMoney.format(payment ? SupplierMoney.received(payment.native_payments) : {USD: totalUsd})}</span>`;
+         <strong>Summa:</strong> <span style="color:#dc3545; font-size:16px; font-weight:700;">$${totalUsd.toFixed(2)}</span>`;
     document.getElementById('reverseModal').style.display = 'flex';
 }
 
@@ -907,15 +908,27 @@ function fallbackCopy(text, done) {
 }
 
 function addRemainingToField(fieldId) {
-    const name = fieldId.replace('payment', '').replace('USD', '');
-    let others = 0;
-    ['USD', 'UZS'].forEach(code => ['Cash', 'Click', 'Terminal'].forEach(channel => {
-        if (code !== debtPaymentTab || channel !== name) {
-            others += debtTabAmounts[code][channel] / (code === 'UZS' ? currentRate : 1);
-        }
-    }));
-    debtTabAmounts[debtPaymentTab][name] = Number((Math.max(0, remainingDebt - others) * (debtPaymentTab === 'UZS' ? currentRate : 1)).toFixed(debtPaymentTab === 'UZS' ? 2 : 10));
-    renderDebtPaymentTab();
+    if (!remainingDebt) {
+        alert('❌ Qarz topilmadi');
+        return;
+    }
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    const currentValue = parseFloat(field.value) || 0;
+    const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+    const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+    const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
+
+    const totalPaid = cashUSD + clickUSD + terminalUSD;
+    const remaining = remainingDebt - totalPaid + currentValue;
+
+    if (remaining > 0) {
+        fvSet(field, remaining);
+        field.dispatchEvent(new Event('input'));
+    } else {
+        alert('✅ Qarz to\'liq qoplandi');
+    }
 }
 
 let _paymentSubmitting = false;
@@ -923,8 +936,11 @@ let _paymentSubmitting = false;
 async function submitPayment() {
     if (_paymentSubmitting) return;
 
-    const entries = supplierPaymentEntries();
-    const totalPayment = entries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+    const cashUSD = fvGet(document.getElementById('paymentCashUSD'));
+    const clickUSD = fvGet(document.getElementById('paymentClickUSD'));
+    const terminalUSD = fvGet(document.getElementById('paymentTerminalUSD'));
+
+    const totalPayment = cashUSD + clickUSD + terminalUSD;
     const errEl = document.getElementById('payError');
     errEl.style.display = 'none';
 
@@ -933,7 +949,9 @@ async function submitPayment() {
         errEl.style.display = 'block';
         return;
     }
-    if (!updateSupplierPaymentPreview()) {
+    if (totalPayment > remainingDebt + 0.00001) {
+        errEl.textContent = "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas";
+        errEl.style.display = 'block';
         return;
     }
 
@@ -944,11 +962,10 @@ async function submitPayment() {
     submitBtn.innerHTML = '⏳ Yuklanmoqda...';
 
     try {
-        const payload = {native_currency_payment: true, exchange_rate: currentRate, payments: entries};
         const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ cash_usd: cashUSD, click_usd: clickUSD, terminal_usd: terminalUSD, exchange_rate: currentRate })
         });
         const result = await res.json();
         if (res.ok && result.success) {
@@ -971,96 +988,42 @@ async function submitPayment() {
 }
 
 function setupCurrencyConversion() {
-    debtTabAmounts = {
-        USD: {Cash: 0, Click: 0, Terminal: 0},
-        UZS: {Cash: 0, Click: 0, Terminal: 0}
-    };
-    debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
-    debtPaymentTab = Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS';
-    debtPaymentMode = Number(nativeSupplierDebt.USD) && Number(nativeSupplierDebt.UZS) ? 'MIXED' : debtPaymentTab;
-    ['Cash', 'Click', 'Terminal'].forEach(name => {
-        ['USD', 'UZS'].forEach(code => {
-            const input = document.getElementById(`payment${name}${code}`);
-            input.oninput = () => {
-                const other = code === 'USD' ? 'UZS' : 'USD';
-                const paired = document.getElementById(`payment${name}${other}`);
-                const converted = Number(input.value) * (code === 'USD' ? currentRate : 1 / currentRate);
-                paired.value = input.value === '' ? '' : String(Number(converted.toFixed(other === 'USD' ? 10 : 2)));
-                debtTabAmounts[debtPaymentTab][name] = Number(document.getElementById(`payment${name}${debtPaymentTab}`).value || 0);
-                updateSupplierPaymentPreview();
-            };
-        });
+    document.getElementById('paymentCashUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentCashUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
     });
-    renderDebtPaymentTab();
-}
-
-function supplierPaymentEntries() {
-    const entries = [];
-    ['USD', 'UZS'].forEach(code => {
-        if (debtPaymentMode !== 'MIXED' && debtPaymentMode !== code) return;
-        ['Cash', 'Click', 'Terminal'].forEach(name => {
-            const value = debtTabAmounts[code][name];
-            if (value !== 0) entries.push({channel: name.toLowerCase(), currency: code, amount: String(value)});
-        });
+    document.getElementById('paymentCashUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const cashEl = document.getElementById('paymentCashUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(cashEl, uzs / currentRate); }
+        else { cashEl.value = ''; delete cashEl.dataset.fullValue; }
     });
-    return entries;
-}
-
-function changeDebtPaymentMode(code) {
-    const mode = code || (document.getElementById('debtMixedPayment').checked ? 'MIXED' : debtPaymentTab);
-    if (debtPaymentMode === 'MIXED' && mode !== 'MIXED') {
-        debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
-    }
-    if (mode === 'MIXED' && debtPaymentMode !== 'MIXED') {
-        debtTabAmounts = {USD: {...debtMixedAmounts.USD}, UZS: {...debtMixedAmounts.UZS}};
-    }
-    if (mode !== 'MIXED') {
-        const other = mode === 'USD' ? 'UZS' : 'USD';
-        ['Cash', 'Click', 'Terminal'].forEach(name => {
-            debtTabAmounts[mode][name] = Number((debtTabAmounts[mode][name] + debtTabAmounts[other][name] * (mode === 'USD' ? 1 / currentRate : currentRate)).toFixed(mode === 'USD' ? 10 : 2));
-            debtTabAmounts[other][name] = 0;
-        });
-        debtPaymentTab = mode;
-    }
-    debtPaymentMode = mode;
-    renderDebtPaymentTab();
-}
-
-function selectDebtPaymentTab(code) {
-    if (debtPaymentMode !== 'MIXED' && debtPaymentMode !== code) return;
-    debtPaymentTab = code;
-    renderDebtPaymentTab();
-}
-
-function renderDebtPaymentTab() {
-    document.getElementById('debtMixedPayment').checked = debtPaymentMode === 'MIXED';
-    ['USD', 'UZS'].forEach(code => {
-        document.getElementById(`debtPayment${code}`).checked = debtPaymentMode === code;
-        const tab = document.getElementById(`debtTab${code}`);
-        tab.hidden = debtPaymentMode !== 'MIXED' && debtPaymentMode !== code;
-        tab.setAttribute('aria-selected', String(debtPaymentTab === code));
+    document.getElementById('paymentClickUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentClickUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
     });
-    document.getElementById('debtPaymentPanel').setAttribute('aria-labelledby', `debtTab${debtPaymentTab}`);
-    ['Cash', 'Click', 'Terminal'].forEach(name => {
-        const value = debtTabAmounts[debtPaymentTab][name];
-        const usd = debtPaymentTab === 'USD' ? value : value / currentRate;
-        const uzs = debtPaymentTab === 'UZS' ? value : value * currentRate;
-        document.getElementById(`payment${name}USD`).value = value === 0 ? '' : String(Number(usd.toFixed(10)));
-        document.getElementById(`payment${name}UZS`).value = value === 0 ? '' : String(Number(uzs.toFixed(2)));
+    document.getElementById('paymentClickUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const clickEl = document.getElementById('paymentClickUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(clickEl, uzs / currentRate); }
+        else { clickEl.value = ''; delete clickEl.dataset.fullValue; }
     });
-    updateSupplierPaymentPreview();
-}
-
-function updateSupplierPaymentPreview() {
-    const entries = supplierPaymentEntries();
-    const result = SupplierMoney.preview(nativeSupplierDebt, entries, currentRate, 'native');
-    const paid = entries.reduce((sum, entry) => sum + Number(entry.amount) / (entry.currency === 'UZS' ? currentRate : 1), 0);
-    const valid = result.valid && paid > 0;
-    const error = document.getElementById('payError');
-    error.textContent = !result.valid ? "To'lov manfiy yoki qarz summasidan katta" : "To'lov summasini kiriting";
-    error.style.display = valid || remainingDebt === 0 ? 'none' : 'block';
-    document.getElementById('submitBtn').disabled = _paymentSubmitting || !valid;
-    return valid;
+    document.getElementById('paymentTerminalUSD').addEventListener('input', function() {
+        if (this.dataset.fvLocked) { delete this.dataset.fvLocked; }
+        else { this.dataset.fullValue = this.value; }
+        const usd = parseFloat(this.dataset.fullValue || this.value);
+        document.getElementById('paymentTerminalUZS').value = (!isNaN(usd) && this.value !== '') ? Math.round(usd * currentRate) : '';
+    });
+    document.getElementById('paymentTerminalUZS').addEventListener('input', function() {
+        const uzs = parseFloat(this.value);
+        const termEl = document.getElementById('paymentTerminalUSD');
+        if (!isNaN(uzs) && this.value !== '') { fvSet(termEl, uzs / currentRate); }
+        else { termEl.value = ''; delete termEl.dataset.fullValue; }
+    });
 }
 
 function escapeHtml(str) {

@@ -94,19 +94,15 @@ def main():
 
     # ── 1. MAHSULOTLAR ────────────────────────────────────────────────
     ws = wb.create_sheet('📦 Mahsulotlar')
-    headers = ['ID', 'Nomi', 'Barcode', 'Tan narx (USD ekv.)', 'Sotish narx (USD ekv.)',
-               'Min zaxira', 'O\'lchov', 'Kategoriya', 'Asl tan narx', 'Tan narx valyutasi',
-               'Asl sotish narxi', 'Sotish valyutasi', 'Saqlangan kurs']
+    headers = ['ID', 'Nomi', 'Barcode', 'Tan narx ($)', 'Sotish narx ($)',
+               'Min zaxira', 'O\'lchov', 'Kategoriya']
     style_header(ws, headers)
     cur.execute("""
         SELECT p.id, p.name, COALESCE(p.barcode, '-'),
                ROUND(p.cost_price::numeric, 4),
                ROUND(p.sell_price::numeric, 4),
                p.min_stock, p.unit_type,
-               COALESCE(c.name, '-'),
-               COALESCE(p.native_cost_price, p.cost_price), p.cost_currency,
-               COALESCE(p.native_sell_price, p.sell_price), p.sell_currency,
-               p.price_currency_rate
+               COALESCE(c.name, '-')
         FROM products p
         LEFT JOIN categories c ON c.id = p.category_id
         ORDER BY p.name
@@ -116,19 +112,15 @@ def main():
 
     # ── 2. MIJOZLAR ───────────────────────────────────────────────────
     ws = wb.create_sheet('👥 Mijozlar')
-    headers = ['ID', 'Ismi', 'Telefon', 'Asl qarz (USD)', 'Asl qarz (UZS)', 'Balans (USD)',
+    headers = ['ID', 'Ismi', 'Telefon', 'Qarz ($)', 'Balans ($)',
                'Oxirgi to\'lov', 'Qo\'shilgan sana']
     style_header(ws, headers)
     cur.execute("""
         SELECT c.id, c.name, COALESCE(c.phone, '-'),
                ROUND(COALESCE(
-                    (SELECT SUM(COALESCE(native_debt_usd, debt_usd)) FROM sales
-                    WHERE customer_id = c.id AND payment_status != 'pending' AND debt_usd > 0), 0
-                )::numeric, 10),
-                ROUND(COALESCE(
-                    (SELECT SUM(COALESCE(native_debt_uzs, 0)) FROM sales
-                    WHERE customer_id = c.id AND payment_status != 'pending' AND debt_usd > 0), 0
-                )::numeric, 2),
+                   (SELECT SUM(debt_usd) FROM sales
+                    WHERE customer_id = c.id AND payment_status = 'partial'), 0
+               )::numeric, 2),
                ROUND(COALESCE(c.balance, 0)::numeric, 2),
                COALESCE(TO_CHAR(c.last_debt_payment_date, 'YYYY-MM-DD'), '-'),
                TO_CHAR(c.created_at, 'YYYY-MM-DD')
@@ -140,28 +132,28 @@ def main():
 
     # ── 3. AKTIV QARZLAR ─────────────────────────────────────────────
     ws = wb.create_sheet('💰 Qarzlar')
-    headers = ['Sana', 'Mijoz', 'Telefon', 'Asl qarz (USD)', 'Asl qarz (UZS)',
-               'To\'lov muddati', 'Sotuvchi', 'Qarz (tarixiy USD ekv.)', 'Savdo kursi']
+    headers = ['Sana', 'Mijoz', 'Telefon', 'Qarz ($)', 'Qarz (UZS)',
+               'To\'lov muddati', 'Sotuvchi']
     style_header(ws, headers)
     cur.execute("""
         SELECT TO_CHAR(s.sale_date, 'YYYY-MM-DD HH24:MI'),
                COALESCE(c.name, 'Noma''lum'),
                COALESCE(c.phone, '-'),
-               COALESCE(s.native_debt_usd, s.debt_usd),
-               COALESCE(s.native_debt_uzs, 0),
+               ROUND(s.debt_usd::numeric, 2),
+               ROUND(s.debt_amount::numeric, 0),
                COALESCE(TO_CHAR(s.payment_due_date, 'YYYY-MM-DD'), '-'),
-               COALESCE(u.username, '-'), s.debt_usd, s.currency_rate
+               COALESCE(u.username, '-')
         FROM sales s
         LEFT JOIN customers c ON c.id = s.customer_id
         LEFT JOIN users u ON u.id = s.seller_id
-        WHERE s.payment_status != 'pending' AND s.debt_usd > 0
+        WHERE s.payment_status = 'partial' AND s.debt_usd > 0
         ORDER BY s.sale_date DESC
     """)
     rows = cur.fetchall()
     add_rows(ws, rows)
     # Jami qator
     if rows:
-        cur.execute("SELECT SUM(COALESCE(native_debt_usd, debt_usd)), SUM(COALESCE(native_debt_uzs, 0)) FROM sales WHERE payment_status != 'pending' AND debt_usd > 0")
+        cur.execute("SELECT ROUND(SUM(debt_usd)::numeric,2), ROUND(SUM(debt_amount)::numeric,0) FROM sales WHERE payment_status='partial' AND debt_usd > 0")
         totals = cur.fetchone()
         last = len(rows) + 2
         ws.cell(row=last, column=3, value='JAMI:').font = Font(bold=True)
@@ -171,9 +163,9 @@ def main():
 
     # ── 4. SOTUVLAR (so'nggi 30 kun) ──────────────────────────────────
     ws = wb.create_sheet('🛒 Sotuvlar (30 kun)')
-    headers = ['Sana', 'Mijoz', 'Jami (USD ekv.)', 'Foyda (USD ekv.)',
-               'Naqd (USD hisob)', 'Click (USD hisob)', 'Terminal (USD hisob)', 'Qarz (USD ekv.)',
-               'Holati', 'Sotuvchi', 'Asl qarz (USD)', 'Asl qarz (UZS)', 'Savdo kursi']
+    headers = ['Sana', 'Mijoz', 'Jami ($)', 'Foyda ($)',
+               'Naqd ($)', 'Click ($)', 'Terminal ($)', 'Qarz ($)',
+               'Holati', 'Sotuvchi']
     style_header(ws, headers)
     cur.execute("""
         SELECT TO_CHAR(s.sale_date, 'YYYY-MM-DD HH24:MI'),
@@ -185,8 +177,7 @@ def main():
                ROUND(s.terminal_usd::numeric, 2),
                ROUND(s.debt_usd::numeric, 2),
                s.payment_status,
-               COALESCE(u.username, '-'),
-               COALESCE(s.native_debt_usd, s.debt_usd), COALESCE(s.native_debt_uzs, 0), s.currency_rate
+               COALESCE(u.username, '-')
         FROM sales s
         LEFT JOIN customers c ON c.id = s.customer_id
         LEFT JOIN users u ON u.id = s.seller_id

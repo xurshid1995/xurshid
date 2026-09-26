@@ -13,7 +13,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
 import qrcode
 from reportlab.lib.utils import ImageReader
-from currency_accounting import amount, format_native_amounts
 
 def fmt_usd(amount) -> str:
     """USD summani ortiqcha nolsiz formatlash: 9.50000->9.5, 95.00->95, 9.12345->9.12345"""
@@ -164,9 +163,6 @@ def generate_sale_receipt_pdf(
             name_lines.append(current_line)
         if not name_lines:
             name_lines = [product_name[:30]]
-        if item.get('native_unit_price') is not None:
-            original_price = format_native_amounts({item.get('price_currency', 'USD'): item['native_unit_price']})
-            name_lines.append(original_price)
 
         lines_count = len(name_lines)
         row_height = max(6*mm, (3 + lines_count * 3) * mm)
@@ -251,7 +247,7 @@ def generate_sale_receipt_pdf(
     # Jami summa (valyutaga qarab)
     c.setFillColor(colors.black)  # Matn uchun qora rangni qayta o'rnatish
     c.setFont("Helvetica-Bold", 11)
-    c.drawString(table_left, y, "Jami (ekv.):" if sale_data.get('native_debts') is not None else "Jami summa:")
+    c.drawString(table_left, y, "Jami summa:")
     if currency == 'usd':
         total_amount = sale_data.get('total_amount_usd', sale_data.get('total_amount', 0))
         c.drawRightString(table_right, y, fmt_usd(total_amount))
@@ -264,18 +260,7 @@ def generate_sale_receipt_pdf(
     paid_key = 'paid_amount_usd' if currency == 'usd' else 'paid_amount_uzs'
     paid_amount = sale_data.get(paid_key, sale_data.get('paid_amount', 0))
 
-    if sale_data.get('native_payments') is not None:
-        for payment in sale_data['native_payments']:
-            if not amount(payment['amount']):
-                continue
-            c.setFont('Helvetica', 8)
-            label = {'cash': 'Naqd', 'click': 'Click', 'terminal': 'Terminal',
-                     'balance': 'Balans'}.get(payment['channel'], 'Tolov')
-            c.drawString(table_left, y, label + ':')
-            y -= 4*mm
-            c.drawRightString(table_right, y, format_native_amounts({payment['currency']: payment['amount']}))
-            y -= 5*mm
-    elif paid_amount > 0:
+    if paid_amount > 0:
         c.setFillColor(colors.black)  # Matn uchun qora rang
         c.setFont("Helvetica-Bold", 9)
         c.drawString(table_left, y, "To'lov:")
@@ -325,26 +310,7 @@ def generate_sale_receipt_pdf(
     previous_debt = sale_data.get(previous_debt_key, 0)
     total_debt = sale_data.get(total_debt_key, 0)
 
-    if sale_data.get('native_debts') is not None:
-        for key, label in (('native_debts', 'JORIY QARZ:'),
-                           ('previous_native_debts', 'OLDINGI QARZ:'),
-                           ('total_native_debts', 'JAMI QARZ:')):
-            values = sale_data.get(key) or {}
-            if not any(amount(value) for value in values.values()):
-                continue
-            if y < 30*mm:
-                c.showPage()
-                y = page_height - 10*mm
-            c.setFillColor(colors.Color(0.8, 0.2, 0.2))
-            c.setFont('Helvetica-Bold', 9)
-            c.drawString(table_left, y, label)
-            y -= 5*mm
-            for code in ('USD', 'UZS'):
-                if amount(values.get(code, 0)):
-                    c.drawRightString(table_right, y, format_native_amounts({code: values[code]}))
-                    y -= 5*mm
-        c.setFillColor(colors.black)
-    elif current_debt > 0 or previous_debt > 0 or total_debt > 0:
+    if current_debt > 0 or previous_debt > 0 or total_debt > 0:
         y -= 2*mm
         c.setFillColor(colors.Color(0.8, 0.2, 0.2))
 

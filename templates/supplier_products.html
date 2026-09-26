@@ -243,7 +243,6 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/supplier_currency.js') }}?v=1"></script>
 <script>
 const SUPPLIER_ID = {{ supplier.id }};
 let allProducts = [];
@@ -379,7 +378,7 @@ function renderSupplierProducts(products) {
             const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
             const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
             const quantity = Number(item.quantity || 0);
-            const unitPrice = Number(item.native_cost_price ?? item.cost_price ?? 0);
+            const unitPrice = Number(item.cost_price || 0);
             const lineTotal = quantity * unitPrice;
 
             return {
@@ -415,9 +414,9 @@ function renderSupplierProducts(products) {
                     ` : ''}
                     <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name || '-')}</td>
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
-                    <td class="sp-price-cell">${SupplierMoney.format({[item.cost_currency || 'USD']: item.unitPrice})}</td>
-                    <td class="sp-total-cell">${SupplierMoney.format({[item.cost_currency || 'USD']: item.lineTotal})}</td>
-                    ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${SupplierMoney.format(SupplierMoney.items(groupItems))}</td>` : ''}
+                    <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
+                    <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
+                    ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
                     ${isFirst ? `<td class="sp-added-by-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;
