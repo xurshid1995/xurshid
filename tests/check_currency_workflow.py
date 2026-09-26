@@ -160,7 +160,7 @@ def check_api(application):
 def check_browser(application):
     from playwright.sync_api import sync_playwright
 
-    server = make_server('127.0.0.1', 0, application.app, threaded=True)
+    server = make_server('127.0.0.1', 0, application.app, threaded=False)
     worker = threading.Thread(target=server.serve_forever, daemon=True)
     worker.start()
     base_url = f'http://127.0.0.1:{server.server_port}'
@@ -199,6 +199,42 @@ def check_browser(application):
                 page.locator('#sell_currency').select_option('USD')
                 page.locator('#sell_price').fill('1')
                 assert page.locator('#sellingPriceWarning').is_visible()
+                page.evaluate('comparePrices()')
+                page.wait_for_function("document.querySelector('#priceComparisonContent')?.textContent.includes('29,700 UZS')")
+                assert page.locator('#priceComparison').is_visible()
+                for cost_code, sell_code in (('USD', 'USD'), ('USD', 'UZS'), ('UZS', 'USD'), ('UZS', 'UZS')):
+                    name = f'table-{cost_code}-{sell_code}'
+                    old_cost = 9.04 if cost_code == 'USD' else 50000
+                    new_cost = 10 if cost_code == 'USD' else 60000
+                    expected = '$9.40' if cost_code == 'USD' else '53,750 UZS'
+                    fixture = {'exists': True, 'products': [{'product': {
+                        'name': name, 'cost_currency': cost_code, 'native_cost_price': old_cost,
+                        'cost_price': old_cost if cost_code == 'USD' else 4,
+                        'sell_currency': sell_code}, 'locations': [
+                            {'name': 'UY', 'type': 'warehouse', 'quantity': '12'},
+                            {'name': 'Sergeli', 'type': 'store', 'quantity': '8'}]}]}
+                    page.route(f'**/api/search-product/{name}', lambda route, request, fixture=fixture: route.fulfill(json=fixture))
+                    page.evaluate("""values => {
+                        selectProduct(values.name, values.cost, 20, 0, values.cost, '', '', null, '', 0,
+                            values.costCode, values.sellCode);
+                    }""", {'name': name, 'cost': old_cost, 'costCode': cost_code, 'sellCode': sell_code})
+                    page.locator('#quantity').fill('12')
+                    page.locator('#cost_price').fill(str(new_cost))
+                    page.locator('#sell_price').fill('200000' if sell_code == 'UZS' else '20')
+                    page.wait_for_function("expected => document.querySelector('#priceComparisonContent tbody tr:last-child td:nth-child(4)')?.textContent === expected", arg=expected)
+                    assert page.locator('#priceComparison').is_visible()
+                    assert page.locator('#priceComparisonContent tbody tr:last-child td').nth(2).inner_text() == '32 ta'
+                    page.evaluate('comparePrices()')
+                    page.wait_for_function("expected => document.querySelector('#priceComparisonContent tbody tr:last-child td:nth-child(4)')?.textContent === expected", arg=expected)
+                    assert page.evaluate('userEnteredCostPrice') == new_cost
+                    if cost_code == 'UZS':
+                        assert '$' not in page.locator('#priceComparisonContent').inner_text()
+                        assert page.locator('#cost_price').input_value() == '60000'
+                    assert page.evaluate("""() => [...document.querySelectorAll('#priceComparisonContent td')].every(cell => {
+                        const bounds = cell.getBoundingClientRect();
+                        return bounds.left >= 0 && bounds.right <= innerWidth;
+                    })""")
+                    page.locator('#priceComparison').screenshot(path=str(screenshots / f'average-table-{cost_code}-{sell_code}-{width}.png'))
                 supplier_response = page.request.post(f'{base_url}/api/suppliers', data={'name': f'Browser supplier {width}'})
                 assert supplier_response.status == 201
                 browser_supplier_id = supplier_response.json()['supplier']['id']

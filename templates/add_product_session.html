@@ -173,6 +173,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
     margin-top: 8px; border-radius: 8px;
     border: 1.5px solid #fbbf24; background: #fffbeb; display: none;
 }
+#priceComparison th, #priceComparison td { font-size: 0.8rem; }
+@media (max-width: 600px) {
+    #priceComparison th:last-child, #priceComparison td:last-child { display: none; }
+    #priceComparison th:first-child { width: 16% !important; }
+    #priceComparison th:nth-child(2) { width: 34%; }
+    #priceComparison th:nth-child(3) { width: 20%; }
+    #priceComparison th:nth-child(4) { width: 30%; }
+}
 .profit-display { display: none; }
 
 @media (max-width: 1100px) { .ap-grid { grid-template-columns: 1fr; } }
@@ -472,7 +480,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     <div class="ap-row ap-row-2col">
                         <div class="ap-form-group">
                             <label class="ap-label" for="cost_price">Tan narx</label>
-                            <select id="cost_currency" class="ap-input" aria-label="Tan narx valyutasi" onchange="userEnteredCostPrice = null; calculateProfit();">
+                            <select id="cost_currency" class="ap-input" aria-label="Tan narx valyutasi" onchange="userEnteredCostPrice = null; calculateProfit(); debounceComparePrices();">
                                 <option value="USD">USD</option><option value="UZS">UZS</option>
                             </select>
                             <input type="number" id="cost_price" name="cost_price" class="ap-input"
@@ -1266,6 +1274,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Mahsulot nomi maydoniga input event - foydalanuvchi yozayotgan bo'lsa barcode'ni unlock qilish
             const productNameField = document.getElementById('product_name');
             productNameField.addEventListener('input', function() {
+                document.getElementById('priceComparison').style.display = 'none';
                 const barcodeInput = document.getElementById('barcode');
                 const autoGenerateBtn = document.getElementById('autoGenerateBtn');
                 
@@ -1380,11 +1389,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         searchResult.style.display = 'none';
                     }
                     
-                    // Narx taqqoslash jadvalni ham yashirish
-                    const priceComparisonDiv = document.getElementById('priceComparison');
-                    if (priceComparisonDiv) {
-                        priceComparisonDiv.style.display = 'none';
-                    }
                 }, 200); // 200ms kechikish
             });
             
@@ -1806,6 +1810,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
         
         function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode, categoryId, imageUrl, locationMinStock, costCurrency = 'USD', sellCurrency = 'USD') {
+            userEnteredCostPrice = null;
             document.getElementById('cost_currency').value = costCurrency;
             document.getElementById('sell_currency').value = sellCurrency;
             console.log('✅ selectProduct chaqirildi:');
@@ -1921,6 +1926,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             
             // Foyda hisoblash
             calculateProfit();
+            debounceComparePrices();
         }
 
         // ── Umumiy (global) minimal qoldiq maydonini qulflash/ochish ──
@@ -3021,13 +3027,18 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         // Narx taqqoslash funksiyasi
         function comparePrices() {
-            if (document.getElementById('cost_currency').value === 'UZS') {
+            const costCode = document.getElementById('cost_currency').value;
+            const rate = Number(window.currentExchangeRate);
+            if (costCode === 'UZS' && !(rate > 0)) {
                 document.getElementById('priceComparison').style.display = 'none';
                 return;
             }
             const productName = document.getElementById('product_name').value.trim();
-            const newCostPrice = parseFloat(document.getElementById('cost_price').value);
+            const newCostPrice = Number(userEnteredCostPrice ?? document.getElementById('cost_price').value);
             const priceComparisonDiv = document.getElementById('priceComparison');
+            const formatPrice = value => costCode === 'UZS'
+                ? value.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' UZS'
+                : '$' + value.toFixed(2);
             
             if (!productName || isNaN(newCostPrice)) {
                 priceComparisonDiv.style.display = 'none';
@@ -3043,6 +3054,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             fetch('/api/search-product/' + encodeURIComponent(productName))
                 .then(response => response.json())
                 .then(data => {
+                    if (document.getElementById('product_name').value.trim() !== productName ||
+                        document.getElementById('cost_currency').value !== costCode) return;
                     // Ko'p mahsulot bo'lsa, birinchisini tanlaymiz yoki aniq nom mos kelganini topamiz
                     let selectedProductData = null;
                     
@@ -3052,20 +3065,19 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             p.product.name.toLowerCase() === productName.toLowerCase()
                         );
                         
-                        // Agar aniq mos kelmasa, birinchisini olamiz
-                        if (!selectedProductData) {
-                            selectedProductData = data.products[0];
-                        }
                     }
                     
-                    if (selectedProductData && selectedProductData.product.cost_price !== newCostPrice) {
-                        const oldCostPrice = selectedProductData.product.cost_price;
+                    if (selectedProductData) {
+                        const product = selectedProductData.product;
+                        const oldCostPrice = product.cost_currency === costCode && product.native_cost_price != null
+                            ? Number(product.native_cost_price)
+                            : Number(product.cost_price) * (costCode === 'UZS' ? rate : 1);
                         const costDifference = newCostPrice - oldCostPrice;
                         const percentChange = ((costDifference / oldCostPrice) * 100).toFixed(2);
                         
                         // O'rtacha narxni oldindan hisoblash
-                        const newQuantity = parseInt(document.getElementById('quantity').value) || 0;
-                        const existingTotalQuantity = selectedProductData.locations.reduce((sum, loc) => sum + loc.quantity, 0);
+                        const newQuantity = Number(document.getElementById('quantity').value) || 0;
+                        const existingTotalQuantity = selectedProductData.locations.reduce((sum, loc) => sum + Number(loc.quantity), 0);
                         const existingTotalValue = selectedProductData.locations.reduce((sum, loc) => sum + (loc.quantity * oldCostPrice), 0);
                         const newAddedValue = newQuantity * newCostPrice;
                         const finalTotalQuantity = existingTotalQuantity + newQuantity;
@@ -3078,7 +3090,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             // Joylashuvlar jadvali
                             comparisonHTML += '<div style="margin-top: 6px; background: #f8f9fa; border-radius: 3px; font-size: 0.8rem; overflow: hidden;">';
-                            comparisonHTML += '<table style="width: 100%; border-collapse: collapse;">';
+                            comparisonHTML += '<table style="width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; overflow-wrap: anywhere;">';
                             
                             // Jadval boshi
                             comparisonHTML += '<thead style="background: #e9ecef;">';
@@ -3098,7 +3110,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             selectedProductData.locations.forEach(location => {
                                 const locationOldValue = location.quantity * oldCostPrice;  // Eski tan narxida hisoblash
-                                totalQuantityCheck += location.quantity;
+                                totalQuantityCheck += Number(location.quantity);
                                 totalOldValueCheck += locationOldValue;
                                 
                                 // Tur belgilash
@@ -3108,8 +3120,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 comparisonHTML += '<td style="padding: 3px 6px; text-align: center; color: #6c757d; border-bottom: 1px solid #f1f3f4; font-size: 0.75rem;">' + locationType + '</td>';
                                 comparisonHTML += '<td style="padding: 3px 6px; color: #6c757d; border-bottom: 1px solid #f1f3f4;">' + location.name + '</td>';
                                 comparisonHTML += '<td style="padding: 3px 6px; text-align: center; color: #6c757d; border-bottom: 1px solid #f1f3f4;"><strong>' + location.quantity + '</strong> ta</td>';
-                                comparisonHTML += '<td style="padding: 3px 6px; text-align: center; color: #6c757d; border-bottom: 1px solid #f1f3f4;">$' + oldCostPrice.toFixed(2) + '</td>';
-                                comparisonHTML += '<td style="padding: 3px 6px; text-align: right; color: #6c757d; border-bottom: 1px solid #f1f3f4;">$' + locationOldValue.toFixed(2) + '</td>';
+                                comparisonHTML += '<td style="padding: 3px 6px; text-align: center; color: #6c757d; border-bottom: 1px solid #f1f3f4;">' + formatPrice(oldCostPrice) + '</td>';
+                                comparisonHTML += '<td style="padding: 3px 6px; text-align: right; color: #6c757d; border-bottom: 1px solid #f1f3f4;">' + formatPrice(locationOldValue) + '</td>';
                                 comparisonHTML += '</tr>';
                             });
                             
@@ -3119,8 +3131,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             comparisonHTML += '<td style="padding: 4px 6px; color: #1976d2;"></td>';
                             comparisonHTML += '<td style="padding: 4px 6px; color: #1976d2;">JAMI (hozirgi)</td>';
                             comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #1976d2;">' + totalQuantityCheck + ' ta</td>';
-                            comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #1976d2;">$' + currentAveragePrice.toFixed(2) + '</td>';
-                            comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #1976d2;">$' + totalOldValueCheck.toFixed(2) + '</td>';
+                            comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #1976d2;">' + formatPrice(currentAveragePrice) + '</td>';
+                            comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #1976d2;">' + formatPrice(totalOldValueCheck) + '</td>';
                             comparisonHTML += '</tr>';
                             
                             // Yangi qo'shilayotgan mahsulot qatori
@@ -3135,8 +3147,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #2e7d32; font-size: 0.75rem;">' + selectedType + '</td>';
                                 comparisonHTML += '<td style="padding: 4px 6px; color: #2e7d32;">+ YANGI (' + selectedLocationName + ')</td>';
                                 comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #2e7d32;">+' + newQuantity + ' ta</td>';
-                                comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #2e7d32;">$' + newCostPrice.toFixed(2) + '</td>';
-                                comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #2e7d32;">+$' + newValue.toFixed(2) + '</td>';
+                                comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #2e7d32;">' + formatPrice(newCostPrice) + '</td>';
+                                comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #2e7d32;">+' + formatPrice(newValue) + '</td>';
                                 comparisonHTML += '</tr>';
                                 
                                 // Yakuniy jami (eski + yangi)
@@ -3148,8 +3160,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 comparisonHTML += '<td style="padding: 4px 6px; color: #e65100;"></td>';
                                 comparisonHTML += '<td style="padding: 4px 6px; color: #e65100;">YAKUNIY JAMI</td>';
                                 comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #e65100;">' + finalQuantity + ' ta</td>';
-                                comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #e65100;">$' + finalAveragePrice.toFixed(2) + '</td>';
-                                comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #e65100;">$' + finalValue.toFixed(2) + '</td>';
+                                comparisonHTML += '<td style="padding: 4px 6px; text-align: center; color: #e65100;">' + formatPrice(finalAveragePrice) + '</td>';
+                                comparisonHTML += '<td style="padding: 4px 6px; text-align: right; color: #e65100;">' + formatPrice(finalValue) + '</td>';
                                 comparisonHTML += '</tr>';
                             }
                             
@@ -3162,13 +3174,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                 const finalQuantity = totalQuantityCheck + newQuantity;
                                 const finalValue = totalOldValueCheck + (newQuantity * newCostPrice);
                                 const finalAveragePrice = finalQuantity > 0 ? finalValue / finalQuantity : newCostPrice;
-                                comparisonHTML += '<span>Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span>Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">' + formatPrice(currentAveragePrice) + '</span></span>';
                                 comparisonHTML += '<span style="color:#aaa;">→</span>';
-                                comparisonHTML += '<span>Yangi partiya narxi: <span style="background: #17a2b8; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + newCostPrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span>Yangi partiya narxi: <span style="background: #17a2b8; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">' + formatPrice(newCostPrice) + '</span></span>';
                                 comparisonHTML += '<span style="color:#aaa;">→</span>';
-                                comparisonHTML += '<span>Ortacha tan narx: <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + finalAveragePrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span>Ortacha tan narx: <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">' + formatPrice(finalAveragePrice) + '</span></span>';
                             } else {
-                                comparisonHTML += '<span>💡 Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">$' + currentAveragePrice.toFixed(2) + '</span></span>';
+                                comparisonHTML += '<span>💡 Hozirgi tan narx: <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">' + formatPrice(currentAveragePrice) + '</span></span>';
                             }
                             comparisonHTML += '</div>';
                             
@@ -3181,7 +3193,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         priceComparisonDiv.style.display = 'block';
                         
                         // Ortacha tan narxni tan narx maydoniga yozish
-                        if (newQuantity > 0 && Math.abs(averagePrice - newCostPrice) > 0.01) {
+                        if (costCode === 'USD' && newQuantity > 0 && Math.abs(averagePrice - newCostPrice) > 0.01) {
                             // Agar foydalanuvchi hali kiritgan bo'lmasa, hozirgi qiymatni saqlash
                             if (!userEnteredCostPrice) {
                                 userEnteredCostPrice = newCostPrice;
@@ -3189,7 +3201,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             // 1. Foydalanuvchi kiritgan qiymatni "Asl tan narx" ga saqlash
                             const originalCostField = document.getElementById('original_cost');
-                            originalCostField.value = `$${userEnteredCostPrice.toFixed(2)} (siz kiritgan)`;
+                            originalCostField.value = `${formatPrice(userEnteredCostPrice)} (siz kiritgan)`;
                             
                             // 2. Ortacha narxni "Tan narx" maydoniga yozish
                             document.getElementById('cost_price').value = averagePrice.toFixed(2);
@@ -3245,49 +3257,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         // Avtomatik o'rtacha narxni qo'llash
         function applyAveragePrice() {
-            if (document.getElementById('cost_currency').value === 'UZS') return;
-            const productNameField = document.getElementById('product_name');
-            const quantityField = document.getElementById('quantity');
-            const costPriceField = document.getElementById('cost_price');
-            
-            const productName = productNameField.value.trim();
-            const quantity = parseInt(quantityField.value) || 0;
-            const currentCostPrice = parseFloat(costPriceField.value) || 0;
-            
-            if (!productName || quantity <= 0 || currentCostPrice <= 0) {
-                return;
-            }
-            
-            // Mahsulot ma'lumotlarini olish
-            fetch(`/api/search-product/${encodeURIComponent(productName)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists && data.locations && data.locations.length > 0) {
-                        const oldCostPrice = data.product.cost_price;
-                        
-                        // O'rtacha narxni hisoblash
-                        const existingTotalQuantity = data.locations.reduce((sum, loc) => sum + loc.quantity, 0);
-                        const existingTotalValue = data.locations.reduce((sum, loc) => sum + (loc.quantity * oldCostPrice), 0);
-                        const newAddedValue = quantity * currentCostPrice;
-                        const finalTotalQuantity = existingTotalQuantity + quantity;
-                        const finalTotalValue = existingTotalValue + newAddedValue;
-                        const averagePrice = finalTotalQuantity > 0 ? finalTotalValue / finalTotalQuantity : 0;
-                        
-                        // Agar o'rtacha narx hozirgi narxdan farq qilsa, uni qo'yish
-                        if (Math.abs(averagePrice - currentCostPrice) > 0.01) {
-                            costPriceField.value = averagePrice.toFixed(2);
-                            
-                            // Foyda qayta hisoblash
-                            calculateProfit();
-                            
-                            // Narx taqqoslashni yangilash
-                            setTimeout(() => comparePrices(), 100);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('O\'rtacha narx qo\'llashda xatolik:', error);
-                });
+            comparePrices();
         }
 
         // Sahifa yuklanganda
