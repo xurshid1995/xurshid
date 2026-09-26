@@ -246,11 +246,26 @@ def check_browser(application):
                 assert page.locator('#spNativeDebt').inner_text() == '0 USD + 0 UZS'
                 page.screenshot(path=str(screenshots / f'supplier-mixed-tabs-{width}.png'), full_page=True)
                 page.locator('#spMixedPayment').uncheck()
+                assert page.locator('#spPaymentUZS').is_checked()
+                assert not page.locator('#spPaymentUSD').is_checked()
+                assert page.locator('#spTabUSD').is_disabled()
                 assert page.locator('#spCashUZS').input_value() == '450000'
                 assert page.locator('#spActualPayment').inner_text() == '0 USD + 450,000 UZS'
-                page.locator('#spTabUSD').click()
+                assert page.evaluate("supplierPaymentData().payments") == [
+                    {'channel': 'cash', 'currency': 'UZS', 'amount': '450000'}]
+                page.locator('#spPaymentUSD').check()
+                assert not page.locator('#spPaymentUZS').is_checked()
+                assert page.locator('#spTabUZS').is_disabled()
                 assert page.locator('#spCashUSD').input_value() == '36'
                 assert page.locator('#spActualPayment').inner_text() == '36 USD + 0 UZS'
+                assert page.evaluate("supplierPaymentData().payments") == [
+                    {'channel': 'cash', 'currency': 'USD', 'amount': '36'}]
+                page.locator('#spPaymentUSD').click()
+                assert page.locator('#spPaymentUSD').is_checked()
+                page.locator('#spMixedPayment').check()
+                assert not page.locator('#spPaymentUSD').is_checked()
+                assert not page.locator('#spTabUZS').is_disabled()
+                assert not page.locator('#spTabUSD').is_disabled()
                 for code, expected in (('USD', '20'), ('UZS', '200000')):
                     result = page.evaluate("""code => {
                         const original = tempProducts;
@@ -302,6 +317,30 @@ def check_browser(application):
                 assert receipt['events'][0]['batch']['native_payments'] == [
                     {'channel': 'cash', 'currency': 'USD', 'amount': expected_cash},
                     {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
+                for code, expected in (('USD', '36'), ('UZS', '450000')):
+                    page.reload()
+                    page.wait_for_function("typeof openSupplierPaymentModal === 'function'")
+                    supplier_response = page.request.post(f'{base_url}/api/suppliers', data={'name': f'Checkbox {code} {width}'})
+                    assert supplier_response.status == 201
+                    checkbox_supplier_id = supplier_response.json()['supplier']['id']
+                    page.evaluate("""supplierId => {
+                        window.currentExchangeRate = 12500;
+                        tempProducts = [
+                            {supplierId,name:`Checkbox USD ${supplierId}`,cost_currency:'USD',native_batch_cost:2,cost_price:2,sell_price:3,quantity:10,location:'store_1'},
+                            {supplierId,name:`Checkbox UZS ${supplierId}`,cost_currency:'UZS',native_batch_cost:20000,cost_price:1.6,sell_currency:'UZS',native_sell_price:25000,sell_price:2,quantity:10,location:'store_1'}
+                        ];
+                        openSupplierPaymentModal();
+                    }""", checkbox_supplier_id)
+                    page.locator(f'#spPayment{code}').check()
+                    assert not page.locator('#spMixedPayment').is_checked()
+                    page.screenshot(path=str(screenshots / f'supplier-checkbox-{code}-{width}.png'), full_page=True)
+                    with page.expect_response(lambda response: response.url.endswith('/api/batch-products')) as saved:
+                        page.locator('#spConfirmBtn').click()
+                    assert saved.value.status == 201, saved.value.json()
+                    receipt = page.request.get(f'{base_url}/api/supplier/{checkbox_supplier_id}/timeline').json()
+                    assert receipt['events'][0]['batch']['native_payments'] == [
+                        {'channel': 'cash', 'currency': code, 'amount': expected}]
+                    assert all(Decimal(value) == 0 for value in receipt['supplier']['native_debts'].values())
                 response = page.goto(f'{base_url}/sales')
                 assert response.status == 200
                 page.wait_for_function("typeof productSellingUSD === 'function'")

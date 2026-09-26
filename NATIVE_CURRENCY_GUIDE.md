@@ -48,10 +48,12 @@ alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
   Har bir tabdagi USD/UZS maydonlari o'zaro konvertatsiya qilinadi, lekin
   faqat tab valyutasidagi summa haqiqiy to'lov hisoblanadi.
   Aralash kirimda "Aralash USD + UZS" yoqilgan va har ikkala asl jami o'z
-  tabining naqd maydoniga to'ldiriladi. Belgi o'chirilsa barcha to'lovlar
-  tanlangan tab valyutasiga o'tadi; bitta valyuta rejimida tab almashtirish
-  ham summalarni yangi valyutaga o'tkazadi. Aralash rejimda tab almashtirish
-  hech qanday summani o'zgartirmaydi.
+  tabining naqd maydoniga to'ldiriladi. USD, UZS va Aralash checkboxlaridan
+  faqat bittasi tanlanadi. USD yoki UZS tanlansa barcha to'lov va ajratilgan
+  qarz summalari shu valyutaga o'tadi; faqat tanlangan valyutadagi to'lovlar
+  saqlanadi va boshqa tab o'chiriladi. Aralash rejimda ikkala tab ishlaydi,
+  tab almashtirish hech qanday summani o'zgartirmaydi va har bir to'lov o'z
+  valyutasida saqlanadi. Aralash belgi o'chirilsa joriy tab valyutasi tanlanadi.
   API `payments: [{channel, currency, amount}]` ro'yxatini qabul qiladi;
   bitta kanalda USD va UZS birga yozilishi mumkin. Eski payload ham ishlaydi.
   Avval yopiladigan qarz valyutasi alohida tanlanadi.

@@ -645,11 +645,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
             #supplierPaymentModal .sp-tabs { display:flex; gap:4px; border-bottom:1px solid #d6dde5; margin:14px 0; }
             #supplierPaymentModal .sp-tab { flex:1; background:transparent; color:#465467; padding:12px 8px; border:0; border-bottom:3px solid transparent; font-weight:600; cursor:pointer; }
             #supplierPaymentModal .sp-tab[aria-selected="true"] { border-color:#1769df; color:#1558b0; background:#edf4ff; }
+            #supplierPaymentModal .sp-tab:disabled { opacity:0.45; cursor:not-allowed; }
             #supplierPaymentModal .sp-fields { display:grid; gap:8px; margin:16px 0; }
             #supplierPaymentModal .sp-row { display:grid; grid-template-columns:90px minmax(0,1fr) minmax(0,1fr) 68px; gap:8px; align-items:center; }
             #supplierPaymentModal .sp-amount { min-width:0; display:flex; flex-direction:column; gap:4px; color:#596574; font-size:11px; }
             #supplierPaymentModal .sp-amount input { box-sizing:border-box; min-width:0; width:100%; padding:9px 6px; font-size:14px; border:1px solid #c9d2dd; border-radius:5px; color:#263343; }
             #supplierPaymentModal .sp-remaining { width:68px; height:32px; background:#1769df; color:white; border:0; border-radius:6px; cursor:pointer; font-size:11px; white-space:nowrap; }
+            #supplierPaymentModal .sp-modes { display:flex; flex-wrap:wrap; gap:12px 18px; }
             #supplierPaymentModal .sp-mode { display:flex; align-items:center; gap:8px; font-size:14px; }
             #supplierPaymentModal .sp-mode input { width:16px; height:16px; }
             #supplierPaymentModal .sp-summary { display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px; font-size:13px; }
@@ -661,7 +663,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 #supplierPaymentModal > div > div:first-child { flex-wrap:wrap; gap:12px; }
             }
         </style>
-        <label class="sp-mode"><input type="checkbox" id="spMixedPayment" onchange="changeSupplierPaymentMode()"> Aralash USD + UZS</label>
+        <div class="sp-modes" role="group" aria-label="Saqlanadigan to'lov valyutasi">
+            <label class="sp-mode"><input type="checkbox" id="spPaymentUSD" onchange="changeSupplierPaymentMode('USD')"> USD</label>
+            <label class="sp-mode"><input type="checkbox" id="spPaymentUZS" onchange="changeSupplierPaymentMode('UZS')"> UZS</label>
+            <label class="sp-mode"><input type="checkbox" id="spMixedPayment" onchange="changeSupplierPaymentMode()"> Aralash USD + UZS</label>
+        </div>
         <div class="sp-tabs" role="tablist" aria-label="To'lov valyutasi">
             <button type="button" id="spTabUSD" class="sp-tab" role="tab" aria-selected="true" aria-controls="spPaymentPanel" onclick="selectSupplierPaymentTab('USD')">USD to'lov</button>
             <button type="button" id="spTabUZS" class="sp-tab" role="tab" aria-selected="false" aria-controls="spPaymentPanel" onclick="selectSupplierPaymentTab('UZS')">UZS to'lov</button>
@@ -2752,6 +2758,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
             supplierTabAmounts = {USD: {cash: totals.USD, click: 0, terminal: 0, debt: 0}, UZS: {cash: totals.UZS, click: 0, terminal: 0, debt: 0}};
             supplierPaymentTab = totals.USD ? 'USD' : 'UZS';
             document.getElementById('spMixedPayment').checked = totals.USD > 0 && totals.UZS > 0;
+            document.getElementById('spPaymentUSD').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'USD';
+            document.getElementById('spPaymentUZS').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'UZS';
             document.getElementById('spDebtPriority').value = totals.USD ? 'USD' : 'UZS';
             document.getElementById('spPaymentWarning').style.display = 'none';
             renderSupplierPaymentTab();
@@ -2788,13 +2796,20 @@ optgroup option { font-weight: normal; color: #1e293b; }
             });
         }
 
-        function changeSupplierPaymentMode() {
-            if (!document.getElementById('spMixedPayment').checked) consolidateSupplierPayment(supplierPaymentTab);
+        function changeSupplierPaymentMode(code) {
+            const mode = code || (document.getElementById('spMixedPayment').checked ? 'MIXED' : supplierPaymentTab);
+            document.getElementById('spPaymentUSD').checked = mode === 'USD';
+            document.getElementById('spPaymentUZS').checked = mode === 'UZS';
+            document.getElementById('spMixedPayment').checked = mode === 'MIXED';
+            if (mode !== 'MIXED') {
+                consolidateSupplierPayment(mode);
+                supplierPaymentTab = mode;
+            }
             renderSupplierPaymentTab();
         }
 
         function selectSupplierPaymentTab(code) {
-            if (!document.getElementById('spMixedPayment').checked) consolidateSupplierPayment(code);
+            if (!document.getElementById('spMixedPayment').checked && !document.getElementById(`spPayment${code}`).checked) return;
             supplierPaymentTab = code;
             renderSupplierPaymentTab();
         }
@@ -2802,6 +2817,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function renderSupplierPaymentTab() {
             ['USD', 'UZS'].forEach(code => {
                 document.getElementById(`spTab${code}`).setAttribute('aria-selected', String(code === supplierPaymentTab));
+                document.getElementById(`spTab${code}`).disabled = !document.getElementById('spMixedPayment').checked && !document.getElementById(`spPayment${code}`).checked;
             });
             document.getElementById('spPaymentPanel').setAttribute('aria-labelledby', `spTab${supplierPaymentTab}`);
             ['cash', 'click', 'terminal', 'debt'].forEach(channel => {
@@ -2818,6 +2834,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
         function supplierPaymentData() {
             const data = {exchange_rate: getSupplierExchangeRate(), debt_priority: document.getElementById('spDebtPriority').value, payments: []};
             ['USD', 'UZS'].forEach(code => ['cash', 'click', 'terminal'].forEach(channel => {
+                if (!document.getElementById('spMixedPayment').checked && !document.getElementById(`spPayment${code}`).checked) return;
                 const value = supplierTabAmounts[code][channel];
                 if (value !== 0) data.payments.push({channel, currency: code, amount: String(value)});
             }));
