@@ -2045,9 +2045,24 @@ async def admin_total_debts_button(update: Update, context: ContextTypes.DEFAULT
     await update.message.reply_text("\n".join(lines), parse_mode='HTML')
 
 
+def _get_main_bot_token() -> Optional[str]:
+    """Asosiy bot tokenini avval Settings jadvalidan, topilmasa .env'dan olish"""
+    try:
+        from app import app
+        from models import Settings
+        with app.app_context():
+            setting = Settings.query.filter_by(key='telegram_bot_token').first()
+            if setting and setting.value:
+                logger.info("✅ Telegram bot token Settings jadvalidan olindi")
+                return setting.value
+    except Exception as e:
+        logger.debug(f"Settings'dan token olishda xato: {e}")
+    return os.getenv('TELEGRAM_BOT_TOKEN')
+
+
 def create_telegram_app():
     """Telegram Application yaratish"""
-    token = os.getenv('TELEGRAM_BOT_TOKEN')
+    token = _get_main_bot_token()
     if not token:
         logger.error("❌ TELEGRAM_BOT_TOKEN topilmadi")
         return None

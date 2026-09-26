@@ -54,16 +54,24 @@ def main():
         logger.info("🔄 Bot polling rejimida ishlamoqda...")
 
         if reset_app:
-            # Ikki botni parallel ishlatish
+            # Ikki botni parallel ishlatish (reset_app xato bersa ham asosiy bot ishlashda davom etadi)
             async def run_both():
-                async with application, reset_app:
+                async with application:
                     await application.initialize()
-                    await reset_app.initialize()
                     await application.start()
-                    await reset_app.start()
                     await application.updater.start_polling(allowed_updates=["message", "callback_query", "inline_query"])
-                    await reset_app.updater.start_polling(allowed_updates=["message"])
-                    logger.info("✅ Ikkala bot ham ishlamoqda")
+                    logger.info("✅ Asosiy bot ishlamoqda")
+
+                    reset_started = False
+                    try:
+                        await reset_app.initialize()
+                        await reset_app.start()
+                        await reset_app.updater.start_polling(allowed_updates=["message"])
+                        reset_started = True
+                        logger.info("✅ Paroltiklash boti ham ishlamoqda")
+                    except Exception as e:
+                        logger.error(f"❌ Paroltiklash boti ishga tushmadi (asosiy bot ishlashda davom etadi): {e}")
+
                     # To'xtatish signalini kutish
                     import signal
                     stop_event = asyncio.Event()
@@ -72,9 +80,10 @@ def main():
                         loop.add_signal_handler(sig, stop_event.set)
                     await stop_event.wait()
                     await application.updater.stop()
-                    await reset_app.updater.stop()
                     await application.stop()
-                    await reset_app.stop()
+                    if reset_started:
+                        await reset_app.updater.stop()
+                        await reset_app.stop()
             asyncio.run(run_both())
         else:
             # Faqat asosiy bot
