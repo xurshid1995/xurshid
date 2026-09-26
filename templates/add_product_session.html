@@ -664,9 +664,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
         </style>
         <div class="sp-modes" role="group" aria-label="Saqlanadigan to'lov valyutasi">
+            <label class="sp-mode"><input type="checkbox" id="spMixedPayment" onchange="changeSupplierPaymentMode()"> Aralash USD + UZS</label>
             <label class="sp-mode"><input type="checkbox" id="spPaymentUSD" onchange="changeSupplierPaymentMode('USD')"> USD</label>
             <label class="sp-mode"><input type="checkbox" id="spPaymentUZS" onchange="changeSupplierPaymentMode('UZS')"> UZS</label>
-            <label class="sp-mode"><input type="checkbox" id="spMixedPayment" onchange="changeSupplierPaymentMode()"> Aralash USD + UZS</label>
         </div>
         <div class="sp-tabs" role="tablist" aria-label="To'lov valyutasi">
             <button type="button" id="spTabUSD" class="sp-tab" role="tab" aria-selected="true" aria-controls="spPaymentPanel" onclick="selectSupplierPaymentTab('USD')">USD to'lov</button>
@@ -2722,6 +2722,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
         let supplierPayments = {};
         let supplierPaymentTab = 'USD';
         let supplierTabAmounts = {USD: {cash: 0, click: 0, terminal: 0, debt: 0}, UZS: {cash: 0, click: 0, terminal: 0, debt: 0}};
+        let supplierPaymentMode = 'USD';
+        let supplierMixedAmounts = null;
 
         function currentSupplierItems() {
             return tempProducts.filter(product => String(product.supplierId) === String(supplierPaymentQueue[supplierPaymentIndex]));
@@ -2756,7 +2758,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('spSupplierName').textContent = currentSupplierItems()[0]?.supplierName || `Yetkazib beruvchi #${supplierPaymentQueue[supplierPaymentIndex]}`;
 
             supplierTabAmounts = {USD: {cash: totals.USD, click: 0, terminal: 0, debt: 0}, UZS: {cash: totals.UZS, click: 0, terminal: 0, debt: 0}};
+            supplierMixedAmounts = {USD: {...supplierTabAmounts.USD}, UZS: {...supplierTabAmounts.UZS}};
             supplierPaymentTab = totals.USD ? 'USD' : 'UZS';
+            supplierPaymentMode = totals.USD > 0 && totals.UZS > 0 ? 'MIXED' : supplierPaymentTab;
             document.getElementById('spMixedPayment').checked = totals.USD > 0 && totals.UZS > 0;
             document.getElementById('spPaymentUSD').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'USD';
             document.getElementById('spPaymentUZS').checked = !document.getElementById('spMixedPayment').checked && supplierPaymentTab === 'UZS';
@@ -2798,6 +2802,13 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         function changeSupplierPaymentMode(code) {
             const mode = code || (document.getElementById('spMixedPayment').checked ? 'MIXED' : supplierPaymentTab);
+            if (supplierPaymentMode === 'MIXED' && mode !== 'MIXED') {
+                supplierMixedAmounts = {USD: {...supplierTabAmounts.USD}, UZS: {...supplierTabAmounts.UZS}};
+            }
+            if (mode === 'MIXED' && supplierPaymentMode !== 'MIXED') {
+                supplierTabAmounts = {USD: {...supplierMixedAmounts.USD}, UZS: {...supplierMixedAmounts.UZS}};
+            }
+            supplierPaymentMode = mode;
             document.getElementById('spPaymentUSD').checked = mode === 'USD';
             document.getElementById('spPaymentUZS').checked = mode === 'UZS';
             document.getElementById('spMixedPayment').checked = mode === 'MIXED';
@@ -2818,6 +2829,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             ['USD', 'UZS'].forEach(code => {
                 document.getElementById(`spTab${code}`).setAttribute('aria-selected', String(code === supplierPaymentTab));
                 document.getElementById(`spTab${code}`).disabled = !document.getElementById('spMixedPayment').checked && !document.getElementById(`spPayment${code}`).checked;
+                document.getElementById(`spTab${code}`).hidden = document.getElementById(`spTab${code}`).disabled;
             });
             document.getElementById('spPaymentPanel').setAttribute('aria-labelledby', `spTab${supplierPaymentTab}`);
             ['cash', 'click', 'terminal', 'debt'].forEach(channel => {

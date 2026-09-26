@@ -213,6 +213,8 @@ def check_browser(application):
                 assert page.locator('#spTotalUSD').inner_text() == '20 USD'
                 assert page.locator('#spTotalUZS').inner_text() == '200,000 UZS'
                 assert page.locator('#spMixedPayment').is_checked()
+                assert page.locator('.sp-modes input').evaluate_all('(inputs) => inputs.map(input => input.id)') == [
+                    'spMixedPayment', 'spPaymentUSD', 'spPaymentUZS']
                 assert page.locator('#spCashUSD').input_value() == '20'
                 assert page.locator('#spPaymentPanel .sp-row').count() == 4
                 assert page.locator('#spClickUSD').input_value() == ''
@@ -249,6 +251,8 @@ def check_browser(application):
                 assert page.locator('#spPaymentUZS').is_checked()
                 assert not page.locator('#spPaymentUSD').is_checked()
                 assert page.locator('#spTabUSD').is_disabled()
+                assert not page.locator('#spTabUSD').is_visible()
+                assert page.locator('#spTabUZS').is_visible()
                 assert page.locator('#spCashUZS').input_value() == '450000'
                 assert page.locator('#spActualPayment').inner_text() == '0 USD + 450,000 UZS'
                 assert page.evaluate("supplierPaymentData().payments") == [
@@ -256,6 +260,8 @@ def check_browser(application):
                 page.locator('#spPaymentUSD').check()
                 assert not page.locator('#spPaymentUZS').is_checked()
                 assert page.locator('#spTabUZS').is_disabled()
+                assert not page.locator('#spTabUZS').is_visible()
+                assert page.locator('#spTabUSD').is_visible()
                 assert page.locator('#spCashUSD').input_value() == '36'
                 assert page.locator('#spActualPayment').inner_text() == '36 USD + 0 UZS'
                 assert page.evaluate("supplierPaymentData().payments") == [
@@ -266,6 +272,32 @@ def check_browser(application):
                 assert not page.locator('#spPaymentUSD').is_checked()
                 assert not page.locator('#spTabUZS').is_disabled()
                 assert not page.locator('#spTabUSD').is_disabled()
+                assert page.locator('#spTabUSD').is_visible()
+                assert page.locator('#spTabUZS').is_visible()
+                assert page.locator('#spCashUSD').input_value() == '20'
+                assert page.evaluate('supplierPaymentData().payments') == [
+                    {'channel': 'cash', 'currency': 'USD', 'amount': '20'},
+                    {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
+                page.locator('#spTabUZS').click()
+                assert page.locator('#spCashUZS').input_value() == '200000'
+                page.locator('#spPaymentUZS').check()
+                assert page.locator('#spCashUZS').input_value() == '450000'
+                page.locator('#spMixedPayment').check()
+                assert page.locator('#spCashUZS').input_value() == '200000'
+                page.locator('#spTabUSD').click()
+                assert page.locator('#spCashUSD').input_value() == '20'
+                page.locator('#spCashUSD').fill('9.5')
+                page.locator('#spClickUSD').fill('5')
+                page.locator('#spTerminalUSD').fill('1')
+                page.locator('#spPaymentPanel .sp-remaining').last.click()
+                assert page.locator('#spDebtUSD').input_value() == '4.5'
+                mixed_amounts = page.evaluate('supplierTabAmounts')
+                for code in ('USD', 'UZS'):
+                    page.locator(f'#spPayment{code}').check()
+                    page.locator(f'#spCash{code}').fill('1')
+                    page.locator('#spMixedPayment').check()
+                    assert page.evaluate('supplierTabAmounts') == mixed_amounts
+                    assert not page.locator('#spConfirmBtn').is_disabled()
                 for code, expected in (('USD', '20'), ('UZS', '200000')):
                     result = page.evaluate("""code => {
                         const original = tempProducts;
