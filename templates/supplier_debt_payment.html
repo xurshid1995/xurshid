@@ -126,9 +126,15 @@
 }
 .ps-copy-btn:hover { background: #bfdbfe; }
 .ps-copy-btn.ps-copied { background: #16a34a; color: #fff; }
-.ps-payment-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ps-currency-modes { display:flex; flex-wrap:wrap; gap:12px 18px; margin:14px 0; }
+.ps-currency-modes label { display:flex; align-items:center; gap:8px; font-size:14px; }
+.ps-currency-tabs { display:flex; gap:4px; border-bottom:1px solid #d6dde5; margin:14px 0; }
+.ps-currency-tab { flex:1; background:transparent; color:#465467; padding:12px 8px; border:0; border-bottom:3px solid transparent; font-weight:600; cursor:pointer; }
+.ps-currency-tab[aria-selected="true"] { border-color:#1769df; color:#1558b0; background:#edf4ff; }
+.ps-payment-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .ps-payment-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr) 60px;
     align-items: center;
     gap: 6px;
     flex-wrap: nowrap;
@@ -137,8 +143,7 @@
     font-weight: 600;
     color: #374151;
     font-size: 13px;
-    min-width: 76px;
-    max-width: 76px;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -160,7 +165,7 @@
 }
 .ps-pay-input {
     flex: 1;
-    padding: 5px 6px;
+    padding: 9px 6px;
     border: 1.5px solid #e2e8f0;
     border-radius: 7px;
     font-size: 13px;
@@ -174,13 +179,15 @@
 }
 .ps-pay-input:focus { border-color: #1a6eff; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); background: white; }
 .ps-btn-remaining {
-    padding: 5px 8px;
+    padding: 5px;
+    width: 60px;
+    height: 32px;
     background: #1a6eff;
     color: white;
     border: none;
     border-radius: 7px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1;
     white-space: nowrap;
@@ -417,50 +424,25 @@
                     <button type="button" class="ps-copy-btn" onclick="copyDebtAmount(this)" title="Nusxalash"><i class="fas fa-copy"></i></button>
                 </div>
             </div>
-            <label for="supplierDebtPriority">Avval yopiladigan qarz</label>
-            <select id="supplierDebtPriority" onchange="updateSupplierPaymentPreview()"><option>USD</option><option>UZS</option></select>
-            <div class="ps-payment-rows">
-                <div class="ps-payment-row">
-                    <span class="ps-pay-label">💵 Naqd</span>
-                    <select id="paymentCashCurrency" aria-label="Naqd valyutasi" onchange="setPaymentCurrency('Cash')"><option>USD</option><option>UZS</option></select>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">$</span>
-                        <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                    </div>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">UZS</span>
-                        <input type="number" id="paymentCashUZS" step="1" placeholder="0" class="ps-pay-input">
-                    </div>
-                    <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
-                </div>
-                <div class="ps-payment-row">
-                    <span class="ps-pay-label">📱 Click</span>
-                    <select id="paymentClickCurrency" aria-label="Click valyutasi" onchange="setPaymentCurrency('Click')"><option>USD</option><option>UZS</option></select>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">$</span>
-                        <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                    </div>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">UZS</span>
-                        <input type="number" id="paymentClickUZS" step="1" placeholder="0" class="ps-pay-input">
-                    </div>
-                    <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
-                </div>
-                <div class="ps-payment-row">
-                    <span class="ps-pay-label">🏧 Terminal</span>
-                    <select id="paymentTerminalCurrency" aria-label="Terminal valyutasi" onchange="setPaymentCurrency('Terminal')"><option>USD</option><option>UZS</option></select>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">$</span>
-                        <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
-                    </div>
-                    <div class="ps-pay-field">
-                        <span class="ps-currency-sign">UZS</span>
-                        <input type="number" id="paymentTerminalUZS" step="1" placeholder="0" class="ps-pay-input">
-                    </div>
-                    <button onclick="addRemainingToField('paymentTerminalUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
-                </div>
+            <div class="ps-currency-modes" role="group" aria-label="Saqlanadigan to'lov valyutasi">
+                <label><input type="checkbox" id="debtMixedPayment" onchange="changeDebtPaymentMode()"> Aralash USD + UZS</label>
+                <label><input type="checkbox" id="debtPaymentUSD" onchange="changeDebtPaymentMode('USD')"> USD</label>
+                <label><input type="checkbox" id="debtPaymentUZS" onchange="changeDebtPaymentMode('UZS')"> UZS</label>
             </div>
-            <div style="margin:10px 0;">To'lovdan keyingi qarz: <strong id="supplierPaymentPreview" role="status"></strong></div>
+            <div class="ps-currency-tabs" role="tablist" aria-label="To'lov valyutasi">
+                <button type="button" id="debtTabUSD" class="ps-currency-tab" role="tab" aria-selected="true" aria-controls="debtPaymentPanel" onclick="selectDebtPaymentTab('USD')">USD to'lov</button>
+                <button type="button" id="debtTabUZS" class="ps-currency-tab" role="tab" aria-selected="false" aria-controls="debtPaymentPanel" onclick="selectDebtPaymentTab('UZS')">UZS to'lov</button>
+            </div>
+            <div id="debtPaymentPanel" role="tabpanel" aria-labelledby="debtTabUSD" class="ps-payment-rows">
+                {% for name, label in [('Cash', 'Naqd'), ('Click', 'Click'), ('Terminal', 'Terminal'), ('Debt', 'Qarz')] %}
+                <div class="ps-payment-row">
+                    <span class="ps-pay-label">{% if name == 'Debt' %}<i class="fas fa-clipboard-list" aria-hidden="true"></i> {% endif %}{{ label }}:</span>
+                    <input type="number" id="payment{{ name }}USD" min="0" step="0.0000000001" placeholder="$" aria-label="{{ label }} USD" class="ps-pay-input">
+                    <input type="number" id="payment{{ name }}UZS" min="0" step="0.01" placeholder="UZS" aria-label="{{ label }} UZS" class="ps-pay-input">
+                    <button type="button" onclick="addRemainingToField('payment{{ name }}USD')" class="ps-btn-remaining" title="{{ label }}: qolgan summani to'ldirish">+Qolgan</button>
+                </div>
+                {% endfor %}
+            </div>
             <div id="payError" style="display:none; color:#dc2626; font-size:13px; margin-bottom:10px;"></div>
             <div>
                 <button class="ps-btn-submit" id="submitBtn" onclick="submitPayment()">✅ To'lovni tasdiqlash</button>
@@ -552,6 +534,10 @@ let nativeSupplierDebt = {USD: 0, UZS: 0};
 let paymentHistory = [];
 let currentRate = 12000;
 let reverseTarget = null;
+let debtPaymentMode = 'USD';
+let debtPaymentTab = 'USD';
+let debtTabAmounts = {};
+let debtMixedAmounts = {};
 
 function formatUSD(value) {
     const amount = Number(value || 0);
@@ -921,25 +907,15 @@ function fallbackCopy(text, done) {
 }
 
 function addRemainingToField(fieldId) {
-    if (!remainingDebt) {
-        alert('❌ Qarz topilmadi');
-        return;
-    }
     const name = fieldId.replace('payment', '').replace('USD', '');
-    const code = document.getElementById(`payment${name}Currency`).value;
-    const field = document.getElementById(`payment${name}${code}`);
-    if (!field) return;
-
-    const others = supplierPaymentEntries().filter(entry => entry.channel !== name.toLowerCase());
-    const totalPaid = others.reduce((sum, entry) => sum + Number(entry.amount) / (entry.currency === 'UZS' ? currentRate : 1), 0);
-    const remaining = remainingDebt - totalPaid;
-
-    if (remaining > 0) {
-        field.value = (remaining * (code === 'UZS' ? currentRate : 1)).toFixed(code === 'UZS' ? 2 : 10);
-        field.dispatchEvent(new Event('input'));
-    } else {
-        alert('✅ Qarz to\'liq qoplandi');
-    }
+    let others = 0;
+    ['USD', 'UZS'].forEach(code => ['Cash', 'Click', 'Terminal', 'Debt'].forEach(channel => {
+        if (code !== debtPaymentTab || channel !== name) {
+            others += debtTabAmounts[code][channel] / (code === 'UZS' ? currentRate : 1);
+        }
+    }));
+    debtTabAmounts[debtPaymentTab][name] = Number((Math.max(0, remainingDebt - others) * (debtPaymentTab === 'UZS' ? currentRate : 1)).toFixed(debtPaymentTab === 'UZS' ? 2 : 10));
+    renderDebtPaymentTab();
 }
 
 let _paymentSubmitting = false;
@@ -958,8 +934,6 @@ async function submitPayment() {
         return;
     }
     if (!updateSupplierPaymentPreview()) {
-        errEl.textContent = "To'lov summasi joriy qarzdan katta bo'lishi mumkin emas";
-        errEl.style.display = 'block';
         return;
     }
 
@@ -971,11 +945,7 @@ async function submitPayment() {
 
     try {
         const payload = {native_currency_payment: true, exchange_rate: currentRate,
-            debt_priority: document.getElementById('supplierDebtPriority').value};
-        entries.forEach(entry => {
-            payload[`${entry.channel}_currency`] = entry.currency;
-            payload[`${entry.channel}_${entry.currency.toLowerCase()}`] = entry.amount;
-        });
+            debt_priority: Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS', payments: entries};
         const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1002,39 +972,99 @@ async function submitPayment() {
 }
 
 function setupCurrencyConversion() {
-    ['Cash', 'Click', 'Terminal'].forEach(name => {
+    debtTabAmounts = {
+        USD: {Cash: Number(nativeSupplierDebt.USD), Click: 0, Terminal: 0, Debt: 0},
+        UZS: {Cash: Number(nativeSupplierDebt.UZS), Click: 0, Terminal: 0, Debt: 0}
+    };
+    debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
+    debtPaymentTab = Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS';
+    debtPaymentMode = Number(nativeSupplierDebt.USD) && Number(nativeSupplierDebt.UZS) ? 'MIXED' : debtPaymentTab;
+    ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
         ['USD', 'UZS'].forEach(code => {
             const input = document.getElementById(`payment${name}${code}`);
-            input.min = '0';
-            input.step = code === 'USD' ? '0.0000000001' : '0.01';
-            input.oninput = updateSupplierPaymentPreview;
+            input.oninput = () => {
+                const other = code === 'USD' ? 'UZS' : 'USD';
+                const paired = document.getElementById(`payment${name}${other}`);
+                const converted = Number(input.value) * (code === 'USD' ? currentRate : 1 / currentRate);
+                paired.value = input.value === '' ? '' : String(Number(converted.toFixed(other === 'USD' ? 10 : 2)));
+                debtTabAmounts[debtPaymentTab][name] = Number(document.getElementById(`payment${name}${debtPaymentTab}`).value || 0);
+                updateSupplierPaymentPreview();
+            };
         });
-        setPaymentCurrency(name);
     });
+    renderDebtPaymentTab();
 }
 
 function supplierPaymentEntries() {
-    return ['Cash', 'Click', 'Terminal'].map(name => {
-        const code = document.getElementById(`payment${name}Currency`).value;
-        return {channel: name.toLowerCase(), currency: code,
-            amount: document.getElementById(`payment${name}${code}`).value || '0'};
+    const entries = [];
+    ['USD', 'UZS'].forEach(code => {
+        if (debtPaymentMode !== 'MIXED' && debtPaymentMode !== code) return;
+        ['Cash', 'Click', 'Terminal'].forEach(name => {
+            const value = debtTabAmounts[code][name];
+            if (value !== 0) entries.push({channel: name.toLowerCase(), currency: code, amount: String(value)});
+        });
     });
+    return entries;
 }
 
-function setPaymentCurrency(name) {
-    const selected = document.getElementById(`payment${name}Currency`).value;
+function changeDebtPaymentMode(code) {
+    const mode = code || (document.getElementById('debtMixedPayment').checked ? 'MIXED' : debtPaymentTab);
+    if (debtPaymentMode === 'MIXED' && mode !== 'MIXED') {
+        debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
+    }
+    if (mode === 'MIXED' && debtPaymentMode !== 'MIXED') {
+        debtTabAmounts = {USD: {...debtMixedAmounts.USD}, UZS: {...debtMixedAmounts.UZS}};
+    }
+    if (mode !== 'MIXED') {
+        const other = mode === 'USD' ? 'UZS' : 'USD';
+        ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
+            debtTabAmounts[mode][name] = Number((debtTabAmounts[mode][name] + debtTabAmounts[other][name] * (mode === 'USD' ? 1 / currentRate : currentRate)).toFixed(mode === 'USD' ? 10 : 2));
+            debtTabAmounts[other][name] = 0;
+        });
+        debtPaymentTab = mode;
+    }
+    debtPaymentMode = mode;
+    renderDebtPaymentTab();
+}
+
+function selectDebtPaymentTab(code) {
+    if (debtPaymentMode !== 'MIXED' && debtPaymentMode !== code) return;
+    debtPaymentTab = code;
+    renderDebtPaymentTab();
+}
+
+function renderDebtPaymentTab() {
+    document.getElementById('debtMixedPayment').checked = debtPaymentMode === 'MIXED';
     ['USD', 'UZS'].forEach(code => {
-        const input = document.getElementById(`payment${name}${code}`);
-        input.closest('.ps-pay-field').style.display = code === selected ? '' : 'none';
+        document.getElementById(`debtPayment${code}`).checked = debtPaymentMode === code;
+        const tab = document.getElementById(`debtTab${code}`);
+        tab.hidden = debtPaymentMode !== 'MIXED' && debtPaymentMode !== code;
+        tab.setAttribute('aria-selected', String(debtPaymentTab === code));
+    });
+    document.getElementById('debtPaymentPanel').setAttribute('aria-labelledby', `debtTab${debtPaymentTab}`);
+    ['Cash', 'Click', 'Terminal', 'Debt'].forEach(name => {
+        const value = debtTabAmounts[debtPaymentTab][name];
+        const usd = debtPaymentTab === 'USD' ? value : value / currentRate;
+        const uzs = debtPaymentTab === 'UZS' ? value : value * currentRate;
+        document.getElementById(`payment${name}USD`).value = value === 0 ? '' : String(Number(usd.toFixed(10)));
+        document.getElementById(`payment${name}UZS`).value = value === 0 ? '' : String(Number(uzs.toFixed(2)));
     });
     updateSupplierPaymentPreview();
 }
 
 function updateSupplierPaymentPreview() {
-    const result = SupplierMoney.preview(nativeSupplierDebt, supplierPaymentEntries(), currentRate,
-        document.getElementById('supplierDebtPriority').value);
-    document.getElementById('supplierPaymentPreview').textContent = SupplierMoney.format(result.debts);
-    return result.valid;
+    const entries = supplierPaymentEntries();
+    const result = SupplierMoney.preview(nativeSupplierDebt, entries, currentRate, Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS');
+    const paid = entries.reduce((sum, entry) => sum + Number(entry.amount) / (entry.currency === 'UZS' ? currentRate : 1), 0);
+    const validDebt = ['USD', 'UZS'].every(code => Number.isFinite(debtTabAmounts[code].Debt) && debtTabAmounts[code].Debt >= 0);
+    const allocated = paid + debtTabAmounts.USD.Debt + debtTabAmounts.UZS.Debt / currentRate;
+    const balanced = Math.abs(allocated - remainingDebt) <= 0.00001;
+    const valid = result.valid && validDebt && balanced && paid > 0;
+    const error = document.getElementById('payError');
+    error.textContent = !result.valid || !validDebt ? "To'lov manfiy yoki qarz summasidan katta" : paid <= 0 ? "To'lov summasini kiriting" : "To'lovlar va qarz yig'indisi jami summaga teng bo'lishi kerak";
+    error.style.display = valid || remainingDebt === 0 ? 'none' : 'block';
+    document.getElementById('submitBtn').disabled = _paymentSubmitting || !valid;
+    return valid;
 }
 
 function escapeHtml(str) {

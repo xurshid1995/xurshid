@@ -401,13 +401,46 @@ def check_browser(application):
                 response = page.goto(f'{base_url}/supplier/1/debt-payment')
                 assert response.status == 200
                 page.wait_for_function("document.getElementById('displayRemainingDebt').textContent.includes('200,000 UZS')")
-                page.locator('#paymentCashCurrency').select_option('UZS')
-                page.locator('#supplierDebtPriority').select_option('UZS')
-                page.locator('#paymentCashUZS').fill('200000')
-                assert page.locator('#supplierPaymentPreview').inner_text() == '20 USD + 0 UZS'
+                assert page.locator('#debtMixedPayment').is_checked()
+                assert page.locator('.ps-currency-modes input').evaluate_all('(inputs) => inputs.map(input => input.id)') == [
+                    'debtMixedPayment', 'debtPaymentUSD', 'debtPaymentUZS']
+                assert page.locator('#debtPaymentPanel .ps-payment-row').count() == 4
+                assert page.locator('#paymentCashUSD').input_value() == '20'
+                page.locator('#debtPaymentUSD').check()
+                assert not page.locator('#debtTabUZS').is_visible()
+                assert page.locator('#paymentCashUSD').input_value() == '36'
+                page.locator('#debtPaymentUZS').check()
+                assert not page.locator('#debtTabUSD').is_visible()
+                assert page.locator('#paymentCashUZS').input_value() == '450000'
+                page.locator('#debtMixedPayment').check()
+                assert page.locator('#paymentCashUZS').input_value() == '200000'
+                page.locator('#debtTabUSD').click()
+                assert page.locator('#paymentCashUSD').input_value() == '20'
+                page.locator('#paymentCashUSD').fill('-1')
+                assert page.locator('#submitBtn').is_disabled()
+                page.locator('#paymentCashUSD').fill('21')
+                assert page.locator('#submitBtn').is_disabled()
+                page.locator('#paymentCashUZS').fill('125000')
+                assert page.locator('#paymentCashUSD').input_value() == '10'
+                assert page.locator('#submitBtn').is_disabled()
+                page.locator('#debtPaymentPanel .ps-btn-remaining').last.click()
+                assert page.locator('#paymentDebtUSD').input_value() == '10'
+                mixed_amounts = page.evaluate('debtTabAmounts')
+                for code in ('USD', 'UZS'):
+                    page.locator(f'#debtPayment{code}').check()
+                    page.locator('#debtMixedPayment').check()
+                    assert page.evaluate('debtTabAmounts') == mixed_amounts
+                assert not page.locator('#submitBtn').is_disabled()
+                assert page.evaluate("""() => [...document.querySelectorAll('#debtPaymentPanel input')].every(input => {
+                    const bounds = input.getBoundingClientRect();
+                    return bounds.width >= 70 && bounds.left >= 0 && bounds.right <= innerWidth;
+                })""")
+                assert page.evaluate('supplierPaymentEntries()') == [
+                    {'channel': 'cash', 'currency': 'USD', 'amount': '10'},
+                    {'channel': 'cash', 'currency': 'UZS', 'amount': '200000'}]
                 page.screenshot(path=str(screenshots / f'supplier-debt-{width}.png'), full_page=True)
                 page.locator('#submitBtn').click()
-                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '20 USD + 0 UZS'")
+                page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '0 USD + 125,000 UZS'")
                 page.locator('[data-tab="payments"]').click()
                 page.wait_for_function("document.getElementById('paymentsHistoryBody').textContent.includes('200,000 UZS')")
                 page.screenshot(path=str(screenshots / f'supplier-history-{width}.png'), full_page=True)
@@ -415,6 +448,25 @@ def check_browser(application):
                 assert '200,000 UZS' in page.locator('#reverseModalInfo').inner_text()
                 page.locator('#reverseConfirmBtn').click()
                 page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '20 USD + 200,000 UZS'")
+                for code, expected in (('USD', '36'), ('UZS', '450000')):
+                    page.wait_for_function("document.getElementById('debtMixedPayment')?.checked")
+                    page.locator(f'#debtPayment{code}').check()
+                    outgoing_entries = page.evaluate('supplierPaymentEntries()')
+                    assert all(entry['channel'] == 'cash' and entry['currency'] == code for entry in outgoing_entries), outgoing_entries
+                    assert sum(Decimal(entry['amount']) for entry in outgoing_entries) == Decimal(expected), outgoing_entries
+                    with page.expect_response(lambda response: response.url.endswith('/api/suppliers/1/debt-payment')) as paid:
+                        page.locator('#submitBtn').click()
+                    assert paid.value.status == 200, paid.value.json()
+                    page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '0 USD + 0 UZS'")
+                    assert page.locator('#submitBtn').is_disabled()
+                    history = page.request.get(f'{base_url}/api/debt-payments/by-supplier/1').json()
+                    saved_entries = history['payments'][0]['native_payments']
+                    assert all(entry['channel'] == 'cash' and entry['currency'] == code for entry in saved_entries), saved_entries
+                    assert sum(Decimal(entry['amount']) for entry in saved_entries) == Decimal(expected), saved_entries
+                    page.locator('[data-tab="payments"]').click()
+                    page.locator('.ps-reverse-btn').first.click()
+                    page.locator('#reverseConfirmBtn').click()
+                    page.wait_for_function("document.getElementById('displayRemainingDebt')?.textContent === '20 USD + 200,000 UZS'")
                 for path, selector in (('/suppliers', '#supplierTableBody'),
                                        ('/supplier/1/products', '.sp-running-total-cell'),
                                        ('/supplier/1/timeline', '#statDebt')):
