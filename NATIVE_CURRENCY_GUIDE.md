@@ -70,7 +70,9 @@ alohida USD/UZS qarz va tarixiy kurs ustunlari mavjud.
 - Keyingi to'lovda tanlangan valyuta bo'yicha eski guruhlar birinchi yopiladi.
   Yetkazib beruvchi qarzini to'lash sahifasi ham kirim modalidagi kabi
   Aralash/USD/UZS checkboxlari, tablar va Naqd/Click/Terminal/Qarz qatorlaridan
-  foydalanadi. Joriy asl qarzlar naqd maydonlariga to'ldiriladi. Qarz qatori
+  foydalanadi. To'lov maydonlari bo'sh ochiladi; summalar faqat qo'lda yoki
+  "+Qolgan" tugmasi orqali kiritiladi. Bu kirim modalining boshlang'ich
+  to'ldirilishiga ta'sir qilmaydi. Qarz qatori
   to'lanmay qoladigan qismni ajratadi, to'lov sifatida yuborilmaydi. Aralash
   rejimga qaytishda oldingi taqsimot tiklanadi. Haqiqiy to'lovlar `payments`
   ro'yxati bilan yuboriladi, bir kanalda ikkala valyuta birga saqlanishi mumkin.

@@ -973,8 +973,8 @@ async function submitPayment() {
 
 function setupCurrencyConversion() {
     debtTabAmounts = {
-        USD: {Cash: Number(nativeSupplierDebt.USD), Click: 0, Terminal: 0, Debt: 0},
-        UZS: {Cash: Number(nativeSupplierDebt.UZS), Click: 0, Terminal: 0, Debt: 0}
+        USD: {Cash: 0, Click: 0, Terminal: 0, Debt: 0},
+        UZS: {Cash: 0, Click: 0, Terminal: 0, Debt: 0}
     };
     debtMixedAmounts = {USD: {...debtTabAmounts.USD}, UZS: {...debtTabAmounts.UZS}};
     debtPaymentTab = Number(nativeSupplierDebt.USD) ? 'USD' : 'UZS';

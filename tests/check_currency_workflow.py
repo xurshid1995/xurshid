@@ -405,6 +405,20 @@ def check_browser(application):
                 assert page.locator('.ps-currency-modes input').evaluate_all('(inputs) => inputs.map(input => input.id)') == [
                     'debtMixedPayment', 'debtPaymentUSD', 'debtPaymentUZS']
                 assert page.locator('#debtPaymentPanel .ps-payment-row').count() == 4
+                assert page.evaluate("[...document.querySelectorAll('#debtPaymentPanel input')].every(input => input.value === '')")
+                assert page.evaluate('supplierPaymentEntries()') == []
+                assert page.locator('#submitBtn').is_disabled()
+                for code in ('USD', 'UZS'):
+                    page.locator(f'#debtPayment{code}').check()
+                    assert page.evaluate("[...document.querySelectorAll('#debtPaymentPanel input')].every(input => input.value === '')")
+                    assert page.evaluate('supplierPaymentEntries()') == []
+                page.locator('#debtMixedPayment').check()
+                assert page.locator('#paymentCashUZS').input_value() == ''
+                page.screenshot(path=str(screenshots / f'supplier-debt-empty-{width}.png'), full_page=True)
+                page.locator('#paymentCashUZS').fill('200000')
+                page.locator('#debtTabUSD').click()
+                assert page.locator('#paymentCashUSD').input_value() == ''
+                page.locator('#paymentCashUSD').fill('20')
                 assert page.locator('#paymentCashUSD').input_value() == '20'
                 page.locator('#debtPaymentUSD').check()
                 assert not page.locator('#debtTabUZS').is_visible()
@@ -451,6 +465,9 @@ def check_browser(application):
                 for code, expected in (('USD', '36'), ('UZS', '450000')):
                     page.wait_for_function("document.getElementById('debtMixedPayment')?.checked")
                     page.locator(f'#debtPayment{code}').check()
+                    assert page.locator(f'#paymentCash{code}').input_value() == ''
+                    assert page.locator('#submitBtn').is_disabled()
+                    page.locator('#debtPaymentPanel .ps-btn-remaining').first.click()
                     outgoing_entries = page.evaluate('supplierPaymentEntries()')
                     assert all(entry['channel'] == 'cash' and entry['currency'] == code for entry in outgoing_entries), outgoing_entries
                     assert sum(Decimal(entry['amount']) for entry in outgoing_entries) == Decimal(expected), outgoing_entries
