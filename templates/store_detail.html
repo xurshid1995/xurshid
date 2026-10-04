@@ -696,10 +696,14 @@
 
     const uzsFormat = new Intl.NumberFormat('uz-UZ', { maximumFractionDigits: 0 });
 
-    // USD qiymat va uning ostida so'm qiymati; UZS da kiritilgan narxlar asl so'mda ko'rsatiladi
-    function priceWithUzs(usd, uzs) {
-        const uzsLine = uzs === null ? '' : `<div style="font-size:11px;font-weight:600;color:#64748b;">${uzsFormat.format(uzs)} so'm</div>`;
-        return `$${usd.toFixed(2)}${uzsLine}`;
+    // Kiritilgan valyuta asosiy, ikkinchisi uning ostida (yetkazib beruvchi sahifasidagi kabi)
+    function priceWithUzs(usd, uzs, currency) {
+        const dollar = `$${usd.toFixed(2)}`;
+        if (uzs === null) return dollar;
+        const som = `${uzsFormat.format(uzs)} so'm`;
+        const primary = currency === 'UZS' ? som : dollar;
+        const secondary = currency === 'UZS' ? dollar : som;
+        return `${primary}<br><small style="color:#007bff;font-size:13px;font-weight:600;">${secondary}</small>`;
     }
 
     function stockUzs(product, unitProfit, rate) {
@@ -762,10 +766,10 @@
                 <td style="padding: 5px; text-align: center; color: #666; font-family: monospace; width: 90px;">${item.stock.product.barcode || '-'}</td>
                 <td style="padding: 5px; text-align: left;"><strong>${highlightedName}</strong></td>
                 <td style="padding: 5px; text-align: center; font-weight: bold; width: 80px;">${quantityDisplay}</td>
-                <td style="padding: 5px; text-align: center; font-weight: bold; color: #1a6eff; width: 110px;">${priceWithUzs(item.stock.product.last_batch_cost || 0, uzs.lastBatchUzs)}</td>
-                <td style="padding: 5px; text-align: center; font-weight: bold; color: #1a6eff; width: 100px;">${priceWithUzs(item.stock.product.cost_price, uzs.costUzs)}</td>
-                <td style="padding: 5px; text-align: center; font-weight: bold; width: 100px;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs)}</td>
-                <td style="padding: 5px; text-align: center; color: #27ae60; font-weight: bold; width: 100px;">${priceWithUzs(item.unit_profit, uzs.profitUzs)}</td>
+                <td style="padding: 5px; text-align: center; font-weight: bold; color: #1a6eff; width: 110px;">${priceWithUzs(item.stock.product.last_batch_cost || 0, uzs.lastBatchUzs, item.stock.product.cost_currency_code)}</td>
+                <td style="padding: 5px; text-align: center; font-weight: bold; color: #1a6eff; width: 100px;">${priceWithUzs(item.stock.product.cost_price, uzs.costUzs, item.stock.product.cost_currency_code)}</td>
+                <td style="padding: 5px; text-align: center; font-weight: bold; width: 100px;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs, item.stock.product.sell_currency_code)}</td>
+                <td style="padding: 5px; text-align: center; color: #27ae60; font-weight: bold; width: 100px;">${priceWithUzs(item.unit_profit, uzs.profitUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="padding: 5px; text-align: center; color: #1a6eff; font-weight: bold; width: 90px;">${item.profit_percentage.toFixed(1)}%</td>
                 <td style="padding: 5px; text-align: center; width: 110px;">
                     ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;">🚫 ${SDLANG.status_out}</span>` :

@@ -675,10 +675,14 @@
 
     const uzsFormat = new Intl.NumberFormat('uz-UZ', { maximumFractionDigits: 0 });
 
-    // USD qiymat va uning ostida so'm qiymati; UZS da kiritilgan narxlar asl so'mda ko'rsatiladi
-    function priceWithUzs(usd, uzs) {
-        const uzsLine = uzs === null ? '' : `<div style="font-size:11px;font-weight:600;color:#64748b;">${uzsFormat.format(uzs)} so'm</div>`;
-        return `$${usd.toFixed(2)}${uzsLine}`;
+    // Kiritilgan valyuta asosiy, ikkinchisi uning ostida (yetkazib beruvchi sahifasidagi kabi)
+    function priceWithUzs(usd, uzs, currency) {
+        const dollar = `$${usd.toFixed(2)}`;
+        if (uzs === null) return dollar;
+        const som = `${uzsFormat.format(uzs)} so'm`;
+        const primary = currency === 'UZS' ? som : dollar;
+        const secondary = currency === 'UZS' ? dollar : som;
+        return `${primary}<br><small style="color:#007bff;font-size:13px;font-weight:600;">${secondary}</small>`;
     }
 
     function stockUzs(product, unitProfit, rate) {
@@ -749,10 +753,10 @@
                 <td style="font-family:monospace;color:#94a3b8;font-size:12px;">${item.stock.product.barcode || '-'}</td>
                 <td class="td-left"><strong>${highlightedName}</strong></td>
                 <td style="font-weight:700;">${quantityDisplay}</td>
-                <td style="font-weight:700;color:#d97706;">${priceWithUzs(item.stock.product.last_batch_cost || 0, uzs.lastBatchUzs)}</td>
-                <td style="font-weight:700;color:#1a6eff;">${priceWithUzs(item.stock.product.cost_price, uzs.costUzs)}</td>
-                <td style="font-weight:700;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs)}</td>
-                <td style="font-weight:700;color:#059669;">${priceWithUzs(item.unit_profit, uzs.profitUzs)}</td>
+                <td style="font-weight:700;color:#d97706;">${priceWithUzs(item.stock.product.last_batch_cost || 0, uzs.lastBatchUzs, item.stock.product.cost_currency_code)}</td>
+                <td style="font-weight:700;color:#1a6eff;">${priceWithUzs(item.stock.product.cost_price, uzs.costUzs, item.stock.product.cost_currency_code)}</td>
+                <td style="font-weight:700;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs, item.stock.product.sell_currency_code)}</td>
+                <td style="font-weight:700;color:#059669;">${priceWithUzs(item.unit_profit, uzs.profitUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="font-weight:700;color:#0891b2;">${item.profit_percentage.toFixed(1)}%</td>
                 <td>${statusBadge}</td>
                 <td class="actions">
