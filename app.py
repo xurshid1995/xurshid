@@ -7366,7 +7366,7 @@ def api_reverse_debt_payment():
         # payment_date ±1 sekund oralig'ida (float precision uchun)
         from datetime import timedelta
         dt_from = payment_dt - timedelta(seconds=1)
-        dt_to   = payment_dt + timedelta(seconds=1)
+        dt_to = payment_dt + timedelta(seconds=1)
 
         payments = DebtPayment.query.filter(
             DebtPayment.customer_id == customer_id,
@@ -7395,8 +7395,8 @@ def api_reverse_debt_payment():
         for dp in payments:
             reversed_amount = Decimal(str(dp.total_usd or 0))
             total_reversed += reversed_amount
-            reversed_cash     += Decimal(str(dp.cash_usd or 0))
-            reversed_click    += Decimal(str(dp.click_usd or 0))
+            reversed_cash += Decimal(str(dp.cash_usd or 0))
+            reversed_click += Decimal(str(dp.click_usd or 0))
             reversed_terminal += Decimal(str(dp.terminal_usd or 0))
             if dp.currency_rate:
                 reversed_currency_rate = Decimal(str(dp.currency_rate))
@@ -7408,7 +7408,7 @@ def api_reverse_debt_payment():
                 sale = Sale.query.with_for_update().get(dp.sale_id)
                 if sale:
                     # Savdoga qaytarish
-                    sale.debt_usd  = (sale.debt_usd  or Decimal('0')) + reversed_amount
+                    sale.debt_usd = (sale.debt_usd or Decimal('0')) + reversed_amount
                     sale_rate = sale.currency_rate or Decimal('12000')
                     sale.debt_amount = sale.debt_usd * sale_rate
 
@@ -7417,11 +7417,11 @@ def api_reverse_debt_payment():
                     click_back = min(Decimal(str(dp.click_usd or 0)), sale.click_usd or Decimal('0'))
                     terminal_back = min(Decimal(str(dp.terminal_usd or 0)), sale.terminal_usd or Decimal('0'))
 
-                    sale.cash_usd     = (sale.cash_usd     or Decimal('0')) - cash_back
-                    sale.cash_amount  = sale.cash_usd * sale_rate
-                    sale.click_usd    = (sale.click_usd    or Decimal('0')) - click_back
+                    sale.cash_usd = (sale.cash_usd or Decimal('0')) - cash_back
+                    sale.cash_amount = sale.cash_usd * sale_rate
+                    sale.click_usd = (sale.click_usd or Decimal('0')) - click_back
                     sale.click_amount = sale.click_usd * sale_rate
-                    sale.terminal_usd    = (sale.terminal_usd    or Decimal('0')) - terminal_back
+                    sale.terminal_usd = (sale.terminal_usd or Decimal('0')) - terminal_back
                     sale.terminal_amount = sale.terminal_usd * sale_rate
 
                     # Payment status tiklash
@@ -7450,7 +7450,7 @@ def api_reverse_debt_payment():
             ).scalar() or 0
 
             if Decimal(str(remaining_total)) == 0:
-                customer.last_debt_payment_usd  = 0
+                customer.last_debt_payment_usd = 0
                 customer.last_debt_payment_date = None
                 customer.last_debt_payment_rate = 0
             # Agar qarz qolgan bo'lsa — last_payment ni o'zgartirsak yangi to'lov kabi ko'rinadi,
@@ -7489,12 +7489,12 @@ def api_reverse_debt_payment():
                 event_date=get_tashkent_time(),
                 snapshot_data={
                     'total_reversed': float(total_reversed),
-                    'cash_usd':     float(reversed_cash),
-                    'click_usd':    float(reversed_click),
+                    'cash_usd': float(reversed_cash),
+                    'click_usd': float(reversed_click),
                     'terminal_usd': float(reversed_terminal),
                     'currency_rate': float(reversed_currency_rate),
-                    'sale_ids':     reversed_sale_ids,
-                    'reversed_by':  session.get('username', 'Unknown'),
+                    'sale_ids': reversed_sale_ids,
+                    'reversed_by': session.get('username', 'Unknown'),
                     'original_payment_date': payment_date_str,
                     'payments_count': len(payments),
                 },
@@ -7547,15 +7547,15 @@ def api_debt_payments_by_customer(customer_id):
         payments = []
         for r in rows:
             payments.append({
-                'id':          int(r.id) if r.id is not None else None,
+                'id': int(r.id) if r.id is not None else None,
                 'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
-                'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
+                'payment_date': r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
                 'received_by': r.received_by or '',
-                'notes':       r.notes or '',
-                'cash_usd':     float(r.cash_usd    or 0),
-                'click_usd':    float(r.click_usd   or 0),
+                'notes': r.notes or '',
+                'cash_usd': float(r.cash_usd or 0),
+                'click_usd': float(r.click_usd or 0),
                 'terminal_usd': float(r.terminal_usd or 0),
-                'total_usd':    float(r.total_usd   or 0),
+                'total_usd': float(r.total_usd or 0),
                 'currency_rate': float(r.currency_rate) if r.currency_rate else 0,
             })
 
@@ -11571,15 +11571,15 @@ def api_debt_payments_by_supplier(supplier_id):
         payments = []
         for r in rows:
             payments.append({
-                'id':          int(r.id) if r.id is not None else None,
+                'id': int(r.id) if r.id is not None else None,
                 'payment_date_iso': r.payment_date.isoformat() if r.payment_date else None,
-                'payment_date':     r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
-                'paid_by':     r.paid_by or '',
-                'notes':       r.notes or '',
-                'cash_usd':     float(r.cash_usd    or 0),
-                'click_usd':    float(r.click_usd   or 0),
+                'payment_date': r.payment_date.strftime('%Y-%m-%d %H:%M') if r.payment_date else None,
+                'paid_by': r.paid_by or '',
+                'notes': r.notes or '',
+                'cash_usd': float(r.cash_usd or 0),
+                'click_usd': float(r.click_usd or 0),
                 'terminal_usd': float(r.terminal_usd or 0),
-                'total_usd':    float(r.total_usd   or 0),
+                'total_usd': float(r.total_usd or 0),
                 'currency_rate': float(r.currency_rate) if r.currency_rate else 0,
             })
 
@@ -16836,13 +16836,13 @@ def test_telegram_token():
     try:
         data = request.get_json()
         token = data.get('token', '').strip()
-        
+
         if not token:
             return jsonify({'success': False, 'error': 'Token kiritilmagan'}), 400
-        
+
         # Telegram API orqali tokenni tekshirish
         response = requests.get(f'https://api.telegram.org/bot{token}/getMe', timeout=10)
-        
+
         if response.status_code == 200:
             bot_info = response.json()
             if bot_info.get('ok'):
@@ -16857,7 +16857,7 @@ def test_telegram_token():
                 return jsonify({'success': False, 'error': 'Token noto\'g\'ri'}), 400
         else:
             return jsonify({'success': False, 'error': 'Telegram API ga ulanib bo\'lmadi'}), 400
-            
+
     except requests.exceptions.Timeout:
         return jsonify({'success': False, 'error': 'Timeout: Server javob bermadi'}), 408
     except requests.exceptions.RequestException as e:
@@ -16876,24 +16876,24 @@ def test_telegram_bot():
         data = request.get_json()
         token = data.get('token', '').strip()
         admin_ids = data.get('admin_ids', '').strip()
-        
+
         if not token:
             return jsonify({'success': False, 'error': 'Token kiritilmagan'}), 400
-        
+
         if not admin_ids:
             return jsonify({'success': False, 'error': 'Admin Chat ID lari kiritilmagan'}), 400
-        
+
         # Admin ID larni ajratish
         chat_ids = [id.strip() for id in admin_ids.split(',') if id.strip()]
-        
+
         if not chat_ids:
             return jsonify({'success': False, 'error': 'Admin Chat ID lari noto\'g\'ri formatda'}), 400
-        
+
         # Test xabarni yuborish
         test_message = "✅ <b>Hammasi joyida!</b>\n\n🤖 Bot mukammal ishlayapti.\n📊 Sergeli 143 Hisobot tizimi"
         success_count = 0
         failed_chats = []
-        
+
         for chat_id in chat_ids:
             try:
                 response = requests.post(
@@ -16905,7 +16905,7 @@ def test_telegram_bot():
                     },
                     timeout=10
                 )
-                
+
                 if response.status_code == 200 and response.json().get('ok'):
                     success_count += 1
                 else:
@@ -16913,7 +16913,7 @@ def test_telegram_bot():
             except Exception as e:
                 logger.error(f"Chat {chat_id} ga xabar yuborishda xato: {e}")
                 failed_chats.append(chat_id)
-        
+
         if success_count == len(chat_ids):
             return jsonify({
                 'success': True,
@@ -16927,7 +16927,7 @@ def test_telegram_bot():
             })
         else:
             return jsonify({'success': False, 'error': 'Hech bir adminga xabar yuborilmadi'}), 400
-            
+
     except requests.exceptions.Timeout:
         return jsonify({'success': False, 'error': 'Timeout: Server javob bermadi'}), 408
     except requests.exceptions.RequestException as e:
