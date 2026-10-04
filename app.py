@@ -15,6 +15,10 @@ import requests
 from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation
+from product_pricing import (
+    positive_decimal, price_in_usd, receipt_prices,
+    prepare_sale_prices, validate_legacy_price_edit,
+)
 from functools import wraps
 import pytz
 
@@ -1641,6 +1645,16 @@ def check_barcode():
 def api_add_product():
     try:
         data = request.get_json()
+        for entry in data.get('products', [data]):
+            existing = Product.query.filter_by(name=entry.get('name')).first()
+            requested_uzs = 'UZS' in (
+                entry.get('cost_currency_code'), entry.get('sell_currency_code'))
+            existing_uzs = existing and 'UZS' in (
+                existing.cost_currency_code, existing.sell_currency_code)
+            if requested_uzs or existing_uzs:
+                return jsonify({
+                    'error': "So'm mahsulot uchun /add_product_session sahifasidan foydalaning."
+                }), 400
         logger.info(f"📦 Mahsulot qo'shish so'rovi: {data}")
 
         # Bir nechta mahsulotlar uchun
@@ -1987,6 +2001,9 @@ def api_batch_products():
 
         created_count = 0
         supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
+        receipt_rate = get_current_currency_rate()
+        for product_data in products:
+            receipt_prices(product_data, receipt_rate)
 
         for product_data in products:
             # Ma'lumotlarni olish
@@ -2013,6 +2030,13 @@ def api_batch_products():
             _global_min_raw = product_data.get('global_min_stock')
             global_min_stock = int(float(_global_min_raw)) if _global_min_raw not in (None, '') else min_stock
             last_batch_cost = Decimal(str(product_data.get('lastBatchCost', cost_price)))
+            original_prices = receipt_prices(product_data, receipt_rate)
+            cost_price = price_in_usd(
+                cost_price, original_prices['cost_currency_code'], receipt_rate)
+            last_batch_cost = price_in_usd(
+                last_batch_cost, original_prices['cost_currency_code'], receipt_rate)
+            sell_price = price_in_usd(
+                sell_price, original_prices['sell_currency_code'], receipt_rate)
 
             logger.info(f"🔍 Batch mahsulot qo'shilmoqda: {name}")
             logger.info(f"   Barcode: {barcode}")
@@ -2065,7 +2089,7 @@ def api_batch_products():
 
                 # Backend'da og'irlikli o'rtacha hisoblash
                 average_cost = calculate_average_cost(
-                    product.id, int(quantity), last_batch_cost
+                    product.id, quantity, last_batch_cost
                 )
                 logger.info(f"   Hisoblangan o'rtacha: ${average_cost}")
 
@@ -2093,6 +2117,9 @@ def api_batch_products():
                 # Boshqa maydonlar
                 product.sell_price = sell_price
                 product.min_stock = global_min_stock
+
+            for field, value in original_prices.items():
+                setattr(product, field, value)
 
             # Stock qo'shish va joylashuv nomini olish
             location_name = ''
@@ -2164,7 +2191,8 @@ def api_batch_products():
                     quantity=quantity,
                     location_type=location_type,
                     location_name=location_name,
-                    added_by=current_user_name
+                    added_by=current_user_name,
+                    **original_prices
                 )
                 db.session.add(history)
 
@@ -2173,7 +2201,9 @@ def api_batch_products():
                 if supplier_id:
                     supplier = Supplier.query.get(int(supplier_id))
                     if supplier:
-                        batch_total = cost_price * quantity
+                        purchase_cost = (last_batch_cost if original_prices['cost_currency_code'] == 'UZS'
+                                         else cost_price)
+                        batch_total = purchase_cost * quantity
                         payment_type = product_data.get('paymentType', 'cash')
                         if payment_type == 'debt':
                             paid_amount = Decimal('0')
@@ -2207,7 +2237,7 @@ def api_batch_products():
                             product_id=product.id,
                             product_name=product.name,
                             quantity=quantity,
-                            cost_price=cost_price,
+                            cost_price=purchase_cost,
                             total_amount=batch_total,
                             payment_type=payment_type,
                             paid_amount=paid_amount,
@@ -2318,6 +2348,11 @@ def get_product_history():
                 'name': record.product_name,
                 'cost_price': float(record.cost_price),
                 'sell_price': float(record.sell_price),
+                'cost_currency_code': record.cost_currency_code or 'USD',
+                'sell_currency_code': record.sell_currency_code or 'USD',
+                'cost_price_original': str(record.cost_price_original) if record.cost_price_original is not None else None,
+                'sell_price_original': str(record.sell_price_original) if record.sell_price_original is not None else None,
+                'receipt_exchange_rate': str(record.receipt_exchange_rate) if record.receipt_exchange_rate else None,
                 'total_quantity': quantity,
                 'total_value': total_value,
                 'locations': [{
@@ -2406,6 +2441,11 @@ def search_product(product_name):
                     'barcode': product.barcode,  # Barcode qo'shildi
                     'cost_price': float(product.cost_price),
                     'sell_price': float(product.sell_price),
+                    'cost_currency_code': product.cost_currency_code or 'USD',
+                    'sell_currency_code': product.sell_currency_code or 'USD',
+                    'cost_price_original': str(product.cost_price_original) if product.cost_price_original is not None else None,
+                    'sell_price_original': str(product.sell_price_original) if product.sell_price_original is not None else None,
+                    'receipt_exchange_rate': str(product.receipt_exchange_rate) if product.receipt_exchange_rate else None,
                     'min_stock': product.min_stock,
                     'last_batch_cost': float(product.last_batch_cost) if product.last_batch_cost else None,
                     'last_batch_date': product.last_batch_date.isoformat() if product.last_batch_date else None,
@@ -8030,6 +8070,7 @@ def edit_stock(warehouse_id, product_id):
             new_barcode = request.form.get('barcode', '').strip()
             new_cost_price = float(request.form['costPrice'])
             new_sell_price = float(request.form['sellPrice'])
+            validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
             new_min_stock = int(float(request.form.get('minStock', 0)))
 
             # Validatsiya
@@ -8249,6 +8290,7 @@ def edit_store_stock(store_id, product_id):
             new_barcode = request.form.get('barcode', '').strip()
             new_cost_price = float(request.form['costPrice'])
             new_sell_price = float(request.form['sellPrice'])
+            validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
             new_min_stock = int(float(request.form.get('minStock', 0)))
 
             # Validatsiya
@@ -8400,6 +8442,7 @@ def api_edit_store_stock(store_id, product_id):
         new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
+        validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
         new_category_id = data.get('categoryId')
 
         if not new_product_name:
@@ -8479,6 +8522,7 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
+        validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
         new_category_id = data.get('categoryId')
 
         if not new_product_name:
@@ -12824,6 +12868,29 @@ def finalize_sale(sale_id):
         payment_status = data.get('payment_status', 'paid')
         customer_id = data.get('customer_id')
         exchange_rate = data.get('exchange_rate', get_current_currency_rate())
+        if any(item.price_currency_code == 'UZS' for item in sale.items):
+            try:
+                active_rate = positive_decimal(get_current_currency_rate(), 'Valyuta kursi')
+                if positive_decimal(exchange_rate, 'Savdo kursi') != active_rate:
+                    raise ValueError('Kurs o\'zgardi. To\'lov oynasini qayta oching.')
+                for item in sale.items:
+                    if item.price_currency_code == 'UZS':
+                        item.unit_price = price_in_usd(item.unit_price_original, 'UZS', active_rate)
+                        item.total_price = item.unit_price * item.quantity
+                        item.profit = item.total_price - item.cost_price * item.quantity
+                    else:
+                        item.unit_price_uzs = item.unit_price * active_rate
+                    item.total_price_uzs = item.unit_price_uzs * item.quantity
+                sale.total_amount = sum((item.total_price for item in sale.items), Decimal('0'))
+                sale.total_profit = sum((item.profit for item in sale.items), Decimal('0'))
+                paid_total = sum((Decimal(str(payment.get(field, 0))) for field in
+                                  ('cash_usd', 'click_usd', 'terminal_usd', 'debt_usd', 'balance_used')), Decimal('0'))
+                if not paid_total.is_finite() or abs(paid_total - sale.total_amount) > Decimal('0.01'):
+                    raise ValueError('To\'lov summasi savdo summasiga mos emas')
+                exchange_rate = active_rate
+            except ValueError as error:
+                db.session.rollback()
+                return jsonify({'success': False, 'error': str(error)}), 400
 
         # To'lov ma'lumotlarini yangilash
         balance_used_fin = float(payment.get('balance_used', 0))
@@ -13399,6 +13466,16 @@ def create_sale():
 
         # Hozirgi kursni olish
         current_rate = get_current_currency_rate()
+        try:
+            sale_products = {
+                product.id: product for product in Product.query.filter(
+                    Product.id.in_([item.get('product_id') or item.get('id') for item in items])
+                ).all()
+            }
+            prepare_sale_prices(items, sale_products, current_rate, data.get('exchange_rate'))
+        except ValueError as error:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(error)}), 400
 
         # Current user ni olish
         current_user = get_current_user()
@@ -13589,7 +13666,7 @@ def create_sale():
             # product_id ni id yoki product_id dan olish
             product_id = item.get('product_id') or item.get('id')
             quantity = Decimal(str(item.get('quantity', 0)))
-            unit_price_usd = float(item.get('unit_price') or item.get('price', 0))
+            unit_price_usd = Decimal(str(item.get('unit_price') or item.get('price', 0)))
 
             logger.debug(f" Processing item: {item}")
             logger.debug(f" Product ID: {product_id} (type: {type(product_id)})")
@@ -13757,6 +13834,8 @@ def create_sale():
                 total_price=Decimal(str(unit_price_usd)) * quantity,  # USD da
                 unit_price_uzs=unit_price_uzs,  # UZS da saqlash
                 total_price_uzs=total_price_uzs,  # UZS da saqlash
+                price_currency_code=item.get('price_currency_code'),
+                unit_price_original=Decimal(item['unit_price_original']),
                 cost_price=Decimal(str(unit_cost_price_usd)),  # USD da
                 profit=profit_usd,  # USD da (allaqachon Decimal)
                 source_type=item_location_type,
@@ -14168,6 +14247,18 @@ def update_sale(sale_id):
                 }), 403
 
         data = request.get_json()
+        sale_rate = get_current_currency_rate()
+        if 'items' in data:
+            try:
+                sale_products = {
+                    product.id: product for product in Product.query.filter(
+                        Product.id.in_([item.get('product_id') or item.get('id') for item in data['items']])
+                    ).all()
+                }
+                prepare_sale_prices(data['items'], sale_products, sale_rate, data.get('exchange_rate'))
+            except ValueError as error:
+                db.session.rollback()
+                return jsonify({'success': False, 'error': str(error)}), 400
         app.logger.info(f"🔄 UPDATE Sale ID: {sale_id}")
         app.logger.info(f"📦 Update data: {data}")
         app.logger.info(f"💰 Sale payment status: {sale.payment_status}")
@@ -14247,6 +14338,8 @@ def update_sale(sale_id):
                     total_price=quantity * unit_price_usd,  # USD da
                     unit_price_uzs=item_price_uzs,  # UZS da
                     total_price_uzs=item_total_price_uzs,  # UZS da
+                    price_currency_code=item_data.get('price_currency_code'),
+                    unit_price_original=Decimal(item_data['unit_price_original']),
                     cost_price=cost_price_usd,  # USD da
                     profit=profit_usd,  # USD da
                     source_type=location_type,
@@ -14272,7 +14365,7 @@ def update_sale(sale_id):
             sale.total_cost = total_cost
             sale.total_profit = total_profit
             # Tahrirlash vaqtidagi joriy kurs
-            sale.currency_rate = get_current_currency_rate()
+            sale.currency_rate = sale_rate
 
         db.session.commit()
         app.logger.info(f"✅ Sale {sale_id} successfully updated")
@@ -14503,6 +14596,18 @@ def create_pending_sale(data):
         if not items:
             return jsonify({'success': False, 'error': 'Korzina bo\'sh'}), 400
 
+        current_rate = get_current_currency_rate()
+        try:
+            sale_products = {
+                product.id: product for product in Product.query.filter(
+                    Product.id.in_([item.get('product_id') or item.get('id') for item in items])
+                ).all()
+            }
+            prepare_sale_prices(items, sale_products, current_rate, data.get('exchange_rate'))
+        except ValueError as error:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(error)}), 400
+
         # Eski pending savdoni o'chirish (agar mavjud bo'lsa)
         if pending_sale_id:
             old_pending_sale = Sale.query.get(pending_sale_id)
@@ -14560,7 +14665,6 @@ def create_pending_sale(data):
             store_id = store.id if store else 1
 
         # Hozirgi kursni olish
-        current_rate = get_current_currency_rate()
 
         # Pending savdoni yaratish
         # Qarz to'lash muddati
@@ -14605,7 +14709,7 @@ def create_pending_sale(data):
         for item in items:
             product_id = item.get('product_id') or item.get('id')
             quantity = Decimal(str(item.get('quantity', 0)))
-            unit_price = float(item.get('unit_price') or item.get('price', 0))
+            unit_price = Decimal(str(item.get('unit_price') or item.get('price', 0)))
 
             if quantity <= 0:
                 continue
@@ -14655,6 +14759,8 @@ def create_pending_sale(data):
                 total_price=total_price_usd,  # USD da
                 unit_price_uzs=pending_unit_price_uzs,  # UZS da
                 total_price_uzs=pending_total_price_uzs,  # UZS da
+                price_currency_code=item.get('price_currency_code'),
+                unit_price_original=Decimal(item['unit_price_original']),
                 cost_price=Decimal(str(cost_price_usd)),  # USD da
                 profit=profit_usd,  # USD da
                 source_type=item_location_type,
@@ -15065,6 +15171,17 @@ def api_update_pending_sale(sale_id):
             f"🔄 Pending savdo yangilash - User: {current_user.username}, Sale ID: {sale_id}")
         data = request.get_json()
         logger.debug(f" Yangilanayotgan ma'lumotlar: {data}")
+        sale_rate = get_current_currency_rate()
+        try:
+            sale_products = {
+                product.id: product for product in Product.query.filter(
+                    Product.id.in_([item.get('product_id') or item.get('id') for item in data.get('items', [])])
+                ).all()
+            }
+            has_uzs = prepare_sale_prices(data.get('items', []), sale_products, sale_rate, data.get('exchange_rate'))
+        except ValueError as error:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(error)}), 400
 
         # Mavjud savdoni topish
         existing_sale = Sale.query.get(sale_id)
@@ -15131,12 +15248,21 @@ def api_update_pending_sale(sale_id):
                 total_price=total_price,
                 unit_price_uzs=pending_upd_unit_uzs,
                 total_price_uzs=pending_upd_total_uzs,
+                price_currency_code=item.get('price_currency_code'),
+                unit_price_original=Decimal(item['unit_price_original']),
                 cost_price=cost_price,
                 profit=profit,
                 source_id=item.get('location_id'),
                 source_type=item.get('location_type', 'store')
             )
             db.session.add(sale_item)
+
+        if has_uzs:
+            self_items = SaleItem.query.filter_by(sale_id=sale_id).all()
+            existing_sale.total_amount = sum((item.total_price for item in self_items), Decimal('0'))
+            existing_sale.total_cost = sum((item.cost_price * item.quantity for item in self_items), Decimal('0'))
+            existing_sale.total_profit = sum((item.profit for item in self_items), Decimal('0'))
+            existing_sale.currency_rate = sale_rate
 
         db.session.commit()
         logger.info(f" Pending savdo yangilandi: {sale_id}")
@@ -15204,7 +15330,7 @@ def api_delete_pending_sale(sale_id):
 
 
 @app.route('/api/currency-rate', methods=['GET'])
-@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi', 'omborchi')
 def get_currency_rate():
     """Joriy valyuta kursini olish"""
     try:

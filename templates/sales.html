@@ -2372,7 +2372,7 @@
             console.log('? Mahsulot topildi:', product);
             
             // sell_price va cost_price string bo'lishi mumkin (to_dict() str() qaytaradi)
-            const sellPrice = parseFloat(product.sell_price || product.price || 0);
+            const sellPrice = quotedProductPrice(product);
             const costPrice = parseFloat(product.cost_price || 0);
             const availableQty = parseFloat(product.available_quantity || 0);
             
@@ -3080,7 +3080,7 @@
             products.forEach(product => {
                 // Quantity va selling price ni olish
                 let quantity = 0;
-                let sellingPrice = product.sell_price || product.price || 0;
+                let sellingPrice = quotedProductPrice(product);
                 
                 // O'lchov birligi
                 const unitType = product.unit_type || 'dona';
@@ -3231,6 +3231,30 @@
     
     // Valyuta kursi (global o'zgaruvchi)
     let exchangeRate = 12700; // Default kurs
+    const saleProductPrices = new Map();
+
+    function quotedProductPrice(product) {
+        saleProductPrices.set(Number(product.id), product);
+        return product.sell_currency_code === 'UZS'
+            ? Number(product.sell_price_original) / exchangeRate
+            : Number(product.sell_price || product.price || 0);
+    }
+
+    async function refreshUzsSaleRate() {
+        const response = await fetch('/api/currency-rate', {cache: 'no-store'});
+        const data = await response.json();
+        const rate = Number(data.rate?.rate);
+        if (!response.ok || !Number.isFinite(rate) || rate <= 0) {
+            throw new Error("Valyuta kursi o'rnatilmagan");
+        }
+        exchangeRate = rate;
+        currencyRateCache = rate;
+        cart.forEach(item => {
+            if (item.priceCurrencyCode === 'UZS') item.priceUSD = Number(item.priceUZS) / rate;
+            else item.priceUZS = Math.round(item.priceUSD * rate);
+        });
+        updateCart();
+    }
     
     // Himoya mexanizmlari uchun o'zgaruvchilar
     let priceChangeTimeout = null; // Debounce timer
@@ -3338,7 +3362,18 @@
     }
     
     // Modal ochish
-    function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
+    async function addToCart(productId, productName, quantity, price, costPrice, unitType = 'dona', imageUrl = '') {
+        const originalPrices = saleProductPrices.get(Number(productId));
+        const priceCurrencyCode = originalPrices?.sell_currency_code || 'USD';
+        if (priceCurrencyCode === 'UZS') {
+            try {
+                await refreshUzsSaleRate();
+                price = Number(originalPrices.sell_price_original) / exchangeRate;
+            } catch (error) {
+                alert(error.message);
+                return;
+            }
+        }
         console.log('?? addToCart() chaqirildi:', { productId, productName, quantity, price, costPrice, unitType });
 
         // Mahsulot allaqachon korzinada bo'lsa — modal ochmasdan ogohlantir
@@ -3358,7 +3393,7 @@
         console.log('?? Product locked:', lockedProductId);
         
         // Agar avval saqlangan narx bo'lsa, uni ishlatish
-        if (lastPriceUpdate[productId]) {
+        if (priceCurrencyCode !== 'UZS' && lastPriceUpdate[productId]) {
             const savedPrice = lastPriceUpdate[productId];
             const timeDiff = Date.now() - savedPrice.timestamp;
             // Agar 30 soniyadan kam bo'lsa, saqlangan narxni ishlatish
@@ -3368,7 +3403,7 @@
             }
         }
         
-        currentProduct = { id: productId, name: productName, available: quantity, price: price, costPrice: costPrice, unitType: unitType };
+        currentProduct = { id: productId, name: productName, available: quantity, price: price, costPrice: costPrice, unitType: unitType, priceCurrencyCode };
         console.log('?? currentProduct:', currentProduct);
         
         // Tab-aware modal elementlarini topish
@@ -3489,7 +3524,7 @@
     }
     
     // To'g'ridan-to'g'ri savatga qo'shish (modal ochmasdan) - savdo tahrirlash uchun
-    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId, storedPriceUZS = null) {
+    function addToCartDirectly(productId, productName, quantity, priceUSD, sourceType, sourceId, storedPriceUZS = null, priceCurrencyCode = 'USD') {
         console.log(`? To'g'ridan-to'g'ri savatga qo'shilmoqda: ${productName} x${quantity} = $${priceUSD}`);
         console.log(`   Location: ${sourceType}_${sourceId}`);
         
@@ -3511,6 +3546,7 @@
                 quantity: quantity,
                 priceUSD: priceUSD,
                 priceUZS: priceUZS,
+                priceCurrencyCode,
                 sourceType: sourceType,     // Mahsulot qaysi joylashuvdan olingan
                 sourceId: sourceId          // Joylashuv ID'si
             });
@@ -3935,6 +3971,7 @@
             name: currentProduct?.name || `${SLANG.product_prefix} ${currentProduct?.id || 'Unknown'}`,
             priceUSD: priceUSD,
             priceUZS: priceUZS,
+            priceCurrencyCode: currentProduct.priceCurrencyCode || 'USD',
             quantity: quantity
         });
         console.log(`? Yangi mahsulot qo'shildi: ${quantity} dona`);
@@ -4698,7 +4735,8 @@
             name: item.name, 
             available: totalAvailable,
             price: item.priceUSD,
-            costPrice: costPrice
+            costPrice: costPrice,
+            priceCurrencyCode: item.priceCurrencyCode || 'USD'
         };
         
         console.log('? currentProduct o\'rnatildi:', JSON.stringify(currentProduct, null, 2));
@@ -4801,7 +4839,7 @@
             products.forEach(product => {
                 // Quantity va selling price ni olish
                 let quantity = 0;
-                let sellingPrice = product.sell_price || product.price || 0;
+                let sellingPrice = quotedProductPrice(product);
                 
                 // Agar stocks mavjud bo'lsa, locationga mos keladiganini topish
                 if (product.stocks && product.stocks.length > 0) {
@@ -5186,7 +5224,8 @@
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
                             item.source_id,    // ? Muhim: Joylashuv ID'si
-                            item.unit_price_uzs // ? Saqlangan UZS narx
+                            item.unit_price_uzs,
+                            item.price_currency_code || 'USD'
                         );
                     }
                     
@@ -5307,7 +5346,8 @@
                             item.unit_price,
                             item.source_type,  // ? Muhim: Mahsulot qayerdan olingan
                             item.source_id,    // ? Muhim: Joylashuv ID'si
-                            item.unit_price_uzs // ? Saqlangan UZS narx
+                            item.unit_price_uzs,
+                            item.price_currency_code || 'USD'
                         );
                     }
                     
@@ -5614,6 +5654,7 @@
                 price: item.priceUSD,
                 price_usd: item.priceUSD,
                 price_uzs: item.priceUZS,
+                price_currency_code: item.priceCurrencyCode || 'USD',
                 location_id: selectedLocationId,
                 location_type: selectedLocationType
             })),
@@ -5718,6 +5759,7 @@
                 price: item.priceUSD,
                 price_usd: item.priceUSD,
                 price_uzs: item.priceUZS,
+                price_currency_code: item.priceCurrencyCode || 'USD',
                 location_id: selectedLocationId,
                 location_type: selectedLocationType
             })),
@@ -5805,12 +5847,21 @@
     }
     
     // Savdoni yakunlash
-    function completeSale() {
+    async function completeSale() {
         if (cart.length === 0) {
             alert(SLANG.savat_bosh);
             return;
         }
         
+        if (cart.some(item => item.priceCurrencyCode === 'UZS')) {
+            try {
+                await refreshUzsSaleRate();
+            } catch (error) {
+                alert(error.message);
+                return;
+            }
+        }
+
         const selectedCustomerIdElement = getActiveTabElement('selectedCustomerId');
         const customerId = selectedCustomerIdElement ? selectedCustomerIdElement.value || null : null;
         
@@ -6422,7 +6473,8 @@
                     unit_price: item.priceUSD,
                     price: item.priceUSD,
                     price_usd: item.priceUSD,
-                    price_uzs: item.priceUZS
+                    price_uzs: item.priceUZS,
+                    price_currency_code: item.priceCurrencyCode || 'USD'
                 })),
                 payment: {
                     cash_usd: cashUSD,

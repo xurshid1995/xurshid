@@ -47,6 +47,11 @@ class Product(db.Model):
                            nullable=False)  # Ortacha tan narxi
     sell_price = db.Column(db.DECIMAL(precision=10, scale=5),
                            nullable=False)  # Sotish narxi
+    cost_currency_code = db.Column(db.String(3))
+    sell_currency_code = db.Column(db.String(3))
+    cost_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
+    sell_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
+    receipt_exchange_rate = db.Column(db.DECIMAL(precision=15, scale=4))
     min_stock = db.Column(db.Integer, default=0,
                           nullable=False)  # Minimal qoldiq
     unit_type = db.Column(db.String(10), default='dona', nullable=False)  # O'lchov birligi: 'dona' yoki 'litr'
@@ -92,6 +97,11 @@ class Product(db.Model):
             'barcode': self.barcode,  # Barcode qo'shildi
             'cost_price': str(self.cost_price),  # Decimal precision saqlanadi
             'sell_price': str(self.sell_price),  # Decimal precision saqlanadi
+            'cost_currency_code': self.cost_currency_code or 'USD',
+            'sell_currency_code': self.sell_currency_code or 'USD',
+            'cost_price_original': str(self.cost_price_original) if self.cost_price_original is not None else None,
+            'sell_price_original': str(self.sell_price_original) if self.sell_price_original is not None else None,
+            'receipt_exchange_rate': str(self.receipt_exchange_rate) if self.receipt_exchange_rate else None,
             'price': str(self.sell_price),  # Compatibility uchun
             'min_stock': self.min_stock,
             'unit_type': self.unit_type,  # O'lchov birligi
@@ -1009,6 +1019,8 @@ class SaleItem(db.Model):
     total_price = db.Column(db.DECIMAL(precision=18, scale=10), nullable=False)
     unit_price_uzs = db.Column(db.DECIMAL(precision=15, scale=2), default=0)  # UZS narx
     total_price_uzs = db.Column(db.DECIMAL(precision=15, scale=2), default=0)  # UZS jami
+    price_currency_code = db.Column(db.String(3))
+    unit_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
     cost_price = db.Column(db.DECIMAL(precision=15, scale=10), nullable=False)
     profit = db.Column(db.DECIMAL(precision=18, scale=10), nullable=False)
     source_type = db.Column(db.String(20))  # 'store' yoki 'warehouse'
@@ -1040,6 +1052,8 @@ class SaleItem(db.Model):
             'unit_price': float(self.unit_price) if self.unit_price is not None else 0.0,
             'total_price': float(self.total_price) if self.total_price is not None else 0.0,
             'unit_price_uzs': float(self.unit_price_uzs) if self.unit_price_uzs is not None else 0.0,
+            'price_currency_code': self.price_currency_code or 'USD',
+            'unit_price_original': str(self.unit_price_original) if self.unit_price_original is not None else None,
             'total_price_uzs': float(self.total_price_uzs) if self.total_price_uzs is not None else 0.0,
             'cost_price': float(self.cost_price) if self.cost_price is not None else 0.0,
             'profit': float(self.profit) if self.profit is not None else 0.0,
@@ -1353,6 +1367,11 @@ class ProductAddHistory(db.Model):
     product_name = db.Column(db.String(200), nullable=False)
     cost_price = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
     sell_price = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
+    cost_currency_code = db.Column(db.String(3))
+    sell_currency_code = db.Column(db.String(3))
+    cost_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
+    sell_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
+    receipt_exchange_rate = db.Column(db.DECIMAL(precision=15, scale=4))
     quantity = db.Column(db.DECIMAL(precision=15, scale=3), nullable=False)
     location_type = db.Column(db.String(20), nullable=False)  # 'warehouse' or 'store'
     location_name = db.Column(db.String(200), nullable=False)  # Ombor yoki do'kon nomi

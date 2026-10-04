@@ -471,7 +471,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     <!-- Tan narx va Sotish narxi -->
                     <div class="ap-row ap-row-2col">
                         <div class="ap-form-group">
-                            <label class="ap-label" for="cost_price">{{ t('ap_cost_price_label') }}</label>
+                            <label class="ap-label" for="cost_price">{{ t('ap_cost_price_label').replace('($)', '') }}</label>
+                            <select id="cost_currency_code" class="ap-input" aria-label="Tan narx valyutasi" onchange="changeReceiptCurrency();">
+                                <option value="USD">USD ($)</option>
+                                <option value="UZS">UZS (so'm)</option>
+                            </select>
                             <input type="number" id="cost_price" name="cost_price" class="ap-input"
                                    placeholder="0.00000" step="0.00001" min="0"
                                    oninput="calculateProfit();"
@@ -479,17 +483,26 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                    onblur="updateOriginalCostPreview(); enableAutoUpdate(); comparePrices();">
                         </div>
                         <div class="ap-form-group">
-                            <label class="ap-label" for="sell_price">{{ t('ap_sell_price_label') }}</label>
+                            <label class="ap-label" for="sell_price">{{ t('ap_sell_price_label').replace('($)', '') }}</label>
+                            <select id="sell_currency_code" class="ap-input" aria-label="Sotish narxi valyutasi" onchange="calculateProfit();">
+                                <option value="USD">USD ($)</option>
+                                <option value="UZS">UZS (so'm)</option>
+                            </select>
                             <input type="number" id="sell_price" name="sell_price" class="ap-input"
                                    placeholder="0.00000" step="0.00001" min="0"
                                    oninput="calculateProfit();">
                         </div>
                     </div>
 
+                    <div class="ap-form-group">
+                        <label class="ap-label" for="receipt_rate">1 USD (UZS)</label>
+                        <input id="receipt_rate" class="ap-input" type="number" readonly>
+                    </div>
+
                     <!-- Asl tan narx va Foyda -->
                     <div class="ap-row ap-row-2col">
                         <div class="ap-form-group">
-                            <label class="ap-label" for="original_cost">{{ t('ap_original_cost_label') }}</label>
+                            <label class="ap-label" for="original_cost">{{ t('ap_original_cost_label').replace('($)', '') }}</label>
                             <input type="text" id="original_cost" name="original_cost" class="ap-input"
                                    placeholder="-" readonly>
                         </div>
@@ -1712,6 +1725,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             
                             // Har bir mahsulot uchun dropdown item
                             const lastBatchCost = productData.product.last_batch_cost || productData.product.cost_price;
+                            receiptProductPrices.set(productData.product.name, productData.product);
                             const lastBatchDate = productData.product.last_batch_date || '';
                             
                             html += `
@@ -1721,7 +1735,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
                                     <div class="product-dropdown-content">
                                         <strong style="color: #2c3e50; font-size: 1.1rem;">${productData.product.name}</strong> | 
                                         <span style="color: #dc3545; font-weight: 600;">Ortacha: $${productData.product.cost_price.toFixed(2)}</span> | 
-                                        <span style="color: #28a745; font-weight: 600;">Sotish: $${productData.product.sell_price.toFixed(2)}</span> | 
+                                        <span style="color: #28a745; font-weight: 600;">Sotish: ${receiptMoney(productData.product.sell_currency_code === 'UZS' ? productData.product.sell_price_original : productData.product.sell_price, productData.product.sell_currency_code)}</span> |
                                         ${locationQuantity}
                                         <span style="color: #007bff; float: right; font-size: 1.1rem;">→</span>
                                     </div>
@@ -1775,7 +1789,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             if (costPrice > 0) {
                 // Faqat yangi mahsulot uchun - oddiy ko'rsatish
                 if (!selectedProductData || !selectedProductData.lastBatchCost) {
-                    originalCostField.value = `$${costPrice.toFixed(2)}`;
+                    originalCostField.value = receiptMoney(costPrice, receiptCurrency('cost'));
                     console.log(`🏷️ Tan narx o'rnatildi: $${costPrice.toFixed(2)}`);
                 }
                 // Mavjud mahsulot uchun comparePrices() funksiyasi o'zgartirib beradi
@@ -1792,6 +1806,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
             document.getElementById('product_name').value = name;
             document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
             document.getElementById('sell_price').value = sellPrice;
+            const originalPrices = receiptProductPrices.get(name) || {};
+            document.getElementById('cost_currency_code').value = originalPrices.cost_currency_code || 'USD';
+            document.getElementById('sell_currency_code').value = originalPrices.sell_currency_code || 'USD';
+            if (originalPrices.cost_currency_code === 'UZS') {
+                document.getElementById('cost_price').value = originalPrices.cost_price_original;
+            }
+            if (originalPrices.sell_currency_code === 'UZS') {
+                document.getElementById('sell_price').value = originalPrices.sell_price_original;
+            }
+            userEnteredCostPrice = null;
             // minStock bu yerda mahsulotning umumiy (global) minimal qoldig'i - joylashuv uchun alohida kiritiladi
             lockGlobalMinStock(minStock);
             // Tanlangan joylashuvda mahsulot mavjud bo'lsa, o'sha joyning minimal qoldig'ini to'ldirish
@@ -1881,6 +1905,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 lastBatchCost: lastBatchCost || costPrice,
                 lastBatchDate: lastBatchDate
             };
+            if (originalPrices.cost_currency_code === 'UZS') {
+                originalCostField.value = receiptMoney(originalPrices.cost_price_original, 'UZS');
+            }
             
             // Qidiruv natijasini yashirish
             document.getElementById('searchResult').style.display = 'none';
@@ -1981,10 +2008,46 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
         }
 
+        const receiptProductPrices = new Map();
+        let receiptExchangeRate = null;
+
+        function receiptCurrency(kind) {
+            return document.getElementById(`${kind}_currency_code`).value;
+        }
+
+        function receiptUsd(amount, currency) {
+            return currency === 'UZS' ? Number(amount) / receiptExchangeRate : Number(amount);
+        }
+
+        function receiptMoney(amount, currency) {
+            return currency === 'UZS'
+                ? `${Number(amount).toLocaleString('uz-UZ', {maximumFractionDigits: 5})} so'm`
+                : `$${Number(amount).toFixed(2)}`;
+        }
+
+        function changeReceiptCurrency() {
+            userEnteredCostPrice = null;
+            document.getElementById('priceComparison').style.display = 'none';
+            calculateProfit();
+        }
+
+        async function refreshReceiptRate() {
+            const response = await fetch('/api/currency-rate', {cache: 'no-store'});
+            const data = await response.json();
+            const rate = Number(data.rate?.rate);
+            if (!response.ok || !Number.isFinite(rate) || rate <= 0) {
+                throw new Error("Valyuta kursi o'rnatilmagan");
+            }
+            receiptExchangeRate = rate;
+            document.getElementById('receipt_rate').value = rate;
+            return rate;
+        }
+
         // Foyda hisoblash
         function calculateProfit() {
-            const costPrice = parseFloat(document.getElementById('cost_price').value) || 0;
-            const sellPrice = parseFloat(document.getElementById('sell_price').value) || 0;
+            const costInput = parseFloat(document.getElementById('cost_price').value) || 0;
+            const costPrice = receiptUsd(costInput, receiptCurrency('cost'));
+            const sellPrice = receiptUsd(parseFloat(document.getElementById('sell_price').value) || 0, receiptCurrency('sell'));
             const originalCostText = document.getElementById('original_cost').value;
             
             // Yangi birlashtrilgan foyda maydoni
@@ -2011,7 +2074,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // Agar yangi mahsulot bo'lsa (asl tan narx bo'sh yoki $0.00), tan narxni avtomatik ko'chirish
             // MUHIM: Faqat selectedProductData bo'lmasa (yangi mahsulot)
             if (costPrice > 0 && !selectedProductData && (!originalCostText || originalCostText === '-' || originalCostText === '$0.00')) {
-                document.getElementById('original_cost').value = `$${costPrice.toFixed(2)}`;
+                document.getElementById('original_cost').value = receiptMoney(costInput, receiptCurrency('cost'));
             }
         }
 
@@ -2083,7 +2146,14 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const imageFile = _croppedFile || ((imageInput && imageInput.files && imageInput.files[0]) ? imageInput.files[0] : null);
             // Tan narx maydonidagi qiymatni olish (bu ortacha narx bo'lishi mumkin)
             const costPriceFromField = parseFloat(document.getElementById('cost_price').value);
-            const sellPrice = parseFloat(document.getElementById('sell_price').value);
+            const sellInput = parseFloat(document.getElementById('sell_price').value);
+            const costCurrency = receiptCurrency('cost');
+            const sellCurrency = receiptCurrency('sell');
+            if ([costCurrency, sellCurrency].includes('UZS') && !receiptExchangeRate) {
+                alert("Avval valyuta kursini sozlang yoki sahifani yangilang.");
+                return;
+            }
+            const sellPrice = receiptUsd(sellInput, sellCurrency);
             let quantity = parseFloat(document.getElementById('quantity').value);
             const minStock = parseInt(document.getElementById('min_stock').value) || 0;
             const globalMinStock = parseInt(document.getElementById('global_min_stock').value) || 0;
@@ -2097,8 +2167,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
             // MUHIM: To'g'ri ajratish
             // - cost_price = tan narx maydonidagi ortacha narx
             // - last_batch_cost = foydalanuvchi kiritgan asl qiymat
-            const finalCostPrice = costPriceFromField; // Tan narx maydonidagi qiymat (ortacha)
-            const finalLastBatchCost = userEnteredCostPrice || costPriceFromField; // Foydalanuvchi kiritgan qiymat
+            const originalCost = costCurrency === 'UZS' ? costPriceFromField : (userEnteredCostPrice || costPriceFromField);
+            const finalCostPrice = receiptUsd(costPriceFromField, costCurrency);
+            const finalLastBatchCost = receiptUsd(originalCost, costCurrency);
             
             console.log(`📊 To'g'ri ajratish:`);
             console.log(`   Tan narx (cost_price - ortacha): $${finalCostPrice}`);
@@ -2170,6 +2241,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 cost_price: finalCostPrice, // Tan narx maydonidagi ortacha narx
                 last_batch_cost: finalLastBatchCost, // Foydalanuvchi kiritgan asl qiymat
                 sell_price: sellPrice,
+                cost_currency_code: costCurrency,
+                sell_currency_code: sellCurrency,
+                cost_price_original: originalCost,
+                sell_price_original: sellInput,
+                receipt_exchange_rate: receiptExchangeRate,
                 quantity: quantity,
                 unit_type: unitType, // O'lchov birligi
                 min_stock: minStock, // Shu joylashuv uchun minimal qoldiq
@@ -2256,8 +2332,8 @@ optgroup option { font-weight: normal; color: #1e293b; }
                             </td>
                             <td style="font-weight: 600; color: #333;">${product.name}</td>
                             <td style="text-align: center; color: #666;">${product.quantity} ta</td>
-                            <td style="text-align: center; color: #28a745; font-weight: 600;">$${product.cost_price.toFixed(2)}</td>
-                            <td style="text-align: center; color: #007bff; font-weight: 600;">$${product.sell_price.toFixed(2)}</td>
+                            <td style="text-align: center; color: #28a745; font-weight: 600;">${receiptMoney(product.cost_currency_code === 'UZS' ? product.cost_price_original : product.cost_price, product.cost_currency_code)}</td>
+                            <td style="text-align: center; color: #007bff; font-weight: 600;">${receiptMoney(product.sell_currency_code === 'UZS' ? product.sell_price_original : product.sell_price, product.sell_currency_code)}</td>
                             <td style="text-align: center;">
                                 <button onclick="editTempProduct(${product.id})" 
                                         style="background: transparent; color: #555; border: none; padding: 4px 6px; cursor: pointer; font-size: 16px; margin-right: 2px;"
@@ -2301,6 +2377,11 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 document.getElementById('barcode').value = product.barcode || '';
                 document.getElementById('cost_price').value = product.cost_price;
                 document.getElementById('sell_price').value = product.sell_price;
+                document.getElementById('cost_currency_code').value = product.cost_currency_code || 'USD';
+                document.getElementById('sell_currency_code').value = product.sell_currency_code || 'USD';
+                if (product.cost_currency_code === 'UZS') document.getElementById('cost_price').value = product.cost_price_original;
+                if (product.sell_currency_code === 'UZS') document.getElementById('sell_price').value = product.sell_price_original;
+                userEnteredCostPrice = product.cost_price_original || product.last_batch_cost;
                 document.getElementById('min_stock').value = product.min_stock;
                 document.getElementById('global_min_stock').value = product.global_min_stock || '';
                 document.getElementById('quantity').value = product.quantity;
@@ -2437,6 +2518,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const savedSupplierSearch = document.getElementById('supplier_search').value;
             
             document.getElementById('productForm').reset();
+            document.getElementById('receipt_rate').value = receiptExchangeRate || '';
             
             // Joylashuv va yetkazib beruvchini qayta o'rnatish
             document.getElementById('location').value = savedLocation;
@@ -2573,10 +2655,29 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         // Barchasini saqlash
-        function submitAllProducts() {
+        async function submitAllProducts() {
             if (tempProducts.length === 0) {
                 alert(APLANG.no_products_added);
                 return;
+            }
+
+            if (tempProducts.some(product => product.cost_currency_code === 'UZS' || product.sell_currency_code === 'UZS')) {
+                try {
+                    const rate = await refreshReceiptRate();
+                    tempProducts.forEach(product => {
+                        if (product.cost_currency_code === 'UZS') {
+                            product.cost_price = Number(product.cost_price_original) / rate;
+                            product.last_batch_cost = product.cost_price;
+                            product.total_value = product.cost_price * product.quantity;
+                        }
+                        if (product.sell_currency_code === 'UZS') product.sell_price = Number(product.sell_price_original) / rate;
+                        product.receipt_exchange_rate = rate;
+                    });
+                    updateTempList();
+                } catch (error) {
+                    alert(error.message);
+                    return;
+                }
             }
 
             // Yetkazib beruvchidan olingan mahsulotlar bo'lsa, avval to'lov turini so'rash
@@ -2597,6 +2698,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
         }
 
         function getSupplierExchangeRate() {
+            if (tempProducts.some(product => product.cost_currency_code === 'UZS' || product.sell_currency_code === 'UZS')) {
+                return receiptExchangeRate;
+            }
             return parseFloat(window.currentExchangeRate) || 12500;
         }
 
@@ -2742,9 +2846,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
                     const productData = {
                         name: product.name,
                         barcode: product.barcode || null,
-                        cost_price: product.cost_price,
-                        lastBatchCost: product.last_batch_cost,
-                        sell_price: product.sell_price,
+                        cost_price: product.cost_currency_code === 'UZS' ? product.cost_price_original : product.cost_price,
+                        lastBatchCost: product.cost_currency_code === 'UZS' ? product.cost_price_original : product.last_batch_cost,
+                        sell_price: product.sell_currency_code === 'UZS' ? product.sell_price_original : product.sell_price,
+                        cost_currency_code: product.cost_currency_code || 'USD',
+                        sell_currency_code: product.sell_currency_code || 'USD',
+                        receipt_exchange_rate: product.receipt_exchange_rate,
                         quantity: product.quantity,
                         unitType: product.unit_type || 'dona', // O'lchov birligi
                         min_stock: product.min_stock,
@@ -2811,6 +2918,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         // Narx taqqoslash funksiyasi
         function comparePrices() {
+            if (receiptCurrency('cost') === 'UZS') {
+                document.getElementById('priceComparison').style.display = 'none';
+                return;
+            }
             const productName = document.getElementById('product_name').value.trim();
             const newCostPrice = parseFloat(document.getElementById('cost_price').value);
             const priceComparisonDiv = document.getElementById('priceComparison');
@@ -3031,6 +3142,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         // Avtomatik o'rtacha narxni qo'llash
         function applyAveragePrice() {
+            if (receiptCurrency('cost') === 'UZS') return;
             const productNameField = document.getElementById('product_name');
             const quantityField = document.getElementById('quantity');
             const costPriceField = document.getElementById('cost_price');
@@ -3077,6 +3189,7 @@ optgroup option { font-weight: normal; color: #1e293b; }
 
         // Sahifa yuklanganda
         document.addEventListener('DOMContentLoaded', function() {
+            refreshReceiptRate().catch(() => { receiptExchangeRate = null; });
             loadPendingBatchFromUrl();
             loadCategories();
             loadSuppliers();
