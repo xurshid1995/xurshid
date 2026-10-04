@@ -1813,6 +1813,10 @@ optgroup option { font-weight: normal; color: #1e293b; }
             }
         }
         
+        function receiptPriceInput(value) {
+            return String(value ?? '').replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+        }
+
         function selectProduct(name, costPrice, sellPrice, minStock, lastBatchCost, lastBatchDate, barcode, categoryId, imageUrl, locationMinStock) {
             console.log('✅ selectProduct chaqirildi:');
             console.log('   name:', name);
@@ -1821,16 +1825,16 @@ optgroup option { font-weight: normal; color: #1e293b; }
             console.log('   imageUrl:', imageUrl);
             
             document.getElementById('product_name').value = name;
-            document.getElementById('cost_price').value = costPrice || ''; // Tan narxni to'ldirish
-            document.getElementById('sell_price').value = sellPrice;
+            document.getElementById('cost_price').value = receiptPriceInput(costPrice);
+            document.getElementById('sell_price').value = receiptPriceInput(sellPrice);
             const originalPrices = receiptProductPrices.get(name) || {};
             document.getElementById('cost_currency_code').value = originalPrices.cost_currency_code || 'USD';
             document.getElementById('sell_currency_code').value = originalPrices.sell_currency_code || 'USD';
             if (originalPrices.cost_currency_code === 'UZS') {
-                document.getElementById('cost_price').value = originalPrices.cost_price_original;
+                document.getElementById('cost_price').value = receiptPriceInput(originalPrices.cost_price_original);
             }
             if (originalPrices.sell_currency_code === 'UZS') {
-                document.getElementById('sell_price').value = originalPrices.sell_price_original;
+                document.getElementById('sell_price').value = receiptPriceInput(originalPrices.sell_price_original);
             }
             userEnteredCostPrice = null;
             // minStock bu yerda mahsulotning umumiy (global) minimal qoldig'i - joylashuv uchun alohida kiritiladi
@@ -2391,12 +2395,12 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 // Formaga ma'lumotlarni yuklash
                 document.getElementById('product_name').value = product.name;
                 document.getElementById('barcode').value = product.barcode || '';
-                document.getElementById('cost_price').value = product.cost_price;
-                document.getElementById('sell_price').value = product.sell_price;
+                document.getElementById('cost_price').value = receiptPriceInput(product.cost_price);
+                document.getElementById('sell_price').value = receiptPriceInput(product.sell_price);
                 document.getElementById('cost_currency_code').value = product.cost_currency_code || 'USD';
                 document.getElementById('sell_currency_code').value = product.sell_currency_code || 'USD';
-                if (product.cost_currency_code === 'UZS') document.getElementById('cost_price').value = product.cost_price_original;
-                if (product.sell_currency_code === 'UZS') document.getElementById('sell_price').value = product.sell_price_original;
+                if (product.cost_currency_code === 'UZS') document.getElementById('cost_price').value = receiptPriceInput(product.cost_price_original);
+                if (product.sell_currency_code === 'UZS') document.getElementById('sell_price').value = receiptPriceInput(product.sell_price_original);
                 userEnteredCostPrice = product.cost_price_original || product.last_batch_cost;
                 document.getElementById('min_stock').value = product.min_stock;
                 document.getElementById('global_min_stock').value = product.global_min_stock || '';
