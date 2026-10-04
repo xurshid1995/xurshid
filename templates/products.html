@@ -819,6 +819,11 @@
                 const quantityZeroClass = totalStock === 0 ? ' quantity-zero' : '';
                 const quantityDisplay = `<span class="quantity-value${quantityZeroClass}">${quantityValue}</span> <span class="quantity-unit">${unitText}</span>`;
                 
+                // UZS da kiritilgan narx qat'iy: so'm asl qiymat, USD joriy kursdan hisoblanadi
+                const isUzsPrice = product.sell_currency_code === 'UZS' && parseFloat(product.sell_price_original) > 0;
+                const sellUzs = isUzsPrice ? parseFloat(product.sell_price_original) : product.sell_price * currencyRate;
+                const sellUsd = isUzsPrice && currencyRate > 0 ? sellUzs / currencyRate : product.sell_price;
+
                 // Mahsulot nomi
                 const highlightedName = product.name;
                 
@@ -845,8 +850,8 @@
                         <td style="text-align: center;">${barcodeCell}</td>
                         <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">🕐</button>${highlightedName}${fuzzyBadge}${catBadge}</td>
                         <td class="price-cell col-price">
-                            <span style="background-color: #5cb85c; color: white; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 0;">$${formatPrice(product.sell_price)}</span>
-                            <span style="background-color: #5dade2; color: white; font-size: 12px; font-weight: 700; margin-left: 2px; padding: 2px 8px; border-radius: 0;">${formatPrice(product.sell_price * currencyRate)} so'm</span>
+                            <span style="background-color: #5cb85c; color: white; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 0;">$${formatPrice(sellUsd)}</span>
+                            <span style="background-color: #5dade2; color: white; font-size: 12px; font-weight: 700; margin-left: 2px; padding: 2px 8px; border-radius: 0;">${formatPrice(sellUzs)} so'm</span>
                         </td>
                         <td class="location-cell" style="vertical-align: middle;">${locations}</td>
                         <td class="quantity-cell" style="vertical-align: middle;">${quantityDisplay}</td>
