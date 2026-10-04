@@ -516,11 +516,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                         </div>
                     </div>
 
-                    <div class="ap-form-group">
-                        <label class="ap-label" for="receipt_rate">1 USD (UZS)</label>
-                        <input id="receipt_rate" class="ap-input" type="number" readonly>
-                    </div>
-
                     <!-- Asl tan narx va Foyda -->
                     <div class="ap-row ap-row-2col">
                         <div class="ap-form-group">
@@ -2061,7 +2056,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
                 throw new Error("Valyuta kursi o'rnatilmagan");
             }
             receiptExchangeRate = rate;
-            document.getElementById('receipt_rate').value = rate;
             return rate;
         }
 
@@ -2540,7 +2534,6 @@ optgroup option { font-weight: normal; color: #1e293b; }
             const savedSupplierSearch = document.getElementById('supplier_search').value;
             
             document.getElementById('productForm').reset();
-            document.getElementById('receipt_rate').value = receiptExchangeRate || '';
             
             // Joylashuv va yetkazib beruvchini qayta o'rnatish
             document.getElementById('location').value = savedLocation;
