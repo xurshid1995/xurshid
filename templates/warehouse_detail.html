@@ -673,9 +673,29 @@
             });
     }
 
+    const uzsFormat = new Intl.NumberFormat('uz-UZ', { maximumFractionDigits: 0 });
+
+    // USD qiymat va uning ostida so'm qiymati; UZS da kiritilgan narxlar asl so'mda ko'rsatiladi
+    function priceWithUzs(usd, uzs) {
+        const uzsLine = uzs === null ? '' : `<div style="font-size:11px;font-weight:600;color:#64748b;">${uzsFormat.format(uzs)} so'm</div>`;
+        return `$${usd.toFixed(2)}${uzsLine}`;
+    }
+
+    function stockUzs(product, unitProfit, rate) {
+        const hasRate = Number(rate) > 0;
+        const costUzs = hasRate ? product.cost_price * rate : null;
+        const sellUzs = product.sell_currency_code === 'UZS' && product.sell_price_original > 0
+            ? product.sell_price_original : (hasRate ? product.sell_price * rate : null);
+        const lastBatchUzs = product.cost_currency_code === 'UZS' && product.cost_price_original > 0
+            ? product.cost_price_original : (hasRate ? (product.last_batch_cost || 0) * rate : null);
+        const profitUzs = costUzs !== null && sellUzs !== null ? sellUzs - costUzs : (hasRate ? unitProfit * rate : null);
+        return { lastBatchUzs, costUzs, sellUzs, profitUzs };
+    }
+
     function displayStockData(data) {
         const tbody = document.querySelector('#stock-table tbody');
         const stockInfo = data.data.stock_info || [];
+        const currencyRate = data.data.currency_rate;
         
         if (stockInfo.length === 0) {
             tbody.innerHTML = `
@@ -721,16 +741,18 @@
                 ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ ${WDLANG.status_low}</span>`
                 : `<span style="color: #27ae60; font-weight: bold;">✓ ${WDLANG.status_enough}</span>`;
 
+            const uzs = stockUzs(item.stock.product, item.unit_profit, currencyRate);
+
             return `
             <tr class="stock-row" data-status="${item.status}">
                 <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
                 <td style="font-family:monospace;color:#94a3b8;font-size:12px;">${item.stock.product.barcode || '-'}</td>
                 <td class="td-left"><strong>${highlightedName}</strong></td>
                 <td style="font-weight:700;">${quantityDisplay}</td>
-                <td style="font-weight:700;color:#d97706;">$${item.stock.product.last_batch_cost ? item.stock.product.last_batch_cost.toFixed(2) : '0.00'}</td>
-                <td style="font-weight:700;color:#1a6eff;">$${item.stock.product.cost_price.toFixed(2)}</td>
-                <td style="font-weight:700;">$${item.stock.product.sell_price.toFixed(2)}</td>
-                <td style="font-weight:700;color:#059669;">$${item.unit_profit.toFixed(2)}</td>
+                <td style="font-weight:700;color:#d97706;">${priceWithUzs(item.stock.product.last_batch_cost || 0, uzs.lastBatchUzs)}</td>
+                <td style="font-weight:700;color:#1a6eff;">${priceWithUzs(item.stock.product.cost_price, uzs.costUzs)}</td>
+                <td style="font-weight:700;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs)}</td>
+                <td style="font-weight:700;color:#059669;">${priceWithUzs(item.unit_profit, uzs.profitUzs)}</td>
                 <td style="font-weight:700;color:#0891b2;">${item.profit_percentage.toFixed(1)}%</td>
                 <td>${statusBadge}</td>
                 <td class="actions">

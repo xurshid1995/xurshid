@@ -5567,6 +5567,10 @@ def api_store_stock(store_id):
                         'min_stock': min_stock,
                         'global_min_stock': stock.product.min_stock,
                         'sell_price': float(stock.product.sell_price),
+                        'cost_currency_code': stock.product.cost_currency_code or 'USD',
+                        'sell_currency_code': stock.product.sell_currency_code or 'USD',
+                        'cost_price_original': float(stock.product.cost_price_original) if stock.product.cost_price_original is not None else None,
+                        'sell_price_original': float(stock.product.sell_price_original) if stock.product.sell_price_original is not None else None,
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
                         'last_batch_date': stock.product.last_batch_date.isoformat() if stock.product.last_batch_date else None,
                         'image_url': f'/static/uploads/products/{stock.product.image_path}' if stock.product.image_path else None,
@@ -5601,7 +5605,8 @@ def api_store_stock(store_id):
                 'total_cost_value': float(total_cost_value),
                 'total_profit': float(total_profit),
                 'profit_percentage': profit_percentage,
-                'critical_stock_count': critical_stock_count
+                'critical_stock_count': critical_stock_count,
+                'currency_rate': get_current_currency_rate()
             },
             'pagination': {
                 'page': page,
@@ -5996,6 +6001,10 @@ def api_warehouse_stock(warehouse_id):
                         'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
+                        'cost_currency_code': stock.product.cost_currency_code or 'USD',
+                        'sell_currency_code': stock.product.sell_currency_code or 'USD',
+                        'cost_price_original': float(stock.product.cost_price_original) if stock.product.cost_price_original is not None else None,
+                        'sell_price_original': float(stock.product.sell_price_original) if stock.product.sell_price_original is not None else None,
                         'min_stock': min_stock,
                         'global_min_stock': stock.product.min_stock,
                         'last_batch_cost': float(stock.product.last_batch_cost) if stock.product.last_batch_cost else None,
@@ -6032,7 +6041,8 @@ def api_warehouse_stock(warehouse_id):
                 'total_cost_value': float(total_cost_value),
                 'total_profit': float(total_profit),
                 'profit_percentage': profit_percentage,
-                'critical_stock_count': critical_stock_count
+                'critical_stock_count': critical_stock_count,
+                'currency_rate': get_current_currency_rate()
             },
             'pagination': {
                 'page': page,
