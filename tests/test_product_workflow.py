@@ -105,6 +105,85 @@ class ProductWorkflowTests(unittest.TestCase):
         self.assertEqual(product.cost_price, Decimal('5'))
         self.assertEqual(product.sell_price, Decimal('6'))
 
+    def supplier_receipt(self):
+        self.db.session.add(self.module.Supplier(id=8, name='Supplier test'))
+        self.module.CurrencyRate.query.one().rate = Decimal('11850')
+        self.db.session.commit()
+        response = self.client.post('/api/batch-products', json={'products': [
+            dict(name='UZS receipt', quantity=10, cost_price='5000', sell_price='6000',
+                 cost_currency_code='UZS', sell_currency_code='UZS',
+                 receipt_exchange_rate=11850, location_type='store', location_id=1,
+                 supplierId=8),
+            dict(name='USD receipt', quantity=10, cost_price='5', sell_price='6',
+                 location_type='store', location_id=1, supplierId=8),
+        ]})
+        self.assertEqual(response.status_code, 201, response.get_json())
+        return response
+
+    def test_supplier_receipt_preserves_original_currency(self):
+        self.supplier_receipt()
+        self.db.session.expire_all()
+        response = self.client.get('/api/supplier/8/products')
+        self.assertEqual(response.status_code, 200, response.get_json())
+        rows = {row['product_name']: row for row in response.get_json()['products']}
+        self.assertEqual(Decimal(rows['UZS receipt']['receipt_total_uzs']), Decimal('50000'))
+        self.assertEqual(Decimal(rows['UZS receipt']['receipt_unit_uzs']), Decimal('5000'))
+        self.assertEqual(Decimal(rows['USD receipt']['receipt_total_usd']), Decimal('50'))
+        self.assertEqual(Decimal(rows['USD receipt']['receipt_total_uzs']), Decimal('592500'))
+        self.module.CurrencyRate.query.one().rate = Decimal('13000')
+        product = self.module.Product.query.filter_by(name='UZS receipt').one()
+        product.cost_price_original = Decimal('12345')
+        self.db.session.commit()
+        later = self.client.get('/api/supplier/8/products').get_json()['products']
+        self.assertEqual(later, response.get_json()['products'])
+
+    @unittest.skipUnless(os.environ.get('RUN_BROWSER') == '1', 'Optional browser workflow')
+    def test_supplier_receipt_browser(self):
+        from playwright.sync_api import sync_playwright
+        from werkzeug.serving import make_server
+
+        self.supplier_receipt()
+        self.module.CurrencyRate.query.one().rate = Decimal('13000')
+        self.db.session.commit()
+        server = make_server('127.0.0.1', 0, self.module.app, threaded=False)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        base_url = f'http://127.0.0.1:{server.server_port}'
+        cookie = self.module.app.session_interface.get_signing_serializer(
+            self.module.app).dumps({'user_id': 1, 'role': 'admin'})
+        screenshots = Path(tempfile.mkdtemp(prefix='supplier-receipt-'))
+        print(f'Supplier screenshots: {screenshots}')
+        try:
+            with sync_playwright() as playwright:
+                browser = playwright.chromium.launch()
+                for width in (1440, 390):
+                    context = browser.new_context(viewport={'width': width, 'height': 900})
+                    context.add_cookies([{'name': 'session', 'value': cookie, 'url': base_url}])
+                    page = context.new_page()
+                    errors = []
+                    page.on('pageerror', lambda error: errors.append(str(error)))
+                    page.goto(base_url + '/supplier/8/products')
+                    page.wait_for_function('allProducts.length === 2')
+                    uzs_row = page.locator('#spTableBody tr').filter(has_text='UZS receipt')
+                    usd_row = page.locator('#spTableBody tr').filter(has_text='USD receipt')
+                    digits = "cell => cell.firstChild.textContent.replace(/[^0-9]/g, '')"
+                    self.assertEqual(uzs_row.locator('.sp-total-cell').evaluate(digits), '50000')
+                    self.assertEqual(uzs_row.locator('.sp-price-cell').evaluate(digits), '5000')
+                    self.assertEqual(usd_row.locator('.sp-total-cell').evaluate(digits), '50')
+                    self.assertEqual(page.locator('.sp-running-total-cell small').evaluate(
+                        "cell => cell.textContent.replace(/[^0-9]/g, '')"), '642500')
+                    page.evaluate('window.currentExchangeRate = 14000; renderSupplierProducts(allProducts)')
+                    self.assertEqual(uzs_row.locator('.sp-total-cell').evaluate(digits), '50000')
+                    if width == 390:
+                        uzs_row.locator('.sp-total-cell').scroll_into_view_if_needed()
+                    page.screenshot(path=str(screenshots / f'supplier-{width}.png'), full_page=True, animations='disabled')
+                    self.assertFalse(errors, errors)
+                    context.close()
+                browser.close()
+        finally:
+            server.shutdown()
+            worker.join()
+
     def test_stale_receipt_is_atomic(self):
         self.module.CurrencyRate.query.one().rate = Decimal('12500')
         self.db.session.commit()
@@ -254,6 +333,51 @@ class ProductWorkflowTests(unittest.TestCase):
         self.db.session.expire_all()
         self.assertEqual(product.sell_price_original, Decimal('6000'))
         self.assertEqual(product.sell_price, Decimal('0.5'))
+
+    def test_postgres_supplier_snapshot_migration(self):
+        if self.db.engine.dialect.name != 'postgresql':
+            self.skipTest('PostgreSQL-only supplier migration')
+        self.supplier_receipt()
+        purchases = self.module.SupplierPurchase.query.order_by(self.module.SupplierPurchase.id).all()
+        before = [(row.cost_price, row.total_amount, row.paid_amount, row.debt_amount) for row in purchases]
+        history = self.module.ProductAddHistory.query.filter_by(product_name='UZS receipt').one()
+        duplicate = {column.name: getattr(history, column.name)
+                     for column in history.__table__.columns if column.name != 'id'}
+        migration = (Path(__file__).resolve().parents[1] / 'migrations' /
+                     'add_supplier_receipt_price_snapshots.sql').read_text(encoding='utf-8')
+        self.db.session.remove()
+        connection = self.db.engine.raw_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute('ALTER TABLE supplier_purchases DROP COLUMN cost_currency_code, '
+                           'DROP COLUMN cost_price_original, DROP COLUMN receipt_exchange_rate')
+            connection.commit()
+            cursor.execute(migration)
+            cursor.execute(migration)
+            cursor.close()
+        finally:
+            connection.close()
+        purchases = self.module.SupplierPurchase.query.order_by(self.module.SupplierPurchase.id).all()
+        self.assertEqual(before, [(row.cost_price, row.total_amount, row.paid_amount, row.debt_amount)
+                                  for row in purchases])
+        self.assertEqual(Decimal(purchases[0].to_dict()['receipt_total_uzs']), Decimal('50000'))
+        self.assertEqual(Decimal(purchases[1].to_dict()['receipt_total_usd']), Decimal('50'))
+        purchases[0].cost_currency_code = None
+        purchases[0].cost_price_original = None
+        purchases[0].receipt_exchange_rate = None
+        self.db.session.add(self.module.ProductAddHistory(**duplicate))
+        self.db.session.commit()
+        self.db.session.remove()
+        connection = self.db.engine.raw_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(migration)
+            cursor.close()
+        finally:
+            connection.close()
+        ambiguous = self.module.SupplierPurchase.query.filter_by(product_name='UZS receipt').one()
+        self.assertIsNone(ambiguous.cost_price_original)
+        self.assertNotIn('receipt_total_uzs', ambiguous.to_dict())
 
     def test_postgres_repeat_receipt_and_migration(self):
         if self.db.engine.dialect.name != 'postgresql':

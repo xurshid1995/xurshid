@@ -247,9 +247,9 @@
 const SUPPLIER_ID = {{ supplier.id }};
 let allProducts = [];
 
-function formatUSD(value) {
+function formatSupplierUSD(value) {
     const amount = Number(value || 0);
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 6 })}`;
 }
 
 function getCurrentRate() {
@@ -261,9 +261,12 @@ function convertToUZS(value) {
     return Math.round((Number(value || 0) * getCurrentRate()));
 }
 
-function formatUsdWithUzs(value) {
-    const usd = Number(value || 0);
-    return `${formatUSD(usd)}<br><small style="color: #007bff; font-size: 13px;">${convertToUZS(usd).toLocaleString('uz-UZ')}</small>`;
+function formatSupplierAmounts(usd, uzs, currency = 'USD') {
+    const dollar = formatSupplierUSD(usd);
+    const som = `${Number(uzs).toLocaleString('uz-UZ', {maximumFractionDigits: 2})} so'm`;
+    const primary = currency === 'UZS' ? som : dollar;
+    const secondary = currency === 'UZS' ? dollar : som;
+    return `${primary}<br><small style="color: #007bff; font-size: 13px;">${secondary}</small>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -351,6 +354,7 @@ function renderSupplierProducts(products) {
     products.forEach(product => {
         const createdAt = product.created_at ? new Date(product.created_at) : null;
         const groupKey = [
+            product.batch_id || '',
             createdAt ? createdAt.getFullYear() : '',
             createdAt ? createdAt.getMonth() : '',
             createdAt ? createdAt.getDate() : '',
@@ -378,8 +382,10 @@ function renderSupplierProducts(products) {
             const formattedDate = createdAt ? createdAt.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
             const formattedTime = createdAt ? createdAt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
             const quantity = Number(item.quantity || 0);
-            const unitPrice = Number(item.cost_price || 0);
-            const lineTotal = quantity * unitPrice;
+            const unitPrice = Number(item.receipt_unit_usd ?? item.cost_price ?? 0);
+            const lineTotal = Number(item.receipt_total_usd ?? item.total_amount ?? quantity * unitPrice);
+            const unitUzs = Number(item.receipt_unit_uzs ?? convertToUZS(unitPrice));
+            const lineTotalUzs = Number(item.receipt_total_uzs ?? convertToUZS(lineTotal));
 
             return {
                 ...item,
@@ -388,12 +394,15 @@ function renderSupplierProducts(products) {
                 formattedTime,
                 quantity,
                 unitPrice,
-                lineTotal
+                lineTotal,
+                unitUzs,
+                lineTotalUzs
             };
         });
 
         const firstItem = groupItems[0];
         const groupRunningTotal = groupItems.reduce((sum, item) => sum + item.lineTotal, 0);
+        const groupRunningTotalUzs = groupItems.reduce((sum, item) => sum + item.lineTotalUzs, 0);
 
         return groupItems.map((item, idx) => {
             const isFirst = idx === 0;
@@ -414,9 +423,9 @@ function renderSupplierProducts(products) {
                     ` : ''}
                     <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name || '-')}</td>
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
-                    <td class="sp-price-cell">${formatUsdWithUzs(item.unitPrice)}</td>
-                    <td class="sp-total-cell">${formatUsdWithUzs(item.lineTotal)}</td>
-                    ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${formatUsdWithUzs(groupRunningTotal)}</td>` : ''}
+                    <td class="sp-price-cell">${formatSupplierAmounts(item.unitPrice, item.unitUzs, item.cost_currency_code)}</td>
+                    <td class="sp-total-cell">${formatSupplierAmounts(item.lineTotal, item.lineTotalUzs, item.cost_currency_code)}</td>
+                    ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${formatSupplierAmounts(groupRunningTotal, groupRunningTotalUzs)}</td>` : ''}
                     ${isFirst ? `<td class="sp-added-by-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}
                 </tr>
             `;

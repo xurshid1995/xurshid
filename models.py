@@ -648,6 +648,9 @@ class SupplierPurchase(db.Model):
     product_name = db.Column(db.String(200), nullable=False)  # snapshot
     quantity = db.Column(db.DECIMAL(precision=15, scale=3), nullable=False)
     cost_price = db.Column(db.DECIMAL(precision=15, scale=4), nullable=False)  # bir dona narxi
+    cost_currency_code = db.Column(db.String(3))
+    cost_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
+    receipt_exchange_rate = db.Column(db.DECIMAL(precision=15, scale=4))
     total_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False)
     payment_type = db.Column(db.String(20), nullable=False, default='cash')  # cash | debt | partial
     paid_amount = db.Column(db.DECIMAL(precision=15, scale=2), nullable=False, default=0)
@@ -667,6 +670,8 @@ class SupplierPurchase(db.Model):
         return f'<SupplierPurchase {self.id}: supplier={self.supplier_id} {self.product_name}>'
 
     def to_dict(self):
+        from product_pricing import supplier_receipt_amounts
+
         return {
             'id': self.id,
             'event_type': 'purchase',
@@ -676,6 +681,10 @@ class SupplierPurchase(db.Model):
             'product_name': self.product_name,
             'quantity': float(self.quantity or 0),
             'cost_price': float(self.cost_price or 0),
+            'cost_currency_code': self.cost_currency_code or 'USD',
+            'cost_price_original': str(self.cost_price_original) if self.cost_price_original is not None else None,
+            'receipt_exchange_rate': str(self.receipt_exchange_rate) if self.receipt_exchange_rate else None,
+            **supplier_receipt_amounts(self),
             'total_amount': float(self.total_amount or 0),
             'payment_type': self.payment_type,
             'paid_amount': float(self.paid_amount or 0),

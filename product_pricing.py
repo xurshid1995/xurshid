@@ -34,6 +34,27 @@ def product_sale_price(product, rate):
     return product.sell_price
 
 
+def supplier_receipt_amounts(purchase):
+    original = purchase.cost_price_original
+    rate = purchase.receipt_exchange_rate
+    if original is None or rate is None or rate <= 0:
+        return {}
+    code = currency_code(purchase.cost_currency_code)
+    with localcontext() as context:
+        context.prec = 38
+        original = Decimal(str(original))
+        rate = Decimal(str(rate))
+        quantity = Decimal(str(purchase.quantity))
+        unit_usd = original / rate if code == 'UZS' else original
+        unit_uzs = original if code == 'UZS' else original * rate
+        return {
+            'receipt_unit_usd': str(unit_usd),
+            'receipt_unit_uzs': str(unit_uzs),
+            'receipt_total_usd': str(unit_usd * quantity),
+            'receipt_total_uzs': str(unit_uzs * quantity),
+        }
+
+
 def receipt_prices(data, rate):
     cost_currency = currency_code(data.get('cost_currency_code'))
     sell_currency = currency_code(data.get('sell_currency_code'))

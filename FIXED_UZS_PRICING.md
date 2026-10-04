@@ -14,6 +14,14 @@
 - Mijoz va yetkazib beruvchi qarzlari, to'lovlar va hisobotlar mavjud USD hisobida qoladi. Bu o'zgarish qarzning asl valyutada yuritilishini qo'shmaydi.
 - Eski dollar-only stock tahrirlash oynalarida UZS narxini almashtirish bloklanadi; boshqa maydonlar saqlangan narxlar bilan tahrirlanishi mumkin. Yangi UZS kirimlar /add_product_session orqali kiritiladi. Eski /api/products POST yangi UZS narxlar uchun ishlatilmaydi.
 
+## Yetkazib beruvchidan kelgan mahsulotlar
+
+- SupplierPurchase ham kirimning asl tan narxi, valyutasi va kursini alohida saqlaydi. Sahifada asl valyuta asosiy, ikkinchisi kirim kursidagi ekvivalent sifatida ko'rsatiladi.
+- Masalan, 5000 UZS x 10 = 50000 UZS; to'rt xonagacha yaxlitlangan USD birlik narxi orqali qayta hisoblanmaydi. Guruhning USD va UZS jamisi alohida yig'iladi.
+- Kurs yoki mahsulotning hozirgi narxi o'zgarsa, kirim summalari o'zgarmaydi. Eski USD hisob, qarz va to'lov ustunlari qayta baholanmaydi.
+- `migrations/add_supplier_receipt_price_snapshots.sql` qo'shimcha ustunlarni yaratadi va ProductAddHistory bilan narx, miqdor, joy, foydalanuvchi hamda ikki soniya ichidagi vaqt bo'yicha birma-bir mos yozuvlarni tiklaydi. Noaniq yoki asl narxi yo'q eski yozuvlarga tegmaydi. Takroran bajarish mumkin.
+- Asl ma'lumoti yo'q eski kirimlarda saqlangan USD jami va joriy kursdagi UZS ekvivalenti ishlatiladi; joriy Product narxidan tarix to'qilmaydi.
+
 ## Migratsiya
 
 `migrations/add_fixed_uzs_product_prices.sql` tranzaksiya ichida qo'shimcha NULL ustunlarni yaratadi. Eski pul maydonlarini UPDATE qilmaydi. Takroran qo'llash mumkin.
