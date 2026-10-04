@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Diamond CRM - Omborxona va savdo boshqaruv tizimi">
+    <meta name="description" content="DOKON - Professional Omborxona va Savdo Boshqaruv Tizimi">
     <meta name="keywords" content="omborxona, savdo, boshqaruv, inventory, warehouse, management">
-    <meta name="author" content="Diamond CRM">
+    <meta name="author" content="DOKON Team">
     <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#1e293b">
@@ -16,10 +16,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Diamond CRM">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-    {% set page_title %}{% block title %}Diamond CRM{% endblock %}{% endset %}
-    <title>{{ page_title | replace('DOKON', 'Diamond CRM') | replace('Dokon Boshqaruv Tizimi', 'Diamond CRM') }}{% if 'Diamond CRM' not in page_title and 'DOKON' not in page_title and 'Dokon Boshqaruv Tizimi' not in page_title %} | Diamond CRM{% endif %}</title>
+    <title>{% block title %}DOKON{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20261004-1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260810-6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     {% block extra_css %}{% endblock %}
     <style>
@@ -106,8 +105,6 @@
         });
     });
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}?v=20261004-1">
-    <script src="{{ url_for('static', filename='js/interface.js') }}?v=20261004-1" defer></script>
 </head>
 <body>
     <!-- Mobile Navigation Toggle -->
@@ -117,7 +114,7 @@
     
     <!-- Mobile Header -->
     <div class="mobile-header">
-        <h1>Diamond CRM</h1>
+        <h1>DOKON</h1>
     </div>
     
     <!-- Sidebar Overlay -->
