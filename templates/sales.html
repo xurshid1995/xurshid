@@ -987,14 +987,14 @@
         <div class="sales-layout-box" style="background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div id="cartCustomerInfo">
-                    <h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>
+                    <h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping" aria-hidden="true"></i> {{ 'Корзина продаж' if current_language == 'ru' else 'Savdo savati' }}</h3>
                 </div>
                 <div id="cartTotalHeader" style="text-align: right;"></div>
             </div>
             <div id="cartContainer">
                 <!-- Korzina qidiruv maydoni -->
                 <div style="margin-bottom: 10px; position: relative;">
-                    <input type="text" id="cartSearch" placeholder="🔍 Korzinada qidirish..." 
+                    <input type="text" id="cartSearch" placeholder="{{ 'Поиск в корзине...' if current_language == 'ru' else 'Savatdan qidirish...' }}"
                            oninput="filterCartItems(this)"
                            style="width: 100%; padding: 8px 36px 8px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
                            onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
@@ -4044,10 +4044,10 @@
                     tabTitle.title = customerName; // Tooltip uchun
                 }
             } else {
-                cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>';
+                cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping" aria-hidden="true"></i> {{ "Корзина продаж" if current_language == "ru" else "Savdo savati" }}</h3>';
             }
         } else if (cartCustomerInfo) {
-            cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>';
+            cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping" aria-hidden="true"></i> {{ "Корзина продаж" if current_language == "ru" else "Savdo savati" }}</h3>';
         }
         
         if (cart.length === 0) {

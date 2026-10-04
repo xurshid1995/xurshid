@@ -103,6 +103,8 @@
 
                 <div class="db-chart-container">
                     <canvas id="salesChart"></canvas>
+                    <div id="salesChartState" class="db-chart-state" role="status" hidden></div>
+                    <button id="salesChartRetry" type="button" hidden onclick="retrySalesChart()"><i class="fas fa-rotate-right" aria-hidden="true"></i> {{ 'Повторить' if current_language == 'ru' else 'Qayta yuklash' }}</button>
                 </div>
 
             </div>
@@ -1308,7 +1310,23 @@ function selectMonthFilter() {
     loadSalesChart(activeLocation, 'custom', activeLocationType);
 }
 
+function retrySalesChart() {
+    const selected = document.querySelector('.db-loc-btn.active');
+    const locationId = selected?.dataset.location;
+    return loadSalesChart(locationId === 'all' ? null : locationId, null, selected?.dataset.locationType);
+}
+
+function setSalesChartState(message, retry = false) {
+    const state = document.getElementById('salesChartState');
+    state.textContent = message;
+    state.hidden = !message;
+    state.parentElement.classList.toggle('is-empty', Boolean(message));
+    document.getElementById('salesChart').hidden = Boolean(message);
+    document.getElementById('salesChartRetry').hidden = !retry;
+}
+
 async function loadSalesChart(locationId = null, period = null, locationType = null) {
+    setSalesChartState({{ ('Загрузка...' if current_language == 'ru' else 'Yuklanmoqda...') | tojson }});
     try {
         const params = new URLSearchParams();
         if (locationId) {
@@ -1341,6 +1359,7 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
         
         const response = await fetch(`/api/sales-chart?${params}`);
         const data = await response.json();
+        if (!response.ok || data.error) throw new Error('Chart request failed');
         
         // Debug uchun API javobini to'liq ko'ramiz
         console.log('🔍 API parametrlari:', params.toString());
@@ -1358,7 +1377,16 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
 
         if (salesChart) {
             salesChart.destroy();
+            salesChart = null;
         }
+
+        const hasData = [data.values, data.amounts, data.debts].some(values =>
+            Array.isArray(values) && values.some(value => Number.isFinite(Number(value)) && Number(value) !== 0));
+        if (!hasData) {
+            setSalesChartState({{ ('За выбранный период продаж нет' if current_language == 'ru' else "Tanlangan davrda savdo yo'q") | tojson }});
+            return;
+        }
+        setSalesChartState('');
         
         const selectedLocationName = locationId ?
             document.querySelector(`.db-loc-btn[data-location="${locationId}"]`)?.textContent.trim() || DLANG.selected_location :
@@ -1613,6 +1641,7 @@ async function loadSalesChart(locationId = null, period = null, locationType = n
         });
     } catch (error) {
         console.error('Savdo grafigi yuklashda xatolik:', error);
+        setSalesChartState({{ ('Не удалось загрузить данные' if current_language == 'ru' else "Ma'lumotlarni yuklab bo'lmadi") | tojson }}, true);
     }
 }
 

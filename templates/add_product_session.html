@@ -197,7 +197,9 @@ optgroup option { font-weight: normal; color: #1e293b; }
     .ap-row-loc-sup { grid-template-columns: 1fr 1fr !important; }
     .ap-row-2col-dsk { grid-template-columns: 1fr !important; }
     .ap-row-3col { grid-template-columns: 1fr 1fr 1fr !important; }
-    .ap-qty-grid { grid-template-columns:1fr 1fr 1fr; grid-template-areas:"qty unit min" "barcode barcode barcode"; }
+    .ap-qty-grid { grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); grid-template-areas:"qty unit" "min min" "barcode barcode"; }
+    .ap-min-split .ap-label { white-space:normal; overflow:visible; }
+    .ap-qty-grid > div { min-width:0; }
     .ap-card-body { padding: 12px 14px; }
     .ap-btn-excel-import,
     .ap-btn-excel-template {

@@ -247,9 +247,9 @@
 const SUPPLIER_ID = {{ supplier.id }};
 let allProducts = [];
 
-function formatSupplierUSD(value) {
+function formatSupplierUSD(value, precision = 2) {
     const amount = Number(value || 0);
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 6 })}`;
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: precision })}`;
 }
 
 function getCurrentRate() {
@@ -261,12 +261,12 @@ function convertToUZS(value) {
     return Math.round((Number(value || 0) * getCurrentRate()));
 }
 
-function formatSupplierAmounts(usd, uzs, currency = 'USD') {
-    const dollar = formatSupplierUSD(usd);
+function formatSupplierAmounts(usd, uzs, currency = 'USD', unit = false) {
+    const dollar = formatSupplierUSD(usd, unit ? 6 : 2);
     const som = `${Number(uzs).toLocaleString('uz-UZ', {maximumFractionDigits: 2})} so'm`;
     const primary = currency === 'UZS' ? som : dollar;
     const secondary = currency === 'UZS' ? dollar : som;
-    return `${primary}<br><small style="color: #007bff; font-size: 13px;">${secondary}</small>`;
+    return `<span title="USD: ${usd}; UZS: ${uzs}">${primary}</span><br><small class="ui-money-secondary">${secondary}</small>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -341,6 +341,7 @@ function renderSupplierProducts(products) {
     loading.style.display = 'none';
 
     if (products.length === 0) {
+        empty.textContent = allProducts.length ? 'Qidiruvga mos kirim topilmadi' : 'Hali mahsulot qabul qilinmagan';
         empty.style.display = 'block';
         table.style.display = 'none';
         return;
@@ -421,9 +422,9 @@ function renderSupplierProducts(products) {
                         </td>
                         <td class="sp-location-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.location_name || '-')}</td>
                     ` : ''}
-                    <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name || '-')}</td>
+                    <td class="sp-product-cell sp-product-name">${escapeHtml(item.product_name || '-')}<small class="sp-receipt-rate">${item.receipt_exchange_rate ? 'Kirim kursi' : 'Joriy kurs'}: 1 USD = ${Number(item.receipt_exchange_rate || getCurrentRate()).toLocaleString('uz-UZ')} UZS</small></td>
                     <td class="sp-qty-cell">${item.quantity.toLocaleString('uz-UZ')}</td>
-                    <td class="sp-price-cell">${formatSupplierAmounts(item.unitPrice, item.unitUzs, item.cost_currency_code)}</td>
+                    <td class="sp-price-cell">${formatSupplierAmounts(item.unitPrice, item.unitUzs, item.cost_currency_code, true)}</td>
                     <td class="sp-total-cell">${formatSupplierAmounts(item.lineTotal, item.lineTotalUzs, item.cost_currency_code)}</td>
                     ${isFirst ? `<td class="sp-running-total-cell sp-group-cell" rowspan="${groupItems.length}">${formatSupplierAmounts(groupRunningTotal, groupRunningTotalUzs)}</td>` : ''}
                     ${isFirst ? `<td class="sp-added-by-cell sp-group-cell" rowspan="${groupItems.length}">${escapeHtml(firstItem.added_by || '-')}</td>` : ''}

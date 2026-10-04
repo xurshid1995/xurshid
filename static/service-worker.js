@@ -1,6 +1,8 @@
-const CACHE_NAME = 'diamond-v10';
+const CACHE_NAME = 'diamond-v11';
 const STATIC_ASSETS = [
   '/static/css/style.css',
+  '/static/css/interface.css?v=20261004-1',
+  '/static/js/interface.js?v=20261004-1',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
   '/static/manifest.json'
