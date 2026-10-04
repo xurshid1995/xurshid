@@ -240,6 +240,9 @@
     outline: none; transition: border-color 0.15s;
 }
 .em-input:focus { border-color: #1a6eff; }
+.em-price-input { display: grid; grid-template-columns: 34% 66%; min-width: 0; }
+.em-price-input > select.em-input { padding-left: 6px; padding-right: 0; font-size: 12px; border-radius: 8px 0 0 8px; }
+.em-price-input > input.em-input { border-left: 0; border-radius: 0 8px 8px 0; min-width: 0; }
 .em-profit {
     padding: 8px 12px; background: #f0f9ff; border: 1.5px solid #bae6fd;
     border-radius: 8px; font-size: 13px; color: #0284c7; font-weight: 600;
@@ -482,11 +485,23 @@
                 </div>
                 <div class="em-group">
                     <label class="em-label">{{ t('sd_th_cost') }}</label>
-                    <input type="number" class="em-input" id="em-costPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                    <div class="em-price-input">
+                        <select class="em-input" id="em-costCurrency" onchange="emConvertPriceCurrency('cost', this)">
+                            <option value="USD">USD</option>
+                            <option value="UZS">UZS</option>
+                        </select>
+                        <input type="number" class="em-input" id="em-costPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                    </div>
                 </div>
                 <div class="em-group">
                     <label class="em-label">{{ t('sd_th_sell') }}</label>
-                    <input type="number" class="em-input" id="em-sellPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                    <div class="em-price-input">
+                        <select class="em-input" id="em-sellCurrency" onchange="emConvertPriceCurrency('sell', this)">
+                            <option value="USD">USD</option>
+                            <option value="UZS">UZS</option>
+                        </select>
+                        <input type="number" class="em-input" id="em-sellPrice" min="0" step="0.01" required oninput="emUpdateProfit()">
+                    </div>
                 </div>
                 <div class="em-group em-half-mob">
                     <label class="em-label">{{ t('sd_th_unit_profit') }}</label>
@@ -745,6 +760,10 @@
                 costPrice: item.stock.product.cost_price,
                 lastBatchCost: item.stock.product.last_batch_cost || null,
                 sellPrice: item.stock.product.sell_price,
+                costCurrencyCode: item.stock.product.cost_currency_code || 'USD',
+                sellCurrencyCode: item.stock.product.sell_currency_code || 'USD',
+                costPriceNative: item.stock.product.cost_price_native,
+                sellPriceNative: item.stock.product.sell_price_native,
                 categoryId: item.stock.product.category_id || '',
                 imageUrl: item.stock.product.image_url || ''
             };
@@ -932,8 +951,16 @@
         document.getElementById('em-quantity').value = (d.quantity % 1 === 0) ? Math.floor(d.quantity) : parseFloat(d.quantity);
         document.getElementById('em-minStock').value = d.minStock;
         document.getElementById('em-globalMinStock').value = d.globalMinStock;
-        document.getElementById('em-costPrice').value = parseFloat(d.costPrice).toFixed(2);
-        document.getElementById('em-sellPrice').value = parseFloat(d.sellPrice).toFixed(2);
+        const costCurrencySel = document.getElementById('em-costCurrency');
+        const sellCurrencySel = document.getElementById('em-sellCurrency');
+        costCurrencySel.value = d.costCurrencyCode || 'USD';
+        costCurrencySel.dataset.prev = costCurrencySel.value;
+        sellCurrencySel.value = d.sellCurrencyCode || 'USD';
+        sellCurrencySel.dataset.prev = sellCurrencySel.value;
+        document.getElementById('em-costPrice').value = costCurrencySel.value === 'UZS'
+            ? Number(d.costPriceNative) : parseFloat(d.costPrice).toFixed(2);
+        document.getElementById('em-sellPrice').value = sellCurrencySel.value === 'UZS'
+            ? Number(d.sellPriceNative) : parseFloat(d.sellPrice).toFixed(2);
         document.getElementById('em-category').value = d.categoryId || '';
         // Rasm preview
         const thumb = document.getElementById('em-img-thumb');
@@ -965,6 +992,22 @@
 
     function closeEditModal() {
         document.getElementById('editModalOverlay').classList.remove('active');
+    }
+
+    // Valyuta almashtirilganda kiritilgan qiymatni joriy kursda yangi valyutaga o'giradi
+    function emConvertPriceCurrency(prefix, select) {
+        const previousCurrency = select.dataset.prev || select.value;
+        const newCurrency = select.value;
+        select.dataset.prev = newCurrency;
+        const rate = Number(window.currentExchangeRate) || 0;
+        const input = document.getElementById(`em-${prefix}Price`);
+        const amount = parseFloat(input.value);
+        if (amount && previousCurrency !== newCurrency && rate > 0) {
+            const usd = previousCurrency === 'UZS' ? amount / rate : amount;
+            const converted = newCurrency === 'UZS' ? usd * rate : usd;
+            input.value = newCurrency === 'UZS' ? Math.round(converted) : converted.toFixed(2);
+        }
+        emUpdateProfit();
     }
 
     function emGenerateBarcode() {
@@ -999,8 +1042,13 @@
     }
 
     function emUpdateProfit() {
-        const cost = parseFloat(document.getElementById('em-costPrice').value) || 0;
-        const sell = parseFloat(document.getElementById('em-sellPrice').value) || 0;
+        const rate = Number(window.currentExchangeRate) || 0;
+        const costCurrency = document.getElementById('em-costCurrency').value;
+        const sellCurrency = document.getElementById('em-sellCurrency').value;
+        const costInput = parseFloat(document.getElementById('em-costPrice').value) || 0;
+        const sellInput = parseFloat(document.getElementById('em-sellPrice').value) || 0;
+        const cost = costCurrency === 'UZS' ? (rate > 0 ? costInput / rate : 0) : costInput;
+        const sell = sellCurrency === 'UZS' ? (rate > 0 ? sellInput / rate : 0) : sellInput;
         const profit = sell - cost;
         const pct = cost > 0 ? (profit / cost * 100).toFixed(1) : '0.0';
         const el = document.getElementById('em-profitDisplay');
@@ -1106,6 +1154,8 @@
             globalMinStock: document.getElementById('em-globalMinStock').value,
             costPrice: document.getElementById('em-costPrice').value,
             sellPrice: document.getElementById('em-sellPrice').value,
+            costCurrencyCode: document.getElementById('em-costCurrency').value,
+            sellCurrencyCode: document.getElementById('em-sellCurrency').value,
             categoryId: document.getElementById('em-category').value || null,
         };
 

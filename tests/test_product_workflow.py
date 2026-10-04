@@ -383,12 +383,29 @@ class ProductWorkflowTests(unittest.TestCase):
                     self.db.session.commit()
                     for location in ('store', 'warehouse'):
                         page.goto(base_url + f'/{location}/1')
+                        page.wait_for_function('window.currentExchangeRate > 0')
                         stock_row = page.locator('#stock-table tbody tr').filter(has_text=f'Browser UZS {width}')
                         stock_row.wait_for()
                         for column, expected in ((4, '5000'), (5, '5000'), (6, '6000'), (7, '1000')):
                             primary = stock_row.locator('td').nth(column).evaluate(
                                 "cell => cell.firstChild.textContent.replace(/[^0-9]/g, '')")
                             self.assertEqual(primary, expected)
+                        stock_row.locator('.btn-action-edit').click()
+                        page.locator('#editModalOverlay.active').wait_for()
+                        self.assertEqual(page.locator('#em-costCurrency').input_value(), 'UZS')
+                        self.assertEqual(page.locator('#em-costPrice').input_value(), '5000')
+                        self.assertEqual(page.locator('#em-sellCurrency').input_value(), 'UZS')
+                        self.assertEqual(page.locator('#em-sellPrice').input_value(), '6000')
+                        page.locator('#em-costCurrency').select_option('USD')
+                        rate = page.evaluate('window.currentExchangeRate')
+                        self.assertAlmostEqual(
+                            float(page.locator('#em-costPrice').input_value()), 5000 / rate, places=2)
+                        page.locator('#em-costCurrency').select_option('UZS')
+                        # USD maydoni 2 kasr xonaga yaxlitlangani uchun qayta UZS'ga o'tishda
+                        # kichik yaxlitlash farqi (~yarim sentgacha) kutiladi, aniq teng emas
+                        self.assertAlmostEqual(
+                            float(page.locator('#em-costPrice').input_value()), 5000, delta=rate * 0.005)
+                        page.locator('.em-btn-cancel').click()
                         page.screenshot(path=str(screenshots / f'{location}-{width}.png'), full_page=True)
                     page.goto(base_url + '/sales')
                     page.wait_for_function("!!getActiveTabElement('locationSelect')?.querySelector('option[value=store_1]')")
@@ -432,6 +449,55 @@ class ProductWorkflowTests(unittest.TestCase):
         self.db.session.expire_all()
         self.assertEqual(product.sell_price_original, Decimal('6000'))
         self.assertEqual(product.sell_price, Decimal('0.5'))
+
+    def test_currency_aware_editor_updates_native_price(self):
+        self.assertEqual(self.receipt().status_code, 201)
+        product = self.module.Product.query.one()
+        self.db.session.add(self.module.Warehouse(
+            id=1, name='Warehouse', address='Test', manager_name='Test'))
+        self.db.session.add(self.module.WarehouseStock(
+            warehouse_id=1, product_id=product.id, quantity=10))
+        self.db.session.commit()
+        for route in (f'/api/edit_store_stock/1/{product.id}',
+                      f'/api/edit_warehouse_stock/1/{product.id}'):
+            with self.subTest(route=route):
+                response = self.client.post(route, json={
+                    'productName': product.name, 'quantity': 10,
+                    'costPrice': '7000', 'sellPrice': '9000',
+                    'costCurrencyCode': 'UZS', 'sellCurrencyCode': 'UZS',
+                })
+                self.assertTrue(response.get_json().get('success'), response.get_json())
+                self.db.session.expire_all()
+                self.assertEqual(product.cost_price_native, Decimal('7000'))
+                self.assertEqual(product.sell_price_native, Decimal('9000'))
+                self.assertEqual(product.cost_currency_code, 'UZS')
+                self.assertEqual(product.sell_currency_code, 'UZS')
+
+    def test_currency_aware_editor_rejects_cross_currency_sell_below_cost(self):
+        self.assertEqual(self.receipt().status_code, 201)
+        product = self.module.Product.query.one()
+        response = self.client.post(f'/api/edit_store_stock/1/{product.id}', json={
+            'productName': product.name, 'quantity': 10,
+            'costPrice': '5000', 'sellPrice': '0.1',
+            'costCurrencyCode': 'UZS', 'sellCurrencyCode': 'USD',
+        })
+        self.assertFalse(response.get_json().get('success'))
+        self.db.session.expire_all()
+        self.assertEqual(product.cost_price_native, Decimal('5000'))
+
+    def test_currency_aware_editor_allows_switching_currency(self):
+        self.assertEqual(self.receipt().status_code, 201)
+        product = self.module.Product.query.one()
+        response = self.client.post(f'/api/edit_store_stock/1/{product.id}', json={
+            'productName': product.name, 'quantity': 10,
+            'costPrice': '0.5', 'sellPrice': '0.6',
+            'costCurrencyCode': 'USD', 'sellCurrencyCode': 'USD',
+        })
+        self.assertTrue(response.get_json().get('success'), response.get_json())
+        self.db.session.expire_all()
+        self.assertEqual(product.cost_currency_code, 'USD')
+        self.assertEqual(product.cost_price_native, Decimal('0.5'))
+        self.assertEqual(product.sell_currency_code, 'USD')
 
     def test_postgres_supplier_snapshot_migration(self):
         if self.db.engine.dialect.name != 'postgresql':

@@ -17,7 +17,7 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal, getcontext, InvalidOperation, localcontext
 from product_pricing import (
     positive_decimal, price_in_usd, receipt_prices,
-    prepare_sale_prices, validate_legacy_price_edit,
+    prepare_sale_prices, validate_legacy_price_edit, apply_price_edit,
 )
 from functools import wraps
 import pytz
@@ -5589,6 +5589,7 @@ def api_store_stock(store_id):
                         'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'cost_price_native': str(stock.product.cost_price_native),
+                        'sell_price_native': str(stock.product.sell_price_native),
                         'min_stock': min_stock,
                         'global_min_stock': stock.product.min_stock,
                         'sell_price': float(stock.product.sell_price),
@@ -6028,6 +6029,7 @@ def api_warehouse_stock(warehouse_id):
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
                         'cost_price_native': str(stock.product.cost_price_native),
+                        'sell_price_native': str(stock.product.sell_price_native),
                         'cost_currency_code': stock.product.cost_currency_code or 'USD',
                         'sell_currency_code': stock.product.sell_currency_code or 'USD',
                         'cost_price_original': float(stock.product.cost_price_original) if stock.product.cost_price_original is not None else None,
@@ -8483,7 +8485,8 @@ def api_edit_store_stock(store_id, product_id):
         new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
-        validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
+        new_cost_currency = data.get('costCurrencyCode')
+        new_sell_currency = data.get('sellCurrencyCode')
         new_category_id = data.get('categoryId')
 
         if not new_product_name:
@@ -8492,8 +8495,10 @@ def api_edit_store_stock(store_id, product_id):
             return jsonify({'success': False, 'error': 'Miqdor manfiy bo\'lishi mumkin emas'}), 400
         if new_cost_price < 0 or new_sell_price < 0:
             return jsonify({'success': False, 'error': 'Narxlar manfiy bo\'lishi mumkin emas'}), 400
-        if new_sell_price < new_cost_price:
-            return jsonify({'success': False, 'error': 'Sotish narxi tan narxidan past bo\'lishi mumkin emas'}), 400
+        if not (new_cost_currency or new_sell_currency):
+            validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
+            if new_sell_price < new_cost_price:
+                return jsonify({'success': False, 'error': 'Sotish narxi tan narxidan past bo\'lishi mumkin emas'}), 400
 
         if new_barcode:
             existing = Product.query.filter(
@@ -8512,8 +8517,14 @@ def api_edit_store_stock(store_id, product_id):
         stock.min_stock = new_min_stock
         if new_global_min_stock not in (None, ''):
             stock.product.min_stock = int(float(new_global_min_stock))
-        stock.product.cost_price = Decimal(str(new_cost_price))
-        stock.product.sell_price = Decimal(str(new_sell_price))
+        if new_cost_currency or new_sell_currency:
+            apply_price_edit(
+                stock.product, new_cost_price, new_cost_currency or stock.product.cost_currency_code or 'USD',
+                new_sell_price, new_sell_currency or stock.product.sell_currency_code or 'USD',
+                rate=get_current_currency_rate())
+        else:
+            stock.product.cost_price = Decimal(str(new_cost_price))
+            stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()
@@ -8563,7 +8574,8 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         new_global_min_stock = data.get('globalMinStock')
         new_cost_price = float(data.get('costPrice', 0))
         new_sell_price = float(data.get('sellPrice', 0))
-        validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
+        new_cost_currency = data.get('costCurrencyCode')
+        new_sell_currency = data.get('sellCurrencyCode')
         new_category_id = data.get('categoryId')
 
         if not new_product_name:
@@ -8572,8 +8584,10 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
             return jsonify({'success': False, 'error': 'Miqdor manfiy bo\'lishi mumkin emas'}), 400
         if new_cost_price < 0 or new_sell_price < 0:
             return jsonify({'success': False, 'error': 'Narxlar manfiy bo\'lishi mumkin emas'}), 400
-        if new_sell_price < new_cost_price:
-            return jsonify({'success': False, 'error': 'Sotish narxi tan narxidan past bo\'lishi mumkin emas'}), 400
+        if not (new_cost_currency or new_sell_currency):
+            validate_legacy_price_edit(stock.product, new_cost_price, new_sell_price)
+            if new_sell_price < new_cost_price:
+                return jsonify({'success': False, 'error': 'Sotish narxi tan narxidan past bo\'lishi mumkin emas'}), 400
 
         if new_barcode:
             existing = Product.query.filter(
@@ -8592,8 +8606,14 @@ def api_edit_warehouse_stock(warehouse_id, product_id):
         stock.min_stock = new_min_stock
         if new_global_min_stock not in (None, ''):
             stock.product.min_stock = int(float(new_global_min_stock))
-        stock.product.cost_price = Decimal(str(new_cost_price))
-        stock.product.sell_price = Decimal(str(new_sell_price))
+        if new_cost_currency or new_sell_currency:
+            apply_price_edit(
+                stock.product, new_cost_price, new_cost_currency or stock.product.cost_currency_code or 'USD',
+                new_sell_price, new_sell_currency or stock.product.sell_currency_code or 'USD',
+                rate=get_current_currency_rate())
+        else:
+            stock.product.cost_price = Decimal(str(new_cost_price))
+            stock.product.sell_price = Decimal(str(new_sell_price))
         stock.product.category_id = int(new_category_id) if new_category_id else None
         stock.quantity = new_quantity
         db.session.commit()

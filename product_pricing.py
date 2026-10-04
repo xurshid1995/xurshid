@@ -107,6 +107,29 @@ def prepare_sale_prices(items, products, rate, quoted_rate):
     return has_uzs
 
 
+def apply_price_edit(product, cost_price, cost_currency, sell_price, sell_currency, rate=None):
+    """Admin tahrirlash: narxlarni tanlangan valyutada to'g'ridan-to'g'ri saqlaydi
+    (og'irlikli o'rtacha hisoblanmaydi, mavjud qiymat butunlay almashtiriladi)."""
+    cost_currency = currency_code(cost_currency)
+    sell_currency = currency_code(sell_currency)
+    cost_amount = Decimal(str(cost_price))
+    sell_amount = Decimal(str(sell_price))
+    if cost_amount < 0 or sell_amount < 0:
+        raise ValueError("Narxlar manfiy bo'lishi mumkin emas")
+    with localcontext() as context:
+        context.prec = 38
+        if cost_currency == 'UZS' or sell_currency == 'UZS':
+            rate = positive_decimal(rate, 'Valyuta kursi')
+        cost_usd = (cost_amount / rate) if cost_currency == 'UZS' else cost_amount
+        sell_usd = (sell_amount / rate) if sell_currency == 'UZS' else sell_amount
+    if sell_usd < cost_usd:
+        raise ValueError("Sotish narxi tan narxidan past bo'lishi mumkin emas!")
+    product.cost_currency_code = cost_currency
+    product.sell_currency_code = sell_currency
+    product.cost_price_native = cost_amount
+    product.sell_price_native = sell_amount
+
+
 def validate_legacy_price_edit(product, cost_price, sell_price):
     for kind, supplied in (('cost', cost_price), ('sell', sell_price)):
         if getattr(product, f'{kind}_currency_code', None) == 'UZS':
