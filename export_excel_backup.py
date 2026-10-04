@@ -94,13 +94,16 @@ def main():
 
     # ── 1. MAHSULOTLAR ────────────────────────────────────────────────
     ws = wb.create_sheet('📦 Mahsulotlar')
-    headers = ['ID', 'Nomi', 'Barcode', 'Tan narx ($)', 'Sotish narx ($)',
+    headers = ['ID', 'Nomi', 'Barcode', 'Tan narx', 'Tan narx valyutasi',
+               'Sotish narx', 'Sotish narx valyutasi',
                'Min zaxira', 'O\'lchov', 'Kategoriya']
     style_header(ws, headers)
     cur.execute("""
         SELECT p.id, p.name, COALESCE(p.barcode, '-'),
                ROUND(p.cost_price::numeric, 4),
+               COALESCE(p.cost_currency_code, 'USD'),
                ROUND(p.sell_price::numeric, 4),
+               COALESCE(p.sell_currency_code, 'USD'),
                p.min_stock, p.unit_type,
                COALESCE(c.name, '-')
         FROM products p

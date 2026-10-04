@@ -6,6 +6,11 @@ database.py modulidan import qilinadi (aylanma importni oldini olish uchun).
 """
 import logging
 from datetime import datetime
+from decimal import Decimal, localcontext
+
+from flask import has_request_context, request
+from sqlalchemy import case, select
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from database import (
     db,
@@ -43,19 +48,15 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     barcode = db.Column(db.String(255), unique=True, nullable=True, index=True)  # Barcode raqami
-    cost_price = db.Column(db.DECIMAL(precision=10, scale=5),
-                           nullable=False)  # Ortacha tan narxi
-    sell_price = db.Column(db.DECIMAL(precision=10, scale=5),
-                           nullable=False)  # Sotish narxi
+    cost_price_native = db.Column('cost_price', db.DECIMAL(precision=29, scale=10), nullable=False)
+    sell_price_native = db.Column('sell_price', db.DECIMAL(precision=29, scale=10), nullable=False)
     cost_currency_code = db.Column(db.String(3))
     sell_currency_code = db.Column(db.String(3))
-    cost_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
-    sell_price_original = db.Column(db.DECIMAL(precision=24, scale=5))
     receipt_exchange_rate = db.Column(db.DECIMAL(precision=15, scale=4))
     min_stock = db.Column(db.Integer, default=0,
                           nullable=False)  # Minimal qoldiq
     unit_type = db.Column(db.String(10), default='dona', nullable=False)  # O'lchov birligi: 'dona' yoki 'litr'
-    last_batch_cost = db.Column(db.DECIMAL(precision=10, scale=4))  # Oxirgi partiya tan narxi
+    last_batch_cost_native = db.Column('last_batch_cost', db.DECIMAL(precision=29, scale=10))
     last_batch_date = db.Column(db.DateTime)  # Oxirgi partiya sanasi
     created_at = db.Column(db.DateTime,
                            default=lambda: get_tashkent_time())  # Qo'shilgan sana
@@ -70,6 +71,95 @@ class Product(db.Model):
     warehouse_stocks = db.relationship('WarehouseStock',
                                        cascade='all, delete-orphan')
     store_stocks = db.relationship('StoreStock', cascade='all, delete-orphan')
+
+    @staticmethod
+    def exchange_rate():
+        if has_request_context() and hasattr(request, 'product_exchange_rate'):
+            return request.product_exchange_rate
+        rate = db.session.query(CurrencyRate.rate).filter_by(
+            is_active=True, from_currency='USD', to_currency='UZS'
+        ).order_by(CurrencyRate.updated_date.desc(), CurrencyRate.id.desc()).limit(1).scalar()
+        if rate is None or rate <= 0:
+            raise ValueError("Valyuta kursi o'rnatilmagan")
+        if has_request_context():
+            request.product_exchange_rate = rate
+        return rate
+
+    @staticmethod
+    def _usd_expression(amount, currency):
+        rate = select(CurrencyRate.rate).where(
+            CurrencyRate.is_active.is_(True), CurrencyRate.from_currency == 'USD',
+            CurrencyRate.to_currency == 'UZS', CurrencyRate.rate > 0
+        ).order_by(CurrencyRate.updated_date.desc(), CurrencyRate.id.desc()).limit(1).scalar_subquery()
+        return case((currency == 'UZS', amount / rate), else_=amount)
+
+    def _usd_amount(self, amount, currency):
+        if amount is None:
+            return None
+        amount = Decimal(str(amount))
+        with localcontext() as context:
+            context.prec = 38
+            return amount / self.exchange_rate() if currency == 'UZS' else amount
+
+    def _native_amount(self, amount, currency):
+        if amount is None:
+            return None
+        amount = Decimal(str(amount))
+        with localcontext() as context:
+            context.prec = 38
+            return amount * self.exchange_rate() if currency == 'UZS' else amount
+
+    @hybrid_property
+    def cost_price(self):
+        return self._usd_amount(self.cost_price_native, self.cost_currency_code)
+
+    @cost_price.setter
+    def cost_price(self, value):
+        self.cost_price_native = self._native_amount(value, self.cost_currency_code)
+
+    @cost_price.expression
+    def cost_price(cls):
+        return cls._usd_expression(cls.cost_price_native, cls.cost_currency_code)
+
+    @hybrid_property
+    def sell_price(self):
+        return self._usd_amount(self.sell_price_native, self.sell_currency_code)
+
+    @sell_price.setter
+    def sell_price(self, value):
+        self.sell_price_native = self._native_amount(value, self.sell_currency_code)
+
+    @sell_price.expression
+    def sell_price(cls):
+        return cls._usd_expression(cls.sell_price_native, cls.sell_currency_code)
+
+    @hybrid_property
+    def last_batch_cost(self):
+        return self._usd_amount(self.last_batch_cost_native, self.cost_currency_code)
+
+    @last_batch_cost.setter
+    def last_batch_cost(self, value):
+        self.last_batch_cost_native = self._native_amount(value, self.cost_currency_code)
+
+    @last_batch_cost.expression
+    def last_batch_cost(cls):
+        return cls._usd_expression(cls.last_batch_cost_native, cls.cost_currency_code)
+
+    @property
+    def cost_price_original(self):
+        return self.last_batch_cost_native
+
+    @cost_price_original.setter
+    def cost_price_original(self, value):
+        self.last_batch_cost_native = value
+
+    @property
+    def sell_price_original(self):
+        return self.sell_price_native
+
+    @sell_price_original.setter
+    def sell_price_original(self, value):
+        self.sell_price_native = value
 
     # Eski price ustunini compatibility uchun property sifatida qoldiraman
     @property
@@ -97,6 +187,8 @@ class Product(db.Model):
             'barcode': self.barcode,  # Barcode qo'shildi
             'cost_price': str(self.cost_price),  # Decimal precision saqlanadi
             'sell_price': str(self.sell_price),  # Decimal precision saqlanadi
+            'cost_price_native': str(self.cost_price_native),
+            'sell_price_native': str(self.sell_price_native),
             'cost_currency_code': self.cost_currency_code or 'USD',
             'sell_currency_code': self.sell_currency_code or 'USD',
             'cost_price_original': str(self.cost_price_original) if self.cost_price_original is not None else None,

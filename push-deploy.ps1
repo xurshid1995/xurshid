@@ -4,6 +4,36 @@
 
 $ErrorActionPreference = "Stop"
 
+$nativeSchemaCheck = @'
+import os
+import sys
+import psycopg2
+from dotenv import load_dotenv
+load_dotenv('/var/www/xurshid/.env')
+try:
+    connection = psycopg2.connect(
+        host=os.getenv('DB_HOST', 'localhost'), port=os.getenv('DB_PORT', '5432'),
+        dbname=os.environ['DB_NAME'], user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'],
+        connect_timeout=10)
+    connection.set_session(readonly=True)
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT count(*) FROM information_schema.columns "
+                       "WHERE table_schema='public' AND table_name='products' "
+                       "AND column_name IN ('cost_price_original', 'sell_price_original')")
+        legacy_columns = cursor.fetchone()[0]
+    connection.close()
+    if legacy_columns:
+        print('STOP: product_prices_native_currency.sql must be applied during maintenance before deployment.')
+        sys.exit(1)
+except Exception:
+    print('STOP: Cannot verify native product price schema; deployment aborted.')
+    sys.exit(1)
+'@
+$nativeSchemaCheck | ssh root@sergeli0606.uz "cd /var/www/xurshid && venv/bin/python -"
+if ($LASTEXITCODE -ne 0) {
+    throw "Native narx migratsiyasi tekshiruvi o'tmadi. Push va deploy bajarilmadi."
+}
+
 Write-Host ""
 Write-Host "======================================" -ForegroundColor DarkGray
 Write-Host "  PUSH and DEPLOY" -ForegroundColor White

@@ -14,7 +14,7 @@ import threading as _threading
 import requests
 from translations import TRANSLATIONS
 from datetime import datetime, timezone, timedelta
-from decimal import Decimal, getcontext, InvalidOperation
+from decimal import Decimal, getcontext, InvalidOperation, localcontext
 from product_pricing import (
     positive_decimal, price_in_usd, receipt_prices,
     prepare_sale_prices, validate_legacy_price_edit,
@@ -404,7 +404,7 @@ def check_password(password, hashed):
         return False
 
 
-def calculate_average_cost(product_id, new_quantity, new_batch_cost):
+def calculate_average_cost(product_id, new_quantity, new_batch_cost, currency='USD', rate=None):
     """
     Og'irlikli o'rtacha tan narxni backend'da hisoblash.
     Formula: (mavjud_qty * mavjud_narx + yangi_qty * yangi_narx) / (mavjud_qty + yangi_qty)
@@ -418,7 +418,9 @@ def calculate_average_cost(product_id, new_quantity, new_batch_cost):
     product = Product.query.filter_by(id=product_id).with_for_update().first()
     if product is None:
         # Mahsulot topilmasa - oddiygina yangi batch narxi
-        return Decimal(str(new_batch_cost)).quantize(Decimal('0.00001'))
+        with localcontext() as context:
+            context.prec = 38
+            return Decimal(str(new_batch_cost)).quantize(Decimal('0.00001'))
 
     warehouse_qty = db.session.query(
         sql_func.sum(WarehouseStock.quantity)
@@ -430,18 +432,26 @@ def calculate_average_cost(product_id, new_quantity, new_batch_cost):
 
     total_existing_qty = Decimal(str(warehouse_qty)) + Decimal(str(store_qty))
 
-    existing_cost = product.cost_price or Decimal('0')
+    with localcontext() as context:
+        context.prec = 38
+        existing_cost = product.cost_price_native or Decimal('0')
+        existing_currency = product.cost_currency_code or 'USD'
+        if total_existing_qty > 0 and existing_cost > 0 and existing_currency != currency:
+            rate = Decimal(str(rate)) if rate is not None else Product.exchange_rate()
+            existing_cost = price_in_usd(existing_cost, existing_currency, rate)
+            if currency == 'UZS':
+                existing_cost *= rate
 
-    existing_value = total_existing_qty * existing_cost
-    new_value = Decimal(str(new_quantity)) * Decimal(str(new_batch_cost))
-    total_qty = total_existing_qty + Decimal(str(new_quantity))
+        existing_value = total_existing_qty * existing_cost
+        new_value = Decimal(str(new_quantity)) * Decimal(str(new_batch_cost))
+        total_qty = total_existing_qty + Decimal(str(new_quantity))
 
-    if total_qty > 0:
-        average = (existing_value + new_value) / total_qty
-    else:
-        average = Decimal(str(new_batch_cost))
+        if total_qty > 0:
+            average = (existing_value + new_value) / total_qty
+        else:
+            average = Decimal(str(new_batch_cost))
 
-    return average.quantize(Decimal('0.00001'))
+        return average.quantize(Decimal('0.00001'))
 
 
 def validate_quantity(quantity, field_name='Miqdor'):
@@ -2001,7 +2011,10 @@ def api_batch_products():
 
         created_count = 0
         supplier_batches = {}  # supplier_id -> SupplierPurchaseBatch (bitta so'rovdagi barcha mahsulotlar shu batch'ga bog'lanadi, Sale/SaleItem kabi)
-        receipt_rate = get_current_currency_rate()
+        current_rate = get_current_currency_rate()
+        receipt_rate = Decimal(str(current_rate)) if current_rate is not None else None
+        if receipt_rate is not None:
+            request.product_exchange_rate = receipt_rate
         for product_data in products:
             receipt_prices(product_data, receipt_rate)
 
@@ -2060,7 +2073,12 @@ def api_batch_products():
             category_id = int(raw_cat_id) if raw_cat_id else None
 
             # Mahsulot mavjudligini tekshirish
-            product = Product.query.filter_by(name=name).first()
+            product = Product.query.filter_by(name=name).with_for_update().first()
+            if (product is not None and product.cost_currency_code == 'UZS'
+                    and original_prices['cost_currency_code'] == 'USD'):
+                quoted_rate = Decimal(str(product_data.get('receipt_exchange_rate') or 0))
+                if receipt_rate is None or receipt_rate <= 0 or quoted_rate != receipt_rate:
+                    raise ValueError("Kurs o'zgardi. Kirim narxlarini qayta tekshiring.")
             if not product:
                 # Yangi mahsulot yaratish
                 logger.info("✨ Yangi mahsulot yaratilmoqda")
@@ -2068,9 +2086,11 @@ def api_batch_products():
                 product = Product(
                     name=name,
                     barcode=barcode,  # Barcode saqlash
-                    cost_price=cost_price,
-                    sell_price=sell_price,
-                    last_batch_cost=last_batch_cost,  # Frontend'dan kelgan qiymat
+                    cost_price_native=original_prices['cost_price_original'],
+                    sell_price_native=original_prices['sell_price_original'],
+                    last_batch_cost_native=original_prices['cost_price_original'],
+                    cost_currency_code=original_prices['cost_currency_code'],
+                    sell_currency_code=original_prices['sell_currency_code'],
                     last_batch_date=get_tashkent_time(),
                     min_stock=global_min_stock,
                     unit_type=product_data.get('unitType', 'dona'),  # O'lchov birligi
@@ -2089,12 +2109,15 @@ def api_batch_products():
 
                 # Backend'da og'irlikli o'rtacha hisoblash
                 average_cost = calculate_average_cost(
-                    product.id, quantity, last_batch_cost
+                    product.id, quantity, original_prices['cost_price_original'],
+                    original_prices['cost_currency_code'], receipt_rate
                 )
-                logger.info(f"   Hisoblangan o'rtacha: ${average_cost}")
+                logger.info("Hisoblangan o'rtacha: %s %s", average_cost,
+                            original_prices['cost_currency_code'])
 
                 # Ortacha narxni saqlash
-                product.cost_price = average_cost
+                product.cost_price_native = average_cost
+                product.cost_currency_code = original_prices['cost_currency_code']
 
                 # Barcode yangilash (agar kiritilgan bo'lsa)
                 if barcode:
@@ -2109,13 +2132,14 @@ def api_batch_products():
                     product.category_id = category_id
 
                 # Oxirgi partiya ma'lumotlarini saqlash
-                product.last_batch_cost = last_batch_cost
+                product.last_batch_cost_native = original_prices['cost_price_original']
                 product.last_batch_date = get_tashkent_time()
 
                 logger.info(f"✅ Yangilandi - barcode: {product.barcode}, cost_price: ${product.cost_price}, last_batch_cost: ${product.last_batch_cost}")
 
                 # Boshqa maydonlar
-                product.sell_price = sell_price
+                product.sell_price_native = original_prices['sell_price_original']
+                product.sell_currency_code = original_prices['sell_currency_code']
                 product.min_stock = global_min_stock
 
             for field, value in original_prices.items():
@@ -2137,8 +2161,8 @@ def api_batch_products():
                 if stock:
                     # Race condition oldini olish - atomic UPDATE
                     db.session.execute(
-                        text("UPDATE warehouse_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
-                        {'qty': quantity, 'min_stock': min_stock, 'stock_id': stock.id}
+                        db.update(WarehouseStock).where(WarehouseStock.id == stock.id).values(
+                            quantity=WarehouseStock.quantity + quantity, min_stock=min_stock)
                     )
                     db.session.refresh(stock)
                 else:
@@ -2163,8 +2187,8 @@ def api_batch_products():
                 if stock:
                     # Race condition oldini olish - atomic UPDATE
                     db.session.execute(
-                        text("UPDATE store_stocks SET quantity = quantity + :qty, min_stock = :min_stock WHERE id = :stock_id"),
-                        {'qty': quantity, 'min_stock': min_stock, 'stock_id': stock.id}
+                        db.update(StoreStock).where(StoreStock.id == stock.id).values(
+                            quantity=StoreStock.quantity + quantity, min_stock=min_stock)
                     )
                     db.session.refresh(stock)
                 else:
@@ -5564,6 +5588,7 @@ def api_store_stock(store_id):
                         'barcode': stock.product.barcode,
                         'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
+                        'cost_price_native': str(stock.product.cost_price_native),
                         'min_stock': min_stock,
                         'global_min_stock': stock.product.min_stock,
                         'sell_price': float(stock.product.sell_price),
@@ -6002,6 +6027,7 @@ def api_warehouse_stock(warehouse_id):
                         'unit_type': stock.product.unit_type,
                         'cost_price': float(stock.product.cost_price),
                         'sell_price': float(stock.product.sell_price),
+                        'cost_price_native': str(stock.product.cost_price_native),
                         'cost_currency_code': stock.product.cost_currency_code or 'USD',
                         'sell_currency_code': stock.product.sell_currency_code or 'USD',
                         'cost_price_original': float(stock.product.cost_price_original) if stock.product.cost_price_original is not None else None,

@@ -708,10 +708,8 @@
 
     function stockUzs(product, unitProfit, rate) {
         const hasRate = Number(rate) > 0;
-        // UZS tan narx kirim kursida qat'iy; USD tan narx joriy kursda o'giriladi
-        const costRate = product.cost_currency_code === 'UZS' && product.receipt_exchange_rate > 0
-            ? product.receipt_exchange_rate : rate;
-        const costUzs = Number(costRate) > 0 ? product.cost_price * costRate : null;
+        const costUzs = product.cost_currency_code === 'UZS' && product.cost_price_native != null
+            ? Number(product.cost_price_native) : (hasRate ? product.cost_price * rate : null);
         const sellUzs = product.sell_currency_code === 'UZS' && product.sell_price_original > 0
             ? product.sell_price_original : (hasRate ? product.sell_price * rate : null);
         const lastBatchUzs = product.cost_currency_code === 'UZS' && product.cost_price_original > 0

@@ -61,14 +61,35 @@ class ProductWorkflowTests(unittest.TestCase):
         self.db.drop_all()
         self.context.pop()
 
-    def receipt(self, currency='UZS', name='Test product'):
+    def receipt(self, currency='UZS', name='Test product', rate='12000'):
         return self.client.post('/api/batch-products', json={'products': [{
             'name': name, 'quantity': 10, 'location_type': 'store', 'location_id': 1,
             'cost_price': '5000' if currency == 'UZS' else '5',
             'sell_price': '6000' if currency == 'UZS' else '6',
             'cost_currency_code': currency, 'sell_currency_code': currency,
-            'receipt_exchange_rate': '12000',
+            'receipt_exchange_rate': rate,
         }]})
+
+    def test_product_native_storage_and_computed_usd(self):
+        product = self.module.Product(
+            name='Native product', cost_currency_code='UZS', sell_currency_code='UZS',
+            cost_price_native=Decimal('5000'), sell_price_native=Decimal('6000'),
+            last_batch_cost_native=Decimal('5000'))
+        self.db.session.add(product)
+        self.db.session.commit()
+        self.assertEqual(product.sell_price, Decimal('0.5'))
+        self.module.CurrencyRate.query.one().rate = Decimal('12500')
+        self.db.session.commit()
+        self.assertEqual(product.cost_price, Decimal('0.4'))
+        self.assertEqual(product.sell_price, Decimal('0.48'))
+        row = self.db.session.execute(self.db.text(
+            'SELECT cost_price, sell_price, last_batch_cost FROM products')).one()
+        self.assertEqual(tuple(row), (5000, 6000, 5000))
+        columns = self.module.Product.__table__.columns.keys()
+        self.assertNotIn('cost_price_original', columns)
+        self.assertNotIn('sell_price_original', columns)
+        sql_price = self.db.session.query(self.module.Product.sell_price).scalar()
+        self.assertAlmostEqual(sql_price, Decimal('0.48'))
 
     def test_receipt_sale_and_historical_prices(self):
         response = self.receipt()
@@ -76,7 +97,8 @@ class ProductWorkflowTests(unittest.TestCase):
         product = self.module.Product.query.one()
         self.assertEqual(product.cost_price_original, Decimal('5000'))
         self.assertEqual(product.sell_price_original, Decimal('6000'))
-        self.assertEqual(product.cost_price, Decimal('0.41667'))
+        self.assertEqual(product.cost_price_native, Decimal('5000'))
+        self.assertAlmostEqual(product.cost_price, Decimal('5000') / Decimal('12000'))
         history = self.module.ProductAddHistory.query.one()
         self.assertEqual(history.receipt_exchange_rate, Decimal('12000'))
         self.module.CurrencyRate.query.one().rate = Decimal('12500')
@@ -96,7 +118,69 @@ class ProductWorkflowTests(unittest.TestCase):
         self.db.session.commit()
         self.db.session.expire_all()
         self.assertEqual(item.unit_price, Decimal('0.48'))
-        self.assertEqual(product.cost_price, Decimal('0.41667'))
+        self.assertEqual(product.cost_price_native, Decimal('5000'))
+        self.assertAlmostEqual(product.cost_price, Decimal('5000') / Decimal('13000'))
+
+    def test_repeat_receipt_converts_existing_stock_to_new_currency(self):
+        self.assertEqual(self.receipt('USD').status_code, 201)
+        self.assertEqual(self.receipt('UZS').status_code, 201)
+        product = self.module.Product.query.one()
+        self.assertEqual(product.cost_currency_code, 'UZS')
+        self.assertEqual(product.cost_price_native, Decimal('32500'))
+        self.assertEqual(product.last_batch_cost_native, Decimal('5000'))
+        self.assertEqual(product.sell_price_native, Decimal('6000'))
+        self.assertEqual(product.store_stocks[0].quantity, Decimal('20'))
+        self.module.CurrencyRate.query.one().rate = Decimal('13000')
+        self.db.session.commit()
+        stale = self.receipt('USD')
+        self.assertEqual(stale.status_code, 400)
+        self.db.session.expire_all()
+        self.assertEqual(product.cost_currency_code, 'UZS')
+        self.assertEqual(product.cost_price_native, Decimal('32500'))
+        self.assertEqual(product.store_stocks[0].quantity, Decimal('20'))
+        self.assertEqual(self.receipt('USD', rate='13000').status_code, 201)
+        self.db.session.expire_all()
+        self.assertEqual(product.cost_currency_code, 'USD')
+        self.assertEqual(product.cost_price_native, Decimal('3.33333'))
+        self.assertEqual(product.sell_price_native, Decimal('6'))
+
+    def test_repeat_uzs_receipt_does_not_revalue_existing_stock(self):
+        self.assertEqual(self.receipt().status_code, 201)
+        self.module.CurrencyRate.query.one().rate = Decimal('13000')
+        self.db.session.commit()
+        response = self.client.post('/api/batch-products', json={'products': [{
+            'name': 'Test product', 'quantity': 10, 'location_type': 'store', 'location_id': 1,
+            'cost_price': '7000', 'sell_price': '9000', 'cost_currency_code': 'UZS',
+            'sell_currency_code': 'UZS', 'receipt_exchange_rate': '13000',
+        }]})
+        self.assertEqual(response.status_code, 201, response.get_json())
+        product = self.module.Product.query.one()
+        self.assertEqual(product.cost_price_native, Decimal('6000'))
+        self.assertEqual(product.cost_price_original, Decimal('7000'))
+        self.assertEqual(product.sell_price_native, Decimal('9000'))
+
+    def test_stock_views_use_native_cost_and_current_usd(self):
+        self.assertEqual(self.receipt().status_code, 201)
+        product = self.module.Product.query.one()
+        self.db.session.add(self.module.Warehouse(
+            id=1, name='Warehouse', address='Test', manager_name='Test'))
+        self.db.session.add(self.module.WarehouseStock(
+            warehouse_id=1, product_id=product.id, quantity=10))
+        self.module.CurrencyRate.query.one().rate = Decimal('13000')
+        self.db.session.commit()
+        for location in ('store', 'warehouse'):
+            with self.subTest(location=location):
+                response = self.client.get(f'/api/{location}/1/stock')
+                self.assertEqual(response.status_code, 200, response.get_json())
+                data = response.get_json()['data']
+                row = data['stock_info'][0]
+                self.assertEqual(Decimal(row['stock']['product']['cost_price_native']), Decimal('5000'))
+                self.assertAlmostEqual(row['stock']['product']['cost_price'], 5000 / 13000)
+                self.assertAlmostEqual(row['stock']['product']['sell_price'], 6000 / 13000)
+                self.assertAlmostEqual(row['unit_profit'], 1000 / 13000)
+                self.assertAlmostEqual(row['profit_percentage'], 20)
+                page = self.client.get(f'/{location}/1')
+                self.assertEqual(page.status_code, 200)
 
     def test_usd_receipt_is_unchanged(self):
         response = self.receipt('USD')
@@ -255,6 +339,9 @@ class ProductWorkflowTests(unittest.TestCase):
         from playwright.sync_api import sync_playwright
         from werkzeug.serving import make_server
 
+        self.db.session.add(self.module.Warehouse(
+            id=1, name='Browser warehouse', address='Test', manager_name='Test'))
+        self.db.session.commit()
         server = make_server('127.0.0.1', 0, self.module.app, threaded=False)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
@@ -274,7 +361,7 @@ class ProductWorkflowTests(unittest.TestCase):
                     page.on('pageerror', lambda error: errors.append(str(error)))
                     page.on('dialog', lambda dialog: dialog.accept())
                     page.goto(base_url + '/add_product_session')
-                    page.wait_for_function("Number(document.getElementById('receipt_rate').value) > 0")
+                    page.wait_for_function('receiptExchangeRate > 0')
                     page.locator('#location').select_option('store_1')
                     page.locator('#cost_currency_code').select_option('UZS')
                     page.locator('#sell_currency_code').select_option('UZS')
@@ -283,7 +370,7 @@ class ProductWorkflowTests(unittest.TestCase):
                     page.locator('#sell_price').fill('6000')
                     page.locator('#quantity').fill('10')
                     self.assertIn("so'm", page.locator('#original_cost').input_value())
-                    page.locator('#receipt_rate').click()
+                    page.locator('#quantity').blur()
                     page.screenshot(path=str(screenshots / f'receipt-{width}.png'), full_page=True, animations='disabled')
                     page.evaluate('addToTempList()')
                     self.assertEqual(page.evaluate('tempProducts[0].sell_price_original'), 6000)
@@ -291,6 +378,18 @@ class ProductWorkflowTests(unittest.TestCase):
                         page.evaluate('submitAllProducts()')
                     self.assertEqual(saved.value.status, 201, saved.value.text())
                     product_id = saved.value.json()['saved_products'][0]['id']
+                    self.db.session.add(self.module.WarehouseStock(
+                        warehouse_id=1, product_id=product_id, quantity=10))
+                    self.db.session.commit()
+                    for location in ('store', 'warehouse'):
+                        page.goto(base_url + f'/{location}/1')
+                        stock_row = page.locator('#stock-table tbody tr').filter(has_text=f'Browser UZS {width}')
+                        stock_row.wait_for()
+                        for column, expected in ((4, '5000'), (5, '5000'), (6, '6000'), (7, '1000')):
+                            primary = stock_row.locator('td').nth(column).evaluate(
+                                "cell => cell.firstChild.textContent.replace(/[^0-9]/g, '')")
+                            self.assertEqual(primary, expected)
+                        page.screenshot(path=str(screenshots / f'{location}-{width}.png'), full_page=True)
                     page.goto(base_url + '/sales')
                     page.wait_for_function("!!getActiveTabElement('locationSelect')?.querySelector('option[value=store_1]')")
                     page.evaluate("getActiveTabElement('locationSelect').value = 'store_1'; getActiveTabElement('locationSelect').dispatchEvent(new Event('change', {bubbles:true}))")
@@ -379,6 +478,47 @@ class ProductWorkflowTests(unittest.TestCase):
         self.assertIsNone(ambiguous.cost_price_original)
         self.assertNotIn('receipt_total_uzs', ambiguous.to_dict())
 
+    def test_postgres_native_migration_is_atomic_and_repeatable(self):
+        if self.db.engine.dialect.name != 'postgresql':
+            self.skipTest('PostgreSQL-only native price migration')
+        self.assertEqual(self.receipt('USD').status_code, 201)
+        self.assertEqual(self.receipt('USD', 'Legacy UZS').status_code, 201)
+        migration = (Path(__file__).resolve().parents[1] / 'migrations' /
+                     'product_prices_native_currency.sql').read_text(encoding='utf-8')
+        self.db.session.remove()
+        connection = self.db.engine.raw_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute('ALTER TABLE products ADD COLUMN cost_price_original NUMERIC(24,5), '
+                           'ADD COLUMN sell_price_original NUMERIC(24,5)')
+            cursor.execute("UPDATE products SET cost_price=1.1234567891, sell_price=2.1234567891, "
+                           "last_batch_cost=0.9876543210 WHERE name='Test product'")
+            cursor.execute("UPDATE products SET cost_price=1, sell_price=0.5, last_batch_cost=0.4167, "
+                           "cost_currency_code='UZS', sell_currency_code='UZS', "
+                           "cost_price_original=5000, sell_price_original=6000, receipt_exchange_rate=12000 "
+                           "WHERE name='Legacy UZS'")
+            connection.commit()
+            with self.assertRaises(Exception) as failure:
+                cursor.execute(migration)
+            self.assertIn('needs reconciliation', str(failure.exception))
+            connection.rollback()
+            cursor.execute("SELECT cost_price, cost_price_original FROM products WHERE name='Legacy UZS'")
+            self.assertEqual(cursor.fetchone(), (Decimal('1'), Decimal('5000')))
+            cursor.execute("UPDATE products SET cost_price=0.41667 WHERE name='Legacy UZS'")
+            connection.commit()
+            cursor.execute(migration)
+            cursor.execute(migration)
+            cursor.execute("SELECT cost_price, sell_price, last_batch_cost FROM products WHERE name='Legacy UZS'")
+            self.assertEqual(cursor.fetchone(), (Decimal('5000'), Decimal('6000'), Decimal('5000')))
+            cursor.execute("SELECT cost_price, sell_price, last_batch_cost FROM products WHERE name='Test product'")
+            self.assertEqual(cursor.fetchone(), (Decimal('1.1234567891'), Decimal('2.1234567891'),
+                                                 Decimal('0.9876543210')))
+            cursor.execute('SELECT count(*) FROM product_add_history')
+            self.assertEqual(cursor.fetchone()[0], 2)
+            cursor.close()
+        finally:
+            connection.close()
+
     def test_postgres_repeat_receipt_and_migration(self):
         if self.db.engine.dialect.name != 'postgresql':
             self.skipTest('PostgreSQL-only migration and atomic stock test')
@@ -397,24 +537,28 @@ class ProductWorkflowTests(unittest.TestCase):
                 for column in ('cost_currency_code', 'sell_currency_code',
                                'cost_price_original', 'sell_price_original',
                                'receipt_exchange_rate'):
-                    cursor.execute(f'ALTER TABLE {table} DROP COLUMN {column}')
+                    cursor.execute(f'ALTER TABLE {table} DROP COLUMN IF EXISTS {column}')
             cursor.execute('ALTER TABLE sale_items DROP COLUMN price_currency_code, DROP COLUMN unit_price_original')
             connection.commit()
             migration = (Path(__file__).resolve().parents[1] / 'migrations' /
                          'add_fixed_uzs_product_prices.sql').read_text(encoding='utf-8')
             cursor.execute(migration)
             cursor.execute(migration)
+            native_migration = (Path(__file__).resolve().parents[1] / 'migrations' /
+                                'product_prices_native_currency.sql').read_text(encoding='utf-8')
+            cursor.execute(native_migration)
             cursor.close()
         finally:
             connection.close()
         product = self.db.session.get(self.module.Product, product_id)
         self.assertEqual(product.cost_price, old_cost)
         self.assertEqual(product.sell_price, old_sell)
-        self.assertIsNone(product.sell_currency_code)
+        self.assertEqual(product.sell_currency_code, 'USD')
         response = self.receipt()
         self.assertEqual(response.status_code, 201, response.get_json())
         self.db.session.expire_all()
-        self.assertEqual(product.cost_price, Decimal('2.70833'))
+        self.assertEqual(product.cost_price_native, Decimal('32500'))
+        self.assertAlmostEqual(product.cost_price, Decimal('32500') / Decimal('12000'))
         self.assertEqual(product.sell_price_original, Decimal('6000'))
         self.assertEqual(product.store_stocks[0].quantity, Decimal('20'))
         self.assertEqual(self.db.session.execute(text('SELECT count(*) FROM product_add_history')).scalar(), 2)
