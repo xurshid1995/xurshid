@@ -24,6 +24,9 @@
                     📦 Mahsulot qoldig'i
                     <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:22px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
                 </button>
+                <button onclick="switchDbTab('products')" id="db-tab-btn-products" class="db-tab-btn">
+                    📈 Mahsulot analitikasi
+                </button>
             </div>
         </div>
 
@@ -172,6 +175,70 @@
             <div class="db-stock-table-card">
                 <div id="stockOverviewList" style="padding:0;overflow-x:auto;">
                     <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Mahsulot analitikasi Tab ===== -->
+        <div class="col-12" id="db-tab-products" style="display:none;">
+            <div class="db-card">
+                <div class="db-card-head">
+                    <span class="db-card-label">📈 Mahsulot analitikasi</span>
+                    <div class="db-time-filters">
+                        <div class="db-tf-row1">
+                        <button class="db-pa-tf-btn db-tf-btn-wide active" data-period="today" onclick="paSetPeriod('today')">📅 Bugun</button>
+                        <button class="db-pa-tf-btn" data-period="week" onclick="paSetPeriod('week')">📊 Bu hafta</button>
+                        <button class="db-pa-tf-btn" data-period="month" onclick="paSetPeriod('month')">📈 Bu oy</button>
+                        </div>
+                        <div class="db-tf-row2">
+                        <span class="db-tf-sep">|</span>
+                        <div class="db-daterange">
+                            <input type="date" id="paDateFrom" class="db-pa-date-input" onchange="paApplyCustomRange()">
+                            <input type="date" id="paDateTo" class="db-pa-date-input" onchange="paApplyCustomRange()">
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="db-location-row">
+                    <div id="paLocButtons" class="db-loc-btns">
+                        <button class="db-pa-loc-btn active" data-location="" data-location-type="" onclick="paSelectLocation(this, '', '')">🏢 Barchasi</button>
+                    </div>
+                </div>
+
+                <div style="padding:14px 20px 0;">
+                    <div class="db-tabs" style="margin-bottom:14px;">
+                        <button onclick="switchDbSubTab('top')" id="db-pa-subtab-btn-top" class="db-tab-btn db-tab-active" style="padding:7px 14px; font-size:12.5px;">
+                            🏆 Top mahsulotlar
+                        </button>
+                        <button onclick="switchDbSubTab('margin')" id="db-pa-subtab-btn-margin" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px;">
+                            💹 Foydali mahsulotlar
+                        </button>
+                        <button onclick="switchDbSubTab('nonselling')" id="db-pa-subtab-btn-nonselling" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px;">
+                            📪 Sotilmayotgan mahsulotlar
+                        </button>
+                    </div>
+
+                    <!-- Sub-tab: Top mahsulotlar -->
+                    <div id="db-pa-subtab-top" style="padding-bottom:16px;">
+                        <div id="paTopProducts">
+                            <div class="pa-loading">Yuklanmoqda...</div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-tab: Foydali mahsulotlar -->
+                    <div id="db-pa-subtab-margin" style="display:none; padding-bottom:16px;">
+                        <div id="paMarginProducts">
+                            <div class="pa-loading">Yuklanmoqda...</div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-tab: Sotilmayotgan mahsulotlar -->
+                    <div id="db-pa-subtab-nonselling" style="display:none; padding-bottom:16px;">
+                        <div style="font-size:12px; color:#888; font-weight:600; margin-bottom:8px;" id="paNonSellingSummary"></div>
+                        <div id="paNonSellingProducts">
+                            <div class="pa-loading">Yuklanmoqda...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -437,6 +504,99 @@
     color: #ffffff;
     font-weight: 600;
 }
+
+/* Mahsulot analitikasi tab uchun vaqt/sana/joylashuv filtrlari */
+.db-pa-tf-btn {
+    background: transparent;
+    border: 1.5px solid #e2e8f0;
+    color: #475569;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.db-pa-tf-btn:hover:not(.active) { border-color: #1a6eff; color: #1a6eff; }
+.db-pa-tf-btn.active {
+    background: #1a6eff;
+    border-color: #1a6eff;
+    color: #ffffff;
+    font-weight: 600;
+}
+.db-pa-date-input {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #475569;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 130px;
+    font-family: inherit;
+}
+.db-pa-date-input:focus { border-color: #1a6eff; }
+.db-pa-date-input.active {
+    border-color: #1a6eff;
+    background: #eff4ff;
+    color: #1a6eff;
+    font-weight: 600;
+}
+.db-pa-loc-btn {
+    background: transparent;
+    border: 1.5px solid #cbd5e1;
+    color: #475569;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.db-pa-loc-btn:hover:not(.active) { border-color: #1a6eff; color: #1a6eff; }
+.db-pa-loc-btn.active {
+    background: #1a6eff;
+    border-color: #1a6eff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Mahsulot analitikasi: ro'yxat qatorlari */
+.pa-loading { color: #bbb; font-size: 13px; text-align: center; padding: 20px; }
+.pa-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f7f8fa;
+    font-size: 13px;
+}
+.pa-row:last-child { border-bottom: none; }
+.pa-rank {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #f0f2f5;
+    color: #666;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+.pa-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: #f0f2f5;
+    border-radius: 3px;
+    margin: 0 10px;
+    overflow: hidden;
+}
+.pa-bar { height: 100%; border-radius: 3px; background: #1a6eff; }
 
 /* ===== Mahsulot qoldig'i: alohida kartalar (savdo tarixi uslubi) ===== */
 .db-stock-header {
@@ -996,9 +1156,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ===== Dashboard asosiy tablari (Savdo dinamikasi / Mahsulot qoldig'i) =====
+// ===== Dashboard asosiy tablari (Savdo dinamikasi / Mahsulot qoldig'i / Mahsulot analitikasi) =====
 function switchDbTab(tab) {
-    ['sales', 'stock'].forEach(t => {
+    ['sales', 'stock', 'products'].forEach(t => {
         const el = document.getElementById('db-tab-' + t);
         if (el) el.style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('db-tab-btn-' + t);
@@ -1787,5 +1947,220 @@ function renderRecentTransfers(transfers) {
         </div>`;
     }).join('');
 }
+</script>
+
+<script>
+// ============================================================
+// Mahsulot analitikasi (Dashboard) - Top mahsulotlar / Foydali / Sotilmayotgan
+// ============================================================
+let paCurrentDateFrom = '';
+let paCurrentDateTo = '';
+let paLocFilter = null;
+let paLocationsLoaded = false;
+
+function paFmtDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+function paFmtUsd(v) {
+    return '$' + parseFloat(v || 0).toLocaleString('uz-UZ', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function paFmtNum(v) {
+    return parseInt(v || 0).toLocaleString('uz-UZ');
+}
+
+function paSetPeriod(period) {
+    document.querySelectorAll('.db-pa-tf-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.db-pa-tf-btn[data-period="${period}"]`);
+    if (btn) btn.classList.add('active');
+
+    const df = document.getElementById('paDateFrom');
+    const dt = document.getElementById('paDateTo');
+    const today = new Date();
+
+    if (period === 'today') {
+        paCurrentDateFrom = paFmtDate(today);
+        paCurrentDateTo = paFmtDate(today);
+    } else if (period === 'week') {
+        const mon = new Date(today);
+        const diff = (today.getDay() + 6) % 7;
+        mon.setDate(today.getDate() - diff);
+        paCurrentDateFrom = paFmtDate(mon);
+        paCurrentDateTo = paFmtDate(today);
+    } else if (period === 'month') {
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        paCurrentDateFrom = paFmtDate(first);
+        paCurrentDateTo = paFmtDate(today);
+    }
+    if (df) { df.value = paCurrentDateFrom; df.classList.remove('active'); }
+    if (dt) { dt.value = paCurrentDateTo; dt.classList.remove('active'); }
+
+    loadProductAnalytics();
+}
+
+function paApplyCustomRange() {
+    const df = document.getElementById('paDateFrom');
+    const dt = document.getElementById('paDateTo');
+    const dateFrom = df ? df.value : '';
+    const dateTo = dt ? dt.value : '';
+    if (!dateFrom || !dateTo) return;
+
+    document.querySelectorAll('.db-pa-tf-btn').forEach(b => b.classList.remove('active'));
+    df.classList.add('active');
+    dt.classList.add('active');
+    paCurrentDateFrom = dateFrom;
+    paCurrentDateTo = dateTo;
+
+    loadProductAnalytics();
+}
+
+async function loadPaLocations() {
+    if (paLocationsLoaded) return;
+    try {
+        const res = await fetch('/api/stores-warehouses');
+        const data = await res.json();
+        const container = document.getElementById('paLocButtons');
+        if (!container) return;
+        (data.locations || []).forEach(loc => {
+            const btn = document.createElement('button');
+            btn.className = 'db-pa-loc-btn';
+            btn.setAttribute('data-location', loc.id);
+            btn.setAttribute('data-location-type', loc.type);
+            const icon = loc.type === 'store' ? '🏪' : '🏭';
+            btn.innerHTML = `${icon} ${escDbHtml(loc.name)}`;
+            btn.onclick = () => paSelectLocation(btn, loc.id, loc.type);
+            container.appendChild(btn);
+        });
+        paLocationsLoaded = true;
+    } catch (e) {
+        console.error('Mahsulot analitikasi joylashuvlarini yuklashda xatolik:', e);
+    }
+}
+
+function paSelectLocation(clickedBtn, locationId, locationType) {
+    document.querySelectorAll('.db-pa-loc-btn').forEach(b => b.classList.remove('active'));
+    clickedBtn.classList.add('active');
+    paLocFilter = locationId ? `${locationType}_${locationId}` : null;
+    loadProductAnalytics();
+}
+
+function switchDbSubTab(tab) {
+    ['top', 'margin', 'nonselling'].forEach(t => {
+        const el = document.getElementById('db-pa-subtab-' + t);
+        if (el) el.style.display = (t === tab) ? '' : 'none';
+        const btn = document.getElementById('db-pa-subtab-btn-' + t);
+        if (btn) btn.classList.toggle('db-tab-active', t === tab);
+    });
+}
+
+function loadProductAnalytics() {
+    loadPaLocations();
+    loadPaTopProducts();
+    loadPaMarginProducts();
+    loadPaNonSelling();
+}
+
+function paRowHtml(i, name, subLabel, pct, barColor, valueLabel, valueColor, subValueLabel) {
+    return `<div class="pa-row">
+        <div class="pa-rank">${i + 1}</div>
+        <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escDbHtml(name)}">${escDbHtml(name)}</div>
+            <div style="font-size:11px;color:#888">${subLabel}</div>
+            <div class="pa-bar-wrap" style="margin:4px 0 0;"><div class="pa-bar" style="width:${pct}%;background:${barColor};"></div></div>
+        </div>
+        <div style="text-align:right;padding-left:10px;flex-shrink:0">
+            <div style="font-weight:700;color:${valueColor};font-size:13px">${valueLabel}</div>
+            ${subValueLabel ? `<div style="font-size:11px;color:#888">${subValueLabel}</div>` : ''}
+        </div>
+    </div>`;
+}
+
+async function loadPaTopProducts() {
+    const el = document.getElementById('paTopProducts');
+    if (!el) return;
+    try {
+        const params = new URLSearchParams();
+        params.set('date_from', paCurrentDateFrom);
+        params.set('date_to', paCurrentDateTo);
+        params.set('top_n', '10');
+        if (paLocFilter) params.set('location_filter', paLocFilter);
+        const res = await fetch(`/api/hisobot-top-products?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success) { el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>'; return; }
+        if (data.products.length === 0) { el.innerHTML = '<div class="pa-loading">Ma\'lumot yo\'q</div>'; return; }
+        const maxQty = data.products[0].quantity || 1;
+        el.innerHTML = data.products.map((p, i) => {
+            const pct = maxQty > 0 ? Math.round(p.quantity / maxQty * 100) : 0;
+            return paRowHtml(i, p.name, `${paFmtNum(p.quantity)} ${escDbHtml(p.unit_type)} sotildi`, pct, '#8b5cf6', paFmtUsd(p.revenue), '#8b5cf6');
+        }).join('');
+    } catch (e) {
+        el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>';
+    }
+}
+
+async function loadPaMarginProducts() {
+    const el = document.getElementById('paMarginProducts');
+    if (!el) return;
+    try {
+        const params = new URLSearchParams();
+        params.set('date_from', paCurrentDateFrom);
+        params.set('date_to', paCurrentDateTo);
+        params.set('top_margin_n', '10');
+        if (paLocFilter) params.set('location_filter', paLocFilter);
+        const res = await fetch(`/api/hisobot-extra?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success) { el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>'; return; }
+        const products = data.top_profit_products || [];
+        if (products.length === 0) { el.innerHTML = '<div class="pa-loading">Ma\'lumot yo\'q</div>'; return; }
+        const maxM = products[0].margin_pct || 1;
+        el.innerHTML = products.map((p, i) => {
+            const pct = maxM > 0 ? Math.round(p.margin_pct / maxM * 100) : 0;
+            const color = p.margin_pct >= 30 ? '#16a34a' : p.margin_pct >= 15 ? '#ca8a04' : '#64748b';
+            return paRowHtml(i, p.name, `${paFmtNum(p.qty)} ta sotildi · Tushum: ${paFmtUsd(p.revenue)}`, pct, color, `${p.margin_pct}%`, color, `+${paFmtUsd(p.profit)}`);
+        }).join('');
+    } catch (e) {
+        el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>';
+    }
+}
+
+async function loadPaNonSelling() {
+    const el = document.getElementById('paNonSellingProducts');
+    const summaryEl = document.getElementById('paNonSellingSummary');
+    if (!el) return;
+    try {
+        const params = new URLSearchParams();
+        params.set('date_from', paCurrentDateFrom);
+        params.set('date_to', paCurrentDateTo);
+        params.set('limit', '20');
+        if (paLocFilter) params.set('location_filter', paLocFilter);
+        const res = await fetch(`/api/hisobot-non-selling-products?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success) { el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>'; return; }
+        if (summaryEl) {
+            summaryEl.textContent = data.total_count > 0
+                ? `Jami ${paFmtNum(data.total_count)} ta · ${paFmtUsd(data.total_value)}`
+                : '';
+        }
+        if (data.products.length === 0) { el.innerHTML = '<div class="pa-loading">✅ Barcha mahsulotlar sotilmoqda</div>'; return; }
+        const maxVal = data.products[0].stock_value || 1;
+        el.innerHTML = data.products.map((p, i) => {
+            const pct = maxVal > 0 ? Math.round(p.stock_value / maxVal * 100) : 0;
+            const lastInfo = (p.days_since_sale === null || p.days_since_sale === undefined)
+                ? 'Hech qachon sotilmagan'
+                : `${paFmtNum(p.days_since_sale)} kun oldin sotilgan`;
+            return paRowHtml(i, p.name, `${paFmtNum(p.qty)} ${escDbHtml(p.unit_type)} qoldiq · ${lastInfo}`, pct, '#f59e0b', paFmtUsd(p.stock_value), '#f59e0b', 'tan narxda');
+        }).join('');
+    } catch (e) {
+        el.innerHTML = '<div class="pa-loading">Xatolik yuz berdi</div>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (userRole !== 'omborchi') {
+        paSetPeriod('today');
+    }
+});
 </script>
 {% endblock %}

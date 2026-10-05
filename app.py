@@ -17263,6 +17263,73 @@ def api_hisobot_extra():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/hisobot-top-products')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_top_products():
+    """
+    Tanlangan davrda savdo soni (dona) bo'yicha eng ko'p sotilgan mahsulotlar.
+    """
+    try:
+        date_from_str = request.args.get('date_from')
+        date_to_str = request.args.get('date_to')
+        location_filter = request.args.get('location_filter')
+        top_n = request.args.get('top_n', 10, type=int)
+        top_n = max(1, min(top_n, 500))
+
+        if not date_from_str or not date_to_str:
+            today = get_tashkent_time().date()
+            date_from_str = date_to_str = today.isoformat()
+
+        from datetime import date as dt_date
+        date_from = dt_date.fromisoformat(date_from_str)
+        date_to = dt_date.fromisoformat(date_to_str)
+
+        loc_type = loc_id = None
+        if location_filter and '_' in location_filter:
+            parts = location_filter.split('_', 1)
+            loc_type, loc_id = parts[0], int(parts[1])
+
+        q = db.session.query(
+            SaleItem.product_id,
+            db.func.sum(SaleItem.quantity).label('qty'),
+            db.func.sum(SaleItem.total_price).label('revenue')
+        ).join(Sale, SaleItem.sale_id == Sale.id).filter(
+            Sale.payment_status.in_(['paid', 'partial']),
+            db.func.date(Sale.sale_date) >= date_from,
+            db.func.date(Sale.sale_date) <= date_to,
+            SaleItem.product_id.isnot(None)
+        )
+        if loc_type and loc_id:
+            q = q.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+        rows = q.group_by(SaleItem.product_id).order_by(
+            db.func.sum(SaleItem.quantity).desc()
+        ).limit(top_n).all()
+
+        products_map = {}
+        product_ids = [r.product_id for r in rows]
+        if product_ids:
+            for p in Product.query.filter(Product.id.in_(product_ids)).all():
+                products_map[p.id] = p
+
+        top_products = []
+        for r in rows:
+            prod = products_map.get(r.product_id)
+            if not prod:
+                continue
+            top_products.append({
+                'name': prod.name,
+                'quantity': float(r.qty or 0),
+                'revenue': float(r.revenue or 0),
+                'unit_type': prod.unit_type or 'dona'
+            })
+
+        return jsonify({'success': True, 'products': top_products})
+
+    except Exception as e:
+        logger.error(f"hisobot-top-products API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/hisobot-non-selling-products')
 @role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_hisobot_non_selling_products():
