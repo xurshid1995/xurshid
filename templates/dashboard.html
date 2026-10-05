@@ -20,10 +20,6 @@
                 <button onclick="switchDbTab('sales')" id="db-tab-btn-sales" class="db-tab-btn db-tab-active">
                     📊 {{ t('sales_dynamics') }}
                 </button>
-                <button onclick="switchDbTab('stock')" id="db-tab-btn-stock" class="db-tab-btn" style="position:relative;">
-                    📦 Mahsulot qoldig'i
-                    <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:22px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
-                </button>
                 <button onclick="switchDbTab('products')" id="db-tab-btn-products" class="db-tab-btn">
                     📈 Mahsulot analitikasi
                 </button>
@@ -111,74 +107,6 @@
             </div>
         </div>
 
-        <!-- ===== Mahsulot qoldig'i Tab ===== -->
-        <div class="col-12" id="db-tab-stock" style="display:none;">
-
-            <!-- Statistika karta (alohida) -->
-            <div class="db-stock-stats">
-                <div class="db-stock-stat-card">
-                    <div class="db-stock-stat-icon green"><i class="fas fa-circle-check"></i></div>
-                    <div class="db-stock-stat-body">
-                        <span class="db-stock-stat-number" id="stockSummarySufficient">0</span>
-                        <span class="db-stock-stat-label">Yetarli</span>
-                    </div>
-                </div>
-                <div class="db-stock-stat-card">
-                    <div class="db-stock-stat-icon yellow"><i class="fas fa-triangle-exclamation"></i></div>
-                    <div class="db-stock-stat-body">
-                        <span class="db-stock-stat-number" id="stockSummaryLow">0</span>
-                        <span class="db-stock-stat-label">Kam qolgan</span>
-                    </div>
-                </div>
-                <div class="db-stock-stat-card">
-                    <div class="db-stock-stat-icon red"><i class="fas fa-circle-xmark"></i></div>
-                    <div class="db-stock-stat-body">
-                        <span class="db-stock-stat-number" id="stockSummaryOut">0</span>
-                        <span class="db-stock-stat-label">Tugagan</span>
-                    </div>
-                </div>
-                <div class="db-stock-stat-card">
-                    <div class="db-stock-stat-icon blue"><i class="fas fa-boxes-stacked"></i></div>
-                    <div class="db-stock-stat-body">
-                        <span class="db-stock-stat-number" id="stockSummaryTotal">0</span>
-                        <span class="db-stock-stat-label">Jami</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Filter karta (joylashuv + holat + qidiruv) - alohida -->
-            <div class="db-stock-filter-panel">
-                <div class="db-stock-filter-row">
-                    <div class="db-stock-search-box">
-                        <i class="fas fa-search db-stock-search-icon"></i>
-                        <input id="stockSearchInput" type="text" class="db-stock-search-input" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
-                    </div>
-                    <div class="db-stock-filter-group">
-                        <label>Joylashuv</label>
-                        <div id="stockLocButtons" class="db-loc-btns">
-                            <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
-                        </div>
-                    </div>
-                    <div class="db-stock-filter-group">
-                        <label>Holat</label>
-                        <div class="db-loc-btns">
-                            <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
-                            <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
-                            <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
-                            <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Jadval karta - alohida -->
-            <div class="db-stock-table-card">
-                <div id="stockOverviewList" style="padding:0;overflow-x:auto;">
-                    <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
-                </div>
-            </div>
-        </div>
-
         <!-- ===== Mahsulot analitikasi Tab ===== -->
         <div class="col-12" id="db-tab-products" style="display:none;">
             <div class="db-card">
@@ -216,6 +144,10 @@
                         <button onclick="switchDbSubTab('nonselling')" id="db-pa-subtab-btn-nonselling" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                             📪 Sotilmayotgan mahsulotlar
                         </button>
+                        <button onclick="switchDbSubTab('qoldiq')" id="db-pa-subtab-btn-qoldiq" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px; position:relative;">
+                            📦 Mahsulot qoldig'i
+                            <span id="dbStockOutBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e53e3e; color:#fff; font-size:10px; font-weight:700; border-radius:10px; min-width:22px; height:16px; line-height:16px; text-align:center; padding:0 4px;">0</span>
+                        </button>
                     </div>
 
                     <!-- Sub-tab: Top mahsulotlar -->
@@ -237,6 +169,74 @@
                         <div style="font-size:12px; color:#888; font-weight:600; margin-bottom:8px;" id="paNonSellingSummary"></div>
                         <div id="paNonSellingProducts">
                             <div class="pa-loading">Yuklanmoqda...</div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-tab: Mahsulot qoldig'i -->
+                    <div id="db-pa-subtab-qoldiq" style="display:none; padding-bottom:16px;">
+
+                        <!-- Statistika karta (alohida) -->
+                        <div class="db-stock-stats">
+                            <div class="db-stock-stat-card">
+                                <div class="db-stock-stat-icon green"><i class="fas fa-circle-check"></i></div>
+                                <div class="db-stock-stat-body">
+                                    <span class="db-stock-stat-number" id="stockSummarySufficient">0</span>
+                                    <span class="db-stock-stat-label">Yetarli</span>
+                                </div>
+                            </div>
+                            <div class="db-stock-stat-card">
+                                <div class="db-stock-stat-icon yellow"><i class="fas fa-triangle-exclamation"></i></div>
+                                <div class="db-stock-stat-body">
+                                    <span class="db-stock-stat-number" id="stockSummaryLow">0</span>
+                                    <span class="db-stock-stat-label">Kam qolgan</span>
+                                </div>
+                            </div>
+                            <div class="db-stock-stat-card">
+                                <div class="db-stock-stat-icon red"><i class="fas fa-circle-xmark"></i></div>
+                                <div class="db-stock-stat-body">
+                                    <span class="db-stock-stat-number" id="stockSummaryOut">0</span>
+                                    <span class="db-stock-stat-label">Tugagan</span>
+                                </div>
+                            </div>
+                            <div class="db-stock-stat-card">
+                                <div class="db-stock-stat-icon blue"><i class="fas fa-boxes-stacked"></i></div>
+                                <div class="db-stock-stat-body">
+                                    <span class="db-stock-stat-number" id="stockSummaryTotal">0</span>
+                                    <span class="db-stock-stat-label">Jami</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filter karta (joylashuv + holat + qidiruv) - alohida -->
+                        <div class="db-stock-filter-panel">
+                            <div class="db-stock-filter-row">
+                                <div class="db-stock-search-box">
+                                    <i class="fas fa-search db-stock-search-icon"></i>
+                                    <input id="stockSearchInput" type="text" class="db-stock-search-input" placeholder="Mahsulot yoki joylashuvni qidiring..." autocomplete="off">
+                                </div>
+                                <div class="db-stock-filter-group">
+                                    <label>Joylashuv</label>
+                                    <div id="stockLocButtons" class="db-loc-btns">
+                                        <button class="db-oos-loc-btn active" data-location="" onclick="selectStockLocation(this, '', '')">🏢 Barchasi</button>
+                                    </div>
+                                </div>
+                                <div class="db-stock-filter-group">
+                                    <label>Holat</label>
+                                    <div class="db-loc-btns">
+                                        <button class="db-stock-status-btn active" data-status="" onclick="selectStockStatus(this, '')">📦 Barchasi</button>
+                                        <button class="db-stock-status-btn" data-status="sufficient" onclick="selectStockStatus(this, 'sufficient')">🟢 Yetarli (<span id="stockCountSufficient">0</span>)</button>
+                                        <button class="db-stock-status-btn" data-status="low" onclick="selectStockStatus(this, 'low')">🟡 Kam qolgan (<span id="stockCountLow">0</span>)</button>
+                                        <button class="db-stock-status-btn" data-status="out" onclick="selectStockStatus(this, 'out')">🔴 Tugagan (<span id="stockCountOut">0</span>)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Jadval karta - alohida -->
+                        <div class="db-stock-table-card">
+                            <div id="stockOverviewList" style="padding:0;overflow-x:auto;">
+                                <div style="color:#bbb;font-size:13px;text-align:center;padding:20px;">Yuklanmoqda...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1156,9 +1156,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ===== Dashboard asosiy tablari (Savdo dinamikasi / Mahsulot qoldig'i / Mahsulot analitikasi) =====
+// ===== Dashboard asosiy tablari (Savdo dinamikasi / Mahsulot analitikasi) =====
 function switchDbTab(tab) {
-    ['sales', 'stock', 'products'].forEach(t => {
+    ['sales', 'products'].forEach(t => {
         const el = document.getElementById('db-tab-' + t);
         if (el) el.style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('db-tab-btn-' + t);
@@ -2047,7 +2047,7 @@ function paSelectLocation(clickedBtn, locationId, locationType) {
 }
 
 function switchDbSubTab(tab) {
-    ['top', 'margin', 'nonselling'].forEach(t => {
+    ['top', 'margin', 'nonselling', 'qoldiq'].forEach(t => {
         const el = document.getElementById('db-pa-subtab-' + t);
         if (el) el.style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('db-pa-subtab-btn-' + t);
