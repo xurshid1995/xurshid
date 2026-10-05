@@ -17263,6 +17263,115 @@ def api_hisobot_extra():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/hisobot-non-selling-products')
+@role_required('admin', 'manager', 'kassir', 'sotuvchi')
+def api_hisobot_non_selling_products():
+    """
+    Tanlangan davrda sotilmagan, lekin do'kon/omborda qoldig'i bor mahsulotlar.
+    Qoldiq tan narxi (eng ko'p kapital qotib qolgan) bo'yicha saralanadi.
+    """
+    try:
+        date_from_str = request.args.get('date_from')
+        date_to_str = request.args.get('date_to')
+        location_filter = request.args.get('location_filter')
+        limit_n = request.args.get('limit', 20, type=int)
+        limit_n = max(1, min(limit_n, 500))
+
+        if not date_from_str or not date_to_str:
+            today = get_tashkent_time().date()
+            date_from_str = date_to_str = today.isoformat()
+
+        from datetime import date as dt_date
+        date_from = dt_date.fromisoformat(date_from_str)
+        date_to = dt_date.fromisoformat(date_to_str)
+
+        loc_type = loc_id = None
+        if location_filter and '_' in location_filter:
+            parts = location_filter.split('_', 1)
+            loc_type, loc_id = parts[0], int(parts[1])
+
+        # Tanlangan davrda sotilgan mahsulotlar ID lari
+        sold_q = db.session.query(SaleItem.product_id).join(
+            Sale, SaleItem.sale_id == Sale.id
+        ).filter(
+            Sale.payment_status.in_(['paid', 'partial']),
+            db.func.date(Sale.sale_date) >= date_from,
+            db.func.date(Sale.sale_date) <= date_to
+        )
+        if loc_type and loc_id:
+            sold_q = sold_q.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+        sold_product_ids = {row[0] for row in sold_q.distinct().all()}
+
+        # Joriy qoldiq: joylashuv filtriga qarab do'kon/ombor yoki ikkalasi
+        stock_map = {}
+        if not loc_type or loc_type == 'store':
+            sq = db.session.query(StoreStock.product_id, db.func.sum(StoreStock.quantity))
+            if loc_type == 'store' and loc_id:
+                sq = sq.filter(StoreStock.store_id == loc_id)
+            for pid, qty in sq.group_by(StoreStock.product_id).all():
+                stock_map[pid] = stock_map.get(pid, 0) + float(qty or 0)
+        if not loc_type or loc_type == 'warehouse':
+            wq = db.session.query(WarehouseStock.product_id, db.func.sum(WarehouseStock.quantity))
+            if loc_type == 'warehouse' and loc_id:
+                wq = wq.filter(WarehouseStock.warehouse_id == loc_id)
+            for pid, qty in wq.group_by(WarehouseStock.product_id).all():
+                stock_map[pid] = stock_map.get(pid, 0) + float(qty or 0)
+
+        # Qoldig'i bor va davrda sotilmagan mahsulotlar
+        candidate_ids = [pid for pid, qty in stock_map.items() if qty > 0 and pid not in sold_product_ids]
+
+        # Har bir mahsulot uchun oxirgi sotilgan sana (davrdan tashqari, umumiy tarixdan)
+        last_sale_map = {}
+        if candidate_ids:
+            last_sale_rows = db.session.query(
+                SaleItem.product_id, db.func.max(Sale.sale_date)
+            ).join(Sale, SaleItem.sale_id == Sale.id).filter(
+                Sale.payment_status.in_(['paid', 'partial']),
+                SaleItem.product_id.in_(candidate_ids)
+            ).group_by(SaleItem.product_id).all()
+            last_sale_map = {pid: dt for pid, dt in last_sale_rows}
+
+        products_map = {}
+        if candidate_ids:
+            for p in Product.query.filter(Product.id.in_(candidate_ids)).all():
+                products_map[p.id] = p
+
+        today = get_tashkent_time().date()
+        results = []
+        for pid in candidate_ids:
+            prod = products_map.get(pid)
+            if not prod:
+                continue
+            qty = stock_map[pid]
+            cost_price = float(prod.cost_price or 0)
+            stock_value = qty * cost_price
+            last_sale = last_sale_map.get(pid)
+            results.append({
+                'id': pid,
+                'name': prod.name,
+                'qty': qty,
+                'unit_type': prod.unit_type or 'dona',
+                'stock_value': stock_value,
+                'last_sale_date': last_sale.strftime('%Y-%m-%d') if last_sale else None,
+                'days_since_sale': (today - last_sale.date()).days if last_sale else None
+            })
+
+        results.sort(key=lambda x: x['stock_value'], reverse=True)
+        total_count = len(results)
+        total_value = sum(r['stock_value'] for r in results)
+
+        return jsonify({
+            'success': True,
+            'products': results[:limit_n],
+            'total_count': total_count,
+            'total_value': total_value
+        })
+
+    except Exception as e:
+        logger.error(f"hisobot-non-selling-products API xatolik: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/product-stock-overview')
 @role_required('admin', 'manager', 'kassir', 'sotuvchi')
 def api_product_stock_overview():

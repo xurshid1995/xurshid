@@ -174,6 +174,10 @@
                 class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                 💹 Foydali mahsulotlar
             </button>
+            <button onclick="switchHrSubTab('nonselling')" id="hr-subtab-btn-nonselling"
+                class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
+                📪 Sotilmayotgan mahsulotlar
+            </button>
         </div>
 
         <!-- Sub-tab: Top mahsulotlar -->
@@ -201,6 +205,22 @@
                     foydali mahsulotlar (foyda % bo'yicha)
                 </div>
                 <div id="topMarginProducts">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-tab: Sotilmayotgan mahsulotlar -->
+        <div id="hr-subtab-nonselling" style="display:none;">
+            <div class="hr-section">
+                <div class="hr-section-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    📪 Eng
+                    <input type="number" id="nonSellingNInput" value="20" min="1" max="500"
+                        style="width:58px; padding:2px 6px; border:1.5px solid #f59e0b; border-radius:8px; font-size:13px; font-weight:700; color:#f59e0b; text-align:center; background:#fffbeb; outline:none; cursor:pointer;">
+                    ta sotilmayotgan mahsulot (qoldiq tan narxi bo'yicha)
+                    <span id="nonSellingSummary" style="margin-left:auto; font-size:12px; color:#888; font-weight:600;"></span>
+                </div>
+                <div id="nonSellingProducts">
                     <div class="hr-loading">Yuklanmoqda...</div>
                 </div>
             </div>
@@ -560,7 +580,7 @@ function switchHrTab(tab) {
 }
 
 function switchHrSubTab(tab) {
-    ['products','margin'].forEach(t => {
+    ['products','margin','nonselling'].forEach(t => {
         document.getElementById('hr-subtab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-subtab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
@@ -683,6 +703,53 @@ async function loadExtra() {
         }).join('');
     }
 
+}
+
+async function loadNonSellingProducts() {
+    const nonSellingDiv = document.getElementById('nonSellingProducts');
+    const summaryEl = document.getElementById('nonSellingSummary');
+    const limitN = parseInt(document.getElementById('nonSellingNInput')?.value || 20);
+    try {
+        const res = await fetch(
+            `/api/hisobot-non-selling-products?date_from=${currentDateFrom}&date_to=${currentDateTo}&limit=${limitN}` +
+            (currentLocFilter ? `&location_filter=${currentLocFilter}` : '')
+        );
+        const data = await res.json();
+        if (!data.success) {
+            nonSellingDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+            return;
+        }
+        if (summaryEl) {
+            summaryEl.textContent = data.total_count > 0
+                ? `Jami ${fmtNum(data.total_count)} ta · ${fmtUsd(data.total_value)}`
+                : '';
+        }
+        if (data.products.length === 0) {
+            nonSellingDiv.innerHTML = '<div class="hr-loading">✅ Barcha mahsulotlar sotilmoqda</div>';
+            return;
+        }
+        const maxVal = data.products[0].stock_value || 1;
+        nonSellingDiv.innerHTML = data.products.map((p, i) => {
+            const pct = maxVal > 0 ? Math.round(p.stock_value / maxVal * 100) : 0;
+            const lastInfo = p.days_since_sale === null || p.days_since_sale === undefined
+                ? 'Hech qachon sotilmagan'
+                : `${fmtNum(p.days_since_sale)} kun oldin sotilgan`;
+            return `<div class="hr-row">
+                <div class="hr-rank">${i+1}</div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escHtml(p.name)}">${escHtml(p.name)}</div>
+                    <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ${escHtml(p.unit_type)} qoldiq · ${lastInfo}</div>
+                    <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:#f59e0b;"></div></div>
+                </div>
+                <div style="text-align:right;padding-left:10px;flex-shrink:0">
+                    <div style="font-weight:700;color:#f59e0b;font-size:13px">${fmtUsd(p.stock_value)}</div>
+                    <div style="font-size:11px;color:#888">tan narxda</div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (e) {
+        nonSellingDiv.innerHTML = '<div class="hr-loading">Xatolik yuz berdi</div>';
+    }
 }
 
 async function loadFinalReport() {
@@ -1347,6 +1414,7 @@ async function loadAll() {
 
     // Extra statistika parallel yuklash
     loadExtra();
+    loadNonSellingProducts();
     loadFinalReport();
     loadTotalDebt();
     loadReserveFund();
@@ -1630,6 +1698,13 @@ document.addEventListener('DOMContentLoaded', () => {
         topMarginEl.addEventListener('change', () => { loadExtra(); });
         topMarginEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); loadExtra(); }
+        });
+    }
+    const nonSellingEl = document.getElementById('nonSellingNInput');
+    if (nonSellingEl) {
+        nonSellingEl.addEventListener('change', () => { loadNonSellingProducts(); });
+        nonSellingEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); loadNonSellingProducts(); }
         });
     }
 });
