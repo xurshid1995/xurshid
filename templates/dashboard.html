@@ -138,9 +138,11 @@
                         <button onclick="switchDbSubTab('top')" id="db-pa-subtab-btn-top" class="db-tab-btn db-tab-active" style="padding:7px 14px; font-size:12.5px;">
                             🏆 Top mahsulotlar
                         </button>
+                        {% if session.role != 'sotuvchi' %}
                         <button onclick="switchDbSubTab('margin')" id="db-pa-subtab-btn-margin" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                             💹 Foydali mahsulotlar
                         </button>
+                        {% endif %}
                         <button onclick="switchDbSubTab('nonselling')" id="db-pa-subtab-btn-nonselling" class="db-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                             📪 Sotilmayotgan mahsulotlar
                         </button>
@@ -158,11 +160,13 @@
                     </div>
 
                     <!-- Sub-tab: Foydali mahsulotlar -->
+                    {% if session.role != 'sotuvchi' %}
                     <div id="db-pa-subtab-margin" style="display:none; padding-bottom:16px;">
                         <div id="paMarginProducts">
                             <div class="pa-loading">Yuklanmoqda...</div>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Sub-tab: Sotilmayotgan mahsulotlar -->
                     <div id="db-pa-subtab-nonselling" style="display:none; padding-bottom:16px;">

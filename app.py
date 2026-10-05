@@ -17169,42 +17169,46 @@ def api_hisobot_extra():
             })
 
         # --- Eng foydali mahsulotlar foyda % bo'yicha (top 10) ---
-        item_rows = db.session.query(
-            SaleItem.product_id,
-            db.func.sum(SaleItem.quantity).label('qty'),
-            db.func.sum(SaleItem.total_price).label('revenue'),
-            db.func.sum(SaleItem.profit).label('profit')
-        ).join(Sale, SaleItem.sale_id == Sale.id).filter(
-            Sale.payment_status.in_(['paid', 'partial']),
-            db.func.date(Sale.sale_date) >= date_from,
-            db.func.date(Sale.sale_date) <= date_to,
-            SaleItem.product_id.isnot(None)
-        )
-        if loc_type and loc_id:
-            item_rows = item_rows.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
-        item_rows = item_rows.group_by(SaleItem.product_id).having(
-            db.func.sum(SaleItem.total_price) > 0
-        ).all()
+        # Sotuvchi roli uchun foyda % ma'lumoti berilmaydi
+        if session.get('role') == 'sotuvchi':
+            top_profit_pct = []
+        else:
+            item_rows = db.session.query(
+                SaleItem.product_id,
+                db.func.sum(SaleItem.quantity).label('qty'),
+                db.func.sum(SaleItem.total_price).label('revenue'),
+                db.func.sum(SaleItem.profit).label('profit')
+            ).join(Sale, SaleItem.sale_id == Sale.id).filter(
+                Sale.payment_status.in_(['paid', 'partial']),
+                db.func.date(Sale.sale_date) >= date_from,
+                db.func.date(Sale.sale_date) <= date_to,
+                SaleItem.product_id.isnot(None)
+            )
+            if loc_type and loc_id:
+                item_rows = item_rows.filter(Sale.location_type == loc_type, Sale.location_id == loc_id)
+            item_rows = item_rows.group_by(SaleItem.product_id).having(
+                db.func.sum(SaleItem.total_price) > 0
+            ).all()
 
-        top_profit_pct = []
-        for row in item_rows:
-            prod = Product.query.get(row.product_id)
-            if not prod:
-                continue
-            revenue = float(row.revenue or 0)
-            profit = float(row.profit or 0)
-            pct = round(profit / revenue * 100, 1) if revenue > 0 else 0
-            top_profit_pct.append({
-                'name': prod.name,
-                'qty': float(row.qty or 0),
-                'revenue': revenue,
-                'profit': profit,
-                'margin_pct': pct
-            })
-        top_profit_pct.sort(key=lambda x: x['margin_pct'], reverse=True)
-        top_margin_n = request.args.get('top_margin_n', 10, type=int)
-        top_margin_n = max(1, min(top_margin_n, 500))
-        top_profit_pct = top_profit_pct[:top_margin_n]
+            top_profit_pct = []
+            for row in item_rows:
+                prod = Product.query.get(row.product_id)
+                if not prod:
+                    continue
+                revenue = float(row.revenue or 0)
+                profit = float(row.profit or 0)
+                pct = round(profit / revenue * 100, 1) if revenue > 0 else 0
+                top_profit_pct.append({
+                    'name': prod.name,
+                    'qty': float(row.qty or 0),
+                    'revenue': revenue,
+                    'profit': profit,
+                    'margin_pct': pct
+                })
+            top_profit_pct.sort(key=lambda x: x['margin_pct'], reverse=True)
+            top_margin_n = request.args.get('top_margin_n', 10, type=int)
+            top_margin_n = max(1, min(top_margin_n, 500))
+            top_profit_pct = top_profit_pct[:top_margin_n]
 
         # --- Kam qolgan stok ---
         low_store = db.session.query(StoreStock).join(

@@ -170,10 +170,12 @@
                 class="hr-tab-btn hr-tab-active" style="padding:7px 14px; font-size:12.5px;">
                 🏆 Top mahsulotlar
             </button>
+            {% if session.role != 'sotuvchi' %}
             <button onclick="switchHrSubTab('margin')" id="hr-subtab-btn-margin"
                 class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                 💹 Foydali mahsulotlar
             </button>
+            {% endif %}
             <button onclick="switchHrSubTab('nonselling')" id="hr-subtab-btn-nonselling"
                 class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
                 📪 Sotilmayotgan mahsulotlar
@@ -196,6 +198,7 @@
         </div>
 
         <!-- Sub-tab: Eng foydali mahsulotlar -->
+        {% if session.role != 'sotuvchi' %}
         <div id="hr-subtab-margin" style="display:none;">
             <div class="hr-section">
                 <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
@@ -209,6 +212,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <!-- Sub-tab: Sotilmayotgan mahsulotlar -->
         <div id="hr-subtab-nonselling" style="display:none;">
@@ -681,26 +685,28 @@ async function loadExtra() {
 
     // --- Eng foydali mahsulotlar (foyda %) ---
     const marginDiv = document.getElementById('topMarginProducts');
-    if (data.top_profit_products.length === 0) {
-        marginDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
-    } else {
-        const maxM = data.top_profit_products[0].margin_pct || 1;
-        marginDiv.innerHTML = data.top_profit_products.map((p, i) => {
-            const pct = Math.round(p.margin_pct / maxM * 100);
-            const color = p.margin_pct >= 30 ? '#16a34a' : p.margin_pct >= 15 ? '#ca8a04' : '#64748b';
-            return `<div class="hr-row">
-                <div class="hr-rank">${i+1}</div>
-                <div style="flex:1;min-width:0">
-                    <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
-                    <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ta sotildi · Tushum: ${fmtUsd(p.revenue)}</div>
-                    <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:${color};"></div></div>
-                </div>
-                <div style="text-align:right;padding-left:10px;flex-shrink:0">
-                    <div style="font-weight:700;color:${color};font-size:14px">${p.margin_pct}%</div>
-                    <div style="font-size:11px;color:#888">+${fmtUsd(p.profit)}</div>
-                </div>
-            </div>`;
-        }).join('');
+    if (marginDiv) {
+        if (data.top_profit_products.length === 0) {
+            marginDiv.innerHTML = '<div class="hr-loading">Ma\'lumot yo\'q</div>';
+        } else {
+            const maxM = data.top_profit_products[0].margin_pct || 1;
+            marginDiv.innerHTML = data.top_profit_products.map((p, i) => {
+                const pct = Math.round(p.margin_pct / maxM * 100);
+                const color = p.margin_pct >= 30 ? '#16a34a' : p.margin_pct >= 15 ? '#ca8a04' : '#64748b';
+                return `<div class="hr-row">
+                    <div class="hr-rank">${i+1}</div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
+                        <div style="font-size:11px;color:#888">${fmtNum(p.qty)} ta sotildi · Tushum: ${fmtUsd(p.revenue)}</div>
+                        <div class="hr-bar-wrap" style="margin:4px 0 0;"><div class="hr-bar" style="width:${pct}%;background:${color};"></div></div>
+                    </div>
+                    <div style="text-align:right;padding-left:10px;flex-shrink:0">
+                        <div style="font-weight:700;color:${color};font-size:14px">${p.margin_pct}%</div>
+                        <div style="font-size:11px;color:#888">+${fmtUsd(p.profit)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
     }
 
 }
