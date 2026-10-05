@@ -130,17 +130,13 @@
             class="hr-tab-btn hr-tab-active">
             🏪💳 To'lovlar
         </button>
-        <button onclick="switchHrTab('products')" id="hr-tab-btn-products"
+        <button onclick="switchHrTab('productanalytics')" id="hr-tab-btn-productanalytics"
             class="hr-tab-btn">
-            🏆 Top mahsulotlar
+            📈 Mahsulot analitikasi
         </button>
         <button onclick="switchHrTab('topcust')" id="hr-tab-btn-topcust"
             class="hr-tab-btn">
             👤 Top mijozlar
-        </button>
-        <button onclick="switchHrTab('margin')" id="hr-tab-btn-margin"
-            class="hr-tab-btn">
-            💹 Foydali mahsulotlar
         </button>
         <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
             class="hr-tab-btn">
@@ -167,17 +163,46 @@
         </div>
     </div>
 
-    <!-- Tab 2: Top mahsulotlar -->
-    <div id="hr-tab-products" style="display:none; margin-bottom:24px;">
-        <div class="hr-section">
-            <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                🏆 Top
-                <input type="number" id="topNInput" value="10" min="1" max="500"
-                    style="width:58px; padding:2px 6px; border:1.5px solid #8b5cf6; border-radius:8px; font-size:13px; font-weight:700; color:#8b5cf6; text-align:center; background:#f5f3ff; outline:none; cursor:pointer;">
-                mahsulot (savdo soni)
+    <!-- Tab 2+5: Mahsulot analitikasi (Top mahsulotlar + Foydali mahsulotlar ichki tablar) -->
+    <div id="hr-tab-productanalytics" style="display:none; margin-bottom:24px;">
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+            <button onclick="switchHrSubTab('products')" id="hr-subtab-btn-products"
+                class="hr-tab-btn hr-tab-active" style="padding:7px 14px; font-size:12.5px;">
+                🏆 Top mahsulotlar
+            </button>
+            <button onclick="switchHrSubTab('margin')" id="hr-subtab-btn-margin"
+                class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
+                💹 Foydali mahsulotlar
+            </button>
+        </div>
+
+        <!-- Sub-tab: Top mahsulotlar -->
+        <div id="hr-subtab-products">
+            <div class="hr-section">
+                <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
+                    🏆 Top
+                    <input type="number" id="topNInput" value="10" min="1" max="500"
+                        style="width:58px; padding:2px 6px; border:1.5px solid #8b5cf6; border-radius:8px; font-size:13px; font-weight:700; color:#8b5cf6; text-align:center; background:#f5f3ff; outline:none; cursor:pointer;">
+                    mahsulot (savdo soni)
+                </div>
+                <div id="topProducts">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
-            <div id="topProducts">
-                <div class="hr-loading">Yuklanmoqda...</div>
+        </div>
+
+        <!-- Sub-tab: Eng foydali mahsulotlar -->
+        <div id="hr-subtab-margin" style="display:none;">
+            <div class="hr-section">
+                <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
+                    💹 Eng
+                    <input type="number" id="topMarginNInput" value="10" min="1" max="500"
+                        style="width:58px; padding:2px 6px; border:1.5px solid #16a34a; border-radius:8px; font-size:13px; font-weight:700; color:#16a34a; text-align:center; background:#f0fdf4; outline:none; cursor:pointer;">
+                    foydali mahsulotlar (foyda % bo'yicha)
+                </div>
+                <div id="topMarginProducts">
+                    <div class="hr-loading">Yuklanmoqda...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -192,21 +217,6 @@
                 mijoz (xarid summasi bo'yicha)
             </div>
             <div id="topCustomers">
-                <div class="hr-loading">Yuklanmoqda...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 5: Eng foydali mahsulotlar -->
-    <div id="hr-tab-margin" style="display:none; margin-bottom:24px;">
-        <div class="hr-section">
-            <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                💹 Eng
-                <input type="number" id="topMarginNInput" value="10" min="1" max="500"
-                    style="width:58px; padding:2px 6px; border:1.5px solid #16a34a; border-radius:8px; font-size:13px; font-weight:700; color:#16a34a; text-align:center; background:#f0fdf4; outline:none; cursor:pointer;">
-                foydali mahsulotlar (foyda % bo'yicha)
-            </div>
-            <div id="topMarginProducts">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
         </div>
@@ -542,9 +552,17 @@
 
 <script>
 function switchHrTab(tab) {
-    ['payments','products','topcust','margin','debts','finalreport'].forEach(t => {
+    ['payments','productanalytics','topcust','debts','finalreport'].forEach(t => {
         document.getElementById('hr-tab-' + t).style.display = (t === tab) ? '' : 'none';
         const btn = document.getElementById('hr-tab-btn-' + t);
+        if (btn) btn.classList.toggle('hr-tab-active', t === tab);
+    });
+}
+
+function switchHrSubTab(tab) {
+    ['products','margin'].forEach(t => {
+        document.getElementById('hr-subtab-' + t).style.display = (t === tab) ? '' : 'none';
+        const btn = document.getElementById('hr-subtab-btn-' + t);
         if (btn) btn.classList.toggle('hr-tab-active', t === tab);
     });
 }
