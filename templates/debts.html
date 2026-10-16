@@ -352,7 +352,14 @@
 .dbt-tab-panel { display: none; }
 .dbt-tab-panel.active { display: block; }
 @media (max-width: 768px) {
-    .dbt-tab-btn { flex: 1 1 auto; justify-content: center; padding: 9px 10px; font-size: 12px; }
+    .dbt-tabs-header { flex-wrap: nowrap; gap: 4px; padding: 10px 8px; }
+    .dbt-tab-btn {
+        flex: 1 1 0; min-width: 0;
+        justify-content: center; text-align: center;
+        padding: 7px 4px; font-size: 11px; gap: 4px;
+        white-space: normal; line-height: 1.2;
+    }
+    .dbt-tab-btn i { font-size: 12px; }
 }
 
 /* ── Qarz to'lash tarixi (PDH) tab ── */
