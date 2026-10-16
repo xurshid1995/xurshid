@@ -302,7 +302,7 @@
         <div class="modal-body">
             <p><strong>{{ t('wh_delete_confirm_msg') }}</strong></p>
             <div class="warehouse-name-highlight" id="modalWarehouseName"></div>
-            <p style="color: #ef4444; font-weight: bold;">⚠️ {{ t('action_irreversible') }}</p>
+            <p style="color: #ef4444; font-weight: bold;"><i class="fas fa-triangle-exclamation"></i> {{ t('action_irreversible') }}</p>
             <p>{{ t('wh_enter_name_to_continue') }}</p>
             
             <div class="modal-input-group">
@@ -317,10 +317,10 @@
         </div>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
-                ❌ {{ t('modal_cancel') }}
+                <i class="fas fa-circle-xmark"></i> {{ t('modal_cancel') }}
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn" disabled>
-                🗑️ {{ t('modal_delete') }}
+                <i class="fas fa-trash"></i> {{ t('modal_delete') }}
             </button>
         </div>
     </div>
@@ -350,19 +350,19 @@
 
         <div class="warehouse-info">
             <div class="info-item">
-                <div class="info-icon">📍</div>
+                <div class="info-icon"><i class="fas fa-location-dot"></i></div>
                 <span>{{ warehouse.address[:28] }}{% if warehouse.address|length > 28 %}...{% endif %}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">👤</div>
+                <div class="info-icon"><i class="fas fa-user"></i></div>
                 <span>{{ warehouse.manager_name }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">📞</div>
+                <div class="info-icon"><i class="fas fa-phone"></i></div>
                 <span>{{ warehouse.phone or t('no_phone') }}</span>
             </div>
             <div class="info-item">
-                <div class="info-icon">📅</div>
+                <div class="info-icon"><i class="fas fa-calendar-day"></i></div>
                 <span>{{ warehouse.created_date.strftime('%d.%m.%Y') if warehouse.created_date else t('unknown_date') }}</span>
             </div>
         </div>
@@ -417,19 +417,19 @@
                        oninput="validateAddWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 Manzil <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-location-dot"></i> Manzil <span style="color:#ef4444;">*</span></label>
                 <textarea id="awAddress" rows="2" placeholder="Manzilni kiriting"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateAddWarehouse()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-user"></i> Menejer ismi <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="awManager" placeholder="To'liq ism familiya"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateAddWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 Telefon</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-phone"></i> Telefon</label>
                 <input type="text" id="awPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhoneWh(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -442,7 +442,7 @@
                 <i class="fas fa-plus"></i> {{ t('btn_add_warehouse') }}
             </button>
             <button onclick="closeAddWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ✕ Bekor qilish
+                <i class="fas fa-xmark"></i> Bekor qilish
             </button>
         </div>
     </div>
@@ -464,19 +464,19 @@
                        oninput="validateEditWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📍 Manzil <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-location-dot"></i> Manzil <span style="color:#ef4444;">*</span></label>
                 <textarea id="ewAddress" rows="2"
                           style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none; resize:none;"
                           oninput="validateEditWarehouse()"></textarea>
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">👤 Menejer ismi <span style="color:#ef4444;">*</span></label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-user"></i> Menejer ismi <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="ewManager"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;"
                        oninput="validateEditWarehouse()">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;">📞 Telefon</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:5px;"><i class="fas fa-phone"></i> Telefon</label>
                 <input type="text" id="ewPhone" placeholder="+998(90) 123-45-67" maxlength="18"
                        oninput="formatPhoneWh(this)"
                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; box-sizing:border-box; outline:none;">
@@ -489,7 +489,7 @@
                 <i class="fas fa-save"></i> Saqlash
             </button>
             <button onclick="closeEditWarehouseModal()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                ✕ Bekor qilish
+                <i class="fas fa-xmark"></i> Bekor qilish
             </button>
         </div>
     </div>
@@ -518,7 +518,7 @@
 
     // Open delete modal
     function deleteWarehouse(warehouseId, warehouseName) {
-        console.log('🎯 YANGI deleteWarehouse FUNKSIYASI CHAQIRILDI!');
+ console.log(' YANGI deleteWarehouse FUNKSIYASI CHAQIRILDI!');
         console.log('O\'chirish funksiyasi chaqirildi:', warehouseId, warehouseName);
         
         currentWarehouseId = warehouseId;
@@ -538,7 +538,7 @@
         console.log('Confirm button element:', confirmBtn);
         
         if (!modal) {
-            console.error('❌ Modal topilmadi!');
+ console.error(' Modal topilmadi!');
             return;
         }
         
@@ -548,7 +548,7 @@
         confirmBtn.classList.remove('enabled');
         
         modal.classList.add('active');
-        console.log('✅ Modal ochildi, active class qo\'shildi');
+ console.log(' Modal ochildi, active class qo\'shildi');
         
         // Input'ga fokus
         setTimeout(() => confirmInput.focus(), 300);
@@ -612,7 +612,7 @@
         // Tugmani o'chirish
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '⏳ ' + WHLANG.deleting;
+ confirmBtn.textContent = ' ' + WHLANG.deleting;
         
         fetch(`/api/warehouse/${currentWarehouseId}`, {
             method: 'DELETE',
@@ -630,14 +630,14 @@
                 console.error('API xatosi:', response.status);
                 alert(WHLANG.wh_delete_error);
                 confirmBtn.disabled = false;
-                confirmBtn.textContent = '🗑️ ' + WHLANG.modal_delete;
+ confirmBtn.textContent = ' ' + WHLANG.modal_delete;
             }
         })
         .catch(error => {
             console.error('Fetch xatosi:', error);
             alert(WHLANG.connection_error_retry);
             confirmBtn.disabled = false;
-            confirmBtn.textContent = '🗑️ ' + WHLANG.modal_delete;
+ confirmBtn.textContent = ' ' + WHLANG.modal_delete;
         });
     }
 

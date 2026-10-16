@@ -363,7 +363,7 @@
         </div>
 
         <div id="emptyState" class="ps-empty-state" style="display: none;">
-            <span class="ps-empty-icon">📦</span>
+            <span class="ps-empty-icon"><i class="fas fa-box"></i></span>
             <h3>{{ t('no_products_found') }}</h3>
             <p>{{ t('no_products_available') }}</p>
         </div>
@@ -439,7 +439,7 @@
     const userStoreId = container.dataset.userStoreId === 'null' ? null : parseInt(container.dataset.userStoreId);
     const userRole = container.dataset.userRole;
     
-    console.log('👤 Foydalanuvchi dokan ID:', userStoreId, 'Rol:', userRole);
+ console.log(' Foydalanuvchi dokan ID:', userStoreId, 'Rol:', userRole);
 
     // Valyuta kursi
     let currencyRate = 0;
@@ -451,7 +451,7 @@
             const data = await response.json();
             if (data.success && data.rate) {
                 currencyRate = parseFloat(data.rate.rate);
-                console.log('💱 Valyuta kursi yuklandi:', currencyRate);
+ console.log(' Valyuta kursi yuklandi:', currencyRate);
                 // Header display ni ham yangilash
                 if (typeof updateCurrencyDisplay === 'function') {
                     updateCurrencyDisplay(currencyRate);
@@ -668,7 +668,7 @@
                 button.dataset.location = `${location.type}_${location.id}`;
                 
                 // Ombor va dokonlar uchun turli ikonlar
-                const icon = location.type === 'warehouse' ? '🏢' : '🏪';
+ const icon = location.type === 'warehouse' ? '' : '';
                 button.textContent = `${icon} ${location.name}`;
                 
                 // Event listener qo'shish
@@ -706,7 +706,7 @@
                     userStoreButton.classList.add('active');
                     currentLocation = `store_${userStoreId}`;
                     
-                    console.log('🎯 Sotuvchi tugmasi highlight qilindi (qayta yuklanmaydi):', userStoreButton.textContent);
+ console.log(' Sotuvchi tugmasi highlight qilindi (qayta yuklanmaydi):', userStoreButton.textContent);
                 } else {
                     // Agar user dokon tugmasi topilmasa, "Barcha joylar"ni active qilish
                     const allButton = locationButtons.querySelector('[data-location="all"]');
@@ -848,7 +848,7 @@
                     <tr data-pid="${product.id}">
                         <td style="text-align:center;padding:4px 6px!important;">${imageCell}</td>
                         <td style="text-align: center;">${barcodeCell}</td>
-                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}">🕐</button>${highlightedName}${fuzzyBadge}${catBadge}</td>
+                        <td class="product-name col-name"><button class="hist-btn" data-pid="${product.id}" onclick="showProductOps(event,this)" title="${PLANG.opsHistoryTitle}"><i class="fas fa-clock"></i></button>${highlightedName}${fuzzyBadge}${catBadge}</td>
                         <td class="price-cell col-price">
                             <span style="background-color: #5cb85c; color: white; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 0;">$${formatPrice(sellUsd)}</span>
                             <span style="background-color: #5dade2; color: white; font-size: 12px; font-weight: 700; margin-left: 2px; padding: 2px 8px; border-radius: 0;">${formatPrice(sellUzs)} so'm</span>
@@ -1201,11 +1201,11 @@
         const loadingState = document.getElementById('loadingState');
         loadingState.innerHTML = `
             <div style="color: #dc3545; text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="fas fa-triangle-exclamation"></i></div>
                 <h3>${PLANG.errorTitle}</h3>
                 <p>${message}</p>
                 <button onclick="loadProducts()" class="add-product-btn" style="margin-top: 1rem;">
-                    🔄 ${PLANG.retry}
+ ${PLANG.retry}
                 </button>
             </div>
         `;
@@ -1222,31 +1222,31 @@
         // Popup ochish
         backdrop.style.display = 'block';
         popup.style.display = 'block';
-        popup.innerHTML = `<div class="pop-header"><h4>🕐 ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()">✕</button></div><div style="padding:1.2rem;text-align:center;color:#1a6eff;">⏳ ${PLANG.loading}</div>`;
+        popup.innerHTML = `<div class="pop-header"><h4><i class="fas fa-clock"></i> ${PLANG.loading}</h4><button class="pop-close" onclick="closeProductOps()"><i class="fas fa-xmark"></i></button></div><div style="padding:1.2rem;text-align:center;color:#1a6eff;"><i class="fas fa-spinner fa-spin"></i> ${PLANG.loading}</div>`;
 
         fetch(`/api/product/${productId}/operations`)
             .then(r => r.json())
             .then(data => {
                 if (!data.success) { popup.innerHTML += `<div style="padding:1rem;color:#dc3545;">${PLANG.errorPrefix}: ${data.error}</div>`; return; }
                 const ops = data.operations;
-                let html = `<div class="pop-header"><h4>🕐 ${data.product_name}</h4><button class="pop-close" onclick="closeProductOps()">✕</button></div>`;
+                let html = `<div class="pop-header"><h4><i class="fas fa-clock"></i> ${data.product_name}</h4><button class="pop-close" onclick="closeProductOps()"><i class="fas fa-xmark"></i></button></div>`;
                 if (ops.length === 0) {
-                    html += `<div style="padding:1.5rem;text-align:center;color:#888;">📢 ${PLANG.noOperations}</div>`;
+                    html += `<div style="padding:1.5rem;text-align:center;color:#888;"> ${PLANG.noOperations}</div>`;
                 } else {
                     ops.forEach(op => {
                         let loc = '';
                         if (op.operation_type === 'transfer' && op.old_data && op.new_data) {
                             const from = op.old_data.from_location || '';
                             const to = op.new_data.to_location || op.location_name || '';
-                            if (from || to) loc = `<span class="op-loc">${from} ➜ ${to}</span>`;
+                            if (from || to) loc = `<span class="op-loc">${from}  ${to}</span>`;
                         } else if (op.location_name) {
-                            loc = `<span class="op-loc">📍 ${op.location_name}</span>`;
+                            loc = `<span class="op-loc"><i class="fas fa-location-dot"></i> ${op.location_name}</span>`;
                         }
                         let userInfo = op.username || '';
                         if (op.user_role) userInfo += ` (${op.user_role}`;
                         if (op.user_phone) userInfo += op.user_role ? `, ${op.user_phone})` : ` (${op.user_phone})`;
                         else if (op.user_role) userInfo += ')';
-                        const user = userInfo ? `<span class="op-user">👤 ${userInfo}</span>` : '';
+                        const user = userInfo ? `<span class="op-user"><i class="fas fa-user"></i> ${userInfo}</span>` : '';
                         const dtParts = (op.created_at || '').split(' ');
                         const dateStr = dtParts[0] || '';
                         const timeStr = dtParts[1] || '';
@@ -1255,14 +1255,14 @@
                         let desc = op.description || '';
                         if (op.operation_type === 'transfer') {
                             // Yangi format: "Transfer: Nom - FROM 44-2=42 → TO 20+2=22"
-                            const mNew = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+?\s+(\d+)-(\d+)=(\d+)\s*[→➜]\s*.+?\s+(\d+)\+(\d+)=(\d+)/);
+ const mNew = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+?\s+(\d+)-(\d+)=(\d+)\s*[→]\s*.+?\s+(\d+)\+(\d+)=(\d+)/);
                             // Eski format: "Transfer: Nom - FROM → TO"
                             const mOld = desc.match(/^Transfer:\s*(.+?)\s*-\s*.+$/);
                             if (mNew) {
                                 const name = mNew[1];
                                 const fromBefore = mNew[2], qty = mNew[3], fromAfter = mNew[4];
                                 const toBefore = mNew[5], toAfter = mNew[7];
-                                desc = `${name} | ${fromBefore}-${qty}=${fromAfter} ➜ ${toBefore}+${qty}=${toAfter}`;
+ desc = `${name} | ${fromBefore}-${qty}=${fromAfter} ${toBefore}+${qty}=${toAfter}`;
                             } else if (mOld) {
                                 desc = mOld[1];
                             }
@@ -1344,7 +1344,7 @@
         overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;cursor:zoom-out;';
         overlay.innerHTML = `
             <img id="_lbImg" src="" style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 8px 40px #000a;object-fit:contain;">
-            <button onclick="closeLightbox()" style="position:fixed;top:18px;right:24px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:38px;height:38px;font-size:20px;color:#fff;cursor:pointer;">✕</button>
+            <button onclick="closeLightbox()" style="position:fixed;top:18px;right:24px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:38px;height:38px;font-size:20px;color:#fff;cursor:pointer;"><i class="fas fa-xmark"></i></button>
         `;
         overlay.addEventListener('click', function(e) { if (e.target === overlay || e.target.id === '_lbImg') closeLightbox(); });
         document.body.appendChild(overlay);

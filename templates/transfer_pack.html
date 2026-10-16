@@ -89,17 +89,17 @@ function render() {
         <div class="te-topbar">
             <div>
                 <div class="label">Qayerdan (ombor)</div>
-                <div class="loc-name">🏭 ${FROM_NAME}</div>
+                <div class="loc-name"><i class="fas fa-industry"></i> ${FROM_NAME}</div>
             </div>
-            <div class="arrow">➜</div>
+            <div class="arrow"></div>
             <div>
                 <div class="label">Qayerga (do'kon)</div>
-                <div class="loc-name">🔄 ${TO_NAME}</div>
+                <div class="loc-name"><i class="fas fa-rotate"></i> ${TO_NAME}</div>
             </div>
             <div style="text-align:right;min-width:120px;">
                 <div class="label">Holat</div>
-                <span class="tv-status tv-status-picking">⚙️ Yig'ilmoqda</span>
-                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;">✓ Saqlandi</span>
+                <span class="tv-status tv-status-picking"><i class="fas fa-gear"></i> Yig'ilmoqda</span>
+                <span class="tv-save-indicator" id="saveInd" style="display:block;margin-top:4px;"><i class="fas fa-check"></i> Saqlandi</span>
             </div>
         </div>
 
@@ -107,15 +107,15 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-left">
                     <div>
-                        <h3 class="te-panel-title">📦 Ombor: ${FROM_NAME}</h3>
+                        <h3 class="te-panel-title"><i class="fas fa-box"></i> Ombor: ${FROM_NAME}</h3>
                         <span class="te-panel-subtitle">— Mavjud mahsulotlar, qo'shing yoki yig'ing</span>
                     </div>
-                    <span class="te-from-badge" id="fromCount">⏳</span>
+                    <span class="te-from-badge" id="fromCount"><i class="fas fa-spinner fa-spin"></i></span>
                 </div>
                 <div class="te-panel-body">
-                    <input type="text" id="productSearch" class="te-search-input" placeholder="🔎 Nomi yoki barcode..." />
+ <input type="text" id="productSearch" class="te-search-input" placeholder=" Nomi yoki barcode..." />
                     <div class="te-product-list" id="productList">
-                        <div class="te-selected-empty">⏳ Yuklanmoqda...</div>
+                        <div class="te-selected-empty"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</div>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@ function render() {
             <div class="te-panel">
                 <div class="te-panel-head te-panel-head-right">
                     <div>
-                        <h3 class="te-panel-title">🔄 Yig'ish: ${TO_NAME} uchun</h3>
+                        <h3 class="te-panel-title"><i class="fas fa-rotate"></i> Yig'ish: ${TO_NAME} uchun</h3>
                         <span class="te-panel-subtitle">— Sotuvchi so'ragan + to'g'irlashlar</span>
                     </div>
                     <span class="te-cnt-badge" id="cntSelected">${selectedItems.length}</span>
@@ -143,7 +143,7 @@ function render() {
 
         <div class="te-actions-bar">
             <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
-            <button class="tv-btn tv-btn-success" id="btnDispatch">📦 Jo'natdim (sotuvchiga yuborish)</button>
+            <button class="tv-btn tv-btn-success" id="btnDispatch"><i class="fas fa-box"></i> Jo'natdim (sotuvchiga yuborish)</button>
         </div>
     `;
 
@@ -165,7 +165,7 @@ async function loadProducts() {
         document.getElementById('fromCount').textContent = `${allProducts.length} ta`;
         renderProductList();
     } catch (e) {
-        document.getElementById('productList').innerHTML = '<div class="te-selected-empty">⚠️ Xato: ' + e.message + '</div>';
+        document.getElementById('productList').innerHTML = '<div class="te-selected-empty"><i class="fas fa-triangle-exclamation"></i> Xato: ' + e.message + '</div>';
     }
 }
 
@@ -189,9 +189,9 @@ function renderProductList() {
             <div class="te-product-row" data-pid="${p.id}">
                 <div>
                     <div class="te-product-name">${p.name}</div>
-                    <div class="te-product-meta">📦 ${fmtNum(stock)} dona • 💰 ${fmtNum(p.price)}</div>
+                    <div class="te-product-meta"><i class="fas fa-box"></i> ${fmtNum(stock)} dona • <i class="fas fa-sack-dollar"></i> ${fmtNum(p.price)}</div>
                 </div>
-                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '✓ ro\'yxatda' : '+ qo\'shish'}</button>
+                <button class="te-add-btn" ${inCart ? 'disabled' : ''}>${inCart ? '<i class="fas fa-check"></i> ro\'yxatda' : '+ qo\'shish'}</button>
             </div>`;
     }).join('') + (filteredProducts.length > limit ? `<div class="te-selected-empty">+${filteredProducts.length - limit} ta yana. Qidiring.</div>` : '');
     list.querySelectorAll('.te-product-row').forEach(row => {
@@ -233,7 +233,7 @@ function renderSelected() {
                         ${origHint}
                     </div>
                 </td>
-                <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})">🗑️</button></td>
+                <td style="text-align:center;"><button class="te-del-btn" onclick="removeItem(${idx})"><i class="fas fa-trash"></i></button></td>
             </tr>`;
     }).join('');
 }
@@ -296,17 +296,17 @@ async function dispatchTransfer() {
         });
         const data = await res.json();
         if (data.success) {
-            alert('✅ ' + data.message);
+ alert(' ' + data.message);
             window.location.href = '/transfer';
         } else {
             alert('Xato: ' + (data.error || 'Noma\'lum'));
             btn.disabled = false;
-            btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+ btn.textContent = ' Jo\'natdim (sotuvchiga yuborish)';
         }
     } catch (e) {
         alert('Tarmoq: ' + e.message);
         btn.disabled = false;
-        btn.textContent = '📦 Jo\'natdim (sotuvchiga yuborish)';
+ btn.textContent = ' Jo\'natdim (sotuvchiga yuborish)';
     }
 }
 

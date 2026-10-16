@@ -31,7 +31,7 @@ function render() {
     document.getElementById('tvRoot').innerHTML = `
         <div class="tv-card">
             <h2 class="tv-title">Yangi transfer keldi (#${p.id})</h2>
-            <div class="tv-info-box">📥 Sotuvchi tomonidan yuborildi. Yig'ishni boshlash uchun pastdagi tugmani bosing.</div>
+            <div class="tv-info-box"><i class="fas fa-inbox"></i> Sotuvchi tomonidan yuborildi. Yig'ishni boshlash uchun pastdagi tugmani bosing.</div>
             <div class="tv-row">
                 <div><div class="tv-label">Qayerdan</div><div class="tv-value">${p.from_location || '—'}</div></div>
                 <div><div class="tv-label">Qayerga</div><div class="tv-value">${p.to_location || '—'}</div></div>
@@ -52,7 +52,7 @@ function render() {
 
         <div class="tv-actions tv-actions-between">
             <a href="/transfer" class="tv-btn tv-btn-secondary">Keyinroq</a>
-            <button class="tv-btn tv-btn-success" id="btnStart">⚙️ Yig'ishni boshlash</button>
+            <button class="tv-btn tv-btn-success" id="btnStart"><i class="fas fa-gear"></i> Yig'ishni boshlash</button>
         </div>
     `;
 
@@ -73,12 +73,12 @@ async function startPicking() {
         } else {
             alert('Xatolik: ' + (data.error || 'Noma\'lum'));
             btn.disabled = false;
-            btn.textContent = '⚙️ Yig\'ishni boshlash';
+ btn.textContent = ' Yig\'ishni boshlash';
         }
     } catch (e) {
         alert('Tarmoq xatosi: ' + e.message);
         btn.disabled = false;
-        btn.textContent = '⚙️ Yig\'ishni boshlash';
+ btn.textContent = ' Yig\'ishni boshlash';
     }
 }
 

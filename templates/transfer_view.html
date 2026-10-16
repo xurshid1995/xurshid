@@ -25,11 +25,11 @@ function fmtDate(s) {
 }
 function getStatusBadge(status) {
     const map = {
-        draft:      ['draft',      '✏️ Qoralama'],
-        sent:       ['sent',       '📤 Yuborildi'],
-        picking:    ['picking',    '⚙️ Yig\'ilmoqda'],
-        dispatched: ['dispatched', '🚚 Yo\'lda'],
-        completed:  ['completed',  '✅ Yakunlandi'],
+ draft: ['draft', ' Qoralama'],
+ sent: ['sent', ' Yuborildi'],
+ picking: ['picking', ' Yig\'ilmoqda'],
+ dispatched: ['dispatched', ' Yo\'lda'],
+ completed: ['completed', ' Yakunlandi'],
     };
     const [cls, label] = map[status] || map.draft;
     return `<span class="tv-status tv-status-${cls}">${label}</span>`;

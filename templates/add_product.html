@@ -189,7 +189,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
     <!-- Tugallanmagan sessiyalar -->
     <div class="addp-section">
         <div class="addp-section-header">
-            <h3>⏸️ Davom ettirilmagan qo'shishlar</h3>
+            <h3><i class="fas fa-circle-pause"></i> Davom ettirilmagan qo'shishlar</h3>
             <span class="badge-pending" id="pendingCountBadge" style="display:none;">0</span>
         </div>
         <div class="addp-table-wrap">
@@ -220,7 +220,7 @@ tbody tr.sale-group-start:first-child { border-top: none; }
             <h3><i class="fas fa-history" style="color:#1a6eff;"></i> {{ t('ap_history_title') }}</h3>
             <button type="button" onclick="refreshHistory()" id="refreshHistoryBtn"
                 style="margin-left:auto; padding:5px 14px; background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; font-size:12px; font-weight:600; color:#475569; cursor:pointer;">
-                🔄 {{ t('ap_refresh') }}
+                <i class="fas fa-rotate"></i> {{ t('ap_refresh') }}
             </button>
         </div>
         <div id="historyLoading" style="text-align:center; padding:24px; color:#94a3b8;">
@@ -279,7 +279,7 @@ async function loadPendingBatches() {
         const tbody = document.getElementById('pendingBatchesBody');
 
         if (!data.success || !data.batches || data.batches.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="padding:24px; color:#94a3b8;">📭 Davom ettirilmagan qo\'shishlar yo\'q</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="padding:24px; color:#94a3b8;"><i class="fas fa-envelope-open"></i> Davom ettirilmagan qo\'shishlar yo\'q</td></tr>';
             return;
         }
 
@@ -300,10 +300,10 @@ async function loadPendingBatches() {
                 <td style="color:#64748b;">${batch.first_location}</td>
                 <td>
                     <a href="/add_product_session?id=${batch.id}" class="btn-sm btn-success-sm">
-                        ▶️ Davom ettirish
+ Davom ettirish
                     </a>
                     <button class="btn-sm btn-danger-sm" onclick="deleteBatch(${batch.id})">
-                        🗑️ O'chirish
+ O'chirish
                     </button>
                 </td>
             `;
@@ -311,7 +311,7 @@ async function loadPendingBatches() {
         });
     } catch (e) {
         document.getElementById('pendingBatchesBody').innerHTML =
-            '<tr><td colspan="7" style="padding:24px; color:#ef4444;">❌ Yuklashda xatolik</td></tr>';
+            '<tr><td colspan="7" style="padding:24px; color:#ef4444;"><i class="fas fa-circle-xmark"></i> Yuklashda xatolik</td></tr>';
     }
 }
 
@@ -342,10 +342,10 @@ async function loadProductHistory() {
             document.getElementById('historyTableContainer').style.display = 'block';
             document.getElementById('paginationContainer').style.display = allHistory.length >= itemsPerPage ? 'block' : 'none';
         } else {
-            document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;">📝 Hech qanday tarix mavjud emas</p>';
+            document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;"> Hech qanday tarix mavjud emas</p>';
         }
     } catch (e) {
-        document.getElementById('historyLoading').innerHTML = '<p style="color:#ef4444;">❌ Tarix yuklashda xatolik</p>';
+        document.getElementById('historyLoading').innerHTML = '<p style="color:#ef4444;"><i class="fas fa-circle-xmark"></i> Tarix yuklashda xatolik</p>';
     }
 }
 
@@ -354,7 +354,7 @@ function displayProductHistory() {
     tbody.innerHTML = '';
     
     if (!allHistory || allHistory.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:2rem;">📝 Hech qanday mahsulot qo\'shilmagan</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:2rem;"> Hech qanday mahsulot qo\'shilmagan</td></tr>';
         document.getElementById('paginationContainer').style.display = 'none';
         return;
     }
@@ -443,7 +443,7 @@ function displayProductHistory() {
             
             // Birinchi qatorda foydalanuvchini ko'rsatish (rowspan bilan)
             if (isFirstInGroup) {
-                html += `<td rowspan="${rowCount}" class="group-cell group-user" style="background: white; border-left: 1px solid #f1f5f9;"><span style="color:#374151; font-weight:600; font-size:13px;">👤 ${group.user}</span></td>`;
+                html += `<td rowspan="${rowCount}" class="group-cell group-user" style="background: white; border-left: 1px solid #f1f5f9;"><span style="color:#374151; font-weight:600; font-size:13px;"><i class="fas fa-user"></i> ${group.user}</span></td>`;
             }
             
             row.innerHTML = html;
@@ -528,12 +528,12 @@ function goToPage(page) {
 
 async function refreshHistory() {
     const btn = document.getElementById('refreshHistoryBtn');
-    btn.disabled = true; btn.textContent = '⏳...';
+ btn.disabled = true; btn.textContent = '...';
     document.getElementById('historyLoading').style.display = 'block';
     document.getElementById('historyTableContainer').style.display = 'none';
-    document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;">🔄 Yangilanmoqda...</p>';
+    document.getElementById('historyLoading').innerHTML = '<p style="color:#64748b;"><i class="fas fa-rotate"></i> Yangilanmoqda...</p>';
     await loadProductHistory();
-    btn.disabled = false; btn.textContent = '🔄 Yangilash';
+ btn.disabled = false; btn.textContent = ' Yangilash';
 }
 
 document.addEventListener('DOMContentLoaded', function() {

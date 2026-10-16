@@ -455,7 +455,7 @@
             </div>
             <div class="ps-payment-rows">
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label">💵 {{ t('cdd_cash') }}</span>
+                    <span class="ps-pay-label"><i class="fas fa-money-bill-1"></i> {{ t('cdd_cash') }}</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -467,7 +467,7 @@
                     <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ {{ t('cdd_remaining') }}">+</button>
                 </div>
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label">📱 {{ t('cdd_click') }}</span>
+                    <span class="ps-pay-label"><i class="fas fa-mobile-screen"></i> {{ t('cdd_click') }}</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -479,7 +479,7 @@
                     <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ {{ t('cdd_remaining') }}">+</button>
                 </div>
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label">🏧 {{ t('cdd_terminal') }}</span>
+                    <span class="ps-pay-label"><i class="fas fa-money-bill-wave"></i> {{ t('cdd_terminal') }}</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -492,7 +492,7 @@
                 </div>
             </div>
             <div>
-                <button class="ps-btn-submit" onclick="submitPayment()">✅ {{ t('cdd_confirm_payment') }}</button>
+                <button class="ps-btn-submit" onclick="submitPayment()"><i class="fas fa-circle-check"></i> {{ t('cdd_confirm_payment') }}</button>
             </div>
         </div>
 
@@ -567,10 +567,10 @@
     <div style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
         <h3 style="margin:0 0 15px 0; color:#dc3545;"><i class="fas fa-undo"></i> To'lovni bekor qilish</h3>
         <div id="reverseModalInfo" style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin-bottom:20px; font-size:14px; line-height:1.6;"></div>
-        <p style="color:#6c757d; font-size:14px; margin-bottom:20px;">⚠️ Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
+        <p style="color:#6c757d; font-size:14px; margin-bottom:20px;"><i class="fas fa-triangle-exclamation"></i> Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
         <div style="display:flex; gap:10px; justify-content:flex-end;">
             <button onclick="closeReverseModal()" style="padding:10px 20px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">Bekor</button>
-            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">✅ Ha, bekor qilish</button>
+            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;"><i class="fas fa-circle-check"></i> Ha, bekor qilish</button>
         </div>
     </div>
 </div>
@@ -664,16 +664,16 @@
     async function loadDebtData() {
         try {
             // Currency rate olish
-            console.log('🔄 Valyuta kursini yuklayapman...');
+ console.log(' Valyuta kursini yuklayapman...');
             const rateResponse = await fetch('/api/currency-rate');
-            console.log('📡 Rate response status:', rateResponse.ok);
+ console.log(' Rate response status:', rateResponse.ok);
             if (rateResponse.ok) {
                 const rateData = await rateResponse.json();
-                console.log('📦 Rate data:', rateData);
+ console.log(' Rate data:', rateData);
                 currentRate = rateData.rate?.rate || rateData.rate || 12000;
-                console.log('✅ Current rate o\'rnatildi:', currentRate);
+ console.log(' Current rate o\'rnatildi:', currentRate);
             } else {
-                console.log('❌ Rate response not OK');
+ console.log(' Rate response not OK');
                 currentRate = 12000;
             }
             
@@ -705,7 +705,7 @@
         } catch (error) {
             console.error('Xatolik:', error);
             document.getElementById('historyBody').innerHTML = 
-                '<tr><td colspan="8" class="no-data">❌ ' + CDDLANG.load_error + '</td></tr>';
+                '<tr><td colspan="8" class="no-data"><i class="fas fa-circle-xmark"></i> ' + CDDLANG.load_error + '</td></tr>';
         }
     }
 
@@ -714,7 +714,7 @@
         const tbody = document.getElementById('historyBody');
 
         if (!debtData.history || debtData.history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="no-data">📭 ' + CDDLANG.no_data + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="no-data"><i class="fas fa-envelope-open"></i> ' + CDDLANG.no_data + '</td></tr>';
             return;
         }
 
@@ -732,10 +732,10 @@
                 const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
                 let color = '#28a745';
-                let icon = '🟢';
-                if (diffDays < 0) { color = '#dc3545'; icon = '🔴'; }
-                else if (diffDays === 0) { color = '#ffc107'; icon = '🟡'; }
-                else if (diffDays <= 3) { color = '#fd7e14'; icon = '🟠'; }
+ let icon = '';
+ if (diffDays < 0) { color = '#dc3545'; icon = ''; }
+ else if (diffDays === 0) { color = '#ffc107'; icon = ''; }
+ else if (diffDays <= 3) { color = '#fd7e14'; icon = ''; }
 
                 dueDateHtml = `<span style="color: ${color}; font-weight: 600;">${icon} ${h.payment_due_date}</span>`;
                 if (diffDays < 0) {
@@ -784,7 +784,7 @@
                         ${isFirst ? `<td rowspan="${saleItems.length}" class="group-cell col-due">${dueDateHtml}</td>` : ''}
                         ${isFirst ? `
                             <td rowspan="${saleItems.length}" class="group-cell col-actions">
-                                <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view">👁️ ${CDDLANG.view}</button>
+                                <button onclick="viewSaleDetails(${h.sale_id})" class="ps-btn-view"><i class="fas fa-eye"></i> ${CDDLANG.view}</button>
                             </td>
                         ` : ''}
                     </tr>
@@ -830,7 +830,7 @@
     // Qolgan qarzni maydoniga qo'shish
     function addRemainingToField(fieldId) {
         if (!debtData || !debtData.remaining_debt) {
-            alert('❌ ' + CDDLANG.debt_not_found);
+ alert(' ' + CDDLANG.debt_not_found);
             return;
         }
         
@@ -853,7 +853,7 @@
             // USD yozilganda UZS ham yangilanadi (avtomatik konvertatsiya)
             field.dispatchEvent(new Event('input'));
         } else {
-            alert('✅ ' + CDDLANG.debt_fully_paid);
+ alert(' ' + CDDLANG.debt_fully_paid);
         }
     }
 
@@ -873,7 +873,7 @@
         const totalPayment = cashUSD + clickUSD + terminalUSD;
         
         if (totalPayment <= 0) {
-            alert('❌ ' + CDDLANG.enter_amount);
+ alert(' ' + CDDLANG.enter_amount);
             return;
         }
 
@@ -883,7 +883,7 @@
         if (totalPayment > remainingDebt + 0.00001) {
             const fmt = n => parseFloat(n.toFixed(5)).toString();
             const excess = fmt(totalPayment - remainingDebt);
-            const confirmMsg = `⚠️ Diqqat!\n\nQarz: $${fmt(remainingDebt)}\nTo'lov: $${fmt(totalPayment)}\nOrtiqcha: $${excess}\n\nOrtiqcha $${excess} mijoz balansiga o'tkaziladi.\n\nDavom etasizmi?`;
+ const confirmMsg = ` Diqqat!\n\nQarz: $${fmt(remainingDebt)}\nTo'lov: $${fmt(totalPayment)}\nOrtiqcha: $${excess}\n\nOrtiqcha $${excess} mijoz balansiga o'tkaziladi.\n\nDavom etasizmi?`;
             if (!confirm(confirmMsg)) return;
         }
 
@@ -893,7 +893,7 @@
         const originalText = submitBtn ? submitBtn.innerHTML : '';
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '⏳ Yuklanmoqda...';
+ submitBtn.innerHTML = ' Yuklanmoqda...';
             submitBtn.style.opacity = '0.6';
         }
 
@@ -924,14 +924,14 @@
             if (response.ok && result.success) {
                 if (result.balance_added && result.balance_added > 0) {
                     const fmt = n => parseFloat(n.toFixed(5)).toString();
-                    alert(`✅ To'lov amalga oshirildi!\n\n💳 Ortiqcha $${fmt(result.balance_added)} mijoz balansiga o'tkazildi.\nYangi balans: $${fmt(result.new_balance)}`);
+ alert(` To'lov amalga oshirildi!\n\n Ortiqcha $${fmt(result.balance_added)} mijoz balansiga o'tkazildi.\nYangi balans: $${fmt(result.new_balance)}`);
                 } else {
-                    alert('✅ ' + CDDLANG.payment_success);
+ alert(' ' + CDDLANG.payment_success);
                 }
                 // Sahifani yangilash
                 location.reload();
             } else {
-                alert('❌ ' + CDDLANG.unknown_error + ': ' + (result.error || CDDLANG.unknown_error));
+ alert(' ' + CDDLANG.unknown_error + ': ' + (result.error || CDDLANG.unknown_error));
                 // Xatolikda tugmani qaytarish
                 _paymentSubmitting = false;
                 _paymentIdempotencyKey = crypto.randomUUID();
@@ -943,7 +943,7 @@
             }
         } catch (error) {
             console.error('Xatolik:', error);
-            alert('❌ ' + CDDLANG.payment_error);
+ alert(' ' + CDDLANG.payment_error);
             // Tarmoq xatoligida tugmani qaytarish
             _paymentSubmitting = false;
             _paymentIdempotencyKey = crypto.randomUUID();
@@ -1046,12 +1046,12 @@
                 if (data.success && data.sale) {
                     showSaleDetailsModal(data.sale);
                 } else {
-                    alert('❌ ' + CDDLANG.load_error);
+ alert(' ' + CDDLANG.load_error);
                 }
             })
             .catch(error => {
                 console.error('Xatolik:', error);
-                alert('❌ ' + CDDLANG.payment_error);
+ alert(' ' + CDDLANG.payment_error);
             });
     }
 
@@ -1071,10 +1071,10 @@
         const debtUZS = debtUSD * rate;
         
         const payments = [
-            { name: '💵 ' + CDDLANG.cash_payment, usd: cashUSD, uzs: cashUZS, isDebt: false },
-            { name: '📱 ' + CDDLANG.click_payment, usd: clickUSD, uzs: clickUZS, isDebt: false },
-            { name: '💳 ' + CDDLANG.terminal_payment, usd: terminalUSD, uzs: terminalUZS, isDebt: false },
-            { name: '📝 ' + CDDLANG.debt_payment, usd: debtUSD, uzs: debtUZS, isDebt: true }
+ { name: ' ' + CDDLANG.cash_payment, usd: cashUSD, uzs: cashUZS, isDebt: false },
+ { name: ' ' + CDDLANG.click_payment, usd: clickUSD, uzs: clickUZS, isDebt: false },
+ { name: ' ' + CDDLANG.terminal_payment, usd: terminalUSD, uzs: terminalUZS, isDebt: false },
+ { name: ' ' + CDDLANG.debt_payment, usd: debtUSD, uzs: debtUZS, isDebt: true }
         ];
         
         const activePayments = payments.filter(p => p.usd > 0);
@@ -1102,7 +1102,7 @@
             <div id="saleDetailsModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
                 <div style="background: white; border-radius: 12px; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                     <div style="padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa;">
-                        <h3 style="margin: 0; color: #333;">👁️ ${CDDLANG.sale_details}</h3>
+                        <h3 style="margin: 0; color: #333;"><i class="fas fa-eye"></i> ${CDDLANG.sale_details}</h3>
                         <button onclick="closeSaleDetailsModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
                     </div>
                     <div style="padding: 20px;">
@@ -1257,17 +1257,17 @@
             });
             const data = await res.json();
             if (data.success) {
-                alert('✅ ' + data.message);
+ alert(' ' + data.message);
                 closeReverseModal();
                 location.reload(); // Ma'lumotlarni yangilash
             } else {
-                alert('❌ ' + (data.error || 'Xatolik'));
+ alert(' ' + (data.error || 'Xatolik'));
             }
         } catch (e) {
-            alert('❌ Server bilan bog\'lanib bo\'lmadi');
+ alert(' Server bilan bog\'lanib bo\'lmadi');
         }
         btn.disabled = false;
-        btn.textContent = '✅ Ha, bekor qilish';
+ btn.textContent = ' Ha, bekor qilish';
     }
 
     // Esc tugmasi bilan modalni yopish

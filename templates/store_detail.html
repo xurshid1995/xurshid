@@ -533,13 +533,13 @@
                     <label class="em-label">Rasm</label>
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div id="em-img-preview" onclick="emImgClick()" style="width:60px;height:60px;border-radius:8px;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in;flex-shrink:0;">
-                            <span id="em-img-placeholder" style="color:#94a3b8;font-size:22px;">📷</span>
+                            <span id="em-img-placeholder" style="color:#94a3b8;font-size:22px;"><i class="fas fa-camera"></i></span>
                             <img id="em-img-thumb" src="" alt="" style="display:none;width:60px;height:60px;object-fit:cover;border-radius:6px;">
                         </div>
                         <div style="display:flex;flex-direction:column;gap:5px;">
                             <input type="file" id="em-img-file" accept="image/*" style="display:none;" onchange="emPreviewImage(this)">
-                            <button type="button" onclick="document.getElementById('em-img-file').click()" style="padding:5px 14px;border:1.5px solid #1a6eff;background:#eff6ff;color:#1a6eff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">📁 Rasm tanlash</button>
-                            <button type="button" id="em-img-delete-btn" onclick="emDeleteImage()" style="padding:5px 14px;border:1.5px solid #ef4444;background:#fef2f2;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:none;">🗑️ Rasmni o'chirish</button>
+                            <button type="button" onclick="document.getElementById('em-img-file').click()" style="padding:5px 14px;border:1.5px solid #1a6eff;background:#eff6ff;color:#1a6eff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;"><i class="fas fa-folder"></i> Rasm tanlash</button>
+                            <button type="button" id="em-img-delete-btn" onclick="emDeleteImage()" style="padding:5px 14px;border:1.5px solid #ef4444;background:#fef2f2;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:none;"><i class="fas fa-trash"></i> Rasmni o'chirish</button>
                         </div>
                     </div>
                 </div>
@@ -557,8 +557,8 @@
 <div id="emCropModal" onclick="if(event.target===this)emCropCancel()">
     <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:16px;width:min(520px,96vw);max-height:95vh;display:flex;flex-direction:column;box-shadow:0 12px 48px #0008;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
-            <span style="font-weight:700;font-size:15px;">✂️ Rasmni qirqish</span>
-            <button onclick="emCropCancel()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
+            <span style="font-weight:700;font-size:15px;"><i class="fas fa-scissors"></i> Rasmni qirqish</span>
+            <button onclick="emCropCancel()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;"><i class="fas fa-xmark"></i></button>
         </div>
         <div style="flex:1;overflow:hidden;border-radius:10px;background:#1e293b;min-height:0;">
             <img id="emCropImage" src="" alt="" style="max-width:100%;display:block;">
@@ -573,7 +573,7 @@
         <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;text-align:center;flex-shrink:0;">Siljiting • Scroll bilan zoom • Kvadrat doim 800×800 bo'lib saqlanadi</p>
         <div style="display:flex;gap:10px;flex-shrink:0;">
             <button onclick="emCropCancel()" style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:14px;font-weight:600;">Bekor</button>
-            <button onclick="emCropSave()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;">✓ Tasdiqlash</button>
+            <button onclick="emCropSave()" style="flex:2;padding:10px;border:none;border-radius:10px;background:#1a6eff;color:#fff;cursor:pointer;font-size:14px;font-weight:700;"><i class="fas fa-check"></i> Tasdiqlash</button>
         </div>
     </div>
 </div>
@@ -794,7 +794,7 @@
             
             return `
             <tr class="stock-row" data-status="${item.status}" style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;">📷</div>`}</td>
+                <td style="padding:4px 6px;text-align:center;">${item.stock.product.image_url ? `<img src="${item.stock.product.image_url}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;cursor:zoom-in;" onclick="openHeaderPhotoLightbox(this)">` : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;"><i class="fas fa-camera"></i></div>`}</td>
                 <td style="padding: 5px; text-align: center; color: #666; font-family: monospace; width: 90px;">${item.stock.product.barcode || '-'}</td>
                 <td style="padding: 5px; text-align: left;"><strong>${highlightedName}</strong></td>
                 <td style="padding: 5px; text-align: center; font-weight: bold; width: 80px;">${quantityDisplay}</td>
@@ -804,16 +804,16 @@
                 <td style="padding: 5px; text-align: center; color: #27ae60; font-weight: bold; width: 100px;">${priceWithUzs(item.unit_profit, uzs.profitUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="padding: 5px; text-align: center; color: #1a6eff; font-weight: bold; width: 90px;">${item.profit_percentage.toFixed(1)}%</td>
                 <td style="padding: 5px; text-align: center; width: 110px;">
-                    ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;">🚫 ${SDLANG.status_out}</span>` :
-                      item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ ${SDLANG.status_low}</span>` :
-                      `<span style="color: #27ae60; font-weight: bold;">✓ ${SDLANG.status_enough}</span>`}
+                    ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;"><i class="fas fa-ban"></i> ${SDLANG.status_out}</span>` :
+                      item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-triangle-exclamation"></i> ${SDLANG.status_low}</span>` :
+                      `<span style="color: #27ae60; font-weight: bold;"><i class="fas fa-check"></i> ${SDLANG.status_enough}</span>`}
                 </td>
                 <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
                     <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}); return false;"
-                       class="btn-action btn-action-edit">✏️ ${SDLANG.edit}</a>
+ class="btn-action btn-action-edit"> ${SDLANG.edit}</a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
                             data-product-name="${item.stock.product.name}"
-                            class="btn-action btn-action-delete">🗑️ ${SDLANG.delete}</button>
+ class="btn-action btn-action-delete"> ${SDLANG.delete}</button>
                 </td>
             </tr>
         `;
@@ -877,7 +877,7 @@
     // Excel export funksiyasi
     function exportToExcel() {
         if (typeof XLSX === 'undefined') {
-            alert('❌ ' + SDLANG.excel_not_loaded);
+ alert(' ' + SDLANG.excel_not_loaded);
             return;
         }
 
@@ -912,11 +912,11 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, SDLANG.store_info);
                 XLSX.writeFile(wb, "{{ store.name }}_mahsulotlar.xlsx");
-                console.log(`✅ Excel: ${res.total} ta mahsulot eksport qilindi`);
+ console.log(` Excel: ${res.total} ta mahsulot eksport qilindi`);
             })
             .catch(error => {
                 console.error('Excel eksport xatoligi:', error);
-                alert('❌ ' + SDLANG.excel_error + error.message);
+ alert(' ' + SDLANG.excel_error + error.message);
             })
             .finally(() => {
                 if (btn) btn.disabled = false;
@@ -940,14 +940,14 @@
                     const searchValue = document.querySelector('#search-input').value;
                     const statusValue = document.querySelector('#status-filter').value;
                     loadStockData(currentPage, searchValue, statusValue);
-                    alert('✅ ' + result.data.message);
+ alert(' ' + result.data.message);
                 } else {
                     throw new Error(result.data.error || 'O\'chirishda xatolik');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('❌ ' + SDLANG.delete_error + '\n\n' + error.message);
+ alert(' ' + SDLANG.delete_error + '\n\n' + error.message);
             });
         }
     }
@@ -1195,11 +1195,11 @@
                 const categoryValue = document.querySelector('#category-filter').value;
                 loadStockData(currentPage, searchValue, statusValue, categoryValue);
             } else {
-                errorEl.textContent = '❌ ' + data.error;
+ errorEl.textContent = ' ' + data.error;
                 errorEl.style.display = 'block';
             }
         } catch (err) {
-            errorEl.textContent = '❌ Xatolik: ' + err.message;
+ errorEl.textContent = ' Xatolik: ' + err.message;
             errorEl.style.display = 'block';
         } finally {
             saveBtn.disabled = false;
