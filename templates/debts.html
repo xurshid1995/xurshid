@@ -90,6 +90,7 @@
 }
 .dbt-sort-btn:hover { border-color: #1a6eff; color: #1a6eff; background: #eff6ff; }
 .dbt-sort-btn.active { border-color: #1a6eff; color: #1a6eff; background: #eff6ff; font-weight: 600; }
+.dbt-filter-select { display: none; }
 
 /* Table */
 .dbt-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -317,6 +318,8 @@
     .dbt-header-actions { width: auto; flex-wrap: nowrap; min-width: 0; justify-content: flex-end; }
     .dbt-btn-telegram { padding: 7px 10px; font-size: 11px; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .dbt-btn-telegram img { width: 14px; height: 14px; flex-shrink: 0; }
+    .dbt-sort-btn { display: none; }
+    .dbt-filter-select { display: block; flex: 0 0 100%; }
     .modal-content { width: 100%; max-width: 100%; height: 100%; max-height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column; }
     .modal-header { position: sticky; top: 0; flex-shrink: 0; }
     .modal-body { overflow-y: auto; flex: 1; }
@@ -528,6 +531,13 @@
                     <button class="dbt-sort-btn" id="sortLowDebt" onclick="sortDebtsByAmount('asc')">📉 Kam qarzli</button>
                     <button class="dbt-sort-btn dbt-due-btn" id="filterDueSoon" onclick="filterByDueDate('soon')">⏰ Muddati kelgan</button>
                     <button class="dbt-sort-btn dbt-due-btn" id="filterOverdue" onclick="filterByDueDate('overdue')">🔴 Muddati o'tgan</button>
+                    <select id="debtFilterSelect" class="dbt-filter-select ps-input" onchange="applyDebtFilterSelect(this.value)">
+                        <option value="">{{ t('filter_all') }}</option>
+                        <option value="sort_desc">📈 Ko'p qarzli</option>
+                        <option value="sort_asc">📉 Kam qarzli</option>
+                        <option value="due_soon">⏰ Muddati kelgan</option>
+                        <option value="due_overdue">🔴 Muddati o'tgan</option>
+                    </select>
                 </div>
                 <div class="dbt-table-container">
                     <table class="debts-table">
@@ -993,6 +1003,7 @@
             document.getElementById('sortHighDebt').classList.toggle('active', order === 'desc');
             document.getElementById('sortLowDebt').classList.toggle('active', order === 'asc');
         }
+        syncDebtFilterSelect();
         applyDebtFilters();
     }
 
@@ -1005,6 +1016,43 @@
             debtDueFilter = type;
             document.getElementById('filterDueSoon').classList.toggle('active', type === 'soon');
             document.getElementById('filterOverdue').classList.toggle('active', type === 'overdue');
+        }
+        syncDebtFilterSelect();
+        applyDebtFilters();
+    }
+
+    // Desktop tugmalari bosilganda mobil select qiymatini moslashtirish
+    function syncDebtFilterSelect() {
+        const select = document.getElementById('debtFilterSelect');
+        if (!select) return;
+        if (debtSortOrder === 'desc') select.value = 'sort_desc';
+        else if (debtSortOrder === 'asc') select.value = 'sort_asc';
+        else if (debtDueFilter === 'soon') select.value = 'due_soon';
+        else if (debtDueFilter === 'overdue') select.value = 'due_overdue';
+        else select.value = '';
+    }
+
+    // Mobil "select" filtri (Ko'p qarzli / Kam qarzli / Muddati kelgan / Muddati o'tgan)
+    function applyDebtFilterSelect(value) {
+        debtSortOrder = null;
+        debtDueFilter = null;
+        document.getElementById('sortHighDebt').classList.remove('active');
+        document.getElementById('sortLowDebt').classList.remove('active');
+        document.getElementById('filterDueSoon').classList.remove('active');
+        document.getElementById('filterOverdue').classList.remove('active');
+
+        if (value === 'sort_desc') {
+            debtSortOrder = 'desc';
+            document.getElementById('sortHighDebt').classList.add('active');
+        } else if (value === 'sort_asc') {
+            debtSortOrder = 'asc';
+            document.getElementById('sortLowDebt').classList.add('active');
+        } else if (value === 'due_soon') {
+            debtDueFilter = 'soon';
+            document.getElementById('filterDueSoon').classList.add('active');
+        } else if (value === 'due_overdue') {
+            debtDueFilter = 'overdue';
+            document.getElementById('filterOverdue').classList.add('active');
         }
         applyDebtFilters();
     }
