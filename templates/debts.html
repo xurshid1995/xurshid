@@ -2009,6 +2009,8 @@
         loadPdhLocations();
         loadPaidDebtsHistory();
         loadCustomerBalances();
+        const debtSearchInputEl = document.getElementById('debtSearchInput');
+        if (debtSearchInputEl) debtSearchInputEl.focus();
     });
 
     // =============================================
