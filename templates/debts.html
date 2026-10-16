@@ -67,22 +67,6 @@
     cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .dbt-btn-telegram:hover { background: #0088cc; color: white; border-color: #0088cc; }
-.dbt-btn-history {
-    display: flex; align-items: center; gap: 6px;
-    padding: 9px 16px; background: white; color: #1a6eff;
-    border: 1.5px solid #e0e2f0; border-radius: 10px;
-    font-size: 13px; font-weight: 600; text-decoration: none;
-    transition: all 0.2s; white-space: nowrap;
-}
-.dbt-btn-history:hover { background: #1a6eff; color: white; border-color: #1a6eff; }
-.dbt-btn-balance {
-    display: flex; align-items: center; gap: 6px;
-    padding: 9px 16px; background: white; color: #16a34a;
-    border: 1.5px solid #e0e2f0; border-radius: 10px;
-    font-size: 13px; font-weight: 600; text-decoration: none;
-    transition: all 0.2s; white-space: nowrap;
-}
-.dbt-btn-balance:hover { background: #16a34a; color: white; border-color: #16a34a; }
 
 /* Card */
 .dbt-card {
@@ -359,7 +343,133 @@
     .dbt-stat-number { font-size: 18px; }
     .dbt-search-box { flex: 0 0 100%; }
     .dbt-header-actions { width: 100%; }
-    .dbt-btn-telegram, .dbt-btn-history, .dbt-btn-balance { flex: 1 1 0; justify-content: center; }
+    .dbt-btn-telegram { flex: 1 1 0; justify-content: center; }
+}
+
+/* ── Tabs ── */
+.dbt-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+    background: white; border-radius: 14px; padding: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.dbt-tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border: none; border-radius: 10px;
+    background: transparent; color: #64748b; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.dbt-tab-btn:hover:not(.active) { background: #f1f5f9; color: #1a6eff; }
+.dbt-tab-btn.active { background: #1a6eff; color: white; box-shadow: 0 2px 8px rgba(26,110,255,0.3); }
+.dbt-tab-panel { display: none; }
+.dbt-tab-panel.active { display: block; }
+@media (max-width: 768px) {
+    .dbt-tabs { padding: 4px; }
+    .dbt-tab-btn { flex: 1 1 auto; justify-content: center; padding: 9px 10px; font-size: 12px; }
+}
+
+/* ── Qarz to'lash tarixi (PDH) tab ── */
+.pdh-location-bar {
+    background: white; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-wrap: wrap; gap: 8px;
+}
+.pdh-search-box { position: relative; margin-bottom: 16px; max-width: 380px; }
+.pdh-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+#pdhSearchInput {
+    width: 100%; padding: 9px 12px 9px 34px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 13px; background: #f8fafc; color: #374151; transition: all 0.18s; outline: none;
+}
+#pdhSearchInput:focus { border-color: #1a6eff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+.pdh-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pdh-table thead tr { background: #1a6eff; }
+.pdh-table th {
+    padding: 11px 10px; color: white; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; text-align: left;
+}
+.pdh-table tbody tr:hover { background: #f8fafc; }
+.pdh-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #374151; vertical-align: middle; }
+.pdh-table tbody tr:last-child td { border-bottom: none; }
+.payment-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin: 2px 3px 2px 0; white-space: nowrap; }
+.payment-cash { background: #dcfce7; color: #15803d; }
+.payment-click { background: #dbeafe; color: #1558d6; }
+.payment-terminal { background: #fef9c3; color: #854d0e; }
+.pdh-amount { font-weight: 700; color: #16a34a; font-size: 13px; }
+.pdh-amount-uzs { font-weight: 600; color: #64748b; font-size: 12px; white-space: nowrap; }
+.pdh-receiver { color: #1a6eff; font-weight: 600; font-size: 12px; }
+@media (max-width: 768px) {
+    .pdh-location-bar { padding: 10px 12px; gap: 6px; }
+    .pdh-search-box { max-width: 100%; }
+    .pdh-table { font-size: 11px; }
+    .pdh-table th, .pdh-table td { padding: 8px 6px; }
+    .payment-badge { font-size: 10px; padding: 2px 6px; }
+}
+
+/* ── Mijozlar balansi (CB) tab ── */
+.cb-stats { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.cb-stat-card { background: white; border-radius: 14px; padding: 16px 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); flex: 1; min-width: 160px; border-left: 4px solid #e2e8f0; }
+.cb-stat-card.green { border-left-color: #16a34a; }
+.cb-stat-card.blue  { border-left-color: #1a6eff; }
+.cb-stat-card.amber { border-left-color: #f59e0b; }
+.cb-stat-value { font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1.1; }
+.cb-stat-label { font-size: 12px; color: #64748b; font-weight: 500; margin-top: 4px; }
+.cb-toolbar { background: white; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cb-search {
+    flex: 1; min-width: 200px; padding: 8px 14px 8px 36px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-size: 13px; outline: none; transition: border 0.18s;
+    background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") no-repeat 10px center;
+}
+.cb-search:focus { border-color: #1a6eff; background-color: white; }
+.cb-sort-btn { padding: 7px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: white; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+.cb-sort-btn.active { border-color: #1a6eff; color: #1a6eff; background: #eff6ff; }
+.cb-sort-btn:hover  { border-color: #1a6eff; color: #1a6eff; }
+.cb-card-title { margin: 0; font-size: 14px; font-weight: 700; color: #1e293b; }
+.cb-count-badge { background: #eff6ff; color: #1a6eff; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; }
+.cb-table { width: 100%; border-collapse: collapse; }
+.cb-table thead th {
+    padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #64748b; background: #f8fafc; border-bottom: 2px solid #f1f5f9; text-align: left; white-space: nowrap;
+}
+.cb-table tbody tr { border-bottom: 1px solid #f8fafc; transition: background 0.15s; }
+.cb-table tbody tr:hover { background: #f8faff; }
+.cb-table tbody tr:last-child { border-bottom: none; }
+.cb-table td { padding: 12px 14px; font-size: 13px; color: #334155; vertical-align: middle; }
+.cb-name { font-weight: 700; color: #1e293b; font-size: 14px; }
+.cb-phone { color: #64748b; font-size: 12px; margin-top: 2px; }
+.cb-amount-debt { font-weight: 700; color: #dc2626; font-size: 14px; }
+.cb-amount-paid { font-weight: 700; color: #16a34a; font-size: 13px; }
+.cb-uzs { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+.cb-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.cb-badge-debt    { background: #fef2f2; color: #dc2626; }
+.cb-badge-paid    { background: #f0fdf4; color: #16a34a; }
+.cb-badge-nodebts { background: #f1f5f9; color: #64748b; }
+.cb-progress-wrap { width: 100%; max-width: 160px; }
+.cb-progress-bar-bg { background: #f1f5f9; border-radius: 20px; height: 7px; overflow: hidden; margin-bottom: 3px; }
+.cb-progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #16a34a, #22c55e); transition: width 0.4s; }
+.cb-progress-text { font-size: 10px; color: #64748b; display: flex; justify-content: space-between; }
+.cb-btn-detail { padding: 5px 12px; background: #eff6ff; color: #1a6eff; border: 1px solid #dbeafe; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.18s; white-space: nowrap; }
+.cb-btn-detail:hover { background: #1a6eff; color: white; text-decoration: none; }
+.cb-btn-edit { padding: 5px 10px; background: #fefce8; color: #b45309; border: 1px solid #fde68a; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+.cb-btn-edit:hover { background: #f59e0b; color: white; border-color: #f59e0b; }
+.cb-btn-add { padding: 5px 10px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.18s; white-space: nowrap; line-height: 1; }
+.cb-btn-add:hover { background: #16a34a; color: white; border-color: #16a34a; }
+.cb-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9000; align-items: center; justify-content: center; }
+.cb-modal-overlay.open { display: flex; }
+.cb-modal-box { background: white; border-radius: 16px; padding: 28px 28px 22px; width: 360px; max-width: 95vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.cb-modal-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0 0 6px; }
+.cb-modal-subtitle { font-size: 13px; color: #64748b; margin-bottom: 18px; }
+.cb-modal-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; transition: border 0.18s; box-sizing: border-box; }
+.cb-modal-input:focus { border-color: #f59e0b; }
+.cb-modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.cb-modal-save { flex: 1; padding: 10px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+.cb-modal-save:hover { background: #d97706; }
+.cb-modal-cancel { flex: 1; padding: 10px; background: #f1f5f9; color: #64748b; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.cb-modal-cancel:hover { background: #e2e8f0; }
+.cb-empty { text-align: center; padding: 50px 20px; color: #94a3b8; }
+.cb-empty i { font-size: 36px; margin-bottom: 12px; display: block; }
+.cb-loading { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+@media (max-width: 768px) {
+    .cb-stats { gap: 8px; }
+    .cb-table thead th:nth-child(4), .cb-table td:nth-child(4),
+    .cb-table thead th:nth-child(5), .cb-table td:nth-child(5) { display: none; }
 }
 </style>
 {% endblock %}
@@ -374,112 +484,247 @@
             <button onclick="sendBulkDebtTelegram()" class="dbt-btn-telegram">
                 <img src="https://img.icons8.com/fluency/150/telegram-app.png" alt="Telegram" style="width:18px; height:18px;"> {{ t('send_telegram_all') }}
             </button>
-            <a href="/paid-debts-history" class="dbt-btn-history">
-                <i class="fas fa-history"></i> {{ t('debt_payment_history_link') }}
-            </a>
-            <a href="/customer-balances" class="dbt-btn-balance">
-                <i class="fas fa-wallet"></i> {{ t('customer_balance_link') }}
-            </a>
         </div>
     </div>
 
-    <!-- Joylashuv tugmalari -->
-    <div class="dbt-location-row">
-        <div id="locationButtons">
+    <!-- Tablar -->
+    <div class="dbt-tabs">
+        <button class="dbt-tab-btn active" data-tab="debtors" onclick="switchDebtTab('debtors')">
+            <i class="fas fa-credit-card"></i> {{ t('debt_customer') }}
+        </button>
+        <button class="dbt-tab-btn" data-tab="history" onclick="switchDebtTab('history')">
+            <i class="fas fa-history"></i> {{ t('debt_payment_history_link') }}
+        </button>
+        <button class="dbt-tab-btn" data-tab="balance" onclick="switchDebtTab('balance')">
+            <i class="fas fa-wallet"></i> {{ t('customer_balance_link') }}
+        </button>
+    </div>
+
+    <!-- TAB 1: Qarzli mijoz -->
+    <div class="dbt-tab-panel active" id="tabPanel-debtors">
+
+        <!-- Joylashuv tugmalari -->
+        <div class="dbt-location-row">
+            <div id="locationButtons">
+                {% if current_user.role in ['admin', 'kassir'] %}
+                <button class="location-btn active" data-location="" onclick="selectLocation(this, '')">
+                    🏢 {{ t('filter_all') }}
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Statistika -->
+        <div class="dbt-stats">
+            <div class="dbt-stat-card">
+                <div class="dbt-stat-icon dbt-icon-purple"><i class="fas fa-users"></i></div>
+                <div class="dbt-stat-body">
+                    <span class="dbt-stat-number" id="debtCustomers">0</span>
+                    <span class="dbt-stat-label">{{ t('debt_customer') }}</span>
+                </div>
+            </div>
+            <div class="dbt-stat-card">
+                <div class="dbt-stat-icon dbt-icon-red"><i class="fas fa-dollar-sign"></i></div>
+                <div class="dbt-stat-body">
+                    <span class="dbt-stat-number" id="totalDebt">$0.00</span>
+                    <span class="dbt-stat-label">{{ t('total_debt_label') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faol qarzlar -->
+        <div class="dbt-card">
+            <div class="dbt-card-header">
+                <span class="dbt-card-title"><i class="fas fa-credit-card"></i> {{ t('debt_customer') }}</span>
+            </div>
+            <div class="dbt-card-body">
+                <div class="dbt-filter-row">
+                    <div class="dbt-search-box">
+                        <i class="fas fa-search dbt-search-icon"></i>
+                        <input type="text" id="debtSearchInput" class="dbt-search-input"
+                               placeholder="{{ t('search_debt_placeholder') }}" oninput="searchDebts()">
+                    </div>
+                    <button class="dbt-sort-btn" id="sortHighDebt" onclick="sortDebtsByAmount('desc')">📈 Ko'p qarzli</button>
+                    <button class="dbt-sort-btn" id="sortLowDebt" onclick="sortDebtsByAmount('asc')">📉 Kam qarzli</button>
+                    <button class="dbt-sort-btn dbt-due-btn" id="filterDueSoon" onclick="filterByDueDate('soon')">⏰ Muddati kelgan</button>
+                    <button class="dbt-sort-btn dbt-due-btn" id="filterOverdue" onclick="filterByDueDate('overdue')">🔴 Muddati o'tgan</button>
+                </div>
+                <div class="dbt-table-container">
+                    <table class="debts-table">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>{{ t('header_customer') }}</th>
+                                <th>{{ t('header_phone') }}</th>
+                                <th>{{ t('header_remaining_debt') }}</th>
+                                <th>{{ t('header_last_payment') }}</th>
+                                <th>{{ t('header_last_payment_date') }}</th>
+                                <th>{{ t('header_status') }}</th>
+                                <th>{{ t('header_debt_deadline') }}</th>
+                                <th>{{ t('actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="debtsTableBody">
+                            <tr><td colspan="9" class="no-data">{{ t('data_loading') }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Qarz to'lash tarixi -->
+    <div class="dbt-tab-panel" id="tabPanel-history">
+
+        <!-- Joylashuv tugmalari -->
+        <div id="pdhLocationButtons" class="pdh-location-bar">
             {% if current_user.role in ['admin', 'kassir'] %}
-            <button class="location-btn active" data-location="" onclick="selectLocation(this, '')">
-                🏢 {{ t('filter_all') }}
+            <button class="location-btn active" data-location="" onclick="selectPdhLocation(this, '')">
+                🏢 {{ t('pdh_all') }}
             </button>
             {% endif %}
         </div>
-    </div>
 
-    <!-- Statistika -->
-    <div class="dbt-stats">
-        <div class="dbt-stat-card">
-            <div class="dbt-stat-icon dbt-icon-purple"><i class="fas fa-users"></i></div>
-            <div class="dbt-stat-body">
-                <span class="dbt-stat-number" id="debtCustomers">0</span>
-                <span class="dbt-stat-label">{{ t('debt_customer') }}</span>
+        <div class="dbt-card">
+            <div class="dbt-card-header">
+                <span class="dbt-card-title"><i class="fas fa-check-circle" style="color:#059669;"></i> {{ t('pdh_paid_list') }}</span>
             </div>
-        </div>
-        <div class="dbt-stat-card">
-            <div class="dbt-stat-icon dbt-icon-red"><i class="fas fa-dollar-sign"></i></div>
-            <div class="dbt-stat-body">
-                <span class="dbt-stat-number" id="totalDebt">$0.00</span>
-                <span class="dbt-stat-label">{{ t('total_debt_label') }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Faol qarzlar -->
-    <div class="dbt-card">
-        <div class="dbt-card-header">
-            <span class="dbt-card-title"><i class="fas fa-credit-card"></i> {{ t('debt_customer') }}</span>
-        </div>
-        <div class="dbt-card-body">
-            <div class="dbt-filter-row">
-                <div class="dbt-search-box">
-                    <i class="fas fa-search dbt-search-icon"></i>
-                    <input type="text" id="debtSearchInput" class="dbt-search-input"
-                           placeholder="{{ t('search_debt_placeholder') }}" oninput="searchDebts()">
+            <div class="dbt-card-body">
+                <div class="pdh-search-box" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                    <div style="position:relative; flex:1; min-width:200px;">
+                        <i class="fas fa-search pdh-search-icon"></i>
+                        <input type="text" id="pdhSearchInput" placeholder="{{ t('pdh_search') }}" oninput="searchPdhPayments()">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <label style="font-size:12px; color:#64748b; white-space:nowrap;">📅 Sana:</label>
+                        <input type="date" id="pdhDateFromInput" oninput="searchPdhPayments()"
+                            style="padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#334155; background:#f8fafc; height:38px;">
+                        <span style="color:#94a3b8; font-size:12px;">—</span>
+                        <input type="date" id="pdhDateToInput" oninput="searchPdhPayments()"
+                            style="padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#334155; background:#f8fafc; height:38px;">
+                    </div>
                 </div>
-                <button class="dbt-sort-btn" id="sortHighDebt" onclick="sortDebtsByAmount('desc')">📈 Ko'p qarzli</button>
-                <button class="dbt-sort-btn" id="sortLowDebt" onclick="sortDebtsByAmount('asc')">📉 Kam qarzli</button>
-                <button class="dbt-sort-btn dbt-due-btn" id="filterDueSoon" onclick="filterByDueDate('soon')">⏰ Muddati kelgan</button>
-                <button class="dbt-sort-btn dbt-due-btn" id="filterOverdue" onclick="filterByDueDate('overdue')">🔴 Muddati o'tgan</button>
+                <div class="dbt-table-container">
+                    <table class="pdh-table">
+                        <thead>
+                            <tr>
+                                <th>{{ t('pdh_th_num') }}</th>
+                                <th>{{ t('pdh_th_date') }}</th>
+                                <th>{{ t('pdh_th_customer') }}</th>
+                                <th>{{ t('pdh_th_amount_usd') }}</th>
+                                <th>SUMMA (UZS)</th>
+                                <th>{{ t('pdh_th_payment_type') }}</th>
+                                <th>{{ t('pdh_th_received_by') }}</th>
+                                {% if current_user.role in ['admin', 'kassir'] %}
+                                <th>⚙️</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody id="pdhHistoryTableBody">
+                            <tr><td colspan="8" class="no-data">⏳ {{ t('pdh_loading') }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="dbt-table-container">
-                <table class="debts-table">
+        </div>
+    </div>
+
+    <!-- TAB 3: Mijozlar balansi -->
+    <div class="dbt-tab-panel" id="tabPanel-balance">
+
+        <div class="cb-stats">
+            <div class="cb-stat-card blue">
+                <div class="cb-stat-value" id="cbStatTotalCustomers">—</div>
+                <div class="cb-stat-label">{{ t('cb_stat_total') }}</div>
+            </div>
+            <div class="cb-stat-card amber">
+                <div class="cb-stat-value" id="cbStatDebtCustomers">—</div>
+                <div class="cb-stat-label">{{ t('cb_stat_with_debt') }}</div>
+            </div>
+            <div class="cb-stat-card green">
+                <div class="cb-stat-value" id="cbStatCleanCustomers">—</div>
+                <div class="cb-stat-label">{{ t('cb_stat_no_debt') }}</div>
+            </div>
+            <div class="cb-stat-card amber">
+                <div class="cb-stat-value" id="cbStatTotalDebt">—</div>
+                <div class="cb-stat-label">{{ t('cb_stat_total_debt') }}</div>
+            </div>
+        </div>
+
+        <div class="cb-toolbar">
+            <input type="text" class="cb-search" id="cbSearch"
+                   placeholder="{{ t('cb_search_placeholder') }}" oninput="filterCbTable()">
+            <button class="cb-sort-btn active" id="cbFilterAll" onclick="setCbFilter('all')">Barchasi</button>
+            <button class="cb-sort-btn" id="cbFilterDebt" onclick="setCbFilter('debt')">💳 Qarzli mijozlar</button>
+            <button class="cb-sort-btn" id="cbFilterBalance" onclick="setCbFilter('balance')">💰 Balansi bor mijozlar</button>
+        </div>
+
+        <div class="dbt-card">
+            <div class="dbt-card-header">
+                <span class="cb-card-title">{{ t('cb_table_title') }}</span>
+                <span class="cb-count-badge" id="cbCount">0 {{ t('cb_customers_count') }}</span>
+            </div>
+            <div class="dbt-card-body" style="padding:0; overflow-x:auto;">
+                <table class="cb-table">
                     <thead>
                         <tr>
                             <th>№</th>
-                            <th>{{ t('header_customer') }}</th>
-                            <th>{{ t('header_phone') }}</th>
-                            <th>{{ t('header_remaining_debt') }}</th>
-                            <th>{{ t('header_last_payment') }}</th>
-                            <th>{{ t('header_last_payment_date') }}</th>
-                            <th>{{ t('header_status') }}</th>
-                            <th>{{ t('header_debt_deadline') }}</th>
-                            <th>{{ t('actions') }}</th>
+                            <th>{{ t('cb_th_customer') }}</th>
+                            <th>{{ t('cb_th_debt') }}</th>
+                            <th>{{ t('cb_th_last_payment') }}</th>
+                            <th>{{ t('cb_th_paid_total') }}</th>
+                            <th>{{ t('cb_th_balance') }}</th>
+                            <th>{{ t('cb_th_status') }}</th>
+                            <th>{{ t('cb_th_actions') }}</th>
                         </tr>
                     </thead>
-                    <tbody id="debtsTableBody">
-                        <tr><td colspan="9" class="no-data">{{ t('data_loading') }}</td></tr>
+                    <tbody id="cbTbody">
+                        <tr><td colspan="8" class="cb-loading"><i class="fas fa-spinner fa-spin"></i> {{ t('cb_loading') }}</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- To'langan qarzlar -->
-    <div class="dbt-card" id="paidDebtsSection">
-        <div class="dbt-card-header">
-            <span class="dbt-card-title"><i class="fas fa-check-circle" style="color:#059669;"></i> {{ t('paid_debts_history') }}</span>
+<!-- To'lovni bekor qilish modali (Qarz to'lash tarixi tabi) -->
+<div id="pdhReverseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:12px; padding:30px; width:420px; max-width:92%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+        <h3 style="margin:0 0 15px 0; color:#dc3545;"><i class="fas fa-undo"></i> To'lovni bekor qilish</h3>
+        <div id="pdhReverseModalInfo" style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin-bottom:16px; font-size:14px; line-height:1.7;"></div>
+        <p style="color:#6c757d; font-size:13px; margin-bottom:20px;">⚠️ Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="closePdhReverseModal()" style="padding:10px 20px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">Bekor</button>
+            <button id="pdhReverseConfirmBtn" onclick="confirmPdhReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">✅ Ha, bekor qilish</button>
         </div>
-        <div class="dbt-card-body">
-            <div class="dbt-search-box">
-                <i class="fas fa-search dbt-search-icon"></i>
-                <input type="text" id="paidDebtSearchInput" class="dbt-search-input"
-                       placeholder="{{ t('search_paid_debts_placeholder') }}" oninput="searchPaidDebts()">
-            </div>
-            <div class="dbt-table-container">
-                <table class="debts-table">
-                    <thead>
-                        <tr>
-                            <th>№</th>
-                            <th>{{ t('header_date') }}</th>
-                            <th>{{ t('header_customer') }}</th>
-                            <th>{{ t('header_sale_no') }}</th>
-                            <th>{{ t('header_amount') }}</th>
-                            <th>{{ t('header_payment_types') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="paidDebtsTableBody">
-                        <tr><td colspan="6" class="no-data">{{ t('data_loading') }}</td></tr>
-                    </tbody>
-                </table>
-            </div>
+    </div>
+</div>
+
+<!-- Balans qo'shish modali (Mijozlar balansi tabi) -->
+<div class="cb-modal-overlay" id="cbAddBalanceModal">
+    <div class="cb-modal-box">
+        <div class="cb-modal-title"><i class="fas fa-plus-circle" style="color:#16a34a;"></i> Balans qo'shish</div>
+        <div class="cb-modal-subtitle" id="cbAddBalanceSubtitle"></div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px;">Joriy balans: <span id="cbAddBalanceCurrent" style="font-weight:700;color:#16a34a;"></span></div>
+        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Qo'shiladigan summa ($)</label>
+        <input type="number" class="cb-modal-input" id="cbAddBalanceInput" min="0.01" step="0.01" placeholder="0.00">
+        <div class="cb-modal-actions">
+            <button class="cb-modal-cancel" onclick="closeCbAddBalance()">Bekor qilish</button>
+            <button class="cb-modal-save" id="cbAddBalanceSaveBtn" style="background:#16a34a;" onclick="saveCbAddBalance()"><i class="fas fa-plus"></i> Qo'shish</button>
+        </div>
+    </div>
+</div>
+
+<!-- Balance tahrirlash modali (Mijozlar balansi tabi) -->
+<div class="cb-modal-overlay" id="cbEditBalanceModal">
+    <div class="cb-modal-box">
+        <div class="cb-modal-title"><i class="fas fa-wallet" style="color:#f59e0b;"></i> Balansni tahrirlash</div>
+        <div class="cb-modal-subtitle" id="cbEditBalanceSubtitle">Mijoz balansi</div>
+        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Yangi balans ($)</label>
+        <input type="number" class="cb-modal-input" id="cbEditBalanceInput" min="0" step="0.01" placeholder="0.00">
+        <div class="cb-modal-actions">
+            <button class="cb-modal-cancel" onclick="closeCbEditBalance()">Bekor qilish</button>
+            <button class="cb-modal-save" onclick="saveCbBalance()"><i class="fas fa-save"></i> Saqlash</button>
         </div>
     </div>
 </div>
@@ -713,18 +958,16 @@
         
         // Ma'lumotlarni yangilash
         loadDebts();
-        loadPaidDebts();
     }
 
-    // To'langan qarzlar tarixini ko'rsatish/yashirish
-    function togglePaidDebtsHistory() {
-        const section = document.getElementById('paidDebtsSection');
-        if (section.style.display === 'none') {
-            section.style.display = 'block';
-            section.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            section.style.display = 'none';
-        }
+    // Tablar o'rtasida almashish
+    function switchDebtTab(tab) {
+        document.querySelectorAll('.dbt-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        document.querySelectorAll('.dbt-tab-panel').forEach(panel => {
+            panel.classList.toggle('active', panel.id === 'tabPanel-' + tab);
+        });
     }
 
     // Qarzlarni qidirish
@@ -788,47 +1031,6 @@
         applyDebtFilters();
     }
 
-    // To'langan qarzlarni qidirish
-    function searchPaidDebts() {
-        const searchTerm = document.getElementById('paidDebtSearchInput').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('#paidDebtsTableBody tr');
-        
-        let visibleCount = 0;
-        rows.forEach(row => {
-            const dateCell = row.querySelector('td:nth-child(2)');
-            const nameCell = row.querySelector('td:nth-child(3)');
-            const saleCell = row.querySelector('td:nth-child(4)');
-            
-            if (dateCell && nameCell && saleCell) {
-                const date = dateCell.textContent.toLowerCase();
-                const name = nameCell.textContent.toLowerCase();
-                const sale = saleCell.textContent.toLowerCase();
-                
-                if (name.includes(searchTerm) || sale.includes(searchTerm) || date.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-        
-        // Agar hech narsa topilmasa
-        if (visibleCount === 0 && searchTerm !== '') {
-            const noResultRow = document.querySelector('#paidDebtsTableBody .no-result');
-            if (!noResultRow) {
-                const tbody = document.getElementById('paidDebtsTableBody');
-                const tr = document.createElement('tr');
-                tr.className = 'no-result';
-                tr.innerHTML = '<td colspan="6" class="no-data">🔍 Hech narsa topilmadi</td>';
-                tbody.appendChild(tr);
-            }
-        } else {
-            const noResultRow = document.querySelector('#paidDebtsTableBody .no-result');
-            if (noResultRow) noResultRow.remove();
-        }
-    }
-
     // Ma'lumotlarni yuklash
     async function loadDebts() {
         try {
@@ -850,56 +1052,6 @@
         }
     }
     
-    // To'langan qarzlarni yuklash
-    async function loadPaidDebts() {
-        try {
-            const url = selectedLocation ? `/api/debts/paid?location_id=${selectedLocation}&location_type=${selectedLocationType}` : '/api/debts/paid';
-            
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
-            
-            const data = await response.json();
-            renderPaidDebtsTable(data.paid_debts || []);
-        } catch (error) {
-            console.error('Xatolik:', error);
-            document.getElementById('paidDebtsTableBody').innerHTML = 
-                '<tr><td colspan="6" class="no-data">❌ ' + DBLANG.error_loading + '</td></tr>';
-        }
-    }
-    
-    // To'langan qarzlar jadvalini render qilish
-    function renderPaidDebtsTable(paidDebts) {
-        const tbody = document.getElementById('paidDebtsTableBody');
-        
-        if (paidDebts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="no-data">📭 ' + DBLANG.no_paid_debts + '</td></tr>';
-            return;
-        }
-
-        const html = paidDebts.map((debt, index) => {
-            // To'lov turlarini aniqlash
-            const payments = [];
-            if (debt.cash_usd > 0) payments.push(`💵 ${DBLANG.cash}: ${formatUSD(debt.cash_usd)}`);
-            if (debt.click_usd > 0) payments.push(`📱 ${DBLANG.click_payment}: ${formatUSD(debt.click_usd)}`);
-            if (debt.terminal_usd > 0) payments.push(`🏧 ${DBLANG.terminal}: ${formatUSD(debt.terminal_usd)}`);
-            
-            const paymentText = payments.length > 0 ? payments.join(', ') : '-';
-            
-            return `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${debt.sale_date}</td>
-                    <td>${debt.customer_name}</td>
-                    <td><strong>Savdo ID ${debt.sale_id}</strong></td>
-                    <td><strong style="color: #28a745">${formatUSD(debt.total_amount)}</strong></td>
-                    <td style="font-size: 13px;">${paymentText}</td>
-                </tr>
-            `;
-        }).join('');
-
-        tbody.innerHTML = html;
-    }
-
     // Statistikani yangilash
     function updateStats() {
         const totalDebt = debts.reduce((sum, d) => sum + (d.remaining_debt || 0), 0);
@@ -908,6 +1060,482 @@
         document.getElementById('debtCustomers').textContent = formatNum(debtCustomers);
         document.getElementById('totalDebt').textContent = formatUSD(totalDebt);
     }
+
+    // =============================================
+    // TAB 2: QARZ TO'LASH TARIXI (PDH)
+    // =============================================
+    const PDHLANG = {
+        load_error: {{ t("pdh_load_error")|tojson }},
+        no_data: {{ t("pdh_no_data")|tojson }},
+        cash: {{ t("pdh_cash")|tojson }},
+        click: {{ t("pdh_click")|tojson }},
+        terminal: {{ t("pdh_terminal")|tojson }},
+        not_found: {{ t("pdh_not_found")|tojson }}
+    };
+    const PDH_IS_ADMIN = {{ 'true' if current_user.role in ('admin', 'kassir') else 'false' }};
+
+    let pdhPayments = [];
+    let pdhExchangeRate = 13000;
+    let pdhSelectedLocation = '';
+
+    async function loadPdhLocations() {
+        try {
+            const response = await fetch('/api/locations');
+            const locations = await response.json();
+
+            const container = document.getElementById('pdhLocationButtons');
+            container.innerHTML = '';
+
+            {% if current_user.role in ['admin', 'kassir'] %}
+            const allButton = document.createElement('button');
+            allButton.className = 'location-btn active';
+            allButton.setAttribute('data-location', '');
+            allButton.onclick = () => selectPdhLocation(allButton, '');
+            allButton.textContent = '🏢 {{ t("pdh_all") }}';
+            container.appendChild(allButton);
+            {% endif %}
+
+            let firstLocation = null;
+            locations.forEach((loc, index) => {
+                const button = document.createElement('button');
+                button.className = 'location-btn';
+                button.setAttribute('data-location', loc.id);
+                button.onclick = () => selectPdhLocation(button, loc.id);
+                button.textContent = `${loc.emoji} ${loc.name}`;
+                container.appendChild(button);
+
+                if (index === 0) {
+                    firstLocation = { button, id: loc.id };
+                }
+            });
+
+            {% if current_user.role == 'sotuvchi' %}
+            if (firstLocation) {
+                selectPdhLocation(firstLocation.button, firstLocation.id);
+            }
+            {% endif %}
+        } catch (error) {
+            console.error('Locationlarni yuklashda xatolik:', error);
+        }
+    }
+
+    function selectPdhLocation(button, locationId) {
+        document.querySelectorAll('#pdhLocationButtons .location-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        pdhSelectedLocation = locationId;
+        loadPaidDebtsHistory();
+    }
+
+    async function loadPaidDebtsHistory() {
+        try {
+            const url = pdhSelectedLocation ? `/api/debt-payments?location_id=${pdhSelectedLocation}` : '/api/debt-payments';
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
+
+            const data = await response.json();
+            pdhPayments = data.payments || [];
+
+            renderPdhTable();
+        } catch (error) {
+            console.error('Xatolik:', error);
+            document.getElementById('pdhHistoryTableBody').innerHTML =
+                '<tr><td colspan="8" class="no-data">❌ ' + PDHLANG.load_error + '</td></tr>';
+        }
+    }
+
+    function renderPdhTable() {
+        const tbody = document.getElementById('pdhHistoryTableBody');
+
+        if (pdhPayments.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 ' + PDHLANG.no_data + '</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pdhPayments.forEach((debt, index) => {
+            try {
+            const row = document.createElement('tr');
+            row.setAttribute('data-customer', (debt.customer_name || '').toLowerCase());
+            row.setAttribute('data-date', (debt.payment_date || '').toLowerCase());
+            row.setAttribute('data-receiver', (debt.received_by || '').toLowerCase());
+
+            const paymentTypes = [];
+            if (debt.cash_usd > 0) {
+                const v = parseFloat(debt.cash_usd.toFixed(5)).toString();
+                paymentTypes.push(`<span class="payment-badge payment-cash">💵 ${PDHLANG.cash}: ${v}</span>`);
+            }
+            if (debt.click_usd > 0) {
+                const v2 = parseFloat(debt.click_usd.toFixed(5)).toString();
+                paymentTypes.push(`<span class="payment-badge payment-click">📱 ${PDHLANG.click}: ${v2}</span>`);
+            }
+            if (debt.terminal_usd > 0) {
+                const v3 = parseFloat(debt.terminal_usd.toFixed(5)).toString();
+                paymentTypes.push(`<span class="payment-badge payment-terminal">💳 ${PDHLANG.terminal}: ${v3}</span>`);
+            }
+
+            const totalAmount = (debt.cash_usd || 0) + (debt.click_usd || 0) + (debt.terminal_usd || 0);
+            let paymentRate = (debt.currency_rate && debt.currency_rate > 0 && debt.currency_rate < 50000)
+                ? debt.currency_rate
+                : pdhExchangeRate;
+            const totalUZS = Math.round(totalAmount * paymentRate);
+
+            const reverseCell = PDH_IS_ADMIN
+                ? `<td><button onclick="openPdhReverseModal('${debt.payment_date_iso}', ${debt.customer_id}, '${(debt.customer_name||'').replace(/'/g,"'")}', ${totalAmount}, '${debt.payment_date}')"
+                       style="padding:5px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; white-space:nowrap;">
+                       ↩ Bekor
+                   </button></td>`
+                : '';
+
+            row.innerHTML = `
+                <td style="text-align:center;color:#94a3b8;font-size:12px;">${index + 1}</td>
+                <td style="color:#475569;font-size:12px;">${debt.payment_date || '-'}</td>
+                <td><strong style="color:#1e293b;">${debt.customer_name || ''}</strong></td>
+                <td><span class="pdh-amount">${parseFloat(totalAmount.toFixed(5)).toString()} USD</span></td>
+                <td><span class="pdh-amount-uzs">${totalUZS.toLocaleString('ru-RU')} UZS</span></td>
+                <td>${paymentTypes.join(' ')}</td>
+                <td><span class="pdh-receiver">👨‍💼 ${debt.received_by || ''}</span></td>
+                ${reverseCell}
+            `;
+
+            tbody.appendChild(row);
+            } catch(e) { console.error('Row render error:', e, debt); }
+        });
+    }
+
+    function searchPdhPayments() {
+        const searchTerm = document.getElementById('pdhSearchInput').value.toLowerCase().trim();
+        const dateFrom = document.getElementById('pdhDateFromInput').value;
+        const dateTo = document.getElementById('pdhDateToInput').value;
+        const rows = document.querySelectorAll('#pdhHistoryTableBody tr');
+
+        let visibleCount = 0;
+        rows.forEach(row => {
+            if (row.querySelector('.no-data')) {
+                return;
+            }
+
+            const customerName = row.getAttribute('data-customer') || '';
+            const date = row.getAttribute('data-date') || '';
+            const receiver = row.getAttribute('data-receiver') || '';
+
+            const textMatch = !searchTerm || customerName.includes(searchTerm) || date.includes(searchTerm) || receiver.includes(searchTerm);
+
+            const rowDate = date.substring(0, 10);
+            const dateFromMatch = !dateFrom || rowDate >= dateFrom;
+            const dateToMatch = !dateTo || rowDate <= dateTo;
+
+            if (textMatch && dateFromMatch && dateToMatch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const tbody = document.getElementById('pdhHistoryTableBody');
+        const existingNoResult = tbody.querySelector('.no-result-row');
+
+        if (visibleCount === 0 && (searchTerm !== '' || dateFrom || dateTo)) {
+            if (!existingNoResult) {
+                const noResultRow = document.createElement('tr');
+                noResultRow.className = 'no-result-row';
+                noResultRow.innerHTML = '<td colspan="8" class="no-data">🔍 ' + PDHLANG.not_found + '</td>';
+                tbody.appendChild(noResultRow);
+            }
+        } else {
+            if (existingNoResult) {
+                existingNoResult.remove();
+            }
+        }
+    }
+
+    let pdhReverseTarget = null;
+
+    function openPdhReverseModal(paymentDateIso, customerId, customerName, totalUsd, paymentDateDisplay) {
+        pdhReverseTarget = { payment_date: paymentDateIso, customer_id: customerId };
+        document.getElementById('pdhReverseModalInfo').innerHTML =
+            `<strong>Mijoz:</strong> ${customerName}<br>
+             <strong>Sana:</strong> ${paymentDateDisplay}<br>
+             <strong>Summa:</strong> <span style="color:#dc3545;font-size:16px;font-weight:700;">$${totalUsd.toFixed ? totalUsd.toFixed(2) : totalUsd}</span>`;
+        document.getElementById('pdhReverseModal').style.display = 'flex';
+    }
+
+    function closePdhReverseModal() {
+        document.getElementById('pdhReverseModal').style.display = 'none';
+        pdhReverseTarget = null;
+    }
+
+    async function confirmPdhReverse() {
+        if (!pdhReverseTarget) return;
+        const btn = document.getElementById('pdhReverseConfirmBtn');
+        btn.disabled = true;
+        btn.textContent = 'Bajarilmoqda...';
+        try {
+            const res = await fetch('/api/debt-payments/reverse', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(pdhReverseTarget)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                closePdhReverseModal();
+                loadPaidDebtsHistory();
+            } else {
+                alert('❌ ' + (data.error || 'Xatolik'));
+            }
+        } catch (e) {
+            alert('❌ Server bilan bog\'lanib bo\'lmadi');
+        }
+        btn.disabled = false;
+        btn.textContent = '✅ Ha, bekor qilish';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePdhReverseModal(); });
+
+    // =============================================
+    // TAB 3: MIJOZLAR BALANSI (CB)
+    // =============================================
+    const CB_LANG = {
+        no_debt:      {{ t('cb_no_debt')|tojson }},
+        has_debt:     {{ t('cb_has_debt')|tojson }},
+        no_data:      {{ t('cb_no_data')|tojson }},
+        detail:       {{ t('cb_detail')|tojson }},
+        no_payment:   {{ t('cb_no_payment')|tojson }},
+        customers_count: {{ t('cb_customers_count')|tojson }}
+    };
+
+    let cbAllCustomers = [];
+    let cbExchangeRate = 12500;
+    let cbCurrentFilter = 'all';
+    let cbEditingCustomerId = null;
+    let cbAddingCustomerId = null;
+
+    async function loadCustomerBalances() {
+        try {
+            const res = await fetch('/api/customer-balances');
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error);
+            cbAllCustomers = data.customers;
+            cbExchangeRate = data.exchange_rate || 12500;
+            renderCbStats(data);
+            renderCbTable(cbAllCustomers);
+        } catch(e) {
+            document.getElementById('cbTbody').innerHTML =
+                `<tr><td colspan="8" class="cb-empty"><i class="fas fa-exclamation-circle"></i>${e.message}</td></tr>`;
+        }
+    }
+
+    function renderCbStats(data) {
+        const total  = data.customers.length;
+        const withDebt = data.customers.filter(c => c.debt_usd > 0).length;
+        const clean  = total - withDebt;
+        const totalDebt = data.customers.reduce((s,c) => s + c.debt_usd, 0);
+
+        document.getElementById('cbStatTotalCustomers').textContent = total;
+        document.getElementById('cbStatDebtCustomers').textContent  = withDebt;
+        document.getElementById('cbStatCleanCustomers').textContent = clean;
+        document.getElementById('cbStatTotalDebt').textContent      = '$' + totalDebt.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function renderCbTable(list) {
+        document.getElementById('cbCount').textContent = list.length + ' ' + CB_LANG.customers_count;
+        if (!list.length) {
+            document.getElementById('cbTbody').innerHTML =
+                `<tr><td colspan="8" class="cb-empty"><i class="fas fa-users-slash"></i>${CB_LANG.no_data}</td></tr>`;
+            return;
+        }
+
+        const rows = list.map((c, i) => {
+            const debtUsd  = c.debt_usd || 0;
+            const debtUzs  = (debtUsd * cbExchangeRate).toLocaleString('en');
+            const paidUsd  = c.paid_usd || 0;
+
+            const totalEver = debtUsd + paidUsd;
+            const paidPct   = totalEver > 0 ? Math.round(paidUsd / totalEver * 100) : 0;
+
+            const lastPayment = c.last_payment_date
+                ? `<span style="font-size:13px;">${c.last_payment_date}</span>
+                   <span class="cb-uzs">$${(c.last_payment_amount||0).toFixed(2)}</span>`
+                : `<span style="color:#94a3b8;font-size:12px;">${CB_LANG.no_payment}</span>`;
+
+            const statusBadge = debtUsd > 0
+                ? `<span class="cb-badge cb-badge-debt">${CB_LANG.has_debt}</span>`
+                : `<span class="cb-badge cb-badge-paid">${CB_LANG.no_debt}</span>`;
+
+            const progressBar = totalEver > 0 ? `
+                <div class="cb-progress-wrap">
+                    <div class="cb-progress-bar-bg">
+                        <div class="cb-progress-fill" style="width:${paidPct}%"></div>
+                    </div>
+                    <div class="cb-progress-text"><span>${CB_LANG.has_debt.split(' ')[0]} ${paidPct}%</span></div>
+                </div>` : `<span style="color:#94a3b8;font-size:12px;">—</span>`;
+
+            return `<tr>
+                <td style="color:#94a3b8;font-weight:600;">${i+1}</td>
+                <td>
+                    <div class="cb-name">${c.name}</div>
+                    <div class="cb-phone">${c.phone || ''}</div>
+                </td>
+                <td>
+                    ${debtUsd > 0
+                        ? `<span class="cb-amount-debt">$${debtUsd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                           <span class="cb-uzs">${debtUzs} so'm</span>`
+                        : `<span style="color:#16a34a;font-weight:700;">$0.00</span>`}
+                </td>
+                <td>${lastPayment}</td>
+                <td>
+                    <span class="cb-amount-paid">$${paidUsd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                </td>
+                <td>
+                    ${(c.balance && c.balance > 0)
+                        ? `<span class="cb-badge" style="background:#d1fae5;color:#065f46;font-weight:700;">$${parseFloat(c.balance).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
+                        : `<span style="color:#94a3b8;font-size:13px;">—</span>`}
+                </td>
+                <td>${statusBadge}</td>
+                <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                    <a href="/customer/${c.id}/timeline" class="cb-btn-detail">
+                        <i class="fas fa-eye"></i> ${CB_LANG.detail}
+                    </a>
+                    <button class="cb-btn-add" onclick="openCbAddBalance(${c.id}, '${c.name.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${parseFloat(c.balance||0)})" title="Balans qo'shish">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="cb-btn-edit" onclick="openCbEditBalance(${c.id}, '${c.name.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${parseFloat(c.balance||0)})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('cbTbody').innerHTML = rows;
+    }
+
+    function filterCbTable() {
+        applyCbFilterAndSearch();
+    }
+
+    function setCbFilter(type) {
+        cbCurrentFilter = type;
+        document.querySelectorAll('#tabPanel-balance .cb-sort-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('cbFilter' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+        applyCbFilterAndSearch();
+    }
+
+    function applyCbFilterAndSearch() {
+        const q = document.getElementById('cbSearch').value.toLowerCase();
+        let filtered = cbAllCustomers.filter(c =>
+            (c.name || '').toLowerCase().includes(q) ||
+            (c.phone || '').toLowerCase().includes(q)
+        );
+        if (cbCurrentFilter === 'debt')    filtered = filtered.filter(c => (c.debt_usd || 0) > 0);
+        if (cbCurrentFilter === 'balance') filtered = filtered.filter(c => (c.balance || 0) > 0);
+        filtered.sort((a, b) => (b.debt_usd || 0) - (a.debt_usd || 0));
+        renderCbTable(filtered);
+    }
+
+    function openCbEditBalance(id, name, currentBalance) {
+        cbEditingCustomerId = id;
+        document.getElementById('cbEditBalanceSubtitle').textContent = name;
+        document.getElementById('cbEditBalanceInput').value = parseFloat(currentBalance).toFixed(2);
+        document.getElementById('cbEditBalanceModal').classList.add('open');
+        document.getElementById('cbEditBalanceInput').focus();
+        document.getElementById('cbEditBalanceInput').select();
+    }
+
+    function closeCbEditBalance() {
+        cbEditingCustomerId = null;
+        document.getElementById('cbEditBalanceModal').classList.remove('open');
+    }
+
+    async function saveCbBalance() {
+        const val = parseFloat(document.getElementById('cbEditBalanceInput').value);
+        if (isNaN(val) || val < 0) {
+            alert('Iltimos, to\'g\'ri qiymat kiriting (0 yoki undan katta)');
+            return;
+        }
+        const btn = document.querySelector('#cbEditBalanceModal .cb-modal-save');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saqlanmoqda...';
+        try {
+            const res = await fetch(`/api/customer/${cbEditingCustomerId}/update-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ balance: val })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const cust = cbAllCustomers.find(c => c.id === cbEditingCustomerId);
+                if (cust) cust.balance = data.new_balance;
+                closeCbEditBalance();
+                applyCbFilterAndSearch();
+            } else {
+                alert('Xatolik: ' + data.error);
+            }
+        } catch(e) {
+            alert('Server bilan bog\'lanishda xatolik');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
+        }
+    }
+
+    function openCbAddBalance(id, name, currentBalance) {
+        cbAddingCustomerId = id;
+        document.getElementById('cbAddBalanceSubtitle').textContent = name;
+        document.getElementById('cbAddBalanceCurrent').textContent = '$' + parseFloat(currentBalance).toFixed(2);
+        document.getElementById('cbAddBalanceInput').value = '';
+        document.getElementById('cbAddBalanceModal').classList.add('open');
+        document.getElementById('cbAddBalanceInput').focus();
+    }
+
+    function closeCbAddBalance() {
+        cbAddingCustomerId = null;
+        document.getElementById('cbAddBalanceModal').classList.remove('open');
+    }
+
+    async function saveCbAddBalance() {
+        const val = parseFloat(document.getElementById('cbAddBalanceInput').value);
+        if (isNaN(val) || val <= 0) {
+            alert('Iltimos, 0 dan katta summa kiriting');
+            return;
+        }
+        const btn = document.getElementById('cbAddBalanceSaveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Qo\'shilmoqda...';
+        try {
+            const res = await fetch(`/api/customer/${cbAddingCustomerId}/add-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: val })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const cust = cbAllCustomers.find(c => c.id === cbAddingCustomerId);
+                if (cust) cust.balance = data.new_balance;
+                closeCbAddBalance();
+                applyCbFilterAndSearch();
+            } else {
+                alert('Xatolik: ' + data.error);
+            }
+        } catch(e) {
+            alert('Server bilan bog\'lanishda xatolik');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus"></i> Qo\'shish';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cbEditBalanceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCbEditBalance();
+        });
+        document.getElementById('cbAddBalanceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCbAddBalance();
+        });
+    });
+
 
     // Qarz muddati ustuni uchun yordamchi funksiya
     function formatDueDateCell(saleDueDates, customerId) {
@@ -1322,6 +1950,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadLocations(); // Locationlarni yuklash
         loadDebts();
+        loadPdhLocations();
+        loadPaidDebtsHistory();
+        loadCustomerBalances();
     });
 
     // =============================================
