@@ -18958,7 +18958,7 @@ def api_hosting_clients():
             elif monthly_price > 0 and balance <= 0:
                 data['balance_end_date'] = None
                 data['balance_days_left'] = 0
-                data['next_payment_date'] = today.strftime('%d.%m.%Y')
+                data['next_payment_date'] = c.blocked_at.strftime('%d.%m.%Y') if c.blocked_at else None
                 data['payment_status'] = 'overdue'
                 data['days_left'] = 0
             else:
@@ -19068,10 +19068,12 @@ def api_hosting_client_update(client_id):
                     success = do_mgr.power_on(client.droplet_id)
                     if success:
                         client.server_status = 'active'
+                        client.blocked_at = None
                         db.session.commit()
                         logger.info(f"🟢 Server yoqildi (mijoz tahrirlandi): {client.name} (droplet: {client.droplet_id})")
                 elif status == 'active':
                     client.server_status = 'active'
+                    client.blocked_at = None
                     db.session.commit()
             except Exception as e:
                 logger.error(f"DO server yoqishda xato ({client.name}): {e}")
@@ -19111,6 +19113,7 @@ def api_hosting_client_add_balance(client_id):
                     success = do_mgr.power_on(client.droplet_id)
                     if success:
                         client.server_status = 'active'
+                        client.blocked_at = None
                         db.session.commit()
                         server_msg = "Server avtomatik yoqildi"
                         logger.info(f"🟢 Server yoqildi (balans to'ldirildi): {client.name} (droplet: {client.droplet_id})")
@@ -19119,6 +19122,7 @@ def api_hosting_client_add_balance(client_id):
                         logger.warning(f"⚠️ Server yoqishda xato: {client.name}")
                 elif status == 'active':
                     client.server_status = 'active'
+                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server allaqachon yoqiq"
             except Exception as e:
@@ -19226,6 +19230,7 @@ def api_hosting_order_approve(order_id):
                 if status == 'off':
                     do_mgr.power_on(client.droplet_id)
                     client.server_status = 'active'
+                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server yoqildi"
             except Exception as e:
@@ -19316,6 +19321,7 @@ def api_hosting_payment_manual():
                     success = do_mgr.power_on(client.droplet_id)
                     if success:
                         client.server_status = 'active'
+                        client.blocked_at = None
                         db.session.commit()
                         server_msg = "Server avtomatik yoqildi"
                         logger.info(f"🟢 Server yoqildi (qo'lda to'lov): {client.name} (droplet: {client.droplet_id})")
@@ -19323,6 +19329,7 @@ def api_hosting_payment_manual():
                         server_msg = "Server yoqishda xato - qo'lda yoqing"
                 elif status == 'active':
                     client.server_status = 'active'
+                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server allaqachon yoqiq"
             except Exception as e:
@@ -19381,6 +19388,7 @@ def api_hosting_droplet_power(droplet_id):
         if client and success:
             if action == 'on':
                 client.server_status = 'active'
+                client.blocked_at = None
             elif action == 'off':
                 client.server_status = 'off'
             db.session.commit()

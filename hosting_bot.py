@@ -1334,6 +1334,7 @@ class HostingPaymentBot:
                         success = do_manager.power_on(client.droplet_id)
                         if success:
                             client.server_status = 'active'
+                            client.blocked_at = None
                             self.db.session.commit()
                             server_msg = "\n🟢 Server yoqildi!"
                         else:
@@ -1653,6 +1654,7 @@ class HostingPaymentBot:
                         success = do_manager.shutdown(client.droplet_id)
                         if success:
                             client.server_status = 'suspended'
+                            client.blocked_at = get_tashkent_time()
                             self.db.session.commit()
                             logger.warning(f"\u23f9\ufe0f Server o'chirildi (balans 0): {client.name} (droplet: {client.droplet_id})")
 

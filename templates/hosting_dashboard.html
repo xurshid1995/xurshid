@@ -336,6 +336,7 @@ const HD2LANG = {
     until: {{ t('hd2_until')|tojson }},
     days_left: {{ t('hd2_days_left')|tojson }},
     deadline_passed: {{ t('hd2_deadline_passed')|tojson }},
+    blocked_on: {{ t('hd2_blocked_on')|tojson }},
     pay_now: {{ t('hd2_pay_now')|tojson }},
     never_paid: {{ t('hd2_never_paid')|tojson }},
     add_balance: {{ t('hd2_add_balance')|tojson }},
@@ -436,7 +437,7 @@ async function loadClients() {
                             <br><small style="color:#e67e22">${c.days_left} ${HD2LANG.days_left}</small>`;
                 } else if (c.payment_status === 'overdue') {
                     return `<span class="badge badge-overdue">❌ ${HD2LANG.deadline_passed}</span>
-                            <br><small style="color:#e74c3c">${c.next_payment_date || HD2LANG.pay_now}</small>`;
+                            <br><small style="color:#e74c3c">${c.next_payment_date ? HD2LANG.blocked_on + ': ' + c.next_payment_date : HD2LANG.pay_now}</small>`;
                 } else if (c.payment_status === 'never_paid') {
                     return '<span class="badge badge-never-paid">' + HD2LANG.never_paid + '</span>';
                 } else {

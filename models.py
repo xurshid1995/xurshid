@@ -1635,6 +1635,7 @@ class HostingClient(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     server_status = db.Column(db.String(20), default='active')  # active, off, suspended
     status_token = db.Column(db.String(64), unique=True, nullable=True)  # Mijoz uchun maxfiy token
+    blocked_at = db.Column(db.DateTime, nullable=True)  # Balans tugab bloklangan sana
 
     # Vaqtlar
     created_at = db.Column(db.DateTime, default=lambda: get_tashkent_time())
@@ -1664,6 +1665,7 @@ class HostingClient(db.Model):
             'is_active': self.is_active,
             'server_status': self.server_status,
             'status_token': self.status_token,
+            'blocked_at': self.blocked_at.isoformat() if self.blocked_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'notes': self.notes
