@@ -83,17 +83,6 @@
 /* Search */
 .dbt-filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .dbt-search-box { position: relative; flex: 0 0 45%; min-width: 180px; }
-.dbt-search-icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: #94a3b8; font-size: 14px; pointer-events: none;
-}
-.dbt-search-input {
-    width: 100%; padding: 9px 12px 9px 36px; box-sizing: border-box;
-    border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 13px; background: #f8fafc; color: #1e293b;
-    transition: all 0.2s; outline: none;
-}
-.dbt-search-input:focus { border-color: #1a6eff; background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 .dbt-sort-btn {
     padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
     font-size: 13px; background: #f8fafc; color: #475569; cursor: pointer;
@@ -367,12 +356,6 @@
     padding: 0; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px;
 }
 .pdh-search-box { position: relative; margin-bottom: 16px; max-width: 380px; }
-.pdh-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
-#pdhSearchInput {
-    width: 100%; padding: 9px 12px 9px 34px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 13px; background: #f8fafc; color: #374151; transition: all 0.18s; outline: none;
-}
-#pdhSearchInput:focus { border-color: #1a6eff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
 .pdh-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .pdh-table thead tr { background: #1a6eff; }
 .pdh-table th {
@@ -405,12 +388,6 @@
 .cb-stat-value { font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1.1; }
 .cb-stat-label { font-size: 12px; color: #64748b; font-weight: 500; margin-top: 4px; }
 .cb-toolbar { padding: 0; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.cb-search {
-    flex: 1; min-width: 200px; padding: 8px 14px 8px 36px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 13px; outline: none; transition: border 0.18s;
-    background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") no-repeat 10px center;
-}
-.cb-search:focus { border-color: #1a6eff; background-color: white; }
 .cb-sort-btn { padding: 7px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: white; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
 .cb-sort-btn.active { border-color: #1a6eff; color: #1a6eff; background: #eff6ff; }
 .cb-sort-btn:hover  { border-color: #1a6eff; color: #1a6eff; }
@@ -529,8 +506,8 @@
 
                 <div class="dbt-filter-row">
                     <div class="dbt-search-box">
-                        <i class="fas fa-search dbt-search-icon"></i>
-                        <input type="text" id="debtSearchInput" class="dbt-search-input"
+                        <i class="fas fa-search ps-search-icon"></i>
+                        <input type="text" id="debtSearchInput" class="ps-input ps-search-input"
                                placeholder="{{ t('search_debt_placeholder') }}" oninput="searchDebts()">
                     </div>
                     <button class="dbt-sort-btn" id="sortHighDebt" onclick="sortDebtsByAmount('desc')">📈 Ko'p qarzli</button>
@@ -575,9 +552,9 @@
                 </div>
 
                 <div class="pdh-search-box" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                    <div style="position:relative; flex:1; min-width:200px;">
-                        <i class="fas fa-search pdh-search-icon"></i>
-                        <input type="text" id="pdhSearchInput" placeholder="{{ t('pdh_search') }}" oninput="searchPdhPayments()">
+                    <div class="dbt-search-box" style="flex:1; min-width:200px;">
+                        <i class="fas fa-search ps-search-icon"></i>
+                        <input type="text" id="pdhSearchInput" class="ps-input ps-search-input" placeholder="{{ t('pdh_search') }}" oninput="searchPdhPayments()">
                     </div>
                     <div style="display:flex; align-items:center; gap:4px;">
                         <label style="font-size:12px; color:#64748b; white-space:nowrap;">📅 Sana:</label>
@@ -636,8 +613,11 @@
                 </div>
 
                 <div class="cb-toolbar">
-                    <input type="text" class="cb-search" id="cbSearch"
-                           placeholder="{{ t('cb_search_placeholder') }}" oninput="filterCbTable()">
+                    <div class="dbt-search-box" style="flex:1; min-width:200px;">
+                        <i class="fas fa-search ps-search-icon"></i>
+                        <input type="text" class="ps-input ps-search-input" id="cbSearch"
+                               placeholder="{{ t('cb_search_placeholder') }}" oninput="filterCbTable()">
+                    </div>
                     <button class="cb-sort-btn active" id="cbFilterAll" onclick="setCbFilter('all')">Barchasi</button>
                     <button class="cb-sort-btn" id="cbFilterDebt" onclick="setCbFilter('debt')">💳 Qarzli mijozlar</button>
                     <button class="cb-sort-btn" id="cbFilterBalance" onclick="setCbFilter('balance')">💰 Balansi bor mijozlar</button>
