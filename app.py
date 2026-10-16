@@ -5450,6 +5450,10 @@ def store_detail(store_id):
     from sqlalchemy import func, case
 
     try:
+        # So'm va dollarda narxlangan mahsulotlarni alohida ajratish uchun valyuta kodlari
+        cost_currency = func.coalesce(Product.cost_currency_code, 'USD')
+        sell_currency = func.coalesce(Product.sell_currency_code, 'USD')
+
         # Aggregated statistics - much faster than loading all records
         stats = db.session.query(
             func.count(StoreStock.id).label('total_products'),
@@ -5457,7 +5461,13 @@ def store_detail(store_id):
             func.sum(StoreStock.quantity * Product.sell_price).label('total_value'),
             func.sum(StoreStock.quantity * Product.cost_price).label('total_cost_value'),
             func.sum(StoreStock.quantity * (Product.sell_price - Product.cost_price)).label('total_profit'),
-            func.sum(case((StoreStock.quantity == 0, 1), else_=0)).label('critical_stock_count')
+            func.sum(case((StoreStock.quantity == 0, 1), else_=0)).label('critical_stock_count'),
+            # Tan narx: so'm va dollarda narxlangan mahsulotlar bo'yicha alohida (asl valyutada)
+            func.sum(case((cost_currency == 'UZS', StoreStock.quantity * Product.cost_price_native), else_=0)).label('total_cost_value_uzs'),
+            func.sum(case((cost_currency == 'USD', StoreStock.quantity * Product.cost_price_native), else_=0)).label('total_cost_value_usd'),
+            # Sotuv qiymati: so'm va dollarda narxlangan mahsulotlar bo'yicha alohida (asl valyutada)
+            func.sum(case((sell_currency == 'UZS', StoreStock.quantity * Product.sell_price_native), else_=0)).label('total_value_uzs'),
+            func.sum(case((sell_currency == 'USD', StoreStock.quantity * Product.sell_price_native), else_=0)).label('total_value_usd'),
         ).join(Product).filter(StoreStock.store_id == store_id).first()
 
         # Safe values
@@ -5467,6 +5477,10 @@ def store_detail(store_id):
         total_cost_value = stats.total_cost_value or Decimal('0')
         total_profit = stats.total_profit or Decimal('0')
         critical_stock_count = int(stats.critical_stock_count or 0)
+        total_cost_value_uzs = stats.total_cost_value_uzs or Decimal('0')
+        total_cost_value_usd = stats.total_cost_value_usd or Decimal('0')
+        total_value_uzs = stats.total_value_uzs or Decimal('0')
+        total_value_usd = stats.total_value_usd or Decimal('0')
 
         # Profit percentage
         profit_percentage = 0
@@ -5483,6 +5497,10 @@ def store_detail(store_id):
         total_profit = Decimal('0')
         profit_percentage = Decimal('0')
         critical_stock_count = 0
+        total_cost_value_uzs = Decimal('0')
+        total_cost_value_usd = Decimal('0')
+        total_value_uzs = Decimal('0')
+        total_value_usd = Decimal('0')
 
     return render_template('store_detail.html',
                            store=store,
@@ -5492,7 +5510,11 @@ def store_detail(store_id):
                            total_cost_value=total_cost_value,
                            total_profit=total_profit,
                            profit_percentage=profit_percentage,
-                           critical_stock_count=critical_stock_count)
+                           critical_stock_count=critical_stock_count,
+                           total_cost_value_uzs=total_cost_value_uzs,
+                           total_cost_value_usd=total_cost_value_usd,
+                           total_value_uzs=total_value_uzs,
+                           total_value_usd=total_value_usd)
 
 
 @app.route('/api/store/<int:store_id>/stock', methods=['GET'])
@@ -8246,6 +8268,10 @@ def warehouse_detail(warehouse_id):
     from sqlalchemy import func, case
 
     try:
+        # So'm va dollarda narxlangan mahsulotlarni alohida ajratish uchun valyuta kodlari
+        cost_currency = func.coalesce(Product.cost_currency_code, 'USD')
+        sell_currency = func.coalesce(Product.sell_currency_code, 'USD')
+
         # Aggregated statistics - much faster than loading all records
         stats = db.session.query(
             func.count(WarehouseStock.id).label('total_products'),
@@ -8253,7 +8279,13 @@ def warehouse_detail(warehouse_id):
             func.sum(WarehouseStock.quantity * Product.sell_price).label('total_value'),
             func.sum(WarehouseStock.quantity * Product.cost_price).label('total_cost_value'),
             func.sum(WarehouseStock.quantity * (Product.sell_price - Product.cost_price)).label('total_profit'),
-            func.sum(case((WarehouseStock.quantity == 0, 1), else_=0)).label('critical_stock_count')
+            func.sum(case((WarehouseStock.quantity == 0, 1), else_=0)).label('critical_stock_count'),
+            # Tan narx: so'm va dollarda narxlangan mahsulotlar bo'yicha alohida (asl valyutada)
+            func.sum(case((cost_currency == 'UZS', WarehouseStock.quantity * Product.cost_price_native), else_=0)).label('total_cost_value_uzs'),
+            func.sum(case((cost_currency == 'USD', WarehouseStock.quantity * Product.cost_price_native), else_=0)).label('total_cost_value_usd'),
+            # Sotuv qiymati: so'm va dollarda narxlangan mahsulotlar bo'yicha alohida (asl valyutada)
+            func.sum(case((sell_currency == 'UZS', WarehouseStock.quantity * Product.sell_price_native), else_=0)).label('total_value_uzs'),
+            func.sum(case((sell_currency == 'USD', WarehouseStock.quantity * Product.sell_price_native), else_=0)).label('total_value_usd'),
         ).join(Product).filter(WarehouseStock.warehouse_id == warehouse_id).first()
 
         # Safe values
@@ -8263,6 +8295,10 @@ def warehouse_detail(warehouse_id):
         total_cost_value = stats.total_cost_value or Decimal('0')
         total_profit = stats.total_profit or Decimal('0')
         critical_stock_count = int(stats.critical_stock_count or 0)
+        total_cost_value_uzs = stats.total_cost_value_uzs or Decimal('0')
+        total_cost_value_usd = stats.total_cost_value_usd or Decimal('0')
+        total_value_uzs = stats.total_value_uzs or Decimal('0')
+        total_value_usd = stats.total_value_usd or Decimal('0')
 
         # Profit percentage
         profit_percentage = 0
@@ -8279,6 +8315,10 @@ def warehouse_detail(warehouse_id):
         total_profit = Decimal('0')
         profit_percentage = Decimal('0')
         critical_stock_count = 0
+        total_cost_value_uzs = Decimal('0')
+        total_cost_value_usd = Decimal('0')
+        total_value_uzs = Decimal('0')
+        total_value_usd = Decimal('0')
 
     return render_template('warehouse_detail.html',
                            warehouse=warehouse,
@@ -8288,7 +8328,11 @@ def warehouse_detail(warehouse_id):
                            total_cost_value=total_cost_value,
                            total_profit=total_profit,
                            profit_percentage=profit_percentage,
-                           critical_stock_count=critical_stock_count)
+                           critical_stock_count=critical_stock_count,
+                           total_cost_value_uzs=total_cost_value_uzs,
+                           total_cost_value_usd=total_cost_value_usd,
+                           total_value_uzs=total_value_uzs,
+                           total_value_usd=total_value_usd)
 
 
 # Store stock tahrirlash route

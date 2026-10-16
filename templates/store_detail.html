@@ -75,6 +75,10 @@
 .ps-icon-cyan   { background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891b2; }
 .ps-stat-label  { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 .ps-stat-number { font-size: 1.4rem; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: -0.5px; }
+.ps-stat-breakdown { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.ps-stat-chip { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.ps-chip-usd { background: #d1fae5; color: #059669; }
+.ps-chip-uzs { background: #dbeafe; color: #1a6eff; }
 
 /* ── Filter Panel ── */
 .ps-filter-panel {
@@ -350,11 +354,19 @@
         <div class="ps-stat-icon ps-icon-amber"><i class="fas fa-dollar-sign"></i></div>
         <span class="ps-stat-label">{{ t('sd_total_cost') }}</span>
         <span class="ps-stat-number">${{ "{:,.2f}".format(total_cost_value)|replace(",", " ") }}</span>
+        <div class="ps-stat-breakdown">
+            <span class="ps-stat-chip ps-chip-usd"><i class="fas fa-dollar-sign"></i> {{ "{:,.2f}".format(total_cost_value_usd)|replace(",", " ") }}</span>
+            <span class="ps-stat-chip ps-chip-uzs">{{ "{:,.0f}".format(total_cost_value_uzs)|replace(",", " ") }} {{ t('sum_currency') }}</span>
+        </div>
     </div>
     <div class="ps-stat-card">
         <div class="ps-stat-icon ps-icon-green"><i class="fas fa-money-bill-wave"></i></div>
         <span class="ps-stat-label">{{ t('sd_total_sell') }}</span>
         <span class="ps-stat-number">${{ "{:,.2f}".format(total_value)|replace(",", " ") }}</span>
+        <div class="ps-stat-breakdown">
+            <span class="ps-stat-chip ps-chip-usd"><i class="fas fa-dollar-sign"></i> {{ "{:,.2f}".format(total_value_usd)|replace(",", " ") }}</span>
+            <span class="ps-stat-chip ps-chip-uzs">{{ "{:,.0f}".format(total_value_uzs)|replace(",", " ") }} {{ t('sum_currency') }}</span>
+        </div>
     </div>
     <div class="ps-stat-card">
         <div class="ps-stat-icon ps-icon-blue"><i class="fas fa-chart-pie"></i></div>
