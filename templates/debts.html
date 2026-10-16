@@ -937,15 +937,15 @@
     // Qarzlarni qidirish
     function applyDebtFilters() {
         const searchTerm = document.getElementById('debtSearchInput').value.toLowerCase().trim();
-        const searchDigits = searchTerm.replace(/\D/g, '');
+        const cleanSearch = searchTerm.replace(/[\s\-\(\)\+]/g, '');
         const today = new Date(); today.setHours(0,0,0,0);
         const in3Days = new Date(today); in3Days.setDate(today.getDate() + 3);
 
         let filtered = allDebts.filter(debt => {
             const name = (debt.customer_name || '').toLowerCase();
             const phone = (debt.customer_phone || '').toLowerCase();
-            const phoneDigits = phone.replace(/\D/g, '');
-            if (searchTerm && !name.includes(searchTerm) && !phone.includes(searchTerm) && !(searchDigits && phoneDigits.includes(searchDigits))) return false;
+            const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+            if (searchTerm && !name.includes(searchTerm) && !cleanPhone.includes(cleanSearch)) return false;
             if (debtDueFilter && debt.remaining_debt > 0) {
                 if (!debt.nearest_due_date) return false;
                 const due = new Date(debt.nearest_due_date); due.setHours(0,0,0,0);
@@ -1124,7 +1124,7 @@
             row.setAttribute('data-customer', (debt.customer_name || '').toLowerCase());
             row.setAttribute('data-date', (debt.payment_date || '').toLowerCase());
             row.setAttribute('data-receiver', (debt.received_by || '').toLowerCase());
-            row.setAttribute('data-phone', (debt.customer_phone || '').replace(/\D/g, ''));
+            row.setAttribute('data-phone', (debt.customer_phone || '').toLowerCase().replace(/[\s\-\(\)\+]/g, ''));
 
             const paymentTypes = [];
             if (debt.cash_usd > 0) {
@@ -1171,7 +1171,7 @@
 
     function searchPdhPayments() {
         const searchTerm = document.getElementById('pdhSearchInput').value.toLowerCase().trim();
-        const searchDigits = searchTerm.replace(/\D/g, '');
+        const cleanSearch = searchTerm.replace(/[\s\-\(\)\+]/g, '');
         const dateFrom = document.getElementById('pdhDateFromInput').value;
         const dateTo = document.getElementById('pdhDateToInput').value;
         const rows = document.querySelectorAll('#pdhHistoryTableBody tr');
@@ -1185,10 +1185,10 @@
             const customerName = row.getAttribute('data-customer') || '';
             const date = row.getAttribute('data-date') || '';
             const receiver = row.getAttribute('data-receiver') || '';
-            const phoneDigits = row.getAttribute('data-phone') || '';
+            const cleanPhone = row.getAttribute('data-phone') || '';
 
             const textMatch = !searchTerm || customerName.includes(searchTerm) || date.includes(searchTerm) || receiver.includes(searchTerm)
-                || (searchDigits && phoneDigits.includes(searchDigits));
+                || cleanPhone.includes(cleanSearch);
 
             const rowDate = date.substring(0, 10);
             const dateFromMatch = !dateFrom || rowDate >= dateFrom;
@@ -1393,13 +1393,13 @@
 
     function applyCbFilterAndSearch() {
         const q = document.getElementById('cbSearch').value.toLowerCase().trim();
-        const qDigits = q.replace(/\D/g, '');
+        const cleanQ = q.replace(/[\s\-\(\)\+]/g, '');
         let filtered = cbAllCustomers.filter(c => {
+            if (!q) return true;
             const name = (c.name || '').toLowerCase();
             const phone = (c.phone || '').toLowerCase();
-            const phoneDigits = phone.replace(/\D/g, '');
-            if (!q) return true;
-            return name.includes(q) || phone.includes(q) || (qDigits && phoneDigits.includes(qDigits));
+            const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+            return name.includes(q) || cleanPhone.includes(cleanQ);
         });
         if (cbCurrentFilter === 'debt')    filtered = filtered.filter(c => (c.debt_usd || 0) > 0);
         if (cbCurrentFilter === 'balance') filtered = filtered.filter(c => (c.balance || 0) > 0);
