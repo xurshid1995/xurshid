@@ -312,8 +312,11 @@
 @media (max-width: 768px) {
     .dbt-page { padding: 12px; }
     .dbt-stats { grid-template-columns: 40% 60%; }
-    .dbt-header { flex-direction: column; align-items: flex-start; }
-    .dbt-header-actions { width: 100%; flex-wrap: wrap; }
+    .dbt-header { flex-wrap: nowrap; gap: 8px; }
+    .dbt-title { font-size: 15px; white-space: nowrap; flex-shrink: 0; }
+    .dbt-header-actions { width: auto; flex-wrap: nowrap; min-width: 0; justify-content: flex-end; }
+    .dbt-btn-telegram { padding: 7px 10px; font-size: 11px; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .dbt-btn-telegram img { width: 14px; height: 14px; flex-shrink: 0; }
     .modal-content { width: 100%; max-width: 100%; height: 100%; max-height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column; }
     .modal-header { position: sticky; top: 0; flex-shrink: 0; }
     .modal-body { overflow-y: auto; flex: 1; }
@@ -333,8 +336,8 @@
     .dbt-stat-number { font-size: 16px; }
     .dbt-stat-label { font-size: 9px; }
     .dbt-search-box { flex: 0 0 100%; }
-    .dbt-header-actions { width: 100%; }
-    .dbt-btn-telegram { flex: 1 1 0; justify-content: center; }
+    .dbt-title { font-size: 13px; }
+    .dbt-btn-telegram { padding: 6px 8px; font-size: 10px; }
 }
 
 /* ── Tabs (Qarzli mijoz kartasi headerida) ── */
