@@ -1561,7 +1561,7 @@ TRANSLATIONS = {
 
         # ==================== DEBTS PAGE EXTRA ====================
         'send_telegram_all': 'Barchaga xabar yuborish',
-        'debt_payment_history_link': 'Qarz to\'lash tarixi',
+        'debt_payment_history_link': 'To\'lov tarixi',
         'customer_balance_link': 'Mijozlar balansi',
         'cb_title': 'Mijozlar balansi',
         'cb_back': 'Qarzlarga qaytish',
@@ -3589,7 +3589,7 @@ TRANSLATIONS = {
 
         # ==================== DEBTS PAGE EXTRA ====================
         'send_telegram_all': 'Барчага хабар юбориш',
-        'debt_payment_history_link': 'Қарз тўлаш тарихи',
+        'debt_payment_history_link': 'Тўлов тарихи',
         'customer_balance_link': 'Мижозлар баланси',
         'cb_title': 'Мижозлар баланси',
         'cb_back': 'Қарзларга қайтиш',
@@ -5617,7 +5617,7 @@ TRANSLATIONS = {
 
         # ==================== DEBTS PAGE EXTRA ====================
         'send_telegram_all': 'Отправить сообщение всем',
-        'debt_payment_history_link': 'История оплаты долгов',
+        'debt_payment_history_link': 'История оплат',
         'customer_balance_link': 'Баланс клиентов',
         'cb_title': 'Баланс клиентов',
         'cb_back': 'Назад к долгам',
