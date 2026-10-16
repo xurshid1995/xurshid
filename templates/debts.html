@@ -311,7 +311,6 @@
 
 @media (max-width: 768px) {
     .dbt-page { padding: 12px; }
-    .dbt-stats { grid-template-columns: 1fr; }
     .dbt-header { flex-direction: column; align-items: flex-start; }
     .dbt-header-actions { width: 100%; flex-wrap: wrap; }
     .modal-content { width: 100%; max-width: 100%; height: 100%; max-height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column; }
@@ -327,7 +326,11 @@
     .btn-view, .btn-pay, .btn-sms { width: 28px; height: 28px; font-size: 13px; }
 }
 @media (max-width: 480px) {
-    .dbt-stat-number { font-size: 18px; }
+    .dbt-stats { gap: 10px; }
+    .dbt-stat-card { padding: 10px 12px; gap: 8px; }
+    .dbt-stat-icon { width: 34px; height: 34px; font-size: 15px; border-radius: 10px; }
+    .dbt-stat-number { font-size: 16px; }
+    .dbt-stat-label { font-size: 9px; }
     .dbt-search-box { flex: 0 0 100%; }
     .dbt-header-actions { width: 100%; }
     .dbt-btn-telegram { flex: 1 1 0; justify-content: center; }
