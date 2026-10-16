@@ -42,9 +42,7 @@
 
 /* Location buttons */
 .dbt-location-row {
-    background: white; border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 10px 14px; margin-bottom: 14px;
+    padding: 0; margin-bottom: 14px;
 }
 #locationButtons {
     display: flex; flex-wrap: wrap; gap: 6px;
@@ -346,31 +344,27 @@
     .dbt-btn-telegram { flex: 1 1 0; justify-content: center; }
 }
 
-/* ── Tabs ── */
-.dbt-tabs {
-    display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
-    background: white; border-radius: 14px; padding: 6px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+/* ── Tabs (Qarzli mijoz kartasi headerida) ── */
+.dbt-tabs-header {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start;
 }
 .dbt-tab-btn {
     display: flex; align-items: center; gap: 8px;
-    padding: 10px 18px; border: none; border-radius: 10px;
+    padding: 9px 16px; border: none; border-radius: 10px;
     background: transparent; color: #64748b; font-size: 13px; font-weight: 600;
     cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.dbt-tab-btn:hover:not(.active) { background: #f1f5f9; color: #1a6eff; }
+.dbt-tab-btn:hover:not(.active) { background: #eef2f6; color: #1a6eff; }
 .dbt-tab-btn.active { background: #1a6eff; color: white; box-shadow: 0 2px 8px rgba(26,110,255,0.3); }
 .dbt-tab-panel { display: none; }
 .dbt-tab-panel.active { display: block; }
 @media (max-width: 768px) {
-    .dbt-tabs { padding: 4px; }
     .dbt-tab-btn { flex: 1 1 auto; justify-content: center; padding: 9px 10px; font-size: 12px; }
 }
 
 /* ── Qarz to'lash tarixi (PDH) tab ── */
 .pdh-location-bar {
-    background: white; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 0; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px;
 }
 .pdh-search-box { position: relative; margin-bottom: 16px; max-width: 380px; }
 .pdh-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
@@ -396,7 +390,6 @@
 .pdh-amount-uzs { font-weight: 600; color: #64748b; font-size: 12px; white-space: nowrap; }
 .pdh-receiver { color: #1a6eff; font-weight: 600; font-size: 12px; }
 @media (max-width: 768px) {
-    .pdh-location-bar { padding: 10px 12px; gap: 6px; }
     .pdh-search-box { max-width: 100%; }
     .pdh-table { font-size: 11px; }
     .pdh-table th, .pdh-table td { padding: 8px 6px; }
@@ -411,7 +404,7 @@
 .cb-stat-card.amber { border-left-color: #f59e0b; }
 .cb-stat-value { font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1.1; }
 .cb-stat-label { font-size: 12px; color: #64748b; font-weight: 500; margin-top: 4px; }
-.cb-toolbar { background: white; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cb-toolbar { padding: 0; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .cb-search {
     flex: 1; min-width: 200px; padding: 8px 14px 8px 36px; border: 1.5px solid #e2e8f0; border-radius: 10px;
     font-size: 13px; outline: none; transition: border 0.18s;
@@ -487,57 +480,53 @@
         </div>
     </div>
 
-    <!-- Tablar -->
-    <div class="dbt-tabs">
-        <button class="dbt-tab-btn active" data-tab="debtors" onclick="switchDebtTab('debtors')">
-            <i class="fas fa-credit-card"></i> {{ t('debt_customer') }}
-        </button>
-        <button class="dbt-tab-btn" data-tab="history" onclick="switchDebtTab('history')">
-            <i class="fas fa-history"></i> {{ t('debt_payment_history_link') }}
-        </button>
-        <button class="dbt-tab-btn" data-tab="balance" onclick="switchDebtTab('balance')">
-            <i class="fas fa-wallet"></i> {{ t('customer_balance_link') }}
-        </button>
-    </div>
-
-    <!-- TAB 1: Qarzli mijoz -->
-    <div class="dbt-tab-panel active" id="tabPanel-debtors">
-
-        <!-- Joylashuv tugmalari -->
-        <div class="dbt-location-row">
-            <div id="locationButtons">
-                {% if current_user.role in ['admin', 'kassir'] %}
-                <button class="location-btn active" data-location="" onclick="selectLocation(this, '')">
-                    🏢 {{ t('filter_all') }}
-                </button>
-                {% endif %}
-            </div>
+    <!-- Tablar "Qarzli mijoz" kartasi headerida -->
+    <div class="dbt-card">
+        <div class="dbt-card-header dbt-tabs-header">
+            <button class="dbt-tab-btn active" data-tab="debtors" onclick="switchDebtTab('debtors')">
+                <i class="fas fa-credit-card"></i> {{ t('debt_customer') }}
+            </button>
+            <button class="dbt-tab-btn" data-tab="history" onclick="switchDebtTab('history')">
+                <i class="fas fa-history"></i> {{ t('debt_payment_history_link') }}
+            </button>
+            <button class="dbt-tab-btn" data-tab="balance" onclick="switchDebtTab('balance')">
+                <i class="fas fa-wallet"></i> {{ t('customer_balance_link') }}
+            </button>
         </div>
 
-        <!-- Statistika -->
-        <div class="dbt-stats">
-            <div class="dbt-stat-card">
-                <div class="dbt-stat-icon dbt-icon-purple"><i class="fas fa-users"></i></div>
-                <div class="dbt-stat-body">
-                    <span class="dbt-stat-number" id="debtCustomers">0</span>
-                    <span class="dbt-stat-label">{{ t('debt_customer') }}</span>
-                </div>
-            </div>
-            <div class="dbt-stat-card">
-                <div class="dbt-stat-icon dbt-icon-red"><i class="fas fa-dollar-sign"></i></div>
-                <div class="dbt-stat-body">
-                    <span class="dbt-stat-number" id="totalDebt">$0.00</span>
-                    <span class="dbt-stat-label">{{ t('total_debt_label') }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Faol qarzlar -->
-        <div class="dbt-card">
-            <div class="dbt-card-header">
-                <span class="dbt-card-title"><i class="fas fa-credit-card"></i> {{ t('debt_customer') }}</span>
-            </div>
+        <!-- TAB 1: Qarzli mijoz -->
+        <div class="dbt-tab-panel active" id="tabPanel-debtors">
             <div class="dbt-card-body">
+
+                <!-- Joylashuv tugmalari -->
+                <div class="dbt-location-row">
+                    <div id="locationButtons">
+                        {% if current_user.role in ['admin', 'kassir'] %}
+                        <button class="location-btn active" data-location="" onclick="selectLocation(this, '')">
+                            🏢 {{ t('filter_all') }}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Statistika -->
+                <div class="dbt-stats">
+                    <div class="dbt-stat-card">
+                        <div class="dbt-stat-icon dbt-icon-purple"><i class="fas fa-users"></i></div>
+                        <div class="dbt-stat-body">
+                            <span class="dbt-stat-number" id="debtCustomers">0</span>
+                            <span class="dbt-stat-label">{{ t('debt_customer') }}</span>
+                        </div>
+                    </div>
+                    <div class="dbt-stat-card">
+                        <div class="dbt-stat-icon dbt-icon-red"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="dbt-stat-body">
+                            <span class="dbt-stat-number" id="totalDebt">$0.00</span>
+                            <span class="dbt-stat-label">{{ t('total_debt_label') }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="dbt-filter-row">
                     <div class="dbt-search-box">
                         <i class="fas fa-search dbt-search-icon"></i>
@@ -571,25 +560,20 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- TAB 2: Qarz to'lash tarixi -->
-    <div class="dbt-tab-panel" id="tabPanel-history">
-
-        <!-- Joylashuv tugmalari -->
-        <div id="pdhLocationButtons" class="pdh-location-bar">
-            {% if current_user.role in ['admin', 'kassir'] %}
-            <button class="location-btn active" data-location="" onclick="selectPdhLocation(this, '')">
-                🏢 {{ t('pdh_all') }}
-            </button>
-            {% endif %}
-        </div>
-
-        <div class="dbt-card">
-            <div class="dbt-card-header">
-                <span class="dbt-card-title"><i class="fas fa-check-circle" style="color:#059669;"></i> {{ t('pdh_paid_list') }}</span>
-            </div>
+        <!-- TAB 2: Qarz to'lash tarixi -->
+        <div class="dbt-tab-panel" id="tabPanel-history">
             <div class="dbt-card-body">
+
+                <!-- Joylashuv tugmalari -->
+                <div id="pdhLocationButtons" class="pdh-location-bar">
+                    {% if current_user.role in ['admin', 'kassir'] %}
+                    <button class="location-btn active" data-location="" onclick="selectPdhLocation(this, '')">
+                        🏢 {{ t('pdh_all') }}
+                    </button>
+                    {% endif %}
+                </div>
+
                 <div class="pdh-search-box" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                     <div style="position:relative; flex:1; min-width:200px;">
                         <i class="fas fa-search pdh-search-icon"></i>
@@ -627,61 +611,61 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- TAB 3: Mijozlar balansi -->
-    <div class="dbt-tab-panel" id="tabPanel-balance">
+        <!-- TAB 3: Mijozlar balansi -->
+        <div class="dbt-tab-panel" id="tabPanel-balance">
+            <div class="dbt-card-body">
 
-        <div class="cb-stats">
-            <div class="cb-stat-card blue">
-                <div class="cb-stat-value" id="cbStatTotalCustomers">—</div>
-                <div class="cb-stat-label">{{ t('cb_stat_total') }}</div>
-            </div>
-            <div class="cb-stat-card amber">
-                <div class="cb-stat-value" id="cbStatDebtCustomers">—</div>
-                <div class="cb-stat-label">{{ t('cb_stat_with_debt') }}</div>
-            </div>
-            <div class="cb-stat-card green">
-                <div class="cb-stat-value" id="cbStatCleanCustomers">—</div>
-                <div class="cb-stat-label">{{ t('cb_stat_no_debt') }}</div>
-            </div>
-            <div class="cb-stat-card amber">
-                <div class="cb-stat-value" id="cbStatTotalDebt">—</div>
-                <div class="cb-stat-label">{{ t('cb_stat_total_debt') }}</div>
-            </div>
-        </div>
+                <div class="cb-stats">
+                    <div class="cb-stat-card blue">
+                        <div class="cb-stat-value" id="cbStatTotalCustomers">—</div>
+                        <div class="cb-stat-label">{{ t('cb_stat_total') }}</div>
+                    </div>
+                    <div class="cb-stat-card amber">
+                        <div class="cb-stat-value" id="cbStatDebtCustomers">—</div>
+                        <div class="cb-stat-label">{{ t('cb_stat_with_debt') }}</div>
+                    </div>
+                    <div class="cb-stat-card green">
+                        <div class="cb-stat-value" id="cbStatCleanCustomers">—</div>
+                        <div class="cb-stat-label">{{ t('cb_stat_no_debt') }}</div>
+                    </div>
+                    <div class="cb-stat-card amber">
+                        <div class="cb-stat-value" id="cbStatTotalDebt">—</div>
+                        <div class="cb-stat-label">{{ t('cb_stat_total_debt') }}</div>
+                    </div>
+                </div>
 
-        <div class="cb-toolbar">
-            <input type="text" class="cb-search" id="cbSearch"
-                   placeholder="{{ t('cb_search_placeholder') }}" oninput="filterCbTable()">
-            <button class="cb-sort-btn active" id="cbFilterAll" onclick="setCbFilter('all')">Barchasi</button>
-            <button class="cb-sort-btn" id="cbFilterDebt" onclick="setCbFilter('debt')">💳 Qarzli mijozlar</button>
-            <button class="cb-sort-btn" id="cbFilterBalance" onclick="setCbFilter('balance')">💰 Balansi bor mijozlar</button>
-        </div>
+                <div class="cb-toolbar">
+                    <input type="text" class="cb-search" id="cbSearch"
+                           placeholder="{{ t('cb_search_placeholder') }}" oninput="filterCbTable()">
+                    <button class="cb-sort-btn active" id="cbFilterAll" onclick="setCbFilter('all')">Barchasi</button>
+                    <button class="cb-sort-btn" id="cbFilterDebt" onclick="setCbFilter('debt')">💳 Qarzli mijozlar</button>
+                    <button class="cb-sort-btn" id="cbFilterBalance" onclick="setCbFilter('balance')">💰 Balansi bor mijozlar</button>
+                </div>
 
-        <div class="dbt-card">
-            <div class="dbt-card-header">
-                <span class="cb-card-title">{{ t('cb_table_title') }}</span>
-                <span class="cb-count-badge" id="cbCount">0 {{ t('cb_customers_count') }}</span>
-            </div>
-            <div class="dbt-card-body" style="padding:0; overflow-x:auto;">
-                <table class="cb-table">
-                    <thead>
-                        <tr>
-                            <th>№</th>
-                            <th>{{ t('cb_th_customer') }}</th>
-                            <th>{{ t('cb_th_debt') }}</th>
-                            <th>{{ t('cb_th_last_payment') }}</th>
-                            <th>{{ t('cb_th_paid_total') }}</th>
-                            <th>{{ t('cb_th_balance') }}</th>
-                            <th>{{ t('cb_th_status') }}</th>
-                            <th>{{ t('cb_th_actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cbTbody">
-                        <tr><td colspan="8" class="cb-loading"><i class="fas fa-spinner fa-spin"></i> {{ t('cb_loading') }}</td></tr>
-                    </tbody>
-                </table>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <span class="cb-card-title">{{ t('cb_table_title') }}</span>
+                    <span class="cb-count-badge" id="cbCount">0 {{ t('cb_customers_count') }}</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="cb-table">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>{{ t('cb_th_customer') }}</th>
+                                <th>{{ t('cb_th_debt') }}</th>
+                                <th>{{ t('cb_th_last_payment') }}</th>
+                                <th>{{ t('cb_th_paid_total') }}</th>
+                                <th>{{ t('cb_th_balance') }}</th>
+                                <th>{{ t('cb_th_status') }}</th>
+                                <th>{{ t('cb_th_actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cbTbody">
+                            <tr><td colspan="8" class="cb-loading"><i class="fas fa-spinner fa-spin"></i> {{ t('cb_loading') }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -945,7 +929,7 @@
     // Location tugmasini tanlash
     function selectLocation(button, locationId, locationType) {
         // Barcha tugmalardan active classni olib tashlash
-        document.querySelectorAll('.location-btn').forEach(btn => {
+        document.querySelectorAll('#locationButtons .location-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         
