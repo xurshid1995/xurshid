@@ -1317,7 +1317,8 @@ class HostingPaymentBot:
             self.db.session.add(payment)
 
             # Balansni yangilash
-            client.balance = (client.balance or Decimal('0')) + order.amount_uzs
+            from app import apply_hosting_balance_payment
+            apply_hosting_balance_payment(client, order.amount_uzs)
 
             # Order ni yangilash
             order.status = 'approved'
@@ -1334,7 +1335,6 @@ class HostingPaymentBot:
                         success = do_manager.power_on(client.droplet_id)
                         if success:
                             client.server_status = 'active'
-                            client.blocked_at = None
                             self.db.session.commit()
                             server_msg = "\n🟢 Server yoqildi!"
                         else:

@@ -18922,6 +18922,30 @@ def hosting_dashboard():
     return render_template('hosting_dashboard.html')
 
 
+def apply_hosting_balance_payment(client, amount):
+    """Hosting mijoz balansiga to'lov qo'shish.
+
+    Agar mijoz avval bloklangan bo'lsa (blocked_at bor), bloklangan kundan
+    buyon o'tgan kunlar uchun qarz birinchi navbatda to'lovdan yechiladi -
+    shunday qilib yangi muddat hisob-kitobi "bugun"dan emas, aynan
+    bloklangan sanadan boshlab hisoblanadi.
+    """
+    amount = Decimal(str(amount))
+    monthly_price = Decimal(str(client.monthly_price_uzs or 0))
+
+    if client.blocked_at and monthly_price > 0:
+        daily_cost = monthly_price / Decimal('30')
+        missed_days = (get_tashkent_time().date() - client.blocked_at.date()).days
+        if missed_days > 0:
+            amount -= daily_cost * Decimal(str(missed_days))
+
+    new_balance = (client.balance or Decimal('0')) + amount
+    client.balance = new_balance
+    if new_balance > 0:
+        client.blocked_at = None
+    return new_balance
+
+
 @app.route('/api/hosting/clients', methods=['GET'])
 @role_required('admin')
 def api_hosting_clients():
@@ -19099,7 +19123,7 @@ def api_hosting_client_add_balance(client_id):
         if not amount or float(amount) <= 0:
             return jsonify({'success': False, 'error': 'Summa musbat bo\'lishi kerak'}), 400
 
-        client.balance = (client.balance or Decimal('0')) + Decimal(str(amount))
+        apply_hosting_balance_payment(client, amount)
         db.session.commit()
 
         # Server yoqish (agar o'chiq yoki suspended bo'lsa va balans musbat bo'lsa)
@@ -19113,7 +19137,6 @@ def api_hosting_client_add_balance(client_id):
                     success = do_mgr.power_on(client.droplet_id)
                     if success:
                         client.server_status = 'active'
-                        client.blocked_at = None
                         db.session.commit()
                         server_msg = "Server avtomatik yoqildi"
                         logger.info(f"🟢 Server yoqildi (balans to'ldirildi): {client.name} (droplet: {client.droplet_id})")
@@ -19122,7 +19145,6 @@ def api_hosting_client_add_balance(client_id):
                         logger.warning(f"⚠️ Server yoqishda xato: {client.name}")
                 elif status == 'active':
                     client.server_status = 'active'
-                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server allaqachon yoqiq"
             except Exception as e:
@@ -19214,7 +19236,7 @@ def api_hosting_order_approve(order_id):
         db.session.add(payment)
 
         # Balansni yangilash
-        client.balance = (client.balance or Decimal('0')) + order.amount_uzs
+        apply_hosting_balance_payment(client, order.amount_uzs)
 
         order.status = 'approved'
         order.approved_at = now
@@ -19230,7 +19252,6 @@ def api_hosting_order_approve(order_id):
                 if status == 'off':
                     do_mgr.power_on(client.droplet_id)
                     client.server_status = 'active'
-                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server yoqildi"
             except Exception as e:
@@ -19306,7 +19327,7 @@ def api_hosting_payment_manual():
         db.session.add(payment)
 
         # Balansni yangilash
-        client.balance = (client.balance or Decimal('0')) + Decimal(str(data['amount_uzs']))
+        apply_hosting_balance_payment(client, data['amount_uzs'])
 
         db.session.commit()
 
@@ -19321,7 +19342,6 @@ def api_hosting_payment_manual():
                     success = do_mgr.power_on(client.droplet_id)
                     if success:
                         client.server_status = 'active'
-                        client.blocked_at = None
                         db.session.commit()
                         server_msg = "Server avtomatik yoqildi"
                         logger.info(f"🟢 Server yoqildi (qo'lda to'lov): {client.name} (droplet: {client.droplet_id})")
@@ -19329,7 +19349,6 @@ def api_hosting_payment_manual():
                         server_msg = "Server yoqishda xato - qo'lda yoqing"
                 elif status == 'active':
                     client.server_status = 'active'
-                    client.blocked_at = None
                     db.session.commit()
                     server_msg = "Server allaqachon yoqiq"
             except Exception as e:
