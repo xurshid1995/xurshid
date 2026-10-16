@@ -419,7 +419,7 @@
             </div>
             <div class="ps-payment-rows">
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label"><i class="fas fa-money-bill-1"></i> Naqd</span>
+                    <span class="ps-pay-label">💵 Naqd</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentCashUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -431,7 +431,7 @@
                     <button onclick="addRemainingToField('paymentCashUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
                 </div>
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label"><i class="fas fa-mobile-screen"></i> Click</span>
+                    <span class="ps-pay-label">📱 Click</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentClickUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -443,7 +443,7 @@
                     <button onclick="addRemainingToField('paymentClickUSD')" class="ps-btn-remaining" title="+ Qolganini qo'shish">+</button>
                 </div>
                 <div class="ps-payment-row">
-                    <span class="ps-pay-label"><i class="fas fa-money-bill-wave"></i> Terminal</span>
+                    <span class="ps-pay-label">🏧 Terminal</span>
                     <div class="ps-pay-field">
                         <span class="ps-currency-sign">$</span>
                         <input type="number" id="paymentTerminalUSD" step="0.01" placeholder="0.00" class="ps-pay-input">
@@ -457,7 +457,7 @@
             </div>
             <div id="payError" style="display:none; color:#dc2626; font-size:13px; margin-bottom:10px;"></div>
             <div>
-                <button class="ps-btn-submit" id="submitBtn" onclick="submitPayment()"><i class="fas fa-circle-check"></i> To'lovni tasdiqlash</button>
+                <button class="ps-btn-submit" id="submitBtn" onclick="submitPayment()">✅ To'lovni tasdiqlash</button>
             </div>
         </div>
 
@@ -530,10 +530,10 @@
     <div style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
         <h3 style="margin:0 0 15px 0; color:#dc3545;"><i class="fas fa-undo"></i> To'lovni bekor qilish</h3>
         <div id="reverseModalInfo" style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin-bottom:20px; font-size:14px; line-height:1.6;"></div>
-        <p style="color:#6c757d; font-size:14px; margin-bottom:20px;"><i class="fas fa-triangle-exclamation"></i> Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
+        <p style="color:#6c757d; font-size:14px; margin-bottom:20px;">⚠️ Bu amal qarz miqdorini tiklaydi. Faqat adashib qilingan to'lovlarda ishlating.</p>
         <div style="display:flex; gap:10px; justify-content:flex-end;">
             <button onclick="closeReverseModal()" style="padding:10px 20px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">Bekor</button>
-            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;"><i class="fas fa-circle-check"></i> Ha, bekor qilish</button>
+            <button id="reverseConfirmBtn" onclick="confirmReverse()" style="padding:10px 20px; background:#dc3545; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">✅ Ha, bekor qilish</button>
         </div>
     </div>
 </div>
@@ -595,7 +595,7 @@ async function loadSupplierDebtPage() {
 
         setupCurrencyConversion();
     } catch (e) {
-        document.getElementById('purchasesBody').innerHTML = '<tr><td colspan="9" class="no-data"><i class="fas fa-circle-xmark"></i> Ma\'lumotlarni yuklashda xatolik yuz berdi</td></tr>';
+        document.getElementById('purchasesBody').innerHTML = '<tr><td colspan="9" class="no-data">❌ Ma\'lumotlarni yuklashda xatolik yuz berdi</td></tr>';
     }
 }
 
@@ -605,7 +605,7 @@ function renderPurchases(purchases) {
     currentPurchases = purchases || [];
     const tbody = document.getElementById('purchasesBody');
     if (!purchases || purchases.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="no-data"><i class="fas fa-envelope-open"></i> Qarzli mahsulot topilmadi</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">📭 Qarzli mahsulot topilmadi</td></tr>';
         return;
     }
 
@@ -663,7 +663,7 @@ function renderPurchases(purchases) {
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-debt" style="color:#dc3545;">${formatDualCurrency(groupDebt)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-added-by" style="font-size:13px;">${escapeHtml(groupAddedBy)}</td>` : ''}
                     ${isFirst ? `<td rowspan="${items.length}" class="group-cell col-actions">
-                        <button onclick="viewPurchaseGroup(${first.batch_id != null ? first.batch_id : 'null'}, ${first.id})" class="ps-btn-view"><i class="fas fa-eye"></i> Ko'rish</button>
+                        <button onclick="viewPurchaseGroup(${first.batch_id != null ? first.batch_id : 'null'}, ${first.id})" class="ps-btn-view">👁️ Ko'rish</button>
                     </td>` : ''}
                 </tr>
             `;
@@ -677,7 +677,7 @@ function viewPurchaseGroup(batchId, fallbackId) {
         ? currentPurchases.filter(p => p.batch_id === batchId)
         : currentPurchases.filter(p => p.id === fallbackId);
     if (!items || items.length === 0) {
- alert(' Xarid topilmadi');
+        alert('❌ Xarid topilmadi');
         return;
     }
     showPurchaseDetailsModal(items);
@@ -698,13 +698,13 @@ function showPurchaseDetailsModal(items) {
     const hasBreakdown = (cashUSD + clickUSD + terminalUSD) > 0;
 
     const boxes = (hasBreakdown ? [
- { name: ' Naqd', usd: cashUSD, color: '#28a745' },
- { name: ' Click', usd: clickUSD, color: '#17a2b8' },
- { name: ' Terminal', usd: terminalUSD, color: '#6f42c1' },
+        { name: '💵 Naqd', usd: cashUSD, color: '#28a745' },
+        { name: '💳 Click', usd: clickUSD, color: '#17a2b8' },
+        { name: '🏧 Terminal', usd: terminalUSD, color: '#6f42c1' },
     ] : [
- { name: ' To\'langan', usd: paidUSD, color: '#28a745' },
+        { name: '✅ To\'langan', usd: paidUSD, color: '#28a745' },
     ]).concat([
- { name: ' Qarz', usd: debtUSD, color: '#dc3545' },
+        { name: '📝 Qarz', usd: debtUSD, color: '#dc3545' },
     ]).filter(b => b.usd > 0);
 
     const boxesHTML = boxes.map(b => `
@@ -747,7 +747,7 @@ function showPurchaseDetailsModal(items) {
         <div id="purchaseDetailsModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
             <div style="background: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                 <div style="padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa;">
-                    <h3 style="margin: 0; color: #333;"><i class="fas fa-eye"></i> Xarid tafsilotlari</h3>
+                    <h3 style="margin: 0; color: #333;">👁️ Xarid tafsilotlari</h3>
                     <button onclick="closePurchaseDetailsModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
                 </div>
                 <div style="padding: 20px;">
@@ -866,17 +866,17 @@ async function confirmReverse() {
         });
         const data = await res.json();
         if (data.success) {
- alert(' ' + data.message);
+            alert('✅ ' + data.message);
             closeReverseModal();
             location.reload();
         } else {
- alert(' ' + (data.error || 'Xatolik'));
+            alert('❌ ' + (data.error || 'Xatolik'));
         }
     } catch (e) {
- alert(' Server bilan bog\'lanib bo\'lmadi');
+        alert('❌ Server bilan bog\'lanib bo\'lmadi');
     }
     btn.disabled = false;
- btn.textContent = ' Ha, bekor qilish';
+    btn.textContent = '✅ Ha, bekor qilish';
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReverseModal(); });
@@ -909,7 +909,7 @@ function fallbackCopy(text, done) {
 
 function addRemainingToField(fieldId) {
     if (!remainingDebt) {
- alert(' Qarz topilmadi');
+        alert('❌ Qarz topilmadi');
         return;
     }
     const field = document.getElementById(fieldId);
@@ -927,7 +927,7 @@ function addRemainingToField(fieldId) {
         fvSet(field, remaining);
         field.dispatchEvent(new Event('input'));
     } else {
- alert(' Qarz to\'liq qoplandi');
+        alert('✅ Qarz to\'liq qoplandi');
     }
 }
 
@@ -959,7 +959,7 @@ async function submitPayment() {
     const submitBtn = document.getElementById('submitBtn');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
- submitBtn.innerHTML = ' Yuklanmoqda...';
+    submitBtn.innerHTML = '⏳ Yuklanmoqda...';
 
     try {
         const res = await fetch(`/api/suppliers/${SUPPLIER_ID}/debt-payment`, {
@@ -969,7 +969,7 @@ async function submitPayment() {
         });
         const result = await res.json();
         if (res.ok && result.success) {
- alert(' To\'lov amalga oshirildi!');
+            alert('✅ To\'lov amalga oshirildi!');
             location.reload();
         } else {
             errEl.textContent = result.error || 'Xatolik yuz berdi';

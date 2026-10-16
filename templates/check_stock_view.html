@@ -216,7 +216,7 @@
         {% if check_session.completed_by %}
         <span><strong>{{ t('csv_completed_by') }}</strong> {{ check_session.completed_by.first_name }} {{ check_session.completed_by.last_name }}</span>
         {% endif %}
-        <span><strong>{{ t('csv_location') }}</strong> {{ '<i class="fas fa-store"></i>' if check_session.location_type == 'store' else '<i class="fas fa-box"></i>' }} {{ check_session.location_name }}</span>
+        <span><strong>{{ t('csv_location') }}</strong> {{ '🏪' if check_session.location_type == 'store' else '📦' }} {{ check_session.location_name }}</span>
     </div>
 
     <!-- Stat Cards -->
@@ -450,7 +450,7 @@ function filterAndDisplay() {
 
 function exportToExcel() {
     if (typeof XLSX === 'undefined') {
- alert(' Excel kutubxonasi yuklanmadi');
+        alert('❌ Excel kutubxonasi yuklanmadi');
         return;
     }
     const q = document.getElementById('searchInput').value.trim().toLowerCase();

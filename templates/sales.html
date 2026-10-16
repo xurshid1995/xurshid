@@ -869,12 +869,12 @@
 <div id="salesToast"></div>
 <!-- Offline banner -->
 <div id="offlineBanner" style="display:none; position:sticky; top:0; z-index:10000; background:#dc3545; color:white; text-align:center; padding:10px 20px; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    <i class="fas fa-triangle-exclamation"></i> Internet aloqasi yo'q — savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
+    ⚠️ Internet aloqasi yo'q — savdo vaqtincha to'xtatildi. Iltimos, internetga ulaning.
 </div>
 <div class="sales-container">
     <!-- Page Header (yuqorida) -->
     <div class="page-header" style="margin-bottom: 15px;">
-        <h1><i class="fas fa-cart-shopping"></i> {{ t('page_sales') }}</h1>
+        <h1>🛒 {{ t('page_sales') }}</h1>
         <!-- Offline buyruqlar badge -->
         <div id="stockQueueBadge" style="display:none; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:4px 12px; font-size:13px; color:#856404; cursor:default;">
             <span style="animation: spin 1.5s linear infinite; display:inline-block;">?</span>
@@ -920,7 +920,7 @@
                 </div>
                 <div style="position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-                        <label style="font-size: 13px; font-weight: 500; color: #495057;"><i class="fas fa-user"></i> {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
+                        <label style="font-size: 13px; font-weight: 500; color: #495057;">👤 {{ t('label_customer_short') }}<span class="customer-optional-text"> {{ t('label_customer_optional_suffix') }}</span></label>
                         <button id="addCustomerBtn" class="add-customer-btn" onclick="openAddCustomerModal()" style="padding: 3px 8px; background: linear-gradient(135deg, #3b82f6, #1a6eff); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 8px rgba(59, 130, 246,0.3);">
                             <span style="color: white; font-size: 14px; font-weight: 700; line-height: 1;">+</span> {{ t('btn_new') }}
                         </button>
@@ -987,20 +987,20 @@
         <div class="sales-layout-box" style="background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div id="cartCustomerInfo">
-                    <h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping"></i> Savdo korzinasi</h3>
+                    <h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>
                 </div>
                 <div id="cartTotalHeader" style="text-align: right;"></div>
             </div>
             <div id="cartContainer">
                 <!-- Korzina qidiruv maydoni -->
                 <div style="margin-bottom: 10px; position: relative;">
-                    <input type="text" id="cartSearch" placeholder="Korzinada qidirish..." 
+                    <input type="text" id="cartSearch" placeholder="🔍 Korzinada qidirish..." 
                            oninput="filterCartItems(this)"
                            style="width: 100%; padding: 8px 36px 8px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
                            onfocus="this.style.borderColor='#1a6eff'" onblur="this.style.borderColor='#dde1e7'">
                     <button id="cartSearchClear" onclick="clearCartSearch(this)"
                             style="display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #bbb; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; padding: 0;"
-                            title="Tozalash"><i class="fas fa-xmark"></i></button>
+                            title="Tozalash">✕</button>
                 </div>
                 <div class="table-wrapper">
                     <table class="cart-table">
@@ -1070,7 +1070,7 @@
             </div>
             <!-- Narx validatsiya xabari -->
             <div id="priceWarning" style="display: none; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; margin-bottom: 15px; color: #856404;">
-                <strong><i class="fas fa-triangle-exclamation"></i> Ogohlantirish:</strong> <span id="priceWarningText">Narx juda past, bu narxda sotib bo'lmaydi!</span>
+                <strong>⚠️ Ogohlantirish:</strong> <span id="priceWarningText">Narx juda past, bu narxda sotib bo'lmaydi!</span>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">{{ t('btn_cancel') }}</button>
@@ -1107,7 +1107,7 @@
         <!-- Mijoz balansi info banneri (faqat balans > 0 bo'lsa ko'rinadi) -->
         <div id="paymentBalanceSection" style="display:none; margin-bottom: 12px; padding: 10px 14px; background: #d1fae5; border: 1px solid #34d399; border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 22px;"><i class="fas fa-sack-dollar"></i></span>
+                <span style="font-size: 22px;">💰</span>
                 <div style="flex: 1;">
                     <div style="font-weight: 700; color: #065f46; font-size: 14px;">Mijoz balansi mavjud: <span id="paymentBalanceTotal">$0.00</span></div>
                     <div style="font-size: 13px; color: #047857;">Balansdan foydalanish: <strong id="paymentBalanceAvailable">$0.00</strong></div>
@@ -1125,7 +1125,7 @@
         <!-- Mijozning mavjud qarzi (faqat qarz > 0 bo'lsa ko'rinadi) -->
         <div id="paymentExistingDebtSection" style="display:none; margin-bottom: 12px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-size: 20px;"><i class="fas fa-triangle-exclamation"></i></span>
+                <span style="font-size: 20px;">⚠️</span>
                 <div style="flex: 1; min-width: 180px;">
                     <div style="font-weight: 700; color: #b91c1c; font-size: 14px;">Mijozning mavjud qarzi: <span id="paymentExistingDebtUSD">$0.00</span></div>
                     <div style="font-size: 12px; color: #991b1b;" id="paymentExistingDebtUZS"></div>
@@ -1204,13 +1204,13 @@
 <!-- Kamera ruxsat yo'riqnomasi modali -->
 <div id="cameraPermissionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:99999; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:28px 24px; max-width:380px; width:90%; margin:auto; box-shadow:0 8px 40px rgba(0,0,0,0.3);">
-        <div style="text-align:center; margin-bottom:16px;"><span style="font-size:48px;"><i class="fas fa-camera"></i></span></div>
+        <div style="text-align:center; margin-bottom:16px;"><span style="font-size:48px;">📷</span></div>
         <h3 style="margin:0 0 12px; color:#dc3545; text-align:center; font-size:18px;">Kameraga ruxsat kerak</h3>
         <p style="margin:0 0 16px; color:#555; font-size:14px; line-height:1.6;">Brauzer kameraga kirishni bloklagan. Ruxsat berish uchun:</p>
         <div style="background:#f8f9fa; border-radius:10px; padding:14px; margin-bottom:16px; font-size:13px; color:#333; line-height:2;" id="cameraPermSteps"></div>
         <div style="display:flex; gap:10px;">
             <button onclick="document.getElementById('cameraPermissionModal').style.display='none'" style="flex:1; padding:10px; border:1px solid #ccc; background:#fff; border-radius:8px; cursor:pointer; font-size:14px;">Yopish</button>
-            <button onclick="location.reload()" style="flex:1; padding:10px; background:#28a745; color:'#fff'; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;"><i class="fas fa-rotate"></i> Yangilash</button>
+            <button onclick="location.reload()" style="flex:1; padding:10px; background:#28a745; color:'#fff'; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">🔄 Yangilash</button>
         </div>
     </div>
 </div>
@@ -1877,7 +1877,7 @@
         
         // Agar faqat bitta tab qolgan bo'lsa, yopishga ruxsat bermaslik
         if (salesTabs.length <= 1) {
- alert(' ' + SLANG.last_tab_warn);
+            alert('⚠️ ' + SLANG.last_tab_warn);
             return;
         }
         
@@ -1887,9 +1887,9 @@
             const cart = (tabState && tabState.cart) || [];
             
             // Tasdiqlash xabari
- let confirmMessage = ' Bu tabni yopmoqchimisiz?\n\n';
+            let confirmMessage = '❓ Bu tabni yopmoqchimisiz?\n\n';
             if (cart.length > 0) {
- confirmMessage = ` Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
+                confirmMessage = `⚠️ Bu tabda ${cart.length} ta mahsulot bor!\n\n` +
                     'Tabni yopsangiz, barcha ma\'lumotlar o\'chadi.\n\n';
             }
             confirmMessage += 'Davom etasizmi?';
@@ -2058,7 +2058,7 @@
         locations.forEach(location => {
             const option = document.createElement('option');
             option.value = `${location.type}_${location.id}`;
- const locationType = location.type === 'warehouse' ? ' ' + SLANG.warehouse_label : ' ' + SLANG.store_label;
+            const locationType = location.type === 'warehouse' ? '🏭 ' + SLANG.warehouse_label : '🏪 ' + SLANG.store_label;
             option.textContent = `${locationType}: ${location.name}`;
             
             // Agar user'ning default store'i bo'lsa va bu location mos kelsa, avtomatik tanlash
@@ -2188,20 +2188,20 @@
         
         // Validatsiya
         if (!name) {
- errorDiv.textContent = ' ' + SLANG.customer_name_required;
+            errorDiv.textContent = '⚠️ ' + SLANG.customer_name_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         if (!storeId) {
- errorDiv.textContent = ' ' + SLANG.store_required;
+            errorDiv.textContent = '⚠️ ' + SLANG.store_required;
             errorDiv.style.display = 'block';
             return;
         }
         
         // Telefon validatsiyasi
         if (phone && phone.length !== 18) {
- errorDiv.textContent = ' ' + SLANG.phone_format_error;
+            errorDiv.textContent = '❌ ' + SLANG.phone_format_error;
             errorDiv.style.display = 'block';
             return;
         }
@@ -2222,7 +2222,7 @@
             const result = await response.json();
             
             if (!response.ok) {
- errorDiv.textContent = ' ' + (result.error || SLANG.customer_add_error);
+                errorDiv.textContent = '❌ ' + (result.error || SLANG.customer_add_error);
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -2230,7 +2230,7 @@
             console.log('? Yangi mijoz qo\'shildi:', result);
             
             // Muvaffaqiyat xabari
- successDiv.textContent = ' ' + SLANG.customer_added_success;
+            successDiv.textContent = '✅ ' + SLANG.customer_added_success;
             successDiv.style.display = 'block';
             
             // Cache'ni tozalash va mijozlar ro'yxatini yangilash
@@ -2259,7 +2259,7 @@
                 // Korzina sarlavhasida mijoz ma'lumotini ko'rsatish
                 const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
                 if (cartCustomerInfo) {
-                    const customerDisplay = customerPhone ? `<i class="fas fa-cart-shopping"></i> ${customerName} ${customerPhone}` : `<i class="fas fa-cart-shopping"></i> ${customerName}`;
+                    const customerDisplay = customerPhone ? `🛒 ${customerName} ${customerPhone}` : `🛒 ${customerName}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                 }
                 
@@ -2281,7 +2281,7 @@
             
         } catch (error) {
             console.error('Mijoz qo\'shish xatosi:', error);
- errorDiv.textContent = ' ' + SLANG.server_connection_error;
+            errorDiv.textContent = '❌ ' + SLANG.server_connection_error;
             errorDiv.style.display = 'block';
         }
     }
@@ -2341,11 +2341,11 @@
         
         // Joylashuv tanlanganligini tekshirish
         if (!selectedLocationId || !selectedLocationType) {
- showBarcodeStatus(' ' + SLANG.select_location_first, 'error');
+            showBarcodeStatus('⚠️ ' + SLANG.select_location_first, 'error');
             return;
         }
         
- showBarcodeStatus(' Qidirilmoqda...', 'loading');
+        showBarcodeStatus('🔍 Qidirilmoqda...', 'loading');
         
         try {
             const response = await fetch('/api/search-product-by-barcode', {
@@ -2388,7 +2388,7 @@
             
         } catch (error) {
             console.error('? Barcode qidiruv xatosi:', error);
- showBarcodeStatus(' Server xatosi', 'error');
+            showBarcodeStatus('❌ Server xatosi', 'error');
             const universalSearch = getActiveTabElement('universalSearch');
             if (universalSearch) { universalSearch.focus(); universalSearch.select(); }
         }
@@ -2513,7 +2513,7 @@
                     } else if (isSamsung) {
                         permSteps.innerHTML = '1. Brauzer <b>⋮ menyu</b> → <b>Sozlamalar</b> → <b>Sayt sozlamalari</b> → <b>Kamera</b><br>2. <b>sergeli0606.uz</b> → <b>Ruxsat</b><br>3. Sahifani yangilang';
                     } else if (isChrome) {
-                        permSteps.innerHTML = '1. Manzil qatoridagi <i class="fas fa-lock"></i> belgisini bosing<br>2. <b>Kamera</b> → <b>Har doim ruxsat berish</b><br>3. Sahifani yangilang tugmasini bosing';
+                        permSteps.innerHTML = '1. Manzil qatoridagi 🔒 belgisini bosing<br>2. <b>Kamera</b> → <b>Har doim ruxsat berish</b><br>3. Sahifani yangilang tugmasini bosing';
                     } else {
                         permSteps.innerHTML = 'Brauzer manzil qatoridagi kamera belgisini bosib, <b>Ruxsat berish</b> ni tanlang va sahifani yangilang';
                     }
@@ -2854,7 +2854,7 @@
         // Savdo korzinasi sarlavhasida mijoz ma'lumotlarini ko'rsatish
         const cartCustomerInfo = document.getElementById(`cartCustomerInfo_tab${tabId}`);
         if (cartCustomerInfo) {
-            const customerDisplay = phone ? `<i class="fas fa-cart-shopping"></i> ${name} ${phone}` : `<i class="fas fa-cart-shopping"></i> ${name}`;
+            const customerDisplay = phone ? `🛒 ${name} ${phone}` : `🛒 ${name}`;
             cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
         }
         
@@ -3117,7 +3117,7 @@
                 
                 // Fuzzy match belgisi
                 const fuzzyBadge = product.fuzzy_match
-                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;"><i class="fas fa-wand-magic-sparkles"></i> AI</span>`
+                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">✨ AI</span>`
                     : '';
                 
                 const row = document.createElement('tr');
@@ -3133,7 +3133,7 @@
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
- const buttonEmoji = quantity <= 0 ? '' : '';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -3378,7 +3378,7 @@
 
         // Mahsulot allaqachon korzinada bo'lsa — modal ochmasdan ogohlantir
         if (cart.find(item => item.id === productId)) {
- showToast(' ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
+            showToast('⚠️ ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
             return;
         }
 
@@ -3839,7 +3839,7 @@
                 
                 // Internet tekshiruvi (1-qatlam)
                 if (!navigator.onLine) {
- alert(' Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+                    alert('📶 Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
                     return;
                 }
                 
@@ -3858,7 +3858,7 @@
                     console.log('? Qo\'shimcha stokdan olindi:', quantityDifference, 'dona');
                 } catch (error) {
                     console.error('Stok ayirish xatosi (network):', error);
- alert(' Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+                    alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
                     return;
                 }
             }
@@ -3925,7 +3925,7 @@
         // Mahsulot allaqachon savatda borligini tekshirish (addToCart da ham tekshiriladi, bu qo'shimcha himoya)
         const existingItem = cart.find(item => item.id === currentProduct.id);
         if (existingItem) {
- showToast(' ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
+            showToast('⚠️ ' + SLANG.already_in_cart + ' ' + SLANG.already_in_cart_hint, 'warning', 3500);
             closeModal();
             return;
         }
@@ -3942,7 +3942,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
- alert(' Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nSavdo qo\'shish uchun internetga ulaning.');
             return;
         }
         
@@ -3961,7 +3961,7 @@
             console.log('? Stokdan ayirildi:', quantity, 'dona');
         } catch (error) {
             console.error('Stok ayirish xatosi (network):', error);
- alert(' Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
+            alert('⚠️ Server bilan bog\'lanib bo\'lmadi.\nAmal navbatga qo\'shildi - internet tiklanganda bajariladi.');
             return;
         }
         
@@ -4035,7 +4035,7 @@
         if (cartCustomerInfo && customerSearch && selectedCustomerId && selectedCustomerId.value) {
             const customerName = customerSearch.value;
             if (customerName) {
-                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping"></i> ${customerName}</h3>`;
+                cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 ${customerName}</h3>`;
                 
                 // Tab sarlavhasida ham mijoz ko'rsatish
                 const tabTitle = activeTab.querySelector('.tab-title');
@@ -4044,10 +4044,10 @@
                     tabTitle.title = customerName; // Tooltip uchun
                 }
             } else {
-                cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping"></i> Savdo korzinasi</h3>';
+                cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>';
             }
         } else if (cartCustomerInfo) {
-            cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping"></i> Savdo korzinasi</h3>';
+            cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>';
         }
         
         if (cart.length === 0) {
@@ -4143,8 +4143,8 @@
                     </td>
                     <td style="padding: 4px 5px; text-align: center; width: 60px;">
                         <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 2px;">
-                            <button onclick="editCartItem(${index})" style="background: none; border: none; color: #1a6eff; cursor: pointer; font-size: 15px; padding: 2px 4px;" title="Tahrirlash"><i class="fas fa-pencil"></i></button>
-                            <button onclick="removeFromCart(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 15px; padding: 2px 4px;" title="O'chirish"><i class="fas fa-trash"></i></button>
+                            <button onclick="editCartItem(${index})" style="background: none; border: none; color: #1a6eff; cursor: pointer; font-size: 15px; padding: 2px 4px;" title="Tahrirlash">✏️</button>
+                            <button onclick="removeFromCart(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 15px; padding: 2px 4px;" title="O'chirish">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -4152,7 +4152,7 @@
         });
         
         cartItemsDiv.innerHTML = html || (cartSearchQuery 
-            ? '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;"><i class="fas fa-magnifying-glass"></i> Hech narsa topilmadi</td></tr>'
+            ? '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">🔍 Hech narsa topilmadi</td></tr>'
             : '');
         cartTotalDiv.innerHTML = '';
         
@@ -4263,7 +4263,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
- alert(' Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nMahsulotni o\'chirish uchun internetga ulaning.');
             return;
         }
         
@@ -4373,7 +4373,7 @@
         
         // Internet tekshiruvi (1-qatlam)
         if (!navigator.onLine) {
- alert(' Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
+            alert('📶 Internet aloqasi yo\'q.\nMiqdorni o\'zgartirish uchun internetga ulaning.');
             updateCart(); // Eski qiymatni qaytarish
             return;
         }
@@ -4881,13 +4881,13 @@
                 
                 // Highlight qilish o'chirilgan - qidiruv so'zlarini sariq bilan ajratmaslik
                 const fuzzyBadge = product.fuzzy_match
-                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;"><i class="fas fa-wand-magic-sparkles"></i> AI</span>`
+                    ? `<span title="AI tavsiyasi (${product.fuzzy_score}% mos)" style="background:#7c3aed;color:white;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">✨ AI</span>`
                     : '';
                 let highlightedName = htmlSafeProductName;
                 
                 // Miqdori 0 bo'lsa qizil ranglar
                 const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
- const buttonEmoji = quantity <= 0 ? '' : '';
+                const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
                 const opacity = quantity <= 0 ? '0.8' : '1';
@@ -5180,7 +5180,7 @@
                     
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
-                    const customerDisplay = sale.customer_phone ? `<i class="fas fa-cart-shopping"></i> ${sale.customer_name} ${sale.customer_phone}` : `<i class="fas fa-cart-shopping"></i> ${sale.customer_name}`;
+                    const customerDisplay = sale.customer_phone ? `🛒 ${sale.customer_name} ${sale.customer_phone}` : `🛒 ${sale.customer_name}`;
                     cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     
                     // Tab sarlavhasida mijoz ma'lumotlarini ko'rsatish
@@ -5305,7 +5305,7 @@
                     // Korzina sarlavhasida mijoz ko'rsatish
                     const cartCustomerInfo = getActiveTabElement('cartCustomerInfo');
                     if (cartCustomerInfo) {
-                        const customerDisplay = sale.customer_phone ? `<i class="fas fa-cart-shopping"></i> ${sale.customer_name} ${sale.customer_phone}` : `<i class="fas fa-cart-shopping"></i> ${sale.customer_name}`;
+                        const customerDisplay = sale.customer_phone ? `🛒 ${sale.customer_name} ${sale.customer_phone}` : `🛒 ${sale.customer_name}`;
                         cartCustomerInfo.innerHTML = `<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">${customerDisplay}</h3>`;
                     }
                     
@@ -5598,8 +5598,8 @@
         // Mahsulotlar jadvalini yangilash
         await loadProducts();
         
- console.log(' Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
- alert(' ' + SLANG.cart_cleared);
+        console.log('✅ Savat tozalandi va barcha mahsulotlar stokga qaytarildi');
+        alert('✅ ' + SLANG.cart_cleared);
     }
     
     // Avtomatik pending savdo yaratish/yangilash
@@ -5942,7 +5942,7 @@
                         if (details && d.history && d.history.length) {
                             const debtSales = d.history.filter(h => parseFloat(h.debt_usd || 0) > 0).slice(0, 5);
                             details.innerHTML = debtSales.map(h =>
- ` Savdo #${h.sale_id} — $${parseFloat(h.debt_usd).toFixed(2)}`
+                                `📦 Savdo #${h.sale_id} — $${parseFloat(h.debt_usd).toFixed(2)}`
                             ).join('<br>');
                         }
                         existingDebtSection.style.display = 'block';
@@ -6428,7 +6428,7 @@
             
             // To'lov va cart jami tekshiruvi - aniq moslik
             if (Math.abs(totalPayment - totalUSD) > 0.01) {
- const errorMsg = ` ${SLANG.payment_mismatch}\n\n+ ${SLANG.cart_total}: $${fmtUSD5(totalUSD)}\n ${SLANG.payment_total}: $${fmtUSD5(totalPayment)}\n ${SLANG.difference}: $${fmtUSD5(Math.abs(totalPayment - totalUSD))}\n\n${SLANG.fix_payment}`;
+                const errorMsg = `⚠️ ${SLANG.payment_mismatch}\n\n+ ${SLANG.cart_total}: $${fmtUSD5(totalUSD)}\n💰 ${SLANG.payment_total}: $${fmtUSD5(totalPayment)}\n❗ ${SLANG.difference}: $${fmtUSD5(Math.abs(totalPayment - totalUSD))}\n\n${SLANG.fix_payment}`;
                 
                 alert(errorMsg);
                 
@@ -6844,7 +6844,7 @@
                 if (locationSelect) locationSelect.value = '';
                 if (customerSearch) customerSearch.value = '';
                 if (selectedCustomerId) selectedCustomerId.value = '';
-                if (cartCustomerInfo) cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;"><i class="fas fa-cart-shopping"></i> Savdo korzinasi</h3>';
+                if (cartCustomerInfo) cartCustomerInfo.innerHTML = '<h3 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">🛒 Savdo korzinasi</h3>';
                 if (productsTable) productsTable.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">' + SLANG.select_location_msg + '</td></tr>';
                 
                 // Tab sarlavhasini tozalash
@@ -7253,7 +7253,7 @@
                         
                         if (currDebtUSD > 0 || currDebtUZS > 0) {
                             debtHtml += '<div style="display:flex;justify-content:space-between;margin-bottom:2mm;color:#d32f2f;font-size:9pt;font-weight:bold;">';
-                            debtHtml += '<span><i class="fas fa-thumbtack"></i> JORIY QARZ:</span>';
+                            debtHtml += '<span>📌 JORIY QARZ:</span>';
                             if (currency === 'both') {
                                 debtHtml += '<span>$' + currDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(currDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
                             } else if (currency === 'uzs') {
@@ -7266,7 +7266,7 @@
                         
                         if (prevDebtUSD > 0 || prevDebtUZS > 0) {
                             debtHtml += '<div style="display:flex;justify-content:space-between;margin-bottom:2mm;color:#d32f2f;font-size:9pt;font-weight:bold;">';
-                            debtHtml += '<span><i class="fas fa-clipboard-list"></i> OLDINGI QARZ:</span>';
+                            debtHtml += '<span>📋 OLDINGI QARZ:</span>';
                             if (currency === 'both') {
                                 debtHtml += '<span>$' + prevDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(prevDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
                             } else if (currency === 'uzs') {
@@ -7279,7 +7279,7 @@
                         
                         if (totalDebtUSD > 0 || totalDebtUZS > 0) {
                             debtHtml += '<div style="display:flex;justify-content:space-between;color:#d32f2f;font-size:10pt;font-weight:bold;">';
-                            debtHtml += '<span><i class="fas fa-credit-card"></i> JAMI QARZ:</span>';
+                            debtHtml += '<span>💳 JAMI QARZ:</span>';
                             if (currency === 'both') {
                                 debtHtml += '<span>$' + totalDebtUSD.toFixed(2) + '<br><span style="font-size:8pt;">' + Math.round(totalDebtUZS).toLocaleString('uz-UZ') + '</span></span>';
                             } else if (currency === 'uzs') {

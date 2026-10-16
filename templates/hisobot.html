@@ -1,21 +1,21 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Hisobot{% endblock %}
+{% block title %}📊 Hisobot{% endblock %}
 
 {% block content %}
 <div>
 
     <!-- Sarlavha + Joylashuv filtri + Sana filtri -->
     <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;"><i class="fas fa-chart-column"></i> Hisobot</h2>
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a2e;">📊 Hisobot</h2>
         <span style="color:#ddd;">|</span>
         <div id="loc-filter-bar" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
             <button onclick="setLocFilter(null)" id="loc-btn-all" class="hr-btn hr-btn-active">Barchasi</button>
             {% for s in stores %}
-            <button onclick="setLocFilter('store_{{ s.id }}')" id="loc-btn-store-{{ s.id }}" class="hr-btn"><i class="fas fa-store"></i> {{ s.name }}</button>
+            <button onclick="setLocFilter('store_{{ s.id }}')" id="loc-btn-store-{{ s.id }}" class="hr-btn">🏪 {{ s.name }}</button>
             {% endfor %}
             {% for w in warehouses %}
-            <button onclick="setLocFilter('warehouse_{{ w.id }}')" id="loc-btn-wh-{{ w.id }}" class="hr-btn"><i class="fas fa-industry"></i> {{ w.name }}</button>
+            <button onclick="setLocFilter('warehouse_{{ w.id }}')" id="loc-btn-wh-{{ w.id }}" class="hr-btn">🏭 {{ w.name }}</button>
             {% endfor %}
         </div>
         <span style="color:#ddd;">|</span>
@@ -24,10 +24,10 @@
             <button onclick="setPeriod('week')" id="btn-week" class="hr-btn">Bu hafta</button>
             <button onclick="setPeriod('month')" id="btn-month" class="hr-btn">Bu oy</button>
             <select id="hrYearSelect" class="hr-month-select" onchange="selectHisobotMonthFilter()">
-                <option value="">Yil...</option>
+                <option value="">📆 Yil...</option>
             </select>
             <select id="hrMonthSelect" class="hr-month-select" onchange="selectHisobotMonthFilter()">
-                <option value="">Oy...</option>
+                <option value="">📅 Oy...</option>
                 <option value="1">Yanvar</option>
                 <option value="2">Fevral</option>
                 <option value="3">Mart</option>
@@ -128,30 +128,30 @@
     <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
         <button onclick="switchHrTab('payments')" id="hr-tab-btn-payments"
             class="hr-tab-btn hr-tab-active">
-             To'lovlar
+            🏪💳 To'lovlar
         </button>
         <button onclick="switchHrTab('productanalytics')" id="hr-tab-btn-productanalytics"
             class="hr-tab-btn">
-            <i class="fas fa-arrow-trend-up"></i> Mahsulot analitikasi
+            📈 Mahsulot analitikasi
         </button>
         <button onclick="switchHrTab('topcust')" id="hr-tab-btn-topcust"
             class="hr-tab-btn">
-            <i class="fas fa-user"></i> Top mijozlar
+            👤 Top mijozlar
         </button>
         <button onclick="switchHrTab('debts')" id="hr-tab-btn-debts"
             class="hr-tab-btn">
-            <i class="fas fa-circle" style="color:#ef4444"></i> Qarzlar (<span id="debtListCount">0</span>)
+            🔴 Qarzlar (<span id="debtListCount">0</span>)
         </button>
         <button onclick="switchHrTab('finalreport')" id="hr-tab-btn-finalreport"
             class="hr-tab-btn">
-            <i class="fas fa-chart-column"></i> Yakuniy sarhisob
+            📊 Yakuniy sarhisob
         </button>
     </div>
 
     <!-- Tab 1: Joylashuv × To'lov usullari -->
     <div id="hr-tab-payments" style="margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title"> Joylashuv bo'yicha to'lov usullari</div>
+            <div class="hr-section-title">🏪💳 Joylashuv bo'yicha to'lov usullari</div>
             <div id="locBreakdownGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div id="locPaymentCombo" style="padding:4px 0;">
                     <div class="hr-loading">Yuklanmoqda...</div>
@@ -168,17 +168,17 @@
         <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
             <button onclick="switchHrSubTab('products')" id="hr-subtab-btn-products"
                 class="hr-tab-btn hr-tab-active" style="padding:7px 14px; font-size:12.5px;">
-                <i class="fas fa-trophy"></i> Top mahsulotlar
+                🏆 Top mahsulotlar
             </button>
             {% if session.role != 'sotuvchi' %}
             <button onclick="switchHrSubTab('margin')" id="hr-subtab-btn-margin"
                 class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
-                <i class="fas fa-chart-line"></i> Foydali mahsulotlar
+                💹 Foydali mahsulotlar
             </button>
             {% endif %}
             <button onclick="switchHrSubTab('nonselling')" id="hr-subtab-btn-nonselling"
                 class="hr-tab-btn" style="padding:7px 14px; font-size:12.5px;">
-                <i class="fas fa-box-archive"></i> Sotilmayotgan mahsulotlar
+                📪 Sotilmayotgan mahsulotlar
             </button>
         </div>
 
@@ -186,7 +186,7 @@
         <div id="hr-subtab-products">
             <div class="hr-section">
                 <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-trophy"></i> Top
+                    🏆 Top
                     <input type="number" id="topNInput" value="10" min="1" max="500"
                         style="width:58px; padding:2px 6px; border:1.5px solid #8b5cf6; border-radius:8px; font-size:13px; font-weight:700; color:#8b5cf6; text-align:center; background:#f5f3ff; outline:none; cursor:pointer;">
                     mahsulot (savdo soni)
@@ -202,7 +202,7 @@
         <div id="hr-subtab-margin" style="display:none;">
             <div class="hr-section">
                 <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-chart-line"></i> Eng
+                    💹 Eng
                     <input type="number" id="topMarginNInput" value="10" min="1" max="500"
                         style="width:58px; padding:2px 6px; border:1.5px solid #16a34a; border-radius:8px; font-size:13px; font-weight:700; color:#16a34a; text-align:center; background:#f0fdf4; outline:none; cursor:pointer;">
                     foydali mahsulotlar (foyda % bo'yicha)
@@ -218,7 +218,7 @@
         <div id="hr-subtab-nonselling" style="display:none;">
             <div class="hr-section">
                 <div class="hr-section-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <i class="fas fa-box-archive"></i> Eng
+                    📪 Eng
                     <input type="number" id="nonSellingNInput" value="20" min="1" max="500"
                         style="width:58px; padding:2px 6px; border:1.5px solid #f59e0b; border-radius:8px; font-size:13px; font-weight:700; color:#f59e0b; text-align:center; background:#fffbeb; outline:none; cursor:pointer;">
                     ta sotilmayotgan mahsulot (qoldiq tan narxi bo'yicha)
@@ -235,7 +235,7 @@
     <div id="hr-tab-topcust" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
             <div class="hr-section-title" style="display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-user"></i> Top
+                👤 Top
                 <input type="number" id="topCustNInput" value="10" min="1" max="500"
                     style="width:58px; padding:2px 6px; border:1.5px solid #0ea5e9; border-radius:8px; font-size:13px; font-weight:700; color:#0ea5e9; text-align:center; background:#f0f9ff; outline:none; cursor:pointer;">
                 mijoz (xarid summasi bo'yicha)
@@ -249,7 +249,7 @@
     <!-- Tab 7: Qarzli mijozlar -->
     <div id="hr-tab-debts" style="display:none; margin-bottom:24px;">
         <div class="hr-section">
-            <div class="hr-section-title"><i class="fas fa-circle" style="color:#ef4444"></i> Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
+            <div class="hr-section-title">🔴 Qarzli mijozlar (<span id="debtListCountInner">0</span> ta)</div>
             <div id="debtList">
                 <div class="hr-loading">Yuklanmoqda...</div>
             </div>
@@ -260,14 +260,14 @@
     <div id="hr-tab-finalreport" style="display:none; margin-bottom:24px;">
         <div style="display:grid; grid-template-columns:repeat(5, minmax(220px, 1fr)); gap:16px;">
             <div class="hr-section" style="min-width:0;">
-                <div class="hr-section-title"><i class="fas fa-chart-column"></i> Joylashuvlar bo'yicha jami tan qiymat</div>
+                <div class="hr-section-title">📊 Joylashuvlar bo'yicha jami tan qiymat</div>
                 <div id="finalReportList">
                     <div class="hr-loading">Yuklanmoqda...</div>
                 </div>
             </div>
             <div class="hr-section" id="finalReportRightCard" style="min-width:0;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <div class="hr-section-title" style="margin-bottom:0;"><i class="fas fa-circle" style="color:#ef4444"></i> Jami qarz</div>
+                    <div class="hr-section-title" style="margin-bottom:0;">🔴 Jami qarz</div>
                     <button onclick="openManualDebtModal()" style="background:#e53e3e; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">+ Qarz qo'shish</button>
                 </div>
                 <div id="finalReportDebtList">
@@ -276,7 +276,7 @@
             </div>
             <div class="hr-section" id="finalReportExtraCard" style="min-width:0;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <div class="hr-section-title" style="margin-bottom:0;"><i class="fas fa-thumbtack"></i> Yetkazib beruvchilardan qarzim</div>
+                    <div class="hr-section-title" style="margin-bottom:0;">📌 Yetkazib beruvchilardan qarzim</div>
                 </div>
                 <div id="finalReportExtraList">
                     <div class="hr-loading">Ma'lumot yo'q</div>
@@ -284,7 +284,7 @@
             </div>
             <div class="hr-section" id="finalReportThirdCard" style="min-width:0;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <div class="hr-section-title" style="margin-bottom:0;"><i class="fas fa-box"></i> Zaxiradagi</div>
+                    <div class="hr-section-title" style="margin-bottom:0;">📦 Zaxiradagi</div>
                     <button onclick="openReserveFundModal()" style="background:#16a34a; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">+ Qo'shish</button>
                 </div>
                 <div id="finalReportReserveList">
@@ -293,7 +293,7 @@
             </div>
             <div class="hr-section" id="finalReportFourthCard" style="min-width:0;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <div class="hr-section-title" style="margin-bottom:0;"><i class="fas fa-folder-open"></i> Yakuniy hisob</div>
+                    <div class="hr-section-title" style="margin-bottom:0;">🗂️ Yakuniy hisob</div>
                 </div>
                 <div id="finalReportFourthList">
                     <div class="hr-loading">Yuklanmoqda...</div>
@@ -302,7 +302,7 @@
         </div>
         <div class="hr-section" id="finalReportBottomCard" style="min-width:0; margin-top:16px; width:100%; box-sizing:border-box;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                <div class="hr-section-title" style="margin-bottom:0;"><i class="fas fa-clipboard-list"></i> Saqlangan yakuniy hisobotlar</div>
+                <div class="hr-section-title" style="margin-bottom:0;">📋 Saqlangan yakuniy hisobotlar</div>
             </div>
             <div id="finalReportBottomList">
                 <div class="hr-loading">Yuklanmoqda...</div>
@@ -314,7 +314,7 @@
 
 <div id="manualDebtModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:14px;"><i class="fas fa-plus"></i> Qarz qo'shish</div>
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">➕ Qarz qo'shish</div>
         <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Ism</label>
         <input id="manualDebtName" type="text" placeholder="Mijoz ismi" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:12px;">
         <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Summa ($)</label>
@@ -330,7 +330,7 @@
 
 <div id="reserveFundModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:14px;"><i class="fas fa-plus"></i> Zaxiraga qo'shish</div>
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">➕ Zaxiraga qo'shish</div>
         <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Nomi</label>
         <input id="reserveFundName" type="text" placeholder="Nomi" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; margin-bottom:12px;">
         <label style="display:block; font-size:12px; color:#666; margin-bottom:4px;">Summa ($)</label>
@@ -345,21 +345,21 @@
 </div>
 <div id="finalReportSaveModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:14px;"><i class="fas fa-floppy-disk"></i> Hisobotni saqlash</div>
+        <div style="font-weight:700; font-size:15px; margin-bottom:14px;">💾 Hisobotni saqlash</div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
-            <div style="font-size:13px; color:#555;"><i class="fas fa-chart-column"></i> Jami tan qiymat</div>
+            <div style="font-size:13px; color:#555;">📊 Jami tan qiymat</div>
             <div id="finalReportSaveCostValue" style="font-weight:700; font-size:13px;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
-            <div style="font-size:13px; color:#555;"><i class="fas fa-circle" style="color:#ef4444"></i> Mijozlar qarzi</div>
+            <div style="font-size:13px; color:#555;">🔴 Mijozlar qarzi</div>
             <div id="finalReportSaveCustomerDebt" style="font-weight:700; font-size:13px;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
-            <div style="font-size:13px; color:#555;"><i class="fas fa-thumbtack"></i> Yetkazib beruvchilar qarzi</div>
+            <div style="font-size:13px; color:#555;">📌 Yetkazib beruvchilar qarzi</div>
             <div id="finalReportSaveSupplierDebt" style="font-weight:700; font-size:13px; color:#dc2626;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 2px; border-bottom:1px solid #eee;">
-            <div style="font-size:13px; color:#555;"><i class="fas fa-box"></i> Jami zaxira</div>
+            <div style="font-size:13px; color:#555;">📦 Jami zaxira</div>
             <div id="finalReportSaveReserve" style="font-weight:700; font-size:13px;"></div>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 2px 16px;">
@@ -375,7 +375,7 @@
 
 <div id="finalReportDeleteModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:12px; padding:20px; width:320px; max-width:90%;">
-        <div style="font-weight:700; font-size:15px; margin-bottom:10px;"><i class="fas fa-trash"></i> Yozuvni o'chirish</div>
+        <div style="font-weight:700; font-size:15px; margin-bottom:10px;">🗑️ Yozuvni o'chirish</div>
         <div id="finalReportDeleteText" style="font-size:13px; color:#555; margin-bottom:14px;"></div>
         <div id="finalReportDeleteCodeBox" style="display:none; margin-bottom:14px;">
             <div style="font-size:13px; color:#555; margin-bottom:6px;">Tasdiqlash uchun quyidagi kodni kiriting: <b id="finalReportDeleteCode" style="letter-spacing:2px; color:#e53e3e;"></b></div>
@@ -731,7 +731,7 @@ async function loadNonSellingProducts() {
                 : '';
         }
         if (data.products.length === 0) {
-            nonSellingDiv.innerHTML = '<div class="hr-loading"><i class="fas fa-circle-check"></i> Barcha mahsulotlar sotilmoqda</div>';
+            nonSellingDiv.innerHTML = '<div class="hr-loading">✅ Barcha mahsulotlar sotilmoqda</div>';
             return;
         }
         const maxVal = data.products[0].stock_value || 1;
@@ -772,7 +772,7 @@ async function loadFinalReport() {
             return;
         }
         const rows = data.locations.map((loc, i) => {
-            const icon = loc.location_type === 'store' ? '<i class="fas fa-store"></i>' : '<i class="fas fa-box"></i>';
+            const icon = loc.location_type === 'store' ? '🏪' : '📦';
             return `<div class="hr-row" style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
                 <div style="color:#888; font-size:12px; width:18px; flex-shrink:0;">${i+1}</div>
                 <div style="flex:1; min-width:0; font-weight:600; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${icon} ${escHtml(loc.location_name)}</div>
@@ -820,8 +820,8 @@ async function loadTotalDebt() {
                 </div>
                 <div style="flex-shrink:0; text-align:right; font-weight:700; color:#e53e3e; font-size:12px;">${fmtUsd(c.total_debt)}</div>
                 <div style="flex-shrink:0; display:flex; gap:4px;">
-                    <button onclick="editManualDebt(${c.id}, '${escHtml(c.customer_name).replace(/'/g, "\\'")}', ${c.total_debt}, '${c.created_at || ''}')" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash"><i class="fas fa-pencil"></i></button>
-                    <button onclick="deleteManualDebt(${c.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish"><i class="fas fa-trash"></i></button>
+                    <button onclick="editManualDebt(${c.id}, '${escHtml(c.customer_name).replace(/'/g, "\\'")}', ${c.total_debt}, '${c.created_at || ''}')" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash">✏️</button>
+                    <button onclick="deleteManualDebt(${c.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish">🗑️</button>
                 </div>
             </div>`;
         }).join('');
@@ -833,7 +833,7 @@ async function loadTotalDebt() {
             </div>
             ${rows}
             <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px; margin-top:${entries.length ? '0' : '4px'};">
-                <div style="flex:1; min-width:0; font-weight:600; font-size:12px;"><i class="fas fa-cart-shopping"></i> Savdo qarzi</div>
+                <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">🛒 Savdo qarzi</div>
                 <div style="flex-shrink:0; text-align:right; font-weight:700; color:#e53e3e; font-size:12px;">${fmtUsd(salesTotal)}</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
@@ -945,8 +945,8 @@ async function loadReserveFund() {
                 </div>
                 <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(e.amount_usd)}</div>
                 <div style="flex-shrink:0; display:flex; gap:4px;">
-                    <button onclick="editReserveFund(${e.id}, '${escHtml(e.name).replace(/'/g, "\\'")}', ${e.amount_usd}, '${e.created_at || ''}')" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash"><i class="fas fa-pencil"></i></button>
-                    <button onclick="deleteReserveFund(${e.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish"><i class="fas fa-trash"></i></button>
+                    <button onclick="editReserveFund(${e.id}, '${escHtml(e.name).replace(/'/g, "\\'")}', ${e.amount_usd}, '${e.created_at || ''}')" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="Tahrirlash">✏️</button>
+                    <button onclick="deleteReserveFund(${e.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish">🗑️</button>
                 </div>
             </div>`;
         }).join('');
@@ -1024,26 +1024,26 @@ function renderYakuniyHisob() {
     const total = frGrandCostValue + totalDebt + frGrandReserve;
     div.innerHTML = `<div style="max-width:100%; overflow:hidden;">
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
-            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;"><i class="fas fa-chart-column"></i> Jami tan qiymat</div>
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📊 Jami tan qiymat</div>
             <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandCostValue)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
-            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;"><i class="fas fa-circle" style="color:#ef4444"></i> Mijozlar qarzi</div>
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">🔴 Mijozlar qarzi</div>
             <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandDebt)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
-            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;"><i class="fas fa-thumbtack"></i> Yetkazib beruvchilar qarzi</div>
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📌 Yetkazib beruvchilar qarzi</div>
             <div style="flex-shrink:0; text-align:right; font-weight:700; color:#dc2626; font-size:12px;">-${fmtUsd(frSupplierDebt)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #eee; padding:8px 2px;">
-            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;"><i class="fas fa-box"></i> Jami zaxira</div>
+            <div style="flex:1; min-width:0; font-weight:600; font-size:12px;">📦 Jami zaxira</div>
             <div style="flex-shrink:0; text-align:right; font-weight:700; color:#16a34a; font-size:12px;">${fmtUsd(frGrandReserve)}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; border-top:2px solid #ddd; padding:10px 2px 0; margin-top:4px;">
             <div style="flex:1; min-width:0; font-weight:700; font-size:13px;">Yakuniy hisob</div>
             <div style="flex-shrink:0; text-align:right; font-weight:800; color:#16a34a; font-size:20px;">${fmtUsd(total)}</div>
         </div>
-        <button onclick="saveYakuniyHisobot()" style="width:100%; margin-top:12px; background:#16a34a; color:#fff; border:none; border-radius:6px; padding:9px 10px; font-size:13px; font-weight:600; cursor:pointer;"><i class="fas fa-floppy-disk"></i> Hisobotni saqlash</button>
+        <button onclick="saveYakuniyHisobot()" style="width:100%; margin-top:12px; background:#16a34a; color:#fff; border:none; border-radius:6px; padding:9px 10px; font-size:13px; font-weight:600; cursor:pointer;">💾 Hisobotni saqlash</button>
     </div>`;
 }
 
@@ -1117,7 +1117,7 @@ async function loadFinalReportSnapshots() {
                 <div style="flex:1; min-width:0; text-align:right; font-weight:600; font-size:12px; color:#16a34a;">${fmtUsd(e.reserve_usd)}</div>
                 <div style="flex:1; min-width:0; text-align:right; font-weight:800; font-size:13px; color:#16a34a;">${fmtUsd(e.grand_total_usd)}</div>
                 <div style="flex-shrink:0; width:24px; text-align:right;">
-                    <button onclick="deleteFinalReportSnapshot(${e.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteFinalReportSnapshot(${e.id})" style="background:none; border:none; cursor:pointer; font-size:13px; padding:2px;" title="O'chirish">🗑️</button>
                 </div>
             </div>`;
         }).join('');
@@ -1457,7 +1457,7 @@ async function loadAll() {
     // --- Joylashuv × To'lov usullari kombinatsiya ---
     const comboDiv = document.getElementById('locPaymentCombo');
     const lpb = stats.location_payment_breakdown || [];
- const pmLabels = { cash: ' Naqd', click: ' Click', terminal: ' Terminal', debt: ' Nasiya' };
+    const pmLabels = { cash: '💵 Naqd', click: '📱 Click', terminal: '💳 Terminal', debt: '📋 Nasiya' };
     const pmColors = { cash: '#eab308', click: '#f59e0b', terminal: '#f97316', debt: '#ef4444' };
     const pmGradients = {
         cash: 'linear-gradient(90deg,#ca8a04,#facc15)',
@@ -1491,10 +1491,10 @@ async function loadAll() {
         lpb.map((loc, i) => {
             const pmOrder = ['cash', 'click', 'terminal', 'debt'];
             const pmDefs = {
-                cash:     { label: '<i class="fas fa-money-bill-1"></i> Naqd',     color: '#eab308' },
- click: { label: ' Click', color: '#f59e0b' },
- terminal: { label: ' Terminal', color: '#f97316' },
- debt: { label: ' Nasiya', color: '#ef4444' }
+                cash:     { label: '💵 Naqd',     color: '#eab308' },
+                click:    { label: '📱 Click',    color: '#f59e0b' },
+                terminal: { label: '💳 Terminal', color: '#f97316' },
+                debt:     { label: '📋 Nasiya',   color: '#ef4444' }
             };
             const pmSorted = pmOrder.map(k => [k, parseFloat(loc.payments?.[k] || 0)]).filter(([, v]) => v > 0);
             const locTotal = pmSorted.reduce((s, [, v]) => s + v, 0);
@@ -1533,7 +1533,7 @@ async function loadAll() {
             const expBarW    = (locExpense / maxVal * 100).toFixed(1);
             const extraRows = `
                 <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:8px;border-top:1px dashed #bbf7d0;margin-bottom:7px;">
-                    <span style="font-size:11.5px;color:#166534;width:90px;flex-shrink:0;"><i class="fas fa-arrow-trend-up"></i> Foyda</span>
+                    <span style="font-size:11.5px;color:#166534;width:90px;flex-shrink:0;">📈 Foyda</span>
                     <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
                         <div style="width:${profitBarW}%;height:100%;background:#16a34a;border-radius:99px;"></div>
                     </div>
@@ -1541,7 +1541,7 @@ async function loadAll() {
                     <span style="background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;width:36px;text-align:center;flex-shrink:0;">${profitPct}%</span>
                 </div>
                 ${locExpense > 0 ? `<div style="display:flex;align-items:center;gap:8px;padding-top:4px;border-top:1px dashed #fecaca;">
-                    <span style="font-size:11.5px;color:#b91c1c;width:90px;flex-shrink:0;"><i class="fas fa-money-bill-transfer"></i> Xarajat</span>
+                    <span style="font-size:11.5px;color:#b91c1c;width:90px;flex-shrink:0;">💸 Xarajat</span>
                     <div style="flex:1;height:10px;background:#f0f2f5;border-radius:99px;overflow:hidden;">
                         <div style="width:${expBarW}%;height:100%;background:#b91c1c;border-radius:99px;"></div>
                     </div>
@@ -1582,10 +1582,10 @@ async function loadAll() {
         const totalRevenue = totalCash + totalClick + totalTerminal + totalDebt;
 
         const pmEntries = [
- { key: 'cash', label: ' Naqd', color: '#eab308', val: totalCash },
- { key: 'click', label: ' Click', color: '#f59e0b', val: totalClick },
- { key: 'terminal', label: ' Terminal', color: '#f97316', val: totalTerminal },
- { key: 'debt', label: ' Nasiya', color: '#ef4444', val: totalDebt },
+            { key: 'cash', label: '💵 Naqd', color: '#eab308', val: totalCash },
+            { key: 'click', label: '📱 Click', color: '#f59e0b', val: totalClick },
+            { key: 'terminal', label: '💳 Terminal', color: '#f97316', val: totalTerminal },
+            { key: 'debt', label: '📋 Nasiya', color: '#ef4444', val: totalDebt },
         ].filter(e => e.val > 0);
 
         const maxVal = Math.max(...pmEntries.map(e => e.val), totalProfit, totalExpense, 0.01);
@@ -1595,7 +1595,7 @@ async function loadAll() {
         <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px;">Umumiy ko'rsatkichlar</div>
         <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:12px;color:#1a6eff;font-weight:600;"><i class="fas fa-sack-dollar"></i> Jami tushum</span>
+                <span style="font-size:12px;color:#1a6eff;font-weight:600;">💰 Jami tushum</span>
                 <span style="font-size:15px;font-weight:800;color:#1a6eff;">${fmtUsd(totalRevenue)}</span>
             </div>
             <div style="height:14px;border-radius:99px;overflow:hidden;background:#e5e7eb;">
@@ -1667,7 +1667,7 @@ async function loadAll() {
     const debtInner = document.getElementById('debtListCountInner');
     if (debtInner) debtInner.textContent = debtCustCount;
     if (debts.length === 0) {
-        debtDiv.innerHTML = '<div class="hr-loading"><i class="fas fa-circle-check"></i> Qarz yo\'q</div>';
+        debtDiv.innerHTML = '<div class="hr-loading">✅ Qarz yo\'q</div>';
     } else {
         const maxDebt = parseFloat(debts[0]?.total_debt || 1);
         debtDiv.innerHTML = debts.map((d, i) => {

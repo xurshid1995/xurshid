@@ -401,7 +401,7 @@ body {
 }
 
 .logo-badge {
-    background: #14b8a6;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
     color: white;
     width: 32px;
     height: 32px;
@@ -700,7 +700,7 @@ body {
 
 /* Tugmalar */
 .btn {
-    background: #1a6eff;
+    background: linear-gradient(135deg, #1a6eff, #1557cc);
     color: white;
     padding: 0.8rem 2rem;
     border: none;
@@ -715,13 +715,13 @@ body {
 }
 
 .btn:hover {
-    background: #1557cc;
+    background: linear-gradient(135deg, #1557cc, #1043aa);
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(26, 110, 255, 0.3);
 }
 
 .btn-success {
-    background: #059669;
+    background: linear-gradient(135deg, #059669, #16a34a);
 }
 
 .btn-danger {
@@ -735,13 +735,13 @@ body {
 }
 
 .btn-success:hover {
-    background: #16a34a;
+    background: linear-gradient(135deg, #16a34a, #059669);
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 /* Decimal ma'lumotlari */
 .decimal-info {
-    background: #f39c12;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
     color: white;
     padding: 2rem;
     border-radius: 12px;
@@ -1061,13 +1061,13 @@ input[name="price"] {
 }
 
 .btn-primary {
-    background: #1a6eff;
+    background: linear-gradient(135deg, #1a6eff, #1557cc);
     color: white;
     border-radius: 8px;
 }
 
 .btn-primary:hover {
-    background: #1557cc;
+    background: linear-gradient(135deg, #1557cc, #1043aa);
     box-shadow: 0 4px 12px rgba(26,110,255,0.28);
 }
 
@@ -1326,14 +1326,14 @@ footer {
 }
 
 .submit-btn {
-    background: #1a6eff;
+    background: linear-gradient(135deg, #1a6eff, #1557cc);
     color: white;
     flex: 2;
     border-radius: 8px;
 }
 
 .submit-btn:hover {
-    background: #1557cc;
+    background: linear-gradient(135deg, #1557cc, #1043aa);
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(26,110,255,0.28);
 }
@@ -2786,7 +2786,7 @@ table:not(.cart-table) {
     font-size: 0.88rem;
 }
 #prodOpsPopup .pop-header {
-    background: #1a6eff;
+    background: linear-gradient(135deg,#1a6eff,#1a6eff);
     color: white;
     padding: 0.75rem 1rem;
     border-radius: 10px 10px 0 0;

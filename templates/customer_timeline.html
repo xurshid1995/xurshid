@@ -93,7 +93,7 @@
             <div class="tl-avatar" id="avatarInitial">?</div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div class="tl-cname">{{ customer.name }}</div>
-                <div class="tl-cphone" style="margin:0;"><i class="fas fa-phone"></i> {{ customer.phone or '—' }}</div>
+                <div class="tl-cphone" style="margin:0;">📞 {{ customer.phone or '—' }}</div>
             </div>
             <div class="tl-cbadges" id="customerBadges"></div>
         </div>
@@ -113,13 +113,13 @@
     <!-- Filters -->
     <div class="tl-filters">
         <button class="tl-filter-btn active" onclick="setFilter('all')">Barchasi</button>
-        <button class="tl-filter-btn" onclick="setFilter('sale')"><i class="fas fa-cart-shopping"></i> Savdolar</button>
-        <button class="tl-filter-btn" onclick="setFilter('payment')"><i class="fas fa-credit-card"></i> To'lovlar</button>
-        <button class="tl-filter-btn" onclick="setFilter('return')"><i class="fas fa-rotate-left"></i> Qaytarilganlar</button>
+        <button class="tl-filter-btn" onclick="setFilter('sale')">🛒 Savdolar</button>
+        <button class="tl-filter-btn" onclick="setFilter('payment')">💳 To'lovlar</button>
+        <button class="tl-filter-btn" onclick="setFilter('return')">↩️ Qaytarilganlar</button>
     </div>
 
     <!-- Timeline -->
-    <div id="timelineContainer"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</div></div>
+    <div id="timelineContainer"><div class="tl-loading">⏳ Yuklanmoqda...</div></div>
 </div>
 
 <script>
@@ -131,7 +131,7 @@ async function loadTimeline() {
     try {
         const res = await fetch(`/api/customer/${CUSTOMER_ID}/timeline`);
         const data = await res.json();
-        if (!data.success) { document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty"><i class="fas fa-circle-xmark"></i> Ma\'lumot yuklanmadi</div>'; return; }
+        if (!data.success) { document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Ma\'lumot yuklanmadi</div>'; return; }
 
         allEvents = data.events;
         const c = data.customer;
@@ -142,7 +142,7 @@ async function loadTimeline() {
         // Header badges: keep only balance, never show debt next to the title.
         const badgesEl = document.getElementById('customerBadges');
         let badges = '';
-        if (c.balance > 0) badges += `<span class="tl-badge tl-badge-balance"><i class="fas fa-sack-dollar"></i> Balans: $${c.balance.toFixed(2)}</span>`;
+        if (c.balance > 0) badges += `<span class="tl-badge tl-badge-balance">💰 Balans: $${c.balance.toFixed(2)}</span>`;
         badgesEl.innerHTML = badges;
 
         // Stats
@@ -163,7 +163,7 @@ async function loadTimeline() {
 
         renderTimeline();
     } catch(e) {
-        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty"><i class="fas fa-circle-xmark"></i> Xatolik: ' + e.message + '</div>';
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">❌ Xatolik: ' + e.message + '</div>';
     }
 }
 
@@ -177,7 +177,7 @@ function setFilter(type) {
 function renderTimeline() {
     const filtered = currentFilter === 'all' ? allEvents : allEvents.filter(e => e.type === currentFilter);
     if (filtered.length === 0) {
-        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty"><i class="fas fa-envelope-open"></i> Amallar topilmadi</div>';
+        document.getElementById('timelineContainer').innerHTML = '<div class="tl-empty">📭 Amallar topilmadi</div>';
         return;
     }
 
@@ -221,14 +221,14 @@ function timeOnly(dateStr) {
 }
 
 function statusBadge(status, isDeleted, e) {
-    if (isDeleted) return '<span class="tl-status-deleted"><i class="fas fa-trash"></i> O\'chirilgan</span>';
-    if (status === 'paid') return '<span class="tl-status-paid"><i class="fas fa-circle-check"></i> Savdo statusi: To\'lov</span>';
+    if (isDeleted) return '<span class="tl-status-deleted">🗑️ O\'chirilgan</span>';
+    if (status === 'paid') return '<span class="tl-status-paid">✅ Savdo statusi: To\'lov</span>';
     if (status === 'partial') {
         const paidSoFar = (e?.cash_usd || 0) + (e?.click_usd || 0) + (e?.terminal_usd || 0) + (e?.balance_usd || 0);
-        if (paidSoFar <= 0) return '<span class="tl-status-debt"><i class="fas fa-credit-card"></i> Savdo statusi: Qarz</span>';
-        return '<span class="tl-status-debt"><i class="fas fa-credit-card"></i> Savdo statusi: Qisman</span>';
+        if (paidSoFar <= 0) return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
+        return '<span class="tl-status-debt">💳 Savdo statusi: Qisman</span>';
     }
-    if (status === 'debt') return '<span class="tl-status-debt"><i class="fas fa-credit-card"></i> Savdo statusi: Qarz</span>';
+    if (status === 'debt') return '<span class="tl-status-debt">💳 Savdo statusi: Qarz</span>';
     return '';
 }
 
@@ -247,13 +247,13 @@ function afterRow(e) {
 
 function renderPaymentReverse(e) {
     const chips = [];
- if (e.cash_usd > 0) chips.push(` Naqd: $${e.cash_usd.toFixed(2)}`);
- if (e.click_usd > 0) chips.push(` Click: $${e.click_usd.toFixed(2)}`);
- if (e.terminal_usd > 0) chips.push(` Terminal: $${e.terminal_usd.toFixed(2)}`);
- if (e.currency_rate > 0) chips.push(` Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
- if (e.reversed_by) chips.push(` Bekor qildi: ${e.reversed_by}`);
- if (e.sale_ids && e.sale_ids.length) chips.push(` Savdolar: ${e.sale_ids.join(', ')}`);
- if (e.original_payment_date) chips.push(` Asl to'lov sanasi: ${e.original_payment_date.substring(0,16)}`);
+    if (e.cash_usd > 0)     chips.push(`💵 Naqd: $${e.cash_usd.toFixed(2)}`);
+    if (e.click_usd > 0)    chips.push(`📱 Click: $${e.click_usd.toFixed(2)}`);
+    if (e.terminal_usd > 0) chips.push(`💳 Terminal: $${e.terminal_usd.toFixed(2)}`);
+    if (e.currency_rate > 0) chips.push(`📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm`);
+    if (e.reversed_by)       chips.push(`👤 Bekor qildi: ${e.reversed_by}`);
+    if (e.sale_ids && e.sale_ids.length) chips.push(`🔗 Savdolar: ${e.sale_ids.join(', ')}`);
+    if (e.original_payment_date) chips.push(`🗓 Asl to'lov sanasi: ${e.original_payment_date.substring(0,16)}`);
     const chipsHtml = chips.map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-return"></div>
@@ -273,11 +273,11 @@ function renderPaymentReverse(e) {
 
 function renderReturn(e) {
     const chipsHtml = [
- ` Savdo ID ${e.sale_id}`,
- ` ${e.product_name} × ${e.returned_quantity}`,
- e.username ? ` ${e.username}` : ''
+        `🔗 Savdo ID ${e.sale_id}`,
+        `📦 ${e.product_name} × ${e.returned_quantity}`,
+        e.username ? `👤 ${e.username}` : ''
     ].filter(Boolean).map(c => `<span class="tl-detail-chip">${c}</span>`).join('');
-    const notesHtml = e.description ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;"><i class="fas fa-comment"></i> ${e.description}</div>` : '';
+    const notesHtml = e.description ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.description}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-return"></div>
@@ -285,7 +285,7 @@ function renderReturn(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-return"><i class="fas fa-rotate-left"></i> Qaytarildi</span>
+                    <span class="tl-type-badge tl-type-return">↩️ Qaytarildi</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
                     <span class="tl-amount" style="color:#f59e0b;">-$${e.amount_usd.toFixed(2)}</span>
@@ -300,12 +300,12 @@ function renderReturn(e) {
 
 function renderSale(e) {
     const chips = [];
-    if (e.total_amount > 0) chips.push(`<span class="tl-detail-chip-total"><i class="fas fa-sack-dollar"></i> Jami: $${e.total_amount.toFixed(2)}</span>`);
-    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip"><i class="fas fa-money-bill-1"></i> Naqd: $${e.cash_usd.toFixed(2)}</span>`);
-    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip"><i class="fas fa-mobile-screen"></i> Click: $${e.click_usd.toFixed(2)}</span>`);
-    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip"><i class="fas fa-credit-card"></i> Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
-    if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip"><i class="fas fa-building-columns"></i> Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
-    if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip"> Qarz: $${e.debt_usd.toFixed(2)}</span>`);
+    if (e.total_amount > 0) chips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_amount.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) chips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) chips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) chips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
+    if ((e.balance_usd || 0) > 0) chips.push(`<span class="tl-detail-chip">🏦 Balansdan: $${e.balance_usd.toFixed(2)}</span>`);
+    if (e.debt_usd > 0) chips.push(`<span class="tl-detail-chip">📝 Qarz: $${e.debt_usd.toFixed(2)}</span>`);
 
     const chipsHtml = chips.filter(Boolean).join('');
 
@@ -318,7 +318,7 @@ function renderSale(e) {
         </div>`;
     }
 
-    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;"><i class="fas fa-comment"></i> ${e.notes}</div>` : '';
+    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-sale"></div>
@@ -326,11 +326,11 @@ function renderSale(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-sale"><i class="fas fa-cart-shopping"></i> Savdo ID ${e.id}</span>
+                    <span class="tl-type-badge tl-type-sale">🛒 Savdo ID ${e.id}</span>
                     ${statusBadge(e.payment_status, e.is_deleted, e)}
-                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip"><i class="fas fa-arrow-trend-up"></i> Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
-                    ${e.seller ? `<span class="tl-detail-chip"><i class="fas fa-user"></i> Sotuvchi: ${e.seller}</span>` : ''}
-                    ${e.is_edited ? `<span class="tl-status-edited"><i class="fas fa-pencil"></i> Tahrirlangan</span>` : ''}
+                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
+                    ${e.seller ? `<span class="tl-detail-chip">👤 Sotuvchi: ${e.seller}</span>` : ''}
+                    ${e.is_edited ? `<span class="tl-status-edited">✏️ Tahrirlangan</span>` : ''}
                 </div>
             </div>
             <div class="tl-details">${chipsHtml}</div>
@@ -343,14 +343,14 @@ function renderSale(e) {
 
 function renderPayment(e) {
     const paymentChips = [];
-    if (e.total_usd != null) paymentChips.push(`<span class="tl-detail-chip-total"><i class="fas fa-sack-dollar"></i> Jami: $${e.total_usd.toFixed(2)}</span>`);
-    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip"><i class="fas fa-money-bill-1"></i> Naqd: $${e.cash_usd.toFixed(2)}</span>`);
-    if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip"><i class="fas fa-mobile-screen"></i> Click: $${e.click_usd.toFixed(2)}</span>`);
-    if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip"><i class="fas fa-credit-card"></i> Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
+    if (e.total_usd != null) paymentChips.push(`<span class="tl-detail-chip-total">💰 Jami: $${e.total_usd.toFixed(2)}</span>`);
+    if (e.cash_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💵 Naqd: $${e.cash_usd.toFixed(2)}</span>`);
+    if (e.click_usd > 0) paymentChips.push(`<span class="tl-detail-chip">📱 Click: $${e.click_usd.toFixed(2)}</span>`);
+    if (e.terminal_usd > 0) paymentChips.push(`<span class="tl-detail-chip">💳 Terminal: $${e.terminal_usd.toFixed(2)}</span>`);
 
- const actorLabel = e.paid_by ? ` To'lov qildi: ${e.paid_by}` : (e.received_by ? ` Qabul qildi: ${e.received_by}` : '');
+    const actorLabel = e.paid_by ? `👤 To'lov qildi: ${e.paid_by}` : (e.received_by ? `👤 Qabul qildi: ${e.received_by}` : '');
     const chipsHtml = paymentChips.join('');
-    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;"><i class="fas fa-comment"></i> ${e.notes}</div>` : '';
+    const notesHtml = e.notes ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px;">💬 ${e.notes}</div>` : '';
 
     return `<div class="tl-item">
         <div class="tl-dot tl-dot-payment"></div>
@@ -358,9 +358,9 @@ function renderPayment(e) {
             <div class="tl-card-header">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <span class="tl-time-badge">${timeOnly(e.date)}</span>
-                    <span class="tl-type-badge tl-type-payment"><i class="fas fa-credit-card"></i> To'lov turi: ${e.payment_type === 'cash' ? 'Naqd' : e.payment_type === 'debt' ? 'Qarz' : e.payment_type === 'partial' ? 'Qisman' : 'To\'lov'}</span>
+                    <span class="tl-type-badge tl-type-payment">💳 To'lov turi: ${e.payment_type === 'cash' ? 'Naqd' : e.payment_type === 'debt' ? 'Qarz' : e.payment_type === 'partial' ? 'Qisman' : 'To\'lov'}</span>
                     ${actorLabel ? `<span class="tl-detail-chip">${actorLabel}</span>` : ''}
-                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip"><i class="fas fa-arrow-trend-up"></i> Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
+                    ${e.currency_rate > 0 ? `<span class="tl-detail-chip">📈 Valyuta kursi: ${Math.round(e.currency_rate).toLocaleString()} so'm</span>` : ''}
                 </div>
             </div>
             <div class="tl-details">${chipsHtml}</div>

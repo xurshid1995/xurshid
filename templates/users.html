@@ -569,27 +569,27 @@
                     </div>
                     <div class="user-info">
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-store"></i> ${ULANG.th_store}</div>
+                            <div class="info-label">🏪 ${ULANG.th_store}</div>
                             <div class="info-value">${storeName}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-user"></i> ${ULANG.th_login}</div>
+                            <div class="info-label">👤 ${ULANG.th_login}</div>
                             <div class="info-value">${u.username}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-envelope"></i> ${ULANG.th_email}</div>
+                            <div class="info-label">📧 ${ULANG.th_email}</div>
                             <div class="info-value">${u.email || '-'}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-phone"></i> ${ULANG.th_phone}</div>
+                            <div class="info-label">📞 ${ULANG.th_phone}</div>
                             <div class="info-value">${u.phone || '-'}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-calendar-day"></i> ${ULANG.th_joined}</div>
+                            <div class="info-label">📅 ${ULANG.th_joined}</div>
                             <div class="info-value">${created}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-rotate"></i> ${ULANG.th_status}</div>
+                            <div class="info-label">🔄 ${ULANG.th_status}</div>
                             <div class="info-value">${isActiveTxt}</div>
                         </div>
                     </div>
@@ -647,7 +647,7 @@
 
     function showError(msg) {
         document.getElementById('emptyState').style.display = 'block';
-        document.getElementById('emptyState').innerHTML = `<div class="ps-empty-state" style="color:#ef4444;"><i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:.5rem;"></i><h3><i class="fas fa-circle-xmark"></i> ${msg}</h3></div>`;
+        document.getElementById('emptyState').innerHTML = `<div class="ps-empty-state" style="color:#ef4444;"><i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:.5rem;"></i><h3>❌ ${msg}</h3></div>`;
     }
 </script>
 

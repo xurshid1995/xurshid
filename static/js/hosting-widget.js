@@ -31,17 +31,17 @@
             loading: 'Yuklanmoqda...',
             token_error: 'Token noto\'g\'ri',
             load_error: 'Xatolik yuz berdi',
-            server_active: 'Faol',
-            server_off: 'O\'chiq',
+            server_active: '🟢 Faol',
+            server_off: '🔴 O\'chiq',
             server_suspended: '⏸️ Bloklangan',
             days_until: 'gacha',
             days_word: 'kun',
-            balance_expired: 'Balans tugagan! To\'lov qiling.',
+            balance_expired: '❌ Balans tugagan! To\'lov qiling.',
             currency: 'so\'m',
             balance: 'Balans',
             monthly_payment: 'Oylik to\'lov',
             server: 'Server',
-            traffic: 'Trafik (oy)',
+            traffic: '📡 Trafik (oy)',
             traffic_used: 'Ishlatilgan',
             traffic_left: 'Qolgan',
             traffic_limit: 'Limit',
@@ -56,17 +56,17 @@
             loading: 'Юкланмоқда...',
             token_error: 'Токен нотўғри',
             load_error: 'Хатолик юз берди',
-            server_active: 'Фаол',
-            server_off: 'Ўчиқ',
+            server_active: '🟢 Фаол',
+            server_off: '🔴 Ўчиқ',
             server_suspended: '⏸️ Блокланган',
             days_until: 'гача',
             days_word: 'кун',
-            balance_expired: 'Баланс тугаган! Тўлов қилинг.',
+            balance_expired: '❌ Баланс тугаган! Тўлов қилинг.',
             currency: 'сўм',
             balance: 'Баланс',
             monthly_payment: 'Ойлик тўлов',
             server: 'Сервер',
-            traffic: 'Трафик (ой)',
+            traffic: '📡 Трафик (ой)',
             traffic_used: 'Ишлатилган',
             traffic_left: 'Қолган',
             traffic_limit: 'Лимит',
@@ -81,17 +81,17 @@
             loading: 'Загрузка...',
             token_error: 'Неверный токен',
             load_error: 'Произошла ошибка',
-            server_active: 'Активен',
-            server_off: 'Выключен',
+            server_active: '🟢 Активен',
+            server_off: '🔴 Выключен',
             server_suspended: '⏸️ Заблокирован',
             days_until: 'до',
             days_word: 'дн.',
-            balance_expired: 'Баланс исчерпан! Оплатите.',
+            balance_expired: '❌ Баланс исчерпан! Оплатите.',
             currency: 'сум',
             balance: 'Баланс',
             monthly_payment: 'Ежемесячный платёж',
             server: 'Сервер',
-            traffic: 'Трафик (месяц)',
+            traffic: '📡 Трафик (месяц)',
             traffic_used: 'Использовано',
             traffic_left: 'Осталось',
             traffic_limit: 'Лимит',
@@ -357,7 +357,7 @@
     widget.innerHTML = `
         <div class="hw-panel" id="hw-panel">
             <div class="hw-header">
-                <span class="hw-title">Hosting</span>
+                <span class="hw-title">🖥️ Hosting</span>
                 <button class="hw-close" onclick="document.getElementById('hw-panel').classList.remove('show')">&times;</button>
             </div>
             <div id="hw-content">
@@ -365,7 +365,7 @@
             </div>
         </div>
         <div style="position:relative;display:inline-block;">
-            <button class="hw-toggle ok" id="hw-toggle" onclick="toggleHostingWidget()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+            <button class="hw-toggle ok" id="hw-toggle" onclick="toggleHostingWidget()">🖥️</button>
         </div>
         <div id="hw-qr-modal" onclick="if(event.target===this) this.classList.remove('show')">
             <div class="hw-qr-box">
@@ -573,7 +573,7 @@
                 // Qolgan kunlar matni
                 var daysText = '';
                 if (data.days_left > 0 && data.end_date) {
-                    daysText = data.end_date + ' ' + T.days_until + ' (' + data.days_left + ' ' + T.days_word + ')';
+                    daysText = '📅 ' + data.end_date + ' ' + T.days_until + ' (' + data.days_left + ' ' + T.days_word + ')';
                 } else {
                     daysText = T.balance_expired;
                 }
@@ -608,7 +608,7 @@
                         <img src="https://img.icons8.com/color/120/telegram-app.png" alt="Telegram" style="width:24px;height:24px;">
                         ${T.contact_us}
                       </a>
-                      <a href="tel:+998946350606" style="text-decoration:none;color:white;font-size:13px;font-weight:600;">+998(94) 635-06-06</a>
+                      <a href="tel:+998946350606" style="text-decoration:none;color:white;font-size:13px;font-weight:600;">📞 +998(94) 635-06-06</a>
                       <a href="javascript:void(0)" onclick="document.getElementById('hw-qr-modal-contact').classList.add('show')" style="display:inline-flex;background:white;padding:3px;border-radius:6px;cursor:pointer;" title="${T.qr_view}">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://t.me/DIAMONDaccesories&color=000000&bgcolor=ffffff" alt="QR" style="width:32px;height:32px;border-radius:4px;display:block;">
                       </a>
