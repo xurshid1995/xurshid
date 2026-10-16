@@ -111,6 +111,28 @@
 .debts-table tbody tr:hover td { background: #f8faff; }
 .debts-table tbody tr:last-child td { border-bottom: none; }
 
+/* 2 va 3-ustun (Mijoz, Telefon) gorizontal scrollda qotib qolsin */
+.debts-table th:nth-child(2), .debts-table td:nth-child(2) {
+    position: sticky; left: 0; z-index: 2;
+    width: 100px; min-width: 100px; max-width: 100px;
+    white-space: normal; word-break: break-word;
+}
+.debts-table th:nth-child(3), .debts-table td:nth-child(3) {
+    position: sticky; left: 100px; z-index: 2;
+    width: 90px; min-width: 90px; max-width: 90px;
+    white-space: normal; word-break: break-word;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+}
+.debts-table thead th:nth-child(2), .debts-table thead th:nth-child(3) {
+    background: #1a6eff; z-index: 3;
+}
+.debts-table tbody td:nth-child(2), .debts-table tbody td:nth-child(3) {
+    background: #fff;
+}
+.debts-table tbody tr:hover td:nth-child(2), .debts-table tbody tr:hover td:nth-child(3) {
+    background: #f8faff;
+}
+
 .debt-history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .debt-history-table thead tr { background: #1a6eff; }
 .debt-history-table th {
