@@ -7212,6 +7212,7 @@ def api_debt_payment_history():
             SELECT
                 dp.customer_id,
                 c.name AS customer_name,
+                c.phone AS customer_phone,
                 dp.payment_date,
                 dp.received_by,
                 SUM(dp.cash_usd) AS cash_usd,
@@ -7225,7 +7226,7 @@ def api_debt_payment_history():
             LEFT JOIN sales s ON dp.sale_id = s.id
             WHERE 1=1
             {location_filter}
-            GROUP BY dp.customer_id, c.name, dp.payment_date, dp.received_by
+            GROUP BY dp.customer_id, c.name, c.phone, dp.payment_date, dp.received_by
             ORDER BY dp.payment_date DESC
         """)
 
@@ -7236,6 +7237,7 @@ def api_debt_payment_history():
             payments.append({
                 'customer_id': row.customer_id,
                 'customer_name': row.customer_name or 'Unknown',
+                'customer_phone': row.customer_phone or '',
                 'payment_date': row.payment_date.strftime('%Y-%m-%d %H:%M') if row.payment_date else None,
                 'payment_date_iso': row.payment_date.isoformat() if row.payment_date else None,
                 'received_by': row.received_by or '',

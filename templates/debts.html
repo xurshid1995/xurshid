@@ -1124,6 +1124,7 @@
             row.setAttribute('data-customer', (debt.customer_name || '').toLowerCase());
             row.setAttribute('data-date', (debt.payment_date || '').toLowerCase());
             row.setAttribute('data-receiver', (debt.received_by || '').toLowerCase());
+            row.setAttribute('data-phone', (debt.customer_phone || '').replace(/\D/g, ''));
 
             const paymentTypes = [];
             if (debt.cash_usd > 0) {
@@ -1170,6 +1171,7 @@
 
     function searchPdhPayments() {
         const searchTerm = document.getElementById('pdhSearchInput').value.toLowerCase().trim();
+        const searchDigits = searchTerm.replace(/\D/g, '');
         const dateFrom = document.getElementById('pdhDateFromInput').value;
         const dateTo = document.getElementById('pdhDateToInput').value;
         const rows = document.querySelectorAll('#pdhHistoryTableBody tr');
@@ -1183,8 +1185,10 @@
             const customerName = row.getAttribute('data-customer') || '';
             const date = row.getAttribute('data-date') || '';
             const receiver = row.getAttribute('data-receiver') || '';
+            const phoneDigits = row.getAttribute('data-phone') || '';
 
-            const textMatch = !searchTerm || customerName.includes(searchTerm) || date.includes(searchTerm) || receiver.includes(searchTerm);
+            const textMatch = !searchTerm || customerName.includes(searchTerm) || date.includes(searchTerm) || receiver.includes(searchTerm)
+                || (searchDigits && phoneDigits.includes(searchDigits));
 
             const rowDate = date.substring(0, 10);
             const dateFromMatch = !dateFrom || rowDate >= dateFrom;
@@ -1388,11 +1392,15 @@
     }
 
     function applyCbFilterAndSearch() {
-        const q = document.getElementById('cbSearch').value.toLowerCase();
-        let filtered = cbAllCustomers.filter(c =>
-            (c.name || '').toLowerCase().includes(q) ||
-            (c.phone || '').toLowerCase().includes(q)
-        );
+        const q = document.getElementById('cbSearch').value.toLowerCase().trim();
+        const qDigits = q.replace(/\D/g, '');
+        let filtered = cbAllCustomers.filter(c => {
+            const name = (c.name || '').toLowerCase();
+            const phone = (c.phone || '').toLowerCase();
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (!q) return true;
+            return name.includes(q) || phone.includes(q) || (qDigits && phoneDigits.includes(qDigits));
+        });
         if (cbCurrentFilter === 'debt')    filtered = filtered.filter(c => (c.debt_usd || 0) > 0);
         if (cbCurrentFilter === 'balance') filtered = filtered.filter(c => (c.balance || 0) > 0);
         filtered.sort((a, b) => (b.debt_usd || 0) - (a.debt_usd || 0));
