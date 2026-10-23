@@ -191,7 +191,10 @@
 .btn-action-edit:hover   { background: #1a6eff; color: white; transform: scale(1.1); }
 .btn-action-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
 .btn-action-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
-.actions { white-space: nowrap; }
+.actions {
+    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
 
 /* ── Edit Modal ── */
 .edit-modal-overlay {
@@ -404,7 +407,7 @@
                     <th>{{ t('sd_th_unit_profit') }}</th>
                     <th>{{ t('sd_th_profit_pct') }}</th>
                     <th>{{ t('sd_th_status') }}</th>
-                    <th>{{ t('sd_th_actions') }}</th>
+                    <th style="width:130px;">{{ t('sd_th_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -792,7 +795,7 @@
                 <td style="font-weight:700;color:#059669;">${priceWithUzs(item.unit_profit, uzs.profitUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="font-weight:700;color:#0891b2;">${item.profit_percentage.toFixed(1)}%</td>
                 <td>${statusBadge}</td>
-                <td class="actions">
+                <td class="actions" style="width: 130px;">
                     <button onclick="openEditModal(${item.stock.product.id})" class="btn-action btn-action-edit" title="${WDLANG.edit}"><i class="fas fa-edit"></i></button>
                     <button onclick="deleteStock(${warehouseId}, ${item.stock.product.id}, this)"
                             data-product-name="${item.stock.product.name}"

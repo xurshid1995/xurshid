@@ -191,7 +191,10 @@
 .btn-action-edit:hover   { background: #1a6eff; color: white; transform: scale(1.1); }
 .btn-action-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
 .btn-action-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
-.actions { white-space: nowrap; }
+.actions {
+    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
 
 /* ── Edit Modal ── */
 .edit-modal-overlay {
@@ -426,7 +429,7 @@
                     <th>{{ t('sd_th_unit_profit') }}</th>
                     <th>{{ t('sd_th_profit_pct') }}</th>
                     <th>{{ t('sd_th_status') }}</th>
-                    <th>{{ t('sd_th_actions') }}</th>
+                    <th style="width:130px;">{{ t('sd_th_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -809,7 +812,7 @@
                       item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ ${SDLANG.status_low}</span>` :
                       `<span style="color: #27ae60; font-weight: bold;">✓ ${SDLANG.status_enough}</span>`}
                 </td>
-                <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
+                <td class="actions" style="padding: 4px 6px; width: 130px;">
                     <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}); return false;"
                        class="btn-action btn-action-edit" title="${SDLANG.edit}"><i class="fas fa-edit"></i></a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
