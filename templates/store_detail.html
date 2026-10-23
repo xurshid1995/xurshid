@@ -182,14 +182,15 @@
 
 /* Action buttons */
 .btn-action {
-    display: inline-flex; align-items: center; justify-content: center; gap: 3px;
-    padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
-    border: none; cursor: pointer; text-decoration: none; margin: 1px;
-    transition: opacity 0.15s; white-space: nowrap;
+    background: none; border: none; padding: 0; border-radius: 8px;
+    cursor: pointer; margin: 2px; font-size: 13px;
+    transition: all 0.18s; display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 28px; line-height: 1; text-decoration: none;
 }
-.btn-action:hover { opacity: 0.85; }
-.btn-action-edit   { background: #1a6eff; color: white; }
-.btn-action-delete { background: #e74c3c; color: white; }
+.btn-action-edit   { color: #1a6eff; background: rgba(37,99,235,0.08); }
+.btn-action-edit:hover   { background: #1a6eff; color: white; transform: scale(1.1); }
+.btn-action-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+.btn-action-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
 .actions { white-space: nowrap; }
 
 /* ── Edit Modal ── */
@@ -810,10 +811,10 @@
                 </td>
                 <td class="actions" style="padding: 4px 6px; text-align: center; width: 160px;">
                     <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}); return false;"
-                       class="btn-action btn-action-edit">✏️ ${SDLANG.edit}</a>
+                       class="btn-action btn-action-edit" title="${SDLANG.edit}"><i class="fas fa-edit"></i></a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
                             data-product-name="${item.stock.product.name}"
-                            class="btn-action btn-action-delete">🗑️ ${SDLANG.delete}</button>
+                            class="btn-action btn-action-delete" title="${SDLANG.delete}"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `;
