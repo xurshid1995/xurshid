@@ -183,18 +183,15 @@
 /* Action buttons */
 .btn-action {
     background: none; border: none; padding: 0; border-radius: 8px;
-    cursor: pointer; margin: 2px; font-size: 13px;
+    cursor: pointer; margin: 2px 5px; font-size: 13px;
     transition: all 0.18s; display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 28px; line-height: 1; text-decoration: none;
+    width: 30px; height: 28px; line-height: 1; text-decoration: none; vertical-align: middle;
 }
 .btn-action-edit   { color: #1a6eff; background: rgba(37,99,235,0.08); }
 .btn-action-edit:hover   { background: #1a6eff; color: white; transform: scale(1.1); }
 .btn-action-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
 .btn-action-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
-.actions {
-    white-space: nowrap;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-}
+.actions { white-space: nowrap; }
 
 /* ── Edit Modal ── */
 .edit-modal-overlay {
