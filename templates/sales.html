@@ -3132,7 +3132,7 @@
                 }
                 
                 // Miqdori 0 bo'lsa qizil ranglar
-                const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
+                const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#5cb3ff';
                 const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
@@ -3151,7 +3151,7 @@
                     </td>
                     <td style="padding: 6px 8px; text-align: left; font-size: 14px;">
                         <span style="background: #ffc107; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; margin-right: 3px; display: inline-block; font-size: 12px;">$${formatPrice(sellingPrice)}</span>
-                        <span style="background: #5cb3ff; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
+                        <span style="background: #28a745; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
                         <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" data-unit-type="${unitType}" data-image-url="${product.image_url || ''}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
@@ -4886,7 +4886,7 @@
                 let highlightedName = htmlSafeProductName;
                 
                 // Miqdori 0 bo'lsa qizil ranglar
-                const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#28a745';
+                const quantityBadgeColor = quantity <= 0 ? '#dc3545' : '#5cb3ff';
                 const buttonEmoji = quantity <= 0 ? '⛔' : '➡️';
                 const buttonDisabled = quantity <= 0 ? 'disabled' : '';
                 const cursorStyle = quantity <= 0 ? 'not-allowed' : 'pointer';
@@ -4905,7 +4905,7 @@
                     </td>
                     <td style="padding: 6px 8px; text-align: left; font-size: 14px;">
                         <span style="background: #ffc107; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; margin-right: 3px; display: inline-block; font-size: 12px;">$${formatPrice(sellingPrice)}</span>
-                        <span style="background: #5cb3ff; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
+                        <span style="background: #28a745; color: white; padding: 1px 4px; border-radius: 0; font-weight: 500; display: inline-block; font-size: 12px;">${formatPrice(sellingPrice * exchangeRate)} so'm</span>
                     </td>
                     <td style="padding: 2px; text-align: center; font-size: 14px;">
                         <button class="add-to-cart-btn" data-product-id="${product.id}" data-product-name="${htmlSafeProductName}" data-quantity="${quantity}" data-price="${sellingPrice}" data-cost-price="${costPrice}" data-unit-type="${product.unit_type || 'dona'}" data-image-url="${product.image_url || ''}" ${buttonDisabled} style="background: transparent; color: #333; border: none; padding: 4px 8px; cursor: ${cursorStyle}; font-size: 18px; opacity: ${opacity};">${buttonEmoji}</button>
