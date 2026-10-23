@@ -430,7 +430,7 @@
                     <th>{{ t('sd_th_unit_profit') }}</th>
                     <th>{{ t('sd_th_profit_pct') }}</th>
                     <th>{{ t('sd_th_status') }}</th>
-                    <th style="width:125px;">{{ t('sd_th_actions') }}</th>
+                    <th style="width:105px;">{{ t('sd_th_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -808,12 +808,12 @@
                 <td style="padding: 5px; text-align: center; font-weight: bold; width: 100px;">${priceWithUzs(item.stock.product.sell_price, uzs.sellUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="padding: 5px; text-align: center; color: #27ae60; font-weight: bold; width: 100px;">${priceWithUzs(item.unit_profit, uzs.profitUzs, item.stock.product.sell_currency_code)}</td>
                 <td style="padding: 5px; text-align: center; color: #1a6eff; font-weight: bold; width: 90px;">${item.profit_percentage.toFixed(1)}%</td>
-                <td style="padding: 5px; text-align: center; width: 105px;">
+                <td style="padding: 5px; text-align: center; width: 125px;">
                     ${item.status === 'critical' ? `<span style="color: #000000; font-weight: bold;">🚫 ${SDLANG.status_out}</span>` :
                       item.status === 'low' ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ ${SDLANG.status_low}</span>` :
                       `<span style="color: #27ae60; font-weight: bold;">✓ ${SDLANG.status_enough}</span>`}
                 </td>
-                <td class="actions" style="padding: 4px 6px; width: 125px;">
+                <td class="actions" style="padding: 4px 6px; width: 105px;">
                     <a href="#" onclick="openEditModal(${storeId}, ${item.stock.product.id}); return false;"
                        class="btn-action btn-action-edit" title="${SDLANG.edit}"><i class="fas fa-edit"></i></a>
                     <button onclick="deleteStock(${storeId}, ${item.stock.product.id}, this)" 
