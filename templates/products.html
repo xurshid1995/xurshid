@@ -2,7 +2,147 @@
 
 {% block title %}{{ t('pr_page_title') }}{% endblock %}
 
-{% block extra_css %}{% endblock %}
+{% block extra_css %}
+<style>
+    .ps-table-card {
+        border: 1px solid #e5eaf1;
+        border-radius: 14px;
+        box-shadow: 0 5px 18px rgba(28, 53, 80, 0.06);
+    }
+
+    .ps-table thead tr,
+    .ps-table th {
+        background: #f4f7fb !important;
+    }
+
+    .ps-table th {
+        padding: 13px 14px !important;
+        color: #5c6b80 !important;
+        text-align: left !important;
+        font-size: 10px !important;
+        letter-spacing: 0.7px;
+        border-bottom: 1px solid #e5eaf1 !important;
+    }
+
+    .ps-table th.col-barcode,
+    .ps-table th.col-quantity,
+    .ps-table th.col-status {
+        text-align: center !important;
+    }
+
+    .ps-table td {
+        padding: 10px 14px !important;
+        color: #3e4d62;
+        font-size: 13px !important;
+        border-bottom-color: #edf1f6 !important;
+    }
+
+    .ps-table tbody tr:nth-child(even) {
+        background: #fbfcfe;
+    }
+
+    .ps-table tbody tr:hover {
+        background: #f2f7ff;
+    }
+
+    .ps-table .col-name {
+        min-width: 260px;
+    }
+
+    .ps-table td.product-name {
+        color: #1e2d42;
+        font-size: 14px !important;
+        font-weight: 650;
+    }
+
+    .ps-table .price-cell > span {
+        display: inline-block;
+        padding: 5px 8px !important;
+        border-radius: 6px !important;
+        font-size: 12px !important;
+        margin-left: 0 !important;
+    }
+
+    .ps-table .price-cell > span:first-child {
+        background-color: #e9f8ef !important;
+        color: #168247 !important;
+    }
+
+    .ps-table .price-cell > span:nth-child(2) {
+        background-color: #f1f5fa !important;
+        color: #40536d !important;
+    }
+
+    .ps-table .quantity-value {
+        min-width: 42px;
+        padding: 5px 9px;
+        border-radius: 8px;
+        background: #eaf2ff;
+        color: #1e63ca;
+        font-size: 14px;
+    }
+
+    .ps-table .quantity-value.quantity-zero {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .ps-table .quantity-unit {
+        color: #718096;
+        font-size: 12px;
+    }
+
+    .ps-table .loc-row {
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .ps-table .loc-name {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+
+    .ps-table .loc-qty-badge {
+        min-width: 29px;
+        padding: 3px 7px;
+        border: 0;
+        border-radius: 7px;
+        background: #f0f4f9;
+        color: #43546c;
+        font-size: 11px;
+    }
+
+    .ps-table .stock-badge {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .ps-table .stock-high {
+        background: #e8f7ee;
+        color: #168247;
+    }
+
+    .ps-table .stock-medium {
+        background: #fff4df;
+        color: #a35f00;
+    }
+
+    .ps-table .stock-out {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    @media (max-width: 768px) {
+        .ps-table thead th.col-name {
+            background: #f4f7fb !important;
+        }
+
+        .ps-table tbody tr:nth-child(even) td.product-name {
+            background: #fbfcfe;
+        }
+    }
+</style>
+{% endblock %}
 .ps-page {
     padding: 28px 28px 40px;
     background: transparent;
