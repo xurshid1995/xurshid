@@ -112,6 +112,12 @@
         font-size: 11px;
     }
 
+    .ps-table .loc-qty-badge.loc-qty-zero {
+        background: #fee2e2;
+        color: #b91c1c;
+        font-weight: 700;
+    }
+
     .ps-table .stock-badge {
         padding: 6px 10px;
         font-size: 11px;
@@ -1185,16 +1191,17 @@
                 const qtyDisplay = unitType === 'litr' 
                     ? qty.toFixed(2) 
                     : (qty % 1 === 0 ? Math.floor(qty) : parseFloat(qty).toFixed(1));
+                const qtyBadgeClass = qty === 0 ? 'loc-qty-badge loc-qty-zero' : 'loc-qty-badge';
                 
                 // Agar "Barcha joylar" tanlangan bo'lsa - hammasi ko'rsatilsin
                 if (locationFilter === 'all') {
                     // Agar warehouse_id mavjud bo'lsa - ombor (sariq fon)
                     if (stock.warehouse_id && stock.warehouse_name) {
-                        locations.push(`<span class="loc-row"><span class="loc-name loc-warehouse">${stock.warehouse_name}</span><span class="loc-qty-badge">${qtyDisplay}</span></span>`);
+                        locations.push(`<span class="loc-row"><span class="loc-name loc-warehouse">${stock.warehouse_name}</span><span class="${qtyBadgeClass}">${qtyDisplay}</span></span>`);
                     }
                     // Agar store_id mavjud bo'lsa - do'kon (yashil fon)
                     if (stock.store_id && stock.store_name) {
-                        locations.push(`<span class="loc-row"><span class="loc-name loc-store">${stock.store_name}</span><span class="loc-qty-badge">${qtyDisplay}</span></span>`);
+                        locations.push(`<span class="loc-row"><span class="loc-name loc-store">${stock.store_name}</span><span class="${qtyBadgeClass}">${qtyDisplay}</span></span>`);
                     }
                 } else {
                     // Aniq joylashuv tanlangan bo'lsa - faqat joylashuv nomi (miqdorsiz)
